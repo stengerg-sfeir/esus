@@ -1,0 +1,56 @@
+[
+  {
+    "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+    "layer": "repository",
+    "description": "Calculates an aggregate (SUM, AVG, COUNT, MIN, MAX) of a numeric field filtered by a foreign key ID and a date or month range. Commonly used for monthly totals, budget calculations, and periodic expense summaries.",
+    "match_keywords": ["sum", "total", "aggregate", "month", "monthly", "period", "date range", "category", "budget check"],
+    "required_params": ["fk_field", "date_field", "target_field", "aggregate_func"],
+    "sql_template": "SELECT COALESCE({aggregate_func}({target_field}), 0) FROM {table_name} WHERE {fk_field} = ? AND {date_field} >= ? AND {date_field} <= ?",
+    "python_signature": "def {method_name}(self, {fk_field}: int, start_date: date, end_date: date) -> {return_type}:"
+  },
+  {
+    "pattern_id": "AGGREGATE_BY_FK",
+    "layer": "repository",
+    "description": "Calculates an aggregate of a field grouped or filtered by a foreign key ID without date constraints (e.g. total stock value for a category, total spent per vendor).",
+    "match_keywords": ["total value", "sum by category", "total stock", "group by category"],
+    "required_params": ["fk_field", "target_field", "aggregate_func"],
+    "sql_template": "SELECT COALESCE({aggregate_func}({target_field}), 0) FROM {table_name} WHERE {fk_field} = ?",
+    "python_signature": "def {method_name}(self, {fk_field}: int) -> {return_type}:"
+  },
+  {
+    "pattern_id": "COUNT_ACTIVE_BY_FK",
+    "layer": "repository",
+    "description": "Counts active, open, or pending records for a parent entity (e.g. active loans for a member, pending orders for a customer).",
+    "match_keywords": ["count active", "active loans", "pending orders", "open items"],
+    "required_params": ["fk_field", "status_field", "active_value"],
+    "sql_template": "SELECT COUNT(*) FROM {table_name} WHERE {fk_field} = ? AND {status_field} = ?",
+    "python_signature": "def {method_name}(self, {fk_field}: int) -> int:"
+  },
+  {
+    "pattern_id": "FILTER_WITH_PAGINATION",
+    "layer": "repository",
+    "description": "Retrieves records matching optional filter criteria (foreign key, status, date range, search query) with ordering, limit, and offset.",
+    "match_keywords": ["list", "filter", "search", "filter by", "optional category", "date range"],
+    "required_params": ["filters", "order_by_field", "order_dir"],
+    "sql_template": "SELECT * FROM {table_name} WHERE {filter_clauses} ORDER BY {order_by_field} {order_dir} LIMIT ? OFFSET ?",
+    "python_signature": "def {method_name}(self, limit: int = 50, offset: int = 0, **filters) -> list[{entity_name}]:"
+  },
+  {
+    "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+    "layer": "repository",
+    "description": "Checks if a record with a composite unique key already exists (e.g. unique budget for category and month, unique member email, unique ISBN).",
+    "match_keywords": ["exists", "uniqueness check", "already exists", "unique constraint", "duplicate check"],
+    "required_params": ["unique_fields"],
+    "sql_template": "SELECT 1 FROM {table_name} WHERE {unique_clauses} LIMIT 1",
+    "python_signature": "def {method_name}(self, {unique_params}) -> bool:"
+  },
+  {
+    "pattern_id": "THRESHOLD_SCAN",
+    "layer": "repository",
+    "description": "Scans records where a quantity or date crosses a threshold (e.g. stock below reorder threshold, overdue loans where due_date < current_date).",
+    "match_keywords": ["low stock", "reorder threshold", "overdue", "threshold alert", "below limit"],
+    "required_params": ["comparison_field", "threshold_field_or_param", "operator"],
+    "sql_template": "SELECT * FROM {table_name} WHERE {comparison_field} {operator} {threshold_field_or_param}",
+    "python_signature": "def {method_name}(self, threshold_val: Optional[Any] = None) -> list[{entity_name}]:"
+  }
+]

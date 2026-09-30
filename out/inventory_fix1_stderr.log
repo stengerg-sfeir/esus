@@ -1,0 +1,50 @@
+[1/2] Initializing model on CPU (8k context, 8 threads)...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+📊 Input prompt size: ~581 tokens.
+
+
+🚀 [Query] Extracting intentions...
+📊 Stats intentions : 193 tokens generated in 43.53s (4.4 tok/s)
+
+🚀 [Query] Extracting data_models...
+📊 Stats data_models : 657 tokens generated in 109.68s (6.0 tok/s)
+
+🚀 [Query] Extracting invariants...
+📊 Stats invariants : 214 tokens generated in 49.66s (4.3 tok/s)
+
+🚀 [Query] Extracting components...
+📊 Stats components : 137 tokens generated in 36.86s (3.7 tok/s)
+
+🚀 [Query] Extracting service_contracts...
+📊 Stats service_contracts : 1152 tokens generated in 214.67s (5.4 tok/s)
+
+📎 [Fix-1] Service summary injected into Step G prompt:
+   The following service contracts were declared in this session.
+   For every adapter's target_service field use one of these EXACT service_name values (copy the string verbatim, including capitalisation and spaces):
+     "InventoryManagementSystem": methods = add_product, update_product, delete_product, get_product_by_id, list_products, restock, low_stock_report, stock_value_by_category
+     "CategoryRepository": methods = add_category, update_category, delete_category, get_category_by_id, find_products_by_category
+   
+
+🚀 [Step F] Classifying operations into Canonical Kernel Patterns (Hierarchical Logprobs)...
+
+🚀 [Query] Extracting interaction_adapters...
+📊 Stats interaction_adapters : 890 tokens generated in 186.13s (4.8 tok/s)
+
+🚀 [Query] Extracting persistence_ports...
+📊 Stats persistence_ports : 111 tokens generated in 41.82s (2.7 tok/s)
+
+✅ All extraction contracts verified successfully!
+💾 File saved: out/inventory_fix1_intentions.json
+💾 File saved: out/inventory_fix1_data_models.json
+💾 File saved: out/inventory_fix1_invariants.json
+💾 File saved: out/inventory_fix1_components.json
+💾 File saved: out/inventory_fix1_service_contracts.json
+💾 File saved: out/inventory_fix1_pattern_matches.json
+💾 File saved: out/inventory_fix1_interaction_adapters.json
+💾 File saved: out/inventory_fix1_persistence_ports.json
+
+==========================================
+🏆 TOTAL TOKENS SUMMARY:
+ -> Prompt Tokens: 581
+ -> Generated Tokens (Total): 3394
+==========================================

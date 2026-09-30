@@ -1,0 +1,35 @@
+[1/2] Initializing model on CPU (8k context, 8 threads)...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+📊 Input prompt size: ~581 tokens.
+
+
+🚀 [Query] Extracting intentions...
+📊 Stats intentions : 193 tokens generated in 59.08s (3.3 tok/s)
+
+🚀 [Query] Extracting data_models...
+📊 Stats data_models : 657 tokens generated in 105.01s (6.3 tok/s)
+
+🚀 [Query] Extracting invariants...
+📊 Stats invariants : 214 tokens generated in 50.11s (4.3 tok/s)
+
+🚀 [Query] Extracting components...
+📊 Stats components : 137 tokens generated in 35.24s (3.9 tok/s)
+
+🚀 [Query] Extracting service_contracts...
+📊 Stats service_contracts : 1152 tokens generated in 190.62s (6.0 tok/s)
+
+📎 [Fix-1] Service summary injected into Step G prompt:
+   The following service contracts were declared in this session.
+   For every adapter's target_service field use one of these EXACT service_name values (copy the string verbatim, including capitalisation and spaces):
+     "InventoryManagementSystem": methods = add_product, update_product, delete_product, get_product_by_id, list_products, restock, low_stock_report, stock_value_by_category
+     "CategoryRepository": methods = add_category, update_category, delete_category, get_category_by_id, find_products_by_category
+   
+
+🚀 [Step F] Classifying operations into Canonical Kernel Patterns (Hierarchical Logprobs)...
+
+🚀 [Query] Extracting interaction_adapters...
+📊 Stats interaction_adapters : 890 tokens generated in 135.12s (6.6 tok/s)
+   🔧 [Fix-1b] target_service 'Inventory_correctly' → 'InventoryManagementSystem' (difflib)
+   📎 [Fix-1b] 1 adapter target(s) auto-corrected.
+
+🚀 [Query] Extracting persistence_ports...

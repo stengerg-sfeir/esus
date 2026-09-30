@@ -1,0 +1,12 @@
+{
+  "invariants": [
+    "wine.name must be unique across all wines in the system",
+    "wine.selling_price must be strictly greater than wine.cost_price",
+    "wine.stock_quantity must be non-negative",
+    "wine.primary_storage_location must be assigned to exactly one storage location",
+    "storage_location.assigned_bottles_count must not exceed storage_location.max_bottle_capacity",
+    "storage_location cannot be deleted if it has assigned bottles",
+    "wine.stock_quantity cannot be reduced below zero",
+    "storage_location.assigned_bottles_count must be zero when the location is deleted"
+  ]
+}

@@ -1,0 +1,1016 @@
+[1/2] Initializing model on CPU (8k context, 8 threads)...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+📊 Input prompt size: ~512 tokens.
+
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions":
+  [
+    "manage_book_entities",
+    "manage_author_entities",
+    "manage_member_entities",
+    "manage_loan_entities",
+    "handle_book_repository_operations",
+    "handle_author_repository_operations",
+    "handle_member_repository_operations",
+    "handle_loan_repository_operations",
+    "orchestrate_library_business_logic",
+    "provide_cli_interface_for_library_operations"
+  ]
+}📊 Stats intentions : 100 tokens generated in 31.79s (3.1 tok/s)
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "Book",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+          ,
+          "status": "deduced"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "isbn",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "published_year",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "available_copies",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "Author",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "birth_year",
+          "type": "int",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "biography",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "email",
+          "type": "string",
+        "primary_key": false,
+        "nullable": false,
+        "unique": true,
+        "foreign_key": null,
+        "status": "explicit"
+        },
+        {
+          "name": "membership_date",
+          "type": "date",
+          "primary_key": false,
+          "nullable": false,
+        "unique": false,
+        "foreign_key": null,
+        "status": "explicit"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "primary_key": false,
+          "nullable": false,
+        "unique": false,
+        "foreign_key": null,
+        "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "Loan",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "book_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+          "target_entity": "Book",
+          "target_field": "id",
+          "relationship": "many_to_one"
+        },
+        "status": "deduced"
+        },
+        {
+          "name": "member_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+          "target_entity": "Member",
+          "target_field": "id",
+          "relationship": "many_to_one"
+        },
+        "status": "deduced"
+        },
+        {
+          "name": "loan_date",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+        "unique": false,
+        "foreign_key": null,
+        "status": "explicit"
+        },
+        {
+          "name": "due_date",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+        "unique": false,
+        "foreign_key": null,
+        "status": "explicit"
+        },
+        {
+          "name": "return_date",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": true,
+        "unique": false,
+        "foreign_key": null,
+        "status": "explicit"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+        "unique": false,
+        "foreign_key": null,
+        "status": "explicit"
+        }
+      ]
+    }
+  ]
+}📊 Stats data_models : 1246 tokens generated in 174.04s (7.2 tok/s)
+
+🚀 [Query] Extracting invariants...
+
+--- END OF DATA_MODELS STREAM ---
+--- START OF INVARIANTS STREAM ---
+{"invariants": [
+    "book.isbn must be unique across all books",
+    "book.available_copies must be >= 0",
+    "author.id must be unique across all authors",
+    "member.email must be unique across all members",
+    "loan.book_id must reference a valid book (exists in books table)",
+    "loan.member_id must reference a valid member (exists in members table)",
+    "loan.status must be one of ['active', 'returned', 'overdue']",
+    "loan.return_date must be null if status is 'active'",
+    "loan.return_date must be set if status is 'returned'",
+    "loan.due_date must be a valid date (not in the past)",
+    "loan.loan_date must be before due_date",
+    "member.is_active must be a boolean",
+    "member.membership_date must be a valid date (not in the future)"
+]}📊 Stats invariants : 194 tokens generated in 41.83s (4.6 tok/s)
+
+🚀 [Query] Extracting components...
+
+--- END OF INVARIANTS STREAM ---
+--- START OF COMPONENTS STREAM ---
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "click"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "SQLite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Book",
+        "operations": ["create", "read_all", "read_one", "update", "delete"]
+      },
+      {
+        "entity": "Author",
+        "operations": ["create", "read_all", "read_one", "update", "delete"]
+      },
+      {
+        "entity": "Member",
+        "operations": ["create", "read_all", "read_one", "update", "delete"]
+      },
+      {
+        "entity": "Loan",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one",
+          "update",
+          "delete",
+          "read_all" 																																																																																									
+          	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	         	📊 Stats components : 4097 tokens generated in 714.95s (5.7 tok/s)
+
+🚀 [Query] Extracting service_contracts...
+
+--- END OF COMPONENTS STREAM ---
+--- START OF SERVICE_CONTRACTS STREAM ---
+{"service_contracts": [
+    {
+        "service_name": "LibraryManagementSystem",
+        "methods": [
+            {
+                "name": "initialize_database",
+                "description": "Sets up the SQLite database schema for Book, Author, Member, and Loan tables with foreign key constraints.",
+                "params": [
+                    {"name": "db_path", "type": "str"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "add_book",
+                "description": "Adds a new book to the database with validation for ISBN uniqueness and available copies.",
+                "params": [
+                    {"name": "title", "type": "str"},
+                    {"name": "isbn", "type": "str"},
+                    {"name": "author_id", "type": "int"},
+                    {"name": "published_year", "type": "int"},
+                    {"name": "available_copies", "type": "int"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "add_author",
+                "description": "Adds a new author to the database with validation for name uniqueness.",
+                "params": [
+                    {"name": "name", "type": "str"},
+                    {"name": "birth_year", "type": "int"},
+                    {"name": "biography", "type": "str"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "add_member",
+                "description": "Adds a new member to the database with validation for email uniqueness.",
+                "params": [
+                    {"name": "name", "type": "str"},
+                    {"name": "email", "type": "str"},
+                    {"name": "membership_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "borrow_book",
+                "description": "Checks if a book is available and loans it to a member, decrementing available copies.",
+                "params": [
+                    {"name": "member_id", "type": "int"},
+                    {"name": "book_id", "type": "int"},
+                    {"name": "loan_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "return_book",
+                "description": "Returns a book by updating the loan record with a return date and status.",
+                "params": [
+                    {"name": "loan_id", "type": "int"},
+                    {"name": "return_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_overdue_loans",
+                "description": "Retrieves all overdue loans based on the current date.",
+                "params": [
+                    {"name": "current_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "renew_membership",
+                "description": "Renews a member's membership by toggling their active status.",
+                "params": [
+                    {"name": "member_id", "type": "int"},
+                    {"name": "is_active", "type": "bool"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "search_books",
+                "description": "Searches books by title, author, or ISBN.",
+                "params": [
+                    {"name": "query", "type": "str"},
+                    {"name": "author_id", "type": "int | None"},
+                    {"name": "isbn", "type": "str | None"}
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "list_books",
+                "description": "Lists all books with optional filtering by author or availability.",
+                "params": [
+                    {"name": "author_id", "type": "int | None"},
+                    {"name": "available_only", "type": "bool"}
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "list_members",
+                "description": "Lists all members with optional filtering by active status.",
+                "params": [
+                    {"name": "active_only", "type": "bool"}
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_member_loan_history",
+                "description": "Retrieves all loans associated with a specific member.",
+                "params": [
+                    {"name": "member_id", "type": "int"}
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_book_loan_history",
+                "description": "Retrieves all loans associated with a specific book.",
+                "params": [
+                    {"name": "book_id", "type": "int"}
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_active_loans",
+                "description": "Retrieves all currently active loans.",
+                "params": [
+                    {"name": "current_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "list[dict]"
+            }
+        ]
+    },
+    {
+        "service_name": "BookRepository",
+        "methods": [
+            {
+                "name": "add_book",
+                "description": "Adds a book to the database with validation for ISBN uniqueness and available copies.",
+                "params": [
+                    {"name": "book", "type": "Book"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_book_by_id",
+                "description": "Retrieves a book by its ID.",
+                "params": [
+                    {"name": "book_id", "type": "int"}
+                ],
+                "return_type": "Book | None"
+            },
+            {
+                "name": "get_books_by_title",
+                "description": "Retrieves books matching a title query.",
+                "params": [
+                    {"name": "title", "type": "str"}
+                ],
+                "return_type": "list[Book]"
+            },
+            {
+                "name": "get_books_by_author",
+                "description": "Retrieves books by a specific author ID.",
+                "params": [
+                    {"name": "author_id", "type": "int"}
+                ],
+                "return_type": "list[Book]"
+            },
+            {
+                "name": "get_books_by_isbn",
+                "description": "Retrieves books by a specific ISBN.",
+                "params": [
+                    {"name": "isbn", "type": "str"}
+                ],
+                "return_type": "Book | None"
+            },
+            {
+                "name": "update_available_copies",
+                "description": "Updates the available copies count for a book.",
+                "params": [
+                    {"name": "book_id", "type": "int"},
+                    {"name": "available_copies", "type": "int"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "filter_books_by_available",
+                "description": "Filters books to only those with available copies.",
+                "params": [
+                    {"name": "available_only", "type": "bool"}
+                ],
+                "return_type": "list[Book]"
+            }
+        ]
+    },
+    {
+        "service_name": "AuthorRepository",
+        "methods": [
+            {
+                "name": "add_author",
+                "description": "Adds an author to the database.",
+                "params": [
+                    {"name": "author", "type": "Author"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_author_by_id",
+                "description": "Retrieves an author by their ID.",
+                "params": [
+                    {"name": "author_id", "type": "int"}
+                ],
+                "return_type": "Author | None"
+            },
+            {
+                "name": "get_authors_by_name",
+                "description": "Retrieves authors matching a name query.",
+                "params": [
+                    {"name": "name", "type": "str"}
+                ],
+                "return_type": "list[Author]"
+            },
+            {
+                "name": "get_books_by_author",
+                "description": "Retrieves all books by a specific author ID.",
+                "params": [
+                    {"name": "author_id", "type": "int"}
+                ],
+                "return_type": "list[Book]"
+            }
+        ]
+    },
+    {
+        "service_name": "MemberRepository",
+        "methods": [
+            {
+                "name": "add_member",
+                "description": "Adds a member to the database with validation for email uniqueness.",
+                "params": [
+                    {"name": "member", "type": "Member"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_member_by_id",
+                "description": "Retrieves a member by their ID.",
+                "params": [
+                    {"name": "member_id", "type": "int"}
+                ],
+                "return_type": "Member | None"
+            },
+            {
+                "name": "get_members_by_name",
+                "description": "Retrieves members matching a name query.",
+                "params": [
+                    {"name": "name", "type": "str"}
+                ],
+                "return_type": "list[Member]"
+            },
+            {
+                "name": "get_members_by_email",
+                "description": "Retrieves members by their email.",
+                "params": [
+                    {"name": "email", "type": "str"}
+                ],
+                "return_type": "Member | None"
+            },
+            {
+                "name": "get_active_members",
+                "description": "Retrieves all active members.",
+                "params": [
+                    {"name": "active_only", "type": "bool"}
+                ],
+                "return_type": "list[Member]"
+            },
+            {
+                "name": "get_inactive_members",
+                "description": "Retrieves all inactive members.",
+                "params": [
+                    {"name": "active_only", "type": "bool" },
+                    {"name": "inactive_only", "type": "bool"} 
+                ],
+                "return_type": "list[Member]"
+            }
+        ]
+    },
+    {
+        "service_name": "LoanRepository",
+        "methods": [
+            {
+                "name": "add_loan",
+                "description": "Adds a loan record to the database.",
+                "params": [
+                    {"name": "loan", "type": "Loan"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_loan_by_id",
+                "description": "Retrieves a loan by its ID.",
+                "params": [
+                    {"name": "loan_id", "type": "int"}
+                ],
+                "return_type": "Loan | None"
+            },
+            {
+                "name": "get_loans_by_member",
+                "description": "Retrieves all loans associated with a specific member ID.",
+                "params": [
+                    {"name": "member_id", "type": "int"}
+                ],
+                "return_type": "list[Loan]"
+            },
+            {
+                "name": "get_loans_by_book",
+                "description": "Retrieves all loans associated with a specific book ID.",
+                "params": [
+                    {"name": "book_id", "type": "int"}
+                ],
+                "return_type": "list[Loan]"
+            },
+            {
+                "name": "get_active_loans",
+                "description": "Retrieves all currently active loans.",
+                "params": [
+                    {"name": "current_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "list[Loan]"
+            },
+            {
+                "name": "get_overdue_loans",
+                "description": "Retrieves all overdue loans based on the current date.",
+                "params": [
+                    {"name": "current_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "list[Loan]"
+            },
+            {
+                "name": "update_loan_status",
+                "description": "Updates the status of a loan record.",
+                "params": [
+                    {"name": "loan_id", "type": "int"},
+                    {"name": "status", "type": "str"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "update_return_date",
+                "description": "Updates the return date of a loan record.",
+                "params": [
+                    {"name": "loan_id", "type": "int"},
+                    {"name": "return_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "bool"
+            }
+        ]
+    },
+    {
+        "service_name": "LibraryService",
+        "methods": [
+            {
+                "name": "borrow_book",
+                "description": "Checks if a book is available and loans it to a member, decrementing available copies.",
+                "params": [
+                    {"name": "member_id", "type": "int"},
+                    {"name": "book_id", "type": "int"},
+                    {"name": "loan_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "return_book",
+                "description": "Returns a book by updating the loan record with a return date and status.",
+                "params": [
+                    {"name": "loan_id", "type": "int"},
+                    {"name": "return_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_overdue_loans",
+                "description": "Retrieves all overdue loans based on the current date.",
+                "params": [
+                    {"name": "current_date", "type": "datetime.datetime"}
+                ],
+                "return_type": "list[Loan]"
+            },
+            {
+                "name": "renew_membership",
+                "description": "Renews a member's membership by toggling their active status.",
+                "params": [
+                    {"name": "member_id", "type": "int"},
+                    {"name": "is_active", "type": "bool"}
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "search_books",
+                "description": "Searches books by title, author, or ISBN.",
+                "params": [
+                    {"name": "query", "type": "str"},
+                    {"name": "author_id", "type": "int | None"},
+                    {"name": "isbn", "type": "str | None"}
+                ],
+                "return_type": "list[Book]"
+            },
+            {
+                "name": "list_books",
+                "description": "Lists all books with optional filtering by author or availability.",
+                "params": [
+                    {"name": "author_id", "type": "int | None"},
+                    {"name": "available_only", "type": "bool"}
+                ],
+                "return_type": "list[Book]"
+            },
+            {
+                "name": "list_members",
+                "description": "Lists all members with optional filtering by active status.",
+                "params": [
+                    {"name": "active_only", "type": "bool"}
+                ],
+                "return_type": "list[Member]"
+            }
+        ]
+    }
+] }📊 Stats service_contracts : 3274 tokens generated in 579.41s (5.7 tok/s)
+
+🚀 [Step F] Classifying operations into Canonical Kernel Patterns (Hierarchical Logprobs)...
+
+🚀 [Query] Extracting interaction_adapters...
+
+--- END OF SERVICE_CONTRACTS STREAM ---
+--- START OF INTERACTION_ADAPTERS STREAM ---
+{"interaction_adapters": [
+    {
+        "action_name": "add_book",
+        "target_service": "BookRepository",
+        "target_method": "add_book",
+        "input_fields": [
+            {
+                "field_name": "title",
+                "target_param": "title",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "isbn",
+                "target_param": "isbn",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "author_id",
+                "target_param": "author_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Author",
+                "required": true
+            },
+            {
+                "field_name": "published_year",
+                "target_param": "published_year",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "copies",
+                "target_param": "available_copies",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "list_books",
+        "target_service": "BookRepository",
+        "target_method": "list_books",
+        "input_fields": [
+            {
+                "field_name": "author_id",
+                "target_param": "author_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Author",
+                "required": false
+            },
+            {
+                "field_name": "available_only",
+                "target_param": "available_only",
+                "transform": "ENUM_LOOKUP",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "search_books",
+        "target_service": "BookRepository",
+        "target_method": "search_books",
+        "input_fields": [
+            {
+                "field_name": "query",
+                "target_param": "query",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "add_author",
+        "target_service": "AuthorRepository",
+        "target_method": "add_author",
+        "input_fields": [
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "birth_year",
+                "target_param": "birth_year",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "biography",
+                "target_param": "biography",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "list_authors",
+        "target_service": "AuthorRepository",
+        "target_method": "list_authors",
+        "input_fields": [
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "add_member",
+        "target_service": "MemberRepository",
+        "target_method": "add_member",
+        "input_fields": [
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "email",
+                "target_param": "email",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "membership_date",
+                "target_param": "membership_date",
+                "transform": "ISO_DATE",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "list_members",
+        "target_service": "MemberRepository",
+        "target_method": "list_members",
+        "input_fields": [
+            {
+                "field_name": "active_only",
+                "target_param": "active_only",
+                "transform": "ENUM_LOOKUP",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "borrow_book",
+        "target_service": "LibraryService",
+        "target_method": "borrow_book",
+        "input_fields": [
+            {
+                "field_name": "member_id",
+                "target_param": "member_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Member",
+                "required": true
+            },
+            {
+                "field_name": "book_id",
+                "target_param": "book_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Book",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "return_book",
+        "target_service": "LibraryService",
+        "target_method": "return_book",
+        "input_fields": [
+            {
+                "field_name": "loan_id",
+                "target_param": "loan_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Loan",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "get_overdue_loans",
+        "target_service": "LoanRepository",
+        "target_method": "get_overdue_loans",
+        "input_fields": []
+    },
+    {
+        "action_name": "renew_membership",
+        "target_service": "LibraryService",
+        "target_method": "renew_membership",
+        "input_fields": [
+            {
+                "field_name": "member_id",
+                "target_param": "member_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Member",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "member_history",
+        "target_service": "LoanRepository",
+        "target_method": "get_member_loan_history",
+        "input_fields": [
+            {
+                "field_name": "member_id",
+                "target_param": "member_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Member",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "book_loan_history",
+        "target_service": "LoanRepository",
+        "target_method": "get_book_loan_history",
+        "input_fields": [
+            {
+                "field_name": "book_id",
+                "target_param": "book_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Book",
+                "required": true
+            }
+        ]
+    }
+]}📊 Stats interaction_adapters : 1515 tokens generated in 215.53s (7.0 tok/s)
+
+🚀 [Query] Extracting persistence_ports...
+
+--- END OF INTERACTION_ADAPTERS STREAM ---
+--- START OF PERSISTENCE_PORTS STREAM ---
+{"persistence_ports": {"repositories": [{"entity": "Book", "interface_name": "BookRepository", "methods": [{"name": "add_book", "description": "Adds a new book to the database.", "params": [{"name": "book", "type": "Book"}], "return_type": "NoneType"}]}], "entity_mappings": [{"entity": "Book", "table": "books", "primary_key": "id", "indexes": ["isbn"]}]}}📊 Stats persistence_ports : 112 tokens generated in 38.91s (2.9 tok/s)
+
+❌ VERIFICATION ERRORS:
+  - Invalid JSON in components: Expecting ',' delimiter: line 34 column 18982 (char 19841)
+💾 File saved: out/library/raw_intentions.json
+💾 File saved: out/library/raw_data_models.json
+💾 File saved: out/library/raw_invariants.json
+⚠️ File saved raw (JSON Error): out/library/raw_components.json
+💾 File saved: out/library/raw_service_contracts.json
+💾 File saved: out/library/raw_pattern_matches.json
+💾 File saved: out/library/raw_interaction_adapters.json
+💾 File saved: out/library/raw_persistence_ports.json
+
+==========================================
+🏆 TOTAL TOKENS SUMMARY:
+ -> Prompt Tokens: 512
+ -> Generated Tokens (Total): 10596
+==========================================
+
+--- END OF PERSISTENCE_PORTS STREAM ---

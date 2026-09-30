@@ -1,0 +1,156 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "map_wine_to_storage_location",
+      "target_service": "wine_storage_service",
+      "target_method": "assign_wine_to_location",
+      "input_fields": [
+        {
+          "field_name": "wine_id",
+          "target_param": "wine_id",
+          "transform": "DIRECT",
+          "lookup_entity": "Wine",
+          "required": true
+        },
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "DIRECT",
+          "lookup_entity": "StorageLocation",
+          "required": true
+        },
+        {
+          "field_name": "current_stock",
+          "target_param": "current_stock",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "validate_wine_stock",
+      "target_service": "wine_service",
+      "target_method": "validate_stock",
+      "input_fields": [
+        {
+          "field_name": "wine_id",
+          "target_param": "wine_id",
+          "transform": "DIRECT",
+          "lookup_entity": "Wine",
+          "required": true
+        },
+        {
+          "field_name": "min_stock",
+          "target_param": "min_stock",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "update_wine_price",
+      "target_service": "wine_service",
+      "target_method": "update_price",
+      "input_fields": [
+        {
+          "field_name": "wine_id",
+          "target_param": "wine_id",
+          "transform": "DIRECT",
+          "lookup_entity": "Wine",
+          "required": true
+        },
+        {
+          "field_name": "new_selling_price",
+          "target_param": "new_selling_price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "cost_price",
+          "target_param": "cost_price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "validate_location_capacity",
+      "target_service": "storage_service",
+      "target_method": "validate_location_capacity",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "DIRECT",
+          "lookup_entity": "StorageLocation",
+          "required": true
+        },
+        {
+          "field_name": "current_bottles",
+          "target_param": "current_bottles",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "lookup_wine_by_name",
+      "target_service": "wine_service",
+      "target_method": "lookup_wine_by_name",
+      "input_fields": [
+        {
+          "field_name": "wine_name",
+          "target_param": "wine_name",
+          "transform": "CSV_LIST",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "lookup_storage_location_by_id",
+      "target_service": "storage_service",
+      "target_method": "lookup_location_by_id",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "DIRECT",
+          "lookup_entity": "StorageLocation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "lookup_storage_location_by_zone",
+      "target_service": "storage_service",
+      "target_method": "lookup_location_by_zone",
+      "input_fields": [
+        {
+          "field_name": "zone_name",
+          "target_param": "zone_name",
+          "transform": "CSV_LIST",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_all_wines",
+      "target_service": "wine_service",
+      "target_method": "get_all_wines",
+      "input_fields": []
+    },
+    {
+      "action_name": "get_all_locations",
+      "target_service": "storage_service",
+      "target_method": "get_all_locations",
+      "input_fields": []
+    }
+  ]
+}

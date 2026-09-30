@@ -1,0 +1,33 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Category",
+        "interface_name": "CategoryRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new category.",
+            "params": [
+              {
+                "name": "category",
+                "type": "Category"
+              }
+            ],
+            "return_type": "Category"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Category",
+        "table": "categories",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      }
+    ]
+  }
+}

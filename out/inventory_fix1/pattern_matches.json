@@ -1,0 +1,144 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "category_id must be a valid existing category ID or None (for new categories)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4427
+    },
+    {
+      "source": "invariant",
+      "text": "sku must be unique across all products",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.671
+    },
+    {
+      "source": "invariant",
+      "text": "price_cents must be a non-negative integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4475
+    },
+    {
+      "source": "invariant",
+      "text": "stock_qty must be a non-negative integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4754
+    },
+    {
+      "source": "invariant",
+      "text": "reorder_threshold must be a non-negative integer if provided",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4548
+    },
+    {
+      "source": "invariant",
+      "text": "low_active must be a boolean (default False)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3903
+    },
+    {
+      "source": "invariant",
+      "text": "category.name must be unique across all categories",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.2514
+    },
+    {
+      "source": "invariant",
+      "text": "category.reorder_threshold must be optional",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "PRICE_MARGIN_GUARD",
+      "confidence": 0.2186
+    },
+    {
+      "source": "invariant",
+      "text": "stock_qty cannot exceed the maximum allowed stock value (if defined elsewhere; not specified in requirements)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4491
+    },
+    {
+      "source": "invariant",
+      "text": "a product's category_id must reference an existing category",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3948
+    },
+    {
+      "source": "invariant",
+      "text": "a product's stock_qty must not be negative",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.6323
+    },
+    {
+      "source": "invariant",
+      "text": "a product's price_cents must not be negative",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5332
+    },
+    {
+      "source": "invariant",
+      "text": "low-stock products are those whose stock_qty is strictly below their category's reorder_threshold (if threshold exists; otherwise, no low-stock products exist for that category)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.6231
+    },
+    {
+      "source": "contract:InventoryManagementSystem.add_product",
+      "text": "add_product: Adds a new product to the inventory with validation checks for category existence and SKU uniqueness.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4235
+    },
+    {
+      "source": "contract:InventoryManagementSystem.update_product",
+      "text": "update_product: Updates an existing product's fields with validation for product existence.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.2465
+    },
+    {
+      "source": "contract:InventoryManagementSystem.list_products",
+      "text": "list_products: Lists products filtered by optional category and low-stock status.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.45
+    },
+    {
+      "source": "contract:InventoryManagementSystem.low_stock_report",
+      "text": "low_stock_report: Generates a report of products with stock below their category's reorder threshold.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.2389
+    },
+    {
+      "source": "contract:InventoryManagementSystem.stock_value_by_category",
+      "text": "stock_value_by_category: Calculates the total stock value (price × stock) per category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.756
+    },
+    {
+      "source": "contract:CategoryRepository.add_category",
+      "text": "add_category: Adds a new category to the database with validation for uniqueness.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.7626
+    },
+    {
+      "source": "contract:CategoryRepository.update_category",
+      "text": "update_category: Updates an existing category's fields with validation for category existence.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4271
+    }
+  ]
+}

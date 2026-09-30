@@ -1,0 +1,55 @@
+[
+  {
+    "pattern_id": "BUDGET_OVERFLOW_GUARD",
+    "layer": "service",
+    "description": "Verifies that adding or modifying an amount does not cause the sum of existing amounts for a period/category to exceed a defined budget or quota limit. Raises BudgetExceededException on violation.",
+    "match_keywords": ["budget", "limit", "budget limits", "exceed", "exceeding", "overflow", "monthly limit", "budget exceeded", "budget checks"],
+    "required_invariants": ["Amount addition must not exceed monthly budget limit"],
+    "dependencies": {
+      "repository_calls": ["AGGREGATE_BY_FK_AND_DATE", "EXISTS_BY_UNIQUE_COMPOSITE"]
+    },
+    "template_logic": "current_total = repo.get_total_by_category_and_period(category_id, start_date, end_date)\nif current_total + new_amount > budget.amount_limit:\n    raise BudgetExceededException(f'Exceeds budget limit of {budget.amount_limit}')"
+  },
+  {
+    "pattern_id": "QUOTA_CAPACITY_GUARD",
+    "layer": "service",
+    "description": "Checks if the number of active associations (e.g. active borrowed books, bottles in a storage location, pending orders) does not exceed the maximum allowed capacity. Raises QuotaExceededException or OverCapacityException.",
+    "match_keywords": ["max capacity", "maximum copies", "active loans limit", "storage capacity", "over capacity"],
+    "required_invariants": ["Active count must not exceed entity maximum capacity"],
+    "dependencies": {
+      "repository_calls": ["COUNT_ACTIVE_BY_FK"]
+    },
+    "template_logic": "active_count = repo.count_active(parent_id)\nif active_count >= parent.max_capacity:\n    raise OverCapacityException(f'Maximum capacity of {parent.max_capacity} reached')"
+  },
+  {
+    "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+    "layer": "service",
+    "description": "Verifies that sufficient inventory/stock quantity exists before fulfilling an order, decrementing stock, or loaning a resource. Raises InsufficientStockException.",
+    "match_keywords": ["available copies", "sufficient stock", "stock quantity", "out of stock", "insufficient inventory"],
+    "required_invariants": ["Available copies/stock cannot drop below zero"],
+    "dependencies": {
+      "repository_calls": ["get_by_id"]
+    },
+    "template_logic": "item = repo.get_by_id(item_id)\nif item.available_quantity < requested_qty:\n    raise InsufficientStockException(f'Requested {requested_qty} but only {item.available_quantity} available')\nitem.available_quantity -= requested_qty\nrepo.update(item)"
+  },
+  {
+    "pattern_id": "PRICE_MARGIN_GUARD",
+    "layer": "service",
+    "description": "Validates pricing rules (e.g. selling price must be strictly greater than cost price, discount percentage between 0 and 100). Raises InvalidPricingException.",
+    "match_keywords": ["cost price", "selling price", "margin", "price validation", "invalid price"],
+    "required_invariants": ["Selling price must be strictly greater than cost price"],
+    "dependencies": {},
+    "template_logic": "if selling_price <= cost_price:\n    raise InvalidPricingException('Selling price must be strictly greater than cost price')"
+  },
+  {
+    "pattern_id": "STATE_TRANSITION_GUARD",
+    "layer": "service",
+    "description": "Enforces valid state lifecycle transitions (e.g. pending -> confirmed -> shipped, active -> inactive, borrowed -> returned). Raises InvalidStateTransitionException.",
+    "match_keywords": ["status transition", "order status", "confirm order", "cancel order", "state machine"],
+    "required_invariants": ["Invalid state transitions must be rejected"],
+    "dependencies": {
+      "repository_calls": ["get_by_id", "update"]
+    },
+    "template_logic": "if current_status not in allowed_previous_states:\n    raise InvalidStateTransitionException(f'Cannot transition from {current_status} to {new_status}')"
+  }
+]

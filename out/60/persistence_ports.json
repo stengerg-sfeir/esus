@@ -1,0 +1,33 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "find_by_id",
+            "description": "Retrieve a customer by ID.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Customer"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "customer_id",
+        "indexes": [
+          "customer_id"
+        ]
+      }
+    ]
+  }
+}

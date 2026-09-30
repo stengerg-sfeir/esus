@@ -1,0 +1,1727 @@
+==============================
+  FULL SUITE STARTED: Tue Sep 29 18:53:09 CEST 2026
+==============================
+
+--------------------------------------------------------------
+  PROMPT: hello  (prompts/prompt_hello_world.txt)
+  OUTPUT: out/hello
+--------------------------------------------------------------
+
+============================================================
+Loading model from ../models/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions": [
+    "Implement a CLI script with a `main()` function for printing 'Hello, World!'",
+    "Ensure type hints are included in the function signature",
+    "Include a standard `if __name__ == '__main__': main()` guard for CLI entry point"
+]}📊 Stats intentions : 64 tokens generated in 12.12s (5.3 tok/s)
+  💾 Saved: out/hello/intentions.json
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "main",
+      "fields": [
+        {
+          "name": "message",
+          "type": "text",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+        "status": "deduced"
+        }
+      ]
+    }
+  ]
+}📊 Stats data_models : 84 tokens generated in 13.33s (6.3 tok/s)
+  💾 Saved: out/hello/data_models.json
+
+🚀 [Query] Extracting invariants...
+
+--- END OF DATA_MODELS STREAM ---
+--- START OF INVARIANTS STREAM ---
+{"invariants": []}📊 Stats invariants : 8 tokens generated in 4.99s (1.6 tok/s)
+  💾 Saved: out/hello/invariants.json
+
+🚀 [Query] Extracting components...
+
+--- END OF INVARIANTS STREAM ---
+--- START OF COMPONENTS STREAM ---
+{
+  "components": {
+    "facade": {
+      "type": "cli"
+    ,
+    "technology": "argparse"
+    },
+    "persistence": {
+      "required": false,
+      "technology": "none"
+    },
+    "external_access": [],
+    "crud_services": []
+  }
+}📊 Stats components : 75 tokens generated in 14.58s (5.1 tok/s)
+  💾 Saved: out/hello/components.json
+
+🚀 [Query] Extracting service_contracts...
+
+--- END OF COMPONENTS STREAM ---
+--- START OF SERVICE_CONTRACTS STREAM ---
+{
+  "service_contracts": [
+    {
+      "service_name": "HelloWorldService",
+      "methods": [
+        {
+          "name": "print_greeting",
+          "description": "Prints a greeting message to the console.",
+          "params": [
+            {"name": "name", "type": "str"}
+          ],
+          "return_type": "NoneType"
+        }
+      ]
+    }
+  ]
+}📊 Stats service_contracts : 91 tokens generated in 14.30s (6.4 tok/s)
+  💾 Saved: out/hello/service_contracts.json
+
+✅ Pipeline complete for prompts/prompt_hello_world.txt
+
+--- END OF SERVICE_CONTRACTS STREAM ---
+  ✅ hello done.
+
+--------------------------------------------------------------
+  PROMPT: cli_tool  (prompts/prompt_cli_tool.txt)
+  OUTPUT: out/cli_tool
+--------------------------------------------------------------
+
+============================================================
+Loading model from ../models/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions": [
+  "Parse a CSV file dynamically by reading its header row to determine column names",
+  "Convert each CSV row into a JSON object using the actual headers as keys",
+  "Handle CLI input/output with file paths (input and optional output)",
+  "Validate file existence and malformed CSV data",
+  "Output JSON to stdout or a specified file path"
+]}📊 Stats intentions : 79 tokens generated in 14.23s (5.6 tok/s)
+  💾 Saved: out/cli_tool/intentions.json
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "csv_row",
+      "fields": [
+        {
+          "name": "value",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null
+        ,
+        "status": "deduced"
+        }
+      ]
+    }
+  ]
+}📊 Stats data_models : 85 tokens generated in 18.68s (4.5 tok/s)
+  💾 Saved: out/cli_tool/data_models.json
+
+🚀 [Query] Extracting invariants...
+
+--- END OF DATA_MODELS STREAM ---
+--- START OF INVARIANTS STREAM ---
+{
+  "invariants": [
+    "Each row in the CSV must contain exactly one entry per column header (no missing columns).",
+    "Column headers must be unique across the entire CSV file.",
+    "All values in the CSV must be valid for their respective data types (e.g., numeric for numeric columns, alphanumeric for text columns).",
+    "The CSV file must be well-formed (properly quoted strings, correct delimiters, no trailing commas)."
+  ]
+}📊 Stats invariants : 104 tokens generated in 26.78s (3.9 tok/s)
+  💾 Saved: out/cli_tool/invariants.json
+
+🚀 [Query] Extracting components...
+
+--- END OF INVARIANTS STREAM ---
+--- START OF COMPONENTS STREAM ---
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "none"
+    },
+    "external_access": [],
+    "crud_services": []
+  }
+}📊 Stats components : 75 tokens generated in 18.13s (4.1 tok/s)
+  💾 Saved: out/cli_tool/components.json
+
+🚀 [Query] Extracting service_contracts...
+
+--- END OF COMPONENTS STREAM ---
+--- START OF SERVICE_CONTRACTS STREAM ---
+{"service_contracts": [
+    {
+        "service_name": "CSVToJSONConverter",
+        "methods": [
+            {
+                "name": "convert_csv_to_json",
+                "description": "Converts a CSV file to JSON, dynamically extracting column headers from the first row. Outputs JSON objects for each row, with headers as keys.",
+                "params": [
+                    {
+                        "name": "input_file_path",
+                        "type": "string"
+                    },
+                    {
+                        "name": "output_file_path",
+                        "type": "string | null"
+                    }
+                ],
+                "return_type": "void | string"
+            }
+        ]
+    }
+]}📊 Stats service_contracts : 139 tokens generated in 24.37s (5.7 tok/s)
+  💾 Saved: out/cli_tool/service_contracts.json
+
+✅ Pipeline complete for prompts/prompt_cli_tool.txt
+
+--- END OF SERVICE_CONTRACTS STREAM ---
+  ✅ cli_tool done.
+
+--------------------------------------------------------------
+  PROMPT: gui  (prompts/prompt_gui.txt)
+  OUTPUT: out/gui
+--------------------------------------------------------------
+
+============================================================
+Loading model from ../models/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions":
+    [
+        "manage_wine_inventory",
+        "track_bottle_storage_locations",
+        "persist_data_locally",
+        "enforce_stock_rules",
+        "validate_user_inputs",
+        "handle_domain_constraints",
+        "provide_responsive_gui",
+        "separate_presentation_logic",
+        "separate_data_persistence",
+        "separate_domain_logic"
+    ]
+}📊 Stats intentions : 91 tokens generated in 21.99s (4.1 tok/s)
+  💾 Saved: out/gui/intentions.json
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "Wine",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+          ,
+          "status": "deduced"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "vintage_year",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "wine_type",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "country_of_origin",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "cost_price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "selling_price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "stock_quantity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "StorageLocation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+          "status": "deduced"
+        },
+        {
+          "name": "zone_name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "row_number",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "shelf_number",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "max_capacity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "WineLocation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+          "status": "deduced"
+        },
+        {
+          "name": "wine_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Wine",
+            "target_field": "id",
+            "relationship": "one_to_one"
+          }
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "StorageLocation",
+            "target_field": "id",
+            "relationship": "one_to_one"
+          }
+        ,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}📊 Stats data_models : 1010 tokens generated in 134.85s (7.5 tok/s)
+  💾 Saved: out/gui/data_models.json
+
+🚀 [Query] Extracting invariants...
+
+--- END OF DATA_MODELS STREAM ---
+--- START OF INVARIANTS STREAM ---
+{"invariants": [
+    "wine.name must be unique across all wines in the system",
+    "wine.selling_price must be strictly greater than wine.cost_price",
+    "wine.stock_quantity must be non-negative",
+    "wine.primary_storage_location must be assigned to exactly one storage location",
+    "storage_location.assigned_bottles_count must not exceed storage_location.max_bottle_capacity",
+    "storage_location cannot be deleted if it has assigned bottles",
+    "wine.stock_quantity cannot be reduced below zero",
+    "storage_location.assigned_bottles_count must be zero when the location is deleted"
+]}📊 Stats invariants : 135 tokens generated in 30.93s (4.4 tok/s)
+  💾 Saved: out/gui/invariants.json
+
+🚀 [Query] Extracting components...
+
+--- END OF INVARIANTS STREAM ---
+--- START OF COMPONENTS STREAM ---
+{
+  "components": {
+    "facade": {
+      "type": "gui"
+    ,
+      "technology": "pyimgui"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Wine",
+        "operations": ["create", "read_all", "update"]
+      },
+      {
+        "entity": "StorageLocation",
+        "operations": ["create", "read_all"]
+      }
+    ]
+  }
+}📊 Stats components : 127 tokens generated in 30.57s (4.2 tok/s)
+  💾 Saved: out/gui/components.json
+
+🚀 [Query] Extracting service_contracts...
+
+--- END OF COMPONENTS STREAM ---
+--- START OF SERVICE_CONTRACTS STREAM ---
+{"service_contracts": [
+    {
+        "service_name": "WineShopInventoryManager",
+        "methods": [
+            {
+                "name": "add_wine",
+                "description": "Adds a new wine entry to the inventory with validation for uniqueness and pricing constraints.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "vintage_year",
+                        "type": "int"
+                    },
+                    {
+                        "name": "wine_type",
+                        "type": "str" 
+                    },
+                    {
+                        "name": "country_of_origin",
+                        "type": "str"
+                    },
+                    {
+                        "name": "cost_price",
+                        "type": "float"
+                    },
+                    {
+                        "name": "selling_price",
+                        "type": "float"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "update_wine_stock",
+                "description": "Updates the stock quantity of an existing wine entry, ensuring constraints are met.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "stock_quantity",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "assign_bottle_to_location",
+                "description": "Assigns a bottle of a specific wine to a storage location, validating capacity and stock constraints.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "location_id",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_wine_by_name",
+                "description": "Retrieves a wine entry by its name, ensuring uniqueness and existence in the system.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "dict"
+            },
+            {
+                "name": "get_storage_location_by_id",
+                "description": "Retrieves a storage location by its ID, ensuring it exists in the system.",
+                "params": [
+                    {
+                        "name": "location_id",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "dict"
+            },
+            {
+                "name": "get_total_stock_by_wine_type",
+                "description": "Calculates the total stock quantity across all wines of a specified type.",
+                "params": [
+                    {
+                        "name": "wine_type",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "int"
+            },
+            {
+                "name": "get_total_stock_by_location_zone",
+                "description": "Calculates the total stock quantity across all wines stored in a specific zone of a storage location.",
+                "params": [
+                    {
+                        "name": "zone_name",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "int"
+            },
+            {
+                "name": "get_all_wines",
+                "description": "Retrieves all wine entries in the system.",
+                "params": [
+                    {
+                        "name": "filter_by_type",
+                        "type": "Optional[str]"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_all_locations",
+                "description": "Retrieves all storage locations in the system.",
+                "params": [
+                    {
+                        "name": "filter_by_zone",
+                        "type": "Optional[str]"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "validate_pricing",
+                "description": "Validates that the selling price is strictly greater than the cost price.",
+                "params": [
+                    {
+                        "name": "cost_price",
+                        "type": "float"
+                    },
+                    {
+                        "name": "selling_price",
+                        "type": "float"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "validate_stock_quantity",
+                "description": "Ensures the stock quantity does not drop below zero.",
+                "params": [
+                    {
+                        "name": "stock_quantity",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "validate_location_capacity",
+                "description": "Checks if a storage location's current capacity is below its maximum capacity.",
+                "params": [
+                    {
+                        "name": "location_id",
+                        "type": "str"
+                    },
+                    {
+                        "name": "current_bottles",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "bool"
+            }
+        ]
+    },
+    {
+        "service_name": "PersistenceManager",
+        "methods": [
+            {
+                "name": "save_wine_data",
+                "description": "Saves wine data to a local JSON file.",
+                "params": [
+                    {
+                        "name": "wine_data",
+                        "type": "list[dict]"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "save_location_data",
+                "description": "Saves storage location data to a local JSON file.",
+                "params": [
+                    {
+                        "name": "location_data",
+                        "type": "list[dict]"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "load_wine_data",
+                "description": "Loads wine data from a local JSON file.",
+                "params": [
+                    {
+                        "name": "file_path",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "load_location_data",
+                "description": "Loads storage location data from a local JSON file.",
+                "params": [
+                    {
+                        "name": "file_path",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_file_path",
+                "description": "Returns the path to the local JSON file for wine data.",
+                "params": [
+                    {
+                        "name": "data_type",
+                        "type": "str" 
+                    }
+                ],
+                "return_type": "str"
+            }
+        ]
+    },
+    {
+        "service_name": "DomainExceptionHandler",
+        "methods": [
+            {
+                "name": "handle_invalid_pricing",
+                "description": "Raises an exception when the selling price is not strictly greater than the cost price.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_negative_stock",
+                "description": "Raises an exception when stock quantity is negative.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_location_over_capacity",
+                "description": "Raises an exception when a location exceeds its maximum bottle capacity.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_wine_name_duplicate",
+                "description": "Raises an exception when a wine name already exists in the system.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_location_in_use",
+                "description": "Raises an exception when attempting to remove a location with assigned bottles.",
+                "params": [],
+                "return_type": "None"
+            }
+        ]
+    }
+]}📊 Stats service_contracts : 1645 tokens generated in 278.81s (5.9 tok/s)
+  💾 Saved: out/gui/service_contracts.json
+
+🚀 [Query] Extracting interaction_adapters...
+
+--- END OF SERVICE_CONTRACTS STREAM ---
+--- START OF INTERACTION_ADAPTERS STREAM ---
+{"interaction_adapters": [
+    {
+        "action_name": "map_wine_to_storage_location",
+        "target_service": "wine_storage_service",
+        "target_method": "assign_wine_to_location",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            },
+            {
+                "field_name": "location_id",
+                "target_param": "location_id",
+                "transform": "DIRECT",
+                "lookup_entity": "StorageLocation",
+                "required": true
+            },
+            {
+                "field_name": "current_stock",
+                "target_param": "current_stock",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false 
+            }
+        ]
+    },
+    {
+        "action_name": "validate_wine_stock",
+        "target_service": "wine_service",
+        "target_method": "validate_stock",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            },
+            {
+                "field_name": "min_stock",
+                "target_param": "min_stock",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "update_wine_price",
+        "target_service": "wine_service",
+        "target_method": "update_price",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            },
+            {
+                "field_name": "new_selling_price",
+                "target_param": "new_selling_price",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "cost_price",
+                "target_param": "cost_price",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "validate_location_capacity",
+        "target_service": "storage_service",
+        "target_method": "validate_location_capacity",
+        "input_fields": [
+            {
+                "field_name": "location_id",
+                "target_param": "location_id",
+                "transform": "DIRECT",
+                "lookup_entity": "StorageLocation",
+                "required": true
+            },
+            {
+                "field_name": "current_bottles",
+                "target_param": "current_bottles",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "lookup_wine_by_name",
+        "target_service": "wine_service",
+        "target_method": "lookup_wine_by_name",
+        "input_fields": [
+            {
+                "field_name": "wine_name",
+                "target_param": "wine_name",
+                "transform": "CSV_LIST",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "lookup_storage_location_by_id",
+        "target_service": "storage_service",
+        "target_method": "lookup_location_by_id",
+        "input_fields": [
+            {
+                "field_name": "location_id",
+                "target_param": "location_id",
+                "transform": "DIRECT",
+                "lookup_entity": "StorageLocation",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "lookup_storage_location_by_zone",
+        "target_service": "storage_service",
+        "target_method": "lookup_location_by_zone",
+        "input_fields": [
+            {
+                "field_name": "zone_name",
+                "target_param": "zone_name",
+                "transform": "CSV_LIST",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "get_all_wines",
+        "target_service": "wine_service",
+        "target_method": "get_all_wines",
+        "input_fields": []
+    },
+    {
+        "action_name": "get_all_locations",
+        "target_service": "storage_service",
+        "target_method": "get_all_locations",
+        "input_fields": []
+    }
+]}📊 Stats interaction_adapters : 1015 tokens generated in 138.17s (7.3 tok/s)
+  💾 Saved: out/gui/interaction_adapters.json
+
+🚀 [Query] Extracting persistence_ports...
+
+--- END OF INTERACTION_ADAPTERS STREAM ---
+--- START OF PERSISTENCE_PORTS STREAM ---
+{"persistence_ports": {"repositories": [{"entity": "Wine", "interface_name": "WineRepository", "methods": [{"name": "save", "description": "Persists a new wine entry or updates existing one.", "params": [{"name": "wine", "type": "Wine"}], "return_type": "bool"}, {"name": "find_by_id", "description": "Retrieves a wine by its unique identifier.", "params": [{"name": "wine_id", "type": "str"}], "return_type": "Wine"}, {"name": "find_by_name", "description": "Retrieves a wine by its name (case-insensitive).", "params": [{"name": "wine_name", "type": "str"}], "return_type": "Wine"}, {"name": "find_all", "description": "Retrieves all wines in the system.", "params": [{"name": "none", "type": "None"}], "return_type": "List[Wine]"}, {"name": "update_stock", "description": "Updates the stock quantity of a wine.", "params": [{"name": "wine_id", "type": "str"}, {"name": "quantity", "type": "int"}], "return_type": "bool"}, {"name": "assign_to_location", "description": "Assigns a wine to a storage location.", "params": [{"name": "wine_id", "type": "str"}, {"name": "location_id", "type": "str"}], "return_type": "bool"}, {"name": "remove_from_location", "description": "Removes a wine from its storage location.", "params": [{"name": "wine_id", "type": "str"}], "return_type": "bool"}]}, {"entity": "StorageLocation", "interface_name": "StorageLocationRepository", "methods": [{"name": "save", "description": "Persists a new storage location or updates existing one.", "params": [{"name": "location", "type": "StorageLocation"}], "return_type": "bool"}, {"name": "find_by_id", "description": "Retrieves a storage location by its unique identifier.", "params": [{"name": "location_id", "type": "str"}], "return_type": "StorageLocation"}, {"name": "find_by_zone", "description": "Retrieves all locations in a specific zone.", "params": [{"name": "zone_name", "type": "str"}], "return_type": "List[StorageLocation]"}, {"name": "find_all", "description": "Retrieves all storage locations.", "params": [{"name": "none", "type": "None"}], "return_type": "List[StorageLocation]"}, {"name": "check_capacity", "description": "Checks if a location can accommodate additional bottles.", "params": [{"name": "location_id", "type": "str"}, {"name": "additional_bottles", "type": "int"}], "return_type": "bool"}]}, {"entity": "WineLocationAssociation", "interface_name": "WineLocationAssociationRepository", "methods": [{"name": "save_association", "description": "Creates a new association between a wine and its storage location.", "params": [{"name": "wine_id", "type": "str"}, {"name": "location_id", "type": "str"}], "return_type": "bool"}, {"name": "remove_association", "description": "Removes an existing association between a wine and its location.", "params": [{"name": "wine_id", "type": "str"}], "return_type": "bool"}, {"name": "get_associated_locations", "description": "Retrieves all storage locations associated with a wine.", "params": [{"name": "wine_id", "type": "str"}], "return_type": "List[StorageLocation]"}, {"name": "get_associated_wines", "description": "Retrieves all wines associated with a specific storage location.", "params": [{"name": "location_id", "type": "str"}], "return_type": "List[Wine]"}]}], "entity_mappings": [{"entity": "Wine", "table": "wines", "primary_key": "wine_id", "indexes": ["wine_name"]}, {"entity": "StorageLocation", "table": "storage_locations", "primary_key": "location_id", "indexes": ["zone_name", "row_number", "shelf_number"]}, {"entity": "WineLocationAssociation", "table": "wine_location_associations", "primary_key": "wine_id_location_id_composite", "indexes": ["wine_id", "location_id"]}]}}📊 Stats persistence_ports : 1040 tokens generated in 161.44s (6.4 tok/s)
+  💾 Saved: out/gui/persistence_ports.json
+
+✅ Pipeline complete for prompts/prompt_gui.txt
+
+--- END OF PERSISTENCE_PORTS STREAM ---
+  ✅ gui done.
+
+--------------------------------------------------------------
+  PROMPT: inventory  (prompts/prompt_inventory.txt)
+  OUTPUT: out/inventory
+--------------------------------------------------------------
+
+============================================================
+Loading model from ../models/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions":
+  [
+    "manage inventory categories with CRUD operations (add, list, update, delete)",
+    "store and retrieve category metadata (name, description, reorder_threshold)",
+    "manage inventory products with CRUD operations (add, list, update, delete)",
+    "store and retrieve product metadata (sku, name, category_id, price_cents, stock_qty, low_active)",
+    "validate product SKU uniqueness and category existence",
+    "perform product category filtering and low-stock reporting",
+    "aggregate stock value by category",
+    "handle stock restocking operations",
+    "validate low-stock thresholds against category reorder_thresholds",
+    "provide a CLI interface for inventory management with nested command groups",
+    "handle monetary values as cents (integer precision)",
+    "implement custom exceptions for category/product not found errors",
+    "enforce foreign key constraints between categories and products"
+  ]
+}📊 Stats intentions : 193 tokens generated in 50.41s (3.8 tok/s)
+  💾 Saved: out/inventory/intentions.json
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "Category",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+          ,
+          "status": "deduced"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "reorder_threshold",
+          "type": "int",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "sku",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Category",
+            "target_field": "id",
+            "relationship": "many_to_one"
+          },
+          "status": "deduced"
+        },
+        {
+          "name": "price_cents",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "stock_qty",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "low_active",
+          "type": "boolean",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}📊 Stats data_models : 657 tokens generated in 104.96s (6.3 tok/s)
+  💾 Saved: out/inventory/data_models.json
+
+🚀 [Query] Extracting invariants...
+
+--- END OF DATA_MODELS STREAM ---
+--- START OF INVARIANTS STREAM ---
+{"invariants": [
+    "category_id must be a valid existing category ID or None (for new categories)",
+    "sku must be unique across all products",
+    "price_cents must be a non-negative integer",
+    "stock_qty must be a non-negative integer",
+    "reorder_threshold must be a non-negative integer if provided",
+    "low_active must be a boolean (default False)",
+    "category.name must be unique across all categories",
+    "category.description must be optional",
+    "category.reorder_threshold must be optional",
+    "stock_qty cannot exceed the maximum allowed stock value (if defined elsewhere; not specified in requirements)",
+    "a product's category_id must reference an existing category",
+    "a product's stock_qty must not be negative",
+    "a product's price_cents must not be negative",
+    "low-stock products are those whose stock_qty is strictly below their category's reorder_threshold (if threshold exists; otherwise, no low-stock products exist for that category)"
+]}📊 Stats invariants : 214 tokens generated in 50.55s (4.2 tok/s)
+  💾 Saved: out/inventory/invariants.json
+
+🚀 [Query] Extracting components...
+
+--- END OF INVARIANTS STREAM ---
+--- START OF COMPONENTS STREAM ---
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "click"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Category",
+        "operations": ["create", "read_all", "read_one", "update", "delete"]
+      },
+      {
+        "entity": "Product",
+        "operations": ["create", "read_one", "read_all", "update", "delete"]
+      }
+    ]
+  }
+}📊 Stats components : 137 tokens generated in 34.58s (4.0 tok/s)
+  💾 Saved: out/inventory/components.json
+
+🚀 [Query] Extracting service_contracts...
+
+--- END OF COMPONENTS STREAM ---
+--- START OF SERVICE_CONTRACTS STREAM ---
+{"service_contracts": [
+    {
+        "service_name": "InventoryManagementSystem",
+        "methods": [
+            {
+                "name": "add_product",
+                "description": "Adds a new product to the inventory with validation checks for category existence and SKU uniqueness.",
+                "params": [
+                    {
+                        "name": "sku",
+                        "type": "str"
+                    },
+                    {
+                        "name": "name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "category_id",
+                        "type": "int"
+                    },
+                    {
+                        "name": "price_cents",
+                        "type": "int"
+                    },
+                    {
+                        "name": "stock_qty",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "update_product",
+                "description": "Updates an existing product's fields with validation for product existence.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    },
+                    {
+                        "name": "data",
+                        "type": "dict[str, Union[int, str, bool]]"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "delete_product",
+                "description": "Deletes a product by its ID after validation.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "get_product_by_id",
+                "description": "Retrieves a single product by its ID.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "dict[str, Union[int, str, bool, int]]"
+            },
+            {
+                "name": "list_products",
+                "description": "Lists products filtered by optional category and low-stock status.",
+                "params": [
+                    {
+                        "name": "category_id",
+                        "type": "Optional[int]"
+                    },
+                    {
+                        "name": "low_only",
+                        "type": "Optional[bool]"
+                    }
+                ],
+                "return_type": "List[dict[str, Union[int, str, bool, int]]]"
+            },
+            {
+                "name": "restock",
+                "description": "Increases the stock quantity of a product by a specified amount.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    },
+                    {
+                        "name": "qty",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "low_stock_report",
+                "description": "Generates a report of products with stock below their category's reorder threshold.",
+                "params": [
+                    {
+                        "name": "category_id",
+                        "type": "Optional[int]"
+                    }
+                ],
+                "return_type": "List[dict[str, Union[int, str, bool, int]]]"
+            },
+            {
+                "name": "stock_value_by_category",
+                "description": "Calculates the total stock value (price × stock) per category.",
+                "params": [
+                    {
+                        "name": "category_id",
+                        "type": "Optional[int]"
+                    }
+                ],
+                "return_type": "Dict[int, int]"
+            }
+        ]
+    },
+    {
+        "service_name": "CategoryRepository",
+        "methods": [
+            {
+                "name": "add_category",
+                "description": "Adds a new category to the database with validation for uniqueness.",
+                "params": [
+                    {
+                        "name": "name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "description",
+                        "type": "Optional[str]"
+                    },
+                    {
+                        "name": "reorder_threshold",
+                        "type": "Optional[int]"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "update_category",
+                "description": "Updates an existing category's fields with validation for category existence.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    },
+                    {
+                        "name": "data",
+                        "type": "dict[str, Union[str, Optional[int]]]"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "delete_category",
+                "description": "Deletes a category by its ID after validation.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "None"
+            },
+            {
+                "name": "get_category_by_id",
+                "description": "Retrieves a single category by its ID.",
+                "params": [
+                    {
+                        "name": "id",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "Optional[dict[str, Union[int, str, Optional[int]]]]"
+            },
+            {
+                "name": "find_products_by_category",
+                "description": "Finds all products belonging to a specified category.",
+                "params": [
+                    {
+                        "name": "category_id",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "List[dict[str, Union[int, str, bool, int]]]"
+            }
+        ]
+    }
+]}📊 Stats service_contracts : 1152 tokens generated in 190.86s (6.0 tok/s)
+  💾 Saved: out/inventory/service_contracts.json
+
+🚀 [Query] Extracting interaction_adapters...
+
+--- END OF SERVICE_CONTRACTS STREAM ---
+--- START OF INTERACTION_ADAPTERS STREAM ---
+{"interaction_adapters": [
+    {
+        "action_name": "add_product",
+        "target_service": "InventoryService",
+        "target_method": "add_product",
+        "input_fields": [
+            {
+                "field_name": "sku",
+                "target_param": "sku",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "category_id",
+                "target_param": "category_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Category",
+                "required": true
+            },
+            {
+                "field_name": "price",
+                "target_param": "price_cents",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "stock_qty",
+                "target_param": "stock_qty",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "update_product",
+        "target_service": "InventoryService",
+        "target_method": "update_product",
+        "input_fields": [
+            {
+                "field_name": "id",
+                "target_param": "id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Product",
+                "required": true
+            },
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            },
+            {
+                "field_name": "price",
+                "target_param": "price_cents",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            },
+            {
+                "field_name": "category_id",
+                "target_param": "category_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Category",
+                "required": false
+            },
+            {
+                "field_name": "stock_qty",
+                "target_param": "stock_qty",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            },
+            {
+                "field_name": "low_active",
+                "target_param": "low_active",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "get_product_by_id",
+        "target_service": "InventoryService",
+        "target_method": "get_product_by_id",
+        "input_fields": [
+            {
+                "field_name": "id",
+                "target_param": "id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Product",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "list_products",
+        "target_service": "InventoryService",
+        "target_method": "list_products",
+        "input_fields": [
+            {
+                "field_name": "category_id",
+                "target_param": "category_id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Category",
+                "required": false
+            },
+            {
+                "field_name": "low_only",
+                "target_param": "low_only",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "restock",
+        "target_service": "InventoryService",
+        "target_method": "restock",
+        "input_fields": [
+            {
+                "field_name": "id",
+                "target_param": "id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Product",
+                "required": true
+            },
+            {
+                "field_name": "qty",
+                "target_param": "qty",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "low_stock_report",
+        "target_service": "InventoryService",
+        "target_method": "low_stock_report",
+        "input_fields": [] 
+    },
+    {
+        "action_name": "stock_value_by_category",
+        "target_service": "InventoryService",
+        "target_method": "stock_value_by_category",
+        "input_fields": []
+    },
+    {
+        "action_name": "add_category",
+        "target_service": "CategoryRepository",
+        "target_method": "add_category",
+        "input_fields": [
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "description",
+                "target_param": "description",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": false
+            },
+            {
+                "field_name": "reorder_threshold",
+                "target_param": "reorder_threshold",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "update_category",
+        "target_service": "CategoryRepository",
+        "target_method": "update_category",
+        "input_fields": [
+            {
+                "field_name": "id",
+                "target_param": "id",
+                "transform": "LOOKUP_ID",
+                "lookup_entity": "Category",
+                "required": true
+            },
+            {
+                "field_name": "name",
+                "target_param": "name",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": false
+            },
+            {
+                "field_name": "description",
+                "target_param": "description",
+                "transform": "DIRECT",
+                "lookup_entity": null,
+                "required": false
+            },
+            {
+                "field_name": "reorder_threshold",
+                "target_param": "reorder_threshold",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": false
+            }
+        ]
+    },
+    {
+        "action_name": "list_categories",
+        "target_service": "CategoryRepository",
+        "target_method": "list_categories",
+        "input_fields": []
+    }
+]}📊 Stats interaction_adapters : 1453 tokens generated in 237.76s (6.1 tok/s)
+  💾 Saved: out/inventory/interaction_adapters.json
+
+🚀 [Query] Extracting persistence_ports...
+
+--- END OF INTERACTION_ADAPTERS STREAM ---
+--- START OF PERSISTENCE_PORTS STREAM ---
+{"persistence_ports": {"repositories": [{"entity": "Category", "interface_name": "CategoryRepository", "methods": [{"name": "create", "description": "Creates a new category.", "params": [{"name": "category", "type": "Category"}], "return_type": "Category"}]}], "entity_mappings": [{"entity": "Category", "table": "categories", "primary_key": "id", "indexes": ["name"]}]}}📊 Stats persistence_ports : 106 tokens generated in 38.14s (2.8 tok/s)
+  💾 Saved: out/inventory/persistence_ports.json
+
+✅ Pipeline complete for prompts/prompt_inventory.txt
+
+--- END OF PERSISTENCE_PORTS STREAM ---
+  ✅ inventory done.
+
+--------------------------------------------------------------
+  PROMPT: expenses  (prompts/prompt_expenses.txt)
+  OUTPUT: out/expenses
+--------------------------------------------------------------
+
+============================================================
+Loading model from ../models/Ministral-3-3B-Instruct-2512-Q4_K_M.gguf...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions":
+  [
+    "Design and implement a database schema for expense tracking with SQLite, including models for Category, Expense, and Budget with constraints like UNIQUE(category_id, month) for budgets",
+    "Create repositories for Category, Expense, and Budget with CRUD operations and filtering capabilities (date range, category, payment method)",
+    "Implement a service layer for expense management with business logic for filtering, aggregation, budget checks, and recurring expense detection",
+    "Develop a CLI interface using Click for expense tracking commands (category management, budget management, expense management, reporting, and recurring expense detection)",
+    "Handle monetary values as integers (cents) for precision, with conversion utilities for display purposes",
+    "Implement custom exceptions for error handling (e.g., CategoryNotFoundError, ExpenseNotFoundError, BudgetExceededException)",
+    "Ensure proper type hints throughout the codebase and enforce foreign key constraints in SQLite"
+  ]
+}📊 Stats intentions : 200 tokens generated in 54.50s (3.7 tok/s)
+  💾 Saved: out/expenses/intentions.json
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "Category",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+          ,
+          "status": "deduced"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "monthly_budget",
+          "type": "int",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "icon",
+          "type": "string",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "Expense",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "expense_date",
+          "type": "date",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "category_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Category",
+            "target_field": "id",
+            "relationship": "many_to_one"
+          },
+          "status": "deduced"
+        },
+        {
+          "name": "payment_method",
+          "type": "string",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "is

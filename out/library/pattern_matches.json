@@ -1,0 +1,207 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "book.isbn must be unique across all books",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.9436
+    },
+    {
+      "source": "invariant",
+      "text": "book.available_copies must be >= 0",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.6756
+    },
+    {
+      "source": "invariant",
+      "text": "author.id must be unique across all authors",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.5955
+    },
+    {
+      "source": "invariant",
+      "text": "member.email must be unique across all members",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.9388
+    },
+    {
+      "source": "invariant",
+      "text": "loan.book_id must reference a valid book (exists in books table)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.4393
+    },
+    {
+      "source": "invariant",
+      "text": "loan.member_id must reference a valid member (exists in members table)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.2852
+    },
+    {
+      "source": "invariant",
+      "text": "loan.status must be one of ['active', 'returned', 'overdue']",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.8784
+    },
+    {
+      "source": "invariant",
+      "text": "loan.return_date must be null if status is 'active'",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.9201
+    },
+    {
+      "source": "invariant",
+      "text": "loan.return_date must be set if status is 'returned'",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.8911
+    },
+    {
+      "source": "invariant",
+      "text": "loan.due_date must be a valid date (not in the past)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4877
+    },
+    {
+      "source": "invariant",
+      "text": "loan.loan_date must be before due_date",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5001
+    },
+    {
+      "source": "invariant",
+      "text": "member.is_active must be a boolean",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.196
+    },
+    {
+      "source": "invariant",
+      "text": "member.membership_date must be a valid date (not in the future)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4619
+    },
+    {
+      "source": "contract:LibraryManagementSystem.add_book",
+      "text": "add_book: Adds a new book to the database with validation for ISBN uniqueness and available copies.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.6707
+    },
+    {
+      "source": "contract:LibraryManagementSystem.add_author",
+      "text": "add_author: Adds a new author to the database with validation for name uniqueness.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.7778
+    },
+    {
+      "source": "contract:LibraryManagementSystem.add_member",
+      "text": "add_member: Adds a new member to the database with validation for email uniqueness.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.907
+    },
+    {
+      "source": "contract:LibraryManagementSystem.borrow_book",
+      "text": "borrow_book: Checks if a book is available and loans it to a member, decrementing available copies.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.6469
+    },
+    {
+      "source": "contract:LibraryManagementSystem.get_overdue_loans",
+      "text": "get_overdue_loans: Retrieves all overdue loans based on the current date.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "THRESHOLD_SCAN",
+      "confidence": 0.9633
+    },
+    {
+      "source": "contract:LibraryManagementSystem.get_active_loans",
+      "text": "get_active_loans: Retrieves all currently active loans.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2893
+    },
+    {
+      "source": "contract:BookRepository.add_book",
+      "text": "add_book: Adds a book to the database with validation for ISBN uniqueness and available copies.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.6861
+    },
+    {
+      "source": "contract:BookRepository.get_books_by_title",
+      "text": "get_books_by_title: Retrieves books matching a title query.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.3199
+    },
+    {
+      "source": "contract:BookRepository.update_available_copies",
+      "text": "update_available_copies: Updates the available copies count for a book.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.4353
+    },
+    {
+      "source": "contract:BookRepository.filter_books_by_available",
+      "text": "filter_books_by_available: Filters books to only those with available copies.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.3512
+    },
+    {
+      "source": "contract:MemberRepository.add_member",
+      "text": "add_member: Adds a member to the database with validation for email uniqueness.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.8876
+    },
+    {
+      "source": "contract:MemberRepository.get_inactive_members",
+      "text": "get_inactive_members: Retrieves all inactive members.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2734
+    },
+    {
+      "source": "contract:LoanRepository.get_active_loans",
+      "text": "get_active_loans: Retrieves all currently active loans.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2893
+    },
+    {
+      "source": "contract:LoanRepository.get_overdue_loans",
+      "text": "get_overdue_loans: Retrieves all overdue loans based on the current date.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "THRESHOLD_SCAN",
+      "confidence": 0.9633
+    },
+    {
+      "source": "contract:LibraryService.borrow_book",
+      "text": "borrow_book: Checks if a book is available and loans it to a member, decrementing available copies.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.6469
+    },
+    {
+      "source": "contract:LibraryService.get_overdue_loans",
+      "text": "get_overdue_loans: Retrieves all overdue loans based on the current date.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "THRESHOLD_SCAN",
+      "confidence": 0.9633
+    }
+  ]
+}

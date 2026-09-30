@@ -1,0 +1,383 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "Customer Management Service",
+      "methods": [
+        {
+          "name": "get_customer_by_id",
+          "description": "Retrieves a customer by their unique ID.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Customer"
+        },
+        {
+          "name": "get_customer_by_name",
+          "description": "Searches for a customer by name (partial match).",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Customer]"
+        },
+        {
+          "name": "create_customer",
+          "description": "Creates a new customer record.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer"
+        },
+        {
+          "name": "update_customer",
+          "description": "Updates an existing customer's details.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer"
+        },
+        {
+          "name": "delete_customer",
+          "description": "Deletes a customer record.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "Product Management Service",
+      "methods": [
+        {
+          "name": "get_product_by_id",
+          "description": "Retrieves a product by its unique ID.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Product"
+        },
+        {
+          "name": "get_products_by_category",
+          "description": "Retrieves all products in a given category.",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "get_products_by_name",
+          "description": "Searches for products by name (partial match).",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "create_product",
+          "description": "Creates a new product record.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "Product"
+        },
+        {
+          "name": "update_product",
+          "description": "Updates an existing product's details.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "Product"
+        },
+        {
+          "name": "delete_product",
+          "description": "Deletes a product record.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "get_total_stock_by_category",
+          "description": "Calculates the total stock quantity across all products in a category.",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "int"
+        }
+      ]
+    },
+    {
+      "service_name": "Order Management Service",
+      "methods": [
+        {
+          "name": "get_order_by_id",
+          "description": "Retrieves an order by its unique ID.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order"
+        },
+        {
+          "name": "get_orders_by_customer",
+          "description": "Retrieves all orders placed by a customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Order]"
+        },
+        {
+          "name": "get_orders_by_status",
+          "description": "Retrieves all orders with a specific status.",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Order]"
+        },
+        {
+          "name": "create_order",
+          "description": "Creates a new order with pending status.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_items",
+              "type": "List[OrderItem]"
+            }
+          ],
+          "return_type": "Order"
+        },
+        {
+          "name": "confirm_order",
+          "description": "Confirms an order, reserving stock and creating an invoice.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order"
+        },
+        {
+          "name": "cancel_order",
+          "description": "Cancels an order, releasing reserved stock.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "update_order_status",
+          "description": "Updates the status of an order (e.g., to shipped).",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "new_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "Order"
+        },
+        {
+          "name": "get_total_by_category_and_month",
+          "description": "Calculates the total revenue generated by products in a category for a specific month.",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "month",
+              "type": "str"
+            }
+          ],
+          "return_type": "float"
+        }
+      ]
+    },
+    {
+      "service_name": "Invoice Management Service",
+      "methods": [
+        {
+          "name": "get_invoice_by_id",
+          "description": "Retrieves an invoice by its unique ID.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Invoice"
+        },
+        {
+          "name": "get_invoices_by_customer",
+          "description": "Retrieves all invoices issued to a customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Invoice]"
+        },
+        {
+          "name": "get_invoices_by_date_range",
+          "description": "Retrieves invoices within a specified date range.",
+          "params": [
+            {
+              "name": "start_date",
+              "type": "str"
+            },
+            {
+              "name": "end_date",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Invoice]"
+        },
+        {
+          "name": "create_invoice",
+          "description": "Creates an invoice when an order is confirmed.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Invoice"
+        }
+      ]
+    },
+    {
+      "service_name": "Stock Management Service",
+      "methods": [
+        {
+          "name": "update_stock_reservation",
+          "description": "Updates stock quantity when an order is confirmed or cancelled.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "get_stock_by_product_id",
+          "description": "Retrieves the current stock quantity of a product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "int"
+        }
+      ]
+    }
+  ]
+}

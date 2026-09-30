@@ -1,0 +1,714 @@
+[1/2] Initializing model on CPU (8k context, 8 threads)...
+llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
+📊 Input prompt size: ~392 tokens.
+
+
+🚀 [Query] Extracting intentions...
+--- START OF INTENTIONS STREAM ---
+{"intentions":
+    [
+        "manage_wine_inventory",
+        "track_bottle_storage_locations",
+        "persist_data_locally",
+        "enforce_stock_rules",
+        "validate_user_inputs",
+        "handle_domain_constraints",
+        "provide_responsive_gui",
+        "separate_presentation_logic",
+        "separate_data_persistence",
+        "separate_domain_logic"
+    ]
+}📊 Stats intentions : 91 tokens generated in 24.10s (3.8 tok/s)
+
+🚀 [Query] Extracting data_models...
+
+--- END OF INTENTIONS STREAM ---
+--- START OF DATA_MODELS STREAM ---
+{
+  "data_models": [
+    {
+      "name": "Wine",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+          ,
+          "status": "deduced"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "vintage_year",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "wine_type",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "country_of_origin",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "cost_price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "selling_price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "stock_quantity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "StorageLocation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+          "status": "deduced"
+        },
+        {
+          "name": "zone_name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "row_number",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "shelf_number",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "max_capacity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null
+        ,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "WineLocation",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null
+        ,
+          "status": "deduced"
+        },
+        {
+          "name": "wine_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Wine",
+            "target_field": "id",
+            "relationship": "one_to_one"
+          }
+        ,
+          "status": "explicit"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "StorageLocation",
+            "target_field": "id",
+            "relationship": "one_to_one"
+          }
+        ,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}📊 Stats data_models : 1010 tokens generated in 130.24s (7.8 tok/s)
+
+🚀 [Query] Extracting invariants...
+
+--- END OF DATA_MODELS STREAM ---
+--- START OF INVARIANTS STREAM ---
+{"invariants": [
+    "wine.name must be unique across all wines in the system",
+    "wine.selling_price must be strictly greater than wine.cost_price",
+    "wine.stock_quantity must be non-negative",
+    "wine.primary_storage_location must be assigned to exactly one storage location",
+    "storage_location.assigned_bottles_count must not exceed storage_location.max_bottle_capacity",
+    "storage_location cannot be deleted if it has assigned bottles",
+    "wine.stock_quantity cannot be reduced below zero",
+    "storage_location.assigned_bottles_count must be zero when the location is deleted"
+]}📊 Stats invariants : 135 tokens generated in 31.22s (4.3 tok/s)
+
+🚀 [Query] Extracting components...
+
+--- END OF INVARIANTS STREAM ---
+--- START OF COMPONENTS STREAM ---
+{
+  "components": {
+    "facade": {
+      "type": "gui"
+    ,
+      "technology": "pyimgui"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Wine",
+        "operations": ["create", "read_all", "update"]
+      },
+      {
+        "entity": "StorageLocation",
+        "operations": ["create", "read_all"]
+      }
+    ]
+  }
+}📊 Stats components : 127 tokens generated in 26.69s (4.8 tok/s)
+
+🚀 [Query] Extracting service_contracts...
+
+--- END OF COMPONENTS STREAM ---
+--- START OF SERVICE_CONTRACTS STREAM ---
+{"service_contracts": [
+    {
+        "service_name": "WineShopInventoryManager",
+        "methods": [
+            {
+                "name": "add_wine",
+                "description": "Adds a new wine entry to the inventory with validation for uniqueness and pricing constraints.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "vintage_year",
+                        "type": "int"
+                    },
+                    {
+                        "name": "wine_type",
+                        "type": "str" 
+                    },
+                    {
+                        "name": "country_of_origin",
+                        "type": "str"
+                    },
+                    {
+                        "name": "cost_price",
+                        "type": "float"
+                    },
+                    {
+                        "name": "selling_price",
+                        "type": "float"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "update_wine_stock",
+                "description": "Updates the stock quantity of an existing wine entry, ensuring constraints are met.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "stock_quantity",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "assign_bottle_to_location",
+                "description": "Assigns a bottle of a specific wine to a storage location, validating capacity and stock constraints.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    },
+                    {
+                        "name": "location_id",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "get_wine_by_name",
+                "description": "Retrieves a wine entry by its name, ensuring uniqueness and existence in the system.",
+                "params": [
+                    {
+                        "name": "wine_name",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "dict"
+            },
+            {
+                "name": "get_storage_location_by_id",
+                "description": "Retrieves a storage location by its ID, ensuring it exists in the system.",
+                "params": [
+                    {
+                        "name": "location_id",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "dict"
+            },
+            {
+                "name": "get_total_stock_by_wine_type",
+                "description": "Calculates the total stock quantity across all wines of a specified type.",
+                "params": [
+                    {
+                        "name": "wine_type",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "int"
+            },
+            {
+                "name": "get_total_stock_by_location_zone",
+                "description": "Calculates the total stock quantity across all wines stored in a specific zone of a storage location.",
+                "params": [
+                    {
+                        "name": "zone_name",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "int"
+            },
+            {
+                "name": "get_all_wines",
+                "description": "Retrieves all wine entries in the system.",
+                "params": [
+                    {
+                        "name": "filter_by_type",
+                        "type": "Optional[str]"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_all_locations",
+                "description": "Retrieves all storage locations in the system.",
+                "params": [
+                    {
+                        "name": "filter_by_zone",
+                        "type": "Optional[str]"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "validate_pricing",
+                "description": "Validates that the selling price is strictly greater than the cost price.",
+                "params": [
+                    {
+                        "name": "cost_price",
+                        "type": "float"
+                    },
+                    {
+                        "name": "selling_price",
+                        "type": "float"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "validate_stock_quantity",
+                "description": "Ensures the stock quantity does not drop below zero.",
+                "params": [
+                    {
+                        "name": "stock_quantity",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "validate_location_capacity",
+                "description": "Checks if a storage location's current capacity is below its maximum capacity.",
+                "params": [
+                    {
+                        "name": "location_id",
+                        "type": "str"
+                    },
+                    {
+                        "name": "current_bottles",
+                        "type": "int"
+                    }
+                ],
+                "return_type": "bool"
+            }
+        ]
+    },
+    {
+        "service_name": "PersistenceManager",
+        "methods": [
+            {
+                "name": "save_wine_data",
+                "description": "Saves wine data to a local JSON file.",
+                "params": [
+                    {
+                        "name": "wine_data",
+                        "type": "list[dict]"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "save_location_data",
+                "description": "Saves storage location data to a local JSON file.",
+                "params": [
+                    {
+                        "name": "location_data",
+                        "type": "list[dict]"
+                    }
+                ],
+                "return_type": "bool"
+            },
+            {
+                "name": "load_wine_data",
+                "description": "Loads wine data from a local JSON file.",
+                "params": [
+                    {
+                        "name": "file_path",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "load_location_data",
+                "description": "Loads storage location data from a local JSON file.",
+                "params": [
+                    {
+                        "name": "file_path",
+                        "type": "str"
+                    }
+                ],
+                "return_type": "list[dict]"
+            },
+            {
+                "name": "get_file_path",
+                "description": "Returns the path to the local JSON file for wine data.",
+                "params": [
+                    {
+                        "name": "data_type",
+                        "type": "str" 
+                    }
+                ],
+                "return_type": "str"
+            }
+        ]
+    },
+    {
+        "service_name": "DomainExceptionHandler",
+        "methods": [
+            {
+                "name": "handle_invalid_pricing",
+                "description": "Raises an exception when the selling price is not strictly greater than the cost price.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_negative_stock",
+                "description": "Raises an exception when stock quantity is negative.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_location_over_capacity",
+                "description": "Raises an exception when a location exceeds its maximum bottle capacity.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_wine_name_duplicate",
+                "description": "Raises an exception when a wine name already exists in the system.",
+                "params": [],
+                "return_type": "None"
+            },
+            {
+                "name": "handle_location_in_use",
+                "description": "Raises an exception when attempting to remove a location with assigned bottles.",
+                "params": [],
+                "return_type": "None"
+            }
+        ]
+    }
+]}📊 Stats service_contracts : 1645 tokens generated in 246.59s (6.7 tok/s)
+
+🚀 [Step F] Classifying operations into Canonical Kernel Patterns (Hierarchical Logprobs)...
+
+🚀 [Query] Extracting interaction_adapters...
+
+--- END OF SERVICE_CONTRACTS STREAM ---
+--- START OF INTERACTION_ADAPTERS STREAM ---
+{"interaction_adapters": [
+    {
+        "action_name": "map_wine_to_location",
+        "target_service": "wine_storage_service",
+        "target_method": "assign_bottle_to_location",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            },
+            {
+                "field_name": "location_id",
+                "target_param": "location_id",
+                "transform": "DIRECT",
+                "lookup_entity": "StorageLocation",
+                "required": true
+            },
+            {
+                "field_name": "quantity",
+                "target_param": "quantity",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "update_wine_stock",
+        "target_service": "wine_storage_service",
+        "target_method": "update_stock_quantity",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            },
+            {
+                "field_name": "new_stock",
+                "target_param": "new_stock",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "validate_wine_pricing",
+        "target_service": "wine_storage_service",
+        "target_method": "validate_price",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            },
+            {
+                "field_name": "selling_price",
+                "target_param": "selling_price",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            },
+            {
+                "field_name": "cost_price",
+                "target_param": "cost_price",
+                "transform": "DECIMAL_TO_CENTS",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "lookup_wine_by_name",
+        "target_service": "wine_storage_service",
+        "target_method": "find_wine_by_name",
+        "input_fields": [
+            {
+                "field_name": "wine_name",
+                "target_param": "wine_name",
+                "transform": "CSV_LIST",
+                "lookup_entity": null,
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "lookup_storage_location",
+        "target_service": "wine_storage_service",
+        "target_method": "find_location_by_id",
+        "input_fields": [
+            {
+                "field_name": "location_id",
+                "target_param": "location_id",
+                "transform": "DIRECT",
+                "lookup_entity": "StorageLocation",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "get_all_wines",
+        "target_service": "wine_storage_service",
+        "target_method": "get_all_wines",
+        "input_fields": []
+    },
+    {
+        "action_name": "get_all_locations",
+        "target_service": "wine_storage_service",
+        "target_method": "get_all_locations",
+        "input_fields": []
+    },
+    {
+        "action_name": "get_location_capacity",
+        "target_service": "wine_storage_service",
+        "target_method": "get_location_capacity",
+        "input_fields": [
+            {
+                "field_name": "location_id",
+                "target_param": "location_id",
+                "transform": "DIRECT",
+                "lookup_entity": "StorageLocation",
+                "required": true
+            }
+        ]
+    },
+    {
+        "action_name": "get_wine_location",
+        "target_service": "wine_storage_service",
+        "target_method": "get_wine_location",
+        "input_fields": [
+            {
+                "field_name": "wine_id",
+                "target_param": "wine_id",
+                "transform": "DIRECT",
+                "lookup_entity": "Wine",
+                "required": true
+            }
+        ]
+    }
+]}📊 Stats interaction_adapters : 974 tokens generated in 174.41s (5.6 tok/s)
+
+🚀 [Query] Extracting persistence_ports...
+
+--- END OF INTERACTION_ADAPTERS STREAM ---
+--- START OF PERSISTENCE_PORTS STREAM ---
+{"persistence_ports": {"repositories": [{"entity": "Wine", "interface_name": "WineRepository", "methods": [{"name": "save", "description": "Persists a new wine entry or updates existing one.", "params": [{"name": "wine", "type": "Wine"}], "return_type": "bool"}, {"name": "find_by_id", "description": "Retrieves a wine by its unique identifier.", "params": [{"name": "wine_id", "type": "int"}], "return_type": "Wine"}, {"name": "find_all", "description": "Retrieves all wines in the system.", "params": [{"name": "none", "type": "None"}], "return_type": "List[Wine]"}, {"name": "update_stock", "description": "Updates the stock quantity of a wine.", "params": [{"name": "wine_id", "type": "int"}, {"name": "quantity", "type": "int"}], "return_type": "bool"}, {"name": "find_by_name", "description": "Retrieves a wine by its name (case-insensitive).", "params": [{"name": "wine_name", "type": "str"}], "return_type": "Wine"}, {"name": "delete", "description": "Deletes a wine entry.", "params": [{"name": "wine_id", "type": "int"}], "return_type": "bool"}]}, {"entity": "StorageLocation", "interface_name": "StorageLocationRepository", "methods": [{"name": "save", "description": "Persists a new storage location or updates existing one.", "params": [{"name": "location", "type": "StorageLocation"}], "return_type": "bool"}, {"name": "find_by_id", "description": "Retrieves a storage location by its unique identifier.", "params": [{"name": "location_id", "type": "int"}], "return_type": "StorageLocation"}, {"name": "find_all", "description": "Retrieves all storage locations.", "params": [{"name": "none", "type": "None"}], "return_type": "List[StorageLocation]"}, {"name": "update_capacity", "description": "Updates the capacity of a storage location.", "params": [{"name": "location_id", "type": "int"}, {"name": "new_capacity", "type": "int"}], "return_type": "bool"}, {"name": "find_by_zone", "description": "Retrieves all locations in a specific zone.", "params": [{"name": "zone_name", "type": "str"}], "return_type": "List[StorageLocation]"}, {"name": "delete", "description": "Deletes a storage location.", "params": [{"name": "location_id", "type": "int"}], "return_type": "bool"}]}, {"entity": "WineLocationMapping", "interface_name": "WineLocationMappingRepository", "methods": [{"name": "save_mapping", "description": "Associates a wine with a storage location.", "params": [{"name": "wine_id", "type": "int"}, {"name": "location_id", "type": "int"}], "return_type": "bool"}, {"name": "find_mapping_by_wine_id", "description": "Retrieves the storage location for a wine by its ID.", "params": [{"name": "wine_id", "type": "int"}], "return_type": "StorageLocation"}, {"name": "find_mapping_by_location_id", "description": "Retrieves all wines mapped to a storage location.", "params": [{"name": "location_id", "type": "int"}], "return_type": "List[Wine]"}, {"name": "delete_mapping", "description": "Removes a wine from its storage location.", "params": [{"name": "wine_id", "type": "int"}], "return_type": "bool"}, {"name": "update_mapping", "description": "Updates the storage location for a wine.", "params": [{"name": "wine_id", "type": "int"}, {"name": "new_location_id", "type": "int"}], "return_type": "bool"}]}, {"entity": "Wine", "interface_name": "WineRepository", "methods": [{"name": "find_by_name", "description": "Finds a wine by its name (case-insensitive).", "params": [{"name": "wine_name", "type": "str"}], "return_type": "Wine"}]}], "entity_mappings": [{"entity": "Wine", "table": "wines", "primary_key": "wine_id", "indexes": ["wine_name"]}, {"entity": "StorageLocation", "table": "storage_locations", "primary_key": "location_id", "indexes": ["zone_name", "row_number", "shelf_number"]}, {"entity": "WineLocationMapping", "table": "wine_location_mappings", "primary_key": "wine_id_location_id_composite", "indexes": ["wine_id", "location_id"]}]}}📊 Stats persistence_ports : 1137 tokens generated in 172.69s (6.6 tok/s)
+
+⚠️ VERIFICATION WARNINGS:
+  - Repository WineLocationMappingRepository references unknown entity 'WineLocationMapping'
+  - Persistence mapping for unknown entity 'WineLocationMapping'
+
+✅ All extraction contracts verified successfully!
+💾 File saved: out/gui/raw_intentions.json
+💾 File saved: out/gui/raw_data_models.json
+💾 File saved: out/gui/raw_invariants.json
+💾 File saved: out/gui/raw_components.json
+💾 File saved: out/gui/raw_service_contracts.json
+💾 File saved: out/gui/raw_pattern_matches.json
+💾 File saved: out/gui/raw_interaction_adapters.json
+💾 File saved: out/gui/raw_persistence_ports.json
+
+==========================================
+🏆 TOTAL TOKENS SUMMARY:
+ -> Prompt Tokens: 392
+ -> Generated Tokens (Total): 5163
+==========================================
+
+--- END OF PERSISTENCE_PORTS STREAM ---
