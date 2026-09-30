@@ -1,0 +1,32 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "Each row in the CSV must contain exactly one entry per column header (no missing columns).",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3665
+    },
+    {
+      "source": "invariant",
+      "text": "Column headers must be unique across the entire CSV file.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.3938
+    },
+    {
+      "source": "invariant",
+      "text": "All values in the CSV must be valid for their respective data types (e.g., numeric for numeric columns, alphanumeric for text columns).",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4476
+    },
+    {
+      "source": "invariant",
+      "text": "The CSV file must be well-formed (properly quoted strings, correct delimiters, no trailing commas).",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4823
+    }
+  ]
+}

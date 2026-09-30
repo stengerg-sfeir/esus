@@ -1,241 +1,22 @@
 {
   "service_contracts": [
     {
-      "service_name": "LibraryManagementSystem",
-      "methods": [
-        {
-          "name": "initialize_database",
-          "description": "Sets up the SQLite database schema for Book, Author, Member, and Loan tables with foreign key constraints.",
-          "params": [
-            {
-              "name": "db_path",
-              "type": "str"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "add_book",
-          "description": "Adds a new book to the database with validation for ISBN uniqueness and available copies.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            },
-            {
-              "name": "isbn",
-              "type": "str"
-            },
-            {
-              "name": "author_id",
-              "type": "int"
-            },
-            {
-              "name": "published_year",
-              "type": "int"
-            },
-            {
-              "name": "available_copies",
-              "type": "int"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "add_author",
-          "description": "Adds a new author to the database with validation for name uniqueness.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "birth_year",
-              "type": "int"
-            },
-            {
-              "name": "biography",
-              "type": "str"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "add_member",
-          "description": "Adds a new member to the database with validation for email uniqueness.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "membership_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "borrow_book",
-          "description": "Checks if a book is available and loans it to a member, decrementing available copies.",
-          "params": [
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "book_id",
-              "type": "int"
-            },
-            {
-              "name": "loan_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "return_book",
-          "description": "Returns a book by updating the loan record with a return date and status.",
-          "params": [
-            {
-              "name": "loan_id",
-              "type": "int"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "get_overdue_loans",
-          "description": "Retrieves all overdue loans based on the current date.",
-          "params": [
-            {
-              "name": "current_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "renew_membership",
-          "description": "Renews a member's membership by toggling their active status.",
-          "params": [
-            {
-              "name": "member_id",
-              "type": "int"
-            },
-            {
-              "name": "is_active",
-              "type": "bool"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "search_books",
-          "description": "Searches books by title, author, or ISBN.",
-          "params": [
-            {
-              "name": "query",
-              "type": "str"
-            },
-            {
-              "name": "author_id",
-              "type": "int | None"
-            },
-            {
-              "name": "isbn",
-              "type": "str | None"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "list_books",
-          "description": "Lists all books with optional filtering by author or availability.",
-          "params": [
-            {
-              "name": "author_id",
-              "type": "int | None"
-            },
-            {
-              "name": "available_only",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "list_members",
-          "description": "Lists all members with optional filtering by active status.",
-          "params": [
-            {
-              "name": "active_only",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "get_member_loan_history",
-          "description": "Retrieves all loans associated with a specific member.",
-          "params": [
-            {
-              "name": "member_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "get_book_loan_history",
-          "description": "Retrieves all loans associated with a specific book.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "get_active_loans",
-          "description": "Retrieves all currently active loans.",
-          "params": [
-            {
-              "name": "current_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "list[dict]"
-        }
-      ]
-    },
-    {
       "service_name": "BookRepository",
       "methods": [
         {
           "name": "add_book",
-          "description": "Adds a book to the database with validation for ISBN uniqueness and available copies.",
+          "description": "Adds a new book to the library system with the provided details.",
           "params": [
             {
               "name": "book",
               "type": "Book"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Book"
         },
         {
           "name": "get_book_by_id",
-          "description": "Retrieves a book by its ID.",
+          "description": "Retrieves a book by its unique identifier (ID).",
           "params": [
             {
               "name": "book_id",
@@ -245,30 +26,8 @@
           "return_type": "Book | None"
         },
         {
-          "name": "get_books_by_title",
-          "description": "Retrieves books matching a title query.",
-          "params": [
-            {
-              "name": "title",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Book]"
-        },
-        {
-          "name": "get_books_by_author",
-          "description": "Retrieves books by a specific author ID.",
-          "params": [
-            {
-              "name": "author_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Book]"
-        },
-        {
           "name": "get_books_by_isbn",
-          "description": "Retrieves books by a specific ISBN.",
+          "description": "Retrieves a book by its ISBN (unique identifier).",
           "params": [
             {
               "name": "isbn",
@@ -278,7 +37,29 @@
           "return_type": "Book | None"
         },
         {
-          "name": "update_available_copies",
+          "name": "get_books_by_title",
+          "description": "Retrieves books matching the given title (case-insensitive partial match).",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Book]"
+        },
+        {
+          "name": "get_books_by_author_id",
+          "description": "Retrieves books by the specified author ID.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Book]"
+        },
+        {
+          "name": "update_book_available_copies",
           "description": "Updates the available copies count for a book.",
           "params": [
             {
@@ -290,18 +71,18 @@
               "type": "int"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Book"
         },
         {
-          "name": "filter_books_by_available",
-          "description": "Filters books to only those with available copies.",
+          "name": "get_books_by_available_copies",
+          "description": "Retrieves books with a specified number of available copies.",
           "params": [
             {
-              "name": "available_only",
-              "type": "bool"
+              "name": "available_copies",
+              "type": "int"
             }
           ],
-          "return_type": "list[Book]"
+          "return_type": "List[Book]"
         }
       ]
     },
@@ -310,18 +91,18 @@
       "methods": [
         {
           "name": "add_author",
-          "description": "Adds an author to the database.",
+          "description": "Adds a new author to the library system.",
           "params": [
             {
               "name": "author",
               "type": "Author"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Author"
         },
         {
           "name": "get_author_by_id",
-          "description": "Retrieves an author by their ID.",
+          "description": "Retrieves an author by their unique identifier (ID).",
           "params": [
             {
               "name": "author_id",
@@ -332,25 +113,25 @@
         },
         {
           "name": "get_authors_by_name",
-          "description": "Retrieves authors matching a name query.",
+          "description": "Retrieves authors matching the given name (case-insensitive partial match).",
           "params": [
             {
               "name": "name",
               "type": "str"
             }
           ],
-          "return_type": "list[Author]"
+          "return_type": "List[Author]"
         },
         {
-          "name": "get_books_by_author",
-          "description": "Retrieves all books by a specific author ID.",
+          "name": "get_authors_with_books",
+          "description": "Retrieves authors who have at least one book in the system.",
           "params": [
             {
               "name": "author_id",
-              "type": "int"
+              "type": "int | None"
             }
           ],
-          "return_type": "list[Book]"
+          "return_type": "List[Author]"
         }
       ]
     },
@@ -359,18 +140,18 @@
       "methods": [
         {
           "name": "add_member",
-          "description": "Adds a member to the database with validation for email uniqueness.",
+          "description": "Adds a new member to the library system.",
           "params": [
             {
               "name": "member",
               "type": "Member"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Member"
         },
         {
           "name": "get_member_by_id",
-          "description": "Retrieves a member by their ID.",
+          "description": "Retrieves a member by their unique identifier (ID).",
           "params": [
             {
               "name": "member_id",
@@ -380,19 +161,8 @@
           "return_type": "Member | None"
         },
         {
-          "name": "get_members_by_name",
-          "description": "Retrieves members matching a name query.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Member]"
-        },
-        {
-          "name": "get_members_by_email",
-          "description": "Retrieves members by their email.",
+          "name": "get_member_by_email",
+          "description": "Retrieves a member by their email address.",
           "params": [
             {
               "name": "email",
@@ -402,30 +172,37 @@
           "return_type": "Member | None"
         },
         {
-          "name": "get_active_members",
-          "description": "Retrieves all active members.",
+          "name": "get_members_by_name",
+          "description": "Retrieves members matching the given name (case-insensitive partial match).",
           "params": [
             {
-              "name": "active_only",
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Member]"
+        },
+        {
+          "name": "get_active_members",
+          "description": "Retrieves all active members in the system.",
+          "params": [
+            {
+              "name": "is_active",
               "type": "bool"
             }
           ],
-          "return_type": "list[Member]"
+          "return_type": "List[Member]"
         },
         {
           "name": "get_inactive_members",
-          "description": "Retrieves all inactive members.",
+          "description": "Retrieves all inactive members in the system.",
           "params": [
             {
-              "name": "active_only",
-              "type": "bool"
-            },
-            {
-              "name": "inactive_only",
+              "name": "is_active",
               "type": "bool"
             }
           ],
-          "return_type": "list[Member]"
+          "return_type": "List[Member]"
         }
       ]
     },
@@ -434,18 +211,18 @@
       "methods": [
         {
           "name": "add_loan",
-          "description": "Adds a loan record to the database.",
+          "description": "Adds a new loan record for a book to a member.",
           "params": [
             {
               "name": "loan",
               "type": "Loan"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Loan"
         },
         {
           "name": "get_loan_by_id",
-          "description": "Retrieves a loan by its ID.",
+          "description": "Retrieves a loan by its unique identifier (ID).",
           "params": [
             {
               "name": "loan_id",
@@ -455,52 +232,67 @@
           "return_type": "Loan | None"
         },
         {
-          "name": "get_loans_by_member",
-          "description": "Retrieves all loans associated with a specific member ID.",
-          "params": [
-            {
-              "name": "member_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Loan]"
-        },
-        {
-          "name": "get_loans_by_book",
-          "description": "Retrieves all loans associated with a specific book ID.",
+          "name": "get_loans_by_book_id",
+          "description": "Retrieves all loans for a specific book.",
           "params": [
             {
               "name": "book_id",
               "type": "int"
             }
           ],
-          "return_type": "list[Loan]"
+          "return_type": "List[Loan]"
+        },
+        {
+          "name": "get_loans_by_member_id",
+          "description": "Retrieves all loans for a specific member.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Loan]"
         },
         {
           "name": "get_active_loans",
           "description": "Retrieves all currently active loans.",
           "params": [
             {
-              "name": "current_date",
-              "type": "datetime.datetime"
+              "name": ": ",
+              "type": "None"
             }
           ],
-          "return_type": "list[Loan]"
+          "return_type": "List[Loan]"
         },
         {
           "name": "get_overdue_loans",
-          "description": "Retrieves all overdue loans based on the current date.",
+          "description": "Retrieves all overdue loans.",
           "params": [
             {
-              "name": "current_date",
-              "type": "datetime.datetime"
+              "name": "due_date",
+              "type": "datetime.date"
             }
           ],
-          "return_type": "list[Loan]"
+          "return_type": "List[Loan]"
+        },
+        {
+          "name": "update_loan_return_date",
+          "description": "Updates the return date for a loan.",
+          "params": [
+            {
+              "name": "loan_id",
+              "type": "int"
+            },
+            {
+              "name": "return_date",
+              "type": "datetime.date | None"
+            }
+          ],
+          "return_type": "Loan"
         },
         {
           "name": "update_loan_status",
-          "description": "Updates the status of a loan record.",
+          "description": "Updates the status of a loan.",
           "params": [
             {
               "name": "loan_id",
@@ -511,22 +303,7 @@
               "type": "str"
             }
           ],
-          "return_type": "bool"
-        },
-        {
-          "name": "update_return_date",
-          "description": "Updates the return date of a loan record.",
-          "params": [
-            {
-              "name": "loan_id",
-              "type": "int"
-            },
-            {
-              "name": "return_date",
-              "type": "datetime.datetime"
-            }
-          ],
-          "return_type": "bool"
+          "return_type": "Loan"
         }
       ]
     },
@@ -535,7 +312,7 @@
       "methods": [
         {
           "name": "borrow_book",
-          "description": "Checks if a book is available and loans it to a member, decrementing available copies.",
+          "description": "Allows a member to borrow a book if it is available.",
           "params": [
             {
               "name": "member_id",
@@ -547,14 +324,14 @@
             },
             {
               "name": "loan_date",
-              "type": "datetime.datetime"
+              "type": "datetime.date"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Loan | None"
         },
         {
           "name": "return_book",
-          "description": "Returns a book by updating the loan record with a return date and status.",
+          "description": "Returns a book by updating its loan record.",
           "params": [
             {
               "name": "loan_id",
@@ -562,21 +339,21 @@
             },
             {
               "name": "return_date",
-              "type": "datetime.datetime"
+              "type": "datetime.date"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Loan"
         },
         {
           "name": "get_overdue_loans",
           "description": "Retrieves all overdue loans based on the current date.",
           "params": [
             {
-              "name": "current_date",
-              "type": "datetime.datetime"
+              "name": "due_date",
+              "type": "datetime.date"
             }
           ],
-          "return_type": "list[Loan]"
+          "return_type": "List[Loan]"
         },
         {
           "name": "renew_membership",
@@ -591,52 +368,18 @@
               "type": "bool"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Member"
         },
         {
           "name": "search_books",
-          "description": "Searches books by title, author, or ISBN.",
+          "description": "Searches for books by title, author, or ISBN.",
           "params": [
             {
               "name": "query",
               "type": "str"
-            },
-            {
-              "name": "author_id",
-              "type": "int | None"
-            },
-            {
-              "name": "isbn",
-              "type": "str | None"
             }
           ],
-          "return_type": "list[Book]"
-        },
-        {
-          "name": "list_books",
-          "description": "Lists all books with optional filtering by author or availability.",
-          "params": [
-            {
-              "name": "author_id",
-              "type": "int | None"
-            },
-            {
-              "name": "available_only",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[Book]"
-        },
-        {
-          "name": "list_members",
-          "description": "Lists all members with optional filtering by active status.",
-          "params": [
-            {
-              "name": "active_only",
-              "type": "bool"
-            }
-          ],
-          "return_type": "list[Member]"
+          "return_type": "List[Book]"
         }
       ]
     }

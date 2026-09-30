@@ -4,14 +4,15 @@
     "book.available_copies must be >= 0",
     "author.id must be unique across all authors",
     "member.email must be unique across all members",
-    "loan.book_id must reference a valid book (exists in books table)",
-    "loan.member_id must reference a valid member (exists in members table)",
+    "loan.book_id must reference a valid book",
+    "loan.member_id must reference a valid member",
     "loan.status must be one of ['active', 'returned', 'overdue']",
     "loan.return_date must be null if status is 'active'",
     "loan.return_date must be set if status is 'returned'",
-    "loan.due_date must be a valid date (not in the past)",
-    "loan.loan_date must be before due_date",
+    "loan.due_date must be a valid date (not in the past) when created",
+    "loan.loan_date must be a valid date (not in the past) when created",
     "member.is_active must be a boolean",
-    "member.membership_date must be a valid date (not in the future)"
+    "member.membership_date must be a valid date (not in the past) when created",
+    "book.published_year must be a valid year (e.g., 1900–current year)"
   ]
 }

@@ -1,0 +1,103 @@
+"""Step H grammar whose repository and mapping lists are fixed upstream.
+
+Step H is the step the report found inventing entities ("Expense" for prompts
+with no domain model), duplicating repositories and picking primary keys that
+do not exist. Rather than constrain those fields, they are removed from the
+model's control: the repository list is exactly the entity set step D declared
+CRUD operations for, in a fixed order, and each mapping's primary key is the
+one step B marked.
+
+The model still writes what it is good at — interface names, table names and
+the method bodies — but it can no longer disagree with the domain model about
+which entities exist.
+"""
+
+from kernel.extraction import grammar_open
+from kernel.extraction.grammar import (
+    MAX_INDEXES,
+    grammar,
+    json_literal,
+    json_list,
+    json_object,
+    rule,
+    string_choice,
+)
+
+
+def persistence_ports(vocabulary):
+    """Build step H's grammar from the persisted entities of steps B and D."""
+    entries = persisted_entities(vocabulary)
+    if not entries:
+        return grammar_open.persistence_ports()
+
+    repository_rules = []
+    mapping_rules = []
+    for index, (entity, primary_key) in enumerate(entries):
+        repository_rules.append(
+            rule(
+                f"repo-{index}",
+                json_object(
+                    [
+                        ("entity", json_literal(entity)),
+                        ("interface_name", "identifier"),
+                        ("methods", "method-list"),
+                    ]
+                ),
+            )
+        )
+        key_grammar = string_choice([primary_key]) if primary_key else "identifier"
+        mapping_rules.append(
+            rule(
+                f"map-{index}",
+                json_object(
+                    [
+                        ("entity", json_literal(entity)),
+                        ("table", "identifier"),
+                        ("primary_key", key_grammar),
+                        ("indexes", "index-list"),
+                    ]
+                ),
+            )
+        )
+
+    return grammar(
+        [
+            rule("root", json_object([("persistence_ports", "ports-object")])),
+            rule(
+                "ports-object",
+                json_object(
+                    [
+                        ("repositories", "repository-list"),
+                        ("entity_mappings", "mapping-list"),
+                    ]
+                ),
+            ),
+            rule("repository-list", fixed_sequence("repo", len(entries))),
+            rule("mapping-list", fixed_sequence("map", len(entries))),
+            *repository_rules,
+            *mapping_rules,
+            rule("index-list", json_list("identifier", 0, MAX_INDEXES)),
+            *grammar_open.method_rules(),
+        ]
+    )
+
+
+def persisted_entities(vocabulary):
+    """The (entity, primary key) pairs that must have a repository.
+
+    The entities step D declared CRUD operations for are the persisted ones. If
+    step D named none, every modelled entity is persisted — better a repository
+    too many than a missing mapping.
+    """
+    primary_keys = vocabulary.primary_key_of
+    names = vocabulary.crud_entities or vocabulary.entity_names
+    return tuple((name, primary_keys.get(name)) for name in names)
+
+
+def fixed_sequence(prefix, count):
+    """A JSON array emitting exactly `prefix-0 … prefix-(count-1)` in order."""
+    parts = ['"[" ws', f"{prefix}-0"]
+    for index in range(1, count):
+        parts.append(f'ws "," ws {prefix}-{index}')
+    parts.append('ws "]"')
+    return " ".join(parts)

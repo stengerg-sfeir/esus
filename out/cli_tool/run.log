@@ -1,183 +1,44 @@
-[1/2] Initializing model on CPU (8k context, 8 threads)...
-llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
-📊 Input prompt size: ~122 tokens.
-
-
-🚀 [Query] Extracting intentions...
---- START OF INTENTIONS STREAM ---
-{"intentions": [
-  "Parse a CSV file dynamically by reading its header row to determine column names",
-  "Convert each CSV row into a JSON object using the actual headers as keys",
-  "Handle CLI input/output with file paths (input and optional output)",
-  "Validate file existence and malformed CSV data",
-  "Output JSON to stdout or a specified file path"
-]}📊 Stats intentions : 79 tokens generated in 15.26s (5.2 tok/s)
-
-🚀 [Query] Extracting data_models...
-
---- END OF INTENTIONS STREAM ---
---- START OF DATA_MODELS STREAM ---
-{
-  "data_models": [
-    {
-      "name": "csv_row",
-      "fields": [
-        {
-          "name": "value",
-          "type": "text",
-          "primary_key": false,
-          "nullable": true,
-          "unique": false,
-          "foreign_key": null
-        ,
-        "status": "deduced"
-        }
-      ]
-    }
-  ]
-}📊 Stats data_models : 85 tokens generated in 16.00s (5.3 tok/s)
-
-🚀 [Query] Extracting invariants...
-
---- END OF DATA_MODELS STREAM ---
---- START OF INVARIANTS STREAM ---
-{
-  "invariants": [
-    "Each row in the CSV must contain exactly one entry per column header (no missing columns).",
-    "Column headers must be unique across the entire CSV file.",
-    "All values in the CSV must be valid for their respective data types (e.g., numeric for numeric columns, alphanumeric for text columns).",
-    "The CSV file must be well-formed (properly quoted strings, correct delimiters, no trailing commas)."
-  ]
-}📊 Stats invariants : 104 tokens generated in 19.41s (5.4 tok/s)
-
-🚀 [Query] Extracting components...
-
---- END OF INVARIANTS STREAM ---
---- START OF COMPONENTS STREAM ---
-{
-  "components": {
-    "facade": {
-      "type": "cli",
-      "technology": "argparse"
-    },
-    "persistence": {
-      "required": true,
-      "technology": "none"
-    },
-    "external_access": [],
-    "crud_services": []
-  }
-}📊 Stats components : 75 tokens generated in 15.70s (4.8 tok/s)
-
-🚀 [Query] Extracting service_contracts...
-
---- END OF COMPONENTS STREAM ---
---- START OF SERVICE_CONTRACTS STREAM ---
-{"service_contracts": [
-    {
-        "service_name": "CSVToJSONConverter",
-        "methods": [
-            {
-                "name": "convert_csv_to_json",
-                "description": "Converts a CSV file to JSON, dynamically extracting column headers from the first row. Outputs JSON objects for each row, with headers as keys.",
-                "params": [
-                    {
-                        "name": "input_file_path",
-                        "type": "string"
-                    },
-                    {
-                        "name": "output_file_path",
-                        "type": "string | null"
-                    }
-                ],
-                "return_type": "void | string"
-            }
-        ]
-    }
-]}📊 Stats service_contracts : 139 tokens generated in 23.66s (5.9 tok/s)
-
-🚀 [Step F] Classifying operations into Canonical Kernel Patterns (Hierarchical Logprobs)...
-
-🚀 [Query] Extracting interaction_adapters...
-
---- END OF SERVICE_CONTRACTS STREAM ---
---- START OF INTERACTION_ADAPTERS STREAM ---
-{"interaction_adapters": [
-    {
-        "action_name": "read_csv_file",
-        "target_service": "file_reader",
-        "target_method": "read_csv",
-        "input_fields": [
-            {
-                "field_name": "input_file_path",
-                "target_param": "file_path",
-                "transform": "DIRECT",
-                "lookup_entity": null,
-                "required": true
-            }
-        ]
-    },
-    {
-        "action_name": "write_json_file",
-        "target_service": "file_writer",
-        "target_method": "write_json",
-        "input_fields": [
-            {
-                "field_name": "output_data",
-                "target_param": "data",
-                "transform": "DIRECT",
-                "lookup_entity": null,
-                "required": true
-            },
-            {
-                "field_name": "output_file_path",
-                "target_param": "file_path",
-                "transform": "DIRECT",
-                "lookup_entity": null,
-                "required": false
-            }
-        ]
-    },
-    {
-        "action_name": "handle_csv_errors",
-        "target_service": "error_handler",
-        "target_method": "handle_csv_errors",
-        "input_fields": [
-            {
-                "field_name": "error_message",
-                "target_param": "error",
-                "transform": "DIRECT",
-                "lookup_entity": null,
-                "required": true
-            }
-        ]
-    }
-]}📊 Stats interaction_adapters : 302 tokens generated in 43.64s (6.9 tok/s)
-
-🚀 [Query] Extracting persistence_ports...
-
---- END OF INTERACTION_ADAPTERS STREAM ---
---- START OF PERSISTENCE_PORTS STREAM ---
-{"persistence_ports": {"repositories": [{"entity": "Expense", "interface_name": "ExpenseRepository", "methods": [{"name": "save", "description": "Persists an Expense entity", "params": [{"name": "expense", "type": "Expense"}], "return_type": "Expense"}, {"name": "findById", "description": "Retrieves an Expense by its ID", "params": [{"name": "id", "type": "UUID"}], "return_type": "Expense"}, {"name": "findAll", "description": "Retrieves all Expenses", "params": [{"name": "offset", "type": "int"}, {"name": "limit", "type": "int"}], "return_type": "List[Expense]"}, {"name": "findByCategory", "description": "Retrieves Expenses by category", "params": [{"name": "category", "type": "String"}], "return_type": "List[Expense]"}, {"name": "calculateTotalByCategory", "description": "Calculates total expenses by category", "params": [{"name": "category", "type": "String"}], "return_type": "Map[String, Double]"}]}], "entity_mappings": [{"entity": "Expense", "table": "expenses", "primary_key": "id", "indexes": ["id", "category_id", "date"]}]} }📊 Stats persistence_ports : 313 tokens generated in 55.93s (5.6 tok/s)
-
-⚠️ VERIFICATION WARNINGS:
-  - Repository ExpenseRepository references unknown entity 'Expense'
-  - Persistence mapping for unknown entity 'Expense'
-
-✅ All extraction contracts verified successfully!
-💾 File saved: out/cli_tool/raw_intentions.json
-💾 File saved: out/cli_tool/raw_data_models.json
-💾 File saved: out/cli_tool/raw_invariants.json
-💾 File saved: out/cli_tool/raw_components.json
-💾 File saved: out/cli_tool/raw_service_contracts.json
-💾 File saved: out/cli_tool/raw_pattern_matches.json
-💾 File saved: out/cli_tool/raw_interaction_adapters.json
-💾 File saved: out/cli_tool/raw_persistence_ports.json
-
-==========================================
-🏆 TOTAL TOKENS SUMMARY:
- -> Prompt Tokens: 122
- -> Generated Tokens (Total): 1105
-==========================================
-
---- END OF PERSISTENCE_PORTS STREAM ---
+[run] requirements: 441 characters
+[intentions] 85 tokens in 3.9s (21.9 tok/s)
+[data_models] 1488 tokens in 53.8s (27.6 tok/s)
+[invariants] 155 tokens in 6.9s (22.6 tok/s)
+[components] 71 tokens in 3.3s (21.5 tok/s)
+[service_contracts] 1125 tokens in 44.9s (25.0 tok/s)
+  [1/26] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.71)
+  [2/26] invariant -> BUDGET_OVERFLOW_GUARD (0.50)
+  [3/26] invariant -> BUDGET_OVERFLOW_GUARD (0.48)
+  [4/26] invariant -> BUDGET_OVERFLOW_GUARD (0.54)
+  [5/26] invariant -> CUSTOM_DOMAIN_LOGIC (0.26)
+  [6/26] invariant -> BUDGET_OVERFLOW_GUARD (0.60)
+  [7/26] invariant -> BUDGET_OVERFLOW_GUARD (0.36)
+  [8/26] invariant -> BUDGET_OVERFLOW_GUARD (0.48)
+  [9/26] invariant -> BUDGET_OVERFLOW_GUARD (0.38)
+  [10/26] invariant -> BUDGET_OVERFLOW_GUARD (0.43)
+  [11/26] invariant -> AGGREGATE_BY_FK_AND_DATE (0.21)
+  [12/26] contract:UserService.get_user_by_email -> AGGREGATE_BY_FK (0.49)
+  [13/26] contract:UserService.get_all_users -> CUSTOM_DOMAIN_LOGIC (0.40)
+  [14/26] contract:UserService.update_user_profile -> CUSTOM_OR_STANDARD_CRUD (0.83)
+  [15/26] contract:ProductService.get_product_by_id -> CUSTOM_OR_STANDARD_CRUD (0.56)
+  [16/26] contract:ProductService.get_all_products -> CUSTOM_DOMAIN_LOGIC (0.31)
+  [17/26] contract:ProductService.update_product_stock -> CUSTOM_OR_STANDARD_CRUD (0.82)
+  [18/26] contract:ProductService.get_product_by_name -> FILTER_WITH_PAGINATION (0.25)
+  [19/26] contract:OrderService.get_order_by_id -> CUSTOM_OR_STANDARD_CRUD (0.58)
+  [20/26] contract:OrderService.get_order_by_user_id -> AGGREGATE_BY_FK (0.29)
+  [21/26] contract:OrderService.create_order -> CUSTOM_OR_STANDARD_CRUD (0.85)
+  [22/26] contract:OrderService.update_order_status -> CUSTOM_OR_STANDARD_CRUD (0.83)
+  [23/26] contract:OrderService.get_total_by_category_and_month -> AGGREGATE_BY_FK_AND_DATE (0.89)
+  [24/26] contract:OrderItemService.get_order_item_by_id -> CUSTOM_OR_STANDARD_CRUD (0.63)
+  [25/26] contract:OrderItemService.get_order_items_by_order_id -> FILTER_WITH_PAGINATION (0.22)
+  [26/26] contract:OrderItemService.update_order_item_quantity -> CUSTOM_OR_STANDARD_CRUD (0.84)
+[interaction_adapters] 1796 tokens in 69.4s (25.9 tok/s)
+[persistence_ports] 1744 tokens in 79.5s (22.0 tok/s)
+[ok] step persistence_ports: removed 7 exactly repeated name(s)
+[write] out/cli_tool/intentions.json
+[write] out/cli_tool/data_models.json
+[write] out/cli_tool/invariants.json
+[write] out/cli_tool/components.json
+[write] out/cli_tool/service_contracts.json
+[write] out/cli_tool/pattern_matches.json
+[write] out/cli_tool/interaction_adapters.json
+[write] out/cli_tool/persistence_ports.json
+[run] 7 steps, 6464 generated tokens in 261.7s

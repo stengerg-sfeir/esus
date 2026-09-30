@@ -1,135 +1,23 @@
-[1/2] Initializing model on CPU (8k context, 8 threads)...
-llama_context: setting new yarn_attn_factor = 1.0000 (mscale == 1.0, mscale_all_dim = 1.0)
-📊 Input prompt size: ~77 tokens.
-
-
-🚀 [Query] Extracting intentions...
---- START OF INTENTIONS STREAM ---
-{"intentions": [
-    "Implement a CLI script with a `main()` function for printing 'Hello, World!'",
-    "Ensure type hints are included in the function signature",
-    "Include a standard `if __name__ == '__main__': main()` guard for CLI entry point"
-]}📊 Stats intentions : 64 tokens generated in 10.05s (6.4 tok/s)
-
-🚀 [Query] Extracting data_models...
-
---- END OF INTENTIONS STREAM ---
---- START OF DATA_MODELS STREAM ---
-{
-  "data_models": [
-    {
-      "name": "main",
-      "fields": [
-        {
-          "name": "message",
-          "type": "text",
-          "primary_key": true,
-          "nullable": false,
-          "unique": true,
-          "foreign_key": null
-        ,
-        "status": "deduced"
-        }
-      ]
-    }
-  ]
-}📊 Stats data_models : 84 tokens generated in 12.06s (7.0 tok/s)
-
-🚀 [Query] Extracting invariants...
-
---- END OF DATA_MODELS STREAM ---
---- START OF INVARIANTS STREAM ---
-{"invariants": []}📊 Stats invariants : 8 tokens generated in 5.09s (1.6 tok/s)
-
-🚀 [Query] Extracting components...
-
---- END OF INVARIANTS STREAM ---
---- START OF COMPONENTS STREAM ---
-{
-  "components": {
-    "facade": {
-      "type": "cli"
-    ,
-    "technology": "argparse"
-    },
-    "persistence": {
-      "required": false,
-      "technology": "none"
-    },
-    "external_access": [],
-    "crud_services": []
-  }
-}📊 Stats components : 75 tokens generated in 13.70s (5.5 tok/s)
-
-🚀 [Query] Extracting service_contracts...
-
---- END OF COMPONENTS STREAM ---
---- START OF SERVICE_CONTRACTS STREAM ---
-{
-  "service_contracts": [
-    {
-      "service_name": "HelloWorldService",
-      "methods": [
-        {
-          "name": "print_greeting",
-          "description": "Prints a greeting message to the console.",
-          "params": [
-            {"name": "name", "type": "str"}
-          ],
-          "return_type": "NoneType"
-        }
-      ]
-    }
-  ]
-}📊 Stats service_contracts : 91 tokens generated in 12.76s (7.1 tok/s)
-
-🚀 [Step F] Classifying operations into Canonical Kernel Patterns (Hierarchical Logprobs)...
-
-🚀 [Query] Extracting interaction_adapters...
-
---- END OF SERVICE_CONTRACTS STREAM ---
---- START OF INTERACTION_ADAPTERS STREAM ---
-{"interaction_adapters": [
-    {
-        "action_name": "print_hello_world",
-        "target_service": "cli",
-        "target_method": "main",
-        "input_fields": [
-            {
-                "field_name": "message",
-                "target_param": "message",
-                "transform": "DIRECT",
-                "lookup_entity": null,
-                "required": true
-            }
-        ]
-    }
-]}📊 Stats interaction_adapters : 89 tokens generated in 12.34s (7.2 tok/s)
-
-🚀 [Query] Extracting persistence_ports...
-
---- END OF INTERACTION_ADAPTERS STREAM ---
---- START OF PERSISTENCE_PORTS STREAM ---
-{"persistence_ports": {"repositories": [{"entity": "Expense", "interface_name": "ExpenseRepository", "methods": [{"name": "create", "description": "Creates a new expense record", "params": [{"name": "expense", "type": "Expense"}], "return_type": "Expense"}]}], "entity_mappings": [{"entity": "Expense", "table": "expenses", "primary_key": "id", "indexes": ["expense_date_idx"]}]}}📊 Stats persistence_ports : 112 tokens generated in 26.01s (4.3 tok/s)
-
-⚠️ VERIFICATION WARNINGS:
-  - Repository ExpenseRepository references unknown entity 'Expense'
-  - Persistence mapping for unknown entity 'Expense'
-
-✅ All extraction contracts verified successfully!
-💾 File saved: out/hello/raw_intentions.json
-💾 File saved: out/hello/raw_data_models.json
-💾 File saved: out/hello/raw_invariants.json
-💾 File saved: out/hello/raw_components.json
-💾 File saved: out/hello/raw_service_contracts.json
-💾 File saved: out/hello/raw_pattern_matches.json
-💾 File saved: out/hello/raw_interaction_adapters.json
-💾 File saved: out/hello/raw_persistence_ports.json
-
-==========================================
-🏆 TOTAL TOKENS SUMMARY:
- -> Prompt Tokens: 77
- -> Generated Tokens (Total): 523
-==========================================
-
---- END OF PERSISTENCE_PORTS STREAM ---
+[run] requirements: 210 characters
+[intentions] 58 tokens in 2.6s (22.1 tok/s)
+[data_models] 544 tokens in 19.4s (28.1 tok/s)
+[invariants] 7 tokens in 0.6s (11.6 tok/s)
+[components] 70 tokens in 3.1s (22.9 tok/s)
+[service_contracts] 582 tokens in 23.2s (25.1 tok/s)
+  [1/7] contract:UserService.get_user_by_id -> CUSTOM_OR_STANDARD_CRUD (0.53)
+  [2/7] contract:UserService.create_user -> CUSTOM_OR_STANDARD_CRUD (0.85)
+  [3/7] contract:PostService.get_post_by_id -> CUSTOM_OR_STANDARD_CRUD (0.51)
+  [4/7] contract:PostService.create_post -> CUSTOM_OR_STANDARD_CRUD (0.82)
+  [5/7] contract:PostRepository.get_posts_by_user_id -> AGGREGATE_BY_FK (0.39)
+  [6/7] contract:PostRepository.get_total_posts_by_user_id -> AGGREGATE_BY_FK (0.85)
+  [7/7] contract:PostAnalytics.get_total_posts_by_category_and_month -> AGGREGATE_BY_FK_AND_DATE (0.77)
+[interaction_adapters] 686 tokens in 25.8s (26.6 tok/s)
+[ok] step persistence: components declare no persistence — step skipped
+[write] out/hello/intentions.json
+[write] out/hello/data_models.json
+[write] out/hello/invariants.json
+[write] out/hello/components.json
+[write] out/hello/service_contracts.json
+[write] out/hello/pattern_matches.json
+[write] out/hello/interaction_adapters.json
+[run] 6 steps, 1947 generated tokens in 74.7s

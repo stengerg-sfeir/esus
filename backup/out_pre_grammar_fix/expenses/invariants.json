@@ -1,0 +1,19 @@
+{
+  "invariants": [
+    "category.name must be unique across all categories",
+    "category.monthly_budget must be non-negative if provided (stored as cents)",
+    "category.icon must be a string or None",
+    "expense.amount_cents must be non-negative",
+    "expense.expense_date must be in ISO format (YYYY-MM-DD) and valid",
+    "expense.category_id must reference an existing category",
+    "expense.payment_method must be one of ['cash', 'card', 'transfer']",
+    "expense.is_recurring must be boolean",
+    "budget.category_id must reference an existing category",
+    "budget.month must be in 'YYYY-MM' format and valid",
+    "budget.amount_limit_cents must be non-negative",
+    "budget.unique constraint applies to (category_id, month) across all budgets",
+    "expense_date must be <= current date when adding an expense",
+    "no duplicate expenses for the same category, amount, and date in a month (if recurring)",
+    "expense amount cannot exceed budget limit for its category in the month it was recorded"
+  ]
+}

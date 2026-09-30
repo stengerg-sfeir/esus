@@ -1,0 +1,53 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "create",
+          "read_all",
+          "update"
+        ]
+      },
+      {
+        "entity": "Category",
+        "operations": [
+          "create",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Order",
+        "operations": [
+          "create",
+          "read_all",
+          "update"
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "operations": [
+          "create",
+          "read_all"
+        ]
+      }
+    ]
+  }
+}

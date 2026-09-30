@@ -5,8 +5,15 @@ from dataclasses import dataclass, field
 ERROR = "error"
 WARNING = "warning"
 
-SEVERITY_ORDER = (ERROR, WARNING)
-SEVERITY_HEADERS = {ERROR: "❌ ERRORS", WARNING: "⚠️  WARNINGS"}
+# A note is an observation the checker cannot call a defect: an empty
+# intentions or invariants list is a correct extraction when the requirements
+# state none, and the checker has no access to the requirements to tell the
+# difference. Notes are reported but never counted, so "0 errors, 0 warnings"
+# stays an accurate statement about a clean run.
+NOTE = "note"
+
+SEVERITY_ORDER = (ERROR, WARNING, NOTE)
+SEVERITY_HEADERS = {ERROR: "❌ ERRORS", WARNING: "⚠️  WARNINGS", NOTE: "NOTES"}
 
 MAX_SUBJECTS = 8
 GRAND_TOTAL_RULES = 10
@@ -68,6 +75,9 @@ class Report:
     def warning(self, rule, message):
         self.add(WARNING, rule, message)
 
+    def note(self, rule, message):
+        self.add(NOTE, rule, message)
+
     @property
     def sorted_findings(self):
         return sorted(
@@ -91,7 +101,12 @@ class Report:
         return self.of_severity(WARNING)
 
     @property
+    def notes(self):
+        return self.of_severity(NOTE)
+
+    @property
     def counts(self):
+        """Errors and warnings only — a note is not a defect."""
         return len(self.errors), len(self.warnings)
 
 
@@ -115,7 +130,10 @@ def render_report(report, show_all=False):
                 lines.append(f"     … and {hidden} more (--all-findings to list them)")
 
     errors, warnings = report.counts
-    lines.append(f"\n  Summary: {errors} error(s), {warnings} warning(s)")
+    summary = f"\n  Summary: {errors} error(s), {warnings} warning(s)"
+    if report.notes:
+        summary += f", {len(report.notes)} note(s)"
+    lines.append(summary)
     return "\n".join(lines)
 
 
@@ -130,12 +148,15 @@ def render_grand_total(reports):
     """Render the cross-directory tally, including the noisiest rules."""
     total_errors = sum(report.counts[0] for report in reports)
     total_warnings = sum(report.counts[1] for report in reports)
+    total_notes = sum(len(report.notes) for report in reports)
 
+    header = f"  GRAND TOTAL: {total_errors} error(s), {total_warnings} warning(s)"
+    if total_notes:
+        header += f", {total_notes} note(s)"
     lines = [
         "",
         "=" * 60,
-        f"  GRAND TOTAL: {total_errors} error(s), {total_warnings} warning(s) "
-        f"across {len(reports)} prompt(s)",
+        f"{header} across {len(reports)} prompt(s)",
         "=" * 60,
     ]
 

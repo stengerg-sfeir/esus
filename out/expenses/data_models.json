@@ -8,9 +8,9 @@
           "type": "int",
           "primary_key": true,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "name",
@@ -37,7 +37,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "icon",
@@ -46,7 +46,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },
@@ -58,9 +58,9 @@
           "type": "int",
           "primary_key": true,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "amount_cents",
@@ -84,10 +84,10 @@
           "name": "expense_date",
           "type": "date",
           "primary_key": false,
-          "nullable": false,
+          "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "category_id",
@@ -109,7 +109,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "is_recurring",
@@ -118,7 +118,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },
@@ -130,9 +130,9 @@
           "type": "int",
           "primary_key": true,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "category_id",

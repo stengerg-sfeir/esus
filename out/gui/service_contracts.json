@@ -1,14 +1,46 @@
 {
   "service_contracts": [
     {
-      "service_name": "WineShopInventoryManager",
+      "service_name": "WineRepository",
       "methods": [
         {
-          "name": "add_wine",
-          "description": "Adds a new wine entry to the inventory with validation for uniqueness and pricing constraints.",
+          "name": "get_all_wines",
+          "description": "Retrieves all wines in the system.",
+          "params": [],
+          "return_type": "List[Wine]"
+        },
+        {
+          "name": "get_wine_by_id",
+          "description": "Retrieves a specific wine by its unique identifier.",
+          "params": [
+            {
+              "name": "wine_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Wine | None"
+        },
+        {
+          "name": "get_wine_by_name",
+          "description": "Retrieves a wine by its name (case-insensitive).",
           "params": [
             {
               "name": "wine_name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Wine | None"
+        },
+        {
+          "name": "create_wine",
+          "description": "Creates a new wine entry in the system.",
+          "params": [
+            {
+              "name": "wine_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
               "type": "str"
             },
             {
@@ -32,110 +64,34 @@
               "type": "float"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Wine"
         },
         {
-          "name": "update_wine_stock",
-          "description": "Updates the stock quantity of an existing wine entry, ensuring constraints are met.",
+          "name": "update_wine",
+          "description": "Updates an existing wine entry.",
           "params": [
             {
-              "name": "wine_name",
-              "type": "str"
-            },
-            {
-              "name": "stock_quantity",
+              "name": "wine_id",
               "type": "int"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "assign_bottle_to_location",
-          "description": "Assigns a bottle of a specific wine to a storage location, validating capacity and stock constraints.",
-          "params": [
+            },
             {
-              "name": "wine_name",
+              "name": "name",
               "type": "str"
             },
             {
-              "name": "location_id",
-              "type": "str"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "get_wine_by_name",
-          "description": "Retrieves a wine entry by its name, ensuring uniqueness and existence in the system.",
-          "params": [
-            {
-              "name": "wine_name",
-              "type": "str"
-            }
-          ],
-          "return_type": "dict"
-        },
-        {
-          "name": "get_storage_location_by_id",
-          "description": "Retrieves a storage location by its ID, ensuring it exists in the system.",
-          "params": [
-            {
-              "name": "location_id",
-              "type": "str"
-            }
-          ],
-          "return_type": "dict"
-        },
-        {
-          "name": "get_total_stock_by_wine_type",
-          "description": "Calculates the total stock quantity across all wines of a specified type.",
-          "params": [
+              "name": "vintage_year",
+              "type": "int"
+            },
             {
               "name": "wine_type",
               "type": "str"
-            }
-          ],
-          "return_type": "int"
-        },
-        {
-          "name": "get_total_stock_by_location_zone",
-          "description": "Calculates the total stock quantity across all wines stored in a specific zone of a storage location.",
-          "params": [
+            },
             {
-              "name": "zone_name",
+              "name": "country_of_origin",
               "type": "str"
-            }
-          ],
-          "return_type": "int"
-        },
-        {
-          "name": "get_all_wines",
-          "description": "Retrieves all wine entries in the system.",
-          "params": [
+            },
             {
-              "name": "filter_by_type",
-              "type": "Optional[str]"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "get_all_locations",
-          "description": "Retrieves all storage locations in the system.",
-          "params": [
-            {
-              "name": "filter_by_zone",
-              "type": "Optional[str]"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "validate_pricing",
-          "description": "Validates that the selling price is strictly greater than the cost price.",
-          "params": [
-            {
-              "name": "cost_price",
+              "name": ": ",
               "type": "float"
             },
             {
@@ -143,29 +99,161 @@
               "type": "float"
             }
           ],
-          "return_type": "bool"
+          "return_type": "Wine"
         },
         {
-          "name": "validate_stock_quantity",
-          "description": "Ensures the stock quantity does not drop below zero.",
+          "name": "delete_wine",
+          "description": "Deletes a wine entry from the system.",
           "params": [
             {
-              "name": "stock_quantity",
+              "name": "wine_id",
               "type": "int"
             }
           ],
           "return_type": "bool"
         },
         {
-          "name": "validate_location_capacity",
-          "description": "Checks if a storage location's current capacity is below its maximum capacity.",
+          "name": "add_stock",
+          "description": "Increases the stock quantity of a wine by a specified amount.",
+          "params": [
+            {
+              "name": "wine_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "reduce_stock",
+          "description": "Decreases the stock quantity of a wine by a specified amount.",
+          "params": [
+            {
+              "name": "wine_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "StorageLocationRepository",
+      "methods": [
+        {
+          "name": "get_all_locations",
+          "description": "Retrieves all storage locations in the system.",
+          "params": [],
+          "return_type": "List[StorageLocation]"
+        },
+        {
+          "name": "get_location_by_id",
+          "description": "Retrieves a specific storage location by its unique identifier.",
           "params": [
             {
               "name": "location_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "StorageLocation | None"
+        },
+        {
+          "name": "create_location",
+          "description": "Creates a new storage location entry in the system.",
+          "params": [
+            {
+              "name": "location_id",
+              "type": "int"
+            },
+            {
+              "name": "zone_name",
               "type": "str"
             },
             {
-              "name": "current_bottles",
+              "name": "row_number",
+              "type": "int"
+            },
+            {
+              "name": "shelf_number",
+              "type": "int"
+            },
+            {
+              "name": "max_bottle_capacity",
+              "type": "int"
+            }
+          ],
+          "return_type": "StorageLocation"
+        },
+        {
+          "name": "update_location",
+          "description": "Updates an existing storage location entry.",
+          "params": [
+            {
+              "name": "location_id",
+              "type": "int"
+            },
+            {
+              "name": "zone_name",
+              "type": "str"
+            },
+            {
+              "name": "row_number",
+              "type": "int"
+            },
+            {
+              "name": "shelf_number",
+              "type": "int"
+            },
+            {
+              "name": "max_bottle_capacity",
+              "type": "int"
+            }
+          ],
+          "return_type": "StorageLocation"
+        },
+        {
+          "name": "delete_location",
+          "description": "Deletes a storage location entry from the system.",
+          "params": [
+            {
+              "name": "location_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "assign_wine_to_location",
+          "description": "Assigns a wine to a specific storage location.",
+          "params": [
+            {
+              "name": "wine_id",
+              "type": "int"
+            },
+            {
+              "name": "location_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "remove_wine_from_location",
+          "description": "Removes a wine from a specific storage location.",
+          "params": [
+            {
+              "name": "wine_id",
+              "type": "int"
+            },
+            {
+              "name": "location_id",
               "type": "int"
             }
           ],
@@ -174,97 +262,55 @@
       ]
     },
     {
-      "service_name": "PersistenceManager",
+      "service_name": "WineLocationService",
       "methods": [
         {
-          "name": "save_wine_data",
-          "description": "Saves wine data to a local JSON file.",
+          "name": "get_wine_by_location",
+          "description": "Retrieves all wines assigned to a specific storage location.",
           "params": [
             {
-              "name": "wine_data",
-              "type": "list[dict]"
+              "name": "location_id",
+              "type": "int"
             }
           ],
-          "return_type": "bool"
+          "return_type": "List[Wine]"
         },
         {
-          "name": "save_location_data",
-          "description": "Saves storage location data to a local JSON file.",
+          "name": "get_location_by_wine",
+          "description": "Retrieves the storage location assigned to a specific wine.",
           "params": [
             {
-              "name": "location_data",
-              "type": "list[dict]"
+              "name": "wine_id",
+              "type": "int"
             }
           ],
-          "return_type": "bool"
+          "return_type": "StorageLocation | None"
         },
         {
-          "name": "load_wine_data",
-          "description": "Loads wine data from a local JSON file.",
+          "name": "get_total_bottles_by_location",
+          "description": "Retrieves the total number of bottles assigned to a specific storage location.",
           "params": [
             {
-              "name": "file_path",
+              "name": "location_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "int"
+        },
+        {
+          "name": "get_total_bottles_by_wine_type_and_location",
+          "description": "Retrieves the total number of bottles of a specific wine type assigned to a location.",
+          "params": [
+            {
+              "name": "wine_type",
               "type": "str"
-            }
-          ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "load_location_data",
-          "description": "Loads storage location data from a local JSON file.",
-          "params": [
+            },
             {
-              "name": "file_path",
-              "type": "str"
+              "name": "location_id",
+              "type": "int"
             }
           ],
-          "return_type": "list[dict]"
-        },
-        {
-          "name": "get_file_path",
-          "description": "Returns the path to the local JSON file for wine data.",
-          "params": [
-            {
-              "name": "data_type",
-              "type": "str"
-            }
-          ],
-          "return_type": "str"
-        }
-      ]
-    },
-    {
-      "service_name": "DomainExceptionHandler",
-      "methods": [
-        {
-          "name": "handle_invalid_pricing",
-          "description": "Raises an exception when the selling price is not strictly greater than the cost price.",
-          "params": [],
-          "return_type": "None"
-        },
-        {
-          "name": "handle_negative_stock",
-          "description": "Raises an exception when stock quantity is negative.",
-          "params": [],
-          "return_type": "None"
-        },
-        {
-          "name": "handle_location_over_capacity",
-          "description": "Raises an exception when a location exceeds its maximum bottle capacity.",
-          "params": [],
-          "return_type": "None"
-        },
-        {
-          "name": "handle_wine_name_duplicate",
-          "description": "Raises an exception when a wine name already exists in the system.",
-          "params": [],
-          "return_type": "None"
-        },
-        {
-          "name": "handle_location_in_use",
-          "description": "Raises an exception when attempting to remove a location with assigned bottles.",
-          "params": [],
-          "return_type": "None"
+          "return_type": "int"
         }
       ]
     }

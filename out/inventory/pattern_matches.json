@@ -2,143 +2,185 @@
   "pattern_matches": [
     {
       "source": "invariant",
-      "text": "category_id must be a valid existing category ID or None (for new categories)",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4427
+      "text": "category_id must be a valid auto-incremented primary key (exists in the database)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.5286
     },
     {
       "source": "invariant",
       "text": "sku must be unique across all products",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.671
+      "confidence": 0.5205
     },
     {
       "source": "invariant",
       "text": "price_cents must be a non-negative integer",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4475
+      "confidence": 0.4509
     },
     {
       "source": "invariant",
       "text": "stock_qty must be a non-negative integer",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4754
+      "confidence": 0.5014
+    },
+    {
+      "source": "invariant",
+      "text": "low_active must be a boolean (default False)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
+      "confidence": 0.6935
     },
     {
       "source": "invariant",
       "text": "reorder_threshold must be a non-negative integer if provided",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4548
-    },
-    {
-      "source": "invariant",
-      "text": "low_active must be a boolean (default False)",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.3903
+      "confidence": 0.3183
     },
     {
       "source": "invariant",
       "text": "category.name must be unique across all categories",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.2514
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.466
+    },
+    {
+      "source": "invariant",
+      "text": "category.description must be optional",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2482
     },
     {
       "source": "invariant",
       "text": "category.reorder_threshold must be optional",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.2186
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.2024
     },
     {
       "source": "invariant",
-      "text": "stock_qty cannot exceed the maximum allowed stock value (if defined elsewhere; not specified in requirements)",
+      "text": "stock_qty must be updated to a non-negative integer when restocking",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4491
+      "confidence": 0.1869
     },
     {
       "source": "invariant",
-      "text": "a product's category_id must reference an existing category",
+      "text": "the total stock value (price_cents * stock_qty) must not be negative for any product",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.3948
+      "confidence": 0.4846
     },
     {
       "source": "invariant",
-      "text": "a product's stock_qty must not be negative",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.6323
+      "text": "category_id must be nullable in Product model if not enforced via foreign key constraints",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2366
     },
     {
       "source": "invariant",
-      "text": "a product's price_cents must not be negative",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.5332
-    },
-    {
-      "source": "invariant",
-      "text": "low-stock products are those whose stock_qty is strictly below their category's reorder_threshold (if threshold exists; otherwise, no low-stock products exist for that category)",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.6231
-    },
-    {
-      "source": "contract:InventoryManagementSystem.add_product",
-      "text": "add_product: Adds a new product to the inventory with validation checks for category existence and SKU uniqueness.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4235
-    },
-    {
-      "source": "contract:InventoryManagementSystem.update_product",
-      "text": "update_product: Updates an existing product's fields with validation for product existence.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.2465
-    },
-    {
-      "source": "contract:InventoryManagementSystem.list_products",
-      "text": "list_products: Lists products filtered by optional category and low-stock status.",
+      "text": "products must belong to an existing category (category_id must exist in the database)",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.45
+      "confidence": 0.3228
     },
     {
-      "source": "contract:InventoryManagementSystem.low_stock_report",
-      "text": "low_stock_report: Generates a report of products with stock below their category's reorder threshold.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.2389
+      "source": "contract:CategoryRepository.get_category_by_name",
+      "text": "get_category_by_name: Retrieves a category by its name (case-insensitive).",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.4075
     },
     {
-      "source": "contract:InventoryManagementSystem.stock_value_by_category",
-      "text": "stock_value_by_category: Calculates the total stock value (price × stock) per category.",
+      "source": "contract:CategoryRepository.get_all_categories",
+      "text": "get_all_categories: Retrieves all categories in the system.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3333
+    },
+    {
+      "source": "contract:CategoryRepository.get_products_by_category",
+      "text": "get_products_by_category: Retrieves all products belonging to a specific category.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.756
+      "confidence": 0.6009
     },
     {
-      "source": "contract:CategoryRepository.add_category",
-      "text": "add_category: Adds a new category to the database with validation for uniqueness.",
+      "source": "contract:ProductRepository.get_product_by_sku",
+      "text": "get_product_by_sku: Retrieves a product by its SKU (case-insensitive).",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.324
+    },
+    {
+      "source": "contract:ProductRepository.get_products_by_category",
+      "text": "get_products_by_category: Retrieves all products belonging to a specific category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6009
+    },
+    {
+      "source": "contract:ProductRepository.get_low_stock_products",
+      "text": "get_low_stock_products: Retrieves products whose stock_qty is below their category's reorder_threshold.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "THRESHOLD_SCAN",
+      "confidence": 0.4113
+    },
+    {
+      "source": "contract:ProductRepository.get_total_stock_value_by_category",
+      "text": "get_total_stock_value_by_category: Calculates the total stock value (price_cents * stock_qty) per category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6062
+    },
+    {
+      "source": "contract:InventoryService.add_product",
+      "text": "add_product: Adds a new product to the inventory, ensuring the category exists and the SKU is unique.",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.7626
+      "confidence": 0.2336
     },
     {
-      "source": "contract:CategoryRepository.update_category",
-      "text": "update_category: Updates an existing category's fields with validation for category existence.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4271
+      "source": "contract:InventoryService.get_product_by_id",
+      "text": "get_product_by_id: Retrieves a product by its ID, ensuring the product exists.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2335
+    },
+    {
+      "source": "contract:InventoryService.list_products",
+      "text": "list_products: Lists products filtered by optional category and low-stock status.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.6767
+    },
+    {
+      "source": "contract:InventoryService.restock",
+      "text": "restock: Increases a product's stock quantity, ensuring the product exists.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.1256
+    },
+    {
+      "source": "contract:InventoryService.low_stock_report",
+      "text": "low_stock_report: Returns products with stock_qty below their category's reorder_threshold.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "THRESHOLD_SCAN",
+      "confidence": 0.4449
+    },
+    {
+      "source": "contract:InventoryService.stock_value_by_category",
+      "text": "stock_value_by_category: Returns the total stock value (price_cents * stock_qty) per category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.8028
     }
   ]
 }

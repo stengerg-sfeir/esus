@@ -5,154 +5,126 @@
       "text": "wine.name must be unique across all wines in the system",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.8942
+      "confidence": 0.5479
     },
     {
       "source": "invariant",
       "text": "wine.selling_price must be strictly greater than wine.cost_price",
       "domain": "SERVICE_GUARD",
       "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.9488
+      "confidence": 0.64
     },
     {
       "source": "invariant",
-      "text": "wine.stock_quantity must be non-negative",
+      "text": "wine.stock_quantity must be >= 0",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.602
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4419
     },
     {
       "source": "invariant",
-      "text": "wine.primary_storage_location must be assigned to exactly one storage location",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.3911
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.assigned_bottles_count must not exceed storage_location.max_bottle_capacity",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.8993
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location cannot be deleted if it has assigned bottles",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.8249
-    },
-    {
-      "source": "invariant",
-      "text": "wine.stock_quantity cannot be reduced below zero",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.8397
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.assigned_bottles_count must be zero when the location is deleted",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.6882
-    },
-    {
-      "source": "contract:WineShopInventoryManager.add_wine",
-      "text": "add_wine: Adds a new wine entry to the inventory with validation for uniqueness and pricing constraints.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.7271
-    },
-    {
-      "source": "contract:WineShopInventoryManager.assign_bottle_to_location",
-      "text": "assign_bottle_to_location: Assigns a bottle of a specific wine to a storage location, validating capacity and stock constraints.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.8543
-    },
-    {
-      "source": "contract:WineShopInventoryManager.get_wine_by_name",
-      "text": "get_wine_by_name: Retrieves a wine entry by its name, ensuring uniqueness and existence in the system.",
+      "text": "wine.primary_storage_location must be exactly one StorageLocation object",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.7859
+      "confidence": 0.2048
     },
     {
-      "source": "contract:WineShopInventoryManager.get_storage_location_by_id",
-      "text": "get_storage_location_by_id: Retrieves a storage location by its ID, ensuring it exists in the system.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.2558
-    },
-    {
-      "source": "contract:WineShopInventoryManager.get_total_stock_by_wine_type",
-      "text": "get_total_stock_by_wine_type: Calculates the total stock quantity across all wines of a specified type.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.9251
-    },
-    {
-      "source": "contract:WineShopInventoryManager.get_total_stock_by_location_zone",
-      "text": "get_total_stock_by_location_zone: Calculates the total stock quantity across all wines stored in a specific zone of a storage location.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.9059
-    },
-    {
-      "source": "contract:WineShopInventoryManager.validate_pricing",
-      "text": "validate_pricing: Validates that the selling price is strictly greater than the cost price.",
+      "source": "invariant",
+      "text": "storage_location.zone_name must be non-empty string",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.9626
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4496
     },
     {
-      "source": "contract:WineShopInventoryManager.validate_stock_quantity",
-      "text": "validate_stock_quantity: Ensures the stock quantity does not drop below zero.",
+      "source": "invariant",
+      "text": "storage_location.row_number must be a positive integer",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2624
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.shelf_number must be a positive integer",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.9348
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4177
     },
     {
-      "source": "contract:WineShopInventoryManager.validate_location_capacity",
-      "text": "validate_location_capacity: Checks if a storage location's current capacity is below its maximum capacity.",
+      "source": "invariant",
+      "text": "storage_location.max_bottle_capacity must be a positive integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4458
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.bottle_count must be <= storage_location.max_bottle_capacity",
       "domain": "SERVICE_GUARD",
       "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.6647
+      "confidence": 0.6436
     },
     {
-      "source": "contract:DomainExceptionHandler.handle_invalid_pricing",
-      "text": "handle_invalid_pricing: Raises an exception when the selling price is not strictly greater than the cost price.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.9817
-    },
-    {
-      "source": "contract:DomainExceptionHandler.handle_negative_stock",
-      "text": "handle_negative_stock: Raises an exception when stock quantity is negative.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.9375
-    },
-    {
-      "source": "contract:DomainExceptionHandler.handle_location_over_capacity",
-      "text": "handle_location_over_capacity: Raises an exception when a location exceeds its maximum bottle capacity.",
+      "source": "invariant",
+      "text": "wine.bottle_count_in_location must be <= storage_location.max_bottle_capacity",
       "domain": "SERVICE_GUARD",
       "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.9056
+      "confidence": 0.5727
     },
     {
-      "source": "contract:DomainExceptionHandler.handle_wine_name_duplicate",
-      "text": "handle_wine_name_duplicate: Raises an exception when a wine name already exists in the system.",
+      "source": "invariant",
+      "text": "A StorageLocation cannot be deleted if it has any wines assigned to it",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "QUOTA_CAPACITY_GUARD",
+      "confidence": 0.2497
+    },
+    {
+      "source": "contract:WineRepository.get_all_wines",
+      "text": "get_all_wines: Retrieves all wines in the system.",
       "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.7546
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3543
     },
     {
-      "source": "contract:DomainExceptionHandler.handle_location_in_use",
-      "text": "handle_location_in_use: Raises an exception when attempting to remove a location with assigned bottles.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.7201
+      "source": "contract:WineRepository.get_wine_by_name",
+      "text": "get_wine_by_name: Retrieves a wine by its name (case-insensitive).",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.2841
+    },
+    {
+      "source": "contract:StorageLocationRepository.get_all_locations",
+      "text": "get_all_locations: Retrieves all storage locations in the system.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3129
+    },
+    {
+      "source": "contract:WineLocationService.get_wine_by_location",
+      "text": "get_wine_by_location: Retrieves all wines assigned to a specific storage location.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6517
+    },
+    {
+      "source": "contract:WineLocationService.get_location_by_wine",
+      "text": "get_location_by_wine: Retrieves the storage location assigned to a specific wine.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.2525
+    },
+    {
+      "source": "contract:WineLocationService.get_total_bottles_by_location",
+      "text": "get_total_bottles_by_location: Retrieves the total number of bottles assigned to a specific storage location.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.8626
+    },
+    {
+      "source": "contract:WineLocationService.get_total_bottles_by_wine_type_and_location",
+      "text": "get_total_bottles_by_wine_type_and_location: Retrieves the total number of bottles of a specific wine type assigned to a location.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.55
     }
   ]
 }

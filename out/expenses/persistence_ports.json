@@ -2,33 +2,262 @@
   "persistence_ports": {
     "repositories": [
       {
-        "entity": "ExpenseRepository",
+        "entity": "Category",
+        "interface_name": "CategoryRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new category with the provided name, description, monthly budget, and icon. Returns the created category.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "monthly_budget",
+                "type": "Optional[int]"
+              },
+              {
+                "name": "icon",
+                "type": "Optional[str]"
+              }
+            ],
+            "return_type": "Category"
+          },
+          {
+            "name": "get_by_id",
+            "description": "Retrieves a category by its primary key ID. Returns None if not found.",
+            "params": [],
+            "return_type": "Optional[Category]"
+          },
+          {
+            "name": "get_by_name",
+            "description": "Retrieves a category by its name. Returns None if not found.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "Optional[Category]"
+          },
+          {
+            "name": "get_expenses_for_category",
+            "description": "Retrieves all expenses associated with a category by its ID. Returns a list of expenses.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Expense]"
+          }
+        ]
+      },
+      {
+        "entity": "Expense",
         "interface_name": "ExpenseRepository",
         "methods": [
           {
             "name": "create",
-            "description": "Creates a new expense record.",
+            "description": "Creates a new expense with the provided details. Returns the created expense.",
             "params": [
               {
-                "name": "expense",
-                "type": "Expense"
+                "name": "amount_cents",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "expense_date",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "payment_method",
+                "type": "str"
+              },
+              {
+                "name": "is_recurring",
+                "type": "bool"
               }
             ],
             "return_type": "Expense"
+          },
+          {
+            "name": "get_by_id",
+            "description": "Retrieves an expense by its primary key ID. Returns None if not found.",
+            "params": [],
+            "return_type": "Optional[Expense]"
+          },
+          {
+            "name": "get_by_category_and_date_range",
+            "description": "Retrieves expenses for a category within a specified date range. Returns a list of expenses.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "start_date",
+                "type": "str"
+              },
+              {
+                "name": "end_date",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "get_by_payment_method_and_date_range",
+            "description": "Retrieves expenses by payment method within a specified date range. Returns a list of expenses.",
+            "params": [
+              {
+                "name": "payment_method",
+                "type": "str"
+              },
+              {
+                "name": "start_date",
+                "type": "str"
+              },
+              {
+                "name": "end_date",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "get_monthly_expenses",
+            "description": "Retrieves all expenses for a specific month. Returns a list of expenses.",
+            "params": [
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "aggregate_expenses_by_category",
+            "description": "Aggregates expenses by category for a given date range. Returns a dictionary mapping category IDs to total amounts spent.",
+            "params": [
+              {
+                "name": "start_date",
+                "type": "str"
+              },
+              {
+                "name": "end_date",
+                "type": "str"
+              }
+            ],
+            "return_type": "Dict[int, int]"
+          }
+        ]
+      },
+      {
+        "entity": "Budget",
+        "interface_name": "BudgetRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new budget entry for a category and month. Returns the created budget entry.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              },
+              {
+                "name": "amount_limit_cents",
+                "type": "int"
+              }
+            ],
+            "return_type": "Budget"
+          },
+          {
+            "name": "get_by_category_and_month",
+            "description": "Retrieves a budget entry for a category and month. Returns None if not found.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "Optional[Budget]"
+          },
+          {
+            "name": "get_budgets_by_month",
+            "description": "Retrieves all budget entries for a specific month. Returns a list of budgets.",
+            "params": [
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Budget]"
+          },
+          {
+            "name": "check_budget_exceeded",
+            "description": "Checks if the total expenses for a category in a month exceed the budget limit. Returns True if exceeded, False otherwise.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "bool"
           }
         ]
       }
     ],
     "entity_mappings": [
       {
+        "entity": "Category",
+        "table": "categories",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      },
+      {
         "entity": "Expense",
         "table": "expenses",
         "primary_key": "id",
         "indexes": [
-          "amount_cents",
-          "expense_date",
           "category_id",
+          "expense_date",
           "payment_method"
+        ]
+      },
+      {
+        "entity": "Budget",
+        "table": "budgets",
+        "primary_key": "id",
+        "indexes": [
+          "category_id",
+          "month"
         ]
       }
     ]

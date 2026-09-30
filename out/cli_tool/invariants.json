@@ -1,8 +1,15 @@
 {
   "invariants": [
-    "Each row in the CSV must contain exactly one entry per column header (no missing columns).",
-    "Column headers must be unique across the entire CSV file.",
-    "All values in the CSV must be valid for their respective data types (e.g., numeric for numeric columns, alphanumeric for text columns).",
-    "The CSV file must be well-formed (properly quoted strings, correct delimiters, no trailing commas)."
+    "isbn must be unique across all records",
+    "available_copies cannot be negative",
+    "title must not be empty or whitespace-only",
+    "publisher must not be empty or whitespace-only",
+    "publication_year must be a valid year (e.g., between 1800 and current year)",
+    "price must be a positive number",
+    "genre must be a non-empty string",
+    "author_name must not be empty or whitespace-only",
+    "copies_ordered must be a non-negative integer",
+    "copies_received must be a non-negative integer",
+    "copies_available must be equal to (copies_received - copies_ordered)"
   ]
 }

@@ -6,15 +6,419 @@
         "interface_name": "CustomerRepository",
         "methods": [
           {
-            "name": "find_by_id",
-            "description": "Retrieve a customer by ID.",
+            "name": "get_by_id",
+            "description": "Retrieves a Customer by their primary key ID.",
+            "params": [],
+            "return_type": "Customer | None"
+          },
+          {
+            "name": "get_all",
+            "description": "Retrieves all Customers in the system.",
+            "params": [],
+            "return_type": "List[Customer]"
+          },
+          {
+            "name": "create",
+            "description": "Creates a new Customer record with the provided details.",
+            "params": [
+              {
+                "name": "customer",
+                "type": "Customer"
+              }
+            ],
+            "return_type": "Customer"
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Customer's details.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "customer",
+                "type": "Customer"
+              }
+            ],
+            "return_type": "Customer | None"
+          },
+          {
+            "name": "delete",
+            "description": "Deletes a Customer by their ID.",
             "params": [
               {
                 "name": "customer_id",
                 "type": "int"
               }
             ],
-            "return_type": "Customer"
+            "return_type": "bool"
+          },
+          {
+            "name": "search_orders_by_customer",
+            "description": "Searches for all Orders associated with a specific Customer, ordered by creation date (newest first).",
+            "params": [],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "search_invoices_by_customer",
+            "description": "Searches for all Invoices associated with a specific Customer, ordered by due date (earliest first).",
+            "params": [],
+            "return_type": "List[Invoice]"
+          }
+        ]
+      },
+      {
+        "entity": "Category",
+        "interface_name": "CategoryRepository",
+        "methods": [
+          {
+            "name": "get_by_id",
+            "description": "Retrieves a Category by its primary key ID.",
+            "params": [],
+            "return_type": "Category | None"
+          },
+          {
+            "name": "get_all",
+            "description": "Retrieves all Categories in the system.",
+            "params": [],
+            "return_type": "List[Category]"
+          },
+          {
+            "name": "create",
+            "description": "Creates a new Category record with the provided details.",
+            "params": [
+              {
+                "name": "category",
+                "type": "Category"
+              }
+            ],
+            "return_type": "Category"
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Category's details.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "category",
+                "type": "Category"
+              }
+            ],
+            "return_type": "Category | None"
+          },
+          {
+            "name": "delete",
+            "description": "Deletes a Category by its ID.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_products_by_category",
+            "description": "Retrieves all Products associated with a specific Category.",
+            "params": [],
+            "return_type": "List[Product]"
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "get_by_id",
+            "description": "Retrieves a Product by its primary key ID.",
+            "params": [],
+            "return_type": "Product | None"
+          },
+          {
+            "name": "get_all",
+            "description": "Retrieves all Products in the system.",
+            "params": [],
+            "return_type": "List[Product]"
+          },
+          {
+            "name": "create",
+            "description": "Creates a new Product record with the provided details.",
+            "params": [
+              {
+                "name": "product",
+                "type": "Product"
+              }
+            ],
+            "return_type": "Product"
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Product's details, including stock quantity.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "product",
+                "type": "Product"
+              }
+            ],
+            "return_type": "Product | None"
+          },
+          {
+            "name": "delete",
+            "description": "Deletes a Product by its ID.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_products_by_category_id",
+            "description": "Retrieves all Products belonging to a specific Category ID.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Product]"
+          },
+          {
+            "name": "get_products_with_low_stock",
+            "description": "Retrieves all Products with stock quantity below a specified threshold.",
+            "params": [
+              {
+                "name": "threshold",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Product]"
+          }
+        ]
+      },
+      {
+        "entity": "Order",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "name": "get_by_id",
+            "description": "Retrieves an Order by its primary key ID.",
+            "params": [],
+            "return_type": "Order | None"
+          },
+          {
+            "name": "get_all",
+            "description": "Retrieves all Orders in the system.",
+            "params": [],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "create",
+            "description": "Creates a new Order record with the provided details.",
+            "params": [
+              {
+                "name": "order",
+                "type": "Order"
+              }
+            ],
+            "return_type": "Order"
+          },
+          {
+            "name": "update_status",
+            "description": "Updates the status of an existing Order (e.g., from pending to confirmed).",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "new_status",
+                "type": "str"
+              }
+            ],
+            "return_type": "Order | None"
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an Order by its ID.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_orders_by_customer_id",
+            "description": "Retrieves all Orders associated with a specific Customer ID.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "get_orders_by_status",
+            "description": "Retrieves all Orders with a specific status.",
+            "params": [
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Order]"
+          }
+        ]
+      },
+      {
+        "entity": "OrderItem",
+        "interface_name": "OrderItemRepository",
+        "methods": [
+          {
+            "name": "get_by_id",
+            "description": "Retrieves an OrderItem by its primary key ID.",
+            "params": [],
+            "return_type": "OrderItem | None"
+          },
+          {
+            "name": "get_all",
+            "description": "Retrieves all OrderItems in the system.",
+            "params": [],
+            "return_type": "List[OrderItem]"
+          },
+          {
+            "name": "create",
+            "description": "Creates a new OrderItem record associated with an Order.",
+            "params": [
+              {
+                "name": "order_item",
+                "type": "OrderItem"
+              }
+            ],
+            "return_type": "OrderItem"
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an OrderItem by its ID.",
+            "params": [
+              {
+                "name": "order_item_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_order_items_by_order_id",
+            "description": "Retrieves all OrderItems associated with a specific Order ID.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[OrderItem]"
+          },
+          {
+            "name": "get_order_items_by_product_id",
+            "description": "Retrieves all OrderItems for a specific Product ID.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[OrderItem]"
+          }
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "interface_name": "InvoiceRepository",
+        "methods": [
+          {
+            "name": "get_by_id",
+            "description": "Retrieves an Invoice by its primary key ID.",
+            "params": [],
+            "return_type": "Invoice | None"
+          },
+          {
+            "name": "get_all",
+            "description": "Retrieves all Invoices in the system.",
+            "params": [],
+            "return_type": "List[Invoice]"
+          },
+          {
+            "name": "create",
+            "description": "Creates a new Invoice record associated with an Order.",
+            "params": [
+              {
+                "name": "invoice",
+                "type": "Invoice"
+              }
+            ],
+            "return_type": "Invoice"
+          },
+          {
+            "name": "update_due_date",
+            "description": "Updates the due date of an existing Invoice.",
+            "params": [
+              {
+                "name": "invoice_id",
+                "type": "int"
+              },
+              {
+                "name": "new_due_date",
+                "type": "str"
+              }
+            ],
+            "return_type": "Invoice | None"
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an Invoice by its ID.",
+            "params": [
+              {
+                "name": "invoice_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_invoices_by_order_id",
+            "description": "Retrieves all Invoices associated with a specific Order ID.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Invoice]"
+          },
+          {
+            "name": "get_invoices_by_customer_id",
+            "description": "Retrieves all Invoices associated with a specific Customer ID.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Invoice]"
           }
         ]
       }
@@ -23,8 +427,53 @@
       {
         "entity": "Customer",
         "table": "customers",
-        "primary_key": "customer_id",
+        "primary_key": "id",
         "indexes": [
+          "name",
+          "email"
+        ]
+      },
+      {
+        "entity": "Category",
+        "table": "categories",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      },
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "id",
+        "indexes": [
+          "name",
+          "category_id"
+        ]
+      },
+      {
+        "entity": "Order",
+        "table": "orders",
+        "primary_key": "id",
+        "indexes": [
+          "customer_id",
+          "status"
+        ]
+      },
+      {
+        "entity": "OrderItem",
+        "table": "order_items",
+        "primary_key": "id",
+        "indexes": [
+          "order_id",
+          "product_id"
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "table": "invoices",
+        "primary_key": "id",
+        "indexes": [
+          "order_id",
           "customer_id"
         ]
       }

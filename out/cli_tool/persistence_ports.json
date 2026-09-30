@@ -2,80 +2,346 @@
   "persistence_ports": {
     "repositories": [
       {
-        "entity": "Expense",
-        "interface_name": "ExpenseRepository",
+        "entity": "users",
+        "interface_name": "UserRepository",
         "methods": [
           {
-            "name": "save",
-            "description": "Persists an Expense entity",
-            "params": [
-              {
-                "name": "expense",
-                "type": "Expense"
-              }
-            ],
-            "return_type": "Expense"
-          },
-          {
-            "name": "findById",
-            "description": "Retrieves an Expense by its ID",
-            "params": [
-              {
-                "name": "id",
-                "type": "UUID"
-              }
-            ],
-            "return_type": "Expense"
+            "name": "findByEmail",
+            "description": "Retrieves a user by their email address.",
+            "params": [],
+            "return_type": "Optional[User]"
           },
           {
             "name": "findAll",
-            "description": "Retrieves all Expenses",
+            "description": "Retrieves all users in the system.",
+            "params": [],
+            "return_type": "List[User]"
+          },
+          {
+            "name": "createUser",
+            "description": "Creates a new user with the provided details.",
             "params": [
               {
-                "name": "offset",
+                "name": "userData",
+                "type": "Dict[str, Any]"
+              }
+            ],
+            "return_type": "User"
+          },
+          {
+            "name": "updateUser",
+            "description": "Updates a user's details by their user_id.",
+            "params": [
+              {
+                "name": "userId",
                 "type": "int"
               },
               {
-                "name": "limit",
+                "name": "userData",
+                "type": "Dict[str, Any]}], "
+              },
+              {
+                "name": "deleteUser",
                 "type": "int"
               }
             ],
-            "return_type": "List[Expense]"
+            "return_type": "bool"
           },
           {
-            "name": "findByCategory",
-            "description": "Retrieves Expenses by category",
-            "params": [
-              {
-                "name": "category",
-                "type": "String"
-              }
-            ],
-            "return_type": "List[Expense]"
+            "name": "getUserById",
+            "description": "Retrieves a user by their user_id.",
+            "params": [],
+            "return_type": "Optional[User]"
           },
           {
-            "name": "calculateTotalByCategory",
-            "description": "Calculates total expenses by category",
+            "name": "getUsersByStatus",
+            "description": "Retrieves all users with a specific status (if applicable).",
             "params": [
               {
-                "name": "category",
-                "type": "String"
+                "name": "status",
+                "type": "str"
               }
             ],
-            "return_type": "Map[String, Double]"
+            "return_type": "List[User]"
+          }
+        ]
+      },
+      {
+        "entity": "products",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "findByName",
+            "description": "Retrieves a product by its name.",
+            "params": [],
+            "return_type": "Optional[Product]"
+          },
+          {
+            "name": "findAll",
+            "description": "Retrieves all products in the system.",
+            "params": [],
+            "return_type": "List[Product]"
+          },
+          {
+            "name": "createProduct",
+            "description": "Creates a new product with the provided details.",
+            "params": [
+              {
+                "name": "productData",
+                "type": "Dict[str, Any]"
+              }
+            ],
+            "return_type": "Product"
+          },
+          {
+            "name": "updateProduct",
+            "description": "Updates a product's details by its product_id.",
+            "params": [
+              {
+                "name": "productId",
+                "type": "int"
+              },
+              {
+                "name": "productData",
+                "type": "Dict[str, Any]}], "
+              },
+              {
+                "name": "deleteProduct",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "getProductById",
+            "description": "Retrieves a product by its product_id.",
+            "params": [],
+            "return_type": "Optional[Product]"
+          },
+          {
+            "name": "getProductsByPriceRange",
+            "description": "Retrieves products within a specified price range.",
+            "params": [
+              {
+                "name": "minPrice",
+                "type": "float"
+              },
+              {
+                "name": "maxPrice",
+                "type": "float"
+              }
+            ],
+            "return_type": "List[Product]"
+          },
+          {
+            "name": "getProductsByStockStatus",
+            "description": "Retrieves products with a specific stock status.",
+            "params": [
+              {
+                "name": "stockStatus",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Product]}]}], "
+          }
+        ]
+      },
+      {
+        "entity": "orders",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "name": "findByUserId",
+            "description": "Retrieves all orders placed by a specific user.",
+            "params": [],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "findAll",
+            "description": "Retrieves all orders in the system.",
+            "params": [],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "createOrder",
+            "description": "Creates a new order with the provided details.",
+            "params": [
+              {
+                "name": "orderData",
+                "type": "Dict[str, Any]"
+              }
+            ],
+            "return_type": "Order"
+          },
+          {
+            "name": "updateOrder",
+            "description": "Updates an order's details by its order_id.",
+            "params": [
+              {
+                "name": "orderId",
+                "type": "int"
+              },
+              {
+                "name": "orderData",
+                "type": "Dict[str, Any]}], "
+              },
+              {
+                "name": "deleteOrder",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "getOrderById",
+            "description": "Retrieves an order by its order_id.",
+            "params": [],
+            "return_type": "Optional[Order]"
+          },
+          {
+            "name": "getOrdersByDateRange",
+            "description": "Retrieves orders within a specified date range.",
+            "params": [
+              {
+                "name": "startDate",
+                "type": "datetime"
+              },
+              {
+                "name": "endDate",
+                "type": "datetime"
+              }
+            ],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "getOrdersByStatus",
+            "description": "Retrieves orders with a specific status.",
+            "params": [
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Order]}]}], "
+          }
+        ]
+      },
+      {
+        "entity": "order_items",
+        "interface_name": "OrderItemRepository",
+        "methods": [
+          {
+            "name": "findByOrderId",
+            "description": "Retrieves all order items for a specific order.",
+            "params": [],
+            "return_type": "List[OrderItem]"
+          },
+          {
+            "name": "findAll",
+            "description": "Retrieves all order items in the system.",
+            "params": [],
+            "return_type": "List[OrderItem]"
+          },
+          {
+            "name": "createOrderItem",
+            "description": "Creates a new order item linked to an order.",
+            "params": [
+              {
+                "name": "orderItemData",
+                "type": "Dict[str, Any]"
+              }
+            ],
+            "return_type": "OrderItem"
+          },
+          {
+            "name": "updateOrderItem",
+            "description": "Updates an order item's details by its order_item_id.",
+            "params": [
+              {
+                "name": "orderItemId",
+                "type": "int"
+              },
+              {
+                "name": "orderItemData",
+                "type": "Dict[str, Any]}], "
+              },
+              {
+                "name": "deleteOrderItem",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "getOrderItemByOrderId",
+            "description": "Retrieves order items for a specific order by order_id.",
+            "params": [
+              {
+                "name": "orderId",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[OrderItem]"
+          },
+          {
+            "name": "getOrderItemsByProductId",
+            "description": "Retrieves all order items for a specific product.",
+            "params": [
+              {
+                "name": "productId",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[OrderItem]"
+          },
+          {
+            "name": "getOrderItemsByQuantityRange",
+            "description": "Retrieves order items within a specified quantity range.",
+            "params": [
+              {
+                "name": "minQuantity",
+                "type": "int"
+              },
+              {
+                "name": "maxQuantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[OrderItem]}]}], "
           }
         ]
       }
     ],
     "entity_mappings": [
       {
-        "entity": "Expense",
-        "table": "expenses",
-        "primary_key": "id",
+        "entity": "users",
+        "table": "users",
+        "primary_key": "user_id",
         "indexes": [
-          "id",
-          "category_id",
-          "date"
+          "email"
+        ]
+      },
+      {
+        "entity": "products",
+        "table": "products",
+        "primary_key": "product_id",
+        "indexes": [
+          "name"
+        ]
+      },
+      {
+        "entity": "orders",
+        "table": "orders",
+        "primary_key": "order_id",
+        "indexes": []
+      },
+      {
+        "entity": "order_items",
+        "table": "order_items",
+        "primary_key": "order_item_id",
+        "indexes": [
+          "order_id",
+          "product_id"
         ]
       }
     ]

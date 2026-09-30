@@ -5,245 +5,273 @@
       "text": "customer_id must be unique across all customers",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.613
+      "confidence": 0.4633
     },
     {
       "source": "invariant",
       "text": "customer_name must not be null or empty",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.5362
+      "confidence": 0.41
     },
     {
       "source": "invariant",
       "text": "customer_email must be unique across all customers and must conform to RFC 5322 email format",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.6414
+      "confidence": 0.6343
     },
     {
       "source": "invariant",
       "text": "product_id must be unique across all products",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.7693
+      "confidence": 0.4062
     },
     {
       "source": "invariant",
       "text": "product_name must not be null or empty",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.533
+      "confidence": 0.3351
     },
     {
       "source": "invariant",
       "text": "product_category_id must reference an existing category_id",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.5493
+      "confidence": 0.3054
     },
     {
       "source": "invariant",
       "text": "product_stock_quantity must be non-negative",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.8138
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5392
     },
     {
       "source": "invariant",
       "text": "order_id must be unique across all orders",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.6563
+      "confidence": 0.4404
     },
     {
       "source": "invariant",
       "text": "order_customer_id must reference an existing customer_id",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4789
+      "confidence": 0.3219
     },
     {
       "source": "invariant",
-      "text": "order_status must be one of ['pending', 'confirmed', 'shipped', 'cancelled']",
+      "text": "order_status must be one of: ['pending', 'confirmed', 'shipped', 'cancelled']",
       "domain": "SERVICE_GUARD",
       "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.9325
+      "confidence": 0.8776
+    },
+    {
+      "source": "invariant",
+      "text": "order_date must be a valid date in the past or future",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.1363
     },
     {
       "source": "invariant",
       "text": "order_total must be non-negative",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.62
+      "confidence": 0.7135
     },
     {
       "source": "invariant",
-      "text": "order_items must be a list of objects where each item has a product_id referencing an existing product_id and quantity must be positive",
+      "text": "order_item_product_id must reference an existing product_id",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3112
+    },
+    {
+      "source": "invariant",
+      "text": "order_item_quantity must be a positive integer",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.3536
+      "confidence": 0.4071
     },
     {
       "source": "invariant",
       "text": "invoice_id must be unique across all invoices",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.6678
+      "confidence": 0.6133
     },
     {
       "source": "invariant",
       "text": "invoice_order_id must reference an existing order_id",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4063
+      "confidence": 0.3483
     },
     {
       "source": "invariant",
       "text": "invoice_customer_id must reference an existing customer_id",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.2735
+      "confidence": 0.2928
     },
     {
       "source": "invariant",
-      "text": "invoice_status must be one of ['draft', 'sent', 'paid']",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.8797
-    },
-    {
-      "source": "invariant",
-      "text": "invoice_total must equal the sum of order_items' product_price multiplied by quantity",
+      "text": "invoice_total must equal the order_total when the order is confirmed",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.3379
+      "confidence": 0.2772
     },
     {
       "source": "invariant",
-      "text": "reserved_stock for a product must equal the sum of quantities of all confirmed orders containing that product",
+      "text": "invoice_status must be one of: ['draft', 'sent']",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.1963
+    },
+    {
+      "source": "invariant",
+      "text": "reserved_stock must be non-negative and equal to the sum of order_item_quantity for confirmed orders",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.6496
+      "confidence": 0.2589
     },
     {
       "source": "invariant",
-      "text": "reserved_stock cannot exceed the product's available stock quantity",
+      "text": "shipped_order_status must be 'shipped'",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.2564
+    },
+    {
+      "source": "invariant",
+      "text": "cancelled_order_status must be 'cancelled'",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.1361
+    },
+    {
+      "source": "invariant",
+      "text": "order_item_quantity cannot exceed product_stock_quantity for confirmed orders",
       "domain": "SERVICE_GUARD",
       "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.7763
+      "confidence": 0.5536
     },
     {
       "source": "invariant",
-      "text": "product_available_stock must equal product_stock_quantity minus reserved_stock",
+      "text": "invoice_total must be non-negative",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.8539
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.741
     },
     {
       "source": "invariant",
-      "text": "each order item's quantity must not exceed the product's reserved_stock for that product",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.9109
-    },
-    {
-      "source": "invariant",
-      "text": "order_items must not contain duplicate product_ids for the same order",
+      "text": "category_id must be unique across all categories",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.4914
+      "confidence": 0.3918
     },
     {
       "source": "invariant",
-      "text": "invoice_total must not exceed the order_total",
+      "text": "category_name must not be null or empty",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.8985
+      "confidence": 0.3681
     },
     {
-      "source": "contract:Customer Management Service.get_customer_by_id",
-      "text": "get_customer_by_id: Retrieves a customer by their unique ID.",
+      "source": "contract:CustomerService.get_customer_by_id",
+      "text": "get_customer_by_id: Retrieves a customer by their unique identifier.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.3581
+      "confidence": 0.3168
     },
     {
-      "source": "contract:Customer Management Service.get_customer_by_name",
-      "text": "get_customer_by_name: Searches for a customer by name (partial match).",
-      "domain": "REPO_QUERY",
-      "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.2666
-    },
-    {
-      "source": "contract:Product Management Service.get_products_by_category",
-      "text": "get_products_by_category: Retrieves all products in a given category.",
+      "source": "contract:CustomerService.get_customer_by_email",
+      "text": "get_customer_by_email: Retrieves a customer by their email address.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4275
+      "confidence": 0.4948
     },
     {
-      "source": "contract:Product Management Service.get_products_by_name",
-      "text": "get_products_by_name: Searches for products by name (partial match).",
-      "domain": "REPO_QUERY",
-      "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.2909
-    },
-    {
-      "source": "contract:Product Management Service.get_total_stock_by_category",
-      "text": "get_total_stock_by_category: Calculates the total stock quantity across all products in a category.",
+      "source": "contract:CategoryService.get_category_by_id",
+      "text": "get_category_by_id: Retrieves a category by its unique identifier.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.95
+      "confidence": 0.2839
     },
     {
-      "source": "contract:Order Management Service.get_order_by_id",
-      "text": "get_order_by_id: Retrieves an order by its unique ID.",
+      "source": "contract:CategoryService.get_category_by_name",
+      "text": "get_category_by_name: Retrieves a category by its name.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.3365
+      "confidence": 0.3495
     },
     {
-      "source": "contract:Order Management Service.get_orders_by_status",
-      "text": "get_orders_by_status: Retrieves all orders with a specific status.",
+      "source": "contract:ProductService.get_product_by_id",
+      "text": "get_product_by_id: Retrieves a product by its unique identifier.",
       "domain": "REPO_QUERY",
-      "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.5591
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.255
     },
     {
-      "source": "contract:Order Management Service.cancel_order",
-      "text": "cancel_order: Cancels an order, releasing reserved stock.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.4453
+      "source": "contract:ProductService.get_product_by_name",
+      "text": "get_product_by_name: Retrieves a product by its name.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3561
     },
     {
-      "source": "contract:Order Management Service.get_total_by_category_and_month",
-      "text": "get_total_by_category_and_month: Calculates the total revenue generated by products in a category for a specific month.",
+      "source": "contract:ProductService.get_products_by_category",
+      "text": "get_products_by_category: Retrieves all products belonging to a specific category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6009
+    },
+    {
+      "source": "contract:ProductService.get_total_stock_by_category",
+      "text": "get_total_stock_by_category: Retrieves the total stock quantity of products in a specific category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.8558
+    },
+    {
+      "source": "contract:OrderService.get_orders_by_customer",
+      "text": "get_orders_by_customer: Retrieves all orders placed by a specific customer.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.636
+    },
+    {
+      "source": "contract:OrderService.get_order_items_by_order",
+      "text": "get_order_items_by_order: Retrieves all order items for a specific order.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.2999
+    },
+    {
+      "source": "contract:OrderService.get_total_by_category_and_month",
+      "text": "get_total_by_category_and_month: Retrieves the total sales amount by category for a specific month.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.9815
+      "confidence": 0.9116
     },
     {
-      "source": "contract:Invoice Management Service.get_invoice_by_id",
-      "text": "get_invoice_by_id: Retrieves an invoice by its unique ID.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.2645
-    },
-    {
-      "source": "contract:Invoice Management Service.get_invoices_by_date_range",
-      "text": "get_invoices_by_date_range: Retrieves invoices within a specified date range.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.6881
-    },
-    {
-      "source": "contract:Stock Management Service.get_stock_by_product_id",
-      "text": "get_stock_by_product_id: Retrieves the current stock quantity of a product.",
+      "source": "contract:InvoiceService.get_invoice_by_id",
+      "text": "get_invoice_by_id: Retrieves an invoice by its unique identifier.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.7485
+      "confidence": 0.2059
+    },
+    {
+      "source": "contract:InvoiceService.get_invoices_by_customer",
+      "text": "get_invoices_by_customer: Retrieves all invoices issued to a specific customer.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.503
     }
   ]
 }

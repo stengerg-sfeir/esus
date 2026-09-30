@@ -4,13 +4,13 @@
       "name": "Wine",
       "fields": [
         {
-          "name": "id",
+          "name": "wine_id",
           "type": "int",
           "primary_key": true,
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "name",
@@ -73,7 +73,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },
@@ -81,13 +81,13 @@
       "name": "StorageLocation",
       "fields": [
         {
-          "name": "id",
+          "name": "location_id",
           "type": "int",
           "primary_key": true,
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "zone_name",
@@ -117,7 +117,7 @@
           "status": "explicit"
         },
         {
-          "name": "max_capacity",
+          "name": "max_bottle_capacity",
           "type": "int",
           "primary_key": false,
           "nullable": false,
@@ -131,11 +131,11 @@
       "name": "WineLocation",
       "fields": [
         {
-          "name": "id",
+          "name": "wine_location_id",
           "type": "int",
           "primary_key": true,
           "nullable": false,
-          "unique": true,
+          "unique": false,
           "foreign_key": null,
           "status": "deduced"
         },
@@ -147,10 +147,10 @@
           "unique": false,
           "foreign_key": {
             "target_entity": "Wine",
-            "target_field": "id",
+            "target_field": "wine_id",
             "relationship": "one_to_one"
           },
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "location_id",
@@ -160,10 +160,10 @@
           "unique": false,
           "foreign_key": {
             "target_entity": "StorageLocation",
-            "target_field": "id",
+            "target_field": "location_id",
             "relationship": "one_to_one"
           },
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     }

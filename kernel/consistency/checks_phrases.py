@@ -14,7 +14,10 @@ def check_phrase_list(items, label, report):
     if items is None:
         return
     if not items:
-        report.warning("empty_section", f"{label}: {EMPTY_LIST_NOTE}")
+        # A note, not a warning: an empty intentions or invariants list is the
+        # correct extraction when the requirements state none, and the checker
+        # cannot see the requirements to tell the two apart.
+        report.note("empty_section", f"{label}: {EMPTY_LIST_NOTE}")
         return
 
     seen = {}

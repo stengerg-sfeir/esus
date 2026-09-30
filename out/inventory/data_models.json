@@ -8,9 +8,9 @@
           "type": "int",
           "primary_key": true,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "name",
@@ -37,7 +37,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },
@@ -51,7 +51,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "sku",
@@ -82,7 +82,7 @@
             "target_field": "id",
             "relationship": "many_to_one"
           },
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "price_cents",
@@ -109,7 +109,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     }

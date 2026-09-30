@@ -6,15 +6,22 @@
         "interface_name": "CategoryRepository",
         "methods": [
           {
-            "name": "add_category",
-            "description": "Adds a new category to the database.",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              }
-            ],
-            "return_type": "NoneType"
+            "name": "create",
+            "description": "Creates a new category with the given name, description, and optional reorder_threshold.",
+            "params": [],
+            "return_type": "Category"
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new product linked to the specified category.",
+            "params": [],
+            "return_type": "Product"
           }
         ]
       }
@@ -26,6 +33,14 @@
         "primary_key": "id",
         "indexes": [
           "name"
+        ]
+      },
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "id",
+        "indexes": [
+          "sku"
         ]
       }
     ]

@@ -43,6 +43,13 @@ def load_catalog():
 def softmax_classify(llm, target_text: str, candidates: list, id_key: str = "id", desc_key: str = "description") -> tuple[str, float, dict]:
     """
     Executes a single forward pass with max_tokens=1 and computes softmax over candidate letters.
+
+    The option list is placed before the requirement and `reset()` is deliberately
+    not called. llama.cpp reuses the longest common KV prefix of consecutive
+    prompts; with the options first, the only differing part of the prompt is the
+    requirement at the end, so a run costs one full prefill instead of one per
+    item (measured: 1.57s -> 0.53s per call). Calling reset() sets n_tokens to 0
+    and destroys exactly that cache.
     """
     options_text = ""
     letter_to_id = {}
@@ -56,17 +63,15 @@ def softmax_classify(llm, target_text: str, candidates: list, id_key: str = "id"
         
     prompt = f"""<|im_start|>system
 You are a software architecture classifier. Select the single best matching option letter for the given requirement.
-Reply strictly with only the single uppercase letter, e.g. A.<|im_end|>
-<|im_start|>user
-Requirement: "{target_text}"
+Reply strictly with only the single uppercase letter, e.g. A.
 
 Options:
-{options_text}
-<|im_end|>
+{options_text}<|im_end|>
+<|im_start|>user
+Requirement: "{target_text}"<|im_end|>
 <|im_start|>assistant
 """
 
-    llm.reset()
     response = llm(
         prompt=prompt,
         max_tokens=1,
