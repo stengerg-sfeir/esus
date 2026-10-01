@@ -97,12 +97,28 @@ def field(name, **attributes):
 
 
 class InvariantClaimTests(unittest.TestCase):
-    """§4: an invariant that contradicts the field it names."""
+    """§4: an invariant that contradicts the field it names.
+
+    Invariants are tagged objects now, so the helper wraps each sentence the way
+    step C writes it. A bare string is exercised too, because the readers still
+    accept the older output directories.
+    """
 
     def check(self, invariants, models):
+        tagged = [{"text": text, "kind": "schema"} for text in invariants]
         report = Report("test")
-        check_invariant_claims(invariants, EntityIndex.from_models(models), report)
+        check_invariant_claims(tagged, EntityIndex.from_models(models), report)
         return report
+
+    def test_a_bare_string_is_still_read(self):
+        """The pre-tagging shape must keep working for old output directories."""
+        report = Report("test")
+        check_invariant_claims(
+            ["sku must be unique across all products"],
+            EntityIndex.from_models([model("Product", [field("sku", unique=False)])]),
+            report,
+        )
+        self.assertIn("inconsistent_invariant", rules_fired(report))
 
     def test_a_unique_claim_on_a_non_unique_field_is_flagged(self):
         report = self.check(

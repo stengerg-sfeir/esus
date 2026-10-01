@@ -1,0 +1,75 @@
+[run] requirements: 1965 characters
+[intentions] 87 tokens in 4.8s (18.1 tok/s)
+[data_models] 1244 tokens in 44.4s (28.0 tok/s)
+[invariants] 235 tokens in 11.3s (20.8 tok/s)
+[components] 199 tokens in 8.0s (24.7 tok/s)
+[service_contracts] 2234 tokens in 93.9s (23.8 tok/s)
+  [1/51] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.81)
+  [2/51] invariant -> BUDGET_OVERFLOW_GUARD (0.39)
+  [3/51] invariant -> QUOTA_CAPACITY_GUARD (0.43)
+  [4/51] invariant -> AGGREGATE_BY_FK (0.48)
+  [5/51] invariant -> AGGREGATE_BY_FK (0.44)
+  [6/51] invariant -> STATE_TRANSITION_GUARD (0.74)
+  [7/51] invariant -> STATE_TRANSITION_GUARD (0.84)
+  [8/51] invariant -> STATE_TRANSITION_GUARD (0.76)
+  [9/51] invariant -> STATE_TRANSITION_GUARD (0.81)
+  [10/51] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [11/51] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.75)
+  [12/51] invariant -> AGGREGATE_BY_FK_AND_DATE (0.13)
+  [13/51] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.17)
+  [14/51] invariant -> STATE_TRANSITION_GUARD (0.32)
+  [15/51] invariant -> NO_PATTERN_IN_DOMAIN (0.44)  <- GAP: no pattern for this
+  [16/51] contract:BookRepository.create_book -> STANDARD_CRUD (0.80)
+  [17/51] contract:BookRepository.read_all_books -> NO_PATTERN_IN_DOMAIN (0.83)  <- GAP: no pattern for this
+  [18/51] contract:BookRepository.read_book_by_id -> STANDARD_CRUD (0.86)
+  [19/51] contract:BookRepository.update_book -> STANDARD_CRUD (0.88)
+  [20/51] contract:BookRepository.delete_book -> STANDARD_CRUD (0.94)
+  [21/51] contract:BookRepository.search_books_by_title -> FILTER_WITH_PAGINATION (0.53)
+  [22/51] contract:BookRepository.search_books_by_author_id -> AGGREGATE_BY_FK (0.56)
+  [23/51] contract:BookRepository.search_books_by_isbn -> EXISTS_BY_UNIQUE_COMPOSITE (0.46)
+  [24/51] contract:BookRepository.get_books_by_available_copies -> AGGREGATE_BY_FK (0.25)
+  [25/51] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.77)
+  [26/51] contract:AuthorRepository.read_all_authors -> NO_PATTERN_IN_DOMAIN (0.74)  <- GAP: no pattern for this
+  [27/51] contract:AuthorRepository.read_author_by_id -> STANDARD_CRUD (0.87)
+  [28/51] contract:AuthorRepository.update_author -> STANDARD_CRUD (0.87)
+  [29/51] contract:AuthorRepository.delete_author -> STANDARD_CRUD (0.95)
+  [30/51] contract:AuthorRepository.find_books_by_author -> AGGREGATE_BY_FK (0.66)
+  [31/51] contract:MemberRepository.create_member -> STANDARD_CRUD (0.80)
+  [32/51] contract:MemberRepository.read_all_members -> NO_PATTERN_IN_DOMAIN (0.71)  <- GAP: no pattern for this
+  [33/51] contract:MemberRepository.read_member_by_id -> STANDARD_CRUD (0.90)
+  [34/51] contract:MemberRepository.update_member -> STANDARD_CRUD (0.87)
+  [35/51] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.94)
+  [36/51] contract:MemberRepository.find_active_members -> COUNT_ACTIVE_BY_FK (0.74)
+  [37/51] contract:MemberRepository.find_inactive_members -> COUNT_ACTIVE_BY_FK (0.74)
+  [38/51] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.79)
+  [39/51] contract:LoanRepository.read_all_loans -> NO_PATTERN_IN_DOMAIN (0.79)  <- GAP: no pattern for this
+  [40/51] contract:LoanRepository.read_loan_by_id -> STANDARD_CRUD (0.91)
+  [41/51] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.86)
+  [42/51] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.94)
+  [43/51] contract:LoanRepository.find_active_loans -> COUNT_ACTIVE_BY_FK (0.81)
+  [44/51] contract:LoanRepository.find_overdue_loans -> THRESHOLD_SCAN (0.60)
+  [45/51] contract:LoanRepository.find_loans_by_member_id -> AGGREGATE_BY_FK (0.68)
+  [46/51] contract:LoanRepository.find_loans_by_book_id -> AGGREGATE_BY_FK (0.55)
+  [47/51] contract:LibraryService.borrow_book -> AGGREGATE_BY_FK_AND_DATE (0.17)
+  [48/51] contract:LibraryService.return_book -> STANDARD_CRUD (0.56)
+  [49/51] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.84)
+  [50/51] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.67)
+  [51/51] contract:LibraryService.search_books -> FILTER_WITH_PAGINATION (0.71)
+[ok] step patterns: 51 item(s) — 18 standard CRUD, 28 pattern(s), 5 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: author.biography must be a string (non-null)
+    gap [NO_PATTERN_IN_DOMAIN] contract:BookRepository.read_all_books: read_all_books: Reads all Book entities from the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:AuthorRepository.read_all_authors: read_all_authors: Reads all Author entities from the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:MemberRepository.read_all_members: read_all_members: Reads all Member entities from the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:LoanRepository.read_all_loans: read_all_loans: Reads all Loan entities from the database.
+[interaction_adapters] 1791 tokens in 69.1s (25.9 tok/s)
+[persistence_ports] 2128 tokens in 88.0s (24.2 tok/s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/data_models.json
+[write] out/library/invariants.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[run] 7 steps, 7918 generated tokens in 319.6s

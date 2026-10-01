@@ -269,10 +269,34 @@ def persistence_ports():
 
 
 def phrase_list(document_key, maximum=40):
-    """Steps A and C: a document holding a flat list of sentences."""
+    """Step A: a document holding a flat list of sentences."""
     return grammar(
         [
             rule("root", json_object([(document_key, "string-list")])),
             rule("string-list", json_list("string", 0, maximum)),
+        ]
+    )
+
+
+# Step C's two kinds of invariant. "rule" constrains behaviour — it relates two
+# fields, holds only in one state, or bounds an aggregate — and is worth
+# classifying into a kernel pattern. "schema" restates a field's own declaration
+# (its type, nullability, uniqueness, key or allowed values): there is no
+# operation in it and no pattern can be right, so step F skips it. The value is
+# closed here, so the tag is a decision the grammar enforces rather than one a
+# later step has to infer from the prose.
+INVARIANT_KINDS = _enum("rule", "schema")
+
+
+def invariant_list(document_key="invariants", maximum=40):
+    """Step C: a list of tagged invariants, each a rule or a schema declaration."""
+    return grammar(
+        [
+            rule("root", json_object([(document_key, "invariant-list")])),
+            rule("invariant-list", json_list("invariant", 0, maximum)),
+            rule(
+                "invariant",
+                json_object([("text", "string"), ("kind", INVARIANT_KINDS)]),
+            ),
         ]
     )

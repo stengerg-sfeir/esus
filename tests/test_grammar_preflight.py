@@ -35,7 +35,7 @@ class CheckAcceptsValidGrammars(unittest.TestCase):
     def test_open_grammars_pass(self):
         grammars = [
             grammar_open.phrase_list("intentions"),
-            grammar_open.phrase_list("invariants"),
+            grammar_open.invariant_list("invariants"),
             grammar_open.data_models(),
             grammar_open.components(),
             grammar_open.service_contracts(),

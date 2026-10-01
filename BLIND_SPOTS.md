@@ -20,6 +20,7 @@ warnings unknown_reference name_variant unresolved_adapter_target
          inconsistent_invariant   ← added, closes §4
          low_confidence           ← added, closes §5
 notes    empty_section
+         missing_pattern          ← added, closes §5
 ```
 
 Every section below began as a defect that passed all 20 original rules. Each entry gives the
@@ -29,8 +30,10 @@ now also what was done about it.
 **Status: §1, §2, §3, §4 and §5 are closed at BOTH ends.** First the checker was given the rules,
 which made the defects visible — `0 error(s), 22 warning(s), 7 note(s)` at that point. Then the
 extractor was fixed so it stops producing them, and the seven prompts re-ran to **`0 error(s),
-0 warning(s), 11 note(s)`**, the same clean sheet as before the rules existed but now measured by
-a checker that can see the defects. Every rule's outcome:
+0 warning(s), 29 note(s)`**, the same clean sheet as before the rules existed but now measured by
+a checker that can see the defects. The notes rose from 11 to 29 because §5's `missing_pattern`
+now reports every gap rather than deleting the answer: 15 `missing_pattern`, 8 `empty_section`,
+6 `low_confidence`. Every rule's outcome:
 
 | rule | severity | closes | fired when added | now |
 |---|---|---|---|---|
@@ -40,7 +43,8 @@ a checker that can see the defects. Every rule's outcome:
 | `non_unique_primary_key` | warning | §4 | 1 | **0** |
 | `inconsistent_invariant` | warning | §4 | 3 | **0** |
 | `unknown_reference` (pattern ids) | warning | §5 | 3 | **0** |
-| `low_confidence` | **note** | §5 | 5 | 3, reported not counted |
+| `low_confidence` | **note** | §5 | 5 | 6, reported not counted |
+| `missing_pattern` | **note** | §5 | — | 15, reported not counted |
 
 Six rules were added to name the defects and five source changes removed them. The seventh entry
 is a **correction of my own rule**, not a source fix: three `unknown_reference` findings flagged
@@ -250,7 +254,7 @@ an unknown `pattern_id` as `unknown_reference`, a `confidence` outside `[0, 1]` 
 0.2 as `low_confidence` — a **note**, since the checker cannot tell a low-confidence-but-correct
 classification from a wrong one.
 
-**Measured:** 3 `unknown_reference` (now 0) and 5 `low_confidence` (now 3 notes). `CUSTOM_DOMAIN_LOGIC`
+**Measured:** 3 `unknown_reference` (now 0) and 5 `low_confidence` (now 6). `CUSTOM_DOMAIN_LOGIC`
 appeared in **three** prompts — cli_tool, inventory and expenses — not expenses alone. The floor
 is 0.2 and not 0.5 for a stated reason: 0.2 isolates five matches, while 0.5 would report 88 and
 drown the real findings; the threshold is named in the message so it can be argued with.
@@ -352,15 +356,74 @@ read_all_authors:    Reads all Author entities from the database. 0.2635
 That is the same shape as `get_expense_by_id` and points at one concrete addition — a
 `READ_ALL`/`READ_BY_PRIMARY_KEY` pair — rather than at a threshold change.
 
-**Two cautions before it is built.** First, the sentinel must be offered *in the same softmax*,
-so adding options moves probability mass and every existing confidence shifts: the 0.2 floor must
-be re-measured against the new shape, not carried over, and a `STANDARD_CRUD` answer might
-score highly precisely because it is correct. Second, this is exactly the shape of the §9.6
-regression, where making an escape hatch available changed what the model chose: an attractive
-no-answer option can be over-chosen, which would replace a wrong match with a useless one. So the
-no-answer *rate* is the thing to measure first — if it comes back concentrated on CRUD and
-`*_by_id`, the signal is real; if it swallows half the document, the option is too cheap and the
-prompt needs to price it.
+### Built, and what it measured
+
+The split is implemented — `pattern_catalog.py` (three ids), the classifier, `classification.py`
+(which now filters nothing), `checks_patterns.py` (`missing_pattern` notes) and `report.py` — and
+the seven prompts re-ran to **`0 error(s), 0 warning(s), 29 note(s)`**, 61 tests green.
+
+| prompt | rows | pattern | `STANDARD_CRUD` | gap |
+|---|---|---|---|---|
+| inventory | 35 | 16 | 15 | 4 |
+| gui | 23 | 13 | 8 | 2 |
+| expenses | 48 | 28 | 19 | 1 |
+| 60 | 36 | 24 | 9 | 3 |
+| library | 51 | 28 | 18 | 5 |
+| **total** | **193** | **109** | **69** | **15** |
+
+**Eleven of the fifteen gaps are `read_all_*`** — `read_all_categories`, `read_all_books`,
+`read_all_loans` and the rest, at confidences 0.42–0.90. The other **four are field
+definitions** (`category.description is optional`, `author.biography must be a string (non-null)`)
+and are not catalogue gaps at all — see below. The only list-shaped repository pattern,
+`FILTER_WITH_PAGINATION`, **requires pagination**, so "read them all" has nowhere to land: one
+added `READ_ALL` pattern closes those eleven. This is the coverage report the section set out to
+build, and it is concentrated enough to act on in a single change.
+
+> An earlier revision of this section said thirteen of fifteen were `read_all_*`. Classifying
+> every gap by the text that produced it gives eleven read-alls and four field definitions. The
+> miscount is corrected here rather than quietly.
+
+**Eight of the twenty-nine notes are one root cause.** The four field-definition gaps and four of
+the six `low_confidence` notes are the same defect from two sides: step F is asked to classify
+two kinds of text, and only one is a *pattern* question.
+
+- **contract methods** are operations, so a pattern can be right for them;
+- **data-model invariants** include field *declarations* — `member.is_active must be a boolean`,
+  `member.membership_date must be a valid date`, `stock_qty must be updated to a non-negative
+  integer`, `wine.storage_location_id must reference a valid StorageLocation`,
+  `author.biography must be a string`, `category.description is optional` — which are not
+  operations, so **no pattern can ever be right**.
+
+Which note appears depends only on where the softmax happened to land: a real pattern gives
+`low_confidence` (4), the sentinel gives `missing_pattern` (4). The remaining two
+`low_confidence` notes are contract methods that are **compound** operations with no single
+pattern — `borrow_book` checks availability, creates a loan and decrements copies in one method;
+`detect_recurring` scans and may create. Those are genuinely hard, and low confidence is the
+honest answer.
+
+**The fix is a filter, not a threshold:** only invariants stating a rule about *behaviour* belong
+on step F — `budget.amount_limit_cents is non-negative` matched `BUDGET_OVERFLOW_GUARD` at 0.66,
+a real classification — whereas a declaration of a field's type or nullability does not. That is
+a further change with its own re-run, so it is recorded rather than done.
+
+**The escape-hatch risk was the thing to test, and it does not materialise.** The criterion
+was set in advance: a no-answer rate above 50% would mean the option is too cheap. It came back
+at 44% — and 69 of those 84 are `STANDARD_CRUD`, a *correct* answer. Every `STANDARD_CRUD` row
+was read, and a keyword test for aggregate text run over all 69: **no requirement that has a
+pattern absconded into the sentinel.** All 109 genuinely pattern-shaped rows still reached real
+patterns. The five rows the keyword test flagged are its own false positives — four matched
+*unique* in "by its unique identifier" (a primary-key read) and the fifth is a create whose
+description mentions a uniqueness check. So the 50% criterion was measuring total no-answers
+when the question is whether the sentinel *swallows* anything; it does not, and 44% is simply
+the true proportion of CRUD in these repositories — exactly what the 62 deleted rows were.
+
+**Three things the measurement left open**, each narrowed rather than closed:
+- the `READ_ALL` pattern (11 gaps), not added because adding a pattern changes what step F can
+  answer and needs its own re-run;
+- the `0.2` floor, which is documented as needing re-derivation whenever the option list changes
+  and now does — `low_confidence` notes moved from 3 to 6 as probability mass shifted;
+- and field-definition invariants are still sent to step F. They arrive as gaps rather than
+  silence, which is the improvement, but they should not be classified as patterns at all.
 
 ---
 
@@ -435,7 +498,7 @@ Ranked by (defects caught ÷ effort), all implemented and all removed from the o
 | 1 | §1 interface agreement | `inconsistent_interface` | 10 | **0** |
 | 2 | §2 parameterless methods | `missing_parameters` | 12 | **0** |
 | 3 | §3 crud vs methods | `unmet_crud_operation` | 6 | **0** |
-| 4 | §5 pattern_matches | `checks_patterns.py` | 3 + 5 | **0** + 3 notes |
+| 4 | §5 pattern_matches | `checks_patterns.py` + `missing_pattern` | 3 + 5 | **0** + 15 gap notes |
 | 5 | §4 `unique` vs `primary_key` | `non_unique_primary_key` | 1 | **0** |
 | 6 | §4 invariant vs model | `inconsistent_invariant` | 3 | **0** |
 

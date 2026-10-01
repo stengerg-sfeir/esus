@@ -18,6 +18,8 @@ correctly empty.
 
 import re
 
+from kernel.consistency.checks_phrases import phrase_text
+
 # "sku must be unique", "category.name must be unique": the name is the token
 # before the claim, with an optional model prefix that is stripped.
 _UNIQUE = re.compile(r"\b([a-z_][a-z0-9_]*)\b[^.]*?\bmust be unique\b", re.I)
@@ -30,16 +32,23 @@ CLAIMS = (
 
 
 def check_invariant_claims(invariants, index, report):
-    """Report each invariant that contradicts the attribute it names."""
+    """Report each invariant that contradicts the attribute it names.
+
+    Every invariant is read, `rule` or `schema`: a `rule` never contains a
+    "must be unique" or "must be nullable" claim, so scanning both loses nothing
+    and keeps the rule's coverage independent of how step C tags a statement.
+    `phrase_text` reads the sentence from either document shape.
+    """
     if not isinstance(invariants, list) or not index.models:
         return
 
     declared = _fields_by_name(index)
     for invariant in invariants:
-        if not isinstance(invariant, str):
+        text = phrase_text(invariant)
+        if text is None:
             continue
         for regex, attribute, wording in CLAIMS:
-            match = regex.search(invariant)
+            match = regex.search(text)
             if match is None:
                 continue
             field_name = match.group(1)

@@ -138,7 +138,7 @@ class Pipeline:
         self._generate(
             INVARIANTS,
             prompts.invariants(requirements, block),
-            grammar_open.phrase_list(INVARIANTS),
+            grammar_open.invariant_list(INVARIANTS),
         )
 
     def _step_components(self, requirements):

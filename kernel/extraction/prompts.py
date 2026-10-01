@@ -17,16 +17,34 @@ INTENTIONS_SYSTEM = (
 )
 INVARIANTS_SYSTEM = (
     "Identify the business and data invariants explicitly stated or directly implied by the "
-    "requirements. Each invariant must be a single, unique, concrete rule (e.g. 'isbn must be "
-    "unique', 'available_copies must be >= 0'). Do not repeat, paraphrase, or generalize the same "
-    "rule. Do not invent rules not grounded in the requirements. Stop as soon as all distinct "
-    "rules are listed. "
+    "requirements. Each invariant must be a single, unique, concrete statement. Do not repeat, "
+    "paraphrase or generalize the same statement. Do not invent any not grounded in the "
+    "requirements. Stop as soon as all distinct statements are listed. "
+    "Give every invariant a 'kind', which is exactly one of 'schema' or 'rule'. "
+    "Use 'schema' when the invariant only restates how a single field is declared — its type, "
+    "whether it is nullable or optional, whether it is unique, whether it is the primary key or "
+    "a foreign key, or the set of values it may take. Examples of 'schema': 'category.description "
+    "is optional', 'product.low_active is optional and defaults to False', 'member.is_active must "
+    "be a boolean', 'product.stock_qty must be a non-negative integer', 'expense.payment_method "
+    "is one of [cash, card, transfer]', 'category.id is auto-incremented primary key', "
+    "'loan.book_id must reference an existing Book'. A statement that a single field must be "
+    "unique is 'schema'. "
+    "Use 'rule' when the invariant constrains behaviour rather than one field: it relates two "
+    "fields to each other, it holds only in a particular state, or it bounds an aggregate or a "
+    "total. Examples of 'rule': 'wine.selling_price must be strictly greater than wine.cost_price', "
+    "'the total number of bottles assigned to a StorageLocation must not exceed its "
+    "max_bottle_capacity', 'loan.return_date must be null if loan.status is active', "
+    "'stock_quantity must be >= 0 when the order is confirmed', 'book.available_copies must not "
+    "exceed the number of copies added for that book'. A conditional clause (if/when), a "
+    "comparison between two different fields, or a limit on a sum or a total makes an invariant a "
+    "'rule' even if it also mentions a single field. "
     "The data model listed above is authoritative: an invariant must agree with it. Never call a "
     "field unique or nullable when the model declares otherwise, and never state a rule about an "
     "entity or field the model does not define — a rule about a field that is not there cannot be "
     "enforced. Where an invariant and a declared attribute would disagree, the attribute is what "
     "the model says and the invariant must not contradict it. "
-    'Output strictly in English as JSON: {"invariants": ["...", "..."]}.'
+    'Output strictly in English as JSON: {"invariants": [{"text": "...", "kind": "schema"}, '
+    '{"text": "...", "kind": "rule"}]}.'
 )
 DATA_MODELS_SYSTEM = (
     "Extract the data model. The FIRST field of every entity must be its primary key: set "

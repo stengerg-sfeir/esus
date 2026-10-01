@@ -1,0 +1,19 @@
+{
+  "invariants": [
+    "book.isbn must be unique across all Book entities",
+    "book.available_copies must be a non-negative integer",
+    "book.available_copies must not exceed the number of copies added for that book",
+    "loan.book_id must reference an existing Book entity",
+    "loan.member_id must reference an existing Member entity",
+    "loan.status must be one of ['active', 'returned', 'overdue']",
+    "loan.return_date must be null if loan.status is 'active'",
+    "loan.return_date must be a valid date if loan.status is 'returned'",
+    "loan.return_date must be after loan.due_date if loan.status is 'returned'",
+    "loan.return_date must be null if loan.status is 'overdue'",
+    "member.email must be unique across all Member entities",
+    "member.is_active must be a boolean",
+    "member.membership_date must be a valid date",
+    "author.birth_year must be a valid year (not in the future)",
+    "author.biography must be a string (non-null)"
+  ]
+}

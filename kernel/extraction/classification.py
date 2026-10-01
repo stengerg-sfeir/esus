@@ -17,6 +17,11 @@ describe, and is never a finding.
 from kernel.classifier.hierarchical_classifier import classify_requirement_2step, load_catalog
 from kernel.pattern_catalog import GAP_PATTERN_IDS, STANDARD_CRUD
 
+# Step C's tag for an invariant that states a behaviour, and so may map onto a
+# kernel pattern. Its counterpart, `SCHEMA_KIND`, restates a field declaration
+# and is not classified — see `classification_items`.
+RULE_KIND = "rule"
+
 
 def classify_documents(classifier, documents, log):
     """Classify every invariant and contract method; return every match."""
@@ -67,9 +72,19 @@ def classify_documents(classifier, documents, log):
 
 
 def classification_items(documents):
-    """The (source label, text) pairs to classify, in document order."""
+    """The (source label, text) pairs to classify, in document order.
+
+    Only invariants step C tagged `rule` are classified. A `schema` invariant
+    restates a field's own declaration — its type, nullability, uniqueness, key
+    or allowed values — so it names no operation and no pattern can be right for
+    it: every answer the classifier gives is noise, and measured across the
+    seven prompts most of that noise lands *above* the confidence floor and so
+    was never even reported. Step C makes the distinction when it writes the
+    invariant, where the grammar can enforce it, rather than leaving it to be
+    guessed from prose here (`grammar_open.invariant_list`).
+    """
     items = []
-    for invariant in _string_list(documents.get("invariants")):
+    for invariant in _rule_invariants(documents.get("invariants")):
         items.append(("invariant", invariant))
     for contract in _dict_list(documents.get("service_contracts")):
         service = contract.get("service_name") or ""
@@ -78,6 +93,38 @@ def classification_items(documents):
             description = method.get("description") or ""
             items.append((f"contract:{service}.{name}", f"{name}: {description}"))
     return items
+
+
+def _rule_invariants(value):
+    """The text of every invariant tagged `rule`."""
+    texts = []
+    for item in _invariants(value):
+        kind, text = item
+        if kind == RULE_KIND:
+            texts.append(text)
+    return texts
+
+
+def _invariants(value):
+    """Every invariant as a (kind, text) pair, accepting either document shape.
+
+    The tagged shape is what step C writes now. The bare-string shape is read
+    too, so an output directory produced before this change still classifies
+    instead of silently yielding nothing — there, every invariant was
+    classified, which is the behaviour being replaced.
+    """
+    if not isinstance(value, list):
+        return []
+    pairs = []
+    for item in value:
+        if isinstance(item, str):
+            if item.strip():
+                pairs.append((RULE_KIND, item.strip()))
+        elif isinstance(item, dict):
+            text = item.get("text")
+            if isinstance(text, str) and text.strip():
+                pairs.append((item.get("kind"), text.strip()))
+    return pairs
 
 
 def _string_list(value):

@@ -91,9 +91,9 @@
       ]
     },
     {
-      "action_name": "filter_books_by_available_copies",
+      "action_name": "search_books_by_available_copies",
       "target_service": "BookRepository",
-      "target_method": "filter_books_by_available_copies",
+      "target_method": "get_books_by_available_copies",
       "input_fields": [
         {
           "field_name": "available_copies",
@@ -103,6 +103,12 @@
           "required": true
         }
       ]
+    },
+    {
+      "action_name": "list_authors",
+      "target_service": "AuthorRepository",
+      "target_method": "read_all_authors",
+      "input_fields": []
     },
     {
       "action_name": "add_author",
@@ -133,9 +139,21 @@
       ]
     },
     {
-      "action_name": "list_authors",
-      "target_service": "AuthorRepository",
-      "target_method": "read_all_authors",
+      "action_name": "list_members",
+      "target_service": "MemberRepository",
+      "target_method": "read_all_members",
+      "input_fields": []
+    },
+    {
+      "action_name": "list_active_members",
+      "target_service": "MemberRepository",
+      "target_method": "find_active_members",
+      "input_fields": []
+    },
+    {
+      "action_name": "list_inactive_members",
+      "target_service": "MemberRepository",
+      "target_method": "find_inactive_members",
       "input_fields": []
     },
     {
@@ -165,12 +183,6 @@
           "required": false
         }
       ]
-    },
-    {
-      "action_name": "list_members",
-      "target_service": "MemberRepository",
-      "target_method": "read_all_members",
-      "input_fields": []
     },
     {
       "action_name": "borrow_book",
@@ -209,8 +221,8 @@
     },
     {
       "action_name": "get_overdue_loans",
-      "target_service": "LoanRepository",
-      "target_method": "find_overdue_loans",
+      "target_service": "LibraryService",
+      "target_method": "get_overdue_loans",
       "input_fields": []
     },
     {
@@ -242,19 +254,7 @@
       ]
     },
     {
-      "action_name": "list_active_members",
-      "target_service": "MemberRepository",
-      "target_method": "find_active_members",
-      "input_fields": []
-    },
-    {
-      "action_name": "list_inactive_members",
-      "target_service": "MemberRepository",
-      "target_method": "find_inactive_members",
-      "input_fields": []
-    },
-    {
-      "action_name": "find_loans_by_member_id",
+      "action_name": "list_loans_by_member",
       "target_service": "LoanRepository",
       "target_method": "find_loans_by_member_id",
       "input_fields": [
@@ -268,7 +268,7 @@
       ]
     },
     {
-      "action_name": "find_loans_by_book_id",
+      "action_name": "list_loans_by_book",
       "target_service": "LoanRepository",
       "target_method": "find_loans_by_book_id",
       "input_fields": [

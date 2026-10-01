@@ -1,17 +1,80 @@
 {
   "invariants": [
-    "category.id must be auto-incremented primary key",
-    "category.name must be unique",
-    "category.description is optional",
-    "category.reorder_threshold must be an integer or null",
-    "product.id must be auto-incremented primary key",
-    "product.sku must be unique",
-    "product.name is required",
-    "product.category_id must reference an existing category.id",
-    "product.price_cents must be a positive integer",
-    "product.stock_qty must be a non-negative integer",
-    "product.low_active is optional and defaults to False",
-    "category.reorder_threshold must be greater than or equal to 0 if provided",
-    "stock_qty must be updated to a non-negative integer when restocking"
+    {
+      "text": "category.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "category.name must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "category.description is optional",
+      "kind": "schema"
+    },
+    {
+      "text": "category.reorder_threshold is optional and defaults to None",
+      "kind": "schema"
+    },
+    {
+      "text": "product.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "product.sku must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "product.name is required",
+      "kind": "schema"
+    },
+    {
+      "text": "product.category_id must reference an existing Category",
+      "kind": "rule"
+    },
+    {
+      "text": "product.price_cents must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "product.stock_qty must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "product.low_active is optional and defaults to False",
+      "kind": "schema"
+    },
+    {
+      "text": "product.sku must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "product.price_cents must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "product.stock_qty must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "product.category_id must be valid (exists in Category table)",
+      "kind": "rule"
+    },
+    {
+      "text": "product.sku must match the format of a valid SKU (if format rules were specified, but none are here)",
+      "kind": "schema"
+    },
+    {
+      "text": "stock_qty >= 0 when the product is in a state where stock is tracked",
+      "kind": "rule"
+    },
+    {
+      "text": "reorder_threshold must be a non-negative integer if provided",
+      "kind": "rule"
+    }
   ]
 }

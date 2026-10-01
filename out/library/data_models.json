@@ -17,9 +17,9 @@
           "type": "string",
           "primary_key": false,
           "nullable": false,
-          "unique": false,
+          "unique": true,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "isbn",
@@ -28,16 +28,16 @@
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "published_year",
           "type": "int",
           "primary_key": false,
-          "nullable": false,
+          "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "available_copies",
@@ -46,7 +46,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },
@@ -69,7 +69,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "birth_year",
@@ -110,7 +110,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "email",
@@ -119,7 +119,7 @@
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "membership_date",

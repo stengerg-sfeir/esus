@@ -1,51 +1,40 @@
 [run] requirements: 2312 characters
-[intentions] 159 tokens in 8.3s (19.1 tok/s)
-[data_models] 648 tokens in 24.1s (26.9 tok/s)
-[invariants] 164 tokens in 8.9s (18.4 tok/s)
-[components] 139 tokens in 6.4s (21.7 tok/s)
-[service_contracts] 1660 tokens in 70.7s (23.5 tok/s)
-  [1/35] invariant -> STANDARD_CRUD (0.52)
-  [2/35] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.36)
-  [3/35] invariant -> NO_PATTERN_IN_DOMAIN (0.21)  <- GAP: no pattern for this
-  [4/35] invariant -> BUDGET_OVERFLOW_GUARD (0.44)
-  [5/35] invariant -> STANDARD_CRUD (0.67)
-  [6/35] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.66)
-  [7/35] invariant -> AGGREGATE_BY_FK_AND_DATE (0.28)
-  [8/35] invariant -> AGGREGATE_BY_FK (0.31)
-  [9/35] invariant -> PRICE_MARGIN_GUARD (0.27)
-  [10/35] invariant -> BUDGET_OVERFLOW_GUARD (0.40)
-  [11/35] invariant -> NO_PATTERN_IN_DOMAIN (0.26)  <- GAP: no pattern for this
-  [12/35] invariant -> PRICE_MARGIN_GUARD (0.38)
-  [13/35] invariant -> AGGREGATE_BY_FK_AND_DATE (0.17)
-  [14/35] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.79)
-  [15/35] contract:CategoryRepository.read_all_categories -> NO_PATTERN_IN_DOMAIN (0.78)  <- GAP: no pattern for this
-  [16/35] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.85)
-  [17/35] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.91)
-  [18/35] contract:CategoryRepository.get_category_by_id -> STANDARD_CRUD (0.75)
-  [19/35] contract:CategoryRepository.get_products_by_category -> FILTER_WITH_PAGINATION (0.42)
-  [20/35] contract:ProductRepository.create_product -> STANDARD_CRUD (0.80)
-  [21/35] contract:ProductRepository.read_one_product -> STANDARD_CRUD (0.81)
-  [22/35] contract:ProductRepository.read_all_products -> NO_PATTERN_IN_DOMAIN (0.90)  <- GAP: no pattern for this
-  [23/35] contract:ProductRepository.update_product -> STANDARD_CRUD (0.87)
-  [24/35] contract:ProductRepository.delete_product -> STANDARD_CRUD (0.92)
-  [25/35] contract:ProductRepository.get_products_by_category -> FILTER_WITH_PAGINATION (0.42)
-  [26/35] contract:ProductRepository.get_low_stock_products -> THRESHOLD_SCAN (0.57)
-  [27/35] contract:ProductRepository.get_total_stock_value_by_category -> AGGREGATE_BY_FK (0.80)
-  [28/35] contract:InventoryService.add_product -> STANDARD_CRUD (0.44)
-  [29/35] contract:InventoryService.update_product -> STANDARD_CRUD (0.81)
-  [30/35] contract:InventoryService.delete_product -> STANDARD_CRUD (0.92)
-  [31/35] contract:InventoryService.get_product_by_id -> STANDARD_CRUD (0.79)
-  [32/35] contract:InventoryService.list_products -> FILTER_WITH_PAGINATION (0.64)
-  [33/35] contract:InventoryService.restock -> STANDARD_CRUD (0.76)
-  [34/35] contract:InventoryService.low_stock_report -> STOCK_SUFFICIENCY_GUARD (0.47)
-  [35/35] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK (0.65)
-[ok] step patterns: 35 item(s) — 15 standard CRUD, 16 pattern(s), 4 gap(s)
-    gap [NO_PATTERN_IN_DOMAIN] invariant: category.description is optional
-    gap [NO_PATTERN_IN_DOMAIN] invariant: product.low_active is optional and defaults to False
+[intentions] 159 tokens in 7.9s (20.1 tok/s)
+[data_models] 648 tokens in 23.5s (27.6 tok/s)
+[invariants] 415 tokens in 18.6s (22.3 tok/s)
+[components] 139 tokens in 6.4s (21.6 tok/s)
+[service_contracts] 1660 tokens in 68.5s (24.2 tok/s)
+  [1/26] invariant -> AGGREGATE_BY_FK (0.31)
+  [2/26] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.27)
+  [3/26] invariant -> STOCK_SUFFICIENCY_GUARD (0.50)
+  [4/26] invariant -> BUDGET_OVERFLOW_GUARD (0.22)
+  [5/26] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.79)
+  [6/26] contract:CategoryRepository.read_all_categories -> NO_PATTERN_IN_DOMAIN (0.78)  <- GAP: no pattern for this
+  [7/26] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.85)
+  [8/26] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.91)
+  [9/26] contract:CategoryRepository.get_category_by_id -> STANDARD_CRUD (0.75)
+  [10/26] contract:CategoryRepository.get_products_by_category -> FILTER_WITH_PAGINATION (0.42)
+  [11/26] contract:ProductRepository.create_product -> STANDARD_CRUD (0.80)
+  [12/26] contract:ProductRepository.read_one_product -> STANDARD_CRUD (0.81)
+  [13/26] contract:ProductRepository.read_all_products -> NO_PATTERN_IN_DOMAIN (0.90)  <- GAP: no pattern for this
+  [14/26] contract:ProductRepository.update_product -> STANDARD_CRUD (0.87)
+  [15/26] contract:ProductRepository.delete_product -> STANDARD_CRUD (0.92)
+  [16/26] contract:ProductRepository.get_products_by_category -> FILTER_WITH_PAGINATION (0.42)
+  [17/26] contract:ProductRepository.get_low_stock_products -> THRESHOLD_SCAN (0.57)
+  [18/26] contract:ProductRepository.get_total_stock_value_by_category -> AGGREGATE_BY_FK (0.80)
+  [19/26] contract:InventoryService.add_product -> STANDARD_CRUD (0.44)
+  [20/26] contract:InventoryService.update_product -> STANDARD_CRUD (0.81)
+  [21/26] contract:InventoryService.delete_product -> STANDARD_CRUD (0.92)
+  [22/26] contract:InventoryService.get_product_by_id -> STANDARD_CRUD (0.79)
+  [23/26] contract:InventoryService.list_products -> FILTER_WITH_PAGINATION (0.64)
+  [24/26] contract:InventoryService.restock -> STANDARD_CRUD (0.76)
+  [25/26] contract:InventoryService.low_stock_report -> STOCK_SUFFICIENCY_GUARD (0.47)
+  [26/26] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK (0.65)
+[ok] step patterns: 26 item(s) — 13 standard CRUD, 11 pattern(s), 2 gap(s)
     gap [NO_PATTERN_IN_DOMAIN] contract:CategoryRepository.read_all_categories: read_all_categories: Reads all categories from the database.
     gap [NO_PATTERN_IN_DOMAIN] contract:ProductRepository.read_all_products: read_all_products: Reads all products from the database.
-[interaction_adapters] 1520 tokens in 59.4s (25.6 tok/s)
-[persistence_ports] 1093 tokens in 44.5s (24.5 tok/s)
+[interaction_adapters] 1520 tokens in 57.1s (26.6 tok/s)
+[persistence_ports] 1093 tokens in 45.2s (24.2 tok/s)
 [ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
 [write] out/inventory/intentions.json
 [write] out/inventory/data_models.json
@@ -55,4 +44,4 @@
 [write] out/inventory/pattern_matches.json
 [write] out/inventory/interaction_adapters.json
 [write] out/inventory/persistence_ports.json
-[run] 7 steps, 5383 generated tokens in 222.4s
+[run] 7 steps, 5634 generated tokens in 227.2s

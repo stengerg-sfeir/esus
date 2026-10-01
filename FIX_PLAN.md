@@ -1239,3 +1239,152 @@ requirements. It is recorded here rather than left to be discovered.
 
 The eleven notes are 8 `empty_section` (hello's and cli_tool's genuinely empty documents) and 3
 `low_confidence`. Notes are printed and never counted.
+---
+
+## 9.15 Step F's missing answer: the gap report, measured
+
+§9.14 closed every checker warning and left one note standing — `AGGREGATE_BY_FK_AND_DATE` matched
+against `get_expense_by_id` at confidence 0.19. That note was the visible tip of a larger defect,
+and this section is the fix, the measurement, and one thing the measurement disproved.
+
+### The defect: the answer existed and was deleted
+
+Step F was already asked "does nothing fit?" at both stages — `CUSTOM_OR_NONE` at the domain
+stage, `NO_STANDARD_PATTERN_OPTION` appended to every pattern list — but `classification.py`
+discarded the first one:
+
+```python
+FALLBACK_PATTERN = "CUSTOM_OR_STANDARD_CRUD"
+...
+    if pattern_id != FALLBACK_PATTERN:      # the stage-1 answer is deleted here
+        matches.append({...})
+```
+
+`CUSTOM_OR_NONE` is documented as *"Basic CRUD (create/read/update/delete by id) **or**
+non-standard custom business logic"* — two opposite answers in one id. One is the correct answer
+for most repository methods and not a defect; the other is a gap. The filter could not tell them
+apart, so it deleted both. Measured from the output alone (*asked − written* is exact, since the
+only suppression was that one comparison): **62 of the 191 items across the seven prompts, every
+one of them ordinary CRUD.**
+
+### The change: three answers, kept
+
+| answer | was | is | a gap? |
+|---|---|---|---|
+| plain create/read/update/delete by key | deleted | `STANDARD_CRUD`, kept | **no** |
+| fits no domain | deleted | `NO_MATCH`, kept | yes |
+| domain fits, no pattern inside it | kept as `CUSTOM_DOMAIN_LOGIC` | `NO_PATTERN_IN_DOMAIN`, kept | yes |
+
+`kernel/pattern_catalog.py` gained `NO_DOMAIN_IDS`, `GAP_PATTERN_IDS` and the split domain
+options; `hierarchical_classifier.classify_requirement_2step` returns the stage-1 answer as the
+pattern id instead of a fallback constant; `classification.py` filters nothing and logs a summary
+plus one line per gap; `checks_patterns.py` reports each gap as `missing_pattern` — a **note** —
+and skips `low_confidence` for sentinels so one answer is not counted under two rules.
+
+### The measurement
+
+Seven prompts re-run. `0 error(s), 0 warning(s), 29 note(s)` — 15 `missing_pattern`,
+8 `empty_section`, 6 `low_confidence`. Every document present; compile clean; 61 tests pass.
+
+| prompt | rows | pattern | `STANDARD_CRUD` | gap | no-answer |
+|---|---|---|---|---|---|
+| hello | 0 | 0 | 0 | 0 | — |
+| cli_tool | 0 | 0 | 0 | 0 | — |
+| inventory | 35 | 16 | 15 | 4 | 54% |
+| gui | 23 | 13 | 8 | 2 | 43% |
+| expenses | 48 | 28 | 19 | 1 | 42% |
+| 60 | 36 | 24 | 9 | 3 | 33% |
+| library | 51 | 28 | 18 | 5 | 45% |
+| **total** | **193** | **109** | **69** | **15** | **44%** |
+
+**The gap report splits into two kinds, and only one of them is a catalogue gap.** Classified by
+the text that produced each:
+
+| kind | count | examples | what it means |
+|---|---|---|---|
+| `read_all_*` | **11** | `read_all_categories`, `read_all_books`, `read_all_loans` | a genuine catalogue gap |
+| field definition | **4** | `category.description is optional`, `author.biography must be a string (non-null)` | **not a gap** — see below |
+
+The eleven are the real finding, at confidences 0.42–0.90. The six repository patterns are
+`AGGREGATE_BY_FK_AND_DATE`, `AGGREGATE_BY_FK`, `COUNT_ACTIVE_BY_FK`, `FILTER_WITH_PAGINATION`,
+`EXISTS_BY_UNIQUE_COMPOSITE` and `THRESHOLD_SCAN`; the only list-shaped one,
+`FILTER_WITH_PAGINATION`, **requires pagination**, so "read them all" has nowhere to land. **One
+added `READ_ALL` pattern closes 11 of the 15 gaps.** (An earlier revision of this section said
+thirteen; the audit that produced this table found eleven read-alls and four field definitions.
+The miscount is corrected here rather than quietly.)
+
+### One root cause behind eight of the twenty-nine notes
+
+The four field-definition gaps and four of the six `low_confidence` notes are the same defect seen
+from two sides. Step F is asked to classify two kinds of text, and only one of them is a
+*pattern* question:
+
+- **contract methods** are operations, and can legitimately be a pattern;
+- **data-model invariants** include field *declarations* — `member.is_active must be a boolean`,
+  `member.membership_date must be a valid date`, `stock_qty must be updated to a non-negative
+  integer`, `wine.storage_location_id must reference a valid StorageLocation`,
+  `author.biography must be a string`, `category.description is optional`. These are not
+  operations, so **no pattern can ever be right**.
+
+For that second class every answer is noise, and which note appears depends only on which option
+the softmax happened to prefer:
+
+| where it landed | note produced | count |
+|---|---|---|
+| a real catalogue pattern | `low_confidence` | 4 |
+| the sentinel | `missing_pattern` | 4 |
+
+Eight of the twenty-nine notes, one cause. The remaining two `low_confidence` notes are contract
+methods that are *compound* operations with no single pattern — `borrow_book` checks
+availability, creates a loan and decrements copies in one method; `detect_recurring` scans and
+may create. Those are genuinely hard, and low confidence is the honest answer for them.
+
+**The fix is a filter, not a threshold**: only invariants that state a rule about *behaviour*
+belong on step F — `budget.amount_limit_cents is non-negative` matched `BUDGET_OVERFLOW_GUARD` at
+0.66, which is a real classification. A declaration of a field's type or nullability does not.
+That distinction is made on the invariant's *shape*, and it is a further change with its own
+re-run, so it is recorded here rather than done.
+
+### A hypothesis the measurement disproved
+
+`classification.py` originally filtered for a reason: unwritten, 62 CRUD rows would drown the
+document. So the risk inverting that was that the sentinel would become an attractive escape —
+the §9.6 failure shape, where making an option available changes what the model chooses. I set
+the criterion in advance: **if the no-answer rate exceeded 50%, the sentinel was too cheap and I
+would not ship it.**
+
+**It came back at 44%, and 69 of those 84 are `STANDARD_CRUD` — a correct answer, not an
+escape.** The criterion was measuring the wrong thing: it counted *total* no-answers, when the
+question that matters is whether a requirement that **has** a pattern absconds into the sentinel.
+Checked directly — every `STANDARD_CRUD` row was read, and a keyword test for aggregate text
+(`sum|total|count|aggregate|…|threshold|exists|unique`) run over all 69:
+
+- **No aggregate, guard, threshold or uniqueness-query requirement landed on `STANDARD_CRUD`.**
+  Every genuinely pattern-shaped requirement still reached a real pattern — `AGGREGATE_BY_FK`,
+  `FILTER_WITH_PAGINATION`, `PRICE_MARGIN_GUARD`, `STOCK_SUFFICIENCY_GUARD`,
+  `STATE_TRANSITION_GUARD` and the rest, 109 rows in total.
+- The test flagged five rows; all five are its own false positives. Four matched the word
+  *unique* in **"by its unique identifier"** — a primary-key read. The fifth,
+  `add_product: … validating the category exists and the SKU is unique`, is a **create** whose
+  description mentions a uniqueness check; `EXISTS_BY_UNIQUE_COMPOSITE` is a check-query, not a
+  create, so `STANDARD_CRUD` is defensible. One genuinely borderline row out of 69, recorded
+  rather than hidden.
+- 54% was never the right threshold. The 44% is simply the true proportion of CRUD in these
+  repositories — which is exactly what the 62 deleted rows turned out to be.
+
+### Two things still open, both narrowed
+
+- **13 missing `read_all_*` patterns** — one `READ_ALL` entry closes them. Not done here: adding
+  a pattern changes what step F can answer, so it is its own change and its own re-run.
+- **The `0.2` confidence floor needs re-deriving.** Adding options moved probability mass, as
+  predicted: `low_confidence` notes went from 3 to 6. The floor is documented as
+  "re-derive whenever the option list changes" and that is now due.
+- **Field-definition invariants are still sent to step F.** They arrive as `NO_PATTERN_IN_DOMAIN`
+  and `STANDARD_CRUD` — now visible and countable rather than silent, which is the improvement,
+  but they should not be classified as patterns at all.
+
+One more thing the change fixes without being asked: the `get_expense_by_id` note that started
+this — a bare ID read forced onto an aggregate pattern — now answers `STANDARD_CRUD`, at a
+confidence of 0.9 rather than 0.19, because there is finally an option that means what the
+requirement says. The report was right to refuse to call that match a defect; what it could not
+say was that the vocabulary, not the model, was the thing that was wrong.

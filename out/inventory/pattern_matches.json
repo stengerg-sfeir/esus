@@ -2,94 +2,31 @@
   "pattern_matches": [
     {
       "source": "invariant",
-      "text": "category.id must be auto-incremented primary key",
-      "domain": "STANDARD_CRUD",
-      "pattern_id": "STANDARD_CRUD",
-      "confidence": 0.5242
-    },
-    {
-      "source": "invariant",
-      "text": "category.name must be unique",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.3575
-    },
-    {
-      "source": "invariant",
-      "text": "category.description is optional",
-      "domain": "REPO_QUERY",
-      "pattern_id": "NO_PATTERN_IN_DOMAIN",
-      "confidence": 0.2056
-    },
-    {
-      "source": "invariant",
-      "text": "category.reorder_threshold must be an integer or null",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4401
-    },
-    {
-      "source": "invariant",
-      "text": "product.id must be auto-incremented primary key",
-      "domain": "STANDARD_CRUD",
-      "pattern_id": "STANDARD_CRUD",
-      "confidence": 0.6745
-    },
-    {
-      "source": "invariant",
-      "text": "product.sku must be unique",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.657
-    },
-    {
-      "source": "invariant",
-      "text": "product.name is required",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.282
-    },
-    {
-      "source": "invariant",
-      "text": "product.category_id must reference an existing category.id",
+      "text": "product.category_id must reference an existing Category",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.3078
+      "confidence": 0.3108
     },
     {
       "source": "invariant",
-      "text": "product.price_cents must be a positive integer",
+      "text": "product.category_id must be valid (exists in Category table)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.2657
+    },
+    {
+      "source": "invariant",
+      "text": "stock_qty >= 0 when the product is in a state where stock is tracked",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.2678
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.5019
     },
     {
       "source": "invariant",
-      "text": "product.stock_qty must be a non-negative integer",
+      "text": "reorder_threshold must be a non-negative integer if provided",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.3994
-    },
-    {
-      "source": "invariant",
-      "text": "product.low_active is optional and defaults to False",
-      "domain": "REPO_QUERY",
-      "pattern_id": "NO_PATTERN_IN_DOMAIN",
-      "confidence": 0.2608
-    },
-    {
-      "source": "invariant",
-      "text": "category.reorder_threshold must be greater than or equal to 0 if provided",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.378
-    },
-    {
-      "source": "invariant",
-      "text": "stock_qty must be updated to a non-negative integer when restocking",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.1698
+      "confidence": 0.2238
     },
     {
       "source": "contract:CategoryRepository.create_category",
