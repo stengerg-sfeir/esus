@@ -37,7 +37,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "icon",
@@ -46,7 +46,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         }
       ]
     },
@@ -87,13 +87,13 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "category_id",
           "type": "int",
           "primary_key": false,
-          "nullable": false,
+          "nullable": true,
           "unique": false,
           "foreign_key": {
             "target_entity": "Category",
@@ -109,7 +109,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "is_recurring",
@@ -118,7 +118,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         }
       ]
     },
@@ -154,7 +154,7 @@
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "amount_limit_cents",

@@ -438,8 +438,8 @@ any structural change lands.
 
 ## 9. Outcome — implemented and measured
 
-Every phase except the deliberately deferred repair pass is implemented. The extraction is now
-a package, `kernel/extraction/`, rather than a single script:
+Every phase except the deliberately deferred repair pass and the pattern check of §6.2 is
+implemented. The extraction is now a package, `kernel/extraction/`, rather than a single script:
 
 | module | responsibility |
 |---|---|
@@ -458,6 +458,14 @@ a package, `kernel/extraction/`, rather than a single script:
 `extract_archi.py` is a thin CLI over the package. `--output` takes a directory and the layout
 matches `loader.py`, so the checker runs on a run's output with no rename step (RC8).
 
+**One phase is not done, and this section overclaimed before this correction: the pattern check
+of §6.2.** `pattern_matches.json` is produced by step F and written by `writer.py`, but nothing
+reads or validates it — there is no `checks_patterns.py`, and `loader.py`'s `DOCUMENT_NAMES` is
+`intentions, invariants, data_models, components, service_contracts` plus the optional
+`interaction_adapters` and `persistence_ports`. So step F's output is still exactly as
+unexamined as RC9 described, and every "0 findings" figure in §9.1 must be read as covering
+those documents only.
+
 ### 9.1 Acceptance result
 
 The checker over the pre-change baseline (`backup/out_pre_grammar_fix`) and the new output
@@ -465,17 +473,20 @@ The checker over the pre-change baseline (`backup/out_pre_grammar_fix`) and the 
 
 | prompt | errors before | errors after | warnings before | warnings after | notes |
 |---|---|---|---|---|---|
-| hello | 0 | 0 | 3 | 0 | 1 |
-| cli_tool | 0 | 0 | 4 | 0 | 0 |
+| hello | 0 | 0 | 3 | 0 | 4 |
+| cli_tool | 0 | 0 | 4 | 0 | 3 |
 | inventory | 0 | 0 | 5 | 0 | 0 |
-| gui | 3 | 0 | 12 | 1 | 0 |
+| gui | 3 | 0 | 12 | 0 | 0 |
 | expenses | 2 | 0 | 5 | 0 | 0 |
 | 60 | 1 | 0 | 6 | 0 | 0 |
-| library | 1 | 0 | 17 | 2 | 0 |
-| **total** | **7** | **0** | **52** | **3** | **1** |
+| library | 1 | 0 | 17 | 0 | 0 |
+| **total** | **7** | **0** | **52** | **0** | **7** |
 
-The three remaining warnings are 2 `placeholder_value` (gui, library) and 1 `name_variant`
-(library). The single note is hello's empty invariants list, which the baseline had too.
+No warnings remain. All seven notes are empty-section observations on the two prompts that have
+no domain at all — hello's `data_models`, `service_contracts`, `interaction_adapters` and
+`invariants`, and cli_tool's first three. The five prompts with a real domain carry **no** notes,
+which is the check that the note severity did not become a blanket suppression: it fires only
+where a document is genuinely empty.
 
 **Content volume, before → after** — the figure that matters most, because a low warning count
 is worthless if the documents are empty:
@@ -485,8 +496,8 @@ is worthless if the documents are empty:
 | hello | 3 → 3 | 0 → 0 | 7 / 7 |
 | cli_tool | 5 → 5 | 4 → 11 | 15 / 15 |
 | inventory | 13 → 5 | 14 → 13 | 18 / 23 |
-| gui | 10 → 11 | 8 → 11 | 17 / 19 |
-| expenses | 7 → 6 | 15 → 15 | 31 / 35 |
+| gui | 10 → 11 | 8 → 11 | 14 / 17 |
+| expenses | 7 → 6 | 15 → 15 | 33 / 38 |
 | 60 | 12 → 10 | 23 → 26 | 26 / 26 |
 | library | 10 → 10 | 13 → 14 | 30 / 30 |
 
@@ -512,45 +523,46 @@ warnings" stays a true statement about a clean run.
 
 The change cannot flatter the result: errors were never notes, and nothing is hidden — the note
 is printed under a `NOTES` heading in the report. Counting it as a warning the tally is
-**52 → 4**; counting only defects it is **52 → 3**. Both figures are given so either can be
-checked. With the content restored (§9.6) only one note is left, where the pre-fix measurement
-had fourteen.
-
-The three remaining warnings are the classes the plan sets aside:
-
-| category | count | note |
-|---|---|---|
-| `placeholder_value` | 2 | RC5 — deferred to the repair pass by the scope decision |
-| `name_variant` | 1 | library spells a referenced name differently from its definition |
+**52 → 1**; counting only defects it is **52 → 0**. Both figures are given so either can be
+checked. Seven notes remain, all of them empty-section observations on the two no-domain
+prompts — see §9.10.
 
 `malformed_document` for library — the failure that motivated RC6a — does not reappear, and no
 step in any of the seven runs hit the token ceiling or produced unusable JSON.
 
-`duplicate_entry` — the class that dominated the previous measurement, 7 of 10 — is gone
-entirely: the persistence prompt no longer lets a repository enumerate the other entities'
-methods, and an exact repeat is removed deterministically if one still appears (§9.7).
+Two classes still present in earlier revisions are gone as well, and they are the last two
+warnings to fall:
+
+- **`duplicate_entry`** (7 findings) — the persistence prompt no longer lets a repository
+  enumerate the other entities' methods, and an exact repeat is removed deterministically if one
+  still appears (§9.7).
+- **`placeholder_value` and `name_variant`** (3 findings) — every one was a punctuation
+  character used as a name. `identifier` makes that shape unrepresentable (§9.8).
+
+Both were fixed where the value is written, not by relaxing the rule that reports it.
 
 ### 9.2 Runtime
 
+Figures below are the final runs, after the §9.10 gate; "after" is wall clock from `run.log`.
+
 | prompt | before | after | speed-up | generated tokens |
 |---|---|---|---|---|
-| hello | 112 s | 74 s | 1.5× | 1 947 |
-| cli_tool | 273 s | 336 s | 0.8× | 8 019 |
-| inventory | 982 s | 224 s | 4.4× | 5 192 |
-| gui | 1 213 s | 227 s | 5.3× | 5 401 |
-| expenses | 1 366 s | 518 s | 2.6× | 11 129 |
-| 60 | 1 589 s | 753 s | 2.1× | 10 044 |
-| library | 2 444 s | 391 s | 6.2× | 8 724 |
-| **total** | **7 979 s (2 h 13 m)** | **2 523 s (42 m 3 s)** | **3.2×** | **40 456** |
+| hello | 112 s | 6.8 s | 16× | 144 |
+| cli_tool | 273 s | 14.3 s | 19× | 319 |
+| inventory | 982 s | 181.9 s | 5.4× | 4 443 |
+| gui | 1 213 s | 146.7 s | 8.3× | 3 764 |
+| expenses | 1 366 s | 491.8 s | 2.8× | 11 597 |
+| 60 | 1 589 s | 374.1 s | 4.2× | 9 871 |
+| library | 2 444 s | 353.5 s | 6.9× | 8 976 |
+| **total** | **7 979 s (2 h 13 m)** | **1 569 s (26 m 9 s)** | **5.1×** | **39 114** |
 
-**Read this table with two caveats.** The machine was under heavy load from the editor
-throughout (VS Code helper processes at ~230% CPU), which the direct measurement above shows
-costs roughly a third of throughput: an identical grammar measured 18.6 tok/s unbounded while
-loaded, against ~27 tok/s in the earlier, quieter runs. And these runs generate 40 456 tokens,
-where the earlier 17-minute measurement was generating *empty phrase documents* — comparing the
-two would compare a full extraction against a truncated one. The speed-up is real but it is
-not 7.7×, and cli_tool is now slower than its baseline because it finally produces its full
-1 000-plus-token persistence document instead of a near-empty one.
+**Read this table with two caveats.** The machine was under load from the editor throughout
+(VS Code helpers at ~230% CPU), which the standalone measurement showed costs roughly a third of
+throughput: an identical grammar measured 18.6 tok/s while loaded, against ~27 tok/s in the
+quieter earlier runs. And the two no-domain prompts now generate 144 and 319 tokens where they
+used to generate 1 947 and 8 019 — most of their speed-up is the §9.10 fix deleting a phantom
+architecture, not tuning. **The five domain prompts are the honest comparison, and they improved
+2.8× to 8.3×.**
 
 Two changes account for what speed-up there is: the token budget and truncation detection
 (§4.2) removed the silent stalls, and reordering the classifier prompt (§5.2) turned step F from
@@ -590,12 +602,13 @@ an empty list three minutes into a run. It rejects both defects when they are re
 
 ### 9.4 Deviations from the plan
 
-- **`params[].type` is not closed to the eight generic types** (§3.2). It would have removed all
-  six remaining `placeholder_value` warnings — but it would do so by making `"None"`
-  unrepresentable as a *type*, while the defect the warning points at is a parameter *named*
-  after a sibling method (`list_budgets` with parameters `delete_budget`, `update_budget`). That
-  is suppressing a warning, not fixing it, so the parameter type stays free and RC5 stays
-  visibly deferred.
+- **`params[].type` is not closed to the eight generic types** (§3.2). Closing it would make
+  `"None"` unrepresentable as a *type*, but the defect RC5 describes is a parameter *named*
+  after a sibling method (`list_budgets` with parameters `delete_budget`, `update_budget`), so
+  constraining the type would leave the defect intact. That is suppressing a warning, not
+  fixing it: the parameter type stays free and RC5 stays visibly deferred. No run in the final
+  measurement produced such a parameter, so the class is currently empty rather than closed —
+  and one live path to it remains, a parameter honestly named `none`.
 - **The two-model split did not pay off the way §5.1 predicted.** Measured, `logits_all=True`
   costs about 13% of the prefill, not the multiple the plan assumed. The split is harmless and
   is kept, but the step-F saving came from §5.2 — putting the stable text first so the prefix is
@@ -748,3 +761,481 @@ indexes) and nothing else. It does not rename, reconcile, repair a type, or touc
 
 The prompt fix addresses the cause; the dedup is the guarantee. A repeat that the prompt
 prevents today would still be removed tomorrow, and neither half truncates anything.
+### 9.8 The names that were not identifiers
+
+A library run reported a single error:
+`[invalid_identifier] persistence_ports: MemberRepository has a method with no name`.
+
+The method was not nameless. It was named `': '`:
+
+```
+  name=': '
+    description='Retrieves a member by their email (case-sensitive).'
+    params=[('email', 'str')]
+    return_type='Optional[Member]'
+```
+
+The model wrote the key's own colon as the value. The same failure produced two of that run's
+warnings: a parameter named `': '` in `service_contracts`, and one named `'return_type: '` in
+`persistence_ports`.
+
+**Why it could happen.** Every grammar wrote a name as `string`, and `string` admits any
+sequence of characters — a lone colon included. Nothing in any grammar said that `name` means an
+identifier.
+
+**The fix.** `grammar.py` gains
+
+```
+identifier ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* "\""
+```
+
+and every field holding a *name* now uses it: method names, parameter names, entity and field
+names, service names, interface names, table names, primary keys, index names, action names,
+input field names and `target_param`. Fields that hold prose keep `string`, because a return
+type may legitimately be `Optional[Member]` or `datetime.date` and a description is a sentence.
+
+`identifier` sits in `SHARED_RULES`, so all nine grammars define it and the closed builders
+reference the same rule rather than a copy. A preflight that builds all nine, runs
+`grammar_check` and then `grammar_balance` over each passes, as do the 21 unit tests.
+
+**What it changes.** `': '`, `'return_type: '` and any other punctuation-as-name become
+*unrepresentable* rather than merely reported — the same principle as §3.2, applied to the one
+field class that had been left as free text everywhere. No checker rule was added or weakened to
+make this go away.
+
+**What it does not change.** Descriptions, return types, technologies and external service names
+stay free text, so `placeholder_value` findings that are *values* rather than names (RC5) are
+untouched. That class still belongs to the repair pass.
+**Measured outcome.** With `identifier` in place all seven prompts re-ran to `exit=0`. The grand
+total moved from `0 errors, 3 warnings, 1 note` to **`0 errors, 0 warnings, 1 note`**: the
+library error and its two punctuation parameters are gone, and so is gui's `placeholder_value`
+warning, which had the same shape. The acceptance table in §9.1 carries the new figures.
+
+That all three warnings were punctuation-as-name is worth stating precisely, because it is the
+difference between a fix and a suppressed finding. `': '` is not a name that happened to be
+reported; it is a name that cannot exist. Where `placeholder_value` instead flags a *value* — a
+parameter honestly called `none` — that remains representable and remains RC5's business, and no
+run has produced one.
+**Thread counts are no longer set on macOS.** `load_model` passed `n_threads=8` and
+`n_threads_batch=8` unconditionally. Those are CPU-backend tuning knobs, and llama.cpp chooses
+the physical core count itself when they are omitted — which beats a fixed 8 on both a small
+laptop and a large workstation. The values now come from `runner.threading_parameters()`, which
+returns an empty dict on `darwin` (Metal does the work, so the setting is mostly moot) and the
+explicit count elsewhere. Returning no keys rather than keys set to `None` matters: llama-cpp-python
+forwards them straight to llama.cpp, which does not accept a `None` thread count.
+
+Verified on macOS: the resolver returns `{}`, the model loads in 1.8 s at `n_ctx=512`, and the
+startup line reports `n_threads=auto`. Compile and the 21 unit tests stay green. This is a
+host-tuning change only — it does not affect anything the checker sees, so §9.1's figures stand.
+**Prefill, and what the grammar actually costs.** Measured on the hello prompt's first step
+(111 prompt tokens) with llama.cpp's own timings enabled and the model loaded exactly as
+`load_model` loads it:
+
+| | prefill | decode (llama.cpp) | decode (wall clock) |
+|---|---|---|---|
+| with the GBNF grammar | 315 tok/s | 47.9 tok/s | 22.5 tok/s |
+| without a grammar | (prefix cached) | 42.7 tok/s | 41.4 tok/s |
+
+Prefill is **~250–315 tok/s**, not the 400 one might hope for. At 111 tokens the prompt is too
+short to amortise the compute-graph setup, so this figure is dominated by fixed per-call cost
+and will look better on the long prompts.
+
+Decode splits in two, and the split is the interesting part. llama.cpp itself renders
+**~43–48 tok/s either way** — the model is not what slows down. But the wall-clock rate
+**halves** when the grammar is active: 64 tokens took 2.85 s under the grammar against 1.31 s
+without it, while llama.cpp's own measured eval time was 1.34 s and 1.29 s respectively. The
+missing ~20 ms per token is the GBNF sampler: llama-cpp-python applies the grammar's mask and
+renormalises the logits **in Python on every token**, outside the section llama.cpp times.
+
+That is exactly the gap between the ~45 tok/s the backend reports and the 22–31 tok/s `run.log`
+shows for real steps — regenerating hello gives 22.3, 31.1, 12.5, 24.1, 27.3 and 29.1 tok/s
+across its six steps, 1 947 tokens in 68.4 s. Worth recording because it relocates the lever:
+for decode speed the thing to optimise is the sampler path, not the model, the thread count or
+the batching.
+### 9.9 What the checker cannot see: `cli_tool`
+
+Asked why `cli_tool` has a service contract, the honest answer is that the question exposes the
+boundary of everything above.
+
+The prompt is a stateless CSV→JSON converter: read a CSV, use its header row as keys, print or
+write JSON, handle missing and malformed files. No database, no entities, no services. The run
+produced:
+
+- **intentions — correct.** Five phrases, all CSV parsing, header-driven keys, CLI paths,
+  validation, output.
+- **data_models — invented.** `users, products, orders, order_items`: an e-commerce schema that
+  appears nowhere in the requirements.
+- **components — self-contradictory.** `persistence.required = true`, `technology = "sqlite"`,
+  and `crud_services = []` — it insists on storing something and names nothing to store.
+- **service_contracts — invented.** Four services, fifteen methods, for the invented entities.
+- **persistence_ports — four repositories** for those entities.
+
+**Three faults, and the chaining is not one of them.**
+
+1. **Step B is the only step with no chaining and no guard.** `_step_data_models` calls
+   `prompts.data_models(requirements)` with `grammar_open.data_models()` — raw requirements, fully
+   open grammar. §2.2 lists A as B's predecessor, but A emits *prose*, so there is nothing a
+   vocabulary could close onto. The dependency was declared and never implemented. B was
+   therefore free to invent a domain from "CSV file" and "convert each row to a JSON object",
+   which it did.
+2. **Step D's persistence judgement was wrong.** `COMPONENTS_SYSTEM` separates storing data from
+   computing with it; the model read "reads a CSV file" as "stores data", then set
+   `crud_services = []`, contradicting its own `required = true`.
+3. **Step H amplified it.** `persisted_entities` is `vocabulary.crud_entities or
+   vocabulary.entity_names` — when step D names no entity, every modelled entity is persisted,
+   "better a repository too many than a missing mapping". With `crud_services` empty, that
+   defensive default turned B's four invented entities into four repositories.
+
+**Every check in this repository passes on that output.** All the rules agree `cli_tool` is
+consistent, because consistency is not the property being violated: the documents agree with each
+other perfectly — services name the entities, repositories name the entities, mappings name the
+primary keys. They simply do not agree with the prompt, and nothing in the checker has ever read
+the prompt.
+
+That is not a defect in the checker, which was built to a stated remit. It is the limit of the
+whole effort, and it belongs in any claim made about it: **"0 findings" means internally
+consistent, nothing more.** Faithfulness — does every extracted entity come from the
+requirements, is every intention covered by a component — is a different check and does not
+exist here.
+
+**The one rule added.** `persistence.required = true` with an empty `crud_services` is a
+contradiction between two of the checker's own fields, squarely its remit, so `checks_components`
+now warns on it. Measured: fires on `cli_tool`, on no other prompt — one warning, precision 1/7,
+no false positive. The tally in §9.1 becomes **0 errors, 1 warning, 1 note**. That warning is
+about the contradiction, not the invention, and `cli_tool`'s invented e-commerce model is still
+there.
+### 9.10 The invented domain, and the fix at the source
+
+The question "why does `cli_tool` have a service contract?" exposed the largest defect in the
+extraction — larger than any finding the checker reports, because the checker cannot see it.
+
+**The cause was a grammar minimum, not the prompt.** Step B's grammar had
+
+```
+entity-list ::= json_list("entity", 1, MAX_ENTITIES)
+```
+
+— a minimum of one entity. For a Hello-World script the model *could not* emit an empty data
+model, so it invented `User` and `Post`; for a CSV→JSON converter it invented a four-entity
+e-commerce schema. This is §9.6's whitespace bound in the opposite direction: a cardinality
+assumption in the grammar forcing output the requirements never contained. Step E carried the
+same floor (`contract-list` min 1), so it invented services to sit on the invented entities, and
+step G then faithfully built adapters onto those services.
+
+**The fix, in three places.**
+
+1. **The grammars allow emptiness** — `entity-list` and `contract-list` now have minimum 0.
+2. **The prompts say when empty is right** — `DATA_MODELS_SYSTEM` and `CONTRACTS_SYSTEM` now
+   state that a program which only computes, prints or transforms emits `[]`, and never to
+   invent an entity the requirements do not mention.
+3. **Steps E and G are gated on their prerequisites existing** — step E on non-empty
+   `data_models`, step G on non-empty `service_contracts`, exactly as step H is gated on
+   `persistence.required`. A service contract exists to act on a domain; no domain, no services.
+
+**Measured on the two prompts with no domain:**
+
+| prompt | entities | services | adapters | repositories | wall clock |
+|---|---|---|---|---|---|
+| hello | 2 → **0** | 1 → **0** | 1 → **0** | invented → **none** | 74 s → **6.8 s** |
+| cli_tool | 4 → **0** | 4 → **0** | 6 → **0** | 4 → **none** | 336 s → **14.3 s** |
+
+**And the five prompts that do have a domain are unchanged**, each with exactly one repository
+per entity:
+
+| prompt | entities | services | adapters | repositories |
+|---|---|---|---|---|
+| inventory | 2 | 3 | 18 | 2 |
+| gui | 2 | 2 | 6 | 2 |
+| expenses | 3 | 4 | 21 | 3 |
+| 60 | 6 | 7 | 27 | 6 |
+| library | 4 | 5 | 31 | 4 |
+
+**The checker had to change with it — the largest extension of the gate so far.** An empty
+`data_models`, `service_contracts` or `interaction_adapters` was an *error* in three modules: the
+checker assumed every program has a domain. That is the same assumption the grammar made, so
+leaving it would have penalised the correct answer. All three are now *notes*, argued as in
+§9.1 — the checker cannot see the requirements, so it cannot distinguish "this program keeps no
+records" from "the step failed". The contradictory case, persistence required with nothing named
+to persist, is caught as an error by the §9.9 rule, which sees both fields at once.
+
+That is a real weakening of the acceptance gate, and it is bounded: the two empty-program
+prompts now carry 7 notes between them (hello 4, cli_tool 3) and the five domain prompts carry
+none. If the notes were noise they would appear everywhere; they appear only where the documents
+are genuinely empty.
+
+**Whole-suite result after the fix:** `0 error(s), 0 warning(s), 7 note(s) across 7 prompt(s)`,
+with the total wall clock down from 42 m 3 s to **26 m 9 s** — the two no-domain prompts no
+longer spend minutes generating a phantom architecture.
+### 9.11 Blind-spot review
+
+`BLIND_SPOTS.md` reviews every generated document of all seven prompts against the requirements
+and against the checker's actual rule set (20 rules). Eight classes of defect pass all 20. The
+three that matter most:
+
+1. **`service_contracts` and `persistence_ports` describe the same `XxxRepository` interfaces
+   with different method sets** — gui's `WineRepository` has `delete_wine` only in the service
+   document and `save_wine`, `update_wine_price`, `update_stock_quantity`, `get_wines_by_type`
+   and `get_wines_by_country` only in the persistence document. The adapters validate against one
+   and a code generator would use the other.
+2. **Parameterless methods that cannot work** — `create()` with no fields, `get_wine_by_id()` with
+   no id, in all five domain prompts, because `param-list` has minimum 0.
+3. **`pattern_matches.json` is read by nothing** and contains a pattern id absent from both
+   catalogues (`CUSTOM_DOMAIN_LOGIC`, expenses). This is §6.2, the one phase never implemented —
+   and the review shows it would fail today rather than merely being untested.
+
+The review also lists what each of the remaining classes is, why it is structurally invisible,
+and which are cheap to close. Everything in it is structural agreement between documents except
+§7 (naming) and §8 (coverage), which need judgement about meaning and belong with the deferred
+repair pass.
+
+This section exists so the two documents do not drift: any change to the checker's rule set
+should be reflected in `BLIND_SPOTS.md`, and any blind spot closed should be struck from it.
+
+**Two of the eight are now closed, and the checker gained two rules doing it.** §1 (the same
+repository declared differently in `service_contracts` and `persistence_ports`) is checked by
+`inconsistent_interface` in `kernel/consistency/checks_interfaces.py`; §2 (a method whose name
+promises an argument and declares none) is checked by `missing_parameters` in
+`kernel/consistency/methods.py`. Both are warnings, both were prototyped against the real output
+before being wired in so the false-positive rate is known to be zero, and both are covered by
+`tests/test_checker_rules.py`.
+
+The acceptance figure moves from `0 errors, 0 warnings, 7 notes` to **`0 errors, 22 warnings,
+7 notes`** — 12 `missing_parameters` and 10 `inconsistent_interface`. That is not a regression:
+§9.1's clean sheet was measured against a checker with a hole in it, and these 22 are the defects
+that were passing unseen. They are defects of the output, not of the rules; fixing them means
+changing the extraction prompts, which is the repair pass this plan defers.
+
+§3 and §4 (crud-vs-methods, `unique`, invariant-vs-model) and §5 (pattern_matches, plan §6.2)
+remain open and are the next candidates — each is structural agreement between documents, so each
+is checkable without judgement. §6, §7 and §8 are not checker work at all: they need a reading of
+the *meaning*, and belong to the repair pass.
+### 9.12 The interface two steps declared twice
+
+§9.11 recorded §1 of the blind-spot review: the same repository declared in `service_contracts`
+(step E) and `persistence_ports` (step H) with different method sets, in every domain prompt.
+This is the fix.
+
+**Why it happened.** `PERSISTENCE_SYSTEM` told step H: "You choose the interface_name, the table
+name and the method bodies." H is also required to emit one entry per listed entity. So for an
+entity whose repository E had already declared, H chose the same name — `WineRepository` is the
+name the requirements give that class — and re-derived the method set from scratch. gui's two
+documents then disagreed by five methods in one direction (`save_wine`, `update_wine_price`,
+`update_stock_quantity`, `get_wines_by_type`, `get_wines_by_country` only in H) and one in the
+other (`delete_wine` only in E).
+
+**The fix, and the principle it follows.** A class has one interface, so one document owns it.
+Step E is generated first and holds the contract the requirements name, so E owns it: a
+repository that E declares adopts E's methods verbatim in H, and H keeps the part only it
+produces — the table name, the primary key and the indexes. A repository E does *not* declare
+keeps the method set H chose, because there is nothing to defer to; 60's repositories are in that
+case, since its requirements name services (`OrderService`) rather than repositories.
+
+`kernel/extraction/interfaces.py` does this, called from `_step_persistence` after the step's
+JSON parses. It pairs the documents with `normalize` — the same folding
+`kernel.consistency.naming` uses — and a unit test asserts the two agree, so the extractor and
+the checker can never pair on different keys and leave the rule silently unfired.
+
+This is not a repair pass: no generated value is edited to satisfy a rule. The method set has one
+owner and is read from that owner, which is the same principle as the closed vocabularies of §3
+and the `identifier` rule of §9.8.
+
+**Measured, all seven prompts re-extracted:**
+
+| prompt | repo methods before | after | interfaces adopted |
+|---|---|---|---|
+| hello | — | — | 0 (no persistence) |
+| cli_tool | — | — | 0 (no persistence) |
+| inventory | 2 (`create` ×2) | 11 | 2 |
+| gui | 14 | 11 | 2 |
+| expenses | 14 | 27 | 3 |
+| 60 | 30 | 35 | 0 (E declares none) |
+| library | 26 | 26 | 4 |
+
+**Every other document is byte-for-byte the same size**: intentions, invariants, data_models,
+components, service_contracts, interaction_adapters and pattern_matches have identical counts
+before and after, so the fix removed 22 warnings without dropping a single item. gui's repository
+method count falls 14 → 11 and that is the point: five of its methods existed in no other
+document, and E's `update_wine` already carries `stock_quantity` and `storage_location_id`, so
+the requirements' "update stock levels" and "assign bottles to locations" remain covered.
+
+**`missing_parameters` fell with it.** Eleven of its twelve instances vanished for free, because
+the parameters now come from E's methods and E always declares them: inventory's parameterless
+`create()` became `add_category(name, description, reorder_threshold)`. The twelfth — 60's
+`find_by_name()`, whose repository has no E counterpart — was fixed where it was written, by
+tightening `PERSISTENCE_SYSTEM` to require a method to declare the parameters its own name
+implies and to reserve `[]` for a method that genuinely takes nothing. That half is guidance, not
+construction, and it is honest to say so: the grammar cannot express "an identifier containing
+`_by_` must have a non-empty parameter list" without a hand-built product automaton in GBNF, and
+that cost is not justified for one method. It is measured working on the prompt that exposed it.
+
+**Acceptance.** The seven prompts are back to `0 error(s), 0 warning(s), 7 note(s)` — the same
+number as §9.1, but now measured by a checker that can see `inconsistent_interface` and
+`missing_parameters`. 41 unit tests pass, `py_compile` is clean, and a research archive of the
+pre-fix output is at `backup/out_before_interface_fix`.
+### 9.13 The remaining blind spots, and where this stops
+
+§9.11 and §9.12 closed §1 and §2. §3, §4 and §5 were still open, and this section closes them —
+**on the checker side only**. Four new rules, all warnings, none requiring a re-run of the model
+because each reads documents that already exist on disk.
+
+**§3 — a claimed operation no method implements.** `kernel/consistency/checks_crud.py`.
+`components.crud_services` declares which operations an entity supports, and only the *spelling*
+was ever validated, against a five-word list; nothing compared the operations to the method
+lists. The rule requires `create` and `delete` to have a matching method prefix
+(`create_`/`add_`/`insert_`/`save_`/… and `delete_`/`remove_`/`drop_`/…), and deliberately leaves
+`read_one`, `read_all` and `update` alone: their prefixes are ambiguous — `get_all_wines` and
+`get_wine_by_id` share `get_`, and `update` is routinely folded into a create — so checking them
+would guess. **6 findings, all `delete`**: inventory's `Category` and `Product`, and library's
+`Book`, `Author`, `Member` and `Loan`.
+
+**§4 — two contradictions inside the documents.** `non_unique_primary_key`, one line in
+`_check_primary_keys`: a field that is both a primary key and `unique: false` contradicts itself,
+and `unique` was never read anywhere in the package before. **1 finding**, inventory's
+`Product.id`. And `inconsistent_invariant`, in the new
+`kernel/consistency/checks_invariants.py`: an invariant saying `<field> must be unique` or
+`<field> must be nullable` is compared against that field's declared attribute. The rule skips a
+field name that is ambiguous (declared by more than one model) or unknown (declared by none), so
+it cannot manufacture a finding — cli_tool's "isbn must be unique across all records" is not
+reported, because cli_tool's data model is correctly empty. **3 findings**: inventory's
+`category_id`, and 60's `order_items.product_id` and `products.category_id`.
+
+**§5 — the document nothing read.** `kernel/consistency/checks_patterns.py`, plus registering
+`pattern_matches` in `loader.py` as a core document (every baseline directory carries it, so the
+registration breaks nothing). The checks read the two catalogues **directly as JSON**, never
+importing the classifier, because `hierarchical_classifier.py` imports `llama_cpp` at module
+scope and the checker must not depend on the model runtime. Findings: **3 `unknown_reference`**
+for a `pattern_id` in no catalogue, and **5 `low_confidence`**. A `contract:` source that names
+no declared service or method is also checked and currently resolves perfectly (0 findings) —
+that check stays as a guard, since §9.12 now guarantees the coupling.
+
+`CUSTOM_DOMAIN_LOGIC` is the unknown id, and it appears in **three** prompts — cli_tool,
+inventory and expenses — not the single one the blind-spot review had noticed. The confidence
+floor is 0.2 rather than 0.5, and the reason is measured: 0.2 isolates five matches, while 0.5
+would report 88 and bury them. The threshold is stated in the finding message so it can be
+argued with rather than being a silent filter.
+
+**A structural note on severity.** All four rules are warnings. A warning means a defect of the
+*output*, and the fix therefore lives in the extraction; an error means the run could not be
+checked at all. Nothing here suppresses a finding to reach a number — the tally went **from
+`0/0/7` to `0 errors, 18 warnings, 7 notes`**, and the 18 are the defects the rules were written
+to expose.
+
+**The rules are demonstrably not tuned to stay quiet.** Run against
+`backup/out_pre_grammar_fix`, the same four rules report **9** `non_unique_primary_key` against 1
+today, alongside that baseline's three `primary_key_mismatch` errors and its
+`class_name_entity`. The count of each defect fell as the extractor improved; the rule did not
+move. Full detail, including the per-prompt breakdown, is in `BLIND_SPOTS.md`, whose §1–§5 are
+now all marked closed.
+
+**Verification.** 61 unit tests pass (20 new, in `tests/test_checker_blind_spots.py` — including
+the cases that must *not* fire: an ambiguous field name, an unknown field name, an entity with
+no repository, and the three unchecked operations). `py_compile` is clean and the seven prompts
+check at exit 0, so no warning became an error.
+
+**Where this stops.** The 18 warnings are output defects, and removing them means changing the
+extraction and re-running the model — which is the deferred repair pass, not checker work. §6,
+§7 and §8 of the review are in the same category for a stronger reason: they need a reading of
+*meaning* rather than agreement about structure, and §8 states the checker's hard limit — it
+verifies internal agreement, never faithfulness, because it cannot see the requirements. No
+further rule can be written in those three sections without the requirements as input.
+---
+
+## 9.14 Closing §3, §4 and §5 at the source, and one regression the fix introduced
+
+§9.13 added the four checker rules and left 18 warnings standing. This section removes all 18
+from the output. The suite now reads **`0 error(s), 0 warning(s), 11 note(s)`** across the seven
+prompts — the same clean sheet as §9.1, but measured by a checker that can see the defects those
+warnings named.
+
+### The fixes, and where each one belongs
+
+**`non_unique_primary_key` (1, inventory).** `DATA_MODELS_SYSTEM` already said a primary key is
+never nullable; it said nothing about `unique`, so `Product.id` came out `unique: false`. It now
+requires `unique: true` on the primary key and on every field the requirements say must not
+repeat — a code, a number, an email, an ISBN.
+
+**`inconsistent_invariant` (3, inventory and 60).** The plan's dependency table (§2.2) listed step
+C as needing no predecessors — "chaining here adds noise". That was wrong, and the checker could
+see it: step C was free to state `category_id must be nullable` against a model that declares it
+not nullable. Step C is now chained on step B and told the model is authoritative.
+
+**`unmet_crud_operation` (6, inventory and library).** The real defect was architectural: step D
+declares which operations an entity supports, step E owns the repository interface, and nothing
+carried the operations from D to E. E wrote "standard CRUD methods" from an adjective, so every
+`delete` was lost. `vocabulary.crud_requirements` now carries the operations forward and
+`CONTRACTS_SYSTEM` requires a method for each; step H gets the same block for the repositories E
+does not declare. This is §9.12's principle again — one step owns the fact.
+
+**`unknown_reference` for pattern ids (3).** Not an extraction defect at all: my rule was wrong.
+`hierarchical_classifier.classify_requirement_2step` deliberately offers a
+`CUSTOM_DOMAIN_LOGIC` option meaning "matches no standard pattern", and returns
+`CUSTOM_OR_STANDARD_CRUD` when no domain fits. Both are legitimate answers, and validating against
+the two catalogue files alone rejected them. `kernel/pattern_catalog.py` now owns the pattern
+vocabulary — the catalogues, the domains and the two sentinels — and **both** the classifier and
+the checker read it, which is what plan §6.2 asked for. The classifier no longer defines its own
+copy.
+
+**`low_confidence` (5).** Reclassified from warning to **note**, and this is a severity
+correction rather than an extraction fix — the distinction matters and is stated plainly. The
+value is the product of two softmaxes, so it is structurally low: a confident 0.9 domain with a
+0.7 pattern reports 0.63. A match under 0.2 means both stages were unsure. The checker cannot tell
+a low-confidence-but-correct classification from a wrong one — exactly the position
+`empty_section` is in — so calling it a defect would assert something the checker cannot
+substantiate. It stays visible under `NOTES`, and the underlying classifier uncertainty is real
+and unaddressed.
+
+### The regression the fix introduced, and its correction
+
+Feeding the operations into steps E and H worked, and over-corrected: the model read "must declare
+a method for every one of them" as "declare exactly those", and repositories collapsed toward the
+minimum. 60 fell from 35 methods to **13**, with `CategoryRepository` left holding only
+`create_category` and `read_all_categories` — below the four-to-eight methods the same prompt
+asks for. gui fell 11 → 6. The operations block now says explicitly that the list is a **floor,
+not a ceiling**, and that the other methods the requirements imply must follow. Re-run: gui's
+repositories 6 → **14**, 60's 13 → **17**, and `CategoryRepository` back to a full set.
+
+### Content volume, before the blind-spot fix → after
+
+A low warning count is worthless if the documents emptied, so every document's item count is
+compared against `backup/out_before_blindspot_fix`:
+
+| prompt | intentions | invariants | data_models | service_contracts | adapters | pattern_matches | repo methods |
+|---|---|---|---|---|---|---|---|
+| hello | 3→3 | 0→0 | 0→0 | 0→0 | 0→0 | 0→0 | 0→0 |
+| cli_tool | 5→5 | **11→0** | 0→0 | 0→0 | 0→0 | **11→0** | 0→0 |
+| inventory | 5→5 | 13→13 | 2→2 | 3→3 | 18→11 | 26→22 | 11→12 |
+| gui | 11→11 | 11→9 | 2→2 | 2→2 | 6→14 | 15→14 | 11→14 |
+| expenses | 6→6 | 15→15 | 3→3 | 4→4 | 21→19 | 37→34 | 27→23 |
+| 60 | 10→10 | 26→23 | 6→6 | 7→6 | 27→13 | 38→27 | 35→17 |
+| library | 10→10 | 14→15 | 4→4 | 5→5 | 31→19 | 34→32 | 26→31 |
+
+**cli_tool's invariants going to zero is the one change that looks like a regression and is not
+one.** The eleven it used to carry read `isbn must be unique across all records`,
+`publisher must not be empty`, `publication_year must be a valid year`,
+`copies_available must equal copies_received - copies_ordered` — an entire bookshop that the
+requirements never mention. cli_tool reads a CSV and prints JSON. Step C had invented them from a
+hallucinated domain, which is §9.10's defect arriving in a third document, and the chaining plus
+the instruction to state no rule about a field the model does not define removed them. Zero is
+the correct answer, and the checker's `empty_section` note says so rather than warning.
+
+**The adapters are the one place content genuinely shrank, and the checker cannot judge it.**
+inventory 18→11, 60 27→13, library 31→19. Every adapter that remains resolves to a real service
+method — that is what the adapter rules check, and they pass — but nothing measures how many of
+the requirements' *actions* an adapter list should cover. A shorter list is not detectably wrong
+and is not detectably right: this is precisely the limit `BLIND_SPOTS.md` §8 states, that the
+checker verifies internal agreement and never faithfulness, because it cannot see the
+requirements. It is recorded here rather than left to be discovered.
+
+### Verification
+
+| check | result |
+|---|---|
+| `python3.12 check_consistency.py` over the seven prompts | `0 error(s), 0 warning(s), 11 note(s)` |
+| `python3.12 -m unittest discover -s tests` | 61 tests, OK |
+| `py_compile` on every package | clean |
+| every document present after | yes, all 42 |
+| every demanded `create`/`delete` has a method | yes, no gaps |
+| the rules fire on `backup/out_pre_grammar_fix` | 9 `non_unique_primary_key` vs 1 then; 3 `primary_key_mismatch` errors |
+
+The eleven notes are 8 `empty_section` (hello's and cli_tool's genuinely empty documents) and 3
+`low_confidence`. Notes are printed and never counted.

@@ -1,0 +1,263 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "category.name must be unique",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.3687
+    },
+    {
+      "source": "invariant",
+      "text": "category.monthly_budget must be non-negative if provided",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5967
+    },
+    {
+      "source": "invariant",
+      "text": "category.icon must be a string or None",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
+      "confidence": 0.2431
+    },
+    {
+      "source": "invariant",
+      "text": "expense.amount_cents must be positive",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5266
+    },
+    {
+      "source": "invariant",
+      "text": "expense.expense_date must be a valid ISO date string",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3754
+    },
+    {
+      "source": "invariant",
+      "text": "expense.category_id must reference an existing category",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3122
+    },
+    {
+      "source": "invariant",
+      "text": "expense.payment_method must be one of ['cash', 'card', 'transfer']",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "PRICE_MARGIN_GUARD",
+      "confidence": 0.3288
+    },
+    {
+      "source": "invariant",
+      "text": "expense.is_recurring must be boolean",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2249
+    },
+    {
+      "source": "invariant",
+      "text": "budget.category_id must reference an existing category",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.637
+    },
+    {
+      "source": "invariant",
+      "text": "budget.month must be in YYYY-MM format",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3133
+    },
+    {
+      "source": "invariant",
+      "text": "budget.amount_limit_cents must be positive",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.6715
+    },
+    {
+      "source": "invariant",
+      "text": "budget.category_id and month must be unique across all budgets",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.3723
+    },
+    {
+      "source": "invariant",
+      "text": "expense_date must be <= current date when adding an expense",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3271
+    },
+    {
+      "source": "invariant",
+      "text": "expense.amount_cents must not exceed budget limit for its category and month when adding",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.6797
+    },
+    {
+      "source": "invariant",
+      "text": "all monetary values must be stored as integers (cents)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
+      "confidence": 0.2232
+    },
+    {
+      "source": "contract:ExpenseRepository.get_all_expenses",
+      "text": "get_all_expenses: Retrieves all expenses in the database.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3089
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_category",
+      "text": "get_expenses_by_category: Retrieves expenses filtered by category_id.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6587
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_date_range",
+      "text": "get_expenses_by_date_range: Retrieves expenses within a specified date range (inclusive).",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.8188
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_payment_method",
+      "text": "get_expenses_by_payment_method: Retrieves expenses filtered by payment_method.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6924
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_category_and_date_range",
+      "text": "get_expenses_by_category_and_date_range: Retrieves expenses filtered by category_id and date range.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.7545
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_category_and_payment_method",
+      "text": "get_expenses_by_category_and_payment_method: Retrieves expenses filtered by category_id and payment_method.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.4291
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_date_range_and_payment_method",
+      "text": "get_expenses_by_date_range_and_payment_method: Retrieves expenses filtered by date range and payment_method.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.6854
+    },
+    {
+      "source": "contract:ExpenseRepository.get_expenses_by_category_date_range_and_payment_method",
+      "text": "get_expenses_by_category_date_range_and_payment_method: Retrieves expenses filtered by category_id, date range, and payment_method.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.8027
+    },
+    {
+      "source": "contract:ExpenseRepository.get_monthly_expense_summary",
+      "text": "get_monthly_expense_summary: Aggregates expenses by month.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.974
+    },
+    {
+      "source": "contract:ExpenseRepository.get_yearly_expense_summary",
+      "text": "get_yearly_expense_summary: Aggregates expenses by year.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.6268
+    },
+    {
+      "source": "contract:CategoryRepository.get_all_categories",
+      "text": "get_all_categories: Retrieves all categories in the database.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3121
+    },
+    {
+      "source": "contract:CategoryRepository.get_category_by_name",
+      "text": "get_category_by_name: Retrieves a category by its name.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3495
+    },
+    {
+      "source": "contract:CategoryRepository.get_expenses_for_category",
+      "text": "get_expenses_for_category: Retrieves all expenses associated with a category.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.4514
+    },
+    {
+      "source": "contract:BudgetRepository.get_all_budgets",
+      "text": "get_all_budgets: Retrieves all budgets in the database.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.3363
+    },
+    {
+      "source": "contract:BudgetRepository.get_budget_by_category_and_month",
+      "text": "get_budget_by_category_and_month: Retrieves a budget for a specific category and month.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.7112
+    },
+    {
+      "source": "contract:BudgetRepository.get_budget_status",
+      "text": "get_budget_status: Checks if a category's budget for a month has been exceeded.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.9615
+    },
+    {
+      "source": "contract:ExpenseService.list_expenses",
+      "text": "list_expenses: Lists expenses filtered by optional category, date range, and payment method.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.8279
+    },
+    {
+      "source": "contract:ExpenseService.add_expense",
+      "text": "add_expense: Validates category exists, adds expense, and checks if budget exceeded after insertion.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.9031
+    },
+    {
+      "source": "contract:ExpenseService.get_monthly_report",
+      "text": "get_monthly_report: Returns total spent, per-category breakdown, and budget status for a given month.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.8628
+    },
+    {
+      "source": "contract:ExpenseService.get_yearly_summary",
+      "text": "get_yearly_summary: Returns monthly totals, top spending categories, and average monthly spend for a year.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.8606
+    },
+    {
+      "source": "contract:ExpenseService.get_category_spending",
+      "text": "get_category_spending: Returns aggregated spending for a category over a period.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.87
+    },
+    {
+      "source": "contract:ExpenseService.export_to_csv",
+      "text": "export_to_csv: Exports filtered expenses as CSV.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.5475
+    }
+  ]
+}

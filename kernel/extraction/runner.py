@@ -21,6 +21,13 @@ except ImportError:
 GPU_LAYERS_ALL = -1
 GPU_LAYERS_NONE = 0
 
+# Thread counts are a CPU-backend tuning knob: llama.cpp picks the physical core
+# count itself when they are omitted, which beats a fixed number on both a small
+# laptop and a large workstation. They are therefore set only off macOS, where
+# the CPU backend does the work and an explicit count keeps it predictable —
+# on macOS Metal does the work and the setting is mostly moot.
+CPU_THREADS = 8
+
 # Novel-token ceiling for one step. The context is 8192 and the prompts are a
 # few hundred tokens, so this is rarely the binding constraint; the context
 # budget below is.
@@ -39,19 +46,33 @@ def resolve_gpu_layers():
     return GPU_LAYERS_ALL
 
 
+def threading_parameters():
+    """Explicit thread counts, or no keys at all to let llama.cpp choose.
+
+    Returning an empty dict — rather than keys set to None — matters, because
+    llama-cpp-python forwards these straight through to llama.cpp, which is
+    not expecting a None thread count.
+    """
+    if sys.platform == "darwin":
+        return {}
+    return {"n_threads": CPU_THREADS, "n_threads_batch": CPU_THREADS}
+
+
 def load_model(model_path, context_size=8192, logits_all=False):
     """Load the GGUF model with the settings every step shares."""
     device = "CPU" if resolve_gpu_layers() == GPU_LAYERS_NONE else "Metal"
+    threading = threading_parameters()
+    threads = threading.get("n_threads", "auto")
     print(
-        f"[model] {model_path} on {device}, n_ctx={context_size}, logits_all={logits_all}",
+        f"[model] {model_path} on {device}, n_ctx={context_size}, "
+        f"n_threads={threads}, logits_all={logits_all}",
         file=sys.stderr,
     )
     started = time.time()
     llm = Llama(
         model_path=model_path,
         n_ctx=context_size,
-        n_threads=8,
-        n_threads_batch=8,
+        **threading,
         n_gpu_layers=resolve_gpu_layers(),
         flash_attn=False,
         logits_all=logits_all,

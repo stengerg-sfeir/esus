@@ -21,7 +21,9 @@ def check_components(components, index, report):
     _check_facade(components.get("facade"), report)
     _check_persistence(components.get("persistence"), report)
     _check_external_access(components.get("external_access"), report)
-    return _check_crud_services(components.get("crud_services"), index, report)
+    entities = _check_crud_services(components.get("crud_services"), index, report)
+    _check_persistence_has_something_to_store(components.get("persistence"), entities, report)
+    return entities
 
 
 def _check_facade(facade, report):
@@ -56,6 +58,29 @@ def _check_persistence(persistence, report):
 
 def _normalized_technology(technology):
     return technology.strip().lower() if isinstance(technology, str) else ""
+
+
+def _check_persistence_has_something_to_store(persistence, entities, report):
+    """required=true with no crud entity is self-contradictory.
+
+    The two fields disagree about whether anything is stored at all: persistence
+    says it must be, crud_services names nothing to store. Nothing checked that
+    pair, and the consequence is worse than silent — step H falls back to
+    persisting every modelled entity when crud_services is empty, so the
+    contradiction manufactures a repository list from entities the requirements
+    never mentioned. That is what produced the CSV-to-JSON prompt's invented
+    e-commerce schema: it declared sqlite, named no entity, and step H then
+    emitted repositories for the four entities step B had made up.
+    """
+    if not isinstance(persistence, dict) or persistence.get("required") is not True:
+        return
+    if entities:
+        return
+    report.warning(
+        "invalid_value",
+        "components: persistence.required=true but crud_services is empty — "
+        "nothing is named to persist",
+    )
 
 
 def _check_external_access(external_access, report):

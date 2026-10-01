@@ -5,7 +5,7 @@
       "methods": [
         {
           "name": "create_category",
-          "description": "Creates a new category with the provided name and optional description and reorder_threshold.",
+          "description": "Creates a new category with the provided fields.",
           "params": [
             {
               "name": "name",
@@ -13,43 +13,27 @@
             },
             {
               "name": "description",
-              "type": "Optional[str]"
+              "type": "str | None"
             },
             {
               "name": "reorder_threshold",
-              "type": "Optional[int]"
+              "type": "int | None"
             }
           ],
-          "return_type": "Category"
+          "return_type": "dict[str, object]"
         },
         {
-          "name": "get_category_by_id",
-          "description": "Retrieves a category by its ID.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Optional[Category]"
-        },
-        {
-          "name": "get_category_by_name",
-          "description": "Retrieves a category by its name (case-insensitive).",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            }
-          ],
-          "return_type": "Optional[Category]"
+          "name": "read_all_categories",
+          "description": "Reads all categories from the database.",
+          "params": [],
+          "return_type": "list[dict[str, object]]"
         },
         {
           "name": "update_category",
-          "description": "Updates a category's name, description, or reorder_threshold.",
+          "description": "Updates an existing category by its ID with the provided fields.",
           "params": [
             {
-              "name": "category_id",
+              "name": "id",
               "type": "int"
             },
             {
@@ -58,31 +42,36 @@
             },
             {
               "name": "description",
-              "type": "Optional[str]"
+              "type": "str | None"
             },
             {
               "name": "reorder_threshold",
-              "type": "Optional[int]"
+              "type": "int | None"
             }
           ],
-          "return_type": "Category"
+          "return_type": "dict[str, object]"
         },
         {
           "name": "delete_category",
           "description": "Deletes a category by its ID.",
           "params": [
             {
-              "name": "category_id",
+              "name": "id",
               "type": "int"
             }
           ],
           "return_type": "bool"
         },
         {
-          "name": "get_all_categories",
-          "description": "Retrieves all categories in the system.",
-          "params": [],
-          "return_type": "List[Category]"
+          "name": "get_category_by_id",
+          "description": "Reads a single category by its ID.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict[str, object] | None"
         },
         {
           "name": "get_products_by_category",
@@ -93,7 +82,7 @@
               "type": "int"
             }
           ],
-          "return_type": "List[Product]"
+          "return_type": "list[dict[str, object]]"
         }
       ]
     },
@@ -102,7 +91,7 @@
       "methods": [
         {
           "name": "create_product",
-          "description": "Creates a new product linked to a category.",
+          "description": "Creates a new product with the provided fields.",
           "params": [
             {
               "name": "sku",
@@ -126,70 +115,69 @@
             },
             {
               "name": "low_active",
-              "type": "Optional[bool]"
+              "type": "bool | None"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict[str, object]"
         },
         {
-          "name": "get_product_by_id",
-          "description": "Retrieves a product by its ID.",
+          "name": "read_one_product",
+          "description": "Reads a single product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Optional[Product]"
+          "return_type": "dict[str, object] | None"
         },
         {
-          "name": "get_product_by_sku",
-          "description": "Retrieves a product by its SKU (case-insensitive).",
-          "params": [
-            {
-              "name": "sku",
-              "type": "str"
-            }
-          ],
-          "return_type": "Optional[Product]"
+          "name": "read_all_products",
+          "description": "Reads all products from the database.",
+          "params": [],
+          "return_type": "list[dict[str, object]]"
         },
         {
           "name": "update_product",
-          "description": "Updates a product's fields.",
+          "description": "Updates an existing product by its ID with the provided fields.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             },
             {
+              "name": "sku",
+              "type": "str | None"
+            },
+            {
               "name": "name",
-              "type": "Optional[str]"
+              "type": "str | None"
             },
             {
               "name": "category_id",
-              "type": "Optional[int]"
+              "type": "int | None"
             },
             {
               "name": "price_cents",
-              "type": "Optional[int]"
+              "type": "int | None"
             },
             {
               "name": "stock_qty",
-              "type": "Optional[int]"
+              "type": "int | None"
             },
             {
               "name": "low_active",
-              "type": "Optional[bool]"
+              "type": "bool | None"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict[str, object] | None"
         },
         {
           "name": "delete_product",
           "description": "Deletes a product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
@@ -204,19 +192,19 @@
               "type": "int"
             }
           ],
-          "return_type": "List[Product]"
+          "return_type": "list[dict[str, object]]"
         },
         {
           "name": "get_low_stock_products",
-          "description": "Retrieves products whose stock_qty is below their category's reorder_threshold.",
+          "description": "Retrieves products with stock_qty below their category's reorder_threshold.",
           "params": [],
-          "return_type": "List[Product]"
+          "return_type": "list[dict[str, object]]"
         },
         {
           "name": "get_total_stock_value_by_category",
           "description": "Calculates the total stock value (price_cents * stock_qty) per category.",
           "params": [],
-          "return_type": "Dict[int, int]"
+          "return_type": "dict[int, int]"
         }
       ]
     },
@@ -225,7 +213,7 @@
       "methods": [
         {
           "name": "add_product",
-          "description": "Adds a new product to the inventory, ensuring the category exists and the SKU is unique.",
+          "description": "Adds a new product to the inventory, validating the category exists and the SKU is unique.",
           "params": [
             {
               "name": "sku",
@@ -246,35 +234,31 @@
             {
               "name": "stock_qty",
               "type": "int"
-            },
-            {
-              "name": "low_active",
-              "type": "Optional[bool]"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict[str, object]"
         },
         {
           "name": "update_product",
-          "description": "Updates a product's fields, ensuring the product exists.",
+          "description": "Updates a product's fields.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             },
             {
               "name": "data",
-              "type": "Dict[str, Any]"
+              "type": "dict[str, object]"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict[str, object] | None"
         },
         {
           "name": "delete_product",
-          "description": "Deletes a product by its ID, ensuring the product exists.",
+          "description": "Deletes a product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
@@ -282,14 +266,14 @@
         },
         {
           "name": "get_product_by_id",
-          "description": "Retrieves a product by its ID, ensuring the product exists.",
+          "description": "Returns a single product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict[str, object] | None"
         },
         {
           "name": "list_products",
@@ -297,21 +281,21 @@
           "params": [
             {
               "name": "category_id",
-              "type": "Optional[int]"
+              "type": "int | None"
             },
             {
               "name": "low_only",
-              "type": "Optional[bool]"
+              "type": "bool | None"
             }
           ],
-          "return_type": "List[Product]"
+          "return_type": "list[dict[str, object]]"
         },
         {
           "name": "restock",
-          "description": "Increases a product's stock quantity, ensuring the product exists.",
+          "description": "Increases a product's stock quantity.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             },
             {
@@ -319,19 +303,19 @@
               "type": "int"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict[str, object] | None"
         },
         {
           "name": "low_stock_report",
           "description": "Returns products with stock_qty below their category's reorder_threshold.",
           "params": [],
-          "return_type": "List[Product]"
+          "return_type": "list[dict[str, object]]"
         },
         {
           "name": "stock_value_by_category",
-          "description": "Returns the total stock value (price_cents * stock_qty) per category.",
+          "description": "Returns the total price_cents * stock_qty per category.",
           "params": [],
-          "return_type": "Dict[int, int]"
+          "return_type": "dict[int, int]"
         }
       ]
     }

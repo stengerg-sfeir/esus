@@ -2,185 +2,248 @@
   "pattern_matches": [
     {
       "source": "invariant",
-      "text": "category_id must be a valid auto-incremented primary key (exists in the database)",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.5286
+      "text": "category.id must be auto-incremented primary key",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.5242
     },
     {
       "source": "invariant",
-      "text": "sku must be unique across all products",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.5205
-    },
-    {
-      "source": "invariant",
-      "text": "price_cents must be a non-negative integer",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4509
-    },
-    {
-      "source": "invariant",
-      "text": "stock_qty must be a non-negative integer",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.5014
-    },
-    {
-      "source": "invariant",
-      "text": "low_active must be a boolean (default False)",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
-      "confidence": 0.6935
-    },
-    {
-      "source": "invariant",
-      "text": "reorder_threshold must be a non-negative integer if provided",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.3183
-    },
-    {
-      "source": "invariant",
-      "text": "category.name must be unique across all categories",
+      "text": "category.name must be unique",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.466
+      "confidence": 0.3575
     },
     {
       "source": "invariant",
-      "text": "category.description must be optional",
+      "text": "category.description is optional",
+      "domain": "REPO_QUERY",
+      "pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "confidence": 0.2056
+    },
+    {
+      "source": "invariant",
+      "text": "category.reorder_threshold must be an integer or null",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4401
+    },
+    {
+      "source": "invariant",
+      "text": "product.id must be auto-incremented primary key",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.6745
+    },
+    {
+      "source": "invariant",
+      "text": "product.sku must be unique",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.657
+    },
+    {
+      "source": "invariant",
+      "text": "product.name is required",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.2482
+      "confidence": 0.282
     },
     {
       "source": "invariant",
-      "text": "category.reorder_threshold must be optional",
+      "text": "product.category_id must reference an existing category.id",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3078
+    },
+    {
+      "source": "invariant",
+      "text": "product.price_cents must be a positive integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "PRICE_MARGIN_GUARD",
+      "confidence": 0.2678
+    },
+    {
+      "source": "invariant",
+      "text": "product.stock_qty must be a non-negative integer",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.2024
+      "confidence": 0.3994
+    },
+    {
+      "source": "invariant",
+      "text": "product.low_active is optional and defaults to False",
+      "domain": "REPO_QUERY",
+      "pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "confidence": 0.2608
+    },
+    {
+      "source": "invariant",
+      "text": "category.reorder_threshold must be greater than or equal to 0 if provided",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "PRICE_MARGIN_GUARD",
+      "confidence": 0.378
     },
     {
       "source": "invariant",
       "text": "stock_qty must be updated to a non-negative integer when restocking",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.1869
-    },
-    {
-      "source": "invariant",
-      "text": "the total stock value (price_cents * stock_qty) must not be negative for any product",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4846
-    },
-    {
-      "source": "invariant",
-      "text": "category_id must be nullable in Product model if not enforced via foreign key constraints",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.2366
+      "confidence": 0.1698
     },
     {
-      "source": "invariant",
-      "text": "products must belong to an existing category (category_id must exist in the database)",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.3228
+      "source": "contract:CategoryRepository.create_category",
+      "text": "create_category: Creates a new category with the provided fields.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7852
     },
     {
-      "source": "contract:CategoryRepository.get_category_by_name",
-      "text": "get_category_by_name: Retrieves a category by its name (case-insensitive).",
+      "source": "contract:CategoryRepository.read_all_categories",
+      "text": "read_all_categories: Reads all categories from the database.",
       "domain": "REPO_QUERY",
-      "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.4075
+      "pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "confidence": 0.7842
     },
     {
-      "source": "contract:CategoryRepository.get_all_categories",
-      "text": "get_all_categories: Retrieves all categories in the system.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.3333
+      "source": "contract:CategoryRepository.update_category",
+      "text": "update_category: Updates an existing category by its ID with the provided fields.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8502
+    },
+    {
+      "source": "contract:CategoryRepository.delete_category",
+      "text": "delete_category: Deletes a category by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.9115
+    },
+    {
+      "source": "contract:CategoryRepository.get_category_by_id",
+      "text": "get_category_by_id: Reads a single category by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7474
     },
     {
       "source": "contract:CategoryRepository.get_products_by_category",
       "text": "get_products_by_category: Retrieves all products belonging to a specific category.",
       "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.6009
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.4229
     },
     {
-      "source": "contract:ProductRepository.get_product_by_sku",
-      "text": "get_product_by_sku: Retrieves a product by its SKU (case-insensitive).",
+      "source": "contract:ProductRepository.create_product",
+      "text": "create_product: Creates a new product with the provided fields.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7958
+    },
+    {
+      "source": "contract:ProductRepository.read_one_product",
+      "text": "read_one_product: Reads a single product by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8077
+    },
+    {
+      "source": "contract:ProductRepository.read_all_products",
+      "text": "read_all_products: Reads all products from the database.",
       "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.324
+      "pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "confidence": 0.898
+    },
+    {
+      "source": "contract:ProductRepository.update_product",
+      "text": "update_product: Updates an existing product by its ID with the provided fields.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8665
+    },
+    {
+      "source": "contract:ProductRepository.delete_product",
+      "text": "delete_product: Deletes a product by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.917
     },
     {
       "source": "contract:ProductRepository.get_products_by_category",
       "text": "get_products_by_category: Retrieves all products belonging to a specific category.",
       "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.6009
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.4229
     },
     {
       "source": "contract:ProductRepository.get_low_stock_products",
-      "text": "get_low_stock_products: Retrieves products whose stock_qty is below their category's reorder_threshold.",
+      "text": "get_low_stock_products: Retrieves products with stock_qty below their category's reorder_threshold.",
       "domain": "REPO_QUERY",
       "pattern_id": "THRESHOLD_SCAN",
-      "confidence": 0.4113
+      "confidence": 0.5743
     },
     {
       "source": "contract:ProductRepository.get_total_stock_value_by_category",
       "text": "get_total_stock_value_by_category: Calculates the total stock value (price_cents * stock_qty) per category.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.6062
+      "confidence": 0.8043
     },
     {
       "source": "contract:InventoryService.add_product",
-      "text": "add_product: Adds a new product to the inventory, ensuring the category exists and the SKU is unique.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.2336
+      "text": "add_product: Adds a new product to the inventory, validating the category exists and the SKU is unique.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.4379
+    },
+    {
+      "source": "contract:InventoryService.update_product",
+      "text": "update_product: Updates a product's fields.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8129
+    },
+    {
+      "source": "contract:InventoryService.delete_product",
+      "text": "delete_product: Deletes a product by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.917
     },
     {
       "source": "contract:InventoryService.get_product_by_id",
-      "text": "get_product_by_id: Retrieves a product by its ID, ensuring the product exists.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.2335
+      "text": "get_product_by_id: Returns a single product by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7947
     },
     {
       "source": "contract:InventoryService.list_products",
       "text": "list_products: Lists products filtered by optional category and low-stock status.",
       "domain": "REPO_QUERY",
       "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.6767
+      "confidence": 0.6418
     },
     {
       "source": "contract:InventoryService.restock",
-      "text": "restock: Increases a product's stock quantity, ensuring the product exists.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.1256
+      "text": "restock: Increases a product's stock quantity.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7551
     },
     {
       "source": "contract:InventoryService.low_stock_report",
       "text": "low_stock_report: Returns products with stock_qty below their category's reorder_threshold.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "THRESHOLD_SCAN",
-      "confidence": 0.4449
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "confidence": 0.4742
     },
     {
       "source": "contract:InventoryService.stock_value_by_category",
-      "text": "stock_value_by_category: Returns the total stock value (price_cents * stock_qty) per category.",
+      "text": "stock_value_by_category: Returns the total price_cents * stock_qty per category.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.8028
+      "confidence": 0.6526
     }
   ]
 }

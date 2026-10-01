@@ -79,7 +79,10 @@ def check_interaction_adapters(adapters, services, facts, report):
     if adapters is None:
         return
     if not adapters:
-        report.warning("empty_section", "interaction_adapters: list is empty")
+        # A note, like data_models and service_contracts: a program whose data
+        # model is empty has nothing for an adapter to invoke, and an empty
+        # adapter list is the correct answer rather than a defect.
+        report.note("empty_section", "interaction_adapters: list is empty")
         return
 
     service_index = ServiceIndex.from_services(services)

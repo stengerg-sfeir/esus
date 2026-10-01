@@ -1,0 +1,178 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Wine",
+        "interface_name": "WineRepository",
+        "methods": [
+          {
+            "name": "save_wine",
+            "description": "Saves a new wine entry to the database with validation for unique name and price constraints.",
+            "params": [
+              {
+                "name": "wine",
+                "type": "Wine"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "update_wine_price",
+            "description": "Updates the selling price of an existing wine, ensuring it remains strictly greater than the cost price.",
+            "params": [
+              {
+                "name": "wine_id",
+                "type": "int"
+              },
+              {
+                "name": "new_selling_price",
+                "type": "float"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_wine_by_id",
+            "description": "Retrieves a wine by its primary key (ID).",
+            "params": [],
+            "return_type": "Wine | None"
+          },
+          {
+            "name": "get_all_wines",
+            "description": "Retrieves all wines in the system.",
+            "params": [],
+            "return_type": "list[Wine]"
+          },
+          {
+            "name": "get_wines_by_type",
+            "description": "Retrieves all wines of a specified type (red, white, rosé, sparkling).",
+            "params": [
+              {
+                "name": "wine_type",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Wine]"
+          },
+          {
+            "name": "get_wines_by_country",
+            "description": "Retrieves all wines from a specified country of origin.",
+            "params": [
+              {
+                "name": "country_of_origin",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Wine]"
+          },
+          {
+            "name": "update_stock_quantity",
+            "description": "Updates the stock quantity of a wine, ensuring it does not drop below zero.",
+            "params": [
+              {
+                "name": "wine_id",
+                "type": "int"
+              },
+              {
+                "name": "new_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_wine_by_name",
+            "description": "Retrieves a wine by its name (for validation or lookup).",
+            "params": [],
+            "return_type": "Wine | None"
+          }
+        ]
+      },
+      {
+        "entity": "StorageLocation",
+        "interface_name": "StorageLocationRepository",
+        "methods": [
+          {
+            "name": "save_location",
+            "description": "Saves a new storage location to the database.",
+            "params": [
+              {
+                "name": "location",
+                "type": "StorageLocation"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_location_by_id",
+            "description": "Retrieves a storage location by its primary key (ID).",
+            "params": [],
+            "return_type": "StorageLocation | None"
+          },
+          {
+            "name": "get_all_locations",
+            "description": "Retrieves all storage locations in the system.",
+            "params": [],
+            "return_type": "list[StorageLocation]"
+          },
+          {
+            "name": "update_location_capacity",
+            "description": "Updates the maximum bottle capacity of a storage location, ensuring it does not exceed the current bottle count.",
+            "params": [
+              {
+                "name": "location_id",
+                "type": "int"
+              },
+              {
+                "name": "new_capacity",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_locations_by_zone",
+            "description": "Retrieves all storage locations in a specified zone.",
+            "params": [
+              {
+                "name": "zone_name",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[StorageLocation]"
+          },
+          {
+            "name": "get_locations_by_shelf",
+            "description": "Retrieves all storage locations sharing the same shelf number.",
+            "params": [
+              {
+                "name": "shelf_number",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[StorageLocation]"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Wine",
+        "table": "wines",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      },
+      {
+        "entity": "StorageLocation",
+        "table": "storage_locations",
+        "primary_key": "id",
+        "indexes": [
+          "zone_name",
+          "row_number"
+        ]
+      }
+    ]
+  }
+}

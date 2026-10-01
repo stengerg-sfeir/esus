@@ -1,0 +1,450 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "add_category",
+      "target_service": "CategoryRepository",
+      "target_method": "create_category",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "category",
+          "transform": "CSV_LIST",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "list_categories",
+      "target_service": "CategoryRepository",
+      "target_method": "get_all_categories",
+      "input_fields": []
+    },
+    {
+      "action_name": "get_category_by_id",
+      "target_service": "CategoryRepository",
+      "target_method": "get_category_by_id",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_category_by_name",
+      "target_service": "CategoryRepository",
+      "target_method": "get_category_by_name",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_expenses_for_category",
+      "target_service": "ExpenseRepository",
+      "target_method": "get_expenses_by_category",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "add_expense",
+      "target_service": "ExpenseService",
+      "target_method": "add_expense",
+      "input_fields": [
+        {
+          "field_name": "amount_cents",
+          "target_param": "expense",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "description",
+          "target_param": "expense",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "expense_date",
+          "target_param": "expense",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "category_id",
+          "target_param": "expense",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "payment_method",
+          "target_param": "expense",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "is_recurring",
+          "target_param": "expense",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "get_expenses_by_category_and_date_range",
+      "target_service": "ExpenseRepository",
+      "target_method": "get_expenses_by_category_and_date_range",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "start_date",
+          "target_param": "start_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "end_date",
+          "target_param": "end_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_expenses_by_date_range",
+      "target_service": "ExpenseRepository",
+      "target_method": "get_expenses_by_date_range",
+      "input_fields": [
+        {
+          "field_name": "start_date",
+          "target_param": "start_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "end_date",
+          "target_param": "end_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_expenses_by_payment_method",
+      "target_service": "ExpenseRepository",
+      "target_method": "get_expenses_by_payment_method",
+      "input_fields": [
+        {
+          "field_name": "payment_method",
+          "target_param": "payment_method",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_expenses_by_category_and_payment_method",
+      "target_service": "ExpenseService",
+      "target_method": "list_expenses",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": false
+        },
+        {
+          "field_name": "start_date",
+          "target_param": "start_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "end_date",
+          "target_param": "end_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "payment_method",
+          "target_param": "payment_method",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "get_expense_by_id",
+      "target_service": "ExpenseRepository",
+      "target_method": "get_expense_by_id",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_expense",
+      "target_service": "ExpenseService",
+      "target_method": "update_expense",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "amount_cents",
+          "target_param": "expense",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "description",
+          "target_param": "expense",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "expense_date",
+          "target_param": "expense",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "category_id",
+          "target_param": "expense",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": false
+        },
+        {
+          "field_name": "payment_method",
+          "target_param": "expense",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "is_recurring",
+          "target_param": "expense",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "delete_expense",
+      "target_service": "ExpenseService",
+      "target_method": "delete_expense",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_monthly_expense_summary",
+      "target_service": "ExpenseService",
+      "target_method": "get_monthly_report",
+      "input_fields": [
+        {
+          "field_name": "month",
+          "target_param": "month",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_yearly_expense_summary",
+      "target_service": "ExpenseService",
+      "target_method": "get_yearly_summary",
+      "input_fields": [
+        {
+          "field_name": "year",
+          "target_param": "year",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_budget_status",
+      "target_service": "BudgetRepository",
+      "target_method": "get_budget_status",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "month",
+          "target_param": "month",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_all_budgets",
+      "target_service": "BudgetRepository",
+      "target_method": "get_all_budgets",
+      "input_fields": []
+    },
+    {
+      "action_name": "get_budget_by_category_and_month",
+      "target_service": "BudgetRepository",
+      "target_method": "get_budget_by_category_and_month",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "month",
+          "target_param": "month",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_budget",
+      "target_service": "BudgetRepository",
+      "target_method": "create_budget",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "budget",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "month",
+          "target_param": "budget",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "amount_limit_cents",
+          "target_param": "budget",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_budget",
+      "target_service": "BudgetRepository",
+      "target_method": "update_budget",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "month",
+          "target_param": "month",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "amount_limit_cents",
+          "target_param": "budget",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "detect_recurring_expenses",
+      "target_service": "ExpenseService",
+      "target_method": "detect_recurring",
+      "input_fields": [
+        {
+          "field_name": "expense_repository",
+          "target_param": "expense_repository",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "category_repository",
+          "target_param": "category_repository",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+[run] requirements: 3299 characters
+[intentions] 164 tokens in 8.4s (19.6 tok/s)
+[data_models] 959 tokens in 34.4s (27.9 tok/s)
+[invariants] 212 tokens in 10.6s (20.0 tok/s)
+[components] 167 tokens in 7.6s (21.9 tok/s)
+[service_contracts] 2669 tokens in 109.7s (24.3 tok/s)
+  [1/52] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.37)
+  [2/52] invariant -> BUDGET_OVERFLOW_GUARD (0.60)
+  [3/52] invariant -> CUSTOM_DOMAIN_LOGIC (0.24)
+  [4/52] invariant -> BUDGET_OVERFLOW_GUARD (0.53)
+  [5/52] invariant -> AGGREGATE_BY_FK_AND_DATE (0.38)
+  [6/52] invariant -> AGGREGATE_BY_FK (0.31)
+  [7/52] invariant -> PRICE_MARGIN_GUARD (0.33)
+  [8/52] invariant -> AGGREGATE_BY_FK_AND_DATE (0.22)
+  [9/52] invariant -> BUDGET_OVERFLOW_GUARD (0.64)
+  [10/52] invariant -> AGGREGATE_BY_FK_AND_DATE (0.31)
+  [11/52] invariant -> BUDGET_OVERFLOW_GUARD (0.67)
+  [12/52] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.37)
+  [13/52] invariant -> BUDGET_OVERFLOW_GUARD (0.33)
+  [14/52] invariant -> BUDGET_OVERFLOW_GUARD (0.68)
+  [15/52] invariant -> CUSTOM_DOMAIN_LOGIC (0.22)
+  [16/52] contract:ExpenseRepository.get_all_expenses -> AGGREGATE_BY_FK_AND_DATE (0.31)
+  [17/52] contract:ExpenseRepository.get_expenses_by_category -> AGGREGATE_BY_FK (0.66)
+  [18/52] contract:ExpenseRepository.get_expenses_by_date_range -> AGGREGATE_BY_FK_AND_DATE (0.82)
+  [19/52] contract:ExpenseRepository.get_expenses_by_payment_method -> AGGREGATE_BY_FK (0.69)
+  [20/52] contract:ExpenseRepository.get_expenses_by_category_and_date_range -> AGGREGATE_BY_FK_AND_DATE (0.75)
+  [21/52] contract:ExpenseRepository.get_expenses_by_category_and_payment_method -> FILTER_WITH_PAGINATION (0.43)
+  [22/52] contract:ExpenseRepository.get_expenses_by_date_range_and_payment_method -> FILTER_WITH_PAGINATION (0.69)
+  [23/52] contract:ExpenseRepository.get_expenses_by_category_date_range_and_payment_method -> FILTER_WITH_PAGINATION (0.80)
+  [24/52] contract:ExpenseRepository.get_expense_by_id -> CUSTOM_OR_STANDARD_CRUD (0.56)
+  [25/52] contract:ExpenseRepository.create_expense -> CUSTOM_OR_STANDARD_CRUD (0.82)
+  [26/52] contract:ExpenseRepository.update_expense -> CUSTOM_OR_STANDARD_CRUD (0.83)
+  [27/52] contract:ExpenseRepository.delete_expense -> CUSTOM_OR_STANDARD_CRUD (0.85)
+  [28/52] contract:ExpenseRepository.get_monthly_expense_summary -> AGGREGATE_BY_FK_AND_DATE (0.97)
+  [29/52] contract:ExpenseRepository.get_yearly_expense_summary -> AGGREGATE_BY_FK_AND_DATE (0.63)
+  [30/52] contract:CategoryRepository.get_all_categories -> AGGREGATE_BY_FK_AND_DATE (0.31)
+  [31/52] contract:CategoryRepository.get_category_by_id -> CUSTOM_OR_STANDARD_CRUD (0.50)
+  [32/52] contract:CategoryRepository.get_category_by_name -> AGGREGATE_BY_FK (0.35)
+  [33/52] contract:CategoryRepository.create_category -> CUSTOM_OR_STANDARD_CRUD (0.80)
+  [34/52] contract:CategoryRepository.update_category -> CUSTOM_OR_STANDARD_CRUD (0.82)
+  [35/52] contract:CategoryRepository.delete_category -> CUSTOM_OR_STANDARD_CRUD (0.86)
+  [36/52] contract:CategoryRepository.get_expenses_for_category -> AGGREGATE_BY_FK (0.45)
+  [37/52] contract:BudgetRepository.get_all_budgets -> FILTER_WITH_PAGINATION (0.34)
+  [38/52] contract:BudgetRepository.get_budget_by_category_and_month -> AGGREGATE_BY_FK_AND_DATE (0.71)
+  [39/52] contract:BudgetRepository.create_budget -> CUSTOM_OR_STANDARD_CRUD (0.77)
+  [40/52] contract:BudgetRepository.update_budget -> CUSTOM_OR_STANDARD_CRUD (0.74)
+  [41/52] contract:BudgetRepository.delete_budget -> CUSTOM_OR_STANDARD_CRUD (0.80)
+  [42/52] contract:BudgetRepository.get_budget_status -> BUDGET_OVERFLOW_GUARD (0.96)
+  [43/52] contract:ExpenseService.list_expenses -> FILTER_WITH_PAGINATION (0.83)
+  [44/52] contract:ExpenseService.get_expense_by_id -> CUSTOM_OR_STANDARD_CRUD (0.56)
+  [45/52] contract:ExpenseService.add_expense -> BUDGET_OVERFLOW_GUARD (0.90)
+  [46/52] contract:ExpenseService.update_expense -> CUSTOM_OR_STANDARD_CRUD (0.83)
+  [47/52] contract:ExpenseService.delete_expense -> CUSTOM_OR_STANDARD_CRUD (0.85)
+  [48/52] contract:ExpenseService.get_monthly_report -> AGGREGATE_BY_FK_AND_DATE (0.86)
+  [49/52] contract:ExpenseService.get_yearly_summary -> AGGREGATE_BY_FK_AND_DATE (0.86)
+  [50/52] contract:ExpenseService.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.87)
+  [51/52] contract:ExpenseService.export_to_csv -> FILTER_WITH_PAGINATION (0.55)
+  [52/52] contract:ExpenseService.detect_recurring -> CUSTOM_OR_STANDARD_CRUD (0.85)
+[interaction_adapters] 3584 tokens in 151.2s (23.7 tok/s) TRUNCATED
+[!] step interaction_adapters hit the token ceiling — its document may be incomplete
+[!] step interaction_adapters produced unusable JSON — retrying once
+[interaction_adapters] 2475 tokens in 99.3s (24.9 tok/s)
+[persistence_ports] 2053 tokens in 85.5s (24.0 tok/s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/expenses/intentions.json
+[write] out/expenses/data_models.json
+[write] out/expenses/invariants.json
+[write] out/expenses/components.json
+[write] out/expenses/service_contracts.json
+[write] out/expenses/pattern_matches.json
+[write] out/expenses/interaction_adapters.json
+[write] out/expenses/persistence_ports.json
+[run] 8 steps, 12283 generated tokens in 506.7s

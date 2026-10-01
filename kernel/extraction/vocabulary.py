@@ -63,12 +63,24 @@ class ServiceSignature:
 
 
 @dataclass(frozen=True)
+class CrudRequirement:
+    """One entity and the operations its owner must provide."""
+
+    entity: str
+    operations: tuple
+
+    def summary(self):
+        return f"{self.entity}: {', '.join(self.operations)}"
+
+
+@dataclass(frozen=True)
 class Vocabulary:
     """Everything the next step may refer to by name."""
 
     entities: tuple = ()
     services: tuple = ()
     crud_entities: tuple = ()
+    crud_operations: tuple = ()
 
     @property
     def entity_names(self):
@@ -90,6 +102,9 @@ class Vocabulary:
         for service in self.services:
             lines.extend(service.summary_lines())
         return "\n".join(lines)
+
+    def operations_block(self):
+        return "\n".join(item.summary() for item in self.crud_operations)
 
 
 def entities_from(data_models):
@@ -161,6 +176,29 @@ def crud_entity_names(components):
         if entity and entity not in names:
             names.append(entity)
     return tuple(names)
+
+
+def crud_requirements(components):
+    """Each stored entity and the operations step D says it must support.
+
+    Step D decides which operations an entity supports; the interface that owns
+    it has to provide them. Carrying the pair forward is what lets step E and
+    step H be told what to implement instead of guessing from a four-word
+    adjective like "standard CRUD" — which is how every `delete` went missing.
+    """
+    if not isinstance(components, dict):
+        return ()
+    requirements = []
+    for item in _dicts(components.get("crud_services")):
+        entity = clean(item.get("entity"))
+        if not entity:
+            continue
+        operations = []
+        for operation in item.get("operations") or []:
+            if isinstance(operation, str) and operation.strip():
+                operations.append(operation.strip())
+        requirements.append(CrudRequirement(entity, tuple(operations)))
+    return tuple(requirements)
 
 
 def _dicts(value):

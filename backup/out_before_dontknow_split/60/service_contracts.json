@@ -1,0 +1,238 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "categories",
+      "methods": [
+        {
+          "name": "create_category",
+          "description": "Creates a new category with the provided name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "dict"
+        },
+        {
+          "name": "read_all_categories",
+          "description": "Returns a list of all existing categories.",
+          "params": [],
+          "return_type": "list[dict]"
+        }
+      ]
+    },
+    {
+      "service_name": "products",
+      "methods": [
+        {
+          "name": "create_product",
+          "description": "Creates a new product with the provided details.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict"
+        },
+        {
+          "name": "read_all_products",
+          "description": "Returns a list of all existing products.",
+          "params": [],
+          "return_type": "list[dict]"
+        },
+        {
+          "name": "update_product",
+          "description": "Updates an existing product with the provided details.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str | None"
+            },
+            {
+              "name": "description",
+              "type": "str | None"
+            },
+            {
+              "name": "price",
+              "type": "float | None"
+            },
+            {
+              "name": "category_id",
+              "type": "int | None"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int | None"
+            }
+          ],
+          "return_type": "dict"
+        }
+      ]
+    },
+    {
+      "service_name": "customers",
+      "methods": [
+        {
+          "name": "create_customer",
+          "description": "Creates a new customer with the provided details.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "return_type": "dict"
+        },
+        {
+          "name": "read_all_customers",
+          "description": "Returns a list of all existing customers.",
+          "params": [],
+          "return_type": "list[dict]"
+        }
+      ]
+    },
+    {
+      "service_name": "orders",
+      "methods": [
+        {
+          "name": "create_order",
+          "description": "Creates a new order for a customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "items",
+              "type": "list[dict]"
+            }
+          ],
+          "return_type": "dict"
+        },
+        {
+          "name": "read_one_order",
+          "description": "Returns a single order by its ID.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict | None"
+        },
+        {
+          "name": "read_all_orders",
+          "description": "Returns a list of all orders for a customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[dict]"
+        },
+        {
+          "name": "update_order_status",
+          "description": "Updates the status of an order (pending, confirmed, shipped, cancelled).",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "dict"
+        }
+      ]
+    },
+    {
+      "service_name": "order_items",
+      "methods": [
+        {
+          "name": "create_order_item",
+          "description": "Creates a new order item for an order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "dict"
+        }
+      ]
+    },
+    {
+      "service_name": "invoices",
+      "methods": [
+        {
+          "name": "create_invoice",
+          "description": "Creates an invoice for an order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "invoice_number",
+              "type": "str"
+            },
+            {
+              "name": "total_amount",
+              "type": "float"
+            }
+          ],
+          "return_type": "dict"
+        }
+      ]
+    }
+  ]
+}

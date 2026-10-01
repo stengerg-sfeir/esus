@@ -2,45 +2,38 @@
   "pattern_matches": [
     {
       "source": "invariant",
-      "text": "book.isbn must be unique across all books",
+      "text": "book.isbn must be unique across all Book entities",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.7521
+      "confidence": 0.7742
     },
     {
       "source": "invariant",
-      "text": "book.available_copies must be >= 0",
+      "text": "book.available_copies must be a non-negative integer",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4632
+      "confidence": 0.4025
     },
     {
       "source": "invariant",
-      "text": "author.id must be unique across all authors",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.3887
+      "text": "book.available_copies must not exceed the number of copies added for that book",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4658
     },
     {
       "source": "invariant",
-      "text": "member.email must be unique across all members",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.6869
-    },
-    {
-      "source": "invariant",
-      "text": "loan.book_id must reference a valid book",
+      "text": "loan.book_id must reference an existing Book entity",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.2907
+      "confidence": 0.4318
     },
     {
       "source": "invariant",
-      "text": "loan.member_id must reference a valid member",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.2568
+      "text": "loan.member_id must reference an existing Member entity",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3595
     },
     {
       "source": "invariant",
@@ -51,31 +44,38 @@
     },
     {
       "source": "invariant",
-      "text": "loan.return_date must be null if status is 'active'",
+      "text": "loan.return_date must be null if loan.status is 'active'",
       "domain": "SERVICE_GUARD",
       "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.7999
+      "confidence": 0.7493
     },
     {
       "source": "invariant",
-      "text": "loan.return_date must be set if status is 'returned'",
+      "text": "loan.return_date must be a valid date if loan.status is 'returned'",
       "domain": "SERVICE_GUARD",
       "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.7794
+      "confidence": 0.7251
     },
     {
       "source": "invariant",
-      "text": "loan.due_date must be a valid date (not in the past) when created",
+      "text": "loan.return_date must be after loan.due_date if loan.status is 'returned'",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.823
+    },
+    {
+      "source": "invariant",
+      "text": "loan.return_date must be null if loan.status is 'overdue'",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.7856
+    },
+    {
+      "source": "invariant",
+      "text": "member.email must be unique across all Member entities",
       "domain": "REPO_QUERY",
-      "pattern_id": "THRESHOLD_SCAN",
-      "confidence": 0.1676
-    },
-    {
-      "source": "invariant",
-      "text": "loan.loan_date must be a valid date (not in the past) when created",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.3769
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.7326
     },
     {
       "source": "invariant",
@@ -86,136 +86,143 @@
     },
     {
       "source": "invariant",
-      "text": "member.membership_date must be a valid date (not in the past) when created",
+      "text": "member.membership_date must be a valid date",
       "domain": "SERVICE_GUARD",
-      "pattern_id": "STATE_TRANSITION_GUARD",
-      "confidence": 0.3163
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.2675
     },
     {
       "source": "invariant",
-      "text": "book.published_year must be a valid year (e.g., 1900–current year)",
+      "text": "author.birth_year must be a valid year (not in the future)",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.2757
+      "confidence": 0.2587
     },
     {
-      "source": "contract:BookRepository.get_books_by_isbn",
-      "text": "get_books_by_isbn: Retrieves a book by its ISBN (unique identifier).",
+      "source": "invariant",
+      "text": "author.biography must be a string (non-null)",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.2261
+    },
+    {
+      "source": "contract:BookRepository.read_all_books",
+      "text": "read_all_books: Reads all Book entities from the database.",
       "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.2958
+      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
+      "confidence": 0.3967
     },
     {
-      "source": "contract:BookRepository.get_books_by_title",
-      "text": "get_books_by_title: Retrieves books matching the given title (case-insensitive partial match).",
-      "domain": "REPO_QUERY",
-      "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.7108
-    },
-    {
-      "source": "contract:BookRepository.get_books_by_author_id",
-      "text": "get_books_by_author_id: Retrieves books by the specified author ID.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.5553
-    },
-    {
-      "source": "contract:BookRepository.get_books_by_available_copies",
-      "text": "get_books_by_available_copies: Retrieves books with a specified number of available copies.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.2521
-    },
-    {
-      "source": "contract:AuthorRepository.get_authors_by_name",
-      "text": "get_authors_by_name: Retrieves authors matching the given name (case-insensitive partial match).",
+      "source": "contract:BookRepository.search_books_by_title",
+      "text": "search_books_by_title: Searches for Book entities by title (case-insensitive).",
       "domain": "REPO_QUERY",
       "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.4857
+      "confidence": 0.4734
     },
     {
-      "source": "contract:AuthorRepository.get_authors_with_books",
-      "text": "get_authors_with_books: Retrieves authors who have at least one book in the system.",
+      "source": "contract:BookRepository.search_books_by_author_id",
+      "text": "search_books_by_author_id: Searches for Book entities by author ID.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4763
+      "confidence": 0.5355
     },
     {
-      "source": "contract:MemberRepository.get_member_by_email",
-      "text": "get_member_by_email: Retrieves a member by their email address.",
+      "source": "contract:BookRepository.search_books_by_isbn",
+      "text": "search_books_by_isbn: Searches for Book entities by ISBN (case-insensitive).",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.3125
+    },
+    {
+      "source": "contract:BookRepository.filter_books_by_available_copies",
+      "text": "filter_books_by_available_copies: Filters Book entities by available copies count.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4812
+      "confidence": 0.3553
     },
     {
-      "source": "contract:MemberRepository.get_members_by_name",
-      "text": "get_members_by_name: Retrieves members matching the given name (case-insensitive partial match).",
+      "source": "contract:AuthorRepository.read_all_authors",
+      "text": "read_all_authors: Reads all Author entities from the database.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
+      "confidence": 0.2635
+    },
+    {
+      "source": "contract:AuthorRepository.find_books_by_author",
+      "text": "find_books_by_author: Finds all Book entities associated with a given Author ID.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.7226
+    },
+    {
+      "source": "contract:MemberRepository.read_all_members",
+      "text": "read_all_members: Reads all Member entities from the database.",
       "domain": "REPO_QUERY",
       "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.686
+      "confidence": 0.3823
     },
     {
-      "source": "contract:MemberRepository.get_active_members",
-      "text": "get_active_members: Retrieves all active members in the system.",
+      "source": "contract:MemberRepository.find_active_members",
+      "text": "find_active_members: Finds all active Member entities.",
       "domain": "REPO_QUERY",
       "pattern_id": "COUNT_ACTIVE_BY_FK",
-      "confidence": 0.4289
+      "confidence": 0.4956
     },
     {
-      "source": "contract:MemberRepository.get_inactive_members",
-      "text": "get_inactive_members: Retrieves all inactive members in the system.",
+      "source": "contract:MemberRepository.find_inactive_members",
+      "text": "find_inactive_members: Finds all inactive Member entities.",
       "domain": "REPO_QUERY",
       "pattern_id": "COUNT_ACTIVE_BY_FK",
-      "confidence": 0.6514
+      "confidence": 0.529
     },
     {
-      "source": "contract:LoanRepository.get_loans_by_book_id",
-      "text": "get_loans_by_book_id: Retrieves all loans for a specific book.",
+      "source": "contract:LoanRepository.read_all_loans",
+      "text": "read_all_loans: Reads all Loan entities from the database.",
       "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4758
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.2766
     },
     {
-      "source": "contract:LoanRepository.get_loans_by_member_id",
-      "text": "get_loans_by_member_id: Retrieves all loans for a specific member.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.4673
-    },
-    {
-      "source": "contract:LoanRepository.get_active_loans",
-      "text": "get_active_loans: Retrieves all currently active loans.",
+      "source": "contract:LoanRepository.find_active_loans",
+      "text": "find_active_loans: Finds all active Loan entities.",
       "domain": "REPO_QUERY",
       "pattern_id": "COUNT_ACTIVE_BY_FK",
-      "confidence": 0.6419
+      "confidence": 0.4078
     },
     {
-      "source": "contract:LoanRepository.get_overdue_loans",
-      "text": "get_overdue_loans: Retrieves all overdue loans.",
+      "source": "contract:LoanRepository.find_overdue_loans",
+      "text": "find_overdue_loans: Finds all overdue Loan entities.",
       "domain": "REPO_QUERY",
       "pattern_id": "THRESHOLD_SCAN",
-      "confidence": 0.4927
+      "confidence": 0.5542
     },
     {
-      "source": "contract:LibraryService.borrow_book",
-      "text": "borrow_book: Allows a member to borrow a book if it is available.",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "STOCK_SUFFICIENCY_GUARD",
-      "confidence": 0.4814
+      "source": "contract:LoanRepository.find_loans_by_member_id",
+      "text": "find_loans_by_member_id: Finds all Loan entities associated with a given Member ID.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.5868
+    },
+    {
+      "source": "contract:LoanRepository.find_loans_by_book_id",
+      "text": "find_loans_by_book_id: Finds all Loan entities associated with a given Book ID.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.6205
     },
     {
       "source": "contract:LibraryService.get_overdue_loans",
-      "text": "get_overdue_loans: Retrieves all overdue loans based on the current date.",
+      "text": "get_overdue_loans: Returns a list of overdue loans based on the current date.",
       "domain": "REPO_QUERY",
       "pattern_id": "THRESHOLD_SCAN",
-      "confidence": 0.8097
+      "confidence": 0.7911
     },
     {
       "source": "contract:LibraryService.search_books",
-      "text": "search_books: Searches for books by title, author, or ISBN.",
+      "text": "search_books: Searches for books by title, author ID, or ISBN.",
       "domain": "REPO_QUERY",
       "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.7596
+      "confidence": 0.7142
     }
   ]
 }

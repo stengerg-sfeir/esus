@@ -1,0 +1,17 @@
+{
+  "invariants": [
+    "category_id must be a valid auto-incremented primary key (exists in the database)",
+    "sku must be unique across all products",
+    "price_cents must be a non-negative integer",
+    "stock_qty must be a non-negative integer",
+    "low_active must be a boolean (default False)",
+    "reorder_threshold must be a non-negative integer if provided",
+    "category.name must be unique across all categories",
+    "category.description must be optional",
+    "category.reorder_threshold must be optional",
+    "stock_qty must be updated to a non-negative integer when restocking",
+    "the total stock value (price_cents * stock_qty) must not be negative for any product",
+    "category_id must be nullable in Product model if not enforced via foreign key constraints",
+    "products must belong to an existing category (category_id must exist in the database)"
+  ]
+}

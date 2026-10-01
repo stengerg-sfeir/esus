@@ -17,7 +17,7 @@
           "type": "string",
           "primary_key": false,
           "nullable": false,
-          "unique": true,
+          "unique": false,
           "foreign_key": null,
           "status": "explicit"
         },
@@ -34,7 +34,7 @@
           "name": "published_year",
           "type": "int",
           "primary_key": false,
-          "nullable": true,
+          "nullable": false,
           "unique": false,
           "foreign_key": null,
           "status": "explicit"
@@ -78,7 +78,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "biography",
@@ -87,7 +87,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },

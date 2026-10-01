@@ -3,7 +3,7 @@
     {
       "action_name": "add_book",
       "target_service": "BookRepository",
-      "target_method": "add_book",
+      "target_method": "create_book",
       "input_fields": [
         {
           "field_name": "title",
@@ -43,51 +43,15 @@
       ]
     },
     {
-      "action_name": "get_book_by_id",
+      "action_name": "list_books",
       "target_service": "BookRepository",
-      "target_method": "get_book_by_id",
-      "input_fields": [
-        {
-          "field_name": "book_id",
-          "target_param": "book_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      "target_method": "read_all_books",
+      "input_fields": []
     },
     {
-      "action_name": "get_books_by_isbn",
+      "action_name": "list_books_by_author",
       "target_service": "BookRepository",
-      "target_method": "get_books_by_isbn",
-      "input_fields": [
-        {
-          "field_name": "isbn",
-          "target_param": "isbn",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_books_by_title",
-      "target_service": "BookRepository",
-      "target_method": "get_books_by_title",
-      "input_fields": [
-        {
-          "field_name": "title",
-          "target_param": "title",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_books_by_author_id",
-      "target_service": "BookRepository",
-      "target_method": "get_books_by_author_id",
+      "target_method": "search_books_by_author_id",
       "input_fields": [
         {
           "field_name": "author_id",
@@ -99,30 +63,37 @@
       ]
     },
     {
-      "action_name": "update_book_available_copies",
+      "action_name": "search_books_by_title",
       "target_service": "BookRepository",
-      "target_method": "update_book_available_copies",
+      "target_method": "search_books_by_title",
       "input_fields": [
         {
-          "field_name": "book_id",
-          "target_param": "book_id",
+          "field_name": "title",
+          "target_param": "title",
           "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "available_copies",
-          "target_param": "available_copies",
-          "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
           "required": true
         }
       ]
     },
     {
-      "action_name": "get_books_by_available_copies",
+      "action_name": "search_books_by_isbn",
       "target_service": "BookRepository",
-      "target_method": "get_books_by_available_copies",
+      "target_method": "search_books_by_isbn",
+      "input_fields": [
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "filter_books_by_available_copies",
+      "target_service": "BookRepository",
+      "target_method": "filter_books_by_available_copies",
       "input_fields": [
         {
           "field_name": "available_copies",
@@ -136,7 +107,7 @@
     {
       "action_name": "add_author",
       "target_service": "AuthorRepository",
-      "target_method": "add_author",
+      "target_method": "create_author",
       "input_fields": [
         {
           "field_name": "name",
@@ -162,51 +133,15 @@
       ]
     },
     {
-      "action_name": "get_author_by_id",
+      "action_name": "list_authors",
       "target_service": "AuthorRepository",
-      "target_method": "get_author_by_id",
-      "input_fields": [
-        {
-          "field_name": "author_id",
-          "target_param": "author_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_authors_by_name",
-      "target_service": "AuthorRepository",
-      "target_method": "get_authors_by_name",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_authors_with_books",
-      "target_service": "AuthorRepository",
-      "target_method": "get_authors_with_books",
-      "input_fields": [
-        {
-          "field_name": "author_id",
-          "target_param": "author_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Author",
-          "required": true
-        }
-      ]
+      "target_method": "read_all_authors",
+      "input_fields": []
     },
     {
       "action_name": "add_member",
       "target_service": "MemberRepository",
-      "target_method": "add_member",
+      "target_method": "create_member",
       "input_fields": [
         {
           "field_name": "name",
@@ -228,225 +163,14 @@
           "transform": "ISO_DATE",
           "lookup_entity": null,
           "required": false
-        },
-        {
-          "field_name": "is_active",
-          "target_param": "member",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
         }
       ]
     },
     {
-      "action_name": "get_member_by_id",
+      "action_name": "list_members",
       "target_service": "MemberRepository",
-      "target_method": "get_member_by_id",
-      "input_fields": [
-        {
-          "field_name": "member_id",
-          "target_param": "member_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_member_by_email",
-      "target_service": "MemberRepository",
-      "target_method": "get_member_by_email",
-      "input_fields": [
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_members_by_name",
-      "target_service": "MemberRepository",
-      "target_method": "get_members_by_name",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_active_members",
-      "target_service": "MemberRepository",
-      "target_method": "get_active_members",
-      "input_fields": [
-        {
-          "field_name": "is_active",
-          "target_param": "is_active",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_inactive_members",
-      "target_service": "MemberRepository",
-      "target_method": "get_inactive_members",
-      "input_fields": [
-        {
-          "field_name": "is_active",
-          "target_param": "is_active",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "add_loan",
-      "target_service": "LoanRepository",
-      "target_method": "add_loan",
-      "input_fields": [
-        {
-          "field_name": "book_id",
-          "target_param": "loan",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Book",
-          "required": true
-        },
-        {
-          "field_name": "member_id",
-          "target_param": "loan",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Member",
-          "required": true
-        },
-        {
-          "field_name": "loan_date",
-          "target_param": "loan",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_loan_by_id",
-      "target_service": "LoanRepository",
-      "target_method": "get_loan_by_id",
-      "input_fields": [
-        {
-          "field_name": "loan_id",
-          "target_param": "loan_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_loans_by_book_id",
-      "target_service": "LoanRepository",
-      "target_method": "get_loans_by_book_id",
-      "input_fields": [
-        {
-          "field_name": "book_id",
-          "target_param": "book_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Book",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_loans_by_member_id",
-      "target_service": "LoanRepository",
-      "target_method": "get_loans_by_member_id",
-      "input_fields": [
-        {
-          "field_name": "member_id",
-          "target_param": "member_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Member",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_active_loans",
-      "target_service": "LoanRepository",
-      "target_method": "get_active_loans",
-      "input_fields": [
-        {
-          "field_name": ":",
-          "target_param": ":",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "get_overdue_loans",
-      "target_service": "LoanRepository",
-      "target_method": "get_overdue_loans",
-      "input_fields": [
-        {
-          "field_name": "due_date",
-          "target_param": "due_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "update_loan_return_date",
-      "target_service": "LoanRepository",
-      "target_method": "update_loan_return_date",
-      "input_fields": [
-        {
-          "field_name": "loan_id",
-          "target_param": "loan_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "return_date",
-          "target_param": "return_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "update_loan_status",
-      "target_service": "LoanRepository",
-      "target_method": "update_loan_status",
-      "input_fields": [
-        {
-          "field_name": "loan_id",
-          "target_param": "loan_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      "target_method": "read_all_members",
+      "input_fields": []
     },
     {
       "action_name": "borrow_book",
@@ -466,13 +190,6 @@
           "transform": "LOOKUP_ID",
           "lookup_entity": "Book",
           "required": true
-        },
-        {
-          "field_name": "loan_date",
-          "target_param": "loan_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": false
         }
       ]
     },
@@ -484,32 +201,17 @@
         {
           "field_name": "loan_id",
           "target_param": "loan_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "return_date",
-          "target_param": "return_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Loan",
           "required": true
         }
       ]
     },
     {
       "action_name": "get_overdue_loans",
-      "target_service": "LibraryService",
-      "target_method": "get_overdue_loans",
-      "input_fields": [
-        {
-          "field_name": "due_date",
-          "target_param": "due_date",
-          "transform": "ISO_DATE",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      "target_service": "LoanRepository",
+      "target_method": "find_overdue_loans",
+      "input_fields": []
     },
     {
       "action_name": "renew_membership",
@@ -522,13 +224,6 @@
           "transform": "LOOKUP_ID",
           "lookup_entity": "Member",
           "required": true
-        },
-        {
-          "field_name": "is_active",
-          "target_param": "is_active",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
         }
       ]
     },
@@ -542,6 +237,46 @@
           "target_param": "query",
           "transform": "CSV_LIST",
           "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "list_active_members",
+      "target_service": "MemberRepository",
+      "target_method": "find_active_members",
+      "input_fields": []
+    },
+    {
+      "action_name": "list_inactive_members",
+      "target_service": "MemberRepository",
+      "target_method": "find_inactive_members",
+      "input_fields": []
+    },
+    {
+      "action_name": "find_loans_by_member_id",
+      "target_service": "LoanRepository",
+      "target_method": "find_loans_by_member_id",
+      "input_fields": [
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "find_loans_by_book_id",
+      "target_service": "LoanRepository",
+      "target_method": "find_loans_by_book_id",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
           "required": true
         }
       ]

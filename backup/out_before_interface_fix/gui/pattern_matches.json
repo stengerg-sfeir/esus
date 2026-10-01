@@ -1,0 +1,109 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "wine.name must be unique across all wines in the system",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.5479
+    },
+    {
+      "source": "invariant",
+      "text": "wine.selling_price must be strictly greater than wine.cost_price",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "PRICE_MARGIN_GUARD",
+      "confidence": 0.64
+    },
+    {
+      "source": "invariant",
+      "text": "wine.stock_quantity must be >= 0",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4419
+    },
+    {
+      "source": "invariant",
+      "text": "wine.primary_storage_location must be exactly one StorageLocation object",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.2048
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.zone_name must be non-empty string",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4496
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.row_number must be a positive integer",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2624
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.shelf_number must be a positive integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4177
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.max_bottle_capacity must be a positive integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4458
+    },
+    {
+      "source": "invariant",
+      "text": "storage_location.bottle_count must be <= storage_location.max_bottle_capacity",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "QUOTA_CAPACITY_GUARD",
+      "confidence": 0.6436
+    },
+    {
+      "source": "invariant",
+      "text": "wine.bottle_count_in_location must be <= storage_location.max_bottle_capacity",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "QUOTA_CAPACITY_GUARD",
+      "confidence": 0.5727
+    },
+    {
+      "source": "invariant",
+      "text": "A StorageLocation cannot be deleted if it has any wines assigned to it",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "QUOTA_CAPACITY_GUARD",
+      "confidence": 0.2497
+    },
+    {
+      "source": "contract:WineRepository.get_all_wines",
+      "text": "get_all_wines: Retrieves all wines in the system.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK",
+      "confidence": 0.3543
+    },
+    {
+      "source": "contract:WineRepository.get_wine_by_name",
+      "text": "get_wine_by_name: Retrieves a wine by its name (case-insensitive).",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.2841
+    },
+    {
+      "source": "contract:StorageLocationRepository.get_all_locations",
+      "text": "get_all_locations: Retrieves all storage locations in the system.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3129
+    },
+    {
+      "source": "contract:StorageLocationRepository.delete_location",
+      "text": "delete_location: Deletes a storage location if no wines are assigned to it.",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "QUOTA_CAPACITY_GUARD",
+      "confidence": 0.2604
+    }
+  ]
+}

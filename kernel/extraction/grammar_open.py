@@ -96,7 +96,10 @@ def data_models():
     return grammar(
         [
             rule("root", json_object([("data_models", "entity-list")])),
-            rule("entity-list", json_list("entity", 1, MAX_ENTITIES)),
+            # Minimum 0: a program with nothing to store has no entities, and a
+            # minimum of 1 forced the model to invent a domain instead. The same
+            # mistake as the whitespace bound of §9.6, in the other direction.
+            rule("entity-list", json_list("entity", 0, MAX_ENTITIES)),
             rule("entity", json_object([("name", "identifier"), ("fields", "field-list")])),
             rule(
                 "field-list",
@@ -157,7 +160,10 @@ def service_contracts():
     return grammar(
         [
             rule("root", json_object([("service_contracts", "contract-list")])),
-            rule("contract-list", json_list("contract", 1, MAX_SERVICES)),
+            # Minimum 0 for the same reason as entity-list: no entities means no
+            # services, and "at least one" turned that into an invented
+            # UserService/PostService for a Hello-World script.
+            rule("contract-list", json_list("contract", 0, MAX_SERVICES)),
             rule(
                 "contract",
                 json_object([("service_name", "identifier"), ("methods", "method-list")]),

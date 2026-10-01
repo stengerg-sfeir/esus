@@ -1,0 +1,17 @@
+{
+  "invariants": [
+    "category.id must be auto-incremented primary key",
+    "category.name must be unique",
+    "category.description is optional",
+    "category.reorder_threshold must be an integer or null",
+    "product.id must be auto-incremented primary key",
+    "product.sku must be unique",
+    "product.name is required",
+    "product.category_id must reference an existing category.id",
+    "product.price_cents must be a positive integer",
+    "product.stock_qty must be a non-negative integer",
+    "product.low_active is optional and defaults to False",
+    "category.reorder_threshold must be greater than or equal to 0 if provided",
+    "stock_qty must be updated to a non-negative integer when restocking"
+  ]
+}

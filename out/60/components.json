@@ -11,21 +11,14 @@
     "external_access": [],
     "crud_services": [
       {
-        "entity": "Customer",
+        "entity": "categories",
         "operations": [
           "create",
           "read_all"
         ]
       },
       {
-        "entity": "Category",
-        "operations": [
-          "create",
-          "read_all"
-        ]
-      },
-      {
-        "entity": "Product",
+        "entity": "products",
         "operations": [
           "create",
           "read_all",
@@ -33,20 +26,29 @@
         ]
       },
       {
-        "entity": "Order",
+        "entity": "customers",
         "operations": [
           "create",
           "read_all"
         ]
       },
       {
-        "entity": "OrderItem",
+        "entity": "orders",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update"
+        ]
+      },
+      {
+        "entity": "order_items",
         "operations": [
           "create"
         ]
       },
       {
-        "entity": "Invoice",
+        "entity": "invoices",
         "operations": [
           "create"
         ]

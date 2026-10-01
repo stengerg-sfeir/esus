@@ -1,44 +1,15 @@
-import json
 import math
-import sys
-from pathlib import Path
+
 from llama_cpp import Llama
 
-KERNEL_DIR = Path(__file__).parent.parent
-
-# Step 1 Categories (High-level Domain Groups)
-DOMAINS = [
-    {
-        "id": "REPO_QUERY",
-        "name": "Repository Query or Aggregate",
-        "description": "Database query, filtered list, SQL aggregation, sum, count, pagination, or uniqueness check."
-    },
-    {
-        "id": "SERVICE_GUARD",
-        "name": "Service Invariant or Business Rule Guard",
-        "description": "Validation check, budget overflow, stock sufficiency, capacity quota, or pricing rule."
-    },
-    {
-        "id": "CUSTOM_OR_NONE",
-        "name": "Standard CRUD or Custom Domain Logic",
-        "description": "Basic CRUD (create/read/update/delete by id) or non-standard custom business logic."
-    }
-]
-
-def load_catalog():
-    repo_file = KERNEL_DIR / "repo_patterns" / "patterns.json"
-    service_file = KERNEL_DIR / "service_patterns" / "patterns.json"
-    
-    with open(repo_file, "r", encoding="utf-8") as f:
-        repo_patterns = json.load(f)
-    with open(service_file, "r", encoding="utf-8") as f:
-        service_patterns = json.load(f)
-        
-    return {
-        "REPO_QUERY": repo_patterns,
-        "SERVICE_GUARD": service_patterns,
-        "CUSTOM_OR_NONE": []
-    }
+# The pattern vocabulary lives in one dependency-free module so the classifier
+# that emits these ids and the checker that validates them cannot disagree.
+from kernel.pattern_catalog import (
+    DOMAINS,
+    NO_DOMAIN_IDS,
+    NO_PATTERN_IN_DOMAIN_OPTION,
+    load_catalog,
+)
 
 def softmax_classify(llm, target_text: str, candidates: list, id_key: str = "id", desc_key: str = "description") -> tuple[str, float, dict]:
     """
@@ -105,30 +76,32 @@ Requirement: "{target_text}"<|im_end|>
 def classify_requirement_2step(llm, target_text: str, catalog: dict) -> dict:
     """
     Hierarchical 2-Step Logprobs Classifier:
-    Step 1: Classify Domain (REPO_QUERY vs SERVICE_GUARD vs CUSTOM_OR_NONE) -> 1 token
+    Step 1: Classify Domain (REPO_QUERY, SERVICE_GUARD, STANDARD_CRUD, NO_MATCH) -> 1 token
     Step 2: Classify exact Pattern ID within the selected domain -> 1 token
+
+    STANDARD_CRUD and NO_MATCH are answers rather than domains, so they end the
+    classification and become the pattern id itself. STANDARD_CRUD is the correct
+    answer for ordinary create/read/update/delete and is not a gap; NO_MATCH says
+    no domain fits and is one. Both are returned so the caller can count them,
+    which is what turns the gap into a report instead of a discarded answer.
     """
     # Step 1: Domain Classification
     domain_id, domain_conf, domain_probs = softmax_classify(
         llm, target_text, DOMAINS, id_key="id", desc_key="description"
     )
     
-    if domain_id == "CUSTOM_OR_NONE" or not catalog.get(domain_id):
+    if domain_id in NO_DOMAIN_IDS or not catalog.get(domain_id):
         return {
             "target_text": target_text,
             "domain": domain_id,
-            "pattern_id": "CUSTOM_OR_STANDARD_CRUD",
+            "pattern_id": domain_id,
             "confidence": domain_conf,
             "step1_probabilities": domain_probs,
             "step2_probabilities": {}
         }
         
     # Step 2: Specific Pattern Classification
-    patterns_in_domain = catalog[domain_id] + [{
-        "pattern_id": "CUSTOM_DOMAIN_LOGIC",
-        "name": "Custom / Other Logic",
-        "description": "Does not match any of the standard patterns in this group."
-    }]
+    patterns_in_domain = catalog[domain_id] + [NO_PATTERN_IN_DOMAIN_OPTION]
     
     pattern_id, pattern_conf, pattern_probs = softmax_classify(
         llm, target_text, patterns_in_domain, id_key="pattern_id", desc_key="description"

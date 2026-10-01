@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from kernel.consistency.checks_components import check_components
 from kernel.consistency.checks_contracts import check_service_contracts
+from kernel.consistency.checks_invariants import check_invariant_claims
 from kernel.consistency.checks_models import check_data_models
 from kernel.consistency.checks_phrases import check_phrase_list
 from kernel.consistency.naming import EntityIndex
@@ -27,6 +28,9 @@ def check_domain_layer(documents, report):
     entities = check_data_models(documents.get("data_models"), report)
     check_phrase_list(documents.get("intentions"), "intentions", report)
     check_phrase_list(documents.get("invariants"), "invariants", report)
+    # An invariant can name a field and claim an attribute of it; the data model
+    # declares that attribute, so the two can be compared.
+    check_invariant_claims(documents.get("invariants"), entities, report)
     crud_entities = check_components(documents.get("components"), entities, report)
     check_service_contracts(documents.get("service_contracts"), report)
     return DomainFacts(entities=entities, crud_entities=crud_entities)

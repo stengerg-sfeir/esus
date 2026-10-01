@@ -12,7 +12,10 @@ def check_service_contracts(services, report):
     if services is None:
         return
     if not services:
-        report.error("empty_section", "service_contracts: list is empty")
+        # A note, not an error: a program with no domain entities has no
+        # services, and that is a correct answer rather than a failed step. The
+        # contradictory case is caught in checks_components.
+        report.note("empty_section", "service_contracts: list is empty")
         return
 
     seen = set()

@@ -3,15 +3,23 @@
 This step used to be silent and dominated run time. It now reports one line per
 item, which both removes the appearance of a hang and makes the per-item cost
 visible in the run log.
+
+**Nothing is discarded here.** Until this change the stage-1 "no domain fits"
+answer was filtered out before the document was written, so 62 of the 191 items
+across the seven prompts were classified and then thrown away — every one of them
+ordinary CRUD, which the classifier had identified correctly. The answers are all
+kept now. The gap ids (`NO_MATCH`, `NO_PATTERN_IN_DOMAIN`) are the coverage
+report: their count and their texts say which pattern the vocabulary is missing.
+`STANDARD_CRUD` is a legitimate answer recording what no named pattern needs to
+describe, and is never a finding.
 """
 
 from kernel.classifier.hierarchical_classifier import classify_requirement_2step, load_catalog
-
-FALLBACK_PATTERN = "CUSTOM_OR_STANDARD_CRUD"
+from kernel.pattern_catalog import GAP_PATTERN_IDS, STANDARD_CRUD
 
 
 def classify_documents(classifier, documents, log):
-    """Classify every invariant and contract method; return the matches."""
+    """Classify every invariant and contract method; return every match."""
     catalog = load_catalog()
     items = classification_items(documents)
 
@@ -20,23 +28,41 @@ def classify_documents(classifier, documents, log):
         return []
 
     matches = []
+    gaps = []
+    standard_crud = 0
     total = len(items)
+
     for index, (source, text) in enumerate(items, start=1):
         result = classify_requirement_2step(classifier, text, catalog)
         pattern_id = result["pattern_id"]
         confidence = result["confidence"]
-        log.write(f"  [{index}/{total}] {source} -> {pattern_id} ({confidence:.2f})")
 
-        if pattern_id != FALLBACK_PATTERN:
-            matches.append(
-                {
-                    "source": source,
-                    "text": text,
-                    "domain": result["domain"],
-                    "pattern_id": pattern_id,
-                    "confidence": round(confidence, 4),
-                }
-            )
+        marker = ""
+        if pattern_id in GAP_PATTERN_IDS:
+            gaps.append((source, pattern_id, text))
+            marker = "  <- GAP: no pattern for this"
+        elif pattern_id == STANDARD_CRUD:
+            standard_crud += 1
+
+        log.write(f"  [{index}/{total}] {source} -> {pattern_id} ({confidence:.2f}){marker}")
+
+        matches.append(
+            {
+                "source": source,
+                "text": text,
+                "domain": result["domain"],
+                "pattern_id": pattern_id,
+                "confidence": round(confidence, 4),
+            }
+        )
+
+    log.write(
+        f"[ok] step patterns: {total} item(s) — {standard_crud} standard CRUD, "
+        f"{total - standard_crud - len(gaps)} pattern(s), {len(gaps)} gap(s)"
+    )
+    for source, pattern_id, text in gaps:
+        log.write(f"    gap [{pattern_id}] {source}: {text}")
+
     return matches
 
 

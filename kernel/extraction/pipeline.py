@@ -17,6 +17,7 @@ from kernel.extraction import (
     grammar_check,
     grammar_open,
     grammar_persistence,
+    interfaces,
     prompts,
     runner,
     vocabulary,
@@ -123,9 +124,20 @@ class Pipeline:
         )
 
     def _step_invariants(self, requirements):
+        """Step C: chained on step B, because an invariant can contradict it.
+
+        The plan's dependency table marked this pair as needing no chaining
+        ("chaining here adds noise"), and that was wrong in a way the checker
+        could see: an invariant claiming `category_id must be nullable` against a
+        model that declares it not nullable, and 60 claiming `product_id must be
+        unique` for a foreign key that cannot be. Giving step C the model it has
+        to agree with is the same move as every other chained step.
+        """
+        vocab = vocabulary.Vocabulary(entities=self._entities())
+        block = prompts.entity_block(vocab) if vocab.entity_names else None
         self._generate(
             INVARIANTS,
-            prompts.invariants(requirements),
+            prompts.invariants(requirements, block),
             grammar_open.phrase_list(INVARIANTS),
         )
 
@@ -141,11 +153,29 @@ class Pipeline:
         )
 
     def _step_contracts(self, requirements):
-        """Step E: service names are new, so the grammar stays open."""
-        vocab = vocabulary.Vocabulary(entities=self._entities())
+        """Step E: service names are new, so the grammar stays open.
+
+        Gated on there being entities, as step H is gated on persistence: a
+        service contract exists to act on a domain, so no domain means no
+        services. Ungated, this step invented a `HelloWorldService` for a
+        program whose data model was, correctly, empty — and step G then
+        faithfully built an adapter onto it.
+        """
+        entities = self._entities()
+        if not entities:
+            self.log.write("[ok] step contracts: step B produced no entities — no services")
+            self.documents[SERVICE_CONTRACTS] = []
+            return
+        vocab = vocabulary.Vocabulary(
+            entities=entities,
+            crud_operations=vocabulary.crud_requirements(self.documents.get(COMPONENTS)),
+        )
+        # E owns the repositories it declares, so it must be told which
+        # operations each entity needs — otherwise it writes "standard CRUD"
+        # from an adjective rather than from the list, and every delete is lost.
         self._generate(
             SERVICE_CONTRACTS,
-            prompts.service_contracts(requirements, _entity_block(vocab)),
+            prompts.service_contracts(requirements, prompts.requirements_block(vocab)),
             grammar_open.service_contracts(),
         )
 
@@ -155,11 +185,18 @@ class Pipeline:
         self.documents[PATTERN_MATCHES] = matches
 
     def _step_adapters(self, requirements):
-        """Step G: targets are closed to step E's services and step B's entities."""
+        """Step G: targets are closed to step E's services and step B's entities.
+
+        Gated on there being services: an adapter maps an external action onto a
+        service method, so with no services there is nothing to map onto and an
+        empty list is the correct answer rather than an invention.
+        """
         vocab = vocabulary.Vocabulary(entities=self._entities(), services=self._services())
         if not vocab.services:
-            self.log.write("[!] step adapters: no services from step E — targets unconstrained")
-        block = prompts.combined_block(vocab) if (vocab.services or vocab.entities) else None
+            self.log.write("[ok] step adapters: step E produced no services — no adapters")
+            self.documents[INTERACTION_ADAPTERS] = []
+            return
+        block = prompts.combined_block(vocab)
         self._generate(
             INTERACTION_ADAPTERS,
             prompts.adapters(requirements, block),
@@ -175,14 +212,23 @@ class Pipeline:
         vocab = vocabulary.Vocabulary(
             entities=self._entities(),
             crud_entities=vocabulary.crud_entity_names(components),
+            crud_operations=vocabulary.crud_requirements(components),
         )
         if not vocab.entity_names and not vocab.crud_entities:
             self.log.write("[!] step persistence: no entities to persist — step skipped")
             return
-        self._generate(
+        body = self._generate(
             PERSISTENCE_PORTS,
-            prompts.persistence_ports(requirements, _entity_block(vocab)),
+            prompts.persistence_ports(requirements, prompts.requirements_block(vocab)),
             grammar_persistence.persistence_ports(vocab),
+        )
+        if body is None:
+            return
+        # A repository step E already declared is the same class, so its method
+        # set is E's; H keeps the mapping it alone produces. Without this the two
+        # documents described one interface two ways in all five domain prompts.
+        self.documents[PERSISTENCE_PORTS] = interfaces.unify_repository_interfaces(
+            body, self.documents.get(SERVICE_CONTRACTS), self.log
         )
 
 

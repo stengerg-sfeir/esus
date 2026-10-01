@@ -1,14 +1,14 @@
 {
   "interaction_adapters": [
     {
-      "action_name": "add_product",
+      "action_name": "product_add",
       "target_service": "InventoryService",
       "target_method": "add_product",
       "input_fields": [
         {
           "field_name": "sku",
           "target_param": "sku",
-          "transform": "CSV_LIST",
+          "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
         },
@@ -22,8 +22,8 @@
         {
           "field_name": "category_id",
           "target_param": "category_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
           "required": true
         },
         {
@@ -43,64 +43,15 @@
       ]
     },
     {
-      "action_name": "update_product",
-      "target_service": "InventoryService",
-      "target_method": "update_product",
-      "input_fields": [
-        {
-          "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "data",
-          "target_param": "data",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "delete_product",
-      "target_service": "InventoryService",
-      "target_method": "delete_product",
-      "input_fields": [
-        {
-          "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_product_by_id",
-      "target_service": "InventoryService",
-      "target_method": "get_product_by_id",
-      "input_fields": [
-        {
-          "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "list_products",
+      "action_name": "product_list",
       "target_service": "InventoryService",
       "target_method": "list_products",
       "input_fields": [
         {
           "field_name": "category_id",
           "target_param": "category_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
           "required": false
         },
         {
@@ -113,13 +64,83 @@
       ]
     },
     {
-      "action_name": "restock_product",
+      "action_name": "product_update",
+      "target_service": "InventoryService",
+      "target_method": "update_product",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "sku",
+          "target_param": "data",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "name",
+          "target_param": "data",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "category_id",
+          "target_param": "data",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": false
+        },
+        {
+          "field_name": "price_cents",
+          "target_param": "data",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "stock_qty",
+          "target_param": "data",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "low_active",
+          "target_param": "data",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "product_delete",
+      "target_service": "InventoryService",
+      "target_method": "delete_product",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "product_restock",
       "target_service": "InventoryService",
       "target_method": "restock",
       "input_fields": [
         {
-          "field_name": "product_id",
-          "target_param": "product_id",
+          "field_name": "id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -134,19 +155,19 @@
       ]
     },
     {
-      "action_name": "low_stock_report",
+      "action_name": "product_low_stock_report",
       "target_service": "InventoryService",
       "target_method": "low_stock_report",
       "input_fields": []
     },
     {
-      "action_name": "stock_value_by_category",
+      "action_name": "product_stock_value_report",
       "target_service": "InventoryService",
       "target_method": "stock_value_by_category",
       "input_fields": []
     },
     {
-      "action_name": "add_category",
+      "action_name": "category_add",
       "target_service": "CategoryRepository",
       "target_method": "create_category",
       "input_fields": [
@@ -174,27 +195,19 @@
       ]
     },
     {
-      "action_name": "get_category_by_name",
+      "action_name": "category_list",
       "target_service": "CategoryRepository",
-      "target_method": "get_category_by_name",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      "target_method": "read_all_categories",
+      "input_fields": []
     },
     {
-      "action_name": "update_category",
+      "action_name": "category_update",
       "target_service": "CategoryRepository",
       "target_method": "update_category",
       "input_fields": [
         {
-          "field_name": "category_id",
-          "target_param": "category_id",
+          "field_name": "id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -223,50 +236,18 @@
       ]
     },
     {
-      "action_name": "delete_category",
+      "action_name": "category_delete",
       "target_service": "CategoryRepository",
       "target_method": "delete_category",
       "input_fields": [
         {
-          "field_name": "category_id",
-          "target_param": "category_id",
+          "field_name": "id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
         }
       ]
-    },
-    {
-      "action_name": "get_all_categories",
-      "target_service": "CategoryRepository",
-      "target_method": "get_all_categories",
-      "input_fields": []
-    },
-    {
-      "action_name": "get_products_by_category",
-      "target_service": "ProductRepository",
-      "target_method": "get_products_by_category",
-      "input_fields": [
-        {
-          "field_name": "category_id",
-          "target_param": "category_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_low_stock_products",
-      "target_service": "ProductRepository",
-      "target_method": "get_low_stock_products",
-      "input_fields": []
-    },
-    {
-      "action_name": "get_total_stock_value_by_category",
-      "target_service": "ProductRepository",
-      "target_method": "get_total_stock_value_by_category",
-      "input_fields": []
     }
   ]
 }

@@ -6,37 +6,62 @@
         "interface_name": "BookRepository",
         "methods": [
           {
-            "name": "add_book",
-            "description": "Adds a new book to the database with the provided details.",
+            "name": "create_book",
+            "description": "Creates a new Book entity with the provided fields. Returns the created Book entity.",
             "params": [
               {
-                "name": "title",
-                "type": "str"
-              },
+                "name": "book",
+                "type": "Book"
+              }
+            ],
+            "return_type": "Book"
+          },
+          {
+            "name": "read_all_books",
+            "description": "Reads all Book entities from the database.",
+            "params": [],
+            "return_type": "List[Book]"
+          },
+          {
+            "name": "read_book_by_id",
+            "description": "Reads a Book entity by its primary key (id).",
+            "params": [
               {
-                "name": "isbn",
-                "type": "str"
-              },
-              {
-                "name": "published_year",
-                "type": "int"
-              },
-              {
-                "name": "available_copies",
+                "name": "book_id",
                 "type": "int"
               }
             ],
-            "return_type": "None"
+            "return_type": "Book | None"
           },
           {
-            "name": "get_book_by_id",
-            "description": "Retrieves a book by its primary key (ID).",
-            "params": [],
-            "return_type": "Optional[Book]"
+            "name": "update_book",
+            "description": "Updates a Book entity with the provided fields. Returns the updated Book entity.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              },
+              {
+                "name": "book",
+                "type": "Book"
+              }
+            ],
+            "return_type": "Book | None"
           },
           {
-            "name": "get_books_by_title",
-            "description": "Retrieves all books matching the given title (case-insensitive partial match).",
+            "name": "delete_book",
+            "description": "Deletes a Book entity by its primary key (id). Returns True if deletion was successful, False otherwise.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "search_books_by_title",
+            "description": "Searches for Book entities by title (case-insensitive).",
             "params": [
               {
                 "name": "title",
@@ -46,8 +71,8 @@
             "return_type": "List[Book]"
           },
           {
-            "name": "get_books_by_author_id",
-            "description": "Retrieves all books by a specific author (identified by author ID).",
+            "name": "search_books_by_author_id",
+            "description": "Searches for Book entities by author ID.",
             "params": [
               {
                 "name": "author_id",
@@ -57,36 +82,26 @@
             "return_type": "List[Book]"
           },
           {
-            "name": "get_books_by_isbn",
-            "description": "Retrieves a book by its ISBN (case-sensitive).",
+            "name": "search_books_by_isbn",
+            "description": "Searches for Book entities by ISBN (case-insensitive).",
             "params": [
               {
                 "name": "isbn",
                 "type": "str"
               }
             ],
-            "return_type": "Optional[Book]"
-          },
-          {
-            "name": "get_books_available_only",
-            "description": "Retrieves all books currently available (available_copies > 0).",
-            "params": [],
             "return_type": "List[Book]"
           },
           {
-            "name": "update_available_copies",
-            "description": "Updates the available copies count for a book.",
+            "name": "filter_books_by_available_copies",
+            "description": "Filters Book entities by available copies count.",
             "params": [
               {
-                "name": "book_id",
-                "type": "int"
-              },
-              {
-                "name": "copies",
+                "name": "available_copies",
                 "type": "int"
               }
             ],
-            "return_type": "None"
+            "return_type": "List[Book]"
           }
         ]
       },
@@ -95,57 +110,69 @@
         "interface_name": "AuthorRepository",
         "methods": [
           {
-            "name": "add_author",
-            "description": "Adds a new author to the database.",
+            "name": "create_author",
+            "description": "Creates a new Author entity with the provided fields. Returns the created Author entity.",
             "params": [
               {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "birth_year",
-                "type": "int"
-              },
-              {
-                "name": "biography",
-                "type": "str"
+                "name": "author",
+                "type": "Author"
               }
             ],
-            "return_type": "None"
+            "return_type": "Author"
           },
           {
-            "name": "get_author_by_id",
-            "description": "Retrieves an author by its primary key (ID).",
-            "params": [],
-            "return_type": "Optional[Author]"
-          },
-          {
-            "name": "get_authors_by_name",
-            "description": "Retrieves all authors matching the given name (case-insensitive partial match).",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              }
-            ],
-            "return_type": "List[Author]"
-          },
-          {
-            "name": "get_authors_with_books",
-            "description": "Retrieves authors who have at least one book in the library.",
+            "name": "read_all_authors",
+            "description": "Reads all Author entities from the database.",
             "params": [],
             "return_type": "List[Author]"
           },
           {
-            "name": "get_authors_by_birth_year",
-            "description": "Retrieves authors born in a specific year.",
+            "name": "read_author_by_id",
+            "description": "Reads an Author entity by its primary key (id).",
             "params": [
               {
-                "name": "birth_year",
+                "name": "author_id",
                 "type": "int"
               }
             ],
-            "return_type": "List[Author]"
+            "return_type": "Author | None"
+          },
+          {
+            "name": "update_author",
+            "description": "Updates an Author entity with the provided fields. Returns the updated Author entity.",
+            "params": [
+              {
+                "name": "author_id",
+                "type": "int"
+              },
+              {
+                "name": "author",
+                "type": "Author"
+              }
+            ],
+            "return_type": "Author | None"
+          },
+          {
+            "name": "delete_author",
+            "description": "Deletes an Author entity by its primary key (id). Returns True if deletion was successful, False otherwise.",
+            "params": [
+              {
+                "name": "author_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "find_books_by_author",
+            "description": "Finds all Book entities associated with a given Author ID.",
+            "params": [
+              {
+                "name": "author_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Book]"
           }
         ]
       },
@@ -154,48 +181,69 @@
         "interface_name": "MemberRepository",
         "methods": [
           {
-            "name": ": ",
-            "description": "Retrieves a member by their email (case-sensitive).",
+            "name": "create_member",
+            "description": "Creates a new Member entity with the provided fields. Returns the created Member entity.",
             "params": [
               {
-                "name": "email",
-                "type": "str"
+                "name": "member",
+                "type": "Member"
               }
             ],
-            "return_type": "Optional[Member]"
+            "return_type": "Member"
           },
           {
-            "name": "get_members_by_name",
-            "description": "Retrieves all members matching the given name (case-insensitive partial match).",
-            "params": [
-              {
-                "name": "name",
-                "type": "str"
-              }
-            ],
-            "return_type": "List[Member]"
-          },
-          {
-            "name": "get_active_members",
-            "description": "Retrieves all active members.",
+            "name": "read_all_members",
+            "description": "Reads all Member entities from the database.",
             "params": [],
             "return_type": "List[Member]"
           },
           {
-            "name": "get_inactive_members",
-            "description": "Retrieves all inactive members.",
+            "name": "read_member_by_id",
+            "description": "Reads a Member entity by its primary key (id).",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Member | None"
+          },
+          {
+            "name": "update_member",
+            "description": "Updates a Member entity with the provided fields. Returns the updated Member entity.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "member",
+                "type": "Member"
+              }
+            ],
+            "return_type": "Member | None"
+          },
+          {
+            "name": "delete_member",
+            "description": "Deletes a Member entity by its primary key (id). Returns True if deletion was successful, False otherwise.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "find_active_members",
+            "description": "Finds all active Member entities.",
             "params": [],
             "return_type": "List[Member]"
           },
           {
-            "name": "get_members_by_membership_date",
-            "description": "Retrieves members who joined on a specific date.",
-            "params": [
-              {
-                "name": "membership_date",
-                "type": "datetime.date"
-              }
-            ],
+            "name": "find_inactive_members",
+            "description": "Finds all inactive Member entities.",
+            "params": [],
             "return_type": "List[Member]"
           }
         ]
@@ -205,97 +253,92 @@
         "interface_name": "LoanRepository",
         "methods": [
           {
-            "name": "add_loan",
-            "description": "Creates a new loan record for a book and member.",
+            "name": "create_loan",
+            "description": "Creates a new Loan entity with the provided fields. Returns the created Loan entity.",
             "params": [
               {
-                "name": "book_id",
-                "type": "int"
-              },
-              {
-                "name": "member_id",
-                "type": "int"
-              },
-              {
-                "name": "loan_date",
-                "type": "datetime.date"
+                "name": "loan",
+                "type": "Loan"
               }
             ],
-            "return_type": "None"
+            "return_type": "Loan"
           },
           {
-            "name": "get_loan_by_id",
-            "description": "Retrieves a loan by its primary key (ID).",
-            "params": [],
-            "return_type": "Optional[Loan]"
-          },
-          {
-            "name": "get_active_loans",
-            "description": "Retrieves all currently active loans.",
+            "name": "read_all_loans",
+            "description": "Reads all Loan entities from the database.",
             "params": [],
             "return_type": "List[Loan]"
           },
           {
-            "name": "get_overdue_loans",
-            "description": "Retrieves all overdue loans (due_date < current date).",
-            "params": [],
-            "return_type": "List[Loan]"
-          },
-          {
-            "name": "get_loans_by_member_id",
-            "description": "Retrieves all loans for a specific member.",
+            "name": "read_loan_by_id",
+            "description": "Reads a Loan entity by its primary key (id).",
             "params": [
               {
-                "name": "member_id",
+                "name": "loan_id",
                 "type": "int"
               }
             ],
-            "return_type": "List[Loan]"
+            "return_type": "Loan | None"
           },
           {
-            "name": "get_loans_by_book_id",
-            "description": "Retrieves all loans for a specific book.",
-            "params": [
-              {
-                "name": "book_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "List[Loan]"
-          },
-          {
-            "name": "update_loan_status",
-            "description": "Updates the status of a loan (e.g., to 'returned').",
+            "name": "update_loan",
+            "description": "Updates a Loan entity with the provided fields. Returns the updated Loan entity.",
             "params": [
               {
                 "name": "loan_id",
                 "type": "int"
               },
               {
-                "name": "status",
-                "type": "str"
+                "name": "loan",
+                "type": "Loan"
               }
             ],
-            "return_type": "None"
+            "return_type": "Loan | None"
           },
           {
-            "name": "update_return_date",
-            "description": "Updates the return date for a loan.",
+            "name": "delete_loan",
+            "description": "Deletes a Loan entity by its primary key (id). Returns True if deletion was successful, False otherwise.",
             "params": [
               {
                 "name": "loan_id",
                 "type": "int"
-              },
-              {
-                "name": "return_date",
-                "type": "Optional[datetime.date]}], "
-              },
-              {
-                "name": "return_type: ",
-                "type": "None"
               }
             ],
-            "return_type": "None"
+            "return_type": "bool"
+          },
+          {
+            "name": "find_active_loans",
+            "description": "Finds all active Loan entities.",
+            "params": [],
+            "return_type": "List[Loan]"
+          },
+          {
+            "name": "find_overdue_loans",
+            "description": "Finds all overdue Loan entities.",
+            "params": [],
+            "return_type": "List[Loan]"
+          },
+          {
+            "name": "find_loans_by_member_id",
+            "description": "Finds all Loan entities associated with a given Member ID.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Loan]"
+          },
+          {
+            "name": "find_loans_by_book_id",
+            "description": "Finds all Loan entities associated with a given Book ID.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Loan]"
           }
         ]
       }
@@ -327,9 +370,7 @@
         "entity": "Loan",
         "table": "loans",
         "primary_key": "id",
-        "indexes": [
-          "due_date"
-        ]
+        "indexes": []
       }
     ]
   }

@@ -20,15 +20,29 @@ INVARIANTS_SYSTEM = (
     "requirements. Each invariant must be a single, unique, concrete rule (e.g. 'isbn must be "
     "unique', 'available_copies must be >= 0'). Do not repeat, paraphrase, or generalize the same "
     "rule. Do not invent rules not grounded in the requirements. Stop as soon as all distinct "
-    'rules are listed. Output strictly in English as JSON: {"invariants": ["...", "..."]}.'
+    "rules are listed. "
+    "The data model listed above is authoritative: an invariant must agree with it. Never call a "
+    "field unique or nullable when the model declares otherwise, and never state a rule about an "
+    "entity or field the model does not define — a rule about a field that is not there cannot be "
+    "enforced. Where an invariant and a declared attribute would disagree, the attribute is what "
+    "the model says and the invariant must not contradict it. "
+    'Output strictly in English as JSON: {"invariants": ["...", "..."]}.'
 )
 DATA_MODELS_SYSTEM = (
     "Extract the data model. The FIRST field of every entity must be its primary key: set "
-    "'primary_key' to true for it and false for every other field, and never mark the primary key "
-    "nullable. Use ONLY these types: 'int', 'string', 'boolean', 'decimal', 'datetime', 'date', "
+    "'primary_key' to true for it and false for every other field, set its 'unique' to true "
+    "because a primary key is unique by definition, and never mark the primary key nullable. Set "
+    "'unique' to true for every other field the requirements say must not repeat — a code, a "
+    "number, an email, an ISBN or a reference that identifies one record — and false for the "
+    "rest. A field a business rule calls unique is unique in the model too: the two are the same "
+    "fact, and a model that says false while the rule says true contradicts itself. Use "
+    "ONLY these types: 'int', 'string', 'boolean', 'decimal', 'datetime', 'date', "
     "'text', 'float'. For 'foreign_key' use null, or an object "
     '{"target_entity": "...", "target_field": "...", "relationship": "many_to_one"|"one_to_one"|'
     '"one_to_many"}. Give every field a status of "explicit" or "deduced". '
+    "If the requirements define no records to store — a program that only computes, prints, "
+    "parses or transforms and keeps nothing of its own — emit an empty list: "
+    '{"data_models": []}. Never invent an entity the requirements do not mention. '
     "Output strictly in English as JSON."
 )
 COMPONENTS_SYSTEM = (
@@ -49,8 +63,19 @@ CONTRACTS_SYSTEM = (
     "get_total_by_category_and_month). Name each service exactly as the authoritative list does. "
     "Declare each method once, and give every method the parameters the requirements imply — a "
     "method that reads or writes an entity needs that entity's key and the fields it acts on. "
+    "Where the operations block below names operations for an entity, the interface that owns "
+    "that entity must declare a method for every one of them: a 'delete' needs a delete method "
+    "that takes the entity's key, an 'update' needs an update method that takes the key and the "
+    "fields it writes, and a 'create' needs a create or add method that takes the fields it "
+    "writes. Do not declare an operation as supported and then omit the method that provides it. "
+    "Those operations are a MINIMUM and not a maximum: having covered them, also declare the "
+    "other methods the requirements imply for that entity — reading one record by its key, "
+    "listing, and the custom queries, counts and aggregates the requirements describe. Do not "
+    "stop at the operations list if the requirements ask for more. "
     "Never emit a placeholder such as 'none', 'None', 'void', 'NoneType' or ':' as a parameter "
     "name or type. "
+    "If the authoritative list is empty, or the requirements describe no domain entities at all, "
+    'emit {"service_contracts": []} — never invent a service just to have something to write. '
     'Output strictly in English as JSON: {"service_contracts": [{"service_name": "...", "methods": '
     '[{"name": "...", "description": "...", "params": [{"name": "...", "type": "..."}], '
     '"return_type": "..."}]}]}.'
@@ -72,12 +97,19 @@ PERSISTENCE_SYSTEM = (
     "the primary key shown. You choose the interface_name, the table name and the method bodies. "
     "A repository holds the methods for its own entity only — never a method named after, or "
     "belonging to, any other entity in the list, and never an entity name used as a method name. "
-    "Include standard CRUD methods plus the custom queries and aggregates the requirements "
-    "mention for that entity, and give each method a real description and return type. Emit "
-    "between four and eight methods per repository, then close the list: do not pad it, and do not "
-    "repeat a method you have already declared. Give every parameter the real name and type the "
-    "requirements imply; if a method takes no parameters, emit an empty params list []. Never emit "
-    "a placeholder name or type such as 'none', 'None', 'void', 'NoneType' or ':'. "
+    "The operations listed for an entity below are a MINIMUM, not a maximum: provide a method "
+    "for every one of them, and then include the other standard CRUD methods that entity needs "
+    "— reading one record by its key, listing, updating, deleting — plus the custom queries and "
+    "aggregates the requirements mention for that entity. Emit four to eight methods per "
+    "repository, and close the list once the requirements are covered: do not pad it, and do not "
+    "repeat a method you have already declared. Give each method a real description and return "
+    "type. Declare the parameters a method's own name "
+    "requires: a create or an update needs the fields it writes, a delete needs the key it "
+    "removes, and a method that reads one record by a key, a name, an email or a date needs that "
+    "key — never emit such a method with an empty params list. Emit an empty params list [] only "
+    "for a method that genuinely takes no argument, such as one that lists every record or "
+    "reports an aggregate. Give every parameter the real name and type the requirements imply. "
+    "Never emit a placeholder name or type such as 'none', 'None', 'void', 'NoneType' or ':'. "
     'Output strictly in English as JSON: {"persistence_ports": {"repositories": [{"entity": "...", '
     '"interface_name": "...", "methods": [{"name": "...", "description": "...", "params": '
     '[{"name": "...", "type": "..."}], "return_type": "..."}]}], "entity_mappings": [{"entity": '
@@ -93,8 +125,8 @@ def data_models(requirements):
     return _prompt(DATA_MODELS_SYSTEM, requirements)
 
 
-def invariants(requirements):
-    return _prompt(INVARIANTS_SYSTEM, requirements)
+def invariants(requirements, names=None):
+    return _prompt(INVARIANTS_SYSTEM, requirements, names)
 
 
 def components(requirements, names):
@@ -148,6 +180,25 @@ def combined_block(vocabulary):
         sections.append(f"Services:\n{vocabulary.service_block()}")
     if vocabulary.entity_block():
         sections.append(f"Entities:\n{vocabulary.entity_block()}")
+    return f"{NAMES_HEADING}\n" + "\n".join(sections)
+
+
+def requirements_block(vocabulary):
+    """The entities step B produced and the operations step D requires.
+
+    Steps E and H both own method sets — E for the repositories it declares, H
+    for the rest — and neither was ever told which operations an entity is
+    supposed to support. `components` said a `Category` supports a `delete`;
+    nothing carried that to the step writing the methods, so no repository in
+    inventory or library ever had one.
+    """
+    sections = []
+    if vocabulary.entity_block():
+        sections.append(f"Entities:\n{vocabulary.entity_block()}")
+    if vocabulary.operations_block():
+        sections.append(f"Required operations:\n{vocabulary.operations_block()}")
+    if not sections:
+        return None
     return f"{NAMES_HEADING}\n" + "\n".join(sections)
 
 

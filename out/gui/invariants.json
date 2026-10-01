@@ -1,15 +1,13 @@
 {
   "invariants": [
-    "wine.name must be unique across all wines in the system",
+    "wine.name must be unique",
     "wine.selling_price must be strictly greater than wine.cost_price",
     "wine.stock_quantity must be >= 0",
-    "wine.primary_storage_location must be exactly one StorageLocation object",
-    "storage_location.zone_name must be non-empty string",
-    "storage_location.row_number must be a positive integer",
-    "storage_location.shelf_number must be a positive integer",
-    "storage_location.max_bottle_capacity must be a positive integer",
-    "storage_location.bottle_count must be <= storage_location.max_bottle_capacity",
-    "wine.bottle_count_in_location must be <= storage_location.max_bottle_capacity",
-    "A StorageLocation cannot be deleted if it has any wines assigned to it"
+    "wine.storage_location_id must reference a valid StorageLocation",
+    "StorageLocation.max_bottle_capacity must be >= 0",
+    "StorageLocation.zone_name must not be null",
+    "StorageLocation.row_number must be a positive integer",
+    "StorageLocation.shelf_number must be a positive integer",
+    "The total number of bottles assigned to a StorageLocation must not exceed its max_bottle_capacity"
   ]
 }

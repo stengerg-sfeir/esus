@@ -9,13 +9,24 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-# Steps A-E always run; steps G and H are skipped for prompts without persistence.
+# Steps A-E always run. Step H is skipped when step D declares no persistence, so
+# `persistence_ports.json` may legitimately be absent — it is, for the hello-world
+# prompt. `interaction_adapters` is optional for a weaker reason: step G is never
+# skipped, so the document is absent only when that step failed to produce usable
+# JSON. Note that `Documents.missing` is consulted only by checks_persistence (for
+# `persistence_ports`), so an absent adapters document currently produces no
+# finding at all rather than a tolerated one.
 CORE_DOCUMENTS = (
     "intentions",
     "invariants",
     "data_models",
     "components",
     "service_contracts",
+    # Step F classifies the invariants and contract methods. It is never
+    # skipped, so its document is always written and its absence is a defect
+    # rather than a tolerated state — which is why nothing checked it before,
+    # and why `checks_patterns` now can.
+    "pattern_matches",
 )
 OPTIONAL_DOCUMENTS = ("interaction_adapters", "persistence_ports")
 DOCUMENT_NAMES = CORE_DOCUMENTS + OPTIONAL_DOCUMENTS
@@ -26,6 +37,7 @@ LIST_DOCUMENTS = (
     "data_models",
     "service_contracts",
     "interaction_adapters",
+    "pattern_matches",
 )
 
 

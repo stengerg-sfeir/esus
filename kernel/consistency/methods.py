@@ -4,9 +4,23 @@ Both documents carry the same shape (a list of methods, each with named and
 typed parameters), so the same contract is enforced in one place.
 """
 
+import re
+
 from kernel.consistency.naming import normalize
 
 PLACEHOLDER_VALUES = {"", "none", "null", "nil", "n/a", "na", "todo", "tbd", "undefined"}
+
+# A method whose name promises an argument must declare one. The parameter list is
+# what is missing, so the only evidence left is the name — and some names are
+# self-evidently incomplete: `create()` cannot know what to create and
+# `get_wine_by_id()` cannot know which wine.
+WRITE_VERB_PREFIXES = ("create", "add", "save", "insert", "update", "delete", "remove", "set")
+KEYED_BY_SUFFIX = re.compile(r"_by_(id|email|name|sku|isbn|title|code|key|slug|number)$")
+# Aggregates are excluded: "by X" there means "grouped by X", which takes no
+# argument, so `get_total_stock_value_by_category()` is complete as declared.
+AGGREGATE_WORDS = (
+    "total", "sum", "summary", "report", "count", "value", "aggregate", "stat", "history",
+)
 
 
 def is_placeholder(value):
@@ -68,6 +82,33 @@ def _check_method(method, owner_label, seen_names, report):
         report.warning("placeholder_value", f"{owner_label}.{name} has no return_type")
 
     _check_params(method, owner_label, name, report)
+    _check_params_are_declared(method, owner_label, name, report)
+
+
+def _missing_arguments_reason(name):
+    """Why a name cannot be honoured without parameters, or None when it can."""
+    lowered = name.lower()
+    if any(word in lowered for word in AGGREGATE_WORDS):
+        return None
+    if lowered.startswith(WRITE_VERB_PREFIXES):
+        return "it writes or removes something and must say what"
+    if KEYED_BY_SUFFIX.search(lowered):
+        return "it looks an entity up by a key and must take that key"
+    return None
+
+
+def _check_params_are_declared(method, owner_label, name, report):
+    """Flag a method that promises arguments and declares none."""
+    params = method.get("params")
+    if isinstance(params, list) and params:
+        return
+    reason = _missing_arguments_reason(name)
+    if reason is None:
+        return
+    report.warning(
+        "missing_parameters",
+        f"{owner_label}.{name} declares no parameters, but {reason}",
+    )
 
 
 def _check_params(method, owner_label, name, report):

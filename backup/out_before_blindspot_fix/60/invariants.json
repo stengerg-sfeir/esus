@@ -1,0 +1,30 @@
+{
+  "invariants": [
+    "customer_id must be unique across all customers",
+    "customer_name must not be null or empty",
+    "customer_email must be unique across all customers and must conform to RFC 5322 email format",
+    "product_id must be unique across all products",
+    "product_name must not be null or empty",
+    "product_category_id must reference an existing category_id",
+    "product_stock_quantity must be non-negative",
+    "order_id must be unique across all orders",
+    "order_customer_id must reference an existing customer_id",
+    "order_status must be one of: ['pending', 'confirmed', 'shipped', 'cancelled']",
+    "order_date must be a valid date in the past or future",
+    "order_total must be non-negative",
+    "order_item_product_id must reference an existing product_id",
+    "order_item_quantity must be a positive integer",
+    "invoice_id must be unique across all invoices",
+    "invoice_order_id must reference an existing order_id",
+    "invoice_customer_id must reference an existing customer_id",
+    "invoice_total must equal the order_total when the order is confirmed",
+    "invoice_status must be one of: ['draft', 'sent']",
+    "reserved_stock must be non-negative and equal to the sum of order_item_quantity for confirmed orders",
+    "shipped_order_status must be 'shipped'",
+    "cancelled_order_status must be 'cancelled'",
+    "order_item_quantity cannot exceed product_stock_quantity for confirmed orders",
+    "invoice_total must be non-negative",
+    "category_id must be unique across all categories",
+    "category_name must not be null or empty"
+  ]
+}

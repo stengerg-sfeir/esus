@@ -1,0 +1,81 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "isbn must be unique across all records",
+      "domain": "REPO_QUERY",
+      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
+      "confidence": 0.7117
+    },
+    {
+      "source": "invariant",
+      "text": "available_copies cannot be negative",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5041
+    },
+    {
+      "source": "invariant",
+      "text": "title must not be empty or whitespace-only",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4762
+    },
+    {
+      "source": "invariant",
+      "text": "publisher must not be empty or whitespace-only",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.5388
+    },
+    {
+      "source": "invariant",
+      "text": "publication_year must be a valid year (e.g., between 1800 and current year)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "CUSTOM_DOMAIN_LOGIC",
+      "confidence": 0.2585
+    },
+    {
+      "source": "invariant",
+      "text": "price must be a positive number",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.6047
+    },
+    {
+      "source": "invariant",
+      "text": "genre must be a non-empty string",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3577
+    },
+    {
+      "source": "invariant",
+      "text": "author_name must not be empty or whitespace-only",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4795
+    },
+    {
+      "source": "invariant",
+      "text": "copies_ordered must be a non-negative integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3839
+    },
+    {
+      "source": "invariant",
+      "text": "copies_received must be a non-negative integer",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.4325
+    },
+    {
+      "source": "invariant",
+      "text": "copies_available must be equal to (copies_received - copies_ordered)",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2091
+    }
+  ]
+}

@@ -18,7 +18,11 @@ def check_data_models(models, report):
     if models is None:
         return index
     if not models:
-        report.error("empty_section", "data_models: list is empty")
+        # A note, not an error: the checker cannot see the requirements, so it
+        # cannot tell "this program has no records" from "the step failed". The
+        # contradictory case — persistence required but nothing named to
+        # persist — is caught in checks_components, which can see both fields.
+        report.note("empty_section", "data_models: list is empty")
         return index
 
     seen = {}
@@ -90,10 +94,19 @@ def _check_primary_keys(model_name, primary_keys, fields_by_name, report):
         report.warning("missing_primary_key", f"data_models: model '{model_name}' declares no primary key")
         return
     for key in primary_keys:
-        if fields_by_name.get(key, {}).get("nullable"):
+        field = fields_by_name.get(key, {})
+        if field.get("nullable"):
             report.warning(
                 "nullable_primary_key",
                 f"data_models: {model_name}.{key} is a primary key but nullable=true",
+            )
+        if field.get("unique") is False:
+            # A primary key is unique by definition, so the two flags contradict
+            # each other. `unique` was never read anywhere in this package, so
+            # the value was free to be wrong on every model.
+            report.warning(
+                "non_unique_primary_key",
+                f"data_models: {model_name}.{key} is a primary key but unique=false",
             )
 
 

@@ -2,129 +2,164 @@
   "pattern_matches": [
     {
       "source": "invariant",
-      "text": "wine.name must be unique across all wines in the system",
+      "text": "wine.name must be unique",
       "domain": "REPO_QUERY",
       "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.5479
+      "confidence": 0.4972
     },
     {
       "source": "invariant",
       "text": "wine.selling_price must be strictly greater than wine.cost_price",
       "domain": "SERVICE_GUARD",
       "pattern_id": "PRICE_MARGIN_GUARD",
-      "confidence": 0.64
+      "confidence": 0.6204
     },
     {
       "source": "invariant",
       "text": "wine.stock_quantity must be >= 0",
       "domain": "SERVICE_GUARD",
       "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4419
+      "confidence": 0.366
     },
     {
       "source": "invariant",
-      "text": "wine.primary_storage_location must be exactly one StorageLocation object",
-      "domain": "REPO_QUERY",
-      "pattern_id": "EXISTS_BY_UNIQUE_COMPOSITE",
-      "confidence": 0.2048
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.zone_name must be non-empty string",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4496
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.row_number must be a positive integer",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.2624
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.shelf_number must be a positive integer",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4177
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.max_bottle_capacity must be a positive integer",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "BUDGET_OVERFLOW_GUARD",
-      "confidence": 0.4458
-    },
-    {
-      "source": "invariant",
-      "text": "storage_location.bottle_count must be <= storage_location.max_bottle_capacity",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.6436
-    },
-    {
-      "source": "invariant",
-      "text": "wine.bottle_count_in_location must be <= storage_location.max_bottle_capacity",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.5727
-    },
-    {
-      "source": "invariant",
-      "text": "A StorageLocation cannot be deleted if it has any wines assigned to it",
-      "domain": "SERVICE_GUARD",
-      "pattern_id": "QUOTA_CAPACITY_GUARD",
-      "confidence": 0.2497
-    },
-    {
-      "source": "contract:WineRepository.get_all_wines",
-      "text": "get_all_wines: Retrieves all wines in the system.",
+      "text": "wine.storage_location_id must reference a valid StorageLocation",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.3543
+      "confidence": 0.1829
+    },
+    {
+      "source": "invariant",
+      "text": "StorageLocation.max_bottle_capacity must be >= 0",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.6108
+    },
+    {
+      "source": "invariant",
+      "text": "StorageLocation.zone_name must not be null",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "confidence": 0.3779
+    },
+    {
+      "source": "invariant",
+      "text": "StorageLocation.row_number must be a positive integer",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2388
+    },
+    {
+      "source": "invariant",
+      "text": "StorageLocation.shelf_number must be a positive integer",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.2066
+    },
+    {
+      "source": "invariant",
+      "text": "The total number of bottles assigned to a StorageLocation must not exceed its max_bottle_capacity",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "QUOTA_CAPACITY_GUARD",
+      "confidence": 0.71
+    },
+    {
+      "source": "contract:WineRepository.create_wine",
+      "text": "create_wine: Creates a new wine entry with the provided details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7291
+    },
+    {
+      "source": "contract:WineRepository.read_wine_by_id",
+      "text": "read_wine_by_id: Retrieves a wine by its unique identifier (wine_id).",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8966
+    },
+    {
+      "source": "contract:WineRepository.read_all_wines",
+      "text": "read_all_wines: Retrieves all wines in the system.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "confidence": 0.6176
+    },
+    {
+      "source": "contract:WineRepository.update_wine",
+      "text": "update_wine: Updates an existing wine's details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8043
+    },
+    {
+      "source": "contract:WineRepository.delete_wine",
+      "text": "delete_wine: Deletes a wine entry by its unique identifier (wine_id).",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.9536
     },
     {
       "source": "contract:WineRepository.get_wine_by_name",
       "text": "get_wine_by_name: Retrieves a wine by its name (case-insensitive).",
       "domain": "REPO_QUERY",
       "pattern_id": "FILTER_WITH_PAGINATION",
-      "confidence": 0.2841
+      "confidence": 0.4842
     },
     {
-      "source": "contract:StorageLocationRepository.get_all_locations",
-      "text": "get_all_locations: Retrieves all storage locations in the system.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
-      "confidence": 0.3129
-    },
-    {
-      "source": "contract:WineLocationService.get_wine_by_location",
-      "text": "get_wine_by_location: Retrieves all wines assigned to a specific storage location.",
+      "source": "contract:WineRepository.get_total_stock_by_type",
+      "text": "get_total_stock_by_type: Retrieves the total stock quantity of wines by their type.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.6517
+      "confidence": 0.8826
     },
     {
-      "source": "contract:WineLocationService.get_location_by_wine",
-      "text": "get_location_by_wine: Retrieves the storage location assigned to a specific wine.",
+      "source": "contract:WineRepository.get_stock_by_location",
+      "text": "get_stock_by_location: Retrieves the total stock quantity of wines assigned to a specific storage location.",
       "domain": "REPO_QUERY",
       "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.2525
+      "confidence": 0.8335
     },
     {
-      "source": "contract:WineLocationService.get_total_bottles_by_location",
-      "text": "get_total_bottles_by_location: Retrieves the total number of bottles assigned to a specific storage location.",
-      "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.8626
+      "source": "contract:StorageLocationRepository.create_storage_location",
+      "text": "create_storage_location: Creates a new storage location entry with the provided details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7233
     },
     {
-      "source": "contract:WineLocationService.get_total_bottles_by_wine_type_and_location",
-      "text": "get_total_bottles_by_wine_type_and_location: Retrieves the total number of bottles of a specific wine type assigned to a location.",
+      "source": "contract:StorageLocationRepository.read_storage_location_by_id",
+      "text": "read_storage_location_by_id: Retrieves a storage location by its unique identifier (location_id).",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.814
+    },
+    {
+      "source": "contract:StorageLocationRepository.read_all_storage_locations",
+      "text": "read_all_storage_locations: Retrieves all storage locations in the system.",
       "domain": "REPO_QUERY",
-      "pattern_id": "AGGREGATE_BY_FK",
-      "confidence": 0.55
+      "pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "confidence": 0.5862
+    },
+    {
+      "source": "contract:StorageLocationRepository.update_storage_location",
+      "text": "update_storage_location: Updates an existing storage location's details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8299
+    },
+    {
+      "source": "contract:StorageLocationRepository.delete_storage_location",
+      "text": "delete_storage_location: Deletes a storage location entry by its unique identifier (location_id).",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.954
+    },
+    {
+      "source": "contract:StorageLocationRepository.get_location_by_zone_and_shelf",
+      "text": "get_location_by_zone_and_shelf: Retrieves a storage location by its zone name, row number, and shelf number.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "FILTER_WITH_PAGINATION",
+      "confidence": 0.2992
     }
   ]
 }

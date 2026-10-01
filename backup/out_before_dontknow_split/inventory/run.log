@@ -1,0 +1,51 @@
+[run] requirements: 2312 characters
+[intentions] 159 tokens in 8.2s (19.4 tok/s)
+[data_models] 648 tokens in 24.1s (26.9 tok/s)
+[invariants] 164 tokens in 8.9s (18.4 tok/s)
+[components] 139 tokens in 6.4s (21.8 tok/s)
+[service_contracts] 1507 tokens in 61.1s (24.7 tok/s)
+  [1/33] invariant -> AGGREGATE_BY_FK_AND_DATE (0.47)
+  [2/33] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.37)
+  [3/33] invariant -> AGGREGATE_BY_FK_AND_DATE (0.27)
+  [4/33] invariant -> BUDGET_OVERFLOW_GUARD (0.45)
+  [5/33] invariant -> AGGREGATE_BY_FK_AND_DATE (0.50)
+  [6/33] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.61)
+  [7/33] invariant -> BUDGET_OVERFLOW_GUARD (0.51)
+  [8/33] invariant -> AGGREGATE_BY_FK (0.36)
+  [9/33] invariant -> BUDGET_OVERFLOW_GUARD (0.37)
+  [10/33] invariant -> BUDGET_OVERFLOW_GUARD (0.45)
+  [11/33] invariant -> CUSTOM_DOMAIN_LOGIC (0.26)
+  [12/33] invariant -> BUDGET_OVERFLOW_GUARD (0.38)
+  [13/33] invariant -> BUDGET_OVERFLOW_GUARD (0.19)
+  [14/33] contract:CategoryRepository.create_category -> CUSTOM_OR_STANDARD_CRUD (0.84)
+  [15/33] contract:CategoryRepository.read_all_categories -> CUSTOM_DOMAIN_LOGIC (0.42)
+  [16/33] contract:CategoryRepository.update_category -> CUSTOM_OR_STANDARD_CRUD (0.81)
+  [17/33] contract:CategoryRepository.delete_category -> CUSTOM_OR_STANDARD_CRUD (0.88)
+  [18/33] contract:CategoryRepository.get_products_by_category -> AGGREGATE_BY_FK (0.53)
+  [19/33] contract:ProductRepository.create_product -> CUSTOM_OR_STANDARD_CRUD (0.84)
+  [20/33] contract:ProductRepository.read_product_by_id -> CUSTOM_OR_STANDARD_CRUD (0.51)
+  [21/33] contract:ProductRepository.read_products_by_category -> AGGREGATE_BY_FK (0.38)
+  [22/33] contract:ProductRepository.update_product -> CUSTOM_OR_STANDARD_CRUD (0.84)
+  [23/33] contract:ProductRepository.delete_product -> CUSTOM_OR_STANDARD_CRUD (0.86)
+  [24/33] contract:ProductRepository.get_low_stock_products -> THRESHOLD_SCAN (0.41)
+  [25/33] contract:ProductRepository.get_total_stock_value_by_category -> AGGREGATE_BY_FK (0.61)
+  [26/33] contract:InventoryService.add_product -> EXISTS_BY_UNIQUE_COMPOSITE (0.25)
+  [27/33] contract:InventoryService.update_product -> CUSTOM_OR_STANDARD_CRUD (0.85)
+  [28/33] contract:InventoryService.delete_product -> CUSTOM_OR_STANDARD_CRUD (0.86)
+  [29/33] contract:InventoryService.get_product_by_id -> CUSTOM_OR_STANDARD_CRUD (0.56)
+  [30/33] contract:InventoryService.list_products -> FILTER_WITH_PAGINATION (0.68)
+  [31/33] contract:InventoryService.restock_product -> CUSTOM_OR_STANDARD_CRUD (0.90)
+  [32/33] contract:InventoryService.low_stock_report -> THRESHOLD_SCAN (0.44)
+  [33/33] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK (0.80)
+[interaction_adapters] 1511 tokens in 59.2s (25.5 tok/s)
+[persistence_ports] 1195 tokens in 49.1s (24.3 tok/s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/inventory/intentions.json
+[write] out/inventory/data_models.json
+[write] out/inventory/invariants.json
+[write] out/inventory/components.json
+[write] out/inventory/service_contracts.json
+[write] out/inventory/pattern_matches.json
+[write] out/inventory/interaction_adapters.json
+[write] out/inventory/persistence_ports.json
+[run] 7 steps, 5323 generated tokens in 216.9s

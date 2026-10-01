@@ -1,19 +1,19 @@
 {
   "invariants": [
-    "category.name must be unique",
-    "category.monthly_budget must be non-negative if provided",
-    "category.icon must be a string or None",
-    "expense.amount_cents must be positive",
-    "expense.expense_date must be a valid ISO date string",
-    "expense.category_id must reference an existing category",
-    "expense.payment_method must be one of ['cash', 'card', 'transfer']",
-    "expense.is_recurring must be boolean",
-    "budget.category_id must reference an existing category",
-    "budget.month must be in YYYY-MM format",
-    "budget.amount_limit_cents must be positive",
-    "budget.category_id and month must be unique across all budgets",
-    "expense_date must be <= current date when adding an expense",
-    "expense.amount_cents must not exceed budget limit for its category and month when adding",
-    "all monetary values must be stored as integers (cents)"
+    "category.id is auto-incremented primary key",
+    "category.name is unique",
+    "category.monthly_budget is nullable (can be None)",
+    "category.icon is nullable (can be None)",
+    "expense.id is auto-incremented primary key",
+    "expense.amount_cents is non-negative integer",
+    "expense.expense_date is ISO date string",
+    "expense.category_id is foreign key referencing category.id",
+    "expense.payment_method is one of ['cash', 'card', 'transfer']",
+    "expense.is_recurring is boolean",
+    "budget.id is auto-incremented primary key",
+    "budget.category_id is foreign key referencing category.id",
+    "budget.month is 'YYYY-MM' string (e.g., '2024-01')",
+    "budget.amount_limit_cents is non-negative integer",
+    "budget.category_id and budget.month are unique across the entire budget table"
   ]
 }

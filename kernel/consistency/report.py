@@ -35,10 +35,17 @@ RULE_TITLES = {
     "no_repository": "CRUD entity has no repository",
     "missing_primary_key": "Model declares no primary key",
     "nullable_primary_key": "Primary key is marked nullable",
+    "non_unique_primary_key": "Primary key is marked non-unique",
     "primary_key_mismatch": "Mapping primary key is not a field of the entity",
     "unsupported_value": "Value is outside the allowed set",
     "unresolved_adapter_target": "Adapter target services cannot be resolved",
     "inconsistent_adapter": "Adapter transform and lookup entity disagree",
+    "inconsistent_interface": "One repository declared differently in two documents",
+    "missing_parameters": "Method promises arguments but declares none",
+    "inconsistent_invariant": "Invariant contradicts the field it names",
+    "unmet_crud_operation": "Claimed operation has no implementing method",
+    "low_confidence": "Classification confidence is below the floor",
+    "missing_pattern": "No pattern covers this requirement — a vocabulary gap",
 }
 
 

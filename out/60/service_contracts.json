@@ -1,204 +1,33 @@
 {
   "service_contracts": [
     {
-      "service_name": "CustomerService",
+      "service_name": "categories",
       "methods": [
-        {
-          "name": "get_customer_by_id",
-          "description": "Retrieves a customer by their unique identifier.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Customer"
-        },
-        {
-          "name": "get_customer_by_email",
-          "description": "Retrieves a customer by their email address.",
-          "params": [
-            {
-              "name": "email",
-              "type": "str"
-            }
-          ],
-          "return_type": "Customer"
-        },
-        {
-          "name": "create_customer",
-          "description": "Creates a new customer record with provided details.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            },
-            {
-              "name": "address",
-              "type": "str"
-            }
-          ],
-          "return_type": "Customer"
-        },
-        {
-          "name": "update_customer",
-          "description": "Updates an existing customer's details.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            },
-            {
-              "name": "address",
-              "type": "str"
-            }
-          ],
-          "return_type": "Customer"
-        },
-        {
-          "name": "delete_customer",
-          "description": "Deletes a customer record by their ID.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "bool"
-        }
-      ]
-    },
-    {
-      "service_name": "CategoryService",
-      "methods": [
-        {
-          "name": "get_category_by_id",
-          "description": "Retrieves a category by its unique identifier.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Category"
-        },
-        {
-          "name": "get_category_by_name",
-          "description": "Retrieves a category by its name.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            }
-          ],
-          "return_type": "Category"
-        },
         {
           "name": "create_category",
-          "description": "Creates a new category with provided details.",
+          "description": "Creates a new category with the provided name.",
           "params": [
             {
               "name": "name",
               "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
             }
           ],
-          "return_type": "Category"
+          "return_type": "dict"
         },
         {
-          "name": "update_category",
-          "description": "Updates an existing category's details.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "description",
-              "type": "str"
-            }
-          ],
-          "return_type": "Category"
-        },
-        {
-          "name": "delete_category",
-          "description": "Deletes a category by its ID.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "bool"
+          "name": "read_all_categories",
+          "description": "Returns a list of all existing categories.",
+          "params": [],
+          "return_type": "list[dict]"
         }
       ]
     },
     {
-      "service_name": "ProductService",
+      "service_name": "products",
       "methods": [
         {
-          "name": "get_product_by_id",
-          "description": "Retrieves a product by its unique identifier.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Product"
-        },
-        {
-          "name": "get_product_by_name",
-          "description": "Retrieves a product by its name.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            }
-          ],
-          "return_type": "Product"
-        },
-        {
-          "name": "get_products_by_category",
-          "description": "Retrieves all products belonging to a specific category.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "List[Product]"
-        },
-        {
           "name": "create_product",
-          "description": "Creates a new product with provided details.",
+          "description": "Creates a new product with the provided details.",
           "params": [
             {
               "name": "name",
@@ -213,19 +42,25 @@
               "type": "float"
             },
             {
-              "name": "stock_quantity",
+              "name": "category_id",
               "type": "int"
             },
             {
-              "name": "category_id",
+              "name": "stock_quantity",
               "type": "int"
             }
           ],
-          "return_type": "Product"
+          "return_type": "dict"
+        },
+        {
+          "name": "read_all_products",
+          "description": "Returns a list of all existing products.",
+          "params": [],
+          "return_type": "list[dict]"
         },
         {
           "name": "update_product",
-          "description": "Updates an existing product's details.",
+          "description": "Updates an existing product with the provided details.",
           "params": [
             {
               "name": "product_id",
@@ -233,79 +68,65 @@
             },
             {
               "name": "name",
-              "type": "str"
+              "type": "str | None"
             },
             {
               "name": "description",
-              "type": "str"
+              "type": "str | None"
             },
             {
               "name": "price",
-              "type": "float"
+              "type": "float | None"
+            },
+            {
+              "name": "category_id",
+              "type": "int | None"
             },
             {
               "name": "stock_quantity",
-              "type": "int"
-            },
-            {
-              "name": "category_id",
-              "type": "int"
+              "type": "int | None"
             }
           ],
-          "return_type": "Product"
-        },
-        {
-          "name": "delete_product",
-          "description": "Deletes a product by its ID.",
-          "params": [
-            {
-              "name": "product_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "bool"
-        },
-        {
-          "name": "get_total_stock_by_category",
-          "description": "Retrieves the total stock quantity of products in a specific category.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "int"
+          "return_type": "dict"
         }
       ]
     },
     {
-      "service_name": "OrderService",
+      "service_name": "customers",
       "methods": [
         {
-          "name": "get_order_by_id",
-          "description": "Retrieves an order by its unique identifier.",
+          "name": "create_customer",
+          "description": "Creates a new customer with the provided details.",
           "params": [
             {
-              "name": "order_id",
-              "type": "int"
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
             }
           ],
-          "return_type": "Order"
+          "return_type": "dict"
         },
         {
-          "name": "get_orders_by_customer",
-          "description": "Retrieves all orders placed by a specific customer.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "List[Order]"
-        },
+          "name": "read_all_customers",
+          "description": "Returns a list of all existing customers.",
+          "params": [],
+          "return_type": "list[dict]"
+        }
+      ]
+    },
+    {
+      "service_name": "orders",
+      "methods": [
         {
           "name": "create_order",
-          "description": "Creates a new order with provided items.",
+          "description": "Creates a new order for a customer.",
           "params": [
             {
               "name": "customer_id",
@@ -313,14 +134,36 @@
             },
             {
               "name": "items",
-              "type": "List[dict]"
+              "type": "list[dict]"
             }
           ],
-          "return_type": "Order"
+          "return_type": "dict"
+        },
+        {
+          "name": "read_one_order",
+          "description": "Returns a single order by its ID.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict | None"
+        },
+        {
+          "name": "read_all_orders",
+          "description": "Returns a list of all orders for a customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[dict]"
         },
         {
           "name": "update_order_status",
-          "description": "Updates the status of an existing order.",
+          "description": "Updates the status of an order (pending, confirmed, shipped, cancelled).",
           "params": [
             {
               "name": "order_id",
@@ -331,64 +174,44 @@
               "type": "str"
             }
           ],
-          "return_type": "Order"
-        },
-        {
-          "name": "get_order_items_by_order",
-          "description": "Retrieves all order items for a specific order.",
-          "params": [
-            {
-              "name": "order_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "List[OrderItem]"
-        },
-        {
-          "name": "get_total_by_category_and_month",
-          "description": "Retrieves the total sales amount by category for a specific month.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
-            }
-          ],
-          "return_type": "float"
+          "return_type": "dict"
         }
       ]
     },
     {
-      "service_name": "InvoiceService",
+      "service_name": "order_items",
       "methods": [
         {
-          "name": "get_invoice_by_id",
-          "description": "Retrieves an invoice by its unique identifier.",
+          "name": "create_order_item",
+          "description": "Creates a new order item for an order.",
           "params": [
             {
-              "name": "invoice_id",
+              "name": "order_id",
               "type": "int"
-            }
-          ],
-          "return_type": "Invoice"
-        },
-        {
-          "name": "get_invoices_by_customer",
-          "description": "Retrieves all invoices issued to a specific customer.",
-          "params": [
+            },
             {
-              "name": "customer_id",
+              "name": "product_id",
               "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "float"
             }
           ],
-          "return_type": "List[Invoice]"
-        },
+          "return_type": "dict"
+        }
+      ]
+    },
+    {
+      "service_name": "invoices",
+      "methods": [
         {
           "name": "create_invoice",
-          "description": "Creates an invoice linked to an order.",
+          "description": "Creates an invoice for an order.",
           "params": [
             {
               "name": "order_id",
@@ -397,9 +220,17 @@
             {
               "name": "customer_id",
               "type": "int"
+            },
+            {
+              "name": "invoice_number",
+              "type": "str"
+            },
+            {
+              "name": "total_amount",
+              "type": "float"
             }
           ],
-          "return_type": "Invoice"
+          "return_type": "dict"
         }
       ]
     }

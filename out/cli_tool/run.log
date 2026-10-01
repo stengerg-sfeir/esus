@@ -1,38 +1,13 @@
 [run] requirements: 441 characters
-[intentions] 85 tokens in 3.9s (21.9 tok/s)
-[data_models] 1488 tokens in 53.8s (27.6 tok/s)
-[invariants] 155 tokens in 6.9s (22.6 tok/s)
-[components] 71 tokens in 3.3s (21.5 tok/s)
-[service_contracts] 1125 tokens in 44.9s (25.0 tok/s)
-  [1/26] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.71)
-  [2/26] invariant -> BUDGET_OVERFLOW_GUARD (0.50)
-  [3/26] invariant -> BUDGET_OVERFLOW_GUARD (0.48)
-  [4/26] invariant -> BUDGET_OVERFLOW_GUARD (0.54)
-  [5/26] invariant -> CUSTOM_DOMAIN_LOGIC (0.26)
-  [6/26] invariant -> BUDGET_OVERFLOW_GUARD (0.60)
-  [7/26] invariant -> BUDGET_OVERFLOW_GUARD (0.36)
-  [8/26] invariant -> BUDGET_OVERFLOW_GUARD (0.48)
-  [9/26] invariant -> BUDGET_OVERFLOW_GUARD (0.38)
-  [10/26] invariant -> BUDGET_OVERFLOW_GUARD (0.43)
-  [11/26] invariant -> AGGREGATE_BY_FK_AND_DATE (0.21)
-  [12/26] contract:UserService.get_user_by_email -> AGGREGATE_BY_FK (0.49)
-  [13/26] contract:UserService.get_all_users -> CUSTOM_DOMAIN_LOGIC (0.40)
-  [14/26] contract:UserService.update_user_profile -> CUSTOM_OR_STANDARD_CRUD (0.83)
-  [15/26] contract:ProductService.get_product_by_id -> CUSTOM_OR_STANDARD_CRUD (0.56)
-  [16/26] contract:ProductService.get_all_products -> CUSTOM_DOMAIN_LOGIC (0.31)
-  [17/26] contract:ProductService.update_product_stock -> CUSTOM_OR_STANDARD_CRUD (0.82)
-  [18/26] contract:ProductService.get_product_by_name -> FILTER_WITH_PAGINATION (0.25)
-  [19/26] contract:OrderService.get_order_by_id -> CUSTOM_OR_STANDARD_CRUD (0.58)
-  [20/26] contract:OrderService.get_order_by_user_id -> AGGREGATE_BY_FK (0.29)
-  [21/26] contract:OrderService.create_order -> CUSTOM_OR_STANDARD_CRUD (0.85)
-  [22/26] contract:OrderService.update_order_status -> CUSTOM_OR_STANDARD_CRUD (0.83)
-  [23/26] contract:OrderService.get_total_by_category_and_month -> AGGREGATE_BY_FK_AND_DATE (0.89)
-  [24/26] contract:OrderItemService.get_order_item_by_id -> CUSTOM_OR_STANDARD_CRUD (0.63)
-  [25/26] contract:OrderItemService.get_order_items_by_order_id -> FILTER_WITH_PAGINATION (0.22)
-  [26/26] contract:OrderItemService.update_order_item_quantity -> CUSTOM_OR_STANDARD_CRUD (0.84)
-[interaction_adapters] 1796 tokens in 69.4s (25.9 tok/s)
-[persistence_ports] 1744 tokens in 79.5s (22.0 tok/s)
-[ok] step persistence_ports: removed 7 exactly repeated name(s)
+[intentions] 85 tokens in 4.1s (20.7 tok/s)
+[data_models] 6 tokens in 1.0s (5.8 tok/s)
+[invariants] 9 tokens in 0.9s (9.8 tok/s)
+[!] step components: no entities from step B — crud_services unconstrained
+[components] 71 tokens in 3.1s (22.7 tok/s)
+[ok] step contracts: step B produced no entities — no services
+[ok] step patterns: nothing to classify
+[ok] step adapters: step E produced no services — no adapters
+[ok] step persistence: components declare no persistence — step skipped
 [write] out/cli_tool/intentions.json
 [write] out/cli_tool/data_models.json
 [write] out/cli_tool/invariants.json
@@ -40,5 +15,4 @@
 [write] out/cli_tool/service_contracts.json
 [write] out/cli_tool/pattern_matches.json
 [write] out/cli_tool/interaction_adapters.json
-[write] out/cli_tool/persistence_ports.json
-[run] 7 steps, 6464 generated tokens in 261.7s
+[run] 4 steps, 171 generated tokens in 9.2s

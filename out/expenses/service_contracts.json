@@ -4,145 +4,32 @@
       "service_name": "ExpenseRepository",
       "methods": [
         {
-          "name": "get_all_expenses",
-          "description": "Retrieves all expenses in the database.",
-          "params": [],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_category",
-          "description": "Retrieves expenses filtered by category_id.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_date_range",
-          "description": "Retrieves expenses within a specified date range.",
-          "params": [
-            {
-              "name": "start_date",
-              "type": "str"
-            },
-            {
-              "name": "end_date",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_payment_method",
-          "description": "Retrieves expenses filtered by payment_method.",
-          "params": [
-            {
-              "name": "payment_method",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_category_and_date_range",
-          "description": "Retrieves expenses filtered by category_id and date range.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "start_date",
-              "type": "str"
-            },
-            {
-              "name": "end_date",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_category_and_payment_method",
-          "description": "Retrieves expenses filtered by category_id and payment_method.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "payment_method",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_date_range_and_payment_method",
-          "description": "Retrieves expenses filtered by date range and payment_method.",
-          "params": [
-            {
-              "name": "start_date",
-              "type": "str"
-            },
-            {
-              "name": "end_date",
-              "type": "str"
-            },
-            {
-              "name": "payment_method",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expenses_by_category_date_range_payment_method",
-          "description": "Retrieves expenses filtered by category_id, date range, and payment_method.",
-          "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "start_date",
-              "type": "str"
-            },
-            {
-              "name": "end_date",
-              "type": "str"
-            },
-            {
-              "name": "payment_method",
-              "type": "str"
-            }
-          ],
-          "return_type": "list[Expense]"
-        },
-        {
-          "name": "get_expense_by_id",
-          "description": "Retrieves a single expense by its ID.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Expense | None"
-        },
-        {
           "name": "create_expense",
-          "description": "Creates a new expense.",
+          "description": "Creates a new expense record with validation",
           "params": [
             {
               "name": "expense",
               "type": "Expense"
             },
             {
-              "name": "category_id",
+              "name": "category",
+              "type": "Category"
+            }
+          ],
+          "return_type": "int"
+        },
+        {
+          "name": "read_all_expenses",
+          "description": "Returns all expenses in the database",
+          "params": [],
+          "return_type": "List[Expense]"
+        },
+        {
+          "name": "read_expense_by_id",
+          "description": "Returns an expense by its primary key",
+          "params": [
+            {
+              "name": "id",
               "type": "int"
             }
           ],
@@ -150,7 +37,7 @@
         },
         {
           "name": "update_expense",
-          "description": "Updates an existing expense.",
+          "description": "Updates an existing expense record",
           "params": [
             {
               "name": "id",
@@ -165,7 +52,7 @@
         },
         {
           "name": "delete_expense",
-          "description": "Deletes an existing expense.",
+          "description": "Deletes an expense by its primary key",
           "params": [
             {
               "name": "id",
@@ -175,21 +62,95 @@
           "return_type": "bool"
         },
         {
-          "name": "get_monthly_expense_totals",
-          "description": "Retrieves total expenses spent per month.",
+          "name": "filter_expenses",
+          "description": "Filters expenses by category, date range, and payment method",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "Optional[int]"
+            },
+            {
+              "name": "start_date",
+              "type": "Optional[str]"
+            },
+            {
+              "name": "end_date",
+              "type": "Optional[str]"
+            },
+            {
+              "name": "payment_method",
+              "type": "Optional[str]"
+            }
+          ],
+          "return_type": "List[Expense]"
+        },
+        {
+          "name": "get_monthly_expenses",
+          "description": "Returns expenses for a specific month",
+          "params": [
+            {
+              "name": "month",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Expense]"
+        },
+        {
+          "name": "get_yearly_expenses",
+          "description": "Returns expenses for a specific year",
+          "params": [
+            {
+              "name": "year",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Expense]"
+        },
+        {
+          "name": "get_category_spending",
+          "description": "Returns total spending for a category over a date range",
           "params": [
             {
               "name": "category_id",
               "type": "int"
+            },
+            {
+              "name": "start_date",
+              "type": "Optional[str]"
+            },
+            {
+              "name": "end_date",
+              "type": "Optional[str]"
             }
           ],
-          "return_type": "dict[str, int]"
+          "return_type": "int"
         },
         {
-          "name": "get_yearly_expense_totals",
-          "description": "Retrieves total expenses spent per year.",
-          "params": [],
-          "return_type": "dict[str, list[dict[str, int]]]"
+          "name": "export_to_csv",
+          "description": "Exports filtered expenses to a CSV file",
+          "params": [
+            {
+              "name": "file_path",
+              "type": "str"
+            },
+            {
+              "name": "category_id",
+              "type": "Optional[int]"
+            },
+            {
+              "name": "start_date",
+              "type": "Optional[str]"
+            },
+            {
+              "name": "end_date",
+              "type": "Optional[str]"
+            },
+            {
+              "name": "payment_method",
+              "type": "Optional[str]"
+            }
+          ],
+          "return_type": "bool"
         }
       ]
     },
@@ -197,47 +158,36 @@
       "service_name": "CategoryRepository",
       "methods": [
         {
-          "name": "get_all_categories",
-          "description": "Retrieves all categories in the database.",
-          "params": [],
-          "return_type": "list[Category]"
-        },
-        {
-          "name": "get_category_by_id",
-          "description": "Retrieves a category by its ID.",
-          "params": [
-            {
-              "name": "id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Category | None"
-        },
-        {
-          "name": "get_category_by_name",
-          "description": "Retrieves a category by its name.",
-          "params": [
-            {
-              "name": "name",
-              "type": "str"
-            }
-          ],
-          "return_type": "Category | None"
-        },
-        {
           "name": "create_category",
-          "description": "Creates a new category.",
+          "description": "Creates a new category",
           "params": [
             {
               "name": "category",
               "type": "Category"
             }
           ],
+          "return_type": "int"
+        },
+        {
+          "name": "read_all_categories",
+          "description": "Returns all categories in the database",
+          "params": [],
+          "return_type": "List[Category]"
+        },
+        {
+          "name": "read_category_by_id",
+          "description": "Returns a category by its primary key",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
           "return_type": "Category"
         },
         {
           "name": "update_category",
-          "description": "Updates an existing category.",
+          "description": "Updates an existing category",
           "params": [
             {
               "name": "id",
@@ -252,7 +202,7 @@
         },
         {
           "name": "delete_category",
-          "description": "Deletes an existing category.",
+          "description": "Deletes a category by its primary key",
           "params": [
             {
               "name": "id",
@@ -262,15 +212,15 @@
           "return_type": "bool"
         },
         {
-          "name": "get_expenses_for_category",
-          "description": "Retrieves all expenses associated with a category.",
+          "name": "find_expenses_by_category",
+          "description": "Returns all expenses associated with a category",
           "params": [
             {
               "name": "category_id",
               "type": "int"
             }
           ],
-          "return_type": "list[Expense]"
+          "return_type": "List[Expense]"
         }
       ]
     },
@@ -278,14 +228,25 @@
       "service_name": "BudgetRepository",
       "methods": [
         {
-          "name": "get_all_budgets",
-          "description": "Retrieves all budgets in the database.",
-          "params": [],
-          "return_type": "list[Budget]"
+          "name": "create_budget",
+          "description": "Creates a new budget for a category and month",
+          "params": [
+            {
+              "name": "budget",
+              "type": "Budget"
+            }
+          ],
+          "return_type": "int"
         },
         {
-          "name": "get_budget_by_category_and_month",
-          "description": "Retrieves a budget for a specific category and month.",
+          "name": "read_all_budgets",
+          "description": "Returns all budgets in the database",
+          "params": [],
+          "return_type": "List[Budget]"
+        },
+        {
+          "name": "read_budget_by_category_month",
+          "description": "Returns a budget for a specific category and month",
           "params": [
             {
               "name": "category_id",
@@ -296,22 +257,11 @@
               "type": "str"
             }
           ],
-          "return_type": "Budget | None"
-        },
-        {
-          "name": "create_budget",
-          "description": "Creates a new budget entry.",
-          "params": [
-            {
-              "name": "budget",
-              "type": "Budget"
-            }
-          ],
           "return_type": "Budget"
         },
         {
           "name": "update_budget",
-          "description": "Updates an existing budget entry.",
+          "description": "Updates an existing budget",
           "params": [
             {
               "name": "category_id",
@@ -330,7 +280,7 @@
         },
         {
           "name": "delete_budget",
-          "description": "Deletes an existing budget entry.",
+          "description": "Deletes a budget for a category and month",
           "params": [
             {
               "name": "category_id",
@@ -344,23 +294,19 @@
           "return_type": "bool"
         },
         {
-          "name": "get_budget_for_category_month",
-          "description": "Retrieves budget status for a category and month.",
+          "name": "get_budget_by_month",
+          "description": "Returns all budgets for a specific month across categories",
           "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
             {
               "name": "month",
               "type": "str"
             }
           ],
-          "return_type": "Budget | None"
+          "return_type": "List[Budget]"
         },
         {
           "name": "check_budget_exceeded",
-          "description": "Checks if the total expenses for a category exceed its budget for a given month.",
+          "description": "Checks if a category's expenses exceed its budget for a month",
           "params": [
             {
               "name": "category_id",
@@ -380,7 +326,7 @@
       "methods": [
         {
           "name": "list_expenses",
-          "description": "Lists expenses filtered by optional category, date range, and payment method.",
+          "description": "Lists expenses filtered by category, date range, and payment method",
           "params": [
             {
               "name": "category_id",
@@ -399,41 +345,37 @@
               "type": "Optional[str]"
             }
           ],
-          "return_type": "list[Expense]"
+          "return_type": "List[Expense]"
         },
         {
           "name": "get_expense_by_id",
-          "description": "Retrieves a single expense by its ID.",
+          "description": "Returns an expense by its ID",
           "params": [
             {
               "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Expense | None"
+          "return_type": "Expense"
         },
         {
           "name": "add_expense",
-          "description": "Validates category exists, adds expense, and checks budget after insertion.",
+          "description": "Adds a new expense, validates category, and checks budget",
           "params": [
             {
               "name": "expense",
               "type": "Expense"
             },
             {
-              "name": "category_id",
-              "type": "int"
-            },
-            {
-              "name": "month",
-              "type": "str"
+              "name": "category",
+              "type": "Category"
             }
           ],
           "return_type": "Expense"
         },
         {
           "name": "update_expense",
-          "description": "Updates an existing expense.",
+          "description": "Updates an existing expense",
           "params": [
             {
               "name": "id",
@@ -448,7 +390,7 @@
         },
         {
           "name": "delete_expense",
-          "description": "Deletes an existing expense.",
+          "description": "Deletes an expense by its ID",
           "params": [
             {
               "name": "id",
@@ -459,29 +401,29 @@
         },
         {
           "name": "get_monthly_report",
-          "description": "Returns total spent, per-category breakdown, and budget status for a given month.",
+          "description": "Returns monthly report with total spent, per-category breakdown, and budget status",
           "params": [
             {
               "name": "month",
               "type": "str"
             }
           ],
-          "return_type": "dict[str, dict[str, int | str]]"
+          "return_type": "dict"
         },
         {
           "name": "get_yearly_summary",
-          "description": "Returns monthly totals, top spending categories, and average monthly spend for a year.",
+          "description": "Returns yearly summary with monthly totals and top spending categories",
           "params": [
             {
               "name": "year",
               "type": "str"
             }
           ],
-          "return_type": "dict[str, list[dict[str, int | str]]]"
+          "return_type": "dict"
         },
         {
           "name": "get_category_spending",
-          "description": "Returns aggregated spending for a category over a period.",
+          "description": "Returns total spending for a category over a date range",
           "params": [
             {
               "name": "category_id",
@@ -489,18 +431,18 @@
             },
             {
               "name": "start_date",
-              "type": "str"
+              "type": "Optional[str]"
             },
             {
               "name": "end_date",
-              "type": "str"
+              "type": "Optional[str]"
             }
           ],
-          "return_type": "dict[str, int]"
+          "return_type": "int"
         },
         {
           "name": "export_to_csv",
-          "description": "Exports filtered expenses to a CSV file.",
+          "description": "Exports filtered expenses to a CSV file",
           "params": [
             {
               "name": "file_path",
@@ -517,15 +459,19 @@
             {
               "name": "end_date",
               "type": "Optional[str]"
+            },
+            {
+              "name": "payment_method",
+              "type": "Optional[str]"
             }
           ],
           "return_type": "bool"
         },
         {
           "name": "detect_recurring",
-          "description": "Finds recurring expenses and marks them.",
+          "description": "Detects recurring expenses and marks them",
           "params": [],
-          "return_type": "list[Expense]"
+          "return_type": "List[Expense]"
         }
       ]
     }
