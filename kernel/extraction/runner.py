@@ -28,11 +28,38 @@ GPU_LAYERS_NONE = 0
 # on macOS Metal does the work and the setting is mostly moot.
 CPU_THREADS = 8
 
-# Novel-token ceiling for one step. The context is 8192 and the prompts are a
-# few hundred tokens, so this is rarely the binding constraint; the context
-# budget below is.
+# Novel-token ceiling for the *first* attempt at a step. The context is 8192 and
+# the prompts are a few hundred tokens, so this is rarely the binding
+# constraint; the room left in the context is. It exists to stop an
+# unconstrained generation from filling the whole context, and it is deliberately
+# not the last word: a step that hits it is retried with the full room left in
+# the context instead, because a ceiling that truncated an attempt cannot also be
+# the ceiling the retry runs under — see `generation_budget` and the retry in
+# `pipeline._generate`.
 MAX_NEW_TOKENS = 3584
+# The floor a budget is never allowed to fall below, so even a long prompt
+# leaves room for the shortest possible document.
+MIN_BUDGET = 16
 CONTEXT_RESERVE = 64
+
+# Flash attention, measured rather than assumed. This stack (Metal, Ministral-3
+# 3B Q4_K_M) renders decode 22.1 -> 25.3 tok/s and a whole document 24.8 -> 28.0
+# tok/s (+13-15%) with it on, and the effect on the output was measured too,
+# because the setting is commonly believed to cost quality:
+#
+#   - 118 real classification items across five prompts: **118/118 identical
+#     verdicts**, confidence drifting by a median of 0.0004 (max 0.0034);
+#   - one whole document generated at temperature 0: **byte-identical**, 7694
+#     characters either way;
+#   - the runner-up ordering differed on 2 of 118 items, which can move a
+#     `narrow_margin` note but never a verdict.
+#
+# `n_batch`/`n_ubatch` were measured in the same pass and are deliberately left
+# at their defaults: they changed nothing (prompts are ~1 100 tokens, so the
+# default 512 already chunks them and prefill is fixed-cost dominated, 4.2 s
+# flat across 512-4096). Raise `n_batch` only if a prompt ever exceeds 512
+# tokens by enough for the chunking to matter.
+FLASH_ATTENTION = True
 
 TRUNCATED = "length"
 
@@ -74,7 +101,7 @@ def load_model(model_path, context_size=8192, logits_all=False):
         n_ctx=context_size,
         **threading,
         n_gpu_layers=resolve_gpu_layers(),
-        flash_attn=False,
+        flash_attn=FLASH_ATTENTION,
         logits_all=logits_all,
         verbose=False,
     )
@@ -85,12 +112,13 @@ def load_model(model_path, context_size=8192, logits_all=False):
 class StepResult:
     """The outcome of one constrained generation."""
 
-    def __init__(self, label, text, tokens, seconds, finish_reason):
+    def __init__(self, label, text, tokens, seconds, finish_reason, budget=None):
         self.label = label
         self.text = text
         self.tokens = tokens
         self.seconds = seconds
         self.finish_reason = finish_reason
+        self.budget = budget
 
     @property
     def truncated(self):
@@ -99,7 +127,9 @@ class StepResult:
 
     def describe(self):
         speed = self.tokens / self.seconds if self.seconds else 0.0
-        note = " TRUNCATED" if self.truncated else ""
+        # The ceiling is named on a truncation, because the ceiling is the
+        # diagnosis: it is what the retry has to raise.
+        note = f" TRUNCATED at the {self.budget}-token ceiling" if self.truncated else ""
         return (
             f"[{self.label}] {self.tokens} tokens in {self.seconds:.1f}s "
             f"({speed:.1f} tok/s){note}"
@@ -111,19 +141,44 @@ def token_count(llm, text):
     return len(llm.tokenize(text.encode("utf-8")))
 
 
-def generate(llm, prompt, grammar_text, label, temperature=0.1, stream=True):
+def available_tokens(llm, prompt):
+    """How many tokens the context can still hold as a response to `prompt`.
+
+    This is the real ceiling: the room the prompt left behind. `MAX_NEW_TOKENS`
+    is only a guard against filling the whole context on the first attempt.
+    """
+    if llm is None or not prompt or llm.n_ctx() <= 0:
+        return MAX_NEW_TOKENS
+    return max(MIN_BUDGET, llm.n_ctx() - token_count(llm, prompt) - CONTEXT_RESERVE)
+
+
+def generation_budget(llm, prompt, max_new_tokens=None):
+    """The response ceiling: the one asked for, clamped to the room available.
+
+    The retry after a truncation passes `max_new_tokens=available_tokens(...)`,
+    which is how a step that hit `MAX_NEW_TOKENS` gets the rest of the context
+    on the second attempt instead of the same ceiling that cut it off.
+    """
+    ceiling = MAX_NEW_TOKENS if max_new_tokens is None else max_new_tokens
+    return max(MIN_BUDGET, min(ceiling, available_tokens(llm, prompt)))
+
+
+def generate(llm, prompt, grammar_text, label, temperature=0.1, stream=True,
+             max_new_tokens=None):
     """Generate one document under `grammar_text`, honouring the context budget.
 
     The caller is responsible for having validated `grammar_text` first: this
     function assumes it is well formed and would otherwise fail on the first
     token rather than up front.
+
+    `max_new_tokens` overrides the first-attempt ceiling of `MAX_NEW_TOKENS`,
+    still clamped to the room the prompt left in the context. The retry after a
+    truncation uses it to ask for that whole room.
     """
     grammar = LlamaGrammar.from_string(grammar_text)
     llm.reset()
 
-    budget = MAX_NEW_TOKENS
-    if prompt and llm.n_ctx() > 0:
-        budget = max(16, min(MAX_NEW_TOKENS, llm.n_ctx() - token_count(llm, prompt) - CONTEXT_RESERVE))
+    budget = generation_budget(llm, prompt, max_new_tokens)
 
     started = time.time()
     chunks = []
@@ -144,4 +199,6 @@ def generate(llm, prompt, grammar_text, label, temperature=0.1, stream=True):
             tokens += 1
         finish_reason = choice.get("finish_reason") or finish_reason
 
-    return StepResult(label, "".join(chunks), tokens, time.time() - started, finish_reason)
+    return StepResult(
+        label, "".join(chunks), tokens, time.time() - started, finish_reason, budget
+    )

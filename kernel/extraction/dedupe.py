@@ -28,7 +28,73 @@ def deduplicate(key, body):
         return _deduplicate_services(body)
     if key == "persistence_ports":
         return _deduplicate_ports(body)
+    if key == "components":
+        return _deduplicate_components(body)
     return body, 0
+
+
+def _deduplicate_components(components):
+    """Drop repeated command and subcommand names from the CLI surface.
+
+    Same defect, same shape as the method repeats this module already handles:
+    library listed `member` twice, once with `[add, list]` and once with
+    `[history]`. A CLI framework would refuse the second registration, so the
+    repeat is a document that cannot become a program. Only an exact repeat is
+    removed — `member` and `Member` are left for the checker to report, because
+    deciding those name one command is an interpretation and this module makes
+    none.
+    """
+    if not isinstance(components, dict):
+        return components, 0
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components, 0
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components, 0
+
+    options, removed = _deduplicate_by_name(invocation.get("options"))
+    invocation["options"] = options
+    commands, count = _deduplicate_by_name(invocation.get("commands"))
+    invocation["commands"] = commands
+    removed += count
+    for command in commands or []:
+        if not isinstance(command, dict):
+            continue
+        command_options, count = _deduplicate_by_name(command.get("options"))
+        command["options"] = command_options
+        removed += count
+        subcommands, count = _deduplicate_by_name(command.get("subcommands"))
+        command["subcommands"] = subcommands
+        removed += count
+        for subcommand in subcommands or []:
+            if not isinstance(subcommand, dict):
+                continue
+            subcommand_options, count = _deduplicate_by_name(subcommand.get("options"))
+            subcommand["options"] = subcommand_options
+            removed += count
+    return components, removed
+
+
+def _deduplicate_by_name(items):
+    """Keep the first item of each exact `name`; drop later ones."""
+    if not isinstance(items, list):
+        return items, 0
+    kept = []
+    seen = set()
+    removed = 0
+    for item in items:
+        if not isinstance(item, dict):
+            kept.append(item)
+            continue
+        name = item.get("name")
+        if isinstance(name, str) and name in seen:
+            removed += 1
+            continue
+        if isinstance(name, str):
+            seen.add(name)
+        kept.append(item)
+    return kept, removed
 
 
 def _deduplicate_services(services):

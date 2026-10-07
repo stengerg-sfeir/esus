@@ -20,6 +20,10 @@ CORE_DOCUMENTS = (
     "intentions",
     "invariants",
     "data_models",
+    # Step E' runs before step E and is never skipped: a program without a
+    # domain can still fail, and its error types have nowhere else to be
+    # recorded. Its document is therefore always written.
+    "errors",
     "components",
     "service_contracts",
     # Step F classifies the invariants and contract methods. It is never
@@ -35,6 +39,7 @@ LIST_DOCUMENTS = (
     "intentions",
     "invariants",
     "data_models",
+    "errors",
     "service_contracts",
     "interaction_adapters",
     "pattern_matches",
@@ -50,6 +55,23 @@ class Documents:
 
     def get(self, name, default=None):
         return self.bodies.get(name, default)
+
+
+def load_requirements(output_dir):
+    """The requirements a run was given, when the run recorded them.
+
+    Written beside the documents by `extract_archi.py`. A directory from before
+    that change has no such file, and its absence is not a finding: the coverage
+    check simply does not run, rather than reporting every older run for a file
+    it could not have written.
+    """
+    path = Path(output_dir) / "requirements.txt"
+    if not path.is_file():
+        return None
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError:
+        return None
 
 
 def load_documents(output_dir, report):

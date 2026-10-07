@@ -1,0 +1,58 @@
+[run] requirements: 3299 characters
+[intentions] 164 tokens in 9.3s (17.6 tok/s)
+[data_models] 963 tokens in 39.2s (24.6 tok/s)
+[invariants] 608 tokens in 30.4s (20.0 tok/s)
+[components] 167 tokens in 8.6s (19.5 tok/s)
+[service_contracts] 2327 tokens in 111.4s (20.9 tok/s)
+  [1/37] invariant -> BUDGET_OVERFLOW_GUARD (0.78)
+  [2/37] invariant -> BUDGET_OVERFLOW_GUARD (0.40)
+  [3/37] invariant -> STATE_TRANSITION_GUARD (0.59)
+  [4/37] invariant -> BUDGET_OVERFLOW_GUARD (0.82)
+  [5/37] contract:ExpenseRepository.create_expense -> STANDARD_CRUD (0.53)
+  [6/37] contract:ExpenseRepository.read_all_expenses -> FILTER_WITH_PAGINATION (0.43)
+  [7/37] contract:ExpenseRepository.read_expense_by_id -> STANDARD_CRUD (0.85)
+  [8/37] contract:ExpenseRepository.update_expense -> STANDARD_CRUD (0.83)
+  [9/37] contract:ExpenseRepository.delete_expense -> STANDARD_CRUD (0.92)
+  [10/37] contract:ExpenseRepository.filter_expenses -> FILTER_WITH_PAGINATION (0.74)
+  [11/37] contract:ExpenseRepository.get_monthly_expenses -> AGGREGATE_BY_FK_AND_DATE (0.77)
+  [12/37] contract:ExpenseRepository.get_yearly_expenses -> AGGREGATE_BY_FK_AND_DATE (0.56)
+  [13/37] contract:ExpenseRepository.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.80)
+  [14/37] contract:ExpenseRepository.export_to_csv -> FILTER_WITH_PAGINATION (0.57)
+  [15/37] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.61)
+  [16/37] contract:CategoryRepository.read_all_categories -> FILTER_WITH_PAGINATION (0.35)
+  [17/37] contract:CategoryRepository.read_category_by_id -> STANDARD_CRUD (0.84)
+  [18/37] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.81)
+  [19/37] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.92)
+  [20/37] contract:CategoryRepository.find_expenses_by_category -> AGGREGATE_BY_FK (0.45)
+  [21/37] contract:BudgetRepository.create_budget -> STANDARD_CRUD (0.54)
+  [22/37] contract:BudgetRepository.read_all_budgets -> FILTER_WITH_PAGINATION (0.57)
+  [23/37] contract:BudgetRepository.read_budget_by_category_month -> AGGREGATE_BY_FK_AND_DATE (0.77)
+  [24/37] contract:BudgetRepository.update_budget -> STANDARD_CRUD (0.71)
+  [25/37] contract:BudgetRepository.delete_budget -> STANDARD_CRUD (0.67)
+  [26/37] contract:BudgetRepository.get_budget_by_month -> AGGREGATE_BY_FK_AND_DATE (0.64)
+  [27/37] contract:BudgetRepository.check_budget_exceeded -> BUDGET_OVERFLOW_GUARD (0.60)
+  [28/37] contract:ExpenseService.list_expenses -> FILTER_WITH_PAGINATION (0.57)
+  [29/37] contract:ExpenseService.get_expense_by_id -> STANDARD_CRUD (0.78)
+  [30/37] contract:ExpenseService.add_expense -> AGGREGATE_BY_FK_AND_DATE (0.22)
+  [31/37] contract:ExpenseService.update_expense -> STANDARD_CRUD (0.80)
+  [32/37] contract:ExpenseService.delete_expense -> STANDARD_CRUD (0.87)
+  [33/37] contract:ExpenseService.get_monthly_report -> AGGREGATE_BY_FK_AND_DATE (0.87)
+  [34/37] contract:ExpenseService.get_yearly_summary -> AGGREGATE_BY_FK_AND_DATE (0.63)
+  [35/37] contract:ExpenseService.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.80)
+  [36/37] contract:ExpenseService.export_to_csv -> FILTER_WITH_PAGINATION (0.57)
+  [37/37] contract:ExpenseService.detect_recurring -> AGGREGATE_BY_FK_AND_DATE (0.17)
+[ok] step patterns: 37 item(s) — 14 standard CRUD, 23 pattern(s), 0 gap(s)
+[interaction_adapters] 3584 tokens in 166.0s (21.6 tok/s) TRUNCATED
+[!] step interaction_adapters hit the token ceiling — its document may be incomplete — retrying once
+[interaction_adapters] 2869 tokens in 130.3s (22.0 tok/s)
+[persistence_ports] 1909 tokens in 86.4s (22.1 tok/s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/expenses/intentions.json
+[write] out/expenses/data_models.json
+[write] out/expenses/invariants.json
+[write] out/expenses/components.json
+[write] out/expenses/service_contracts.json
+[write] out/expenses/pattern_matches.json
+[write] out/expenses/interaction_adapters.json
+[write] out/expenses/persistence_ports.json
+[run] 8 steps, 12591 generated tokens in 581.5s

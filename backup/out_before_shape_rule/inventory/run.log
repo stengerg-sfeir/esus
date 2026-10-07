@@ -1,0 +1,43 @@
+[run] requirements: 2312 characters
+[intentions] 159 tokens in 8.5s (18.8 tok/s)
+[data_models] 648 tokens in 25.0s (25.9 tok/s)
+[invariants] 284 tokens in 14.2s (20.0 tok/s)
+[components] 139 tokens in 6.8s (20.5 tok/s)
+[service_contracts] 1660 tokens in 72.0s (23.0 tok/s)
+  [1/23] invariant -> AGGREGATE_BY_FK (0.25)  <- undecided: AGGREGATE_BY_FK_AND_DATE at 0.19
+  [2/23] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.84)
+  [3/23] contract:CategoryRepository.read_all_categories -> READ_ALL (0.85)
+  [4/23] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.77)
+  [5/23] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.86)
+  [6/23] contract:CategoryRepository.get_category_by_id -> STANDARD_CRUD (0.77)
+  [7/23] contract:CategoryRepository.get_products_by_category -> FILTER_BY_FIELD (0.88)
+  [8/23] contract:ProductRepository.create_product -> STANDARD_CRUD (0.77)
+  [9/23] contract:ProductRepository.read_one_product -> STANDARD_CRUD (0.79)
+  [10/23] contract:ProductRepository.read_all_products -> READ_ALL (0.81)
+  [11/23] contract:ProductRepository.update_product -> STANDARD_CRUD (0.78)
+  [12/23] contract:ProductRepository.delete_product -> STANDARD_CRUD (0.88)
+  [13/23] contract:ProductRepository.get_products_by_category -> FILTER_BY_FIELD (0.88)
+  [14/23] contract:ProductRepository.get_low_stock_products -> THRESHOLD_SCAN (0.45)
+  [15/23] contract:ProductRepository.get_total_stock_value_by_category -> AGGREGATE_BY_FK (0.53)
+  [16/23] contract:InventoryService.add_product -> NO_PATTERN_IN_DOMAIN (0.14)  <- GAP: no pattern for this  <- undecided: READ_ALL at 0.10
+  [17/23] contract:InventoryService.update_product -> STANDARD_CRUD (0.84)
+  [18/23] contract:InventoryService.delete_product -> STANDARD_CRUD (0.88)
+  [19/23] contract:InventoryService.get_product_by_id -> STANDARD_CRUD (0.85)
+  [20/23] contract:InventoryService.list_products -> FILTER_BY_FIELD (0.73)
+  [21/23] contract:InventoryService.restock -> STANDARD_CRUD (0.83)
+  [22/23] contract:InventoryService.low_stock_report -> THRESHOLD_SCAN (0.62)
+  [23/23] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK (0.60)
+[ok] step patterns: 23 item(s) — 12 standard CRUD, 10 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:InventoryService.add_product: add_product(sku: str, name: str, category_id: int, price_cents: int, stock_qty: int) -> dict[str, object]: Adds a new product to the inventory, validating the category exists and the SKU is unique.
+[interaction_adapters] 1520 tokens in 61.1s (24.9 tok/s)
+[persistence_ports] 1093 tokens in 46.8s (23.3 tok/s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/inventory/intentions.json
+[write] out/inventory/data_models.json
+[write] out/inventory/invariants.json
+[write] out/inventory/components.json
+[write] out/inventory/service_contracts.json
+[write] out/inventory/pattern_matches.json
+[write] out/inventory/interaction_adapters.json
+[write] out/inventory/persistence_ports.json
+[run] 7 steps, 5503 generated tokens in 234.5s

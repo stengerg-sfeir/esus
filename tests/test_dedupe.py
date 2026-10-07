@@ -157,5 +157,66 @@ class Properties(unittest.TestCase):
             self.assertEqual(cleaned, body)
 
 
+def component_facade(commands):
+    return {
+        "facade": {
+            "type": "cli",
+            "technology": "click",
+            "invocation": {"positional": [], "options": [], "commands": commands},
+        }
+    }
+
+
+class RemovesRepeatedCliCommands(unittest.TestCase):
+    """library listed `member` twice — the same defect as a method repeat, one level out."""
+
+    def test_a_repeated_command_name_is_removed(self):
+        body = component_facade(
+            [
+                {"name": "member", "options": [], "subcommands": [{"name": "add", "options": []}]},
+                {"name": "member", "options": [], "subcommands": [{"name": "history", "options": []}]},
+            ]
+        )
+        cleaned, removed = dedupe.deduplicate("components", body)
+        self.assertEqual(removed, 1)
+        commands = cleaned["facade"]["invocation"]["commands"]
+        self.assertEqual([command["name"] for command in commands], ["member"])
+
+    def test_a_repeated_subcommand_name_is_removed(self):
+        body = component_facade(
+            [
+                {
+                    "name": "product",
+                    "options": [],
+                    "subcommands": [
+                        {"name": "list", "options": []},
+                        {"name": "list", "options": []},
+                    ],
+                }
+            ]
+        )
+        cleaned, removed = dedupe.deduplicate("components", body)
+        self.assertEqual(removed, 1)
+        subcommands = cleaned["facade"]["invocation"]["commands"][0]["subcommands"]
+        self.assertEqual(len(subcommands), 1)
+
+    def test_a_differently_cased_name_is_left_alone(self):
+        """`member` and `Member` are a judgement about meaning; this module makes none."""
+        body = component_facade(
+            [
+                {"name": "member", "options": [], "subcommands": []},
+                {"name": "Member", "options": [], "subcommands": []},
+            ]
+        )
+        cleaned, removed = dedupe.deduplicate("components", body)
+        self.assertEqual(removed, 0)
+        self.assertEqual(len(cleaned["facade"]["invocation"]["commands"]), 2)
+
+    def test_a_null_invocation_is_untouched(self):
+        body = {"facade": {"type": "gui", "technology": "pyimgui", "invocation": None}}
+        cleaned, removed = dedupe.deduplicate("components", body)
+        self.assertEqual((cleaned, removed), (body, 0))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

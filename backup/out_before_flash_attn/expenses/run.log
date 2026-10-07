@@ -1,0 +1,62 @@
+[run] requirements: 3299 characters
+[intentions] 164 tokens in 8.9s (18.5 tok/s)
+[data_models] 963 tokens in 37.2s (25.9 tok/s)
+[invariants] 608 tokens in 27.7s (22.0 tok/s)
+[components] 167 tokens in 7.7s (21.7 tok/s)
+[service_contracts] 2327 tokens in 98.5s (23.6 tok/s)
+  [1/37] invariant -> BUDGET_OVERFLOW_GUARD (0.78)
+  [2/37] invariant -> BUDGET_OVERFLOW_GUARD (0.40)  <- undecided: STATE_TRANSITION_GUARD at 0.36
+  [3/37] invariant -> STATE_TRANSITION_GUARD (0.59)
+  [4/37] invariant -> BUDGET_OVERFLOW_GUARD (0.82)
+  [5/37] contract:ExpenseRepository.create_expense -> STANDARD_CRUD (0.66)
+  [6/37] contract:ExpenseRepository.read_all_expenses -> READ_ALL (0.79)
+  [7/37] contract:ExpenseRepository.read_expense_by_id -> STANDARD_CRUD (0.83)
+  [8/37] contract:ExpenseRepository.update_expense -> STANDARD_CRUD (0.88)
+  [9/37] contract:ExpenseRepository.delete_expense -> STANDARD_CRUD (0.90)
+  [10/37] contract:ExpenseRepository.filter_expenses -> FILTER_WITH_PAGINATION (0.54)
+  [11/37] contract:ExpenseRepository.get_monthly_expenses -> FILTER_BY_FIELD (0.48)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK_AND_DATE)
+  [12/37] contract:ExpenseRepository.get_yearly_expenses -> FILTER_BY_FIELD (0.45)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)
+  [13/37] contract:ExpenseRepository.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.92)
+  [14/37] contract:ExpenseRepository.export_to_csv -> NO_PATTERN_IN_DOMAIN (0.28)  <- UNKNOWN: FILTER_WITH_PAGINATION returns collection, but this method returns boolean (bool)  <- undecided: AGGREGATE_BY_FK at 0.19
+  [15/37] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.71)
+  [16/37] contract:CategoryRepository.read_all_categories -> READ_ALL (0.78)
+  [17/37] contract:CategoryRepository.read_category_by_id -> STANDARD_CRUD (0.84)
+  [18/37] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.89)
+  [19/37] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.89)
+  [20/37] contract:CategoryRepository.find_expenses_by_category -> FILTER_BY_FIELD (0.40)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)  <- undecided: FILTER_BY_FIELD at 0.39
+  [21/37] contract:BudgetRepository.create_budget -> STANDARD_CRUD (0.62)
+  [22/37] contract:BudgetRepository.read_all_budgets -> READ_ALL (0.83)
+  [23/37] contract:BudgetRepository.read_budget_by_category_month -> NO_PATTERN_IN_DOMAIN (0.69)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (Budget)
+  [24/37] contract:BudgetRepository.update_budget -> STANDARD_CRUD (0.59)
+  [25/37] contract:BudgetRepository.delete_budget -> STANDARD_CRUD (0.65)
+  [26/37] contract:BudgetRepository.get_budget_by_month -> FILTER_BY_FIELD (0.44)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Budget]) (was AGGREGATE_BY_FK)  <- undecided: AGGREGATE_BY_FK_AND_DATE at 0.33
+  [27/37] contract:BudgetRepository.check_budget_exceeded -> BUDGET_OVERFLOW_GUARD (0.92)
+  [28/37] contract:ExpenseService.list_expenses -> FILTER_WITH_PAGINATION (0.34)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)  <- undecided: FILTER_WITH_PAGINATION at 0.33
+  [29/37] contract:ExpenseService.get_expense_by_id -> STANDARD_CRUD (0.78)
+  [30/37] contract:ExpenseService.add_expense -> NO_PATTERN_IN_DOMAIN (0.61)  <- UNKNOWN: BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (Expense)
+  [31/37] contract:ExpenseService.update_expense -> STANDARD_CRUD (0.88)
+  [32/37] contract:ExpenseService.delete_expense -> STANDARD_CRUD (0.87)
+  [33/37] contract:ExpenseService.get_monthly_report -> AGGREGATE_BY_FK_AND_DATE (0.80)
+  [34/37] contract:ExpenseService.get_yearly_summary -> AGGREGATE_BY_FK_AND_DATE (0.58)
+  [35/37] contract:ExpenseService.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.92)
+  [36/37] contract:ExpenseService.export_to_csv -> NO_PATTERN_IN_DOMAIN (0.28)  <- UNKNOWN: FILTER_WITH_PAGINATION returns collection, but this method returns boolean (bool)  <- undecided: AGGREGATE_BY_FK at 0.19
+  [37/37] contract:ExpenseService.detect_recurring -> FILTER_BY_FIELD (0.32)
+[ok] step patterns: 37 item(s) — 14 standard CRUD, 19 pattern(s), 4 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseRepository.export_to_csv: export_to_csv(file_path: str, category_id: Optional[int], start_date: Optional[str], end_date: Optional[str], payment_method: Optional[str]) -> bool: Exports filtered expenses to a CSV file
+    gap [NO_PATTERN_IN_DOMAIN] contract:BudgetRepository.read_budget_by_category_month: read_budget_by_category_month(category_id: int, month: str) -> Budget: Returns a budget for a specific category and month
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.add_expense: add_expense(expense: Expense, category: Category) -> Expense: Adds a new expense, validates category, and checks budget
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.export_to_csv: export_to_csv(file_path: str, category_id: Optional[int], start_date: Optional[str], end_date: Optional[str], payment_method: Optional[str]) -> bool: Exports filtered expenses to a CSV file
+[interaction_adapters] 3584 tokens in 151.6s (23.6 tok/s) TRUNCATED
+[!] step interaction_adapters hit the token ceiling — its document may be incomplete — retrying once
+[interaction_adapters] 2869 tokens in 116.6s (24.6 tok/s)
+[persistence_ports] 1909 tokens in 79.2s (24.1 tok/s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/expenses/intentions.json
+[write] out/expenses/data_models.json
+[write] out/expenses/invariants.json
+[write] out/expenses/components.json
+[write] out/expenses/service_contracts.json
+[write] out/expenses/pattern_matches.json
+[write] out/expenses/interaction_adapters.json
+[write] out/expenses/persistence_ports.json
+[run] 8 steps, 12591 generated tokens in 527.3s

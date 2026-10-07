@@ -1,19 +1,68 @@
 {
   "invariants": [
-    "category.id is auto-incremented primary key",
-    "category.name is unique",
-    "category.monthly_budget is nullable (can be None)",
-    "category.icon is nullable (can be None)",
-    "expense.id is auto-incremented primary key",
-    "expense.amount_cents is non-negative integer",
-    "expense.expense_date is ISO date string",
-    "expense.category_id is foreign key referencing category.id",
-    "expense.payment_method is one of ['cash', 'card', 'transfer']",
-    "expense.is_recurring is boolean",
-    "budget.id is auto-incremented primary key",
-    "budget.category_id is foreign key referencing category.id",
-    "budget.month is 'YYYY-MM' string (e.g., '2024-01')",
-    "budget.amount_limit_cents is non-negative integer",
-    "budget.category_id and budget.month are unique across the entire budget table"
+    {
+      "text": "Category.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.monthly_budget must be a non-negative integer if provided",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.icon must be a string if provided",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.amount_cents must be a positive integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.expense_date must be an ISO date string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.category_id must reference an existing Category",
+      "kind": "rule"
+    },
+    {
+      "text": "Expense.payment_method must be one of ['cash', 'card', 'transfer']",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.is_recurring must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.category_id must reference an existing Category",
+      "kind": "rule"
+    },
+    {
+      "text": "Budget.month must be a string in the format 'YYYY-MM'",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.amount_limit_cents must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget must have a unique combination of category_id and month",
+      "kind": "schema"
+    }
   ]
 }

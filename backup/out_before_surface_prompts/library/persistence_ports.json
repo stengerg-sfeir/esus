@@ -1,0 +1,390 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Book",
+        "interface_name": "BookRepository",
+        "methods": [
+          {
+            "name": "create_book",
+            "description": "Creates a new book entry with the provided details.",
+            "params": [
+              {
+                "name": "book",
+                "type": "Book"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              }
+            ],
+            "return_type": "Book",
+            "raises": [
+              "BookAlreadyExistsError"
+            ]
+          },
+          {
+            "name": "read_all_books",
+            "description": "Reads all books from the database.",
+            "params": [],
+            "return_type": "List[Book]",
+            "raises": []
+          },
+          {
+            "name": "read_book_by_id",
+            "description": "Reads a book by its ID from the database.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "read_book_by_isbn",
+            "description": "Reads a book by its ISBN from the database.",
+            "params": [
+              {
+                "name": "isbn",
+                "type": "str"
+              }
+            ],
+            "return_type": "Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "update_book",
+            "description": "Updates an existing book entry with the provided details.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              },
+              {
+                "name": "book",
+                "type": "Book"
+              }
+            ],
+            "return_type": "Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "delete_book",
+            "description": "Deletes a book entry from the database.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "get_books_by_title",
+            "description": "Retrieves books matching a title query.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Book]",
+            "raises": []
+          },
+          {
+            "name": "get_books_by_author_id",
+            "description": "Retrieves books by a specific author ID.",
+            "params": [
+              {
+                "name": "author_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Book]",
+            "raises": []
+          },
+          {
+            "name": "get_books_available_only",
+            "description": "Retrieves only books with available copies.",
+            "params": [],
+            "return_type": "List[Book]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Author",
+        "interface_name": "AuthorRepository",
+        "methods": [
+          {
+            "name": "create_author",
+            "description": "Creates a new author entry with the provided details.",
+            "params": [
+              {
+                "name": "author",
+                "type": "Author"
+              }
+            ],
+            "return_type": "Author",
+            "raises": []
+          },
+          {
+            "name": "read_all_authors",
+            "description": "Reads all authors from the database.",
+            "params": [],
+            "return_type": "List[Author]",
+            "raises": []
+          },
+          {
+            "name": "read_author_by_id",
+            "description": "Reads an author by its ID from the database.",
+            "params": [
+              {
+                "name": "author_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Author",
+            "raises": [
+              "AuthorNotFoundError"
+            ]
+          },
+          {
+            "name": "get_authors_by_name",
+            "description": "Retrieves authors matching a name query.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Author]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Member",
+        "interface_name": "MemberRepository",
+        "methods": [
+          {
+            "name": "create_member",
+            "description": "Creates a new member entry with the provided details.",
+            "params": [
+              {
+                "name": "member",
+                "type": "Member"
+              }
+            ],
+            "return_type": "Member",
+            "raises": [
+              "MemberAlreadyExistsError"
+            ]
+          },
+          {
+            "name": "read_all_members",
+            "description": "Reads all members from the database.",
+            "params": [],
+            "return_type": "List[Member]",
+            "raises": []
+          },
+          {
+            "name": "read_member_by_id",
+            "description": "Reads a member by its ID from the database.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Member",
+            "raises": [
+              "MemberNotFoundError"
+            ]
+          },
+          {
+            "name": "read_member_by_email",
+            "description": "Reads a member by their email from the database.",
+            "params": [
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "Member",
+            "raises": [
+              "MemberNotFoundError"
+            ]
+          },
+          {
+            "name": "get_active_members",
+            "description": "Retrieves only active members.",
+            "params": [],
+            "return_type": "List[Member]",
+            "raises": []
+          },
+          {
+            "name": "get_inactive_members",
+            "description": "Retrieves only inactive members.",
+            "params": [],
+            "return_type": "List[Member]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Loan",
+        "interface_name": "LoanRepository",
+        "methods": [
+          {
+            "name": "create_loan",
+            "description": "Creates a new loan entry with the provided details.",
+            "params": [
+              {
+                "name": "loan",
+                "type": "Loan"
+              }
+            ],
+            "return_type": "Loan",
+            "raises": []
+          },
+          {
+            "name": "read_all_loans",
+            "description": "Reads all loans from the database.",
+            "params": [],
+            "return_type": "List[Loan]",
+            "raises": []
+          },
+          {
+            "name": "read_loan_by_id",
+            "description": "Reads a loan by its ID from the database.",
+            "params": [
+              {
+                "name": "loan_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Loan",
+            "raises": [
+              "LoanNotFoundError"
+            ]
+          },
+          {
+            "name": "get_active_loans",
+            "description": "Retrieves only active loans.",
+            "params": [],
+            "return_type": "List[Loan]",
+            "raises": []
+          },
+          {
+            "name": "get_overdue_loans",
+            "description": "Retrieves loans that are overdue.",
+            "params": [],
+            "return_type": "List[Loan]",
+            "raises": []
+          },
+          {
+            "name": "get_loans_by_member_id",
+            "description": "Retrieves loans by a specific member ID.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Loan]",
+            "raises": []
+          },
+          {
+            "name": "get_loans_by_book_id",
+            "description": "Retrieves loans by a specific book ID.",
+            "params": [
+              {
+                "name": "book_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Loan]",
+            "raises": []
+          },
+          {
+            "name": "update_loan",
+            "description": "Updates an existing loan entry with the provided details.",
+            "params": [
+              {
+                "name": "loan_id",
+                "type": "int"
+              },
+              {
+                "name": "loan",
+                "type": "Loan"
+              }
+            ],
+            "return_type": "Loan",
+            "raises": [
+              "LoanNotFoundError"
+            ]
+          },
+          {
+            "name": "delete_loan",
+            "description": "Deletes a loan entry from the database.",
+            "params": [
+              {
+                "name": "loan_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "LoanNotFoundError"
+            ]
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Book",
+        "table": "books",
+        "primary_key": "id",
+        "indexes": [
+          "isbn"
+        ]
+      },
+      {
+        "entity": "Author",
+        "table": "authors",
+        "primary_key": "id",
+        "indexes": []
+      },
+      {
+        "entity": "Member",
+        "table": "members",
+        "primary_key": "id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Loan",
+        "table": "loans",
+        "primary_key": "id",
+        "indexes": [
+          "member_id",
+          "book_id"
+        ]
+      }
+    ]
+  }
+}

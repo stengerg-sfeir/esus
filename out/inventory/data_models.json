@@ -10,7 +10,7 @@
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "name",
@@ -28,7 +28,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "reorder_threshold",
@@ -37,7 +37,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         }
       ]
     },
@@ -51,7 +51,7 @@
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "sku",
@@ -69,20 +69,20 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "category_id",
           "type": "int",
           "primary_key": false,
-          "nullable": false,
+          "nullable": true,
           "unique": false,
           "foreign_key": {
             "target_entity": "Category",
             "target_field": "id",
-            "relationship": "one_to_many"
+            "relationship": "many_to_one"
           },
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "price_cents",
@@ -91,7 +91,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "stock_qty",
@@ -100,7 +100,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "low_active",
@@ -109,7 +109,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "deduced"
+          "status": "explicit"
         }
       ]
     }

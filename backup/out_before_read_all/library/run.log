@@ -1,0 +1,64 @@
+[run] requirements: 1965 characters
+[intentions] 87 tokens in 5.0s (17.3 tok/s)
+[data_models] 1244 tokens in 49.7s (25.0 tok/s)
+[invariants] 348 tokens in 17.7s (19.6 tok/s)
+[components] 199 tokens in 8.9s (22.4 tok/s)
+[service_contracts] 2234 tokens in 98.3s (22.7 tok/s)
+  [1/41] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [2/41] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [3/41] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [4/41] invariant -> STATE_TRANSITION_GUARD (0.48)
+  [5/41] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.32)
+  [6/41] contract:BookRepository.create_book -> STANDARD_CRUD (0.80)
+  [7/41] contract:BookRepository.read_all_books -> NO_PATTERN_IN_DOMAIN (0.83)  <- GAP: no pattern for this
+  [8/41] contract:BookRepository.read_book_by_id -> STANDARD_CRUD (0.86)
+  [9/41] contract:BookRepository.update_book -> STANDARD_CRUD (0.88)
+  [10/41] contract:BookRepository.delete_book -> STANDARD_CRUD (0.94)
+  [11/41] contract:BookRepository.search_books_by_title -> FILTER_WITH_PAGINATION (0.53)
+  [12/41] contract:BookRepository.search_books_by_author_id -> AGGREGATE_BY_FK (0.56)
+  [13/41] contract:BookRepository.search_books_by_isbn -> EXISTS_BY_UNIQUE_COMPOSITE (0.46)
+  [14/41] contract:BookRepository.get_books_by_available_copies -> AGGREGATE_BY_FK (0.25)
+  [15/41] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.77)
+  [16/41] contract:AuthorRepository.read_all_authors -> NO_PATTERN_IN_DOMAIN (0.74)  <- GAP: no pattern for this
+  [17/41] contract:AuthorRepository.read_author_by_id -> STANDARD_CRUD (0.87)
+  [18/41] contract:AuthorRepository.update_author -> STANDARD_CRUD (0.87)
+  [19/41] contract:AuthorRepository.delete_author -> STANDARD_CRUD (0.95)
+  [20/41] contract:AuthorRepository.find_books_by_author -> AGGREGATE_BY_FK (0.66)
+  [21/41] contract:MemberRepository.create_member -> STANDARD_CRUD (0.80)
+  [22/41] contract:MemberRepository.read_all_members -> NO_PATTERN_IN_DOMAIN (0.71)  <- GAP: no pattern for this
+  [23/41] contract:MemberRepository.read_member_by_id -> STANDARD_CRUD (0.90)
+  [24/41] contract:MemberRepository.update_member -> STANDARD_CRUD (0.87)
+  [25/41] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.94)
+  [26/41] contract:MemberRepository.find_active_members -> COUNT_ACTIVE_BY_FK (0.74)
+  [27/41] contract:MemberRepository.find_inactive_members -> COUNT_ACTIVE_BY_FK (0.74)
+  [28/41] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.79)
+  [29/41] contract:LoanRepository.read_all_loans -> NO_PATTERN_IN_DOMAIN (0.79)  <- GAP: no pattern for this
+  [30/41] contract:LoanRepository.read_loan_by_id -> STANDARD_CRUD (0.91)
+  [31/41] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.86)
+  [32/41] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.94)
+  [33/41] contract:LoanRepository.find_active_loans -> COUNT_ACTIVE_BY_FK (0.81)
+  [34/41] contract:LoanRepository.find_overdue_loans -> THRESHOLD_SCAN (0.60)
+  [35/41] contract:LoanRepository.find_loans_by_member_id -> AGGREGATE_BY_FK (0.68)
+  [36/41] contract:LoanRepository.find_loans_by_book_id -> AGGREGATE_BY_FK (0.55)
+  [37/41] contract:LibraryService.borrow_book -> AGGREGATE_BY_FK_AND_DATE (0.17)
+  [38/41] contract:LibraryService.return_book -> STANDARD_CRUD (0.56)
+  [39/41] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.84)
+  [40/41] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.67)
+  [41/41] contract:LibraryService.search_books -> FILTER_WITH_PAGINATION (0.71)
+[ok] step patterns: 41 item(s) — 18 standard CRUD, 19 pattern(s), 4 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:BookRepository.read_all_books: read_all_books: Reads all Book entities from the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:AuthorRepository.read_all_authors: read_all_authors: Reads all Author entities from the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:MemberRepository.read_all_members: read_all_members: Reads all Member entities from the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:LoanRepository.read_all_loans: read_all_loans: Reads all Loan entities from the database.
+[interaction_adapters] 1791 tokens in 74.7s (24.0 tok/s)
+[persistence_ports] 2128 tokens in 91.5s (23.3 tok/s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/data_models.json
+[write] out/library/invariants.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[run] 7 steps, 8031 generated tokens in 345.8s

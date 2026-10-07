@@ -41,11 +41,21 @@ RULE_TITLES = {
     "unresolved_adapter_target": "Adapter target services cannot be resolved",
     "inconsistent_adapter": "Adapter transform and lookup entity disagree",
     "inconsistent_interface": "One repository declared differently in two documents",
+    "inconsistent_facade": "The facade declares a parser and an argument list that disagree",
     "missing_parameters": "Method promises arguments but declares none",
     "inconsistent_invariant": "Invariant contradicts the field it names",
     "unmet_crud_operation": "Claimed operation has no implementing method",
     "low_confidence": "Classification confidence is below the floor",
+    "narrow_margin": "The top two answers were too close to call — the verdict may differ between runs",
+    "corrected_claim": "An impossible pattern was claimed and a possible one recorded instead",
     "missing_pattern": "No pattern covers this requirement — a vocabulary gap",
+    "unused_error": "A declared error type that no method raises",
+    "contradictory_raise": "A method that creates a record claims it can fail to find one",
+    "misplaced_field": "An adapter field mapped to a parameter that is not its own",
+    "mismatched_transform": "A transform that does not fit the field it is applied to",
+    "missing_command": "A command the requirements name that the surface does not declare",
+    "unreachable_error": "A not-found error no method raises, while its reader exists",
+    "duplicate_error_subject": "Two error types name the same missing record",
 }
 
 

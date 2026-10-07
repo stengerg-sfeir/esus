@@ -49,6 +49,39 @@ SOURCE_CONTRACT = "contract"
 # answers moves probability mass, so every confidence shifts with it.
 LOW_CONFIDENCE = 0.2
 
+# How close the top two answers may be before the match is reported as
+# undecided. `LOW_CONFIDENCE` above asks "was the winner unsure?", which cannot
+# see the case this one exists for: a 0.70 that beat 0.69 is a coin-flip and a
+# 0.70 that beat 0.05 is a decision, and both report 0.70. The margin between
+# the winner and the runner-up is what separates them, and `pattern_matches`
+# carries it (`runner_up_pattern_id`, `margin`) for exactly this check.
+#
+# This is the check that would have named the defect the floor could not: the
+# same kind of requirement (`read_all_*`) landing on a gap in one prompt and on
+# `FILTER_WITH_PAGINATION` in another was a near-tie reported as a decision.
+# Calibrated against the corpus after the read-shape vocabulary was completed;
+# re-derive it whenever the option list changes, as with the floor.
+NARROW_MARGIN = 0.15
+
+# Step 1's own threshold, on its own scale — a raw softmax gap, where `margin`
+# below is that gap multiplied by the domain probability. It mirrors
+# `classification.DOMAIN_NARROW_MARGIN` and **must be kept equal to it**; it is
+# duplicated rather than imported because the checker may not import the
+# extraction package, which reaches `llama_cpp` through the classifier. The same
+# constraint already applies to `NARROW_MARGIN`.
+DOMAIN_NARROW_MARGIN = 0.15
+
+# The three decisions a match may carry, mirroring `classification`. Written as
+# literals here for the same reason as the thresholds.
+DECIDED = "decided"
+UNDECIDED = "undecided"
+UNDEFINED = "undefined"
+DECISIONS = frozenset({DECIDED, UNDECIDED, UNDEFINED})
+
+# Which stage was near-tied.
+STAGE_DOMAIN = "domain"
+STAGE_PATTERN = "pattern"
+
 
 def check_pattern_matches(matches, documents, report):
     """Validate pattern_matches against the catalogues and the contracts."""
@@ -64,6 +97,8 @@ def check_pattern_matches(matches, documents, report):
             continue
         _check_pattern_id(entry, known, report)
         _check_confidence(entry, report)
+        _check_margin(entry, report)
+        _check_claim(entry, report)
         _check_source(entry, declared, report)
 
     _report_gaps(matches, report)
@@ -92,9 +127,23 @@ def _report_gaps(matches, report):
             if pattern_id == NO_MATCH
             else "fits a domain but no pattern inside it"
         )
+        # A gap that came from a refusal names the pattern the classifier wanted
+        # and the evidence that ruled it out. That is the difference between a
+        # coverage report and a shrug: "claimed AGGREGATE_BY_FK_AND_DATE, refused
+        # because it returns collection" is a specification for the pattern to
+        # add, which is what the gap exists to say.
+        claimed = entry.get("claimed_pattern_id")
+        rejection = entry.get("rejection")
+        if rejection:
+            detail = (
+                f"the classifier claimed '{claimed}' and it was refused: {rejection} "
+                f"— the catalogue has no pattern for a method of this shape"
+            )
+        else:
+            detail = "no pattern covers it"
         report.note(
             "missing_pattern",
-            f"pattern_matches: {entry.get('text')!r} {reason} — no pattern covers it "
+            f"pattern_matches: {entry.get('text')!r} {reason} — {detail} "
             f"('{pattern_id}', confidence {entry.get('confidence')})",
         )
 
@@ -137,6 +186,139 @@ def _check_confidence(entry, report):
             f"pattern_matches: '{entry.get('pattern_id')}' matched {entry.get('text')!r} "
             f"at confidence {confidence:.2f} — below the {LOW_CONFIDENCE} floor",
         )
+
+
+def _check_margin(entry, report):
+    """Report a match whose top two answers were too close to call.
+
+    Two categories the generator routes on, and the document now names both:
+    `undefined` is a gap (reported by `_report_gaps`) and `undecided` is a
+    near-tie, reported here. A `decided` match is not reported at all.
+
+    **Two guards run before the note, because they are defects rather than
+    signals:**
+
+    - A `runner_up_pattern_id` equal to the recorded `pattern_id` is a margin
+      computed against the winner. It can never move the answer, so the
+      runner-up was mis-recorded — this is the bug that let three notes read
+      `'FILTER_BY_FIELD' ... over 'FILTER_BY_FIELD'`, and it is reported as an
+      error so it cannot return silently (`classification._runner_up`).
+    - A `decision` outside the three known values is a shape error.
+
+    Both stages are judged, and the **domain** stage first, because it decides
+    which pattern list step 2 even saw: a near-tied domain means the pattern
+    margin describes a choice among possibly-wrong options. A document written
+    before the field existed still reports from the margin alone.
+    """
+    pattern_id = entry.get("pattern_id")
+    runner_up = entry.get("runner_up_pattern_id")
+    decision = entry.get("decision")
+    if runner_up and runner_up == pattern_id:
+        report.error(
+            "invalid_value",
+            f"pattern_matches: '{pattern_id}' matched {entry.get('text')!r} with itself "
+            f"as the runner-up — a margin against the winner cannot decide anything",
+        )
+        return
+    if decision is not None and decision not in DECISIONS:
+        report.error(
+            "unsupported_value",
+            f"pattern_matches: decision {decision!r} is not one of "
+            f"{sorted(DECISIONS)}",
+        )
+        return
+    if pattern_id in GAP_PATTERN_IDS:
+        # A gap is not a choice, so there are no two answers for a margin to
+        # separate — a number here is a defect, not a signal. They came out large
+        # and negative before this (`-0.48` on six of seven gaps), because the
+        # figure compared the entry's own sentinel probability against the
+        # claim's.
+        if decision == UNDEFINED and entry.get("margin") is not None:
+            report.error(
+                "invalid_value",
+                f"pattern_matches: '{pattern_id}' has no pattern but carries a margin of "
+                f"{entry.get('margin')} — a gap is not a choice between two answers",
+            )
+        return
+
+    if decision == DECIDED:
+        return
+
+    if decision == UNDECIDED:
+        if entry.get("undecided_stage") == STAGE_DOMAIN:
+            _report_domain_near_tie(entry, report)
+        else:
+            _report_pattern_near_tie(entry, report)
+        return
+    if decision == UNDEFINED:
+        return
+
+    # No `decision`: a document from before the field existed. Fall back to the
+    # margin, and to the domain stage first for the same reason as above.
+    domain_margin = entry.get("domain_margin")
+    if _is_narrow(domain_margin, DOMAIN_NARROW_MARGIN):
+        _report_domain_near_tie(entry, report)
+        return
+    if _is_narrow(entry.get("margin"), NARROW_MARGIN) and runner_up:
+        _report_pattern_near_tie(entry, report)
+
+
+def _is_narrow(margin, threshold):
+    """True when a margin is a number below its threshold."""
+    if not isinstance(margin, (int, float)) or isinstance(margin, bool):
+        return False
+    return margin < threshold
+
+
+def _report_domain_near_tie(entry, report):
+    """Step 1's top two domains were too close to call.
+
+    Worth more than the pattern-stage note: the domain picks which pattern list
+    step 2 is even shown, so a near-tie here is a choice between two *sets* of
+    answers, and the recorded pattern is one of only one set's.
+    """
+    report.note(
+        "narrow_margin",
+        f"pattern_matches: the domains for {entry.get('text')!r} were too close to call — "
+        f"'{entry.get('domain')}' beat '{entry.get('domain_runner_up')}' by "
+        f"{entry.get('domain_margin')} — so the pattern chosen inside it may differ "
+        f"between runs",
+    )
+
+
+def _report_pattern_near_tie(entry, report):
+    """Step 2's top two patterns were too close to call."""
+    report.note(
+        "narrow_margin",
+        f"pattern_matches: '{entry.get('pattern_id')}' matched {entry.get('text')!r} "
+        f"by a margin of {entry.get('margin')} over '{entry.get('runner_up_pattern_id')}' "
+        f"— the answer was near-tied, so it may differ between runs",
+    )
+
+
+def _check_claim(entry, report):
+    """Note a match whose recorded pattern is not the one the classifier chose.
+
+    The claim was impossible for the method's return type, so the next
+    shape-compatible candidate replaced it (`kernel.extraction.classification`).
+    The correction is deterministic and the recorded pattern is the right one, so
+    this is a note and not a defect — but it is worth naming, because a run with
+    many corrections is telling us the classifier reaches for an aggregate on a
+    method that returns records, and that is a description to sharpen.
+
+    A gap is skipped: `_report_gaps` already reports it, with the same claim.
+    """
+    rejection = entry.get("rejection")
+    if not rejection:
+        return
+    pattern_id = entry.get("pattern_id")
+    if pattern_id in GAP_PATTERN_IDS:
+        return
+    report.note(
+        "corrected_claim",
+        f"pattern_matches: {entry.get('text')!r} was claimed as "
+        f"'{entry.get('claimed_pattern_id')}' and recorded as '{pattern_id}' — {rejection}",
+    )
 
 
 def _check_source(entry, declared, report):

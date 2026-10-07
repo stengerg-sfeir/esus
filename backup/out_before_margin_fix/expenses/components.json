@@ -1,0 +1,44 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "click"
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Category",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Expense",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Budget",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

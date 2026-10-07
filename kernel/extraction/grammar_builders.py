@@ -48,10 +48,7 @@ def components(vocabulary):
                     ]
                 ),
             ),
-            rule(
-                "facade-obj",
-                json_object([("type", grammar_open.FACADE_TYPES), ("technology", "string")]),
-            ),
+            *grammar_open.facade_rules(),
             rule(
                 "persistence-obj",
                 json_object([("required", "boolean"), ("technology", "string")]),

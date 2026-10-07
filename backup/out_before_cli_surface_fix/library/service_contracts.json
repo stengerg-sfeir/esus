@@ -1,0 +1,470 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "BookRepository",
+      "methods": [
+        {
+          "name": "create_book",
+          "description": "Creates a new book entry with the provided details.",
+          "params": [
+            {
+              "name": "book",
+              "type": "Book"
+            },
+            {
+              "name": "isbn",
+              "type": "str"
+            }
+          ],
+          "return_type": "int",
+          "raises": [
+            "BookAlreadyExistsError"
+          ]
+        },
+        {
+          "name": "read_all_books",
+          "description": "Reads all books from the database.",
+          "params": [],
+          "return_type": "list[Book]",
+          "raises": []
+        },
+        {
+          "name": "read_book_by_id",
+          "description": "Reads a book by its ID from the database.",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Book",
+          "raises": [
+            "BookNotFoundError"
+          ]
+        },
+        {
+          "name": "read_book_by_isbn",
+          "description": "Reads a book by its ISBN from the database.",
+          "params": [
+            {
+              "name": "isbn",
+              "type": "str"
+            }
+          ],
+          "return_type": "Book",
+          "raises": [
+            "BookNotFoundError"
+          ]
+        },
+        {
+          "name": "update_book",
+          "description": "Updates a book's details in the database.",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "book",
+              "type": "Book"
+            }
+          ],
+          "return_type": "Book",
+          "raises": [
+            "BookNotFoundError"
+          ]
+        },
+        {
+          "name": "delete_book",
+          "description": "Deletes a book from the database.",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "BookNotFoundError"
+          ]
+        },
+        {
+          "name": "get_books_by_author_id",
+          "description": "Retrieves all books by a specific author ID.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Book]",
+          "raises": []
+        },
+        {
+          "name": "get_books_by_title",
+          "description": "Retrieves books matching a title query.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Book]",
+          "raises": []
+        },
+        {
+          "name": "get_books_by_author_name",
+          "description": "Retrieves books by an author's name.",
+          "params": [
+            {
+              "name": "author_name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Book]",
+          "raises": []
+        },
+        {
+          "name": "get_books_available_only",
+          "description": "Retrieves only books with available copies.",
+          "params": [],
+          "return_type": "list[Book]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "AuthorRepository",
+      "methods": [
+        {
+          "name": "create_author",
+          "description": "Creates a new author entry with the provided details.",
+          "params": [
+            {
+              "name": "author",
+              "type": "Author"
+            }
+          ],
+          "return_type": "int",
+          "raises": []
+        },
+        {
+          "name": "read_all_authors",
+          "description": "Reads all authors from the database.",
+          "params": [],
+          "return_type": "list[Author]",
+          "raises": []
+        },
+        {
+          "name": "read_author_by_id",
+          "description": "Reads an author by its ID from the database.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Author",
+          "raises": [
+            "AuthorNotFoundError"
+          ]
+        },
+        {
+          "name": "get_authors_by_name",
+          "description": "Retrieves authors matching a name query.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Author]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "MemberRepository",
+      "methods": [
+        {
+          "name": "create_member",
+          "description": "Creates a new member entry with the provided details.",
+          "params": [
+            {
+              "name": "member",
+              "type": "Member"
+            }
+          ],
+          "return_type": "int",
+          "raises": [
+            "MemberAlreadyExistsError"
+          ]
+        },
+        {
+          "name": "read_all_members",
+          "description": "Reads all members from the database.",
+          "params": [],
+          "return_type": "list[Member]",
+          "raises": []
+        },
+        {
+          "name": "read_member_by_id",
+          "description": "Reads a member by its ID from the database.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Member",
+          "raises": [
+            "MemberNotFoundError"
+          ]
+        },
+        {
+          "name": "read_member_by_email",
+          "description": "Reads a member by their email from the database.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "Member",
+          "raises": [
+            "MemberNotFoundError"
+          ]
+        },
+        {
+          "name": "update_member",
+          "description": "Updates a member's details in the database.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "member",
+              "type": "Member"
+            }
+          ],
+          "return_type": "Member",
+          "raises": [
+            "MemberNotFoundError"
+          ]
+        },
+        {
+          "name": "delete_member",
+          "description": "Deletes a member from the database.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "MemberNotFoundError"
+          ]
+        },
+        {
+          "name": "get_active_members",
+          "description": "Retrieves only active members.",
+          "params": [],
+          "return_type": "list[Member]",
+          "raises": []
+        },
+        {
+          "name": "get_inactive_members",
+          "description": "Retrieves only inactive members.",
+          "params": [],
+          "return_type": "list[Member]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "LoanRepository",
+      "methods": [
+        {
+          "name": "create_loan",
+          "description": "Creates a new loan entry with the provided details.",
+          "params": [
+            {
+              "name": "loan",
+              "type": "Loan"
+            }
+          ],
+          "return_type": "int",
+          "raises": []
+        },
+        {
+          "name": "read_all_loans",
+          "description": "Reads all loans from the database.",
+          "params": [],
+          "return_type": "list[Loan]",
+          "raises": []
+        },
+        {
+          "name": "read_loan_by_id",
+          "description": "Reads a loan by its ID from the database.",
+          "params": [
+            {
+              "name": "loan_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Loan",
+          "raises": [
+            "LoanNotFoundError"
+          ]
+        },
+        {
+          "name": "update_loan",
+          "description": "Updates a loan's details in the database.",
+          "params": [
+            {
+              "name": "loan_id",
+              "type": "int"
+            },
+            {
+              "name": "loan",
+              "type": "Loan"
+            }
+          ],
+          "return_type": "Loan",
+          "raises": [
+            "LoanNotFoundError"
+          ]
+        },
+        {
+          "name": "delete_loan",
+          "description": "Deletes a loan from the database.",
+          "params": [
+            {
+              "name": "loan_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "LoanNotFoundError"
+          ]
+        },
+        {
+          "name": "get_active_loans",
+          "description": "Retrieves only active loans.",
+          "params": [],
+          "return_type": "list[Loan]",
+          "raises": []
+        },
+        {
+          "name": "get_overdue_loans",
+          "description": "Retrieves loans that are overdue.",
+          "params": [],
+          "return_type": "list[Loan]",
+          "raises": []
+        },
+        {
+          "name": "get_loans_by_member_id",
+          "description": "Retrieves loans by a specific member ID.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Loan]",
+          "raises": []
+        },
+        {
+          "name": "get_loans_by_book_id",
+          "description": "Retrieves loans by a specific book ID.",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Loan]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "LibraryService",
+      "methods": [
+        {
+          "name": "borrow_book",
+          "description": "Borrow a book for a member.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            },
+            {
+              "name": "book_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Loan",
+          "raises": [
+            "MemberNotFoundError",
+            "BookNotFoundError",
+            "BookAlreadyExistsError",
+            "InsufficientCopiesError"
+          ]
+        },
+        {
+          "name": "return_book",
+          "description": "Return a book to the library.",
+          "params": [
+            {
+              "name": "loan_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Loan",
+          "raises": [
+            "LoanNotFoundError",
+            "InvalidReturnDateError",
+            "InvalidLoanStatusError"
+          ]
+        },
+        {
+          "name": "get_overdue_loans",
+          "description": "Get all overdue loans.",
+          "params": [],
+          "return_type": "list[Loan]",
+          "raises": []
+        },
+        {
+          "name": "renew_membership",
+          "description": "Renews a member's membership status.",
+          "params": [
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "MemberNotFoundError"
+          ]
+        },
+        {
+          "name": "search_books",
+          "description": "Search books by title, author, or ISBN.",
+          "params": [
+            {
+              "name": "query",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Book]",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

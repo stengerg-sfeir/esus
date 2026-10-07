@@ -87,7 +87,7 @@
           "nullable": true,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "category_id",
@@ -100,7 +100,7 @@
             "target_field": "id",
             "relationship": "many_to_one"
           },
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "payment_method",
@@ -145,7 +145,7 @@
             "target_field": "id",
             "relationship": "many_to_one"
           },
-          "status": "deduced"
+          "status": "explicit"
         },
         {
           "name": "month",
@@ -154,7 +154,7 @@
           "nullable": false,
           "unique": true,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         },
         {
           "name": "amount_limit_cents",

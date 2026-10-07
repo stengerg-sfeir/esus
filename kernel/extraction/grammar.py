@@ -54,6 +54,47 @@ GENERIC_TYPE_RULE = (
 # `string`, because a type may be `Optional[Member]` or `datetime.date`.
 IDENTIFIER_RULE = r'identifier ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* "\""'
 
+# A command-line option is written with its dashes ("--output", "-o"), which
+# `identifier` cannot express because it must start with a letter. One leading
+# dash followed by an alphanumeric keeps "-", "--" and "- " unrepresentable, so
+# an option always has a name of its own.
+OPTION_NAME_RULE = r'option-name ::= "\"" "-" [a-zA-Z0-9] [a-zA-Z0-9-]* "\""'
+
+# The only options a command that *has* subcommands may declare. One word used as
+# both a flag and a subcommand of the same command is the defect this closes:
+# inventory listed `-add, -list, -update, -delete, -restock, -report` beside the
+# subcommands `add, list, ...`, and 60 repeated `-search` and `-update` the same
+# way — the same word twice in one command. Two prompt sentences asking for it not
+# to were both ignored, so the shape is closed instead: `facade_rules` builds a
+# command as an alternation in which one branch has subcommands and only these
+# option names, and the other has no subcommands and any options. No alternative
+# is left that could hold both. The same closure as `OPTION_TYPE_RULE`, applied to
+# a name.
+GLOBAL_OPTION_NAME_RULE = (
+    r'global-option-name ::= "\"-help\"" | "\"--help\"" | '
+    r'"\"-version\"" | "\"--version\""'
+)
+
+# What an option carries. Leaving this as `string` let the model write `dict`,
+# `none` and even `positional` as an option's type, and then loop: inventory came
+# back with an options list of twenty-one entries that were all named `-add`, the
+# type changing on each one (`none`, `dict`, `positional`, `str`, `int`) — a
+# generation that never terminates because nothing was left to decide. An option
+# carries one value and the value has one of a few shapes, so the field is closed
+# the way `generic-type` closes a field's type.
+OPTION_TYPE_RULE = (
+    r'option-type ::= "\"str\"" | "\"int\"" | "\"float\"" | "\"bool\"" | "\"list\""'
+)
+
+# The built-in an application error derives from. Closed to the Python builtins a
+# domain error realistically subclasses, so the generated class has a real base
+# and not prose: `"whatever seems right"` is not a base class.
+BASE_ERROR_RULE = (
+    r'base-error ::= "\"LookupError\"" | "\"ValueError\"" | "\"KeyError\"" | '
+    r'"\"RuntimeError\"" | "\"PermissionError\"" | "\"OSError\"" | '
+    r'"\"TypeError\"" | "\"Exception\""'
+)
+
 SHARED_RULES = (STRING_RULE, BOOLEAN_RULE, IDENTIFIER_RULE, WS_RULE)
 
 # Repetition caps. A closed vocabulary bounds which items can appear but not
@@ -74,6 +115,16 @@ MAX_ADAPTERS = 40
 MAX_INPUT_FIELDS = 12
 MAX_INDEXES = 10
 MAX_EXTERNAL_ACCESS = 10
+# Caps for the CLI surface. `commands` nests exactly one level
+# (`command ... subcommand ...`), which is what the prompts describe; a deeper
+# grammar would need a recursive rule for no case the corpus contains.
+MAX_CLI_ARGS = 12
+MAX_CLI_OPTIONS = 20
+MAX_CLI_COMMANDS = 20
+MAX_CLI_SUBCOMMANDS = 20
+# Error types one program declares, and the number a single method may raise.
+MAX_ERRORS = 20
+MAX_RAISES = 6
 
 
 def json_literal(text):

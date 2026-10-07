@@ -1,0 +1,359 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Category",
+        "interface_name": "CategoryRepository",
+        "methods": [
+          {
+            "name": "create_category",
+            "description": "Creates a new category",
+            "params": [
+              {
+                "name": "category",
+                "type": "Category"
+              }
+            ],
+            "return_type": "int"
+          },
+          {
+            "name": "read_all_categories",
+            "description": "Returns all categories in the database",
+            "params": [],
+            "return_type": "List[Category]"
+          },
+          {
+            "name": "read_category_by_id",
+            "description": "Returns a category by its primary key",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Category"
+          },
+          {
+            "name": "update_category",
+            "description": "Updates an existing category",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "category",
+                "type": "Category"
+              }
+            ],
+            "return_type": "Category"
+          },
+          {
+            "name": "delete_category",
+            "description": "Deletes a category by its primary key",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "find_expenses_by_category",
+            "description": "Returns all expenses associated with a category",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "List[Expense]"
+          }
+        ]
+      },
+      {
+        "entity": "Expense",
+        "interface_name": "ExpenseRepository",
+        "methods": [
+          {
+            "name": "create_expense",
+            "description": "Creates a new expense record with validation",
+            "params": [
+              {
+                "name": "expense",
+                "type": "Expense"
+              },
+              {
+                "name": "category",
+                "type": "Category"
+              }
+            ],
+            "return_type": "int"
+          },
+          {
+            "name": "read_all_expenses",
+            "description": "Returns all expenses in the database",
+            "params": [],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "read_expense_by_id",
+            "description": "Returns an expense by its primary key",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Expense"
+          },
+          {
+            "name": "update_expense",
+            "description": "Updates an existing expense record",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "expense",
+                "type": "Expense"
+              }
+            ],
+            "return_type": "Expense"
+          },
+          {
+            "name": "delete_expense",
+            "description": "Deletes an expense by its primary key",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "filter_expenses",
+            "description": "Filters expenses by category, date range, and payment method",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "Optional[int]"
+              },
+              {
+                "name": "start_date",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "end_date",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "payment_method",
+                "type": "Optional[str]"
+              }
+            ],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "get_monthly_expenses",
+            "description": "Returns expenses for a specific month",
+            "params": [
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "get_yearly_expenses",
+            "description": "Returns expenses for a specific year",
+            "params": [
+              {
+                "name": "year",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Expense]"
+          },
+          {
+            "name": "get_category_spending",
+            "description": "Returns total spending for a category over a date range",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "start_date",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "end_date",
+                "type": "Optional[str]"
+              }
+            ],
+            "return_type": "int"
+          },
+          {
+            "name": "export_to_csv",
+            "description": "Exports filtered expenses to a CSV file",
+            "params": [
+              {
+                "name": "file_path",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "Optional[int]"
+              },
+              {
+                "name": "start_date",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "end_date",
+                "type": "Optional[str]"
+              },
+              {
+                "name": "payment_method",
+                "type": "Optional[str]"
+              }
+            ],
+            "return_type": "bool"
+          }
+        ]
+      },
+      {
+        "entity": "Budget",
+        "interface_name": "BudgetRepository",
+        "methods": [
+          {
+            "name": "create_budget",
+            "description": "Creates a new budget for a category and month",
+            "params": [
+              {
+                "name": "budget",
+                "type": "Budget"
+              }
+            ],
+            "return_type": "int"
+          },
+          {
+            "name": "read_all_budgets",
+            "description": "Returns all budgets in the database",
+            "params": [],
+            "return_type": "List[Budget]"
+          },
+          {
+            "name": "read_budget_by_category_month",
+            "description": "Returns a budget for a specific category and month",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "Budget"
+          },
+          {
+            "name": "update_budget",
+            "description": "Updates an existing budget",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              },
+              {
+                "name": "budget",
+                "type": "Budget"
+              }
+            ],
+            "return_type": "Budget"
+          },
+          {
+            "name": "delete_budget",
+            "description": "Deletes a budget for a category and month",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_budget_by_month",
+            "description": "Returns all budgets for a specific month across categories",
+            "params": [
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Budget]"
+          },
+          {
+            "name": "check_budget_exceeded",
+            "description": "Checks if a category's expenses exceed its budget for a month",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "month",
+                "type": "str"
+              }
+            ],
+            "return_type": "bool"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Category",
+        "table": "categories",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      },
+      {
+        "entity": "Expense",
+        "table": "expenses",
+        "primary_key": "id",
+        "indexes": [
+          "category_id",
+          "expense_date",
+          "payment_method"
+        ]
+      },
+      {
+        "entity": "Budget",
+        "table": "budgets",
+        "primary_key": "id",
+        "indexes": [
+          "category_id",
+          "month"
+        ]
+      }
+    ]
+  }
+}

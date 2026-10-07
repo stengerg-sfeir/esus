@@ -22,6 +22,25 @@ TRANSFORMS = ("DIRECT", "LOOKUP_ID", "DECIMAL_TO_CENTS", "ISO_DATE", "CSV_LIST",
 ADAPTER_AGGREGATION_THRESHOLD = 3
 LOOKUP_TRANSFORM = "LOOKUP_ID"
 
+# What a field's own name has to say for a transform to be right for it. A
+# transform describes how a value's *representation* changes, which no field
+# declares, so the only evidence is the name — this is therefore a name-based
+# rule like `missing_parameters`, and it is deliberately narrow: it judges only
+# the three transforms whose meaning implies a kind of value, and stays silent on
+# DIRECT, LOOKUP_ID and ENUM_LOOKUP. Measured on the corpus it finds eleven in
+# expenses (`name` transformed as a comma-separated list, `description` converted
+# to cents, `icon` as a list), one in inventory, one in gui (`stock_quantity` as a
+# list) and one in library (`copies` to cents).
+MONEY_FIELD_HINTS = (
+    "price", "cost", "amount", "total", "cents", "balance", "salary", "budget",
+    "limit", "spend", "income", "value", "fee", "payment", "revenue", "subtotal",
+)
+DATE_FIELD_HINTS = (
+    "date", "day", "month", "year", "time", "timestamp", "due", "expiry", "expires",
+    "created", "updated", "start", "end",
+)
+CSV_FIELD_HINTS = ("list", "ids", "tags", "items", "fields", "columns", "values", "names")
+
 
 @dataclass
 class ServiceIndex:
@@ -183,6 +202,7 @@ def _check_input_fields(adapter, action, method, facts, report):
         seen.add(normalize(field_name))
 
         _check_transform(field_entry, action, field_name, facts, report)
+        _check_transform_fits_the_field(field_entry, action, field_name, report)
         _check_target_param(field_entry, action, field_name, declared_params, report)
 
         required = field_entry.get("required")
@@ -234,12 +254,66 @@ def _check_transform(field_entry, action, field_name, facts, report):
             )
 
 
+def _check_transform_fits_the_field(field_entry, action, field_name, report):
+    """The transform must match the kind of value the field's name describes.
+
+    A transform is a claim about a value's representation, and the document never
+    records a field's representation — only its name and its type. So this is
+    judged on the name, and only for the three transforms that name a kind of
+    value. A count is not a money amount and a single name is not a list, which is
+    what the rule catches.
+    """
+    transform = field_entry.get("transform")
+    lowered = field_name.strip().lower()
+    if transform == "DECIMAL_TO_CENTS" and not _mentions(lowered, MONEY_FIELD_HINTS):
+        report.warning(
+            "mismatched_transform",
+            f"interaction_adapters: '{action}.{field_name}' is converted with DECIMAL_TO_CENTS, "
+            f"which is for a money amount — the field's name does not describe one",
+        )
+    elif transform == "CSV_LIST" and not _mentions(lowered, CSV_FIELD_HINTS):
+        report.warning(
+            "mismatched_transform",
+            f"interaction_adapters: '{action}.{field_name}' is read as a comma-separated list, "
+            f"but the field's name describes one value",
+        )
+    elif transform == "ISO_DATE" and not _mentions(lowered, DATE_FIELD_HINTS):
+        report.warning(
+            "mismatched_transform",
+            f"interaction_adapters: '{action}.{field_name}' is parsed as a date, but the field's "
+            f"name describes something else",
+        )
+
+
+def _mentions(name, hints):
+    return any(hint in name for hint in hints)
+
+
 def _check_target_param(field_entry, action, field_name, declared_params, report):
     target_param = field_entry.get("target_param")
     if is_missing(target_param):
         report.error("invalid_value", f"interaction_adapters: '{action}.{field_name}' has no target_param")
         return
-    if declared_params is None or target_param in declared_params:
+    if declared_params is None:
+        return
+
+    # A field whose own name is a parameter of the method belongs to that
+    # parameter, and the check needs no judgement: the method has already said
+    # where the value goes. Deciding otherwise silently drops the field —
+    # expenses' `add_expense` sends `category_id` into the `expense` object while
+    # the method declares a `category_id` of its own, and `update_budget` sends
+    # `month` into `budget` while a `month` parameter exists. Both were accepted
+    # because only "is this a parameter at all" was asked.
+    declared = {normalize(name) for name in declared_params}
+    if normalize(field_name) in declared and normalize(field_name) != normalize(target_param):
+        report.warning(
+            "misplaced_field",
+            f"interaction_adapters: '{action}.{field_name}' maps to param '{target_param}', but the "
+            f"target method declares a param named '{field_name}' — the field belongs to that one",
+        )
+        return
+
+    if target_param in declared_params:
         return
 
     tier, resolved = match_known(target_param, sorted(declared_params))

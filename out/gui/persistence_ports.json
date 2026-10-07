@@ -34,28 +34,35 @@
                 "type": "float"
               },
               {
-                "name": "initial_stock_quantity",
+                "name": "stock_quantity",
                 "type": "int"
               }
             ],
-            "return_type": "Wine"
+            "return_type": "Wine",
+            "raises": [
+              "DuplicateWineNameError"
+            ]
+          },
+          {
+            "name": "read_all_wines",
+            "description": "Reads all wines in the system.",
+            "params": [],
+            "return_type": "List[Wine]",
+            "raises": []
           },
           {
             "name": "read_wine_by_id",
-            "description": "Retrieves a wine by its unique identifier (wine_id).",
+            "description": "Reads a specific wine by its unique identifier.",
             "params": [
               {
                 "name": "wine_id",
                 "type": "int"
               }
             ],
-            "return_type": "Wine | None"
-          },
-          {
-            "name": "read_all_wines",
-            "description": "Retrieves all wines in the system.",
-            "params": [],
-            "return_type": "List[Wine]"
+            "return_type": "Wine",
+            "raises": [
+              "WineNotFoundError"
+            ]
           },
           {
             "name": "update_wine",
@@ -90,55 +97,31 @@
                 "type": "float"
               },
               {
-                "name": "new_stock_quantity",
+                "name": "stock_quantity",
                 "type": "int"
               }
             ],
-            "return_type": "Wine | None"
+            "return_type": "Wine",
+            "raises": [
+              "WineNotFoundError",
+              "DuplicateWineNameError",
+              "InvalidPricingException",
+              "NegativeStockError"
+            ]
           },
           {
             "name": "delete_wine",
-            "description": "Deletes a wine entry by its unique identifier (wine_id).",
+            "description": "Deletes a wine entry from the system.",
             "params": [
               {
                 "name": "wine_id",
                 "type": "int"
               }
             ],
-            "return_type": "bool"
-          },
-          {
-            "name": "get_wine_by_name",
-            "description": "Retrieves a wine by its name (case-insensitive).",
-            "params": [
-              {
-                "name": "wine_name",
-                "type": "str"
-              }
-            ],
-            "return_type": "Wine | None"
-          },
-          {
-            "name": "get_total_stock_by_type",
-            "description": "Retrieves the total stock quantity of wines by their type.",
-            "params": [
-              {
-                "name": "wine_type",
-                "type": "str"
-              }
-            ],
-            "return_type": "int"
-          },
-          {
-            "name": "get_stock_by_location",
-            "description": "Retrieves the total stock quantity of wines assigned to a specific storage location.",
-            "params": [
-              {
-                "name": "location_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "int"
+            "return_type": "bool",
+            "raises": [
+              "WineNotFoundError"
+            ]
           }
         ]
       },
@@ -147,8 +130,8 @@
         "interface_name": "StorageLocationRepository",
         "methods": [
           {
-            "name": "create_storage_location",
-            "description": "Creates a new storage location entry with the provided details.",
+            "name": "create_location",
+            "description": "Creates a new storage location.",
             "params": [
               {
                 "name": "zone_name",
@@ -167,27 +150,34 @@
                 "type": "int"
               }
             ],
-            "return_type": "StorageLocation"
+            "return_type": "StorageLocation",
+            "raises": [
+              "NegativeCapacityError"
+            ]
           },
           {
-            "name": "read_storage_location_by_id",
-            "description": "Retrieves a storage location by its unique identifier (location_id).",
+            "name": "read_all_locations",
+            "description": "Reads all storage locations in the system.",
+            "params": [],
+            "return_type": "List[StorageLocation]",
+            "raises": []
+          },
+          {
+            "name": "read_location_by_id",
+            "description": "Reads a specific storage location by its unique identifier.",
             "params": [
               {
                 "name": "location_id",
                 "type": "int"
               }
             ],
-            "return_type": "StorageLocation | None"
+            "return_type": "StorageLocation",
+            "raises": [
+              "StorageLocationNotFoundError"
+            ]
           },
           {
-            "name": "read_all_storage_locations",
-            "description": "Retrieves all storage locations in the system.",
-            "params": [],
-            "return_type": "List[StorageLocation]"
-          },
-          {
-            "name": "update_storage_location",
+            "name": "update_location",
             "description": "Updates an existing storage location's details.",
             "params": [
               {
@@ -207,41 +197,29 @@
                 "type": "int"
               },
               {
-                "name": "new_max_bottle_capacity",
+                "name": "max_bottle_capacity",
                 "type": "int"
               }
             ],
-            "return_type": "StorageLocation | None"
+            "return_type": "StorageLocation",
+            "raises": [
+              "StorageLocationNotFoundError",
+              "NegativeCapacityError"
+            ]
           },
           {
-            "name": "delete_storage_location",
-            "description": "Deletes a storage location entry by its unique identifier (location_id).",
+            "name": "delete_location",
+            "description": "Deletes a storage location from the system.",
             "params": [
               {
                 "name": "location_id",
                 "type": "int"
               }
             ],
-            "return_type": "bool"
-          },
-          {
-            "name": "get_location_by_zone_and_shelf",
-            "description": "Retrieves a storage location by its zone name, row number, and shelf number.",
-            "params": [
-              {
-                "name": "zone_name",
-                "type": "str"
-              },
-              {
-                "name": "row_number",
-                "type": "int"
-              },
-              {
-                "name": "shelf_number",
-                "type": "int"
-              }
-            ],
-            "return_type": "StorageLocation | None"
+            "return_type": "bool",
+            "raises": [
+              "StorageLocationNotFoundError"
+            ]
           }
         ]
       }
@@ -261,7 +239,7 @@
         "primary_key": "location_id",
         "indexes": [
           "zone_name",
-          "row_number"
+          "shelf_number"
         ]
       }
     ]

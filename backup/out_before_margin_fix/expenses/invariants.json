@@ -1,0 +1,68 @@
+{
+  "invariants": [
+    {
+      "text": "Category.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.monthly_budget must be nullable (can be None)",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.icon must be nullable (can be None)",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.amount_cents must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.description must be a non-null string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.expense_date must be a non-null ISO date string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.category_id must reference an existing Category",
+      "kind": "rule"
+    },
+    {
+      "text": "Expense.payment_method must be one of ['cash', 'card', 'transfer']",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.is_recurring must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.category_id must reference an existing Category",
+      "kind": "rule"
+    },
+    {
+      "text": "Budget.month must be a string in 'YYYY-MM' format and unique for each category per month",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.amount_limit_cents must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.amount_limit_cents must not exceed the monthly_budget of its Category if provided",
+      "kind": "rule"
+    }
+  ]
+}

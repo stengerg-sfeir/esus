@@ -1,0 +1,48 @@
+{
+  "invariants": [
+    {
+      "text": "category.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "category.name must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "category.description is nullable",
+      "kind": "schema"
+    },
+    {
+      "text": "category.reorder_threshold must be a non-negative integer if provided",
+      "kind": "schema"
+    },
+    {
+      "text": "product.id is an auto-incremented primary key",
+      "kind": "schema"
+    },
+    {
+      "text": "product.sku must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "product.name is nullable",
+      "kind": "schema"
+    },
+    {
+      "text": "product.category_id must reference an existing category",
+      "kind": "rule"
+    },
+    {
+      "text": "product.price_cents must be a positive integer",
+      "kind": "schema"
+    },
+    {
+      "text": "product.stock_qty must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "product.low_active must be a boolean (default False)",
+      "kind": "schema"
+    }
+  ]
+}

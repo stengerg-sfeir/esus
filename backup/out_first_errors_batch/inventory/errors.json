@@ -1,0 +1,49 @@
+{
+  "errors": [
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a category with the given ID or name does not exist."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product with the given ID does not exist."
+    },
+    {
+      "name": "InvalidSkuError",
+      "base": "ValueError",
+      "description": "Raised when the SKU is not unique or already exists."
+    },
+    {
+      "name": "InvalidStockThresholdError",
+      "base": "ValueError",
+      "description": "Raised when the reorder threshold is not a positive integer."
+    },
+    {
+      "name": "InvalidPriceError",
+      "base": "ValueError",
+      "description": "Raised when the price is not a positive integer."
+    },
+    {
+      "name": "InvalidStockQuantityError",
+      "base": "ValueError",
+      "description": "Raised when the stock quantity is not a non-negative integer."
+    },
+    {
+      "name": "MalformedCategoryUpdateError",
+      "base": "ValueError",
+      "description": "Raised when the category update data is invalid (e.g., missing required fields)."
+    },
+    {
+      "name": "MalformedProductUpdateError",
+      "base": "ValueError",
+      "description": "Raised when the product update data is invalid (e.g., missing required fields)."
+    },
+    {
+      "name": "InvalidLowActiveFlagError",
+      "base": "ValueError",
+      "description": "Raised when the low_active flag is not a boolean."
+    }
+  ]
+}

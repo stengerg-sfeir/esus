@@ -1,0 +1,108 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "validate_wine_name_unique",
+      "target_service": "WineRepository",
+      "target_method": "read_all_wines",
+      "input_fields": []
+    },
+    {
+      "action_name": "validate_selling_price_greater_than_cost_price",
+      "target_service": "WineRepository",
+      "target_method": "create_wine",
+      "input_fields": [
+        {
+          "field_name": "selling_price",
+          "target_param": "selling_price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "cost_price",
+          "target_param": "cost_price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "validate_stock_quantity_non_negative",
+      "target_service": "WineRepository",
+      "target_method": "update_wine",
+      "input_fields": [
+        {
+          "field_name": "stock_quantity",
+          "target_param": "stock_quantity",
+          "transform": "CSV_LIST",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "validate_location_capacity",
+      "target_service": "WineLocationService",
+      "target_method": "assign_wine_to_location",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "StorageLocation",
+          "required": true
+        },
+        {
+          "field_name": "wine_id",
+          "target_param": "wine_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "check_location_assignment_exists",
+      "target_service": "WineLocationService",
+      "target_method": "remove_wine_from_location",
+      "input_fields": [
+        {
+          "field_name": "wine_id",
+          "target_param": "wine_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "validate_storage_location_assigned_wines",
+      "target_service": "StorageLocationRepository",
+      "target_method": "delete_location",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "StorageLocation",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "validate_location_id_exists",
+      "target_service": "StorageLocationRepository",
+      "target_method": "read_location_by_id",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "StorageLocation",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -62,6 +62,9 @@ def main():
 
     for path in writer.write_documents(output_dir, documents):
         log.write(f"[write] {path}")
+    # The requirements accompany the documents so the checker can later compare
+    # the recorded surface against what was actually asked for.
+    log.write(f"[write] {writer.write_requirements(output_dir, requirements)}")
 
     tokens = sum(result.tokens for result in pipeline.results)
     seconds = sum(result.seconds for result in pipeline.results)

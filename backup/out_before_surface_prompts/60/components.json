@@ -1,0 +1,380 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "click",
+      "invocation": {
+        "positional": [
+          {
+            "name": "command",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "-help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "-version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "-config",
+            "short": "-config",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "customer",
+            "options": [
+              {
+                "name": "-create",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-list",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-search",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-details",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-by-email",
+                    "short": "-email",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-by-phone",
+                    "short": "-email",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "product",
+            "options": [
+              {
+                "name": "-create",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-list",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-update",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-delete",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-details",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-by-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-price",
+                    "short": "-price",
+                    "type": "float",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-stock",
+                    "short": "-stock",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "category",
+            "options": [
+              {
+                "name": "-create",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-list",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-details",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "create",
+                "options": [
+                  {
+                    "name": "-name",
+                    "short": "-name",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-description",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "order",
+            "options": [
+              {
+                "name": "-create",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-list",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-details",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-search",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-update-status",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-by-customer-id",
+                    "short": "-customer-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-by-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-status",
+                    "short": "-status",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "invoice",
+            "options": [
+              {
+                "name": "-list",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-details",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-search",
+                "short": null,
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-by-customer-id",
+                    "short": "-customer-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one",
+          "update"
+        ]
+      },
+      {
+        "entity": "Category",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one",
+          "update"
+        ]
+      },
+      {
+        "entity": "Order",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one",
+          "update"
+        ]
+      },
+      {
+        "entity": "OrderItem",
+        "operations": [
+          "create"
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one"
+        ]
+      }
+    ]
+  }
+}

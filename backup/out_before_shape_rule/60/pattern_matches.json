@@ -1,0 +1,224 @@
+{
+  "pattern_matches": [
+    {
+      "source": "invariant",
+      "text": "orders.status must be one of ['pending', 'confirmed', 'shipped', 'cancelled']",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.8674,
+      "runner_up_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "runner_up_confidence": 0.0146,
+      "margin": 0.8528
+    },
+    {
+      "source": "invariant",
+      "text": "order_items.unit_price must match products.price when order_items.product_id is referenced",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "PRICE_MARGIN_GUARD",
+      "confidence": 0.4083,
+      "runner_up_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "runner_up_confidence": 0.0653,
+      "margin": 0.343
+    },
+    {
+      "source": "invariant",
+      "text": "invoices.total_amount must match the sum of order_items.unit_price * order_items.quantity for the referenced order",
+      "domain": "REPO_QUERY",
+      "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "confidence": 0.3988,
+      "runner_up_pattern_id": "AGGREGATE_BY_FK",
+      "runner_up_confidence": 0.2162,
+      "margin": 0.1826
+    },
+    {
+      "source": "invariant",
+      "text": "An order can only be confirmed if its status is 'pending'",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.8014,
+      "runner_up_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "runner_up_confidence": 0.0679,
+      "margin": 0.7335
+    },
+    {
+      "source": "invariant",
+      "text": "An order's status must be updated to 'confirmed' when an invoice is created for it",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.4493,
+      "runner_up_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "runner_up_confidence": 0.0509,
+      "margin": 0.3984
+    },
+    {
+      "source": "invariant",
+      "text": "An order's status must be updated to 'shipped' only after it is confirmed",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.8042,
+      "runner_up_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "runner_up_confidence": 0.0192,
+      "margin": 0.785
+    },
+    {
+      "source": "invariant",
+      "text": "An order's status cannot be 'cancelled' if it is 'confirmed' or 'shipped'",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.7875,
+      "runner_up_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "runner_up_confidence": 0.0217,
+      "margin": 0.7658
+    },
+    {
+      "source": "invariant",
+      "text": "When an order is confirmed, products.reserved_stock must be deducted from products.stock_quantity for each order_item.product_id",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.4291,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.4291
+    },
+    {
+      "source": "invariant",
+      "text": "When an order is cancelled and its status is 'confirmed', products.reserved_stock must be released back to products.stock_quantity for each order_item.product_id",
+      "domain": "SERVICE_GUARD",
+      "pattern_id": "STATE_TRANSITION_GUARD",
+      "confidence": 0.2449,
+      "runner_up_pattern_id": "STOCK_SUFFICIENCY_GUARD",
+      "runner_up_confidence": 0.2146,
+      "margin": 0.0303
+    },
+    {
+      "source": "contract:categories.create_category",
+      "text": "create_category: Creates a new category with the provided name.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8129,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.8129
+    },
+    {
+      "source": "contract:categories.read_all_categories",
+      "text": "read_all_categories: Returns a list of all existing categories.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "READ_ALL",
+      "confidence": 0.8382,
+      "runner_up_pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "runner_up_confidence": 0.1352,
+      "margin": 0.703
+    },
+    {
+      "source": "contract:products.create_product",
+      "text": "create_product: Creates a new product with the provided details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7741,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.7741
+    },
+    {
+      "source": "contract:products.read_all_products",
+      "text": "read_all_products: Returns a list of all existing products.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "READ_ALL",
+      "confidence": 0.7796,
+      "runner_up_pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "runner_up_confidence": 0.1449,
+      "margin": 0.6347
+    },
+    {
+      "source": "contract:products.update_product",
+      "text": "update_product: Updates an existing product with the provided details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8488,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.8488
+    },
+    {
+      "source": "contract:customers.create_customer",
+      "text": "create_customer: Creates a new customer with the provided details.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7429,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.7429
+    },
+    {
+      "source": "contract:customers.read_all_customers",
+      "text": "read_all_customers: Returns a list of all existing customers.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "READ_ALL",
+      "confidence": 0.7016,
+      "runner_up_pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "runner_up_confidence": 0.1426,
+      "margin": 0.559
+    },
+    {
+      "source": "contract:orders.create_order",
+      "text": "create_order: Creates a new order for a customer.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.6772,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.6772
+    },
+    {
+      "source": "contract:orders.read_one_order",
+      "text": "read_one_order: Returns a single order by its ID.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.8724,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.8724
+    },
+    {
+      "source": "contract:orders.read_all_orders",
+      "text": "read_all_orders: Returns a list of all orders for a customer.",
+      "domain": "REPO_QUERY",
+      "pattern_id": "READ_ALL",
+      "confidence": 0.6121,
+      "runner_up_pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+      "runner_up_confidence": 0.2112,
+      "margin": 0.4009
+    },
+    {
+      "source": "contract:orders.update_order_status",
+      "text": "update_order_status: Updates the status of an order (pending, confirmed, shipped, cancelled).",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.6614,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.6614
+    },
+    {
+      "source": "contract:order_items.create_order_item",
+      "text": "create_order_item: Creates a new order item for an order.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.7713,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.7713
+    },
+    {
+      "source": "contract:invoices.create_invoice",
+      "text": "create_invoice: Creates an invoice for an order.",
+      "domain": "STANDARD_CRUD",
+      "pattern_id": "STANDARD_CRUD",
+      "confidence": 0.637,
+      "runner_up_pattern_id": null,
+      "runner_up_confidence": 0.0,
+      "margin": 0.637
+    }
+  ]
+}

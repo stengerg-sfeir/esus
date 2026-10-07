@@ -1,0 +1,43 @@
+[run] requirements: 755 characters
+[intentions] 99 tokens in 4.7s (21.0 tok/s)
+[data_models] 1747 tokens in 66.4s (26.3 tok/s)
+[invariants] 1087 tokens in 49.7s (21.9 tok/s)
+[components] 209 tokens in 8.4s (25.0 tok/s)
+[service_contracts] 1084 tokens in 44.5s (24.4 tok/s)
+  [1/22] invariant -> STATE_TRANSITION_GUARD (0.87)
+  [2/22] invariant -> PRICE_MARGIN_GUARD (0.41)
+  [3/22] invariant -> AGGREGATE_BY_FK_AND_DATE (0.31)
+  [4/22] invariant -> STATE_TRANSITION_GUARD (0.80)
+  [5/22] invariant -> STATE_TRANSITION_GUARD (0.45)
+  [6/22] invariant -> STATE_TRANSITION_GUARD (0.80)
+  [7/22] invariant -> STATE_TRANSITION_GUARD (0.79)
+  [8/22] invariant -> STANDARD_CRUD (0.43)
+  [9/22] invariant -> STATE_TRANSITION_GUARD (0.24)
+  [10/22] contract:categories.create_category -> STANDARD_CRUD (0.81)
+  [11/22] contract:categories.read_all_categories -> NO_PATTERN_IN_DOMAIN (0.50)  <- GAP: no pattern for this
+  [12/22] contract:products.create_product -> STANDARD_CRUD (0.77)
+  [13/22] contract:products.read_all_products -> NO_PATTERN_IN_DOMAIN (0.73)  <- GAP: no pattern for this
+  [14/22] contract:products.update_product -> STANDARD_CRUD (0.85)
+  [15/22] contract:customers.create_customer -> STANDARD_CRUD (0.74)
+  [16/22] contract:customers.read_all_customers -> NO_PATTERN_IN_DOMAIN (0.60)  <- GAP: no pattern for this
+  [17/22] contract:orders.create_order -> STANDARD_CRUD (0.68)
+  [18/22] contract:orders.read_one_order -> STANDARD_CRUD (0.87)
+  [19/22] contract:orders.read_all_orders -> FILTER_WITH_PAGINATION (0.53)
+  [20/22] contract:orders.update_order_status -> STANDARD_CRUD (0.66)
+  [21/22] contract:order_items.create_order_item -> STANDARD_CRUD (0.77)
+  [22/22] contract:invoices.create_invoice -> STANDARD_CRUD (0.64)
+[ok] step patterns: 22 item(s) — 10 standard CRUD, 9 pattern(s), 3 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:categories.read_all_categories: read_all_categories: Returns a list of all existing categories.
+    gap [NO_PATTERN_IN_DOMAIN] contract:products.read_all_products: read_all_products: Returns a list of all existing products.
+    gap [NO_PATTERN_IN_DOMAIN] contract:customers.read_all_customers: read_all_customers: Returns a list of all existing customers.
+[interaction_adapters] 1754 tokens in 416.6s (4.2 tok/s)
+[persistence_ports] 1550 tokens in 64.1s (24.2 tok/s)
+[write] out/60/intentions.json
+[write] out/60/data_models.json
+[write] out/60/invariants.json
+[write] out/60/components.json
+[write] out/60/service_contracts.json
+[write] out/60/pattern_matches.json
+[write] out/60/interaction_adapters.json
+[write] out/60/persistence_ports.json
+[run] 7 steps, 7530 generated tokens in 654.4s

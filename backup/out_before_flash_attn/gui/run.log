@@ -1,0 +1,38 @@
+[run] requirements: 1764 characters
+[intentions] 113 tokens in 5.2s (21.7 tok/s)
+[data_models] 830 tokens in 28.4s (29.2 tok/s)
+[invariants] 497 tokens in 21.6s (23.0 tok/s)
+[components] 125 tokens in 5.3s (23.5 tok/s)
+[service_contracts] 1229 tokens in 588.8s (2.1 tok/s)
+  [1/17] invariant -> PRICE_MARGIN_GUARD (0.72)
+  [2/17] invariant -> QUOTA_CAPACITY_GUARD (0.46)
+  [3/17] invariant -> STATE_TRANSITION_GUARD (0.64)
+  [4/17] contract:WineRepository.create_wine -> STANDARD_CRUD (0.82)
+  [5/17] contract:WineRepository.read_wine_by_id -> STANDARD_CRUD (0.74)
+  [6/17] contract:WineRepository.read_all_wines -> READ_ALL (0.83)
+  [7/17] contract:WineRepository.update_wine -> STANDARD_CRUD (0.85)
+  [8/17] contract:WineRepository.delete_wine -> STANDARD_CRUD (0.91)
+  [9/17] contract:WineRepository.get_wine_by_name -> NO_PATTERN_IN_DOMAIN (0.50)  <- UNKNOWN: READ_ALL returns collection, but this method returns entity (Wine | None)
+  [10/17] contract:WineRepository.get_total_stock_by_type -> AGGREGATE_BY_FK (0.84)
+  [11/17] contract:WineRepository.get_stock_by_location -> AGGREGATE_BY_FK (0.71)
+  [12/17] contract:StorageLocationRepository.create_storage_location -> STANDARD_CRUD (0.78)
+  [13/17] contract:StorageLocationRepository.read_storage_location_by_id -> STANDARD_CRUD (0.79)
+  [14/17] contract:StorageLocationRepository.read_all_storage_locations -> READ_ALL (0.89)
+  [15/17] contract:StorageLocationRepository.update_storage_location -> STANDARD_CRUD (0.73)
+  [16/17] contract:StorageLocationRepository.delete_storage_location -> STANDARD_CRUD (0.93)
+  [17/17] contract:StorageLocationRepository.get_location_by_zone_and_shelf -> NO_PATTERN_IN_DOMAIN (0.31)  <- UNKNOWN: FILTER_BY_FIELD returns collection, but this method returns entity (StorageLocation | None)
+[ok] step patterns: 17 item(s) — 8 standard CRUD, 7 pattern(s), 2 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:WineRepository.get_wine_by_name: get_wine_by_name(wine_name: str) -> Wine | None: Retrieves a wine by its name (case-insensitive).
+    gap [NO_PATTERN_IN_DOMAIN] contract:StorageLocationRepository.get_location_by_zone_and_shelf: get_location_by_zone_and_shelf(zone_name: str, row_number: int, shelf_number: int) -> StorageLocation | None: Retrieves a storage location by its zone name, row number, and shelf number.
+[interaction_adapters] 2206 tokens in 795.3s (2.8 tok/s)
+[persistence_ports] 1252 tokens in 48.4s (25.8 tok/s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/gui/intentions.json
+[write] out/gui/data_models.json
+[write] out/gui/invariants.json
+[write] out/gui/components.json
+[write] out/gui/service_contracts.json
+[write] out/gui/pattern_matches.json
+[write] out/gui/interaction_adapters.json
+[write] out/gui/persistence_ports.json
+[run] 7 steps, 6252 generated tokens in 1493.0s

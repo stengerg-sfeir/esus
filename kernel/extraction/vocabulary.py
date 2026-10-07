@@ -81,10 +81,32 @@ class Vocabulary:
     services: tuple = ()
     crud_entities: tuple = ()
     crud_operations: tuple = ()
+    # The registered error types of step E'. A contract method may raise one of
+    # these and nothing else, so the names travel in the vocabulary the same way
+    # entity and service names do.
+    errors: tuple = ()
 
     @property
     def entity_names(self):
         return tuple(entity.name for entity in self.entities)
+
+    @property
+    def error_names(self):
+        return tuple(
+            error.get("name")
+            for error in self.errors
+            if isinstance(error, dict) and error.get("name")
+        )
+
+    def errors_block(self):
+        """The registered errors, name and purpose, for a prompt to copy from."""
+        lines = []
+        for error in self.errors:
+            if not isinstance(error, dict) or not error.get("name"):
+                continue
+            description = error.get("description") or ""
+            lines.append(f"{error['name']}: {description}".rstrip())
+        return "\n".join(lines)
 
     @property
     def primary_key_of(self):

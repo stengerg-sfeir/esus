@@ -19,6 +19,8 @@ from kernel.extraction import (
     grammar_persistence,
     interfaces,
     prompts,
+    repairs,
+    return_types,
     runner,
     vocabulary,
 )
@@ -30,6 +32,7 @@ RETRY_TEMPERATURE = 0.35
 # Document keys, which are also the top-level JSON keys the checker reads.
 INTENTIONS = "intentions"
 DATA_MODELS = "data_models"
+ERRORS = "errors"
 INVARIANTS = "invariants"
 COMPONENTS = "components"
 SERVICE_CONTRACTS = "service_contracts"
@@ -51,9 +54,11 @@ class Pipeline:
     def run(self, requirements):
         self._step_intentions(requirements)
         self._step_data_models(requirements)
+        self._step_errors(requirements)
         self._step_invariants(requirements)
         self._step_components(requirements)
         self._step_contracts(requirements)
+        self._repair_errors()
         self._step_patterns()
         self._step_adapters(requirements)
         self._step_persistence(requirements)
@@ -71,22 +76,53 @@ class Pipeline:
         grammar_check.assert_valid(grammar_text, label=f"step {key}")
 
         body = None
+        # The ceiling the retry runs under. It starts as None, meaning the
+        # first-attempt ceiling of `MAX_NEW_TOKENS`.
+        retry_budget = None
         for attempt, attempt_temperature in enumerate((temperature, RETRY_TEMPERATURE)):
             result = runner.generate(
-                self.llm, prompt, grammar_text, key, temperature=attempt_temperature
+                self.llm, prompt, grammar_text, key,
+                temperature=attempt_temperature,
+                max_new_tokens=retry_budget,
             )
             self.results.append(result)
             self.log.write(result.describe())
-            if result.truncated:
-                self.log.write(
-                    f"[!] step {key} hit the token ceiling — its document may be incomplete"
-                )
 
             body = _parse_document(result.text, key)
-            if body is not None:
+            # A truncated document is retried even when it parsed. It can parse and
+            # still be incomplete — the ceiling can fall exactly on a valid list
+            # boundary — and accepting that silently is the one outcome this must
+            # not produce, because a short document is indistinguishable from a
+            # complete one downstream. Only an untruncated, parseable document ends
+            # the loop.
+            if body is not None and not result.truncated:
                 break
             if attempt == 0:
-                self.log.write(f"[!] step {key} produced unusable JSON — retrying once")
+                if result.truncated:
+                    # Retrying a truncation under the ceiling that caused it can
+                    # only truncate again — that is what happened to expenses'
+                    # adapters, which hit `MAX_NEW_TOKENS` twice while the context
+                    # still held room for thousands more tokens. So the retry gets
+                    # the whole room the prompt left behind.
+                    retry_budget = runner.available_tokens(self.llm, prompt)
+                    if retry_budget <= (result.budget or 0):
+                        self.log.write(
+                            f"[!] step {key}: the context has no room left to raise the "
+                            f"{result.budget}-token ceiling — retrying at the same ceiling"
+                        )
+                    reason = (
+                        f"hit the {result.budget}-token ceiling — its document may be "
+                        f"incomplete, retrying with a {retry_budget}-token ceiling"
+                    )
+                else:
+                    reason = "produced unusable JSON"
+                self.log.write(f"[!] step {key} {reason} — retrying once")
+
+        if body is not None and result.truncated:
+            self.log.write(
+                f"[!] step {key} is still truncated after the retry — "
+                f"the document written is incomplete"
+            )
 
         if body is None:
             self.log.write(f"[!] step {key} produced unusable JSON — dependent steps degrade")
@@ -117,10 +153,51 @@ class Pipeline:
         )
 
     def _step_data_models(self, requirements):
+        """Step B: the one step nothing constrains, so it is shown A's phrases.
+
+        Every other step's grammar is generated from the names an earlier step
+        produced, so it *cannot* invent one. A emits prose, which cannot become a
+        vocabulary — so B ran on the raw requirements with an open grammar, and
+        for a program that models nothing it filled the required shape from
+        priors (cli_tool got `users, products, orders, order_items`).
+
+        Showing it A's phrases is grounding rather than constraint: it supplies
+        the program's own words and leaves no vacuum for priors to fill. It is
+        deliberately the **only** thing added here — the empty answer is already
+        permitted by both the prompt and the grammar, and cli_tool took neither,
+        so more permission cannot be the fix. See `prompts.intentions_block`.
+        """
+        grounding = prompts.intentions_block(self.documents.get(INTENTIONS))
+        if grounding is None:
+            self.log.write(
+                "[!] step data_models: step A produced no usable phrases — running ungrounded"
+            )
         self._generate(
             DATA_MODELS,
-            prompts.data_models(requirements),
+            prompts.data_models(requirements, grounding),
             grammar_open.data_models(),
+        )
+
+    def _step_errors(self, requirements):
+        """Step E': the application error types, before the services that raise them.
+
+        Placed after step B so a type named for an entity is spelled with that
+        entity's own name, and before step E because a contract method names the
+        errors it may raise — the registry has to exist first for the reference to
+        mean anything. This is the one thing the requirements name that had
+        nowhere to go: inventory asks for `CategoryNotFoundError` and
+        `ProductNotFoundError`, and every earlier run dropped them silently,
+        because no document had a place to record an exception type.
+
+        Ungated: a program with no domain can still fail, and cli_tool's "error
+        handling for missing files and malformed CSV" is exactly that case.
+        """
+        vocab = vocabulary.Vocabulary(entities=self._entities())
+        block = prompts.entity_block(vocab) if vocab.entity_names else None
+        self._generate(
+            ERRORS,
+            prompts.errors(requirements, block),
+            grammar_open.errors(),
         )
 
     def _step_invariants(self, requirements):
@@ -169,15 +246,41 @@ class Pipeline:
         vocab = vocabulary.Vocabulary(
             entities=entities,
             crud_operations=vocabulary.crud_requirements(self.documents.get(COMPONENTS)),
+            errors=self.documents.get(ERRORS) or (),
         )
         # E owns the repositories it declares, so it must be told which
         # operations each entity needs — otherwise it writes "standard CRUD"
         # from an adjective rather than from the list, and every delete is lost.
-        self._generate(
+        body = self._generate(
             SERVICE_CONTRACTS,
             prompts.service_contracts(requirements, prompts.requirements_block(vocab)),
             grammar_open.service_contracts(),
         )
+        # A signature is a specification the generated body must honour, so a
+        # method that returns `dict[str, object]` where the entity is known is a
+        # defect no generation can repair without overriding the contract.
+        if isinstance(body, list):
+            self.documents[SERVICE_CONTRACTS] = return_types.repair_contract_returns(
+                body, self._entities(), self.log
+            )
+
+    def _repair_errors(self):
+        """Remove the two error contradictions the grammar cannot express (§9.28).
+
+        Run after step E because both documents have to exist first: the registry
+        is what `raises` resolves against, and the keep/drop decision for a
+        duplicate subject follows which name a method actually raises. The
+        constraints are global — two names meaning one thing, a create raising
+        its own not-found — so no GBNF expresses them, and the check for each is
+        shared with the checker to keep one definition.
+        """
+        services = self.documents.get(SERVICE_CONTRACTS)
+        errors, services = repairs.repair_errors(
+            self.documents.get(ERRORS), services, self.log
+        )
+        self.documents[ERRORS] = errors
+        if isinstance(services, list):
+            self.documents[SERVICE_CONTRACTS] = services
 
     def _step_patterns(self):
         """Step F: classify invariants and contract methods into kernel patterns."""
@@ -202,6 +305,13 @@ class Pipeline:
             prompts.adapters(requirements, block),
             grammar_builders.adapters(vocab),
         )
+        adapters = self.documents.get(INTERACTION_ADAPTERS)
+        if isinstance(adapters, list):
+            # A transform that contradicts the field's name — a count converted
+            # to cents, a single name read as a list — is not expressible in the
+            # grammar (transform is an enum, the name is free text), so it is
+            # removed here, reusing the checker's own predicate (§9.28).
+            repairs.repair_adapter_transforms(adapters, self.log)
 
     def _step_persistence(self, requirements):
         """Step H: repositories and mappings are fixed by steps B and D."""
@@ -227,8 +337,14 @@ class Pipeline:
         # A repository step E already declared is the same class, so its method
         # set is E's; H keeps the mapping it alone produces. Without this the two
         # documents described one interface two ways in all five domain prompts.
-        self.documents[PERSISTENCE_PORTS] = interfaces.unify_repository_interfaces(
+        unified = interfaces.unify_repository_interfaces(
             body, self.documents.get(SERVICE_CONTRACTS), self.log
+        )
+        # Repaired after unification so the figure logged is what the document
+        # actually ends up with, and so a repository only step H declares is
+        # covered too.
+        self.documents[PERSISTENCE_PORTS] = return_types.repair_port_returns(
+            unified, self._entities(), self.log
         )
 
 

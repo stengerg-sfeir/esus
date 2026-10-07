@@ -1,0 +1,64 @@
+{
+  "errors": [
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a book with the given ISBN or ID is not found in the database."
+    },
+    {
+      "name": "AuthorNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an author with the given ID is not found in the database."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a member with the given ID is not found in the database."
+    },
+    {
+      "name": "LoanNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a loan with the given ID is not found in the database."
+    },
+    {
+      "name": "BookAlreadyExistsError",
+      "base": "ValueError",
+      "description": "Raised when attempting to add a book with an existing ISBN."
+    },
+    {
+      "name": "MemberAlreadyExistsError",
+      "base": "ValueError",
+      "description": "Raised when attempting to add a member with an existing email."
+    },
+    {
+      "name": "InsufficientCopiesError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to borrow a book that has zero available copies."
+    },
+    {
+      "name": "InvalidLoanStatusError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to return a loan that is not in the 'active' status."
+    },
+    {
+      "name": "InvalidReturnDateError",
+      "base": "RuntimeError",
+      "description": "Raised when a book is returned before its due date."
+    },
+    {
+      "name": "MalformedCSVError",
+      "base": "ValueError",
+      "description": "Raised when the input data for a CSV operation is malformed."
+    },
+    {
+      "name": "InvalidInputError",
+      "base": "ValueError",
+      "description": "Raised when the input data for any operation is invalid (e.g., negative copies, future dates)."
+    },
+    {
+      "name": "OverdueLoanFoundError",
+      "base": "RuntimeError",
+      "description": "Raised when a loan is found during overdue checks, indicating a bug in the due date logic."
+    }
+  ]
+}

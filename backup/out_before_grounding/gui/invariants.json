@@ -1,0 +1,68 @@
+{
+  "invariants": [
+    {
+      "text": "wine.wine_id must be a positive integer and auto-incremented",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.name must be a non-null string and unique",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.vintage_year must be a non-null integer",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.wine_type must be one of ['red', 'white', 'rosé', 'sparkling']",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.country_of_origin must be a non-null string",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.cost_price must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.selling_price must be a non-negative integer and strictly greater than wine.cost_price",
+      "kind": "rule"
+    },
+    {
+      "text": "wine.stock_quantity must be a non-negative integer",
+      "kind": "schema"
+    },
+    {
+      "text": "wine.storage_location_id must reference an existing StorageLocation",
+      "kind": "schema"
+    },
+    {
+      "text": "storage_location.location_id must be a positive integer and auto-incremented",
+      "kind": "schema"
+    },
+    {
+      "text": "storage_location.zone_name must be a non-null string",
+      "kind": "schema"
+    },
+    {
+      "text": "storage_location.row_number must be a non-null integer",
+      "kind": "schema"
+    },
+    {
+      "text": "storage_location.shelf_number must be a non-null integer",
+      "kind": "schema"
+    },
+    {
+      "text": "storage_location.max_bottle_capacity must be a positive integer",
+      "kind": "schema"
+    },
+    {
+      "text": "A wine's stock_quantity must not exceed the capacity of its assigned storage_location.max_bottle_capacity",
+      "kind": "rule"
+    },
+    {
+      "text": "A wine cannot be removed if it is assigned to a StorageLocation",
+      "kind": "rule"
+    }
+  ]
+}

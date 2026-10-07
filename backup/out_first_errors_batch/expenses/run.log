@@ -1,0 +1,69 @@
+[run] requirements: 3299 characters
+[intentions] 164 tokens in 7.9s (20.7 tok/s)
+[data_models] 961 tokens in 31.8s (30.2 tok/s)
+[errors] 128 tokens in 6.6s (19.5 tok/s)
+[invariants] 436 tokens in 17.8s (24.4 tok/s)
+[components] 1285 tokens in 43.6s (29.5 tok/s)
+[service_contracts] 3399 tokens in 1502.7s (2.3 tok/s)
+  [1/44] invariant -> AGGREGATE_BY_FK (0.26)  <- undecided (pattern): AGGREGATE_BY_FK_AND_DATE at 0.16
+  [2/44] invariant -> BUDGET_OVERFLOW_GUARD (0.74)
+  [3/44] contract:ExpenseRepository.create_expense -> STANDARD_CRUD (0.76)
+  [4/44] contract:ExpenseRepository.read_expense_by_id -> STANDARD_CRUD (0.71)
+  [5/44] contract:ExpenseRepository.read_expenses_by_category -> FILTER_BY_FIELD (0.36)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)
+  [6/44] contract:ExpenseRepository.read_expenses_by_date_range -> FILTER_WITH_PAGINATION (0.23)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK_AND_DATE)
+  [7/44] contract:ExpenseRepository.read_expenses_by_payment_method -> FILTER_BY_FIELD (0.22)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)
+  [8/44] contract:ExpenseRepository.read_expenses_by_category_and_date_range -> FILTER_WITH_PAGINATION (0.09)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)  <- undecided (pattern): FILTER_BY_FIELD at 0.07
+  [9/44] contract:ExpenseRepository.read_expenses_by_category_and_payment_method -> FILTER_BY_FIELD (0.37)
+  [10/44] contract:ExpenseRepository.read_expenses_by_category_and_payment_method_and_date_range -> FILTER_WITH_PAGINATION (0.25)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)
+  [11/44] contract:ExpenseRepository.update_expense -> STANDARD_CRUD (0.88)
+  [12/44] contract:ExpenseRepository.delete_expense -> STANDARD_CRUD (0.92)
+  [13/44] contract:ExpenseRepository.get_total_spent_by_category -> AGGREGATE_BY_FK_AND_DATE (0.54)  <- undecided (pattern): AGGREGATE_BY_FK at 0.46
+  [14/44] contract:ExpenseRepository.get_total_spent_by_category_and_month -> AGGREGATE_BY_FK_AND_DATE (0.95)
+  [15/44] contract:ExpenseRepository.get_total_spent_by_category_and_month_and_year -> AGGREGATE_BY_FK_AND_DATE (0.93)
+  [16/44] contract:ExpenseRepository.get_total_spent_by_date_range -> AGGREGATE_BY_FK_AND_DATE (0.95)
+  [17/44] contract:ExpenseRepository.get_total_spent_by_category_and_date_range -> AGGREGATE_BY_FK_AND_DATE (0.87)
+  [18/44] contract:ExpenseRepository.get_total_spent_by_category_and_payment_method -> AGGREGATE_BY_FK_AND_DATE (0.85)
+  [19/44] contract:ExpenseRepository.get_total_spent_by_category_and_payment_method_and_date_range -> AGGREGATE_BY_FK_AND_DATE (0.96)
+  [20/44] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.75)
+  [21/44] contract:CategoryRepository.read_category_by_id -> STANDARD_CRUD (0.65)
+  [22/44] contract:CategoryRepository.read_category_by_name -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: READ_ALL returns collection, but this method returns entity (Category)
+  [23/44] contract:CategoryRepository.read_all_categories -> READ_ALL (0.75)
+  [24/44] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.89)
+  [25/44] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.87)
+  [26/44] contract:CategoryRepository.get_expenses_for_category -> FILTER_BY_FIELD (0.33)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)
+  [27/44] contract:BudgetRepository.create_budget -> STANDARD_CRUD (0.68)
+  [28/44] contract:BudgetRepository.read_budget_by_category_and_month -> NO_PATTERN_IN_DOMAIN (0.01)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (Budget)
+  [29/44] contract:BudgetRepository.read_all_budgets -> READ_ALL (0.84)
+  [30/44] contract:BudgetRepository.read_budgets_by_category -> FILTER_BY_FIELD (0.30)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Budget]) (was AGGREGATE_BY_FK)
+  [31/44] contract:BudgetRepository.read_budgets_by_month -> READ_ALL (0.36)
+  [32/44] contract:BudgetRepository.update_budget -> STANDARD_CRUD (0.59)
+  [33/44] contract:BudgetRepository.delete_budget -> STANDARD_CRUD (0.71)
+  [34/44] contract:BudgetRepository.check_budget_status -> BUDGET_OVERFLOW_GUARD (0.87)
+  [35/44] contract:ExpenseService.list_expenses -> FILTER_WITH_PAGINATION (0.28)  <- corrected: AGGREGATE_BY_FK returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK)  <- undecided (pattern): FILTER_BY_FIELD at 0.20
+  [36/44] contract:ExpenseService.get_expense_by_id -> STANDARD_CRUD (0.78)
+  [37/44] contract:ExpenseService.add_expense -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (Expense)
+  [38/44] contract:ExpenseService.update_expense -> STANDARD_CRUD (0.87)
+  [39/44] contract:ExpenseService.delete_expense -> STANDARD_CRUD (0.92)
+  [40/44] contract:ExpenseService.get_monthly_report -> AGGREGATE_BY_FK_AND_DATE (0.73)
+  [41/44] contract:ExpenseService.get_yearly_summary -> AGGREGATE_BY_FK_AND_DATE (0.86)
+  [42/44] contract:ExpenseService.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.94)
+  [43/44] contract:ExpenseService.export_to_csv -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: AGGREGATE_BY_FK returns mapping/scalar, but this method returns none (None)
+  [44/44] contract:ExpenseService.detect_recurring -> FILTER_BY_FIELD (0.32)
+[ok] step patterns: 44 item(s) — 14 standard CRUD, 26 pattern(s), 4 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:CategoryRepository.read_category_by_name: read_category_by_name(name: str) -> Category: Reads a category by its name
+    gap [NO_PATTERN_IN_DOMAIN] contract:BudgetRepository.read_budget_by_category_and_month: read_budget_by_category_and_month(category_id: int, month: str) -> Budget: Reads a budget for a category and month
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.add_expense: add_expense(expense: Expense) -> Expense: Adds a new expense, validates category exists, and checks budget status
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.export_to_csv: export_to_csv(file_path: str, start_date: str, end_date: str, category_id: Optional[int], payment_method: Optional[str]) -> None: Exports filtered expenses to CSV
+[interaction_adapters] 2879 tokens in 96.8s (29.7 tok/s)
+[persistence_ports] 1880 tokens in 65.5s (28.7 tok/s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/expenses/intentions.json
+[write] out/expenses/data_models.json
+[write] out/expenses/errors.json
+[write] out/expenses/invariants.json
+[write] out/expenses/components.json
+[write] out/expenses/service_contracts.json
+[write] out/expenses/pattern_matches.json
+[write] out/expenses/interaction_adapters.json
+[write] out/expenses/persistence_ports.json
+[run] 8 steps, 11132 generated tokens in 1772.7s

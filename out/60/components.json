@@ -2,7 +2,462 @@
   "components": {
     "facade": {
       "type": "cli",
-      "technology": "argparse"
+      "technology": "click",
+      "invocation": {
+        "positional": [
+          {
+            "name": "command",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "-help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "-version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "customer",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-email",
+                    "short": "-e",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-address",
+                    "short": "-a",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-query",
+                    "short": "-q",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-email",
+                    "short": "-e",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-address",
+                    "short": "-a",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "product",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "-category",
+                    "short": "-c",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-d",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-price",
+                    "short": "-p",
+                    "type": "float",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-stock",
+                    "short": "-s",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-query",
+                    "short": "-q",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-category",
+                    "short": "-c",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-d",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-price",
+                    "short": "-p",
+                    "type": "float",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-stock",
+                    "short": "-s",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "order",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-customer-id",
+                    "short": "-c",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-product-id",
+                    "short": "-p",
+                    "type": "list",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "confirm",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "cancel",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-query",
+                    "short": "-q",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "invoice",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-query",
+                    "short": "-q",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
     },
     "persistence": {
       "required": true,
@@ -11,46 +466,51 @@
     "external_access": [],
     "crud_services": [
       {
-        "entity": "categories",
-        "operations": [
-          "create",
-          "read_all"
-        ]
-      },
-      {
-        "entity": "products",
-        "operations": [
-          "create",
-          "read_all",
-          "update"
-        ]
-      },
-      {
-        "entity": "customers",
-        "operations": [
-          "create",
-          "read_all"
-        ]
-      },
-      {
-        "entity": "orders",
+        "entity": "Customer",
         "operations": [
           "create",
           "read_one",
           "read_all",
-          "update"
+          "update",
+          "delete"
         ]
       },
       {
-        "entity": "order_items",
+        "entity": "Category",
+        "operations": [
+          "create",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Order",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "OrderItem",
         "operations": [
           "create"
         ]
       },
       {
-        "entity": "invoices",
+        "entity": "Invoice",
         "operations": [
-          "create"
+          "create",
+          "read_all"
         ]
       }
     ]

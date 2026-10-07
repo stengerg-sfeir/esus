@@ -1,0 +1,62 @@
+[run] requirements: 1965 characters
+[intentions] 87 tokens in 4.3s (20.2 tok/s)
+[data_models] 1225 tokens in 39.2s (31.2 tok/s)
+[errors] 536 tokens in 22.1s (24.2 tok/s)
+[invariants] 419 tokens in 17.4s (24.0 tok/s)
+[components] 1967 tokens in 67.8s (29.0 tok/s)
+[ok] step components: removed 2 exactly repeated name(s)
+[service_contracts] 2274 tokens in 81.0s (28.1 tok/s)
+  [1/39] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [2/39] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [3/39] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [4/39] invariant -> STATE_TRANSITION_GUARD (0.37)
+  [5/39] invariant -> BUDGET_OVERFLOW_GUARD (0.38)  <- undecided (pattern): QUOTA_CAPACITY_GUARD at 0.37
+  [6/39] invariant -> QUOTA_CAPACITY_GUARD (0.50)
+  [7/39] contract:BookRepository.create_book -> STANDARD_CRUD (0.69)
+  [8/39] contract:BookRepository.read_all_books -> READ_ALL (0.86)
+  [9/39] contract:BookRepository.read_book_by_id -> STANDARD_CRUD (0.79)
+  [10/39] contract:BookRepository.read_book_by_isbn -> STANDARD_CRUD (0.52)  <- undecided (domain): REPO_QUERY at 0.48
+  [11/39] contract:BookRepository.update_book -> STANDARD_CRUD (0.82)
+  [12/39] contract:BookRepository.delete_book -> STANDARD_CRUD (0.90)
+  [13/39] contract:BookRepository.get_books_by_title -> FILTER_BY_FIELD (0.92)
+  [14/39] contract:BookRepository.get_books_by_author_id -> FILTER_BY_FIELD (0.77)
+  [15/39] contract:BookRepository.get_books_available_only -> FILTER_BY_FIELD (0.58)
+  [16/39] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.76)
+  [17/39] contract:AuthorRepository.read_all_authors -> READ_ALL (0.84)
+  [18/39] contract:AuthorRepository.read_author_by_id -> STANDARD_CRUD (0.73)
+  [19/39] contract:AuthorRepository.get_authors_by_name -> FILTER_BY_FIELD (0.89)
+  [20/39] contract:MemberRepository.create_member -> STANDARD_CRUD (0.78)
+  [21/39] contract:MemberRepository.read_all_members -> READ_ALL (0.82)
+  [22/39] contract:MemberRepository.read_member_by_id -> STANDARD_CRUD (0.80)
+  [23/39] contract:MemberRepository.read_member_by_email -> STANDARD_CRUD (0.54)  <- undecided (domain): REPO_QUERY at 0.46
+  [24/39] contract:MemberRepository.get_active_members -> FILTER_BY_FIELD (0.73)
+  [25/39] contract:MemberRepository.get_inactive_members -> FILTER_BY_FIELD (0.83)
+  [26/39] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.76)
+  [27/39] contract:LoanRepository.read_all_loans -> READ_ALL (0.86)
+  [28/39] contract:LoanRepository.read_loan_by_id -> STANDARD_CRUD (0.79)
+  [29/39] contract:LoanRepository.get_active_loans -> FILTER_BY_FIELD (0.71)
+  [30/39] contract:LoanRepository.get_overdue_loans -> THRESHOLD_SCAN (0.77)
+  [31/39] contract:LoanRepository.get_loans_by_member_id -> FILTER_BY_FIELD (0.65)
+  [32/39] contract:LoanRepository.get_loans_by_book_id -> FILTER_BY_FIELD (0.72)
+  [33/39] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.84)
+  [34/39] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.89)
+  [35/39] contract:LibraryService.borrow_book -> STANDARD_CRUD (0.43)  <- undecided (domain): REPO_QUERY at 0.41
+  [36/39] contract:LibraryService.return_book -> STANDARD_CRUD (0.66)
+  [37/39] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.43)
+  [38/39] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.65)
+  [39/39] contract:LibraryService.search_books -> FILTER_BY_FIELD (0.95)
+[ok] step patterns: 39 item(s) — 17 standard CRUD, 22 pattern(s), 0 gap(s)
+[interaction_adapters] 1416 tokens in 45.9s (30.9 tok/s)
+[persistence_ports] 2911 tokens in 106.1s (27.4 tok/s)
+[ok] step persistence_ports: removed 21 exactly repeated name(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/data_models.json
+[write] out/library/errors.json
+[write] out/library/invariants.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[run] 8 steps, 10835 generated tokens in 383.9s

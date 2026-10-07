@@ -1,0 +1,61 @@
+[run] requirements: 1965 characters
+[intentions] 87 tokens in 4.8s (18.1 tok/s)
+[data_models] 1244 tokens in 39.0s (31.9 tok/s)
+[invariants] 348 tokens in 14.4s (24.1 tok/s)
+[components] 199 tokens in 7.4s (26.9 tok/s)
+[service_contracts] 2234 tokens in 79.7s (28.0 tok/s)
+  [1/41] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [2/41] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [3/41] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [4/41] invariant -> STATE_TRANSITION_GUARD (0.48)
+  [5/41] invariant -> AGGREGATE_BY_FK_AND_DATE (0.24)  <- undecided: AGGREGATE_BY_FK at 0.12
+  [6/41] contract:BookRepository.create_book -> STANDARD_CRUD (0.77)
+  [7/41] contract:BookRepository.read_all_books -> READ_ALL (0.84)
+  [8/41] contract:BookRepository.read_book_by_id -> STANDARD_CRUD (0.80)
+  [9/41] contract:BookRepository.update_book -> STANDARD_CRUD (0.84)
+  [10/41] contract:BookRepository.delete_book -> STANDARD_CRUD (0.93)
+  [11/41] contract:BookRepository.search_books_by_title -> FILTER_BY_FIELD (0.93)
+  [12/41] contract:BookRepository.search_books_by_author_id -> FILTER_BY_FIELD (0.68)
+  [13/41] contract:BookRepository.search_books_by_isbn -> FILTER_BY_FIELD (0.90)
+  [14/41] contract:BookRepository.get_books_by_available_copies -> FILTER_BY_FIELD (0.74)
+  [15/41] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.76)
+  [16/41] contract:AuthorRepository.read_all_authors -> READ_ALL (0.83)
+  [17/41] contract:AuthorRepository.read_author_by_id -> STANDARD_CRUD (0.86)
+  [18/41] contract:AuthorRepository.update_author -> STANDARD_CRUD (0.88)
+  [19/41] contract:AuthorRepository.delete_author -> STANDARD_CRUD (0.93)
+  [20/41] contract:AuthorRepository.find_books_by_author -> FILTER_BY_FIELD (0.76)
+  [21/41] contract:MemberRepository.create_member -> STANDARD_CRUD (0.78)
+  [22/41] contract:MemberRepository.read_all_members -> READ_ALL (0.82)
+  [23/41] contract:MemberRepository.read_member_by_id -> STANDARD_CRUD (0.81)
+  [24/41] contract:MemberRepository.update_member -> STANDARD_CRUD (0.84)
+  [25/41] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.95)
+  [26/41] contract:MemberRepository.find_active_members -> READ_ALL (0.86)
+  [27/41] contract:MemberRepository.find_inactive_members -> FILTER_BY_FIELD (0.79)
+  [28/41] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.76)
+  [29/41] contract:LoanRepository.read_all_loans -> READ_ALL (0.86)
+  [30/41] contract:LoanRepository.read_loan_by_id -> STANDARD_CRUD (0.89)
+  [31/41] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.90)
+  [32/41] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.94)
+  [33/41] contract:LoanRepository.find_active_loans -> READ_ALL (0.79)
+  [34/41] contract:LoanRepository.find_overdue_loans -> THRESHOLD_SCAN (0.74)
+  [35/41] contract:LoanRepository.find_loans_by_member_id -> FILTER_BY_FIELD (0.77)
+  [36/41] contract:LoanRepository.find_loans_by_book_id -> FILTER_BY_FIELD (0.76)
+  [37/41] contract:LibraryService.borrow_book -> NO_PATTERN_IN_DOMAIN (0.36)  <- UNKNOWN: READ_ALL returns collection, but this method returns entity (Loan | None)
+  [38/41] contract:LibraryService.return_book -> STANDARD_CRUD (0.54)
+  [39/41] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.82)
+  [40/41] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.64)
+  [41/41] contract:LibraryService.search_books -> FILTER_BY_FIELD (0.95)
+[ok] step patterns: 41 item(s) — 18 standard CRUD, 22 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:LibraryService.borrow_book: borrow_book(member_id: int, book_id: int) -> Loan | None: Borrow a book for a member. Checks availability, creates loan, and decrements copies.
+[interaction_adapters] 1791 tokens in 58.7s (30.5 tok/s)
+[persistence_ports] 2220 tokens in 80.0s (27.7 tok/s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/data_models.json
+[write] out/library/invariants.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[run] 7 steps, 8123 generated tokens in 284.0s

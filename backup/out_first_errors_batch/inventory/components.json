@@ -1,0 +1,335 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "click",
+      "invocation": {
+        "positional": [],
+        "options": [],
+        "commands": [
+          {
+            "name": "product",
+            "options": [
+              {
+                "name": "-add",
+                "short": "-a",
+                "type": "dict",
+                "required": true,
+                "default": null
+              },
+              {
+                "name": "-list",
+                "short": "-l",
+                "type": "none",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-update",
+                "short": "-u",
+                "type": "none",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-delete",
+                "short": "-d",
+                "type": "none",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-restock",
+                "short": "-r",
+                "type": "none",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "-report",
+                "short": "-re",
+                "type": "none",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-category",
+                    "short": "-c",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-price",
+                    "short": "-p",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-stock",
+                    "short": "-s",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-low-active",
+                    "short": "-la",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-category",
+                    "short": "-cat",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-low-only",
+                    "short": "-lo",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-price",
+                    "short": "-p",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-category",
+                    "short": "-c",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-stock",
+                    "short": "-s",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-low-active",
+                    "short": "-la",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "restock",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-qty",
+                    "short": "-q",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "report",
+                "options": [
+                  {
+                    "name": "-low-stock",
+                    "short": "-ls",
+                    "type": "none",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-value",
+                    "short": "-v",
+                    "type": "none",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "category",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-d",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-threshold",
+                    "short": "-t",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-none",
+                    "short": "-none",
+                    "type": "none",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-d",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-threshold",
+                    "short": "-th",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-id",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Category",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

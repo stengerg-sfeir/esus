@@ -60,9 +60,46 @@ class StepFClassifiesRulesOnly(unittest.TestCase):
             ],
         )
 
-    def test_contract_methods_are_unaffected_by_the_tag(self):
+    def test_contract_methods_carry_their_full_signature(self):
+        """The tag does not touch contracts, and the signature is now classified.
+
+        `name: description` made a method returning `List[Expense]` and one
+        returning an aggregate `int` look alike, which is how
+        `get_monthly_expenses` — "Returns expenses for a specific month" — was
+        classified `AGGREGATE_BY_FK_AND_DATE`. The parameters and return type are
+        the evidence the read-shaped patterns turn on, so both reach the
+        classifier.
+        """
         documents = {
             "invariants": tagged(("member.is_active must be a boolean", "schema")),
+            "service_contracts": [
+                {
+                    "service_name": "LoanService",
+                    "methods": [
+                        {
+                            "name": "borrow_book",
+                            "description": "Borrows one.",
+                            "params": [{"name": "membership_id", "type": "int"}],
+                            "return_type": "Loan",
+                        }
+                    ],
+                }
+            ],
+        }
+        self.assertEqual(
+            classification_items(documents),
+            [
+                (
+                    "contract:LoanService.borrow_book",
+                    "borrow_book(membership_id: int) -> Loan: Borrows one.",
+                )
+            ],
+        )
+
+    def test_a_method_with_no_declared_signature_still_classifies(self):
+        """A missing return type must not drop the method from classification."""
+        documents = {
+            "invariants": [],
             "service_contracts": [
                 {"service_name": "LoanService", "methods": [{"name": "borrow_book",
                                                              "description": "Borrows one."}]}
@@ -70,7 +107,7 @@ class StepFClassifiesRulesOnly(unittest.TestCase):
         }
         self.assertEqual(
             classification_items(documents),
-            [("contract:LoanService.borrow_book", "borrow_book: Borrows one.")],
+            [("contract:LoanService.borrow_book", "borrow_book() -> ?: Borrows one.")],
         )
 
     def test_an_untagged_string_is_still_classified(self):

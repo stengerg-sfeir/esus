@@ -11,9 +11,44 @@ NAMES_HEADING = (
     "Do not invent, abbreviate, rename or translate any of them."
 )
 
+# Shown to step B, the only step nothing constrains — see `intentions_block`.
+# The closing warning matters as much as the list: step A's phrases name
+# services, repositories and interfaces too, and B must not read those as
+# entities.
+INTENTIONS_HEADING = (
+    "The use cases extracted from the requirements. They are the program's own "
+    "words for what it does: read them for the things it keeps, and for the "
+    "things it only passes through. They are NOT a data model — do not turn a "
+    "use case, a service, a repository or an interface named here into an entity."
+)
+
 INTENTIONS_SYSTEM = (
     "Extract core intentions (use cases/services). Do not list details. "
     'Output in English as JSON: {"intentions": []}.'
+)
+ERRORS_SYSTEM = (
+    "List the application error types the requirements need. Each entry is an exception class "
+    "the program will raise: give it a 'name' ending in 'Error', a 'base' naming the built-in it "
+    "derives from, and a one-sentence 'description' saying when it is raised. "
+    "When the requirements NAME a type, use that exact name — a requirement that says "
+    "'CategoryNotFoundError' means a class of exactly that name, character for character. When "
+    "the requirements only DESCRIBE a failure without naming it — 'error handling for missing "
+    "files', 'malformed CSV', 'invalid input' — give it a clear name of your own in the same "
+    "style. "
+    "Use only these bases: LookupError (a value that does not exist), ValueError (a value of the "
+    "wrong kind or shape), KeyError (a missing key), PermissionError, OSError (a file or the "
+    "system), RuntimeError (a state the program cannot proceed from), TypeError, Exception. "
+    "If the requirements look a record up by its key, a name or another identifier, register a "
+    "not-found error for that entity — one per entity that is looked up — so the method that "
+    "reads it has a name for the case where it is missing. This is the commonest gap: a registry "
+    "holding an error for a missing order but none for a missing invoice leaves the invoice "
+    "lookup naming an error that no document declares. "
+    "Do not invent an error for a failure the requirements never mention, and do not turn a "
+    "validation rule into an error class: a row that is malformed and skipped is not an "
+    "exception unless the requirements say the program must fail on it. "
+    "A program whose requirements describe no failure at all has no errors: emit an empty list. "
+    'Output strictly in English as JSON: {"errors": [{"name": "...", "base": "LookupError", '
+    '"description": "..."}]}.'
 )
 INVARIANTS_SYSTEM = (
     "Identify the business and data invariants explicitly stated or directly implied by the "
@@ -23,21 +58,27 @@ INVARIANTS_SYSTEM = (
     "Give every invariant a 'kind', which is exactly one of 'schema' or 'rule'. "
     "Use 'schema' when the invariant only restates how a single field is declared — its type, "
     "whether it is nullable or optional, whether it is unique, whether it is the primary key or "
-    "a foreign key, or the set of values it may take. Examples of 'schema': 'category.description "
-    "is optional', 'product.low_active is optional and defaults to False', 'member.is_active must "
-    "be a boolean', 'product.stock_qty must be a non-negative integer', 'expense.payment_method "
-    "is one of [cash, card, transfer]', 'category.id is auto-incremented primary key', "
-    "'loan.book_id must reference an existing Book'. A statement that a single field must be "
-    "unique is 'schema'. "
+    "a foreign key, or the set of values it may take. ALL of the following are 'schema', however "
+    "they are worded: a field is optional, nullable or required; a field must be a boolean, an "
+    "integer, a string, a date or a timestamp; a field must be a non-null date or a non-null "
+    "timestamp; a field must be a non-negative or positive integer, or must be >= 0, or must be "
+    ">= 1; a field must be unique; a field is a primary key or an auto-incremented key; a field "
+    "must be one of a fixed set of values; a field's value must exist in another entity, whether "
+    "written as 'must reference an existing X', 'must match Y in Z' or 'must be valid (exists in "
+    "X)'. A condition attached to a type, nullability or numeric bound does not change this: "
+    "'reorder_threshold must be a non-negative integer if provided' is 'schema', and "
+    "'price_cents must be a positive integer' is 'schema'. "
     "Use 'rule' when the invariant constrains behaviour rather than one field: it relates two "
-    "fields to each other, it holds only in a particular state, or it bounds an aggregate or a "
-    "total. Examples of 'rule': 'wine.selling_price must be strictly greater than wine.cost_price', "
-    "'the total number of bottles assigned to a StorageLocation must not exceed its "
-    "max_bottle_capacity', 'loan.return_date must be null if loan.status is active', "
-    "'stock_quantity must be >= 0 when the order is confirmed', 'book.available_copies must not "
-    "exceed the number of copies added for that book'. A conditional clause (if/when), a "
-    "comparison between two different fields, or a limit on a sum or a total makes an invariant a "
-    "'rule' even if it also mentions a single field. "
+    "different fields to each other, it makes a claim that holds only in a named state, or it "
+    "bounds an aggregate or a total. Examples of 'rule': 'wine.selling_price must be strictly "
+    "greater than wine.cost_price', 'the total number of bottles assigned to a StorageLocation "
+    "must not exceed its max_bottle_capacity', 'loan.return_date must be null if loan.status is "
+    "active', 'loan.return_date must be after loan.due_date', 'stock_quantity must be >= 0 when "
+    "the order is confirmed', 'book.available_copies must not exceed the number of copies added "
+    "for that book'. A comparison between two different fields, or a limit on a sum or a total, "
+    "makes an invariant a 'rule'. A conditional clause (if/when) makes it a 'rule' ONLY when the "
+    "claim itself is about another field, an aggregate, or a state named in the data model — a "
+    "bare type, nullability or numeric bound stays 'schema' even when a condition is attached. "
     "The data model listed above is authoritative: an invariant must agree with it. Never call a "
     "field unique or nullable when the model declares otherwise, and never state a rule about an "
     "entity or field the model does not define — a rule about a field that is not there cannot be "
@@ -58,21 +99,59 @@ DATA_MODELS_SYSTEM = (
     "'text', 'float'. For 'foreign_key' use null, or an object "
     '{"target_entity": "...", "target_field": "...", "relationship": "many_to_one"|"one_to_one"|'
     '"one_to_many"}. Give every field a status of "explicit" or "deduced". '
-    "If the requirements define no records to store — a program that only computes, prints, "
-    "parses or transforms and keeps nothing of its own — emit an empty list: "
-    '{"data_models": []}. Never invent an entity the requirements do not mention. '
+    "An entity is a thing the program KEEPS: it has a lifetime beyond one operation, because "
+    "the program stores it, looks it up by an identifier, lists it, updates it, or reports "
+    "totals over it. Data that is read from an input and written straight to an output is NOT "
+    "an entity: a row that is parsed and re-emitted, a line that is transformed and passed on, "
+    "a value that is only computed and printed — nothing stores these and nothing looks them "
+    "up. If nothing in the requirements is kept, looked up or aggregated over, there is no "
+    "entity to model and the correct answer is an empty list: "
+    '{"data_models": []}. '
+    "Never invent an entity the requirements do not name or describe: it must be possible to "
+    "point at the requirements' own words for it, in whatever language they are written, and "
+    "to say which stored thing those words describe. "
     "Output strictly in English as JSON."
 )
 COMPONENTS_SYSTEM = (
-    "Classify the technology components. Facade type is one of cli, api, gui; if the requirements "
-    "name none, use cli with technology argparse. If an api is requested but no technology is "
-    "named, use flask; a gui without one, pyimgui. If the requirements store data but name no "
-    "database, use sqlite. If the requirements store nothing at all — a program that only "
-    "computes or prints, with no records to keep — then set required=false, technology=none, and "
-    "leave crud_services empty; never add a database, a repository or an entity that the "
-    "requirements do not ask for. external_access lists only the cloud services the requirements "
-    "name. crud_services lists each bare domain entity the requirements ask to store (e.g. "
-    "'Book', 'Expense') at most once, each with a subset of "
+    "Classify the technology components. Facade type is one of cli, api, gui. "
+    "For a cli facade you must describe the command-line surface the requirements ask for in "
+    "'invocation', and then choose 'technology' to match that surface — the surface decides the "
+    "technology, never the other way round. "
+    "Set 'invocation' to null when the program accepts no arguments at all: a script whose whole "
+    "job is to print or compute something from nothing takes nothing in, and inventing a parser "
+    "for it is a defect rather than a default. "
+    "Otherwise 'invocation' is an object with three lists. 'positional' holds arguments given by "
+    "position, each with a name, a type and whether it is required. 'options' holds the flags a "
+    "user passes; write a long option name with two dashes ('--output') and its short form with "
+    "one ('-o'), and give each option a name, an optional short form, a type, whether it is "
+    "required, and a default or null. 'commands' holds subcommands, each with a name, its own "
+    "options, and its own 'subcommands'. "
+    "A flat CLI — 'tool --opt value --opt2 value' — leaves 'commands' empty and lists its "
+    "options directly. A hierarchical CLI — 'tool command --opt value', or "
+    "'tool command subcommand --opt value' — names each command in 'commands' and any second "
+    "level in that command's 'subcommands'. "
+    "A command is the thing the program acts on — 'product', 'category' — and a subcommand is "
+    "the verb it performs — 'add', 'list', 'update', 'delete'. When the requirements write "
+    "'<thing> <verb>', the thing becomes a command and the verb becomes one of that command's "
+    "subcommands; the verb is NEVER also an option of the command. A command that has "
+    "subcommands carries no options of its own except the global ones ('-help', '-version'): "
+    "the flags a verb needs ('--sku', '--name', '--id') belong to that verb's subcommand, not "
+    "to the command that holds it. The same word must never appear both in a command's "
+    "'options' and in that command's 'subcommands' — 'product add --sku' and 'product -add' "
+    "cannot both be how a product is added. An option is a flag carrying one value, so its type "
+    "is that value's shape ('str', 'int', 'bool', 'float', 'list'); 'dict' or 'object' is not "
+    "an option type. Name each command once. "
+    "Technology follows the surface: no arguments at all means 'none', because a plain main() "
+    "needs no parser; positional arguments and no options means 'sys.argv'; any option means "
+    "'argparse'; nested commands mean 'click'. If the requirements name a technology, use the "
+    "name they give. If an api is requested but no technology is named, use flask; a gui "
+    "without one, pyimgui. If the requirements store data but name no database, use sqlite. If "
+    "the requirements store nothing at all — a program that only computes or prints, with no "
+    "records to keep — then set required=false, technology=none, and leave crud_services empty; "
+    "never add a database, a repository or an entity that the requirements do not ask for. "
+    "external_access lists only the cloud services the requirements name. crud_services lists "
+    "each bare domain entity the requirements ask to store (e.g. 'Book', 'Expense') at most "
+    "once, each with a subset of "
     '["create", "read_one", "read_all", "update", "delete"]. Output strictly in English as JSON.'
 )
 CONTRACTS_SYSTEM = (
@@ -92,6 +171,13 @@ CONTRACTS_SYSTEM = (
     "stop at the operations list if the requirements ask for more. "
     "Never emit a placeholder such as 'none', 'None', 'void', 'NoneType' or ':' as a parameter "
     "name or type. "
+    "Where the requirements describe a failure a method can produce, name it in that method's "
+    "'raises' list, copied exactly from the registered error types listed below; use an empty "
+    "list for a method that raises none. Never name an error that is not registered, and never "
+    "invent one here — the registry is the authoritative list. "
+    "A method that creates a record cannot fail to find it: a create or an add performs no "
+    "lookup, so never give a create-like method a not-found error. That error belongs to the "
+    "read, update or delete method that really does look the record up. "
     "If the authoritative list is empty, or the requirements describe no domain entities at all, "
     'emit {"service_contracts": []} — never invent a service just to have something to write. '
     'Output strictly in English as JSON: {"service_contracts": [{"service_name": "...", "methods": '
@@ -101,8 +187,17 @@ CONTRACTS_SYSTEM = (
 ADAPTERS_SYSTEM = (
     "Extract abstract interaction adapters mapping external input actions onto the domain service "
     "methods listed above. target_service and target_method MUST be copied exactly from that list, "
-    "and target_param MUST be one of the parameters of the method you chose. Transforms: 'DIRECT', "
-    "'LOOKUP_ID', 'DECIMAL_TO_CENTS', 'ISO_DATE', 'CSV_LIST', 'ENUM_LOOKUP'. Set 'lookup_entity' "
+    "and target_param MUST be one of the parameters of the method you chose. When the method "
+    "declares a parameter whose name is the input field's own name, map the field to THAT "
+    "parameter: a field named 'category_id' goes to a parameter named 'category_id', never into "
+    "an entity object beside it, because the method has already said where the value goes. "
+    "Transforms: 'DIRECT', 'LOOKUP_ID', 'DECIMAL_TO_CENTS', 'ISO_DATE', 'CSV_LIST', 'ENUM_LOOKUP'. "
+    "Choose the transform that matches the field's own name and type: 'DECIMAL_TO_CENTS' is for a "
+    "money amount ('price', 'cost', 'amount', 'total', 'budget', 'limit'), never for a count, a "
+    "quantity, a boolean or a description; 'CSV_LIST' is for a field that holds several values "
+    "separated by commas, never for a single name, a description or a flag; 'ISO_DATE' is for a "
+    "date or timestamp; 'LOOKUP_ID' is for a foreign-key identifier that must be resolved to an "
+    "entity. Set 'lookup_entity' "
     "to an entity name when the transform is 'LOOKUP_ID', and to null for every other transform. "
     'Output strictly in English as JSON: {"interaction_adapters": [{"action_name": "...", '
     '"target_service": "...", "target_method": "...", "input_fields": [{"field_name": "...", '
@@ -139,8 +234,38 @@ def intentions(requirements):
     return _prompt(INTENTIONS_SYSTEM, requirements)
 
 
-def data_models(requirements):
-    return _prompt(DATA_MODELS_SYSTEM, requirements)
+def data_models(requirements, names=None):
+    return _prompt(DATA_MODELS_SYSTEM, requirements, names)
+
+
+def intentions_block(intentions):
+    """Step A's phrases, shown to step B — grounding, not a vocabulary.
+
+    Step B is the only step with nothing to be constrained by. Every other step's
+    grammar is generated from the names an earlier step produced, so it *cannot*
+    invent one; A emits prose, which cannot become a vocabulary. B therefore ran
+    on the raw requirements with an open grammar, and for a CSV-to-JSON converter
+    — a program that models nothing — it filled the required shape from priors
+    and invented `users, products, orders, order_items`.
+
+    The phrases cannot close a grammar, but they can be **shown**: they are
+    grounded in the requirements, so they supply the program's own words and
+    remove the vacuum the priors filled. Show, don't constrain.
+
+    Measured on the corpus, the two cases are exactly what this is for — expenses'
+    phrases name **Category**, **Expense** and **Budget**; cli_tool's name a
+    `main()` function, type hints and an `if __name__` guard, and nothing
+    storable at all.
+    """
+    phrases = [
+        phrase.strip()
+        for phrase in (intentions or [])
+        if isinstance(phrase, str) and phrase.strip()
+    ]
+    if not phrases:
+        return None
+    listed = "\n".join(f"- {phrase}" for phrase in phrases)
+    return f"{INTENTIONS_HEADING}\n{listed}"
 
 
 def invariants(requirements, names=None):
@@ -149,6 +274,10 @@ def invariants(requirements, names=None):
 
 def components(requirements, names):
     return _prompt(COMPONENTS_SYSTEM, requirements, names)
+
+
+def errors(requirements, names=None):
+    return _prompt(ERRORS_SYSTEM, requirements, names)
 
 
 def components_block(vocabulary):
@@ -215,6 +344,8 @@ def requirements_block(vocabulary):
         sections.append(f"Entities:\n{vocabulary.entity_block()}")
     if vocabulary.operations_block():
         sections.append(f"Required operations:\n{vocabulary.operations_block()}")
+    if vocabulary.errors_block():
+        sections.append(f"Registered error types:\n{vocabulary.errors_block()}")
     if not sections:
         return None
     return f"{NAMES_HEADING}\n" + "\n".join(sections)

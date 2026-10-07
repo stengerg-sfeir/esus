@@ -8,16 +8,26 @@ carry forward, and a run that uses them logs that fact.
 """
 
 from kernel.extraction.grammar import (
+    BASE_ERROR_RULE,
     GENERIC_TYPE_RULE,
+    GLOBAL_OPTION_NAME_RULE,
     MAX_ADAPTERS,
+    MAX_CLI_ARGS,
+    MAX_CLI_COMMANDS,
+    MAX_CLI_OPTIONS,
+    MAX_CLI_SUBCOMMANDS,
     MAX_CRUD_ENTITIES,
     MAX_ENTITIES,
+    MAX_ERRORS,
     MAX_EXTERNAL_ACCESS,
     MAX_FIELDS,
     MAX_INDEXES,
     MAX_INPUT_FIELDS,
     MAX_METHODS,
+    MAX_RAISES,
     MAX_SERVICES,
+    OPTION_NAME_RULE,
+    OPTION_TYPE_RULE,
     grammar,
     json_literal,
     json_list,
@@ -57,23 +67,57 @@ TRANSFORMS = (
 )
 
 
-def method_rules():
-    """The method block shared by service contracts and repositories."""
+def method_rules(extra=()):
+    """The method block shared by service contracts and repositories.
+
+    `extra` appends further key/value pairs to the method object, which is how a
+    **contract** method carries `raises` while a repository method does not: the
+    service declares the behaviour, so the service is where the failure it may
+    produce is named.
+    """
+    pairs = [
+        ("name", "identifier"),
+        ("description", "string"),
+        ("params", "param-list"),
+        ("return_type", "string"),
+    ]
+    pairs.extend(extra)
     return (
         rule("method-list", json_list("method", 1, MAX_METHODS)),
-        rule(
-            "method",
-            json_object(
-                [
-                    ("name", "identifier"),
-                    ("description", "string"),
-                    ("params", "param-list"),
-                    ("return_type", "string"),
-                ]
-            ),
-        ),
+        rule("method", json_object(pairs)),
         rule("param-list", json_list("param")),
         rule("param", json_object([("name", "identifier"), ("type", "string")])),
+    )
+
+
+def errors():
+    """Step E': the application error types the program declares.
+
+    A registry of exception classes, so a generator has a class to emit for every
+    failure the requirements describe and a name to raise at each place one
+    occurs. The requirements name some of these outright — inventory's
+    `CategoryNotFoundError` and `ProductNotFoundError` — while others are only
+    described: cli_tool asks for "error handling for missing files and malformed
+    CSV" and names no type at all. That is why `name` is free (an identifier) and
+    `base` is closed: the class can be named anything sensible, but it must
+    derive from a real built-in.
+    """
+    return grammar(
+        [
+            rule("root", json_object([("errors", "error-list")])),
+            rule("error-list", json_list("error-decl", 0, MAX_ERRORS)),
+            rule(
+                "error-decl",
+                json_object(
+                    [
+                        ("name", "identifier"),
+                        ("base", "base-error"),
+                        ("description", "string"),
+                    ]
+                ),
+            ),
+            BASE_ERROR_RULE,
+        ]
     )
 
 
@@ -138,7 +182,7 @@ def components():
                     ]
                 ),
             ),
-            rule("facade-obj", json_object([("type", FACADE_TYPES), ("technology", "string")])),
+            *facade_rules(),
             rule(
                 "persistence-obj",
                 json_object([("required", "boolean"), ("technology", "string")]),
@@ -155,6 +199,122 @@ def components():
     )
 
 
+def facade_rules():
+    """The facade object and the CLI surface it describes.
+
+    `invocation` records what the program *accepts* — its positionals, options
+    and commands — rather than only the parser library it names, because
+    `technology` on its own had nothing to be checked against. The prompt used to
+    instruct "if the requirements name none, use cli with technology argparse",
+    and the hello-world prompt — whose whole requirement is to print a string —
+    came back with an `argparse` parser and no arguments for it to parse. Nothing
+    could catch that, because the document never said what the parser was for.
+
+    `null` is the honest answer for a program that takes no arguments at all, and
+    it is a bare JSON null rather than an object holding three empty lists, so
+    "there is no CLI" cannot be confused with "there is a CLI with nothing in it".
+
+    `commands` nests exactly one level, which covers both shapes the prompts
+    describe: a flat CLI leaves `commands` empty and uses `options`, a
+    hierarchical one names its commands and their `subcommands`.
+    """
+    return (
+        rule(
+            "facade-obj",
+            json_object(
+                [
+                    ("type", FACADE_TYPES),
+                    ("technology", "string"),
+                    ("invocation", f"( {NULL} | invocation-obj )"),
+                ]
+            ),
+        ),
+        rule(
+            "invocation-obj",
+            json_object(
+                [
+                    ("positional", "cli-arg-list"),
+                    ("options", "cli-option-list"),
+                    ("commands", "cli-command-list"),
+                ]
+            ),
+        ),
+        rule("cli-arg-list", json_list("cli-arg", 0, MAX_CLI_ARGS)),
+        rule(
+            "cli-arg",
+            json_object(
+                [("name", "identifier"), ("type", "option-type"), ("required", "boolean")]
+            ),
+        ),
+        rule("cli-option-list", json_list("cli-option", 0, MAX_CLI_OPTIONS)),
+        rule(
+            "cli-option",
+            json_object(
+                [
+                    ("name", "option-name"),
+                    ("short", f"( {NULL} | option-name )"),
+                    ("type", "option-type"),
+                    ("required", "boolean"),
+                    ("default", f"( {NULL} | string )"),
+                ]
+            ),
+        ),
+        rule("cli-command-list", json_list("cli-command", 0, MAX_CLI_COMMANDS)),
+        # A command has one of two shapes and they cannot be mixed: a command
+        # with subcommands carries only the global flags, because the flags a verb
+        # needs belong to that verb's subcommand; a command without subcommands
+        # carries the options it needs. `-add` beside a subcommand `add` — which
+        # inventory produced and two prompt sentences failed to prevent — needs a
+        # shape that holds both, and there is none: the two branches differ in
+        # both `options` and `subcommands`, so a word cannot appear as both.
+        rule("cli-command", "( cli-command-nested | cli-command-flat )"),
+        rule(
+            "cli-command-nested",
+            json_object(
+                [
+                    ("name", "identifier"),
+                    ("options", "cli-global-option-list"),
+                    ("subcommands", "cli-subcommand-list-nonempty"),
+                ]
+            ),
+        ),
+        rule(
+            "cli-command-flat",
+            json_object(
+                [
+                    ("name", "identifier"),
+                    ("options", "cli-option-list"),
+                    ("subcommands", json_list("cli-subcommand", 0, 0)),
+                ]
+            ),
+        ),
+        rule("cli-global-option-list", json_list("cli-global-option", 0, MAX_CLI_OPTIONS)),
+        rule(
+            "cli-global-option",
+            json_object(
+                [
+                    ("name", "global-option-name"),
+                    ("short", f"( {NULL} | option-name )"),
+                    ("type", "option-type"),
+                    ("required", "boolean"),
+                    ("default", f"( {NULL} | string )"),
+                ]
+            ),
+        ),
+        rule(
+            "cli-subcommand-list-nonempty",
+            json_list("cli-subcommand", 1, MAX_CLI_SUBCOMMANDS),
+        ),
+        rule(
+            "cli-subcommand",
+            json_object([("name", "identifier"), ("options", "cli-option-list")]),
+        ),
+        GLOBAL_OPTION_NAME_RULE,
+        OPTION_NAME_RULE,
+        OPTION_TYPE_RULE,
+    )
+
+
 def service_contracts():
     """Step E: business service method signatures."""
     return grammar(
@@ -168,7 +328,8 @@ def service_contracts():
                 "contract",
                 json_object([("service_name", "identifier"), ("methods", "method-list")]),
             ),
-            *method_rules(),
+            rule("raises-list", json_list("identifier", 0, MAX_RAISES)),
+            *method_rules([("raises", "raises-list")]),
         ]
     )
 

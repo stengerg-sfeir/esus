@@ -48,24 +48,10 @@
           "required": true
         },
         {
-          "field_name": "initial_stock_quantity",
-          "target_param": "initial_stock_quantity",
+          "field_name": "stock_quantity",
+          "target_param": "stock_quantity",
           "transform": "DIRECT",
           "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "read_wine_by_id",
-      "target_service": "WineRepository",
-      "target_method": "read_wine_by_id",
-      "input_fields": [
-        {
-          "field_name": "wine_id",
-          "target_param": "wine_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Wine",
           "required": true
         }
       ]
@@ -77,6 +63,20 @@
       "input_fields": []
     },
     {
+      "action_name": "read_wine_by_id",
+      "target_service": "WineRepository",
+      "target_method": "read_wine_by_id",
+      "input_fields": [
+        {
+          "field_name": "wine_id",
+          "target_param": "wine_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
       "action_name": "update_wine",
       "target_service": "WineRepository",
       "target_method": "update_wine",
@@ -84,8 +84,8 @@
         {
           "field_name": "wine_id",
           "target_param": "wine_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Wine",
+          "transform": "DIRECT",
+          "lookup_entity": null,
           "required": true
         },
         {
@@ -131,8 +131,8 @@
           "required": false
         },
         {
-          "field_name": "new_stock_quantity",
-          "target_param": "new_stock_quantity",
+          "field_name": "stock_quantity",
+          "target_param": "stock_quantity",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": false
@@ -147,20 +147,6 @@
         {
           "field_name": "wine_id",
           "target_param": "wine_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Wine",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_wine_by_name",
-      "target_service": "WineRepository",
-      "target_method": "get_wine_by_name",
-      "input_fields": [
-        {
-          "field_name": "wine_name",
-          "target_param": "wine_name",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -168,37 +154,9 @@
       ]
     },
     {
-      "action_name": "get_total_stock_by_type",
-      "target_service": "WineRepository",
-      "target_method": "get_total_stock_by_type",
-      "input_fields": [
-        {
-          "field_name": "wine_type",
-          "target_param": "wine_type",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_stock_by_location",
-      "target_service": "WineRepository",
-      "target_method": "get_stock_by_location",
-      "input_fields": [
-        {
-          "field_name": "location_id",
-          "target_param": "location_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "StorageLocation",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "create_storage_location",
+      "action_name": "create_location",
       "target_service": "StorageLocationRepository",
-      "target_method": "create_storage_location",
+      "target_method": "create_location",
       "input_fields": [
         {
           "field_name": "zone_name",
@@ -231,35 +189,35 @@
       ]
     },
     {
-      "action_name": "read_storage_location_by_id",
+      "action_name": "read_all_locations",
       "target_service": "StorageLocationRepository",
-      "target_method": "read_storage_location_by_id",
-      "input_fields": [
-        {
-          "field_name": "location_id",
-          "target_param": "location_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "StorageLocation",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "read_all_storage_locations",
-      "target_service": "StorageLocationRepository",
-      "target_method": "read_all_storage_locations",
+      "target_method": "read_all_locations",
       "input_fields": []
     },
     {
-      "action_name": "update_storage_location",
+      "action_name": "read_location_by_id",
       "target_service": "StorageLocationRepository",
-      "target_method": "update_storage_location",
+      "target_method": "read_location_by_id",
       "input_fields": [
         {
           "field_name": "location_id",
           "target_param": "location_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "StorageLocation",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_location",
+      "target_service": "StorageLocationRepository",
+      "target_method": "update_location",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
           "required": true
         },
         {
@@ -284,8 +242,8 @@
           "required": false
         },
         {
-          "field_name": "new_max_bottle_capacity",
-          "target_param": "new_max_bottle_capacity",
+          "field_name": "max_bottle_capacity",
+          "target_param": "max_bottle_capacity",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": false
@@ -293,41 +251,48 @@
       ]
     },
     {
-      "action_name": "delete_storage_location",
+      "action_name": "delete_location",
       "target_service": "StorageLocationRepository",
-      "target_method": "delete_storage_location",
+      "target_method": "delete_location",
       "input_fields": [
         {
           "field_name": "location_id",
           "target_param": "location_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "StorageLocation",
+          "transform": "DIRECT",
+          "lookup_entity": null,
           "required": true
         }
       ]
     },
     {
-      "action_name": "get_location_by_zone_and_shelf",
-      "target_service": "StorageLocationRepository",
-      "target_method": "get_location_by_zone_and_shelf",
+      "action_name": "assign_wine_to_location",
+      "target_service": "WineLocationService",
+      "target_method": "assign_wine_to_location",
       "input_fields": [
         {
-          "field_name": "zone_name",
-          "target_param": "zone_name",
+          "field_name": "wine_id",
+          "target_param": "wine_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
         },
         {
-          "field_name": "row_number",
-          "target_param": "row_number",
+          "field_name": "location_id",
+          "target_param": "location_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
-        },
+        }
+      ]
+    },
+    {
+      "action_name": "remove_wine_from_location",
+      "target_service": "WineLocationService",
+      "target_method": "remove_wine_from_location",
+      "input_fields": [
         {
-          "field_name": "shelf_number",
-          "target_param": "shelf_number",
+          "field_name": "wine_id",
+          "target_param": "wine_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
