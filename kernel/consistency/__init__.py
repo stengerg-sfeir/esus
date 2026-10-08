@@ -2,7 +2,10 @@
 
 from kernel.consistency.checks_architecture import check_architecture_layer
 from kernel.consistency.checks_domain import check_domain_layer
-from kernel.consistency.checks_surface import check_surface_coverage
+from kernel.consistency.checks_surface import (
+    check_command_backing,
+    check_surface_coverage,
+)
 from kernel.consistency.loader import load_documents, load_requirements
 from kernel.consistency.report import Report, render_grand_total, render_report
 
@@ -34,5 +37,15 @@ def check_directory(output_dir, prompt_name):
     requirements = load_requirements(output_dir)
     if requirements:
         check_surface_coverage(documents.get("components"), requirements, report)
+
+    # The surface against the methods, not the prose: a command the requirements
+    # name and the surface declares still cannot be implemented if no service
+    # method serves it, and this is the only rule that can see that — a command
+    # resolves against no other document.
+    check_command_backing(
+        documents.get("components"),
+        documents.get("service_contracts") or [],
+        report,
+    )
 
     return report

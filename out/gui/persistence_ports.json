@@ -104,14 +104,13 @@
             "return_type": "Wine",
             "raises": [
               "WineNotFoundError",
-              "DuplicateWineNameError",
               "InvalidPricingException",
               "NegativeStockError"
             ]
           },
           {
             "name": "delete_wine",
-            "description": "Deletes a wine entry from the system.",
+            "description": "Deletes a wine from the system.",
             "params": [
               {
                 "name": "wine_id",
@@ -151,9 +150,7 @@
               }
             ],
             "return_type": "StorageLocation",
-            "raises": [
-              "NegativeCapacityError"
-            ]
+            "raises": []
           },
           {
             "name": "read_all_locations",
@@ -230,7 +227,7 @@
         "table": "wines",
         "primary_key": "wine_id",
         "indexes": [
-          "name"
+          "wine_name"
         ]
       },
       {
@@ -239,6 +236,7 @@
         "primary_key": "location_id",
         "indexes": [
           "zone_name",
+          "row_number",
           "shelf_number"
         ]
       }

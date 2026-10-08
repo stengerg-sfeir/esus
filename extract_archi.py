@@ -55,9 +55,20 @@ def main():
     log.write(f"[run] requirements: {len(requirements)} characters")
 
     extractor = runner.load_model(args.model, context_size=args.context, logits_all=False)
-    classifier = runner.load_model(args.model, context_size=args.context, logits_all=True)
 
-    pipeline = pipeline_module.Pipeline(extractor, classifier, log)
+    # The classifier is a second model whose context is built with
+    # `logits_all=True`, which only step F's `logprobs` needs — every other step
+    # would pay that cost for nothing. It is therefore loaded lazily, the first
+    # time a run actually has something to classify, so a program with no domain
+    # (hello, cli_tool) loads one model rather than two. See
+    # `Pipeline._step_patterns`.
+    pipeline = pipeline_module.Pipeline(
+        extractor,
+        log=log,
+        classifier_factory=lambda: runner.load_model(
+            args.model, context_size=args.context, logits_all=True
+        ),
+    )
     documents = pipeline.run(requirements)
 
     for path in writer.write_documents(output_dir, documents):

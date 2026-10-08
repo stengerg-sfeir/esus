@@ -6,7 +6,7 @@
       "invocation": {
         "positional": [
           {
-            "name": "subcommand",
+            "name": "command",
             "type": "str",
             "required": true
           }
@@ -29,7 +29,7 @@
         ],
         "commands": [
           {
-            "name": "category",
+            "name": "expense",
             "options": [
               {
                 "name": "--help",
@@ -48,7 +48,7 @@
             ],
             "subcommands": [
               {
-                "name": "add",
+                "name": "category",
                 "options": [
                   {
                     "name": "-name",
@@ -68,6 +68,27 @@
                     "name": "-icon",
                     "short": "-i",
                     "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-budget",
+                    "short": "-b",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
                     "required": false,
                     "default": null
                   }
@@ -77,8 +98,43 @@
                 "name": "list",
                 "options": [
                   {
+                    "name": "-category",
+                    "short": "-c",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-from-date",
+                    "short": "-f",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-to-date",
+                    "short": "-t",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-method",
+                    "short": "-m",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
                     "name": "-help",
                     "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -86,46 +142,93 @@
                 ]
               },
               {
-                "name": "update",
+                "name": "report",
                 "options": [
                   {
-                    "name": "-id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-name",
-                    "short": "-n",
+                    "name": "-monthly",
+                    "short": "-m",
                     "type": "str",
                     "required": false,
                     "default": null
                   },
                   {
-                    "name": "-description",
-                    "short": "-d",
+                    "name": "-yearly",
+                    "short": "-y",
                     "type": "str",
                     "required": false,
                     "default": null
                   },
                   {
-                    "name": "-icon",
-                    "short": "-i",
-                    "type": "str",
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
                     "required": false,
                     "default": null
                   }
                 ]
               },
               {
-                "name": "delete",
+                "name": "export",
                 "options": [
                   {
-                    "name": "-id",
-                    "short": "-i",
-                    "type": "int",
+                    "name": "-from-date",
+                    "short": "-f",
+                    "type": "str",
                     "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-to-date",
+                    "short": "-to",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-output",
+                    "short": "-o",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-help",
+                    "short": "-help",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "recurring",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
                     "default": null
                   }
                 ]
@@ -167,6 +270,20 @@
                     "type": "str",
                     "required": false,
                     "default": null
+                  },
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
                   }
                 ]
               },
@@ -192,6 +309,20 @@
                     "short": "-a",
                     "type": "int",
                     "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
                     "default": null
                   }
                 ]
@@ -214,9 +345,16 @@
                     "default": null
                   },
                   {
-                    "name": "-amount",
-                    "short": "-a",
-                    "type": "int",
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
                     "required": false,
                     "default": null
                   }
@@ -238,154 +376,17 @@
                     "type": "str",
                     "required": true,
                     "default": null
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "name": "expense",
-            "options": [
-              {
-                "name": "--help",
-                "short": "-h",
-                "type": "bool",
-                "required": false,
-                "default": null
-              },
-              {
-                "name": "--version",
-                "short": "-v",
-                "type": "bool",
-                "required": false,
-                "default": null
-              }
-            ],
-            "subcommands": [
-              {
-                "name": "add",
-                "options": [
-                  {
-                    "name": "-category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
                   },
                   {
-                    "name": "-expense-date",
-                    "short": "-d",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-method",
-                    "short": "-m",
-                    "type": "str",
-                    "required": false,
-                    "default": "cash"
-                  },
-                  {
-                    "name": "-recurring",
-                    "short": "-r",
+                    "name": "-help",
+                    "short": "-h",
                     "type": "bool",
                     "required": false,
                     "default": null
                   },
                   {
-                    "name": "-description",
-                    "short": "-d",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "list",
-                "options": [
-                  {
-                    "name": "-category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-from-date",
-                    "short": "-f",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-to-date",
-                    "short": "-t",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-method",
-                    "short": "-m",
-                    "type": "str",
-                    "required": false,
-                    "default": "cash"
-                  }
-                ]
-              },
-              {
-                "name": "report",
-                "options": [
-                  {
-                    "name": "-monthly",
-                    "short": "-m",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-yearly",
-                    "short": "-y",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "export",
-                "options": [
-                  {
-                    "name": "-from-date",
-                    "short": "-f",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-to-date",
-                    "short": "-t",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-output",
-                    "short": "-o",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "recurring",
-                "options": [
-                  {
-                    "name": "-help",
-                    "short": "-h",
+                    "name": "-version",
+                    "short": "-v",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -399,7 +400,7 @@
     },
     "persistence": {
       "required": true,
-      "technology": "sqlite"
+      "technology": "sqlite3"
     },
     "external_access": [],
     "crud_services": [
@@ -407,6 +408,7 @@
         "entity": "Category",
         "operations": [
           "create",
+          "read_one",
           "read_all",
           "update",
           "delete"
@@ -426,6 +428,7 @@
         "entity": "Budget",
         "operations": [
           "create",
+          "read_one",
           "read_all",
           "update",
           "delete"

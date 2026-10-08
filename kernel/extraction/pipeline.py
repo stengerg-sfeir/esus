@@ -44,14 +44,25 @@ PERSISTENCE_PORTS = "persistence_ports"
 class Pipeline:
     """Runs steps A–H over one set of requirements."""
 
-    def __init__(self, llm, classifier, log):
+    def __init__(self, llm, classifier=None, log=None, classifier_factory=None):
         self.llm = llm
+        # The classifier is a second `Llama` instance whose context is built with
+        # `logits_all=True`, which step F's `logprobs` needs and every other step
+        # would only pay for. It is therefore loaded on first use rather than at
+        # startup — a program with no domain classifies nothing, and should not
+        # load a second model to find that out. `classifier_factory` is that
+        # deferred loader (see `extract_archi.py`); `classifier` stays accepted
+        # for an already-built instance and in tests.
         self.classifier = classifier
+        self.classifier_factory = classifier_factory
         self.log = log
         self.documents = {}
         self.results = []
 
     def run(self, requirements):
+        # Kept so the post-contract error repair can consult the requirements — the
+        # only authority on whether a declared-but-unraised error belongs.
+        self.requirements = requirements
         self._step_intentions(requirements)
         self._step_data_models(requirements)
         self._step_errors(requirements)
@@ -278,12 +289,34 @@ class Pipeline:
         errors, services = repairs.repair_errors(
             self.documents.get(ERRORS), services, self.log
         )
+        # A declared error that no method raises is dead code. The registry keeps
+        # one when a method raises it, when the requirements name it, or when a
+        # distinctive word of its name is grounded in the requirements; otherwise
+        # it is dropped (§9.34).
+        errors = repairs.repair_unraised_errors(
+            errors, services, getattr(self, "requirements", ""), self.log
+        )
         self.documents[ERRORS] = errors
         if isinstance(services, list):
             self.documents[SERVICE_CONTRACTS] = services
 
     def _step_patterns(self):
-        """Step F: classify invariants and contract methods into kernel patterns."""
+        """Step F: classify invariants and contract methods into kernel patterns.
+
+        The classifier model is loaded here, on the first run that actually has
+        something to classify, rather than at startup. Its context is built with
+        `logits_all=True` — the pattern classifier reads per-token `logprobs`,
+        which nothing else needs — so it is a second full model load, and a
+        program with no domain (hello, cli_tool) must not pay for one it will
+        never call. Building it here means a no-domain run loads one model.
+        """
+        items = classification.classification_items(self.documents)
+        if not items:
+            self.log.write("[ok] step patterns: nothing to classify")
+            self.documents[PATTERN_MATCHES] = []
+            return
+        if self.classifier is None and self.classifier_factory is not None:
+            self.classifier = self.classifier_factory()
         matches = classification.classify_documents(self.classifier, self.documents, self.log)
         self.documents[PATTERN_MATCHES] = matches
 
@@ -361,7 +394,13 @@ def _entity_block(vocab):
 
 
 def _parse_document(text, key):
-    """Parse a generated document, returning None when it is unusable."""
+    """Parse a generated document, returning None when it is unusable.
+
+    The parse is strict: the grammar guarantees bare JSON, so anything else is a
+    real defect to report rather than to recover from. An experiment with the
+    mask off (§9.31) is why no lenient path exists here — accepting a fence or
+    trailing prose would be papering over a failure the grammar prevents.
+    """
     try:
         payload = json.loads(text)
     except json.JSONDecodeError as error:

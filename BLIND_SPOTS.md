@@ -805,3 +805,148 @@ never faithfulness, so no rule in it can be written without the requirements as 
 > returns and library's four `None` deletes are unchanged by the repair pass, because
 > `return_types.GENERIC_RETURNS` targets only the `dict[str, object]` spelling: a report
 > aggregate names no single entity to repair it to, and `None` on a delete is correct Python.
+---
+
+## 9. §9.33–§9.34 — the CLI surface, and the errors nothing raises
+
+Two findings remained after §9.28, and both are closed.
+
+**§9.33 — the CLI surface under-enumerated its own commands.** §8 recorded the faithfulness
+limit ("nothing compares the recorded surface with the requirements' own command list"), and the
+one warning at the time — library's `missing_command` — was the tip of it: the requirements name
+**nine** command lines and the document declared **one** (`book` → `add`). Two causes, both
+fixed at the source:
+
+1. `COMPONENTS_SYSTEM` now says every command line must appear, that each distinct thing is a
+   command of its own, and that a `<program> <verb> --flag` line makes that word a top-level
+   command carrying its own options.
+2. `checks_surface` no longer hides a verb behind a bracketed `[--flag` (it accepts `[`), and now
+   reports a noun used before **two or more** distinct verbs as a missing command group, with the
+   program name and any subcommand excluded so `library` (the program) and `report` (a subcommand
+   of `expense`) are not false positives. Before this the rule could only compare a noun the
+   surface already had, so a whole omitted group was invisible.
+
+Measured on library, same prompt and grammar: `book` went from `[add]` to `[add, list, search]`.
+Across the corpus the surface now declares one command group fewer than the requirements name in
+**two** places — library's `member` and expenses' `expense add` — where the widened checker would
+previously have reported one of eight on library alone.
+
+**§9.34 — the declared errors nothing raises.** §8 recorded `unused_error` as a note (18 at the
+time). Measured per prompt, **19** declared errors were raised by no method, in two causes: a
+**fabricated validation class** (`InvalidBudgetAmountError`, `InvalidSkuError`,
+`InvalidWineTypeError` — `ERRORS_SYSTEM` forbids exactly this) and a **grounded but unwired**
+failure (`MalformedCSVError`, `FileNotFoundError`, the not-founds). The first is dead code; the
+second is a gap in the *contracts*, not the registry, and the registry must stay faithful.
+
+`repairs.repair_unraised_errors` now runs after step E and drops each unraised error **unless the
+requirements justify it** — a method raises it, the requirements spell its name out, or a
+distinctive word of its name is grounded there; a validation-shaped name is kept only when the
+requirements use its validation word. Every drop is logged. Across the corpus **13 of the 19 are
+dropped** and the grounded ones kept:
+
+| prompt | dropped |
+|---|---|
+| expenses | InvalidBudgetMonthError, InvalidDateFormatError, InvalidPaymentMethodError, InvalidRecurringFlagError, InvalidBudgetAmountError |
+| inventory | InvalidSkuError, InvalidPriceError, InvalidThresholdError, MalformedCSVError |
+| 60 | InvalidPriceError, MalformedCSVError, PermissionDeniedError |
+| library | MalformedCSVError, InvalidInputError |
+| cli_tool, gui, hello | none |
+
+The kept ones are the point: cli_tool's `MalformedCSVError` survives because its requirements say
+"malformed CSV"; gui's `InvalidWineTypeError` survives because its requirements say "invalid";
+`60`'s not-founds and library's `OverdueLoanFoundError` survive because "invoice", "order",
+"stock" and "overdue" are in their requirements.
+
+**Measured end to end.** Library re-ran with both changes: the log shows both drops, the errors
+document fell from 12 entries to 10, and the checker's `unused_error` notes fell from 3 to 1 —
+the survivor being `OverdueLoanFoundError`, which the requirements ground in "overdue", so its
+absence from a method is an honest contracts gap. The other six prompts were then re-run so every
+document on disk carries §9.34.
+
+**The current corpus tally is `0 error(s), 2 warning(s), 45 note(s)`** — the two warnings are the
+surface gaps §9.33 names, and the 45 notes are 17 `narrow_margin`, 8 `empty_section`, 6
+`missing_pattern`, 5 `corrected_claim`, **5 `unused_error`** (down from 19 — the five grounded
+survivors above), and 4 `low_confidence`. The five surviving `unused_error` notes are a contracts
+gap (a grounded failure the service methods never raise), not a registry defect, and are left
+visible rather than suppressed by deleting a correctly-declared error.
+
+Eight unit tests pin §9.34 (`tests/test_repairs.py`), including the cli_tool keep and the
+no-requirements pass-through; the suite is **268 tests, green**.
+---
+
+## 10. Is the corpus ready for a generator? — final answer
+
+The question is not "does the checker pass" — that only proves the documents agree with **each
+other**. A generator needs the stronger property: the documents must be *complete* (nothing the
+requirements asked for is missing) and *unambiguous* (nothing the generator would have to guess).
+This section measures that, and the answer is **almost, with one known gap**.
+
+### 10.1 From the original report to now
+
+| | `EXTRACTION_REPORT.md` (baseline) | now |
+|---|---|---|
+| errors | **7** | **0** |
+| warnings | **52** | **2** |
+| notes | — | 29 |
+
+Every original finding class is gone: `unknown_reference` (23), `inconsistent_adapter` (9),
+`no_repository` (8), `unresolved_adapter_target` (6), `primary_key_mismatch` (3),
+`malformed_document`, `class_name_entity`, `duplicate_entry`, `no_mapping`,
+`missing_primary_key`, `placeholder_value`, `invalid_value`. The two surviving warnings are both
+`missing_command` — the surface omitting a command group the requirements name — and are model
+limits at 3B, not pipeline defects: library nests `member` under `book`, expenses drops `add`
+beside `category`.
+
+### 10.2 What a generator actually needs, and where the corpus stands
+
+The consistency checker cannot answer this, so `probe_readiness.py` checks the generator's own
+preconditions directly — every command backed by a method, every adapter resolving, every
+parameter typed, every raised error registered, every repository mapped:
+
+| prompt | generator blockers |
+|---|---|
+| hello, cli_tool, inventory, gui, expenses, library | **0** |
+| 60 | **1** — `order confirm` has no method |
+
+So **six of seven prompts are generator-ready as they stand**, and 60 has a single command
+(`order confirm`) with no method whose name serves it — though the capability itself exists as
+`update_order_status`, which the same run declares, so a generator that maps a verb to a
+status-update method covers it. The checker now reports this too, as an `unbacked_command`
+**note** (§9.37), so the gap is visible in the run's own output rather than only here.
+
+The 29 notes are not blockers. They are: 11 `narrow_margin` (a classification decided by
+<0.15 — a coin the generator may land either way on a re-run, but each result is valid),
+8 `empty_section` (correct on the two no-domain prompts), 5 `missing_pattern` (a pattern
+template the classifier vocabulary lacks — informational, does not stop generation), 4
+`unused_error` (a grounded error no method raises — the method set is complete; the error is
+simply not yet wired), and 1 `unbacked_command`.
+
+### 10.3 The one caveat that matters: the corpus is not reproducible run-to-run
+
+This is the honest limit on "ready". Regenerating **60 with the same prompt** produced
+`0 warnings` on one run and `15 warnings` on the next — the model emitted one service entry per
+method group instead of one per service. §9.36 makes the duplicates *unrepresentable* by merging
+same-named services, so that specific regression is now closed, but the underlying fact stands:
+at 3B the extraction is stochastic, and a document that is clean this morning can carry a
+different warning this afternoon. A generator consuming these documents is consuming the output
+of a probabilistic step.
+
+**What that means in practice:** the *structure* is now reliable (chained vocabularies and
+closed grammars mean a name that does not exist cannot be written — the whole point of the plan),
+but the *completeness* of any one run is not guaranteed. A generator should run the checker on
+each fresh output and treat a non-zero warning count as "regenerate or patch", which is exactly
+what the two remaining warnings are asking for.
+
+### 10.4 Verdict
+
+- **Consistent?** Yes. 0 errors; the two warnings are requirements-vs-surface gaps the model, not
+  the pipeline, produces.
+- **Ready to write a generator?** Yes for six of seven prompts with no caveat. For 60, and for
+  any future run, gate on the checker: `0 errors` is a hard precondition, and the
+  `missing_command`/`unbacked_command` findings are the ones a generator would otherwise have to
+  fix silently — they are the last things that should be closed before generation, and they are
+  now the only things the pipeline reports without being able to close.
+- **What is left is model quality, not architecture.** Nothing in the pipeline invents a name,
+  drops a document, or leaves a reference dangling. What remains is a 3B model occasionally
+  omitting a command or a search method — a model choice, on a prompt where the requirement is
+  stated, and reported by a rule rather than passed over.

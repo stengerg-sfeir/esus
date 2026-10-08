@@ -63,41 +63,6 @@
                     "type": "bool",
                     "required": false,
                     "default": null
-                  },
-                  {
-                    "name": "-category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-price",
-                    "short": "-p",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-stock",
-                    "short": "-s",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-low-active",
-                    "short": "-la",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
                   }
                 ]
               },
@@ -113,7 +78,7 @@
                   },
                   {
                     "name": "-version",
-                    "short": "-help",
+                    "short": "-v",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -127,7 +92,7 @@
                   },
                   {
                     "name": "-low-only",
-                    "short": "-lo",
+                    "short": "-l",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -169,27 +134,6 @@
                     "name": "-price",
                     "short": "-p",
                     "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-stock",
-                    "short": "-s",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-category",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-low-active",
-                    "short": "-la",
-                    "type": "bool",
                     "required": false,
                     "default": null
                   }
@@ -258,6 +202,20 @@
                 "name": "report",
                 "options": [
                   {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
                     "name": "-low-stock",
                     "short": "-ls",
                     "type": "bool",
@@ -288,13 +246,6 @@
               {
                 "name": "--version",
                 "short": "-v",
-                "type": "bool",
-                "required": false,
-                "default": null
-              },
-              {
-                "name": "-help",
-                "short": "-h",
                 "type": "bool",
                 "required": false,
                 "default": null
@@ -347,13 +298,6 @@
                   {
                     "name": "-help",
                     "short": "-h",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-version",
-                    "short": "-v",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -440,7 +384,7 @@
     },
     "persistence": {
       "required": true,
-      "technology": "sqlite"
+      "technology": "sqlite3"
     },
     "external_access": [],
     "crud_services": [
@@ -448,6 +392,7 @@
         "entity": "Category",
         "operations": [
           "create",
+          "read_one",
           "read_all",
           "update",
           "delete"

@@ -111,5 +111,74 @@ class MismatchedTransformTests(unittest.TestCase):
         self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
 
 
+class UnraisedErrorTests(unittest.TestCase):
+    """An error no method raises is dropped only when the requirements disown it."""
+
+    REQUIREMENTS = (
+        "Book lending CLI. Handles overdue loans and reports an overdue list."
+    )
+
+    def test_a_raised_error_is_kept(self):
+        errors = [{"name": "BookNotFoundError"}]
+        services = [contract("find_book", ["BookNotFoundError"])]
+        kept = repairs.repair_unraised_errors(errors, services, self.REQUIREMENTS, Log())
+        self.assertEqual([item["name"] for item in kept], ["BookNotFoundError"])
+
+    def test_a_grounded_unraised_error_is_kept(self):
+        """`OverdueLoanFoundError` is unraised but the requirements say 'overdue'."""
+        errors = [{"name": "OverdueLoanFoundError"}]
+        log = Log()
+        kept = repairs.repair_unraised_errors(errors, [], self.REQUIREMENTS, log)
+        self.assertEqual([item["name"] for item in kept], ["OverdueLoanFoundError"])
+        self.assertEqual(log.lines, [])
+
+    def test_a_named_unraised_error_is_kept(self):
+        errors = [{"name": "BookNotFoundError"}]
+        kept = repairs.repair_unraised_errors(
+            errors, [], "raise BookNotFoundError when absent", Log()
+        )
+        self.assertEqual([item["name"] for item in kept], ["BookNotFoundError"])
+
+    def test_an_ungrounded_validation_error_is_dropped(self):
+        errors = [{"name": "InvalidInputError"}]
+        log = Log()
+        kept = repairs.repair_unraised_errors(errors, [], self.REQUIREMENTS, log)
+        self.assertEqual(kept, [])
+        self.assertEqual(len(log.lines), 1)
+
+    def test_a_partly_grounded_validation_error_is_still_dropped(self):
+        """'budget' grounds the name, but a validation shape is dropped anyway."""
+        errors = [{"name": "InvalidBudgetAmountError"}]
+        kept = repairs.repair_unraised_errors(errors, [], "the budget is stored", Log())
+        self.assertEqual(kept, [])
+
+    def test_an_ungrounded_unraised_error_is_dropped(self):
+        errors = [{"name": "MalformedCSVError"}]
+        kept = repairs.repair_unraised_errors(errors, [], "a book lending tool", Log())
+        self.assertEqual(kept, [])
+
+    def test_a_grounded_validation_error_is_kept(self):
+        """cli_tool's requirements say 'malformed CSV', so the class is warranted."""
+        errors = [{"name": "MalformedCSVError"}]
+        kept = repairs.repair_unraised_errors(
+            errors, [], "Handle missing files and malformed CSV input.", Log()
+        )
+        self.assertEqual([item["name"] for item in kept], ["MalformedCSVError"])
+
+    def test_no_requirements_leaves_the_registry_untouched(self):
+        errors = [{"name": "InvalidInputError"}]
+        kept = repairs.repair_unraised_errors(errors, [], "", Log())
+        self.assertEqual([item["name"] for item in kept], ["InvalidInputError"])
+
+    def test_the_library_case_drops_two_and_keeps_one(self):
+        errors = [
+            {"name": "MalformedCSVError"},
+            {"name": "InvalidInputError"},
+            {"name": "OverdueLoanFoundError"},
+        ]
+        kept = repairs.repair_unraised_errors(errors, [], self.REQUIREMENTS, Log())
+        self.assertEqual([item["name"] for item in kept], ["OverdueLoanFoundError"])
+
+
 if __name__ == "__main__":
     unittest.main()

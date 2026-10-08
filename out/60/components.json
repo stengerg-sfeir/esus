@@ -82,6 +82,13 @@
                     "type": "bool",
                     "required": false,
                     "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
                   }
                 ]
               },
@@ -92,58 +99,6 @@
                     "name": "-query",
                     "short": "-q",
                     "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-help",
-                    "short": "-h",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "update",
-                "options": [
-                  {
-                    "name": "-id",
-                    "short": "-i",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-name",
-                    "short": "-n",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-email",
-                    "short": "-e",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-address",
-                    "short": "-a",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  }
-                ]
-              },
-              {
-                "name": "delete",
-                "options": [
-                  {
-                    "name": "-id",
-                    "short": "-i",
-                    "type": "int",
                     "required": true,
                     "default": null
                   }
@@ -174,13 +129,6 @@
                 "name": "add",
                 "options": [
                   {
-                    "name": "-category",
-                    "short": "-c",
-                    "type": "str",
-                    "required": true,
-                    "default": null
-                  },
-                  {
                     "name": "-name",
                     "short": "-n",
                     "type": "str",
@@ -198,6 +146,13 @@
                     "name": "-price",
                     "short": "-p",
                     "type": "float",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-category",
+                    "short": "-c",
+                    "type": "str",
                     "required": true,
                     "default": null
                   },
@@ -219,22 +174,10 @@
                     "type": "bool",
                     "required": false,
                     "default": null
-                  }
-                ]
-              },
-              {
-                "name": "search",
-                "options": [
-                  {
-                    "name": "-query",
-                    "short": "-q",
-                    "type": "str",
-                    "required": true,
-                    "default": null
                   },
                   {
-                    "name": "-help",
-                    "short": "-h",
+                    "name": "-version",
+                    "short": "-v",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -252,12 +195,78 @@
                     "default": null
                   },
                   {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-d",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-price",
+                    "short": "-p",
+                    "type": "float",
+                    "required": false,
+                    "default": null
+                  },
+                  {
                     "name": "-category",
                     "short": "-c",
                     "type": "str",
-                    "required": true,
+                    "required": false,
                     "default": null
                   },
+                  {
+                    "name": "-stock",
+                    "short": "-s",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "category",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
                   {
                     "name": "-name",
                     "short": "-n",
@@ -271,19 +280,50 @@
                     "type": "str",
                     "required": true,
                     "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-help",
+                    "short": "-h",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
                   },
                   {
-                    "name": "-price",
-                    "short": "-p",
-                    "type": "float",
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "-id",
+                    "short": "-id",
+                    "type": "int",
                     "required": true,
                     "default": null
                   },
                   {
-                    "name": "-stock",
-                    "short": "-s",
-                    "type": "int",
-                    "required": true,
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-description",
+                    "short": "-d",
+                    "type": "str",
+                    "required": false,
                     "default": null
                   }
                 ]
@@ -332,14 +372,21 @@
                     "default": null
                   },
                   {
-                    "name": "-customer-id",
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-customer",
                     "short": "-c",
                     "type": "int",
                     "required": true,
                     "default": null
                   },
                   {
-                    "name": "-product-id",
+                    "name": "-products",
                     "short": "-p",
                     "type": "list",
                     "required": true,
@@ -356,6 +403,20 @@
                     "type": "bool",
                     "required": false,
                     "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-customer",
+                    "short": "-c",
+                    "type": "int",
+                    "required": false,
+                    "default": null
                   }
                 ]
               },
@@ -363,10 +424,10 @@
                 "name": "confirm",
                 "options": [
                   {
-                    "name": "-help",
-                    "short": "-h",
-                    "type": "bool",
-                    "required": false,
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
                     "default": null
                   }
                 ]
@@ -375,10 +436,10 @@
                 "name": "cancel",
                 "options": [
                   {
-                    "name": "-help",
-                    "short": "-h",
-                    "type": "bool",
-                    "required": false,
+                    "name": "-id",
+                    "short": "-i",
+                    "type": "int",
+                    "required": true,
                     "default": null
                   }
                 ]
@@ -386,13 +447,6 @@
               {
                 "name": "search",
                 "options": [
-                  {
-                    "name": "-help",
-                    "short": "-h",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  },
                   {
                     "name": "-query",
                     "short": "-q",
@@ -432,19 +486,26 @@
                     "type": "bool",
                     "required": false,
                     "default": null
+                  },
+                  {
+                    "name": "-version",
+                    "short": "-v",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "-customer",
+                    "short": "-c",
+                    "type": "int",
+                    "required": false,
+                    "default": null
                   }
                 ]
               },
               {
                 "name": "search",
                 "options": [
-                  {
-                    "name": "-help",
-                    "short": "-h",
-                    "type": "bool",
-                    "required": false,
-                    "default": null
-                  },
                   {
                     "name": "-query",
                     "short": "-q",
@@ -461,7 +522,7 @@
     },
     "persistence": {
       "required": true,
-      "technology": "sqlite"
+      "technology": "sqlite3"
     },
     "external_access": [],
     "crud_services": [
@@ -469,17 +530,16 @@
         "entity": "Customer",
         "operations": [
           "create",
-          "read_one",
-          "read_all",
-          "update",
-          "delete"
+          "read_all"
         ]
       },
       {
         "entity": "Category",
         "operations": [
           "create",
-          "read_all"
+          "read_all",
+          "update",
+          "delete"
         ]
       },
       {
@@ -497,7 +557,7 @@
           "create",
           "read_all",
           "update",
-          "delete"
+          "read_one"
         ]
       },
       {

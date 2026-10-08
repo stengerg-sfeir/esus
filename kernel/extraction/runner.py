@@ -92,7 +92,8 @@ def load_model(model_path, context_size=8192, logits_all=False):
     threads = threading.get("n_threads", "auto")
     print(
         f"[model] {model_path} on {device}, n_ctx={context_size}, "
-        f"n_threads={threads}, logits_all={logits_all}",
+        f"n_threads={threads}, logits_all={logits_all}, "
+        f"flash_attn={FLASH_ATTENTION}",
         file=sys.stderr,
     )
     started = time.time()
@@ -163,9 +164,16 @@ def generation_budget(llm, prompt, max_new_tokens=None):
     return max(MIN_BUDGET, min(ceiling, available_tokens(llm, prompt)))
 
 
-def generate(llm, prompt, grammar_text, label, temperature=0.1, stream=True,
-             max_new_tokens=None):
+def generate(llm, prompt, grammar_text, label, temperature=0.1, max_new_tokens=None):
     """Generate one document under `grammar_text`, honouring the context budget.
+
+    The call is **not** streamed. Streaming yields one chunk per token and
+    rebuilds a response dict for each, which is pure Python overhead on top of
+    the sampler that already runs per token — it buys nothing here, because the
+    document is only ever parsed once the whole step has finished. A single
+    non-streaming call returns the same text in one dict, and its `usage` gives
+    the exact completion-token count instead of the one-per-chunk estimate the
+    stream forced.
 
     The caller is responsible for having validated `grammar_text` first: this
     function assumes it is well formed and would otherwise fail on the first
@@ -174,6 +182,12 @@ def generate(llm, prompt, grammar_text, label, temperature=0.1, stream=True,
     `max_new_tokens` overrides the first-attempt ceiling of `MAX_NEW_TOKENS`,
     still clamped to the room the prompt left in the context. The retry after a
     truncation uses it to ask for that whole room.
+
+    The grammar is required, not optional. An experiment with no GBNF mask at
+    all (§9.31) settled it: the raw model fences its JSON, appends prose and
+    code, renames the document's own keys and loses whole steps, so the mask is
+    what makes the output machine-readable at all — not a vocabulary guard on
+    top of otherwise-good JSON. There is deliberately no switch to turn it off.
     """
     grammar = LlamaGrammar.from_string(grammar_text)
     llm.reset()
@@ -181,24 +195,24 @@ def generate(llm, prompt, grammar_text, label, temperature=0.1, stream=True,
     budget = generation_budget(llm, prompt, max_new_tokens)
 
     started = time.time()
-    chunks = []
-    tokens = 0
-    finish_reason = None
-
-    for chunk in llm(
+    response = llm(
         prompt=prompt,
         max_tokens=budget,
         temperature=temperature,
         grammar=grammar,
-        stream=stream,
-    ):
-        choice = chunk["choices"][0]
-        piece = choice.get("text") or ""
-        if piece:
-            chunks.append(piece)
-            tokens += 1
-        finish_reason = choice.get("finish_reason") or finish_reason
+    )
+
+    choice = (response.get("choices") or [{}])[0]
+    text = choice.get("text") or ""
+    finish_reason = choice.get("finish_reason")
+    usage = response.get("usage") or {}
+    tokens = usage.get("completion_tokens")
+    if not isinstance(tokens, int):
+        # A backend without a usage block: measure the text directly rather than
+        # reporting zero, so the speed line and the truncation diagnosis stay
+        # meaningful.
+        tokens = token_count(llm, text)
 
     return StepResult(
-        label, "".join(chunks), tokens, time.time() - started, finish_reason, budget
+        label, text, tokens, time.time() - started, finish_reason, budget
     )

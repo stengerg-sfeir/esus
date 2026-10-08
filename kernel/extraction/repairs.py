@@ -27,6 +27,8 @@ contradiction, so a repair and the rule that reports it can never disagree. Run
 after every step that produces the documents it touches, and before writing.
 """
 
+import re
+
 from kernel.consistency import checks_adapters, checks_errors
 
 
@@ -43,6 +45,125 @@ def repair_errors(errors, services, log):
     errors, services = _resolve_duplicate_subjects(errors, services, log)
     services = _drop_contradictory_raises(services, log)
     return errors, services
+
+
+# --- a declared error nothing raises and the requirements never name ---------------
+
+# Too common to prove an error is grounded on their own: every name ends in one,
+# and "invalid" is the shape this repair exists to remove, not evidence for it.
+_GROUNDING_STOPWORDS = frozenset(
+    {"error", "exception", "found", "not", "the", "invalid", "missing"}
+)
+
+# The validation shapes `ERRORS_SYSTEM` forbids: a class named for an input check
+# rather than a failure the program must handle.
+_VALIDATION_PREFIXES = ("invalid", "malformed", "bad", "unrecognized", "unexpected")
+_VALIDATION_MARKERS = ("validation", "parse", "format")
+
+
+def repair_unraised_errors(errors, services, requirements, log):
+    """Drop an error no method raises and the requirements never name.
+
+    An error type that no method raises is a class the generator would emit and
+    never use. Whether it belongs is decided by the requirements, the only
+    authority on the program's failures:
+
+    - **Kept when a method raises it** — nothing to repair.
+    - **Kept when the requirements spell it out** — `CategoryNotFoundError` in
+      inventory is named character for character, and the registry must carry it.
+    - **Kept when a distinctive word of its name is grounded** — cli_tool's
+      `MalformedCSVError` is warranted by "malformed CSV", and library's
+      `OverdueLoanFoundError` by "overdue"; their being unraised is a gap in the
+      contracts, not in the registry, so the registry stays faithful and the
+      checker reports the gap.
+    - **Dropped otherwise** — and always dropped when the name is a validation
+      shape (`Invalid*`, `Malformed*`), which `ERRORS_SYSTEM` forbids outright
+      unless the requirements name it.
+
+    Measured on library: `InvalidInputError` and `MalformedCSVError` (neither
+    grounded, both validation-shaped) are dropped, `OverdueLoanFoundError`
+    (grounded) is kept.
+    """
+    # With no requirements text there is no authority to judge against, so the
+    # registry is left exactly as generated.
+    if not isinstance(errors, list) or not errors or not requirements:
+        return errors
+    lowered = requirements.lower()
+    raised = _raised_names(services)
+    kept = []
+    for item in errors:
+        name = item.get("name") if isinstance(item, dict) else None
+        if not isinstance(name, str) or not name.strip():
+            kept.append(item)
+            continue
+        if _should_keep_error(name, raised, lowered):
+            kept.append(item)
+            continue
+        if log is not None:
+            why = "a validation shape the requirements never name" if _is_validation_error(
+                name
+            ) else "named nowhere in the requirements"
+            log.write(
+                f"[ok] step errors: no method raises '{name}' and it is {why} — dropped"
+            )
+    return kept
+
+
+def _should_keep_error(name, raised, lowered_requirements):
+    """True when an error must survive the unraised-error repair."""
+    if name.strip().lower() in raised:
+        return True
+    if name.strip().lower() in lowered_requirements:
+        return True
+    if _is_validation_error(name):
+        # A validation class is warranted only when the requirements describe
+        # that failure — cli_tool's "malformed CSV" grounds `MalformedCSVError`,
+        # while nothing in library or expenses grounds `InvalidInputError` or
+        # `InvalidBudgetAmountError`. Its own validation word must be present.
+        return _validation_word_grounded(name, lowered_requirements)
+    return _is_grounded(name, lowered_requirements)
+
+
+def _is_validation_error(name):
+    """True when the name is a validation shape rather than a failure."""
+    lowered = name.strip().lower()
+    if lowered.startswith(_VALIDATION_PREFIXES):
+        return True
+    return any(marker in lowered for marker in _VALIDATION_MARKERS)
+
+
+def _validation_word_grounded(name, lowered_requirements):
+    """True when the requirements use the validation word the name is built on.
+
+    Only the leading validation word is consulted: `MalformedCSVError` is kept
+    when the requirements say "malformed", `InvalidInputError` is dropped when
+    they never say "invalid". A marker such as "format" is deliberately not used
+    as grounding — it appears in ordinary prose about dates and rarely describes
+    a failure.
+    """
+    lowered = name.strip().lower()
+    return any(
+        lowered.startswith(prefix) and prefix in lowered_requirements
+        for prefix in _VALIDATION_PREFIXES
+    )
+
+
+def _is_grounded(name, lowered_requirements):
+    """True when a distinctive word of the error's name appears in the requirements.
+
+    The name is a CamelCase identifier, so its words are recovered by separating a
+    capital that follows a lowercase before lowering — `OverdueLoanFoundError` is
+    `overdue`, `loan`, `found`, `error`, not one token. Only a distinctive word
+    can prove grounding: the stopwords every name shares (`error`, `found`, `not`)
+    carry no subject.
+    """
+    spaced = re.sub(r"([a-z])([A-Z])", r"\1 \2", name)
+    for word in re.findall(r"[a-z]+", spaced.lower()):
+        if word in _GROUNDING_STOPWORDS or len(word) < 4:
+            continue
+        if word in lowered_requirements:
+            return True
+    return False
 
 
 # --- one name per missing subject -------------------------------------------------

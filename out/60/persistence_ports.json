@@ -29,69 +29,9 @@
             "return_type": "Customer"
           },
           {
-            "name": "read_customer_by_id",
-            "description": "Retrieves a customer by their primary key (customer_id).",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "Customer | None"
-          },
-          {
             "name": "read_all_customers",
-            "description": "Retrieves all customers in the system.",
+            "description": "Retrieves all customers from the database.",
             "params": [],
-            "return_type": "List[Customer]"
-          },
-          {
-            "name": "update_customer",
-            "description": "Updates a customer's details by their primary key.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              },
-              {
-                "name": "name",
-                "type": "str"
-              },
-              {
-                "name": "email",
-                "type": "str"
-              },
-              {
-                "name": "phone",
-                "type": "str"
-              },
-              {
-                "name": "address",
-                "type": "str"
-              }
-            ],
-            "return_type": "Customer | None"
-          },
-          {
-            "name": "delete_customer",
-            "description": "Deletes a customer by their primary key.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "bool"
-          },
-          {
-            "name": "search_customers_by_email",
-            "description": "Searches for customers by their email address.",
-            "params": [
-              {
-                "name": "email",
-                "type": "str"
-              }
-            ],
             "return_type": "List[Customer]"
           }
         ]
@@ -102,7 +42,7 @@
         "methods": [
           {
             "name": "create_category",
-            "description": "Creates a new category with the provided details.",
+            "description": "Creates a new category with the provided name and description.",
             "params": [
               {
                 "name": "name",
@@ -117,9 +57,39 @@
           },
           {
             "name": "read_all_categories",
-            "description": "Retrieves all categories in the system.",
+            "description": "Retrieves all categories from the database.",
             "params": [],
             "return_type": "List[Category]"
+          },
+          {
+            "name": "update_category",
+            "description": "Updates a category by its ID with the provided name and description.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              }
+            ],
+            "return_type": "Category"
+          },
+          {
+            "name": "delete_category",
+            "description": "Deletes a category by its ID.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
           }
         ]
       },
@@ -155,25 +125,14 @@
             "return_type": "Product"
           },
           {
-            "name": "read_product_by_id",
-            "description": "Retrieves a product by its primary key (product_id).",
-            "params": [
-              {
-                "name": "product_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "Product | None"
-          },
-          {
             "name": "read_all_products",
-            "description": "Retrieves all products in the system.",
+            "description": "Retrieves all products from the database.",
             "params": [],
             "return_type": "List[Product]"
           },
           {
             "name": "update_product",
-            "description": "Updates a product's details by its primary key.",
+            "description": "Updates a product by its ID with the provided details.",
             "params": [
               {
                 "name": "product_id",
@@ -192,19 +151,15 @@
                 "type": "float"
               },
               {
-                "name": "category_id",
-                "type": "int"
-              },
-              {
                 "name": "stock_quantity",
                 "type": "int"
               }
             ],
-            "return_type": "Product | None"
+            "return_type": "Product"
           },
           {
             "name": "delete_product",
-            "description": "Deletes a product by its primary key.",
+            "description": "Deletes a product by its ID.",
             "params": [
               {
                 "name": "product_id",
@@ -214,7 +169,7 @@
             "return_type": "bool"
           },
           {
-            "name": "get_products_by_category",
+            "name": "read_product_by_category",
             "description": "Retrieves all products belonging to a specific category.",
             "params": [
               {
@@ -232,10 +187,27 @@
         "methods": [
           {
             "name": "create_order",
-            "description": "Creates a new order with the provided details.",
+            "description": "Creates a new order with the provided customer ID.",
             "params": [
               {
                 "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Order"
+          },
+          {
+            "name": "read_all_orders",
+            "description": "Retrieves all orders from the database.",
+            "params": [],
+            "return_type": "List[Order]"
+          },
+          {
+            "name": "update_order_status",
+            "description": "Updates the status of an order by its ID.",
+            "params": [
+              {
+                "name": "order_id",
                 "type": "int"
               },
               {
@@ -246,50 +218,7 @@
             "return_type": "Order"
           },
           {
-            "name": "read_order_by_id",
-            "description": "Retrieves an order by its primary key (order_id).",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "Order | None"
-          },
-          {
-            "name": "read_all_orders",
-            "description": "Retrieves all orders in the system.",
-            "params": [],
-            "return_type": "List[Order]"
-          },
-          {
-            "name": "update_order_status",
-            "description": "Updates the status of an order by its primary key.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              },
-              {
-                "name": "new_status",
-                "type": "str"
-              }
-            ],
-            "return_type": "Order | None"
-          },
-          {
-            "name": "delete_order",
-            "description": "Deletes an order by its primary key.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "bool"
-          },
-          {
-            "name": "get_orders_by_customer",
+            "name": "read_order_by_customer",
             "description": "Retrieves all orders placed by a specific customer.",
             "params": [
               {
@@ -300,15 +229,15 @@
             "return_type": "List[Order]"
           },
           {
-            "name": "get_orders_by_status",
-            "description": "Retrieves all orders with a specific status.",
+            "name": "read_order_by_id",
+            "description": "Retrieves an order by its ID.",
             "params": [
               {
-                "name": "status",
-                "type": "str"
+                "name": "order_id",
+                "type": "int"
               }
             ],
-            "return_type": "List[Order]"
+            "return_type": "Order"
           }
         ]
       },
@@ -338,17 +267,6 @@
               }
             ],
             "return_type": "OrderItem"
-          },
-          {
-            "name": "get_order_items_by_order_id",
-            "description": "Retrieves all order items for a specific order.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "List[OrderItem]"
           }
         ]
       },
@@ -380,39 +298,17 @@
             "return_type": "Invoice"
           },
           {
-            "name": "read_invoice_by_id",
-            "description": "Retrieves an invoice by its primary key (invoice_id).",
-            "params": [
-              {
-                "name": "invoice_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "Invoice | None"
-          },
-          {
             "name": "read_all_invoices",
-            "description": "Retrieves all invoices in the system.",
+            "description": "Retrieves all invoices from the database.",
             "params": [],
             "return_type": "List[Invoice]"
           },
           {
-            "name": "get_invoices_by_customer",
+            "name": "read_invoices_by_customer",
             "description": "Retrieves all invoices for a specific customer.",
             "params": [
               {
                 "name": "customer_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "List[Invoice]"
-          },
-          {
-            "name": "get_invoices_by_order",
-            "description": "Retrieves all invoices associated with a specific order.",
-            "params": [
-              {
-                "name": "order_id",
                 "type": "int"
               }
             ],
@@ -427,21 +323,23 @@
         "table": "customers",
         "primary_key": "customer_id",
         "indexes": [
-          "email"
+          "customer_id"
         ]
       },
       {
         "entity": "Category",
         "table": "categories",
         "primary_key": "category_id",
-        "indexes": []
+        "indexes": [
+          "category_id"
+        ]
       },
       {
         "entity": "Product",
         "table": "products",
         "primary_key": "product_id",
         "indexes": [
-          "category_id"
+          "product_id"
         ]
       },
       {
@@ -449,8 +347,7 @@
         "table": "orders",
         "primary_key": "order_id",
         "indexes": [
-          "customer_id",
-          "status"
+          "order_id"
         ]
       },
       {
@@ -458,8 +355,7 @@
         "table": "order_items",
         "primary_key": "order_item_id",
         "indexes": [
-          "order_id",
-          "product_id"
+          "order_item_id"
         ]
       },
       {
@@ -467,8 +363,7 @@
         "table": "invoices",
         "primary_key": "invoice_id",
         "indexes": [
-          "order_id",
-          "customer_id"
+          "invoice_id"
         ]
       }
     ]

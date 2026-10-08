@@ -54,6 +54,7 @@ RULE_TITLES = {
     "misplaced_field": "An adapter field mapped to a parameter that is not its own",
     "mismatched_transform": "A transform that does not fit the field it is applied to",
     "missing_command": "A command the requirements name that the surface does not declare",
+    "unbacked_command": "A command the surface declares that no service method implements",
     "unreachable_error": "A not-found error no method raises, while its reader exists",
     "duplicate_error_subject": "Two error types name the same missing record",
 }

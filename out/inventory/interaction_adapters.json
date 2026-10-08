@@ -27,25 +27,18 @@
           "required": true
         },
         {
-          "field_name": "price_cents",
+          "field_name": "price",
           "target_param": "price_cents",
           "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
           "required": true
         },
         {
-          "field_name": "stock_qty",
+          "field_name": "stock",
           "target_param": "stock_qty",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
-        },
-        {
-          "field_name": "low_active",
-          "target_param": "low_active",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
         }
       ]
     },
@@ -56,10 +49,17 @@
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
+          "target_param": "product_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
+        },
+        {
+          "field_name": "sku",
+          "target_param": "sku",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
         },
         {
           "field_name": "name",
@@ -76,14 +76,14 @@
           "required": false
         },
         {
-          "field_name": "price_cents",
+          "field_name": "price",
           "target_param": "price_cents",
           "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
           "required": false
         },
         {
-          "field_name": "stock_qty",
+          "field_name": "stock",
           "target_param": "stock_qty",
           "transform": "DIRECT",
           "lookup_entity": null,
@@ -105,7 +105,7 @@
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
+          "target_param": "product_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -114,12 +114,12 @@
     },
     {
       "action_name": "get_product_by_id",
-      "target_service": "InventoryService",
-      "target_method": "get_product_by_id",
+      "target_service": "ProductRepository",
+      "target_method": "read_one_product",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
+          "target_param": "product_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -154,7 +154,7 @@
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
+          "target_param": "product_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -170,18 +170,18 @@
     },
     {
       "action_name": "low_stock_report",
-      "target_service": "InventoryService",
-      "target_method": "low_stock_report",
+      "target_service": "ProductRepository",
+      "target_method": "find_low_stock_products",
       "input_fields": []
     },
     {
       "action_name": "stock_value_by_category",
-      "target_service": "InventoryService",
+      "target_service": "ProductRepository",
       "target_method": "stock_value_by_category",
       "input_fields": []
     },
     {
-      "action_name": "create_category",
+      "action_name": "add_category",
       "target_service": "CategoryRepository",
       "target_method": "create_category",
       "input_fields": [
@@ -209,19 +209,13 @@
       ]
     },
     {
-      "action_name": "read_all_categories",
-      "target_service": "CategoryRepository",
-      "target_method": "read_all_categories",
-      "input_fields": []
-    },
-    {
       "action_name": "update_category",
       "target_service": "CategoryRepository",
       "target_method": "update_category",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
+          "target_param": "category_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -256,7 +250,7 @@
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "id",
+          "target_param": "category_id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -278,15 +272,9 @@
       ]
     },
     {
-      "action_name": "find_low_stock_products",
-      "target_service": "ProductRepository",
-      "target_method": "find_low_stock_products",
-      "input_fields": []
-    },
-    {
-      "action_name": "stock_value_by_category",
-      "target_service": "ProductRepository",
-      "target_method": "stock_value_by_category",
+      "action_name": "read_all_categories",
+      "target_service": "CategoryRepository",
+      "target_method": "read_all_categories",
       "input_fields": []
     }
   ]

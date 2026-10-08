@@ -298,6 +298,20 @@
           "required": true
         }
       ]
+    },
+    {
+      "action_name": "get_wine_by_location",
+      "target_service": "WineLocationService",
+      "target_method": "get_wine_by_location",
+      "input_fields": [
+        {
+          "field_name": "location_id",
+          "target_param": "location_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
     }
   ]
 }

@@ -7,7 +7,7 @@
         "methods": [
           {
             "name": "create_category",
-            "description": "Creates a new category with the provided fields. Validates that the category name is unique.",
+            "description": "Creates a new category with the given name and optional description and reorder_threshold.",
             "params": [
               {
                 "name": "name",
@@ -15,7 +15,7 @@
               },
               {
                 "name": "description",
-                "type": "str"
+                "type": "Optional[str]"
               },
               {
                 "name": "reorder_threshold",
@@ -26,6 +26,20 @@
             "raises": []
           },
           {
+            "name": "read_one_category",
+            "description": "Reads a single category by its id.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Category",
+            "raises": [
+              "CategoryNotFoundError"
+            ]
+          },
+          {
             "name": "read_all_categories",
             "description": "Reads all categories from the database.",
             "params": [],
@@ -34,10 +48,10 @@
           },
           {
             "name": "update_category",
-            "description": "Updates an existing category by its id with the provided fields.",
+            "description": "Updates a category's name, description, or reorder_threshold by its id.",
             "params": [
               {
-                "name": "id",
+                "name": "category_id",
                 "type": "int"
               },
               {
@@ -46,7 +60,7 @@
               },
               {
                 "name": "description",
-                "type": "str"
+                "type": "Optional[str]"
               },
               {
                 "name": "reorder_threshold",
@@ -63,25 +77,11 @@
             "description": "Deletes a category by its id.",
             "params": [
               {
-                "name": "id",
-                "type": "int"
-              }
-            ],
-            "return_type": "bool",
-            "raises": [
-              "CategoryNotFoundError"
-            ]
-          },
-          {
-            "name": "find_products_by_category",
-            "description": "Finds all products belonging to a given category.",
-            "params": [
-              {
                 "name": "category_id",
                 "type": "int"
               }
             ],
-            "return_type": "List[Product]",
+            "return_type": "bool",
             "raises": [
               "CategoryNotFoundError"
             ]
@@ -94,7 +94,7 @@
         "methods": [
           {
             "name": "create_product",
-            "description": "Creates a new product with the provided fields. Validates that the sku is unique and the category exists.",
+            "description": "Creates a new product with the given sku, name, category_id, price_cents, and stock_qty.",
             "params": [
               {
                 "name": "sku",
@@ -115,10 +115,6 @@
               {
                 "name": "stock_qty",
                 "type": "int"
-              },
-              {
-                "name": "low_active",
-                "type": "Optional[bool]"
               }
             ],
             "return_type": "Product",
@@ -132,7 +128,7 @@
             "description": "Reads a single product by its id.",
             "params": [
               {
-                "name": "id",
+                "name": "product_id",
                 "type": "int"
               }
             ],
@@ -150,11 +146,15 @@
           },
           {
             "name": "update_product",
-            "description": "Updates an existing product by its id with the provided fields.",
+            "description": "Updates a product's fields by its id.",
             "params": [
               {
-                "name": "id",
+                "name": "product_id",
                 "type": "int"
+              },
+              {
+                "name": "sku",
+                "type": "Optional[str]"
               },
               {
                 "name": "name",
@@ -187,7 +187,7 @@
             "description": "Deletes a product by its id.",
             "params": [
               {
-                "name": "id",
+                "name": "product_id",
                 "type": "int"
               }
             ],
@@ -198,7 +198,7 @@
           },
           {
             "name": "find_products_by_category",
-            "description": "Finds all products belonging to a given category.",
+            "description": "Finds all products belonging to a specific category.",
             "params": [
               {
                 "name": "category_id",
@@ -207,7 +207,7 @@
             ],
             "return_type": "List[Product]",
             "raises": [
-              "ProductNotFoundError"
+              "CategoryNotFoundError"
             ]
           },
           {
@@ -219,7 +219,7 @@
           },
           {
             "name": "stock_value_by_category",
-            "description": "Calculates the total stock value per category.",
+            "description": "Calculates the total stock value (price_cents * stock_qty) per category.",
             "params": [],
             "return_type": "Dict[int, int]",
             "raises": []

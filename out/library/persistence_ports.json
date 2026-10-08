@@ -7,7 +7,7 @@
         "methods": [
           {
             "name": "create_book",
-            "description": "Creates a new book entry in the database with the provided details.",
+            "description": "Creates a new book entry with the provided details.",
             "params": [
               {
                 "name": "book",
@@ -60,7 +60,7 @@
           },
           {
             "name": "update_book",
-            "description": "Updates an existing book in the database.",
+            "description": "Updates an existing book entry with the provided details.",
             "params": [
               {
                 "name": "book_id",
@@ -78,24 +78,24 @@
           },
           {
             "name": "delete_book",
-            "description": "Deletes a book from the database.",
+            "description": "Deletes a book entry from the database.",
             "params": [
               {
                 "name": "book_id",
                 "type": "int"
               }
             ],
-            "return_type": "None",
+            "return_type": "bool",
             "raises": [
               "BookNotFoundError"
             ]
           },
           {
-            "name": "get_books_by_author_id",
-            "description": "Retrieves all books by a specific author ID.",
+            "name": "filter_books_by_available_copies",
+            "description": "Filters books by available copies count.",
             "params": [
               {
-                "name": "author_id",
+                "name": "available_copies",
                 "type": "int"
               }
             ],
@@ -103,11 +103,11 @@
             "raises": []
           },
           {
-            "name": "get_books_by_title_query",
-            "description": "Searches books by a title query (case-insensitive).",
+            "name": "search_books_by_title",
+            "description": "Searches books by title.",
             "params": [
               {
-                "name": "query",
+                "name": "title",
                 "type": "str"
               }
             ],
@@ -115,21 +115,14 @@
             "raises": []
           },
           {
-            "name": "get_books_by_author_name",
-            "description": "Searches books by an author's name (case-insensitive).",
+            "name": "search_books_by_author",
+            "description": "Searches books by author ID.",
             "params": [
               {
-                "name": "author_name",
-                "type": "str"
+                "name": "author_id",
+                "type": "int"
               }
             ],
-            "return_type": "List[Book]",
-            "raises": []
-          },
-          {
-            "name": "get_books_available_only",
-            "description": "Retrieves only books with available copies.",
-            "params": [],
             "return_type": "List[Book]",
             "raises": []
           }
@@ -141,7 +134,7 @@
         "methods": [
           {
             "name": "create_author",
-            "description": "Creates a new author entry in the database.",
+            "description": "Creates a new author entry with the provided details.",
             "params": [
               {
                 "name": "author",
@@ -174,7 +167,7 @@
           },
           {
             "name": "update_author",
-            "description": "Updates an existing author in the database.",
+            "description": "Updates an existing author entry with the provided details.",
             "params": [
               {
                 "name": "author_id",
@@ -192,29 +185,31 @@
           },
           {
             "name": "delete_author",
-            "description": "Deletes an author from the database.",
+            "description": "Deletes an author entry from the database.",
             "params": [
               {
                 "name": "author_id",
                 "type": "int"
               }
             ],
-            "return_type": "None",
+            "return_type": "bool",
             "raises": [
               "AuthorNotFoundError"
             ]
           },
           {
-            "name": "get_authors_by_name_query",
-            "description": "Searches authors by name (case-insensitive).",
+            "name": "find_books_by_author",
+            "description": "Finds all books by a given author ID.",
             "params": [
               {
-                "name": "query",
-                "type": "str"
+                "name": "author_id",
+                "type": "int"
               }
             ],
-            "return_type": "List[Author]",
-            "raises": []
+            "return_type": "List[Book]",
+            "raises": [
+              "AuthorNotFoundError"
+            ]
           }
         ]
       },
@@ -224,7 +219,7 @@
         "methods": [
           {
             "name": "create_member",
-            "description": "Creates a new member entry in the database.",
+            "description": "Creates a new member entry with the provided details.",
             "params": [
               {
                 "name": "member",
@@ -259,7 +254,7 @@
           },
           {
             "name": "update_member",
-            "description": "Updates an existing member in the database.",
+            "description": "Updates an existing member entry with the provided details.",
             "params": [
               {
                 "name": "member_id",
@@ -277,39 +272,25 @@
           },
           {
             "name": "delete_member",
-            "description": "Deletes a member from the database.",
+            "description": "Deletes a member entry from the database.",
             "params": [
               {
                 "name": "member_id",
                 "type": "int"
               }
             ],
-            "return_type": "None",
+            "return_type": "bool",
             "raises": [
               "MemberNotFoundError"
             ]
           },
           {
-            "name": "get_active_members",
-            "description": "Retrieves only active members.",
-            "params": [],
-            "return_type": "List[Member]",
-            "raises": []
-          },
-          {
-            "name": "get_inactive_members",
-            "description": "Retrieves only inactive members.",
-            "params": [],
-            "return_type": "List[Member]",
-            "raises": []
-          },
-          {
-            "name": "get_members_by_name_query",
-            "description": "Searches members by name (case-insensitive).",
+            "name": "filter_members_by_active_status",
+            "description": "Filters members by active/inactive status.",
             "params": [
               {
-                "name": "query",
-                "type": "str"
+                "name": "is_active",
+                "type": "bool"
               }
             ],
             "return_type": "List[Member]",
@@ -323,7 +304,7 @@
         "methods": [
           {
             "name": "create_loan",
-            "description": "Creates a new loan entry in the database.",
+            "description": "Creates a new loan entry with the provided details.",
             "params": [
               {
                 "name": "loan",
@@ -356,7 +337,7 @@
           },
           {
             "name": "update_loan",
-            "description": "Updates an existing loan in the database.",
+            "description": "Updates an existing loan entry with the provided details.",
             "params": [
               {
                 "name": "loan_id",
@@ -374,35 +355,35 @@
           },
           {
             "name": "delete_loan",
-            "description": "Deletes a loan from the database.",
+            "description": "Deletes a loan entry from the loan database.",
             "params": [
               {
                 "name": "loan_id",
                 "type": "int"
               }
             ],
-            "return_type": "None",
+            "return_type": "bool",
             "raises": [
               "LoanNotFoundError"
             ]
           },
           {
             "name": "get_active_loans",
-            "description": "Retrieves only active loans.",
+            "description": "Retrieves all active loans.",
             "params": [],
             "return_type": "List[Loan]",
             "raises": []
           },
           {
             "name": "get_overdue_loans",
-            "description": "Retrieves loans that are overdue.",
+            "description": "Retrieves all overdue loans.",
             "params": [],
             "return_type": "List[Loan]",
             "raises": []
           },
           {
-            "name": "get_loans_by_member_id",
-            "description": "Retrieves loans by a specific member ID.",
+            "name": "get_member_loan_history",
+            "description": "Retrieves all loans for a specific member.",
             "params": [
               {
                 "name": "member_id",
@@ -410,11 +391,13 @@
               }
             ],
             "return_type": "List[Loan]",
-            "raises": []
+            "raises": [
+              "MemberNotFoundError"
+            ]
           },
           {
-            "name": "get_loans_by_book_id",
-            "description": "Retrieves loans by a specific book ID.",
+            "name": "get_book_loan_history",
+            "description": "Retrieves all loans for a specific book.",
             "params": [
               {
                 "name": "book_id",
@@ -422,7 +405,9 @@
               }
             ],
             "return_type": "List[Loan]",
-            "raises": []
+            "raises": [
+              "BookNotFoundError"
+            ]
           }
         ]
       }

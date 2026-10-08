@@ -218,5 +218,62 @@ class RemovesRepeatedCliCommands(unittest.TestCase):
         self.assertEqual((cleaned, removed), (body, 0))
 
 
+class MergesServicesThatShareAName(unittest.TestCase):
+    """60 emitted `CategoryRepository` twice and `OrderService` three times.
+
+    That is one service whose methods were written in several entries, and a
+    second registration of a name is what a program cannot have — so the entries
+    are merged, and only then are repeated method names dropped.
+    """
+
+    def test_entries_sharing_a_name_become_one(self):
+        services = [
+            {"service_name": "OrderService", "methods": [method("create_order")]},
+            {"service_name": "OrderService", "methods": [method("cancel_order")]},
+            {"service_name": "OrderService", "methods": [method("confirm_order")]},
+        ]
+        cleaned, removed = dedupe.deduplicate("service_contracts", services)
+        self.assertEqual(removed, 2, "two duplicate entries collapse")
+        self.assertEqual(len(cleaned), 1)
+        self.assertEqual(
+            [m["name"] for m in cleaned[0]["methods"]],
+            ["create_order", "cancel_order", "confirm_order"],
+            "methods keep the order they were written in",
+        )
+
+    def test_a_method_repeated_across_entries_is_dropped_once(self):
+        services = [
+            {"service_name": "ProductRepository", "methods": [method("read_all"), method("update")]},
+            {"service_name": "ProductRepository", "methods": [method("update"), method("delete")]},
+        ]
+        cleaned, removed = dedupe.deduplicate("service_contracts", services)
+        self.assertEqual(removed, 2, "one merged entry plus one repeated method")
+        self.assertEqual(
+            [m["name"] for m in cleaned[0]["methods"]], ["read_all", "update", "delete"]
+        )
+
+    def test_the_first_spelling_and_order_are_kept(self):
+        services = [
+            {"service_name": "BookService", "methods": [method("add_book")]},
+            {"service_name": "CategoryService", "methods": [method("add_category")]},
+            {"service_name": "bookservice", "methods": [method("find_book")]},
+        ]
+        cleaned, removed = dedupe.deduplicate("service_contracts", services)
+        self.assertEqual(removed, 1)
+        self.assertEqual([s["service_name"] for s in cleaned], ["BookService", "CategoryService"])
+        self.assertEqual(
+            [m["name"] for m in cleaned[0]["methods"]], ["add_book", "find_book"]
+        )
+
+    def test_distinct_services_are_untouched(self):
+        services = [
+            {"service_name": "BookService", "methods": [method("add_book")]},
+            {"service_name": "AuthorService", "methods": [method("add_author")]},
+        ]
+        cleaned, removed = dedupe.deduplicate("service_contracts", services)
+        self.assertEqual(removed, 0)
+        self.assertEqual([s["service_name"] for s in cleaned], ["BookService", "AuthorService"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -24,74 +24,15 @@
               "type": "str"
             }
           ],
-          "return_type": "Customer",
+          "return_type": "None",
           "raises": []
-        },
-        {
-          "name": "read_one_customer",
-          "description": "Retrieves a customer by their customer_id.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Customer",
-          "raises": [
-            "CustomerNotFoundError"
-          ]
         },
         {
           "name": "read_all_customers",
-          "description": "Retrieves all customers.",
+          "description": "Retrieves all customers in the system.",
           "params": [],
           "return_type": "List[Customer]",
           "raises": []
-        },
-        {
-          "name": "update_customer",
-          "description": "Updates a customer's details.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "name",
-              "type": "str"
-            },
-            {
-              "name": "email",
-              "type": "str"
-            },
-            {
-              "name": "phone",
-              "type": "str"
-            },
-            {
-              "name": "address",
-              "type": "str"
-            }
-          ],
-          "return_type": "Customer",
-          "raises": [
-            "CustomerNotFoundError",
-            "InvalidInputError"
-          ]
-        },
-        {
-          "name": "delete_customer",
-          "description": "Deletes a customer by their customer_id.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "bool",
-          "raises": [
-            "CustomerNotFoundError"
-          ]
         }
       ]
     },
@@ -111,15 +52,51 @@
               "type": "str"
             }
           ],
-          "return_type": "Category",
+          "return_type": "None",
           "raises": []
         },
         {
           "name": "read_all_categories",
-          "description": "Retrieves all categories.",
+          "description": "Retrieves all categories in the system.",
           "params": [],
           "return_type": "List[Category]",
           "raises": []
+        },
+        {
+          "name": "update_category",
+          "description": "Updates an existing category with the provided details.",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "CategoryNotFoundError"
+          ]
+        },
+        {
+          "name": "delete_category",
+          "description": "Deletes an existing category.",
+          "params": [
+            {
+              "name": "category_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "CategoryNotFoundError"
+          ]
         }
       ]
     },
@@ -151,19 +128,19 @@
               "type": "int"
             }
           ],
-          "return_type": "Product",
+          "return_type": "None",
           "raises": []
         },
         {
           "name": "read_all_products",
-          "description": "Retrieves all products.",
+          "description": "Retrieves all products in the system.",
           "params": [],
           "return_type": "List[Product]",
           "raises": []
         },
         {
           "name": "update_product",
-          "description": "Updates a product's details.",
+          "description": "Updates an existing product with the provided details.",
           "params": [
             {
               "name": "product_id",
@@ -190,37 +167,40 @@
               "type": "int"
             }
           ],
-          "return_type": "Product",
+          "return_type": "None",
           "raises": [
-            "ProductNotFoundError",
-            "InvalidInputError"
+            "ProductNotFoundError"
           ]
         },
         {
           "name": "delete_product",
-          "description": "Deletes a product by its product_id.",
+          "description": "Deletes an existing product.",
           "params": [
             {
               "name": "product_id",
               "type": "int"
             }
           ],
-          "return_type": "bool",
+          "return_type": "None",
           "raises": [
             "ProductNotFoundError"
           ]
         },
         {
           "name": "get_product_by_category_and_month",
-          "description": "Retrieves products by category and month (for reporting).",
+          "description": "Retrieves products grouped by category and month of creation.",
           "params": [
             {
               "name": "category_id",
               "type": "int"
             },
             {
-              "name": "month",
-              "type": "int"
+              "name": "start_month",
+              "type": "str"
+            },
+            {
+              "name": "end_month",
+              "type": "str"
             }
           ],
           "return_type": "List[Product]",
@@ -254,14 +234,28 @@
         },
         {
           "name": "read_all_orders",
-          "description": "Retrieves all orders.",
+          "description": "Retrieves all orders in the system.",
           "params": [],
           "return_type": "List[Order]",
           "raises": []
         },
         {
+          "name": "read_one_order",
+          "description": "Retrieves a specific order by its ID.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
           "name": "update_order_status",
-          "description": "Updates the status of an order.",
+          "description": "Updates the status of an existing order.",
           "params": [
             {
               "name": "order_id",
@@ -272,89 +266,40 @@
               "type": "str"
             }
           ],
-          "return_type": "Order",
+          "return_type": "None",
           "raises": [
             "OrderNotFoundError",
             "InvalidOrderStatusError"
           ]
         },
         {
-          "name": "delete_order",
-          "description": "Deletes an order by its order_id.",
+          "name": "confirm_order",
+          "description": "Confirms an order and reserves stock for the items.",
           "params": [
             {
               "name": "order_id",
               "type": "int"
             }
           ],
-          "return_type": "bool",
-          "raises": [
-            "OrderNotFoundError"
-          ]
-        },
-        {
-          "name": "get_total_orders_by_customer",
-          "description": "Retrieves the total number of orders placed by a customer.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "int",
-          "raises": [
-            "CustomerNotFoundError"
-          ]
-        },
-        {
-          "name": "get_orders_by_customer_and_status",
-          "description": "Retrieves orders by customer and status.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            },
-            {
-              "name": "status",
-              "type": "str"
-            }
-          ],
-          "return_type": "List[Order]",
-          "raises": [
-            "CustomerNotFoundError"
-          ]
-        }
-      ]
-    },
-    {
-      "service_name": "OrderItemService",
-      "methods": [
-        {
-          "name": "create_order_item",
-          "description": "Creates a new order item.",
-          "params": [
-            {
-              "name": "order_id",
-              "type": "int"
-            },
-            {
-              "name": "product_id",
-              "type": "int"
-            },
-            {
-              "name": "quantity",
-              "type": "int"
-            },
-            {
-              "name": "unit_price",
-              "type": "float"
-            }
-          ],
-          "return_type": "OrderItem",
+          "return_type": "None",
           "raises": [
             "OrderNotFoundError",
-            "ProductNotFoundError",
-            "InvalidQuantityError"
+            "InsufficientStockError"
+          ]
+        },
+        {
+          "name": "cancel_order",
+          "description": "Cancels a confirmed order and releases reserved stock.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderNotFoundError",
+            "InvalidOrderStatusError"
           ]
         }
       ]
@@ -364,7 +309,7 @@
       "methods": [
         {
           "name": "create_invoice",
-          "description": "Creates an invoice for an order.",
+          "description": "Creates an invoice for a confirmed order.",
           "params": [
             {
               "name": "order_id",
@@ -384,14 +329,14 @@
         },
         {
           "name": "read_all_invoices",
-          "description": "Retrieves all invoices.",
+          "description": "Retrieves all invoices in the system.",
           "params": [],
           "return_type": "List[Invoice]",
           "raises": []
         },
         {
-          "name": "get_invoices_by_customer",
-          "description": "Retrieves invoices for a specific customer.",
+          "name": "search_invoices_by_customer",
+          "description": "Searches invoices by customer ID.",
           "params": [
             {
               "name": "customer_id",
@@ -399,13 +344,11 @@
             }
           ],
           "return_type": "List[Invoice]",
-          "raises": [
-            "CustomerNotFoundError"
-          ]
+          "raises": []
         },
         {
-          "name": "get_invoices_by_order",
-          "description": "Retrieves invoices for a specific order.",
+          "name": "search_invoices_by_order",
+          "description": "Searches invoices by order ID.",
           "params": [
             {
               "name": "order_id",
@@ -413,8 +356,39 @@
             }
           ],
           "return_type": "List[Invoice]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "OrderItemService",
+      "methods": [
+        {
+          "name": "create_order_item",
+          "description": "Creates a new order item for an order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "None",
           "raises": [
-            "OrderNotFoundError"
+            "OrderNotFoundError",
+            "ProductNotFoundError",
+            "InvalidQuantityError"
           ]
         }
       ]

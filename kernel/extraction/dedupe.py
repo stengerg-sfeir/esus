@@ -98,16 +98,44 @@ def _deduplicate_by_name(items):
 
 
 def _deduplicate_services(services):
+    """Merge services that share a name, then drop repeated method names.
+
+    The model sometimes emits one service per *group* of methods — 60 produced
+    `CategoryRepository` twice and `OrderService` three times — which says the
+    same thing as one entry holding all those methods, and a second registration
+    of a name is what a program cannot have. Merging keeps the first spelling and
+    the order of first appearance — nothing is renamed or invented — and the
+    methods are then deduplicated by name, because the two entries may both have
+    declared one.
+    """
     if not isinstance(services, list):
         return services, 0
+    merged = []
+    opened = {}
     removed = 0
     for service in services:
+        if not isinstance(service, dict):
+            merged.append(service)
+            continue
+        name = service.get("service_name")
+        key = name.strip().lower() if isinstance(name, str) else None
+        if key is not None and key in opened:
+            existing = opened[key]
+            combined = (existing.get("methods") or []) + (service.get("methods") or [])
+            existing["methods"] = combined
+            removed += 1
+            continue
+        if key is not None:
+            opened[key] = service
+        merged.append(service)
+
+    for service in merged:
         if not isinstance(service, dict):
             continue
         methods, count = _deduplicate_named(service.get("methods"))
         service["methods"] = methods
         removed += count
-    return services, removed
+    return merged, removed
 
 
 def _deduplicate_ports(ports):

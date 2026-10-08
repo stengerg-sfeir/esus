@@ -46,11 +46,6 @@
       "description": "Raised when a quantity in an order item is not a positive integer."
     },
     {
-      "name": "InvalidPriceError",
-      "base": "ValueError",
-      "description": "Raised when a product's price is not a positive number."
-    },
-    {
       "name": "InvalidInvoiceNumberError",
       "base": "ValueError",
       "description": "Raised when an invoice number is not a valid alphanumeric string."
@@ -64,21 +59,6 @@
       "name": "InvalidOrderItemError",
       "base": "RuntimeError",
       "description": "Raised when an order item is invalid (e.g., product not found, quantity too high)."
-    },
-    {
-      "name": "MalformedCSVError",
-      "base": "ValueError",
-      "description": "Raised when a CSV file is malformed or contains invalid data."
-    },
-    {
-      "name": "PermissionDeniedError",
-      "base": "PermissionError",
-      "description": "Raised when an unauthorized user attempts to perform an admin operation."
-    },
-    {
-      "name": "InvalidInputError",
-      "base": "ValueError",
-      "description": "Raised when input data is invalid for any entity (e.g., non-numeric IDs, invalid email format)."
     }
   ]
 }

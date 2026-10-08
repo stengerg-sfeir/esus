@@ -2879,3 +2879,366 @@ is correct Python. They are left and named, not repaired.
 that keeps it from over-reaching: one name per subject is untouched; `add_stock` keeps its raise;
 a reader keeps its not-found; a money field keeps `DECIMAL_TO_CENTS`; a date field keeps
 `ISO_DATE`; `DIRECT` is never touched. Suite 245 -> 256, `py_compile` clean.
+## 9.29 Streaming removed from the generation call
+
+The one LLM call per step (`runner.generate`) was streamed: it looped over the
+per-token generator, appended each chunk's text and counted one token per chunk.
+Nothing consumed the stream incrementally — a document is parsed only once the
+step has finished — so the loop bought no behaviour and cost a response dict, a
+`choices` lookup and a generator resume **per token**, on top of the GBNF sampler
+that already runs per token. On a hot decode path that is measurable Python-side
+overhead for zero benefit, which is why it was removed.
+
+The call is now a single non-streaming `llm(...)` returning one dict. Two things
+improve as a result:
+
+- the completion-token count comes from `usage.completion_tokens` (exact) rather
+  than the one-per-chunk tally the stream forced; a backend without a usage block
+  falls back to re-tokenising the text, so the speed line stays meaningful;
+- `finish_reason` is read from the single response as before, so truncation
+  detection and the retry are unchanged.
+
+**Cost of the change: one function and two test signatures.** `stream` was a
+keyword parameter of `generate` that no caller passed — `pipeline._generate`
+calls it with only `temperature` and `max_new_tokens`, and nothing else in the
+tree imports it. The only other references were the two `fake_generate` doubles
+in `tests/test_truncation_retry.py`, whose signatures carried `stream=True` to
+mirror the real one; both were updated. No pipeline, grammar, prompt or checker
+code was touched.
+
+**Verified on both ends of the range.** The 256-test suite is green and
+`py_compile` clean.
+
+- **`hello`** (no domain, 5 steps) — non-streaming, Metal, wrote all eight
+  documents, read `finish_reason` and `usage` correctly: `5 steps, 157 generated
+  tokens in 10.1s`, checker `0 error(s), 0 warning(s), 4 note(s)`, with exact
+  per-step counts (`[intentions] 58 tokens in 2.5s (23.6 tok/s)`).
+- **`library`** (5 services, 44 classified items, the deepest grammar) —
+  `8 steps, 9782 generated tokens in 344.7s`. Every document is populated —
+  intentions 10, data_models 4 entities, errors 12, invariants 14, crud_services
+  4, service_contracts 5 services / 38 methods, pattern_matches 44,
+  interaction_adapters 17, persistence_ports 4 repos / 33 methods — and the
+  checker reports `0 error(s), 1 warning(s), 7 note(s)`. The single warning is
+  the pre-existing `missing_command` (`book search`), unchanged by this work, and
+  the `add_book.copies` transform repair fired as expected. Deep-grammar steps
+  decoded at ~27–30 tok/s (persistence 1911 tokens in 69.7s), no slower than the
+  streamed runs of the same prompt.
+
+No behavioural regression, a small per-token Python saving, and exact token
+accounting as a bonus.
+## 9.30 Two model loads: the classifier is now deferred
+
+Asked why the run loads the model twice, and whether flash attention is really on.
+
+**Flash attention is on, and forced.** `llama-cpp-python 0.3.36` takes `flash_attn` as
+a plain `bool` (default `False`), so `FLASH_ATTENTION = True` is a hard on, not an
+auto. Confirmed against llama.cpp's own log, not inferred from the code:
+
+```
+llama_context: flash_attn            = enabled
+llama_graph_n_input_tensors: ... (FLASH_ATTN_EXT)   # 216 attention nodes, Qwen3
+```
+
+Both models load with it (`Ministral`: 216-node graph; `Qwen3-4B`: `enabled`). The
+startup line now prints it — `flash_attn={FLASH_ATTENTION}` — because the previous
+line named the device, context and thread count but not this, so the setting could
+not be seen without turning on llama.cpp verbosity.
+
+**The two loads.** `extract_archi.py` used to build two `Llama` instances on the same
+GGUF at startup: `extractor` (`logits_all=False`) for every generation step, and
+`classifier` (`logits_all=True`) for step F alone. Step F's `softmax_classify` reads
+per-token `logprobs`, which needs the context to keep the logits at every position —
+that is what `logits_all=True` buys, and it is the reason the two instances exist
+rather than one (§5.1).
+
+**The waste was that the count was unconditional.** For `hello` and `cli_tool`, step F
+logs `nothing to classify` and returns before using the classifier at all — but the
+second full model had already been loaded to discover that. A no-domain program paid
+two model loads to do one model's work.
+
+**The fix: load the classifier on first use.** `Pipeline` now takes a
+`classifier_factory` and builds the model inside `_step_patterns`, only after
+`classification_items` shows there is at least one item to classify
+(`extract_archi.py` passes the factory; `tests/test_lazy_classifier.py` pins that no
+items never invokes it, items invoke it exactly once, and a pre-built instance is
+reused). Measured:
+
+| prompt | model loads | classifier load |
+|---|---|---|
+| hello | **1** (was 2) | never |
+| library | 2 | at step F, immediately before `44 item(s)` |
+
+**No effect on output, measured.** `library` on the lazy path: `0 error(s), 1
+warning(s), 7 note(s)`, **9782 generated tokens**, every document count identical to
+the eager run (intentions 10, data_models 4, errors 12, invariants 14, crud_services
+4, service_contracts 5 services / 38 methods, pattern_matches 44, adapters 17,
+persistence_ports 4 repos / 33 methods). The lazy reload is invisible to the result.
+
+**A timing anomaly to read correctly.** That same `library` run reported `803.3s`
+against `344.7s` for the identical output, and the whole gap is one step:
+`service_contracts` at **4.7 tok/s** (2634 tokens in 556.3s) where the earlier run did
+the **same 2634 tokens in 96.0s** (27.4 tok/s). It is not this change, and the evidence
+is threefold: the slow step runs *before* the classifier loads (`service_contracts` is
+log line 60, the classifier load line 61), its sibling steps in the same run decoded at
+28–30 tok/s, and it produced byte-count-identical output. It is host contention — the
+editor's helpers were at ~100% on three processes plus 52% WindowServer during the
+window. The earlier `FIX_PLAN` note that editor load costs about a third of throughput
+understates what a fully busy machine does to a single step; a clean timing needs an
+idle host.
+## 9.31 Grammar is mandatory — measured, not asserted
+
+Asked whether the GBNF mask could be switched off, to see how far the raw model
+could be trusted. A `--no-grammar` flag was added for one batch and then **removed
+again** once the answer was in: the mask is not a vocabulary guard on top of
+good JSON, it is what makes the output machine-readable at all. It is required,
+and there is deliberately no switch to turn it off.
+
+**What the raw model does.** Captured directly, one step at a time, with no mask:
+
+- **It fences its JSON.** Every response came back as ```` ```json … ``` ````, so
+  `json.loads` on the whole text fails before anything else is even considered.
+- **It appends prose and code after the object.** Step B's reply was the JSON
+  document followed by "Here is a simple Python script…" and a complete
+  `def main()` — a second artefact the pipeline has no schema for.
+- **It renames the document's own keys.** Step A's entries came back as
+  `{"name": …, "description": …}`; the contract, and therefore the checker, wants
+  `text`. The schema itself is carried by the grammar — with it off, the model
+  answers the *idea* of the step rather than the step's interface.
+- **It loses whole steps.** hello's `components.json` failed to parse on both
+  attempts and was never written; every downstream step that needed it degraded.
+
+**Measured, same prompts, same model, same checker.** Only the two no-domain
+prompts and inventory were run before the switch was pulled:
+
+| prompt | errors (grammar) | errors (no grammar) | what the mask was preventing |
+|---|---|---|---|
+| hello | 0 | 2 | `invalid_value` (renamed keys) + a missing `components.json` |
+| cli_tool | 0 | 2 | same two classes |
+| inventory | 0 (6 warnings) | 3 | schema drift and lost steps again |
+
+Every step in the unconstrained runs needed a fence-and-prose recovery to parse
+at all — i.e. every step failed the strict parse the grammar path treats as the
+baseline. That is the point: with the mask on, "the output is JSON with these
+keys" holds by construction; with it off, it does not hold even for the simplest
+prompt. The raw model's *content* was often reasonable — hello's intentions were
+sensible prose — but reasonableness is not parseability, and the pipeline runs on
+the latter.
+
+**Consequences for the code.** The experiment's machinery was reverted: no
+`--no-grammar` flag, no `use_grammar` plumbing through `Pipeline` or
+`runner.generate`, and no lenient parse path in `_parse_document`. A lenient path
+was tried during the experiment (to forgive the fence and judge content rather
+than formatting) and is exactly the wrong direction to keep: it would paper over,
+in the loader, a failure the grammar prevents in the model. `_parse_document`
+stays strict, and `runner.generate`'s docstring records why.
+
+The conclusion also retires the reading that the grammar is "one of" several
+correctness mechanisms. It is the load-bearing one: the closed vocabularies, the
+bounded whitespace, the identifier rule and the schema itself are all only ever
+enforced through the mask, and without it the documents do not survive the first
+`json.loads`.
+## 9.32 What is left, assessed against the generator's needs
+
+The goal is not a clean tally for its own sake: these documents feed a code
+generator, so a finding matters only if it makes the JSON describe the program
+inaccurately. Assessed on the frozen baseline (`out/`, the seven prompts):
+**0 errors, 1 warning, 55 notes.** Read through that lens, the 55 notes are four
+groups, of which two are already excluded by decision and two are real.
+
+**Excluded by decision — the classifier's own coverage, not extraction bugs.**
+
+- **10 `missing_pattern`** — the classifier reporting that no catalogue pattern
+  fits (a read-by-unique-field, an export, a compound service op). The generator
+  will cover these by LLM generation rather than by a catalogue entry, so the
+  gap is expected and no pattern is added (user decision, this session).
+- **13 `narrow_margin` + 2 `low_confidence`** — the same classifier being
+  undecided between two patterns. This is a reliability signal about a document
+  whose downstream use is being replaced anyway; it is not a defect in the
+  extraction.
+
+**Real, and generator-visible.**
+
+### A. The CLI surface under-enumerates the commands the requirements name
+
+The one **warning** is library's `missing_command` (`book search`), but it is the
+tip: the checked-in `out/library/components.json` declares **one** command form
+(`book` → `add`) where the requirements list **eight** —
+`book add|list|search`, `member add|list`, `member history`, `borrow`, `return`.
+
+Two causes, both measured this session:
+
+1. **Step D is nondeterministic at the tail.** Regenerating library's components
+   with the identical prompt and grammar produced `book` **and** `member` with
+   `book` → `add, member, list, borrow, return, overdue, history` (2472 tokens,
+   `finish=stop`) — better than the committed run, but still wrong: `member`,
+   `borrow` and `return` are nested under `book` instead of being top-level. The
+   committed run drew a shorter, worse answer. So this is not one grammar byte
+   to fix; it is a step that must be *checked* and *retried*, and a prompt that
+   states the shape more forcefully.
+2. **The dedupe hides the failure.** The committed run logged
+   `[ok] step components: removed 19 exactly repeated name(s)` and the fresh run
+   `removed = 21`. A large removal is the model looping on option blocks; the
+   dedupe cleans it and writes a document that then *passes* the checker. The
+   removal makes a looping generation look like a deliberate short surface. It
+   should be visible, and it should be a reason to retry the step.
+
+The checker catches only `book search` because its rule compares the
+requirements against a small **verb list** (`checks_surface._commands_by_name`);
+`list`, `update`, `delete`, `borrow`, `return` are not in it, so seven missing
+command forms go unreported. This is §8's faithfulness limit in one concrete
+place: the one rule that reads the requirements reads them shallowly.
+
+### B. Declared error types that no method raises (19)
+
+Measured per prompt (`declared / raised / unused`):
+
+| prompt | declared | raised | unused |
+|---|---|---|---|
+| 60 | 16 | 10 | OrderItemNotFoundError, InvoiceNotFoundError, InsufficientStockError, InvalidPriceError, MalformedCSVError, PermissionDeniedError |
+| cli_tool | 2 | 0 | FileNotFoundError, MalformedCSVError |
+| expenses | 9 | 4 | InvalidBudgetMonthError, InvalidDateFormatError, InvalidPaymentMethodError, InvalidRecurringFlagError, InvalidBudgetAmountError |
+| gui | 8 | 7 | InvalidWineTypeError |
+| inventory | 8 | 4 | InvalidSkuError, InvalidPriceError, InvalidThresholdError, MalformedCSVError |
+| library | 12 | 9 | MalformedCSVError, InvalidInputError, OverdueLoanFoundError |
+
+They split into two causes that need different treatment:
+
+- **Fabricated validation errors (10).** `InvalidBudgetAmountError`,
+  `InvalidSkuError`, `InvalidWineTypeError` and the rest are validation rules
+  turned into exception classes. `ERRORS_SYSTEM` already forbids exactly this
+  ("do not turn a validation rule into an error class"), and `CONTRACTS_SYSTEM`
+  already requires a method to name the failures it can produce in `raises`. So
+  the model declares a class the program never uses: a generator emits a dead
+  exception. This is a prompt-compliance gap, not a missing rule.
+- **Grounded but unwired (9).** `MalformedCSVError` (×4), `FileNotFoundError`
+  (cli_tool), the not-founds (`InvoiceNotFoundError`, `OrderItemNotFoundError`,
+  `OverdueLoanFoundError`). The requirements do describe these failures and the
+  registry records them, but no method's `raises` names them — so the generated
+  program has an error the spec asks for and no code that raises it. Here the
+  gap is in `service_contracts`, not in the registry.
+
+`cli_tool` is the extreme: two errors declared, **zero** raised — nothing in its
+contract raises the file/malformed-CSV failures the requirements name.
+
+### C. Free-text content the checker never judges (§6, unchanged)
+
+Not new, but still the largest "describes the prompt inaccurately" surface and
+still unchecked:
+
+- **`transform` vs the field it is applied to** — `DECIMAL_TO_CENTS` on
+  `stock_qty`, a boolean or a count; `CSV_LIST` on a boolean.
+- **`field_name` → `target_param` collapse** — expenses maps seven distinct
+  fields onto the single parameter `expense`; only "is it *a* parameter" is
+  checked.
+- **`return_type` inconsistency** — comparable operations returning `None`,
+  `bool`, the entity and a bare `dict` within and across documents, with no rule.
+
+Each is a rule the checker could carry (a coherence rule is internal, like the
+ones already added), and each is a place a generator would emit wrong code.
+### 9.33 The CLI surface that under-enumerated its own commands (§9.32-A)
+
+The remaining warning on the frozen baseline was library's `missing_command`, and §9.32-A
+showed it was the tip of an eight-command collapse: the requirements name nine command lines
+(`book add|list|search`, `member add|list|history`, `borrow`, `return`, `overdue`) and the
+committed `out/library/components.json` declared **one** (`book` → `add`). Two things were
+wrong, and both are fixed at the source:
+
+1. **The prompt did not demand the whole surface.** `COMPONENTS_SYSTEM` described a command
+   and its subcommands but never said every command line must appear, and it had no rule for a
+   line that is a **single** word before the flags (`borrow`, `return`). It now says: every
+   command line must appear, each distinct thing is a command of its own, and a line of the
+   form `<program> <verb> --flag` makes that word a top-level command carrying its own options.
+2. **The checker could not see most of the gap.** `checks_surface.COMMAND_PAIR` matched only
+   `<noun> <verb> --flag`, so a bracketed optional flag (`book list [--author]`) hid the verb
+   entirely, and it only ever compared a noun the surface already had, so a whole omitted
+   command group was invisible. It now (a) accepts `[--flag`, and (b) reports a noun used
+   before **two or more** distinct verbs as a missing command — with the **program name** and
+   any **subcommand** excluded, so `library` (the program) and `report` (a subcommand of
+   `expense`) are not false positives.
+
+Measured on library, same prompt and grammar as before:
+
+| | committed run | fresh run with the new prompt |
+|---|---|---|
+| `book` subcommands | `[add]` | `[add, list, search]` |
+| `missing_command` warnings | 1 (`book search`) | 1 (`member`) |
+
+The surface improved from one command form to three, and the strengthened checker reports the
+one that remains honestly — `member` — where before it would have reported one of eight. On the
+other six prompts the widened rule adds **no** false positive.
+
+### 9.34 The declared errors nothing raises (§9.32-B)
+
+Measured per prompt, 19 declared errors were raised by no method (`unused_error`). They split
+into two causes: a **fabricated validation class** (`InvalidBudgetAmountError`,
+`InvalidSkuError`, `InvalidWineTypeError` — `ERRORS_SYSTEM` forbids exactly this), and a
+**grounded but unwired** failure (`MalformedCSVError`, `FileNotFoundError`, the not-founds).
+An unraised class is dead code the generator would emit and never use, but a grounded one is a
+gap in the *contracts*, not the registry, and the registry must stay faithful.
+
+`repairs.repair_unraised_errors` decides by the requirements, the only authority on the
+program's failures. An error is **kept** when a method raises it, when the requirements spell
+its name out, or when a distinctive word of its name is grounded there; a validation-shaped
+name is kept only when the requirements actually use its validation word. It is otherwise
+dropped. It runs after step E, on the registry the contracts were written against, and every
+drop is logged.
+
+Measured across the corpus (13 of 19 dropped; grounded ones kept):
+
+| prompt | dropped |
+|---|---|
+| expenses | InvalidBudgetMonthError, InvalidDateFormatError, InvalidPaymentMethodError, InvalidRecurringFlagError, InvalidBudgetAmountError |
+| inventory | InvalidSkuError, InvalidPriceError, InvalidThresholdError, MalformedCSVError |
+| 60 | InvalidPriceError, MalformedCSVError, PermissionDeniedError |
+| library | MalformedCSVError, InvalidInputError |
+| cli_tool, gui, hello | none |
+
+The kept ones are the point: cli_tool's `MalformedCSVError` survives because its requirements
+say "handle missing files and malformed CSV"; gui's `InvalidWineTypeError` survives because its
+requirements say "invalid"; the not-founds of `60` and library survive because "invoice",
+"order", "stock" and "overdue" are in their requirements. Eight tests pin the rule, including
+the cli_tool keep and the no-requirements pass-through.
+## §9.35 — capability described in prose has no method (60's search)
+
+**The defect the generator-readiness probe found.** 60's requirements say
+*"Customers should be able to search their orders and invoices"*. The surface
+declared `customer search`, `order search`, `invoice search`; **no service method
+provided search**, so a generator would emit three commands calling nothing. The
+consistency checker could not see it: `missing_command` compares the surface with
+the *requirements*, and nothing compared it with the *methods*.
+
+**Fix, and the regression it caused.** A sentence was added to `CONTRACTS_SYSTEM`
+requiring a method for a capability the requirements describe in prose. On the
+first re-run 60 went from **0 to 15 warnings** — the model, told to write more
+methods, emitted one service entry per *group* of methods (`CategoryRepository`
+twice, `OrderService` three times), and the checker reported the duplicate names,
+the adapter targets that no longer resolved, and the operations with no method.
+The search methods appeared (`search_orders_by_customer_id`,
+`search_invoices_by_customer_id`), so the prompt did what it was asked; the
+damage was the duplication, which the dedupe pass should have merged and did not.
+
+## §9.36 — dedupe merges services that share a name
+
+`dedupe._deduplicate_services` removed duplicate *method* names inside a service
+but never merged two service entries that share a `service_name`, though a second
+registration of a name is exactly what a program cannot have.
+`_deduplicate_services` now merges by normalised `service_name` — first spelling
+and order kept, methods concatenated, then deduplicated by name — and nothing is
+renamed or invented. Re-measured on 60: 12 service entries collapsed to 12 **with
+no duplicate name**, wall clock back to 486 s, and the run returned to
+**`0 error(s), 0 warning(s)`** with the search methods intact. Four tests pin the
+merge (`tests/test_dedupe.py`).
+
+## §9.37 — `unbacked_command`: the surface checked against the methods
+
+The class §9.35 belongs to had no rule. `checks_surface.check_command_backing`
+now walks every command verb in the surface and reports a **note** when no
+service method name matches — the verb matched through a stem family, because
+`book add` is `create_book` and `book list` is `read_all_books`, so the rule stays
+silent on a synonym and fires only on a verb nothing plausibly implements. It is
+the second rule (after `missing_command`) that reads something other than another
+document, and the one a generator needs: a command the surface declares and no
+method serves cannot be written. Measured across the corpus: **one** note, 60's
+`order confirm`, reported beside the `cancel_order` the same run declares. Six
+tests pin it, including the synonym silence and the "no services, no check" case
+(`tests/test_generator_readiness_rules.py`).

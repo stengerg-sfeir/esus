@@ -56,33 +56,36 @@
                     "type": "str",
                     "required": true,
                     "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-author",
+                    "short": "-a",
+                    "type": "str",
+                    "required": false,
+                    "default": null
                   },
                   {
-                    "name": "-isbn",
-                    "short": "-i",
+                    "name": "-author-only",
+                    "short": "-a",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "-query",
+                    "short": "-q",
                     "type": "str",
                     "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-author-id",
-                    "short": "-a",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-published-year",
-                    "short": "-y",
-                    "type": "int",
-                    "required": true,
-                    "default": null
-                  },
-                  {
-                    "name": "-copies",
-                    "short": "-c",
-                    "type": "int",
-                    "required": false,
                     "default": null
                   }
                 ]

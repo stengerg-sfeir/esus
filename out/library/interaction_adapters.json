@@ -34,7 +34,7 @@
           "required": true
         },
         {
-          "field_name": "copies",
+          "field_name": "available_copies",
           "target_param": "book",
           "transform": "DIRECT",
           "lookup_entity": null,
@@ -49,9 +49,23 @@
       "input_fields": []
     },
     {
-      "action_name": "list_books_by_author",
+      "action_name": "search_books_by_title",
       "target_service": "BookRepository",
-      "target_method": "get_books_by_author_id",
+      "target_method": "search_books_by_title",
+      "input_fields": [
+        {
+          "field_name": "query",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "search_books_by_author",
+      "target_service": "BookRepository",
+      "target_method": "search_books_by_author",
       "input_fields": [
         {
           "field_name": "author_id",
@@ -63,19 +77,19 @@
       ]
     },
     {
-      "action_name": "list_books_available_only",
+      "action_name": "search_books_by_isbn",
       "target_service": "BookRepository",
-      "target_method": "get_books_available_only",
+      "target_method": "search_books_by_author",
       "input_fields": []
     },
     {
-      "action_name": "search_books",
-      "target_service": "LibraryService",
-      "target_method": "search_books",
+      "action_name": "filter_books_by_available_copies",
+      "target_service": "BookRepository",
+      "target_method": "filter_books_by_available_copies",
       "input_fields": [
         {
-          "field_name": "query",
-          "target_param": "query",
+          "field_name": "available_copies",
+          "target_param": "available_copies",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -140,7 +154,7 @@
           "target_param": "member",
           "transform": "ISO_DATE",
           "lookup_entity": null,
-          "required": false
+          "required": true
         }
       ]
     },
@@ -149,32 +163,6 @@
       "target_service": "MemberRepository",
       "target_method": "read_all_members",
       "input_fields": []
-    },
-    {
-      "action_name": "list_active_members",
-      "target_service": "MemberRepository",
-      "target_method": "get_active_members",
-      "input_fields": []
-    },
-    {
-      "action_name": "list_inactive_members",
-      "target_service": "MemberRepository",
-      "target_method": "get_inactive_members",
-      "input_fields": []
-    },
-    {
-      "action_name": "list_members_by_name_query",
-      "target_service": "MemberRepository",
-      "target_method": "get_members_by_name_query",
-      "input_fields": [
-        {
-          "field_name": "query",
-          "target_param": "query",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
     },
     {
       "action_name": "borrow_book",
@@ -232,9 +220,37 @@
       ]
     },
     {
-      "action_name": "get_member_history",
+      "action_name": "search_books",
+      "target_service": "LibraryService",
+      "target_method": "search_books",
+      "input_fields": [
+        {
+          "field_name": "query",
+          "target_param": "query",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "author_id",
+          "target_param": "author_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": false
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "member_history",
       "target_service": "LoanRepository",
-      "target_method": "get_loans_by_member_id",
+      "target_method": "get_member_loan_history",
       "input_fields": [
         {
           "field_name": "member_id",

@@ -1,10 +1,11 @@
-"""The five rules that compare a document with what the requirements asked for.
+"""The rules that compare a document with what the requirements asked for.
 
-Four of them judge a document against another document or against a name it
-states itself; the fifth (`missing_command`) is the only rule in the checker that
-reads the requirements prose. Each test pins a decision, and — where a rule
-deliberately stays silent — pins that silence too, because a rule that fires on a
-correct document is worse than no rule.
+Most judge a document against another document or against a name it states
+itself; `missing_command` reads the requirements prose, and `unbacked_command`
+reads the methods — a command the surface declares and no service implements.
+Each test pins a decision, and — where a rule deliberately stays silent — pins
+that silence too, because a rule that fires on a correct document is worse than
+no rule.
 """
 
 import sys
@@ -21,7 +22,10 @@ from kernel.consistency.checks_errors import (  # noqa: E402
     check_duplicate_error_subject,
     check_unreachable_not_found,
 )
-from kernel.consistency.checks_surface import check_surface_coverage  # noqa: E402
+from kernel.consistency.checks_surface import (  # noqa: E402
+    check_command_backing,
+    check_surface_coverage,
+)
 from kernel.consistency.report import Report  # noqa: E402
 from kernel.extraction import grammar_open  # noqa: E402
 
@@ -245,6 +249,60 @@ class DuplicateErrorSubjectTests(unittest.TestCase):
         names = ("CategoryNotFoundError", "ProductNotFoundError")
         check_duplicate_error_subject([{"name": name} for name in names], names, report)
         self.assertEqual(rules(report), [])
+
+
+class UnbackedCommandTests(unittest.TestCase):
+    """A command the surface declares and no service method can implement.
+
+    The second half of the surface check: `missing_command` compares the surface
+    with the requirements, this compares it with the methods. A generator cannot
+    write a call no method serves, and nothing else in the checker can see it.
+    """
+
+    def services(self, *method_names):
+        return [
+            {
+                "service_name": "OrderService",
+                "methods": [{"name": name, "description": name, "params": [], "return_type": "void"} for name in method_names],
+            }
+        ]
+
+    def test_a_verb_no_method_serves_is_reported(self):
+        report = Report("t")
+        components = surface([command("order", subcommands=["confirm"])])
+        check_command_backing(components, self.services("create_order", "cancel_order"), report)
+        self.assertIn("unbacked_command", rules(report))
+
+    def test_a_verb_served_by_a_synonym_is_not_reported(self):
+        """`book add` is implemented by `create_book`; the rename is the generator's."""
+        report = Report("t")
+        components = surface([command("book", subcommands=["add", "list"])])
+        check_command_backing(components, self.services("create_book", "read_all_books"), report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_search_verb_is_served_by_a_search_method(self):
+        report = Report("t")
+        components = surface([command("order", subcommands=["search"])])
+        check_command_backing(components, self.services("search_orders_by_customer_id"), report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_null_invocation_is_not_reported(self):
+        report = Report("t")
+        components = {"facade": {"type": "cli", "technology": "none", "invocation": None}}
+        check_command_backing(components, self.services("create_order"), report)
+        self.assertEqual(rules(report), [])
+
+    def test_no_services_means_no_check(self):
+        report = Report("t")
+        components = surface([command("order", subcommands=["confirm"])])
+        check_command_backing(components, [], report)
+        self.assertEqual(rules(report), [])
+
+    def test_an_extra_service_does_not_hide_a_missing_one(self):
+        report = Report("t")
+        components = surface([command("invoice", subcommands=["confirm"])])
+        check_command_backing(components, self.services("cancel_order"), report)
+        self.assertIn("unbacked_command", rules(report))
 
 
 if __name__ == "__main__":

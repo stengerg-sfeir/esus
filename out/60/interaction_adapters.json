@@ -36,74 +36,10 @@
       ]
     },
     {
-      "action_name": "read_customer",
+      "action_name": "read_all_customers",
       "target_service": "CustomerService",
-      "target_method": "read_one_customer",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "update_customer",
-      "target_service": "CustomerService",
-      "target_method": "update_customer",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "email",
-          "target_param": "email",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "phone",
-          "target_param": "phone",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "address",
-          "target_param": "address",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "delete_customer",
-      "target_service": "CustomerService",
-      "target_method": "delete_customer",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
+      "target_method": "read_all_customers",
+      "input_fields": []
     },
     {
       "action_name": "create_category",
@@ -131,6 +67,48 @@
       "target_service": "CategoryService",
       "target_method": "read_all_categories",
       "input_fields": []
+    },
+    {
+      "action_name": "update_category",
+      "target_service": "CategoryService",
+      "target_method": "update_category",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "delete_category",
+      "target_service": "CategoryService",
+      "target_method": "delete_category",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        }
+      ]
     },
     {
       "action_name": "create_product",
@@ -188,8 +166,8 @@
         {
           "field_name": "product_id",
           "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
           "required": true
         },
         {
@@ -237,8 +215,8 @@
         {
           "field_name": "product_id",
           "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
           "required": true
         }
       ]
@@ -254,13 +232,6 @@
           "transform": "LOOKUP_ID",
           "lookup_entity": "Customer",
           "required": true
-        },
-        {
-          "field_name": "items",
-          "target_param": "items",
-          "transform": "CSV_LIST",
-          "lookup_entity": null,
-          "required": true
         }
       ]
     },
@@ -271,6 +242,20 @@
       "input_fields": []
     },
     {
+      "action_name": "read_one_order",
+      "target_service": "OrderService",
+      "target_method": "read_one_order",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        }
+      ]
+    },
+    {
       "action_name": "update_order_status",
       "target_service": "OrderService",
       "target_method": "update_order_status",
@@ -278,8 +263,8 @@
         {
           "field_name": "order_id",
           "target_param": "order_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
           "required": true
         },
         {
@@ -292,86 +277,30 @@
       ]
     },
     {
-      "action_name": "delete_order",
+      "action_name": "confirm_order",
       "target_service": "OrderService",
-      "target_method": "delete_order",
+      "target_method": "confirm_order",
       "input_fields": [
         {
           "field_name": "order_id",
           "target_param": "order_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "get_total_orders_by_customer",
-      "target_service": "OrderService",
-      "target_method": "get_total_orders_by_customer",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
           "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
+          "lookup_entity": "Order",
           "required": true
         }
       ]
     },
     {
-      "action_name": "get_orders_by_customer_and_status",
+      "action_name": "cancel_order",
       "target_service": "OrderService",
-      "target_method": "get_orders_by_customer_and_status",
-      "input_fields": [
-        {
-          "field_name": "customer_id",
-          "target_param": "customer_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Customer",
-          "required": true
-        },
-        {
-          "field_name": "status",
-          "target_param": "status",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "create_order_item",
-      "target_service": "OrderItemService",
-      "target_method": "create_order_item",
+      "target_method": "cancel_order",
       "input_fields": [
         {
           "field_name": "order_id",
           "target_param": "order_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
           "required": true
-        },
-        {
-          "field_name": "product_id",
-          "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "quantity",
-          "target_param": "quantity",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "unit_price",
-          "target_param": "unit_price",
-          "transform": "DECIMAL_TO_CENTS",
-          "lookup_entity": null,
-          "required": false
         }
       ]
     },
@@ -383,8 +312,8 @@
         {
           "field_name": "order_id",
           "target_param": "order_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
           "required": true
         },
         {
@@ -403,9 +332,9 @@
       "input_fields": []
     },
     {
-      "action_name": "get_invoices_by_customer",
+      "action_name": "search_invoices_by_customer",
       "target_service": "InvoiceService",
-      "target_method": "get_invoices_by_customer",
+      "target_method": "search_invoices_by_customer",
       "input_fields": [
         {
           "field_name": "customer_id",
@@ -417,14 +346,49 @@
       ]
     },
     {
-      "action_name": "get_invoices_by_order",
+      "action_name": "search_invoices_by_order",
       "target_service": "InvoiceService",
-      "target_method": "get_invoices_by_order",
+      "target_method": "search_invoices_by_order",
       "input_fields": [
         {
           "field_name": "order_id",
           "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_order_item",
+      "target_service": "OrderItemService",
+      "target_method": "create_order_item",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        },
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
           "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "unit_price",
+          "target_param": "unit_price",
+          "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
           "required": true
         }
