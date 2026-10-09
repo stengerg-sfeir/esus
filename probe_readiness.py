@@ -2,12 +2,20 @@
 
 The consistency checker proves the documents agree with each other. A generator
 needs more: every command backed by a method, every adapter resolving, every
-parameter well-typed, every raised error registered. This probe measures those,
-per prompt, and prints the blockers a generator would have to paper over.
+crud operation implemented by its own entity's interface, every parameter
+well-typed, every raised error registered. This probe measures those, per
+prompt, and prints the blockers a generator would have to paper over.
 
 A CLI verb and a service method rarely share a spelling (`add` is `create_book`,
 `list` is `read_all_books`), so a verb is matched by a family of method-name
 stems — that is a rename the generator does once, not an invention.
+
+Every check is scoped to the interface that owns the thing being checked. An
+earlier version searched *all* services' methods for a crud operation, so
+`ExpenseRepository.create_expense` satisfied a `Category create` claim and the
+probe reported readiness for a repository that had no create method at all
+(expenses, 2026-08-10). A blocker must be judged against the interface that
+would have to implement it.
 """
 
 import json
@@ -69,6 +77,25 @@ def flatten_commands(commands):
     return pairs
 
 
+def entity_methods(entry, services, ports):
+    """The methods that could implement an entity's operations, and only those.
+
+    The operations of `crud_services[].entity` belong to that entity's own
+    interface: its repository in `persistence_ports`, plus any service named for
+    the entity.
+    """
+    entity = norm(entry.get("entity"))
+    methods = set()
+    for repo in ports.get("repositories", []):
+        if norm(repo.get("entity")) == entity:
+            methods.update(norm(m.get("name")) for m in repo.get("methods", []))
+    for service in services:
+        name = norm(service.get("service_name"))
+        if entity and entity in name:
+            methods.update(norm(m.get("name")) for m in service.get("methods", []))
+    return methods
+
+
 def served_by_stems(stems, methods):
     return any(any(stem in method for stem in stems) for method in methods)
 
@@ -117,10 +144,11 @@ def check_prompt(name):
                 )
 
     for entry in components.get("crud_services") or []:
+        owned = entity_methods(entry, services, ports)
         for op in entry.get("operations", []):
             stems = OP_STEMS.get(op, (norm(op),))
-            if not served_by_stems(stems, all_methods):
-                blockers.append(f"{entry.get('entity')} op '{op}' has no method")
+            if not served_by_stems(stems, owned):
+                blockers.append(f"{entry.get('entity')} op '{op}' has no method of its own")
 
     fields_by_entity = {
         norm(model.get("name")): {norm(f.get("name")) for f in model.get("fields", [])}
