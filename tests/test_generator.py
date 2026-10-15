@@ -539,6 +539,26 @@ class PlanTests(unittest.TestCase):
         kind, _ = codegen.plan_method(method, entry, ["E"])
         self.assertEqual(kind, "stub")
 
+    def test_refused_claim_with_single_entity_shape_reads_as_read_one(self):
+        """The gap refused the AGGREGATE claim, not the signature: a single
+        Budget over scalar params is the unique lookup the criteria body
+        already implements. List returns stay refused."""
+        method = {"name": "read_budget_by_category_and_month",
+                  "params": [{"name": "category_id", "type": "int"},
+                             {"name": "month", "type": "str"}],
+                  "return_type": "Budget"}
+        entry = {"pattern_id": "NO_PATTERN_IN_DOMAIN", "decision": "decided",
+                 "claimed_pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+                 "rejection": "returns entity (Budget)"}
+        strategy, detail = codegen.plan_method(
+            method, entry, ["Budget", "Expense"])
+        self.assertEqual(strategy, "crud:read_one")
+        self.assertIn("NO_PATTERN_IN_DOMAIN", detail)
+        self.assertIn("parameter shape", detail)
+        listed = dict(method, return_type="List[Budget]")
+        kind, _ = codegen.plan_method(listed, entry, ["Budget", "Expense"])
+        self.assertEqual(kind, "stub")
+
 
 class ServiceCompositionTests(unittest.TestCase):
     """Services compose from repo methods; the rest stay stubs.

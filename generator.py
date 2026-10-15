@@ -1055,6 +1055,24 @@ def _service_guard_plan(ctx, service_name, method, slots):
     }
 
 
+def _feed_scopes(feed, ctx, entity_name):
+    """True when a budget feed constrains more than identity.
+
+    A feed matching only the guarded entity's primary key
+    (`read_budget_by_id` fed `expense.id`) looks up one arbitrary record
+    by a cross-entity id collision — scoped in form, unscoped in fact.
+    At least one feed entry must name a non-key field.
+    """
+    key_names = {normalize(name) for name, field in fields_of(ctx, entity_name)
+                 if isinstance(field, dict) and field.get("primary_key")}
+    for kind, field in feed.values():
+        if kind == "field" and normalize(field) not in key_names:
+            return True
+        if kind in ("month", "start", "end"):
+            return True
+    return False
+
+
 def _resolve_budget_read(ctx, entity_name, method_name, date_field):
     """`(cls, method, budget_entity, feed, kind)` for a recorded budget read.
 
@@ -1092,6 +1110,8 @@ def _resolve_budget_read(ctx, entity_name, method_name, date_field):
                 return None
             feed = _aggregate_feed(ctx, entity_name, date_field, method)
             if not feed:
+                return None
+            if not _feed_scopes(feed, ctx, entity_name):
                 return None
             kind = "many" if "list" in words else "one"
             return (codegen.sanitize(holder, "Repository"), method,

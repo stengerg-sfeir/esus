@@ -170,6 +170,14 @@ def plan_method(method, entry, entity_names=()):
                 return (f"crud:{crud}", payload)
             return ("stub", f"rule {payload}: method needs custom logic")
         if kind == "llm-gap":
+            # A refused claim is about the claim, not the signature: a gap
+            # refusing AGGREGATE for an entity return still reads as the
+            # unique lookup its parameters describe (UNIQUE scopes read
+            # exactly the read_one body). List returns stay refused — a
+            # collection claim dismissed is not a filter earned.
+            if _shape_crud(method, entity_names) == "read_one":
+                return ("crud:read_one",
+                        f"{_gap_reason(entry, payload)}; read-one by parameter shape")
             return ("stub", _gap_reason(entry, payload))
         return ("stub", _tie_reason(payload))
     crud = classify_crud(name)

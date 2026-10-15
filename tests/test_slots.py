@@ -256,6 +256,32 @@ class GuardEmitterTests(unittest.TestCase):
                  for m in stats["methods"]}
         self.assertFalse(kinds["add_expense"][0])
 
+    def test_id_only_budget_read_cannot_scope_a_guard(self):
+        """`read_budget_by_id(expense.id)` looks scoped but is a cross-entity
+        id collision: the feed constrains nothing, so the plan refuses and
+        the guard stays a stub instead of guarding against one arbitrary row.
+        """
+        record = {"holder": "ExpenseService", "method": "add_expense",
+                  "slots": {"create_method": "create_expense",
+                            "aggregate_method": "get_monthly_expense_total",
+                            "budget_method": "read_budget_by_id",
+                            "amount_field": "amount_cents",
+                            "date_field": "expense_date",
+                            "limit_field": "amount_limit_cents",
+                            "error": "BudgetExceededException"}}
+        ctx = budget_ctx(record)
+        ctx["repositories"][1]["methods"].append({
+            "name": "read_budget_by_id",
+            "params": [{"name": "id", "type": "int"}],
+            "return_type": "Budget", "description": "one budget by id"})
+        stats = {"source": "t", "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        text = generator.emit_services(
+            ctx, generator._repo_index(ctx), stats)
+        kinds = {m["method"]: (m["implemented"], m["how"])
+                 for m in stats["methods"]}
+        self.assertFalse(kinds["add_expense"][0])
+
 
 def ctx_with(slots, methods=None):
     """Hand ctx for emitter tests: slots injected, no files."""
