@@ -639,6 +639,22 @@ class GuardReviewTests(unittest.TestCase):
             self.assertIsNone(slots["target_field"])
             self.assertIsNone(slots["date_field"])
 
+    def test_foreign_keys_are_never_summed(self):
+        """Summing `category_id` compiles but means nothing: FK fields are
+        not offered as targets, amounts, or limits — the review once listed
+        `category_id` beside `amount_cents` and a human picked it."""
+        with tempfile.TemporaryDirectory() as directory:
+            out = budget_writes(directory)
+            questions, _ = collect_slots(out)
+            monthly = next(q for q in questions
+                           if q["method"] == "get_monthly_expense_total")
+            self.assertEqual(dict(monthly["options"])["target_field"],
+                             ["amount_cents"])
+            guard = next(q for q in questions
+                         if q["method"] == "add_expense")
+            self.assertEqual(dict(guard["options"])["amount_field"],
+                             ["amount_cents"])
+
     def test_full_guard_round_trip_records_and_reopens_nothing_answerable(self):
         with tempfile.TemporaryDirectory() as directory:
             out = budget_writes(directory)

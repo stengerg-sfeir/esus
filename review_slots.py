@@ -151,6 +151,19 @@ def _model_fields(ctx, entity):
     return out
 
 
+def _summable(fields):
+    """Numeric fields worth summing: non-key identifiers excluded.
+
+    Summing `category_id` compiles but means nothing — the review once
+    offered it beside `amount_cents` and a human picked it. Foreign keys
+    (like primary keys) never aggregate, so neither is offered as a
+    target, amount, or limit.
+    """
+    return [name for name, ftype, field in fields
+            if ftype in NUMERIC_TYPES and not field.get("primary_key")
+            and not isinstance(field.get("foreign_key"), dict)]
+
+
 def _slot_options(ctx, repo, method, pattern):
     """`[(slot, [candidates])]` in ask order, or None when unaskable.
 
@@ -175,7 +188,7 @@ def _slot_options(ctx, repo, method, pattern):
         if fk_candidates:
             options.append(("fk_field", fk_candidates[:6]))
         options.append(("aggregate_func", list(AGGREGATE_FUNCS)))
-        targets = numeric
+        targets = _summable(fields)
         if not targets:
             return None
         options.append(("target_field", targets[:6]))
@@ -205,8 +218,7 @@ def _slot_options(ctx, repo, method, pattern):
         return options
     if pattern == "BUDGET_OVERFLOW_GUARD":
         entity = repo.get("entity")
-        own_numeric = [name for name, ftype, field in _model_fields(ctx, entity)
-                       if ftype in NUMERIC_TYPES and not field.get("primary_key")]
+        own_numeric = _summable(_model_fields(ctx, entity))
         if not own_numeric:
             return None
 
@@ -262,8 +274,7 @@ def _guard_options(ctx, holder, method):
              if t in DATE_TYPES
              or (t in ("str", "string")
                  and any(h in normalize(n) for h in DATE_NAME_HINTS))]
-    amounts = [n for n, t, f in fields
-               if t in NUMERIC_TYPES and not f.get("primary_key")]
+    amounts = _summable(fields)
     if not dates or not amounts:
         return None
     aggregates = []
@@ -349,8 +360,7 @@ def _resolve_deferred(ctx, question, method, slot, answers):
         if not spend:
             return []
         if slot == "target_field":
-            return [n for n, t, f in _model_fields(ctx, spend)
-                    if t in NUMERIC_TYPES and not f.get("primary_key")][:6]
+            return _summable(_model_fields(ctx, spend))[:6]
         return [n for n, t, _ in _model_fields(ctx, spend)
                 if t in DATE_TYPES
                 or (t in ("str", "string")
@@ -371,8 +381,7 @@ def _resolve_deferred(ctx, question, method, slot, answers):
                          if isinstance(n, str) and normalize(n) in words), None)
                     if target is None:
                         return []
-                    return [n for n, t, f in _model_fields(ctx, target)
-                            if t in NUMERIC_TYPES and not f.get("primary_key")][:6]
+                    return _summable(_model_fields(ctx, target))[:6]
         return []
     return []
 
