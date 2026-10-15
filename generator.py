@@ -1163,6 +1163,10 @@ def _service_guard_body(fname, declaration, returns, method, plan, detail):
         f"        record = {entity_ident} if isinstance({entity_ident}, dict) "
         f"else vars({entity_ident})",
         f"        month = str(record.get({plan['date_field']!r}) or '')[:7]",
+        f"        if not month:",
+        f"            raise ValueError("
+        f"f\"budget guard needs {plan['date_field']}: without it the expense "
+        f"cannot be scoped to a month\")",
     ]
     if needs_bounds:
         lines += [
@@ -1361,6 +1365,7 @@ def _repo_budget_check_body(ctx, entity, method, fname, slots):
     target = slots.get("target_field")
     scope_lines = []
     spend_lines = []
+    month_idents = []
     budget_fields = [name for name, _ in fields_of(ctx, entity)]
     for param in method.get("params") or []:
         if not isinstance(param, dict) or not param.get("name"):
@@ -1372,6 +1377,7 @@ def _repo_budget_check_body(ctx, entity, method, fname, slots):
                           if normalize(name) == normalize(raw)), None)
             if field is None:
                 return None
+            month_idents.append(ident)
             scope_lines.append(f"            if record.get({field!r}) == {ident}")
             spend_lines.append(
                 f"    if not str(record.get({date_field!r}) or '').startswith({ident}):")
@@ -1403,6 +1409,11 @@ def _repo_budget_check_body(ctx, entity, method, fname, slots):
         f"    spent += record.get({target!r}) or 0",
         f"return spent <= limit if limit is not None else True",
     ]
+    if month_idents:
+        guard = [f"if not ({' or '.join(month_idents)}):",
+                 f"    raise ValueError(\"budget check needs a month scope: "
+                 f"an empty month matches every record\")"]
+        lines[0:0] = guard
     return lines
 
 

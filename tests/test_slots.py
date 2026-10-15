@@ -256,6 +256,54 @@ class GuardEmitterTests(unittest.TestCase):
                  for m in stats["methods"]}
         self.assertFalse(kinds["add_expense"][0])
 
+    def test_datetless_expense_refuses_instead_of_passing_silent(self):
+        """The exact production incident: no `expense_date` means no month,
+        which meant an empty scope that matched everything and skipped the
+        check. Now the guard names the missing field loudly."""
+        record = {"holder": "ExpenseService", "method": "add_expense",
+                  "slots": {"create_method": "create_expense",
+                            "aggregate_method": "get_monthly_expense_total",
+                            "budget_method": "read_budget_by_category_and_month",
+                            "amount_field": "amount_cents",
+                            "date_field": "expense_date",
+                            "limit_field": "amount_limit_cents",
+                            "error": "BudgetExceededException"}}
+        ctx = budget_ctx(record)
+        stats = {"source": "t", "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        repo_text = generator.emit_repositories(ctx, stats)
+        svc_text = generator.emit_services(
+            ctx, generator._repo_index(ctx), stats)
+        namespace, store = _exec_repo_service(repo_text, svc_text)
+        backend = store.Store()
+        backend.add("Category", "id", {"name": "food"})
+        repos = {"ExpenseRepository": namespace["ExpenseRepository"](backend),
+                 "BudgetRepository": namespace["BudgetRepository"](backend)}
+        svc = namespace["ExpenseService"](repos)
+        Expense = namespace["models"].Expense
+        with self.assertRaises(ValueError) as raised:
+            svc.add_expense(Expense(amount_cents=1, category_id=1))
+        self.assertIn("expense_date", str(raised.exception))
+
+    def test_monthless_check_refuses_instead_of_summing_all(self):
+        """Same trap in the repo check: an empty month prefix-matches every
+        record, so the check demands its scope up front."""
+        rec = {("BudgetRepository", "check_budget_status"): {
+            "holder": "BudgetRepository", "method": "check_budget_status",
+            "slots": {"limit_field": "amount_limit_cents",
+                      "target_field": "amount_cents",
+                      "date_field": "expense_date",
+                      "spend_entity": "Expense"}}}
+        ctx = budget_ctx(repo_records=rec)
+        stats = {"source": "t", "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        namespace, store = exec_repos(generator.emit_repositories(ctx, stats))
+        backend = store.Store()
+        backend.add("Category", "id", {"name": "food"})
+        check = namespace["BudgetRepository"](backend).check_budget_status
+        with self.assertRaises(ValueError):
+            check(1, "")
+
     def test_id_only_budget_read_cannot_scope_a_guard(self):
         """`read_budget_by_id(expense.id)` looks scoped but is a cross-entity
         id collision: the feed constrains nothing, so the plan refuses and
