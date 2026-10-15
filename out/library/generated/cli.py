@@ -226,8 +226,13 @@ def _normalize(text):
     return "".join(c for c in str(text).lower() if c.isalnum())
 
 
+DEFAULT_DB = 'library.db'
+
+
 def build_parser():
     parser = argparse.ArgumentParser(prog='library')
+    parser.add_argument('--db', default=None,
+                        help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
     sub = parser.add_subparsers(dest='command')
     p_book = sub.add_parser('book')
     sub_book = p_book.add_subparsers(dest='subcommand')
@@ -307,8 +312,8 @@ def _sanitize(text):
     return "_" + cleaned if cleaned[:1].isdigit() else cleaned
 
 
-def build_cli():
-    store = Store()
+def build_cli(db_path=None):
+    store = Store(db_path)
     repos = {cls_name: getattr(repositories, cls_name)(store) for cls_name in REPOSITORIES}
     hired = {cls_name: getattr(services, cls_name)(repos) for cls_name in SERVICES}
     entities = {_normalize(name): getattr(models, name) for name in MODELS}
@@ -318,8 +323,13 @@ def build_cli():
 
 
 def main(argv=None):
-    parser, deps = build_cli()
-    return dispatch(parser, parser.parse_args(argv), deps)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    _, deps = build_cli(args.db or DEFAULT_DB)
+    try:
+        return dispatch(parser, args, deps)
+    finally:
+        deps['store'].close()
 
 
 def dispatch(parser, args, deps):
@@ -333,7 +343,7 @@ def dispatch(parser, args, deps):
         print(f"no adapter bound for {' '.join(binding)} — not implemented")
         return 1
     values = {key: value for key, value in vars(args).items()
-              if key not in ('command', 'subcommand', '_binding')}
+              if key not in ('command', 'subcommand', '_binding', 'db')}
     try:
         _show(_call(bound, values, deps))
     except Exception as error:

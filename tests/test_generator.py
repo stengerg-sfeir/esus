@@ -460,6 +460,77 @@ class GenerationTests(unittest.TestCase):
             cli.main(["--help"])
         self.assertEqual(ctx.exception.code, 0)
 
+    def test_cli_db_flag_persists_across_processes(self):
+        """Two main() calls sharing --db see one store: the FK that failed
+        across processes now resolves, and records survive."""
+        import tempfile
+        _, _, _, _, _, cli = self.mods()
+        with tempfile.TemporaryDirectory() as directory:
+            db = str(Path(directory) / "shop.db")
+            with io.StringIO(), redirect_stdout(io.StringIO()):
+                self.assertEqual(
+                    cli.main(["--db", db, "category", "add", "--name", "food"]), 0)
+                self.assertEqual(
+                    cli.main(["--db", db, "product", "add", "--name", "apple",
+                              "--price", "1.50", "--category", "1"]), 0)
+            self.assertTrue((Path(directory) / "shop.db").is_file())
+
+
+class StorePersistenceTests(unittest.TestCase):
+    """Same interface, durable: file-backed behavior equals memory."""
+
+    def template(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "store", "kernel/codegen_store_template.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.Store
+
+    def test_memory_is_still_the_default(self):
+        Store = self.template()
+        store = Store()
+        self.assertIsNone(store._db)
+        store.add("E", "id", {"name": "x"})
+        self.assertEqual(store.get("E", "id", 1)["name"], "x")
+
+    def test_file_round_trip_keeps_records_counters_and_fks(self):
+        import tempfile
+        Store = self.template()
+        with tempfile.TemporaryDirectory() as directory:
+            path = str(Path(directory) / "t.db")
+            first = Store(path)
+            first.add("Category", "id", {"name": "food"})
+            first.add("Product", "id", {"name": "a", "price_cents": 100,
+                                        "category_id": 1},
+                      check_fk=[("category_id", "Category", "id", None)])
+            first.close()
+            second = Store(path)
+            self.assertEqual(second.get("Category", "id", 1)["name"], "food")
+            self.assertEqual(len(second.select("Product", [])), 1)
+            third = second.add("Product", "id", {"name": "b"})
+            self.assertEqual(third["id"], 2)
+            with self.assertRaises(KeyError):
+                second.add("Product", "id", {"name": "c", "category_id": 999},
+                           check_fk=[("category_id", "Category", "id", None)])
+            second.delete("Product", "id", 1)
+            second.close()
+            fourth = Store(path)
+            self.assertEqual(len(fourth.select("Product", [])), 1)
+
+    def test_int_and_str_keys_stay_distinct(self):
+        import tempfile
+        Store = self.template()
+        with tempfile.TemporaryDirectory() as directory:
+            path = str(Path(directory) / "t.db")
+            store = Store(path)
+            store.add("E", "id", {"id": 1, "name": "int"})
+            store.add("E", "id", {"id": "1", "name": "str"})
+            store.close()
+            reopened = Store(path)
+            self.assertEqual(reopened.get("E", "id", 1)["name"], "int")
+            self.assertEqual(reopened.get("E", "id", "1")["name"], "str")
+
 
 class PlanTests(unittest.TestCase):
     def test_match_param_covers_prefixes_and_rejects_noise(self):
@@ -1018,6 +1089,8 @@ class EmittedImportsTests(unittest.TestCase):
             exec(compile(repos_text, "repositories.py", "exec"), namespace)
             exec(compile(services_text, "services.py", "exec"), namespace)
         self.assertIn("WineRepository", namespace)
+        self.assertTrue(any(line.startswith("from typing import") and "Union" in line
+                            for line in repos_text.splitlines()))
 
 
 if __name__ == "__main__":
