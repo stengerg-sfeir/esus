@@ -588,7 +588,7 @@ def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_n
     if kind == "create":
         return _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal)
     if kind == "read_one":
-        return _read_one_body(params, entity, model_cls, field_names, err)
+        return _read_one_body(params, entity, model_cls, field_names, pk, err)
     if kind in ("read_all", "filter"):
         return _select_body(params, entity, model_cls, field_names)
     if kind == "update":
@@ -652,15 +652,26 @@ def _criteria_block(params, entity, field_names):
     return lines
 
 
-def _read_one_body(params, entity, model_cls, field_names, err):
+def _read_one_body(params, entity, model_cls, field_names, pk, err):
+    """Lookup one record: by PK directly, else criteria plus uniqueness.
+
+    The old fast path read every single-parameter lookup through the
+    primary key — `read_x_by_email(email)` searched `PK == email` and
+    reported "not found" instead of finding. Now only a parameter mapping
+    to the PK with `eq` takes it; anything else goes through criteria
+    (unmappable parameters fail loudly there, as everywhere).
+    """
     if len(params) == 1:
-        lines = [f"record = self._store.get(self.ENTITY, self.PK, {params[0][1]}, error={err})"]
-    else:
-        lines = _criteria_block(params, entity, field_names)
-        lines += ["found = self._store.select(self.ENTITY, criteria)",
-                  "if len(found) != 1:",
-                  f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
-                  "record = found[0]"]
+        matched = codegen.match_param(field_names, params[0][0])
+        if matched is not None and list(matched) == [pk, "eq"]:
+            lines = [f"record = self._store.get(self.ENTITY, self.PK, {params[0][1]}, error={err})"]
+            lines.append(_result_wrap(model_cls))
+            return lines
+    lines = _criteria_block(params, entity, field_names)
+    lines += ["found = self._store.select(self.ENTITY, criteria)",
+              "if len(found) != 1:",
+              f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
+              "record = found[0]"]
     lines.append(_result_wrap(model_cls))
     return lines
 

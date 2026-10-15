@@ -406,6 +406,25 @@ class GenerationTests(unittest.TestCase):
         dictionary = {"ProductRepository": repositories.ProductRepository(backend)}
         self.assertEqual(services.ShopService(dictionary).read_all_products(), [])
 
+    def test_single_param_lookup_by_non_pk_goes_through_criteria(self):
+        """`read_x_by_email(email)` must not search `PK == email`.
+
+        Only a parameter mapping to the PK with `eq` keeps the direct
+        lookup; anything else goes through criteria (and the uniqueness
+        check), so a miss reports no match instead of a wrong miss.
+        """
+        pk_path = generator._read_one_body(
+            [("id", "id", "int")], "Product", None, ["id", "name"], "id",
+            "LookupError")
+        self.assertTrue(any("self._store.get(self.ENTITY, self.PK" in line
+                            for line in pk_path))
+        criteria_path = generator._read_one_body(
+            [("email", "email", "str")], "Product", None, ["id", "email"],
+            "id", "LookupError")
+        self.assertFalse(any("self._store.get(self.ENTITY, self.PK" in line
+                             for line in criteria_path))
+        self.assertTrue(any("criteria" in line for line in criteria_path))
+
     def session(self):
         """One parser plus dependencies sharing a single store."""
         _, _, _, _, _, cli = self.mods()
