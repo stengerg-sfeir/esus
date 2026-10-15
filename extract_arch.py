@@ -156,11 +156,12 @@ def print_quiet_results(log, out_fn=print):
 
 
 def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
-              surface_runner=None):
+              surface_runner=None, slot_runner=None):
     """Probe, ask, re-probe: the attended tail of an extraction run.
 
     Runs the probe over `output_dir`; when ties need a human, runs the tie
-    review, and when field pairs do, the alias review. Structural blockers
+    review, surface duplicates get the surface review, field pairs the alias
+    review, and pattern slots the slot review. Structural blockers
     (missing commands, uncovered fields, unknown model fields) are reported,
     never asked — no answer the user can type fixes those; a rerun or a code
     fix does. Returns the remaining blockers (a list — the loop judges
@@ -169,6 +170,7 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     """
     import probe_readiness
     import review_aliases
+    import review_slots
     import review_surface
     import review_ties
 
@@ -187,6 +189,11 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     if pairs:
         out_fn(f"{len(pairs)} field mapping(s) need a human — starting the alias review")
         (alias_runner or review_aliases.run_review)(str(output_dir))
+    slot_questions, _ = review_slots.collect_slots(str(output_dir))
+    if slot_questions:
+        out_fn(f"{len(slot_questions)} pattern slot(s) need a human — "
+               f"starting the slot review")
+        (slot_runner or review_slots.run_review)(str(output_dir))
     final, _, _ = probe_readiness.check_prompt(name, str(output_dir))
     out_fn(f"chat: {len(final)} blocker(s) remain")
     for finding in final:
@@ -452,7 +459,8 @@ def report_verdict(output_dir, out_fn=print):
 
 
 def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
-              tie_runner=None, alias_runner=None, surface_runner=None):
+              tie_runner=None, alias_runner=None, surface_runner=None,
+              slot_runner=None):
     """Probe, review, resume — until clean, stuck, or out of rounds.
 
     `rerun(start)` performs one model round from `start` (raising on crash).
@@ -468,7 +476,8 @@ def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
     for _ in range(max(1, max_rounds)):
         blockers = chat_flow(output_dir, out_fn=out_fn,
                              tie_runner=tie_runner, alias_runner=alias_runner,
-                             surface_runner=surface_runner)
+                             surface_runner=surface_runner,
+                             slot_runner=slot_runner)
         if not blockers:
             report_verdict(output_dir, out_fn=out_fn)
             return 0

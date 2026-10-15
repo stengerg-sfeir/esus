@@ -470,6 +470,27 @@ class PlanTests(unittest.TestCase):
             entry, ["E"])
         self.assertEqual(kind, "stub")
 
+    def test_filter_pattern_without_filter_name_plans_by_shape(self):
+        """`read_expenses_by_category` matches no name prefix, yet describes
+        a filter exactly: list return, scalar-only params."""
+        entry = {"pattern_id": "FILTER_BY_FIELD", "decision": "decided"}
+        method = {"name": "read_expenses_by_category",
+                  "params": [{"name": "category_id", "type": "int"}],
+                  "return_type": "List[Expense]"}
+        strategy, detail = codegen.plan_method(method, entry, ["Expense"])
+        self.assertEqual(strategy, "crud:filter")
+        self.assertIn("FILTER_BY_FIELD", detail)
+
+    def test_shape_fallback_needs_list_return_and_params(self):
+        entry = {"pattern_id": "FILTER_BY_FIELD", "decision": "decided"}
+        base = {"name": "read_stuff", "params": [{"name": "id", "type": "int"}]}
+        kind, _ = codegen.plan_method(dict(base, return_type="None"), entry, ["E"])
+        self.assertEqual(kind, "stub")
+        kind, _ = codegen.plan_method(
+            {"name": "read_stuff", "params": [], "return_type": "List[E]"},
+            entry, ["E"])
+        self.assertEqual(kind, "stub")
+
     def test_entity_typed_params_disqualify_the_shape(self):
         """A record-carrying parameter is a create/update shape, not a filter."""
         entry = {"pattern_id": "FILTER_BY_FIELD", "decision": "decided"}
@@ -951,6 +972,8 @@ class EmittedImportsTests(unittest.TestCase):
             mods[name] = types.ModuleType(name)
         mods["store"].Store = object
         mods["store"].match_criterion = lambda *a: None
+        mods["models"].Wine = type("Wine", (), {})
+        mods["models"].Budget = type("Budget", (), {})
         namespace = dict(mods)
         with mock.patch.dict(sys.modules, mods):
             exec(compile(repos_text, "repositories.py", "exec"), namespace)

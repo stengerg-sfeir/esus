@@ -56,6 +56,7 @@ from kernel.consistency.loader import load_documents, load_requirements  # noqa:
 from kernel.consistency.naming import normalize  # noqa: E402
 from kernel.consistency.report import Report  # noqa: E402
 from kernel.extraction import runner  # noqa: E402
+from kernel.extraction.decisions import requirements_sha  # noqa: E402
 
 GENERATED_DIR = "generated"
 
@@ -64,7 +65,7 @@ GENERATED_DIR = "generated"
 # Guard patterns are deliberately absent — a guard must run its check, never
 # delegate past it or reduce to a scan; those stay stubs until we design them.
 SLOT_PATTERNS = frozenset({"AGGREGATE_BY_FK", "AGGREGATE_BY_FK_AND_DATE",
-                            "THRESHOLD_SCAN"})
+                            "THRESHOLD_SCAN", "BUDGET_OVERFLOW_GUARD"})
 GUARD_PATTERNS = frozenset({"BUDGET_OVERFLOW_GUARD", "QUOTA_CAPACITY_GUARD",
                             "STOCK_SUFFICIENCY_GUARD", "PRICE_MARGIN_GUARD",
                             "STATE_TRANSITION_GUARD"})
@@ -112,6 +113,8 @@ def load_context(output_dir):
     if not isinstance(components, dict):
         components = {}
     slots = {}
+    current = requirements_sha(load_requirements(output_dir))
+    dropped = 0
     try:
         with open(os.path.join(output_dir, METHOD_SLOTS_NAME),
                   encoding="utf-8") as handle:
@@ -120,6 +123,11 @@ def load_context(output_dir):
         if isinstance(records, list):
             for record in records:
                 if isinstance(record, dict) and record.get("holder") and record.get("method"):
+                    stamped = record.get("requirements_sha")
+                    if current is not None and isinstance(stamped, str) \
+                            and stamped != current:
+                        dropped += 1
+                        continue
                     slots[(record["holder"], record["method"])] = record
     except (OSError, ValueError):
         pass
@@ -134,6 +142,7 @@ def load_context(output_dir):
         "components": components,
         "entity_names": [m["name"] for m in models],
         "slots": slots,
+        "dropped_slots": dropped,
     }
 
 
@@ -380,6 +389,43 @@ def _rename_target(ctx, method, param_names, returns):
     return None
 
 
+def _realized_delegate(ctx, service_name, method, params, returns, delegate):
+    """Same-name delegation past a non-mechanical service plan — when safe.
+
+    Fires only when the old same-name rule did not: the service plan is not
+    crud (typically a slotted pattern like an aggregate), but the target is
+    mechanical with identical parameters and returns. Guard-patterned
+    services never delegate: the check must run, so the stub stands.
+    """
+    if delegate is None:
+        return None
+    target_cls, target = delegate
+    holder = next((r.get("interface_name") or r.get("entity")
+                   for r in ctx["repositories"]
+                   if any(m is target for m in (r.get("methods") or []))), None)
+    tstrategy, _ = codegen.plan_method(
+        target, _match_entry(ctx, holder, target.get("name")), ctx["entity_names"])
+    if not tstrategy.startswith("crud:"):
+        # A slot-answered aggregate or threshold is mechanical too: the
+        # emitter writes it from the recorded slots, so delegating to it is
+        # delegating to running code, not to a refusal.
+        pattern, slots = _slot_pattern(ctx, holder, target)
+        if pattern is None or not _slots_usable(pattern, slots, target, True):
+            return None
+    tparams = sorted(normalize(p.get("name") or "")
+                     for p in target.get("params") or [] if isinstance(p, dict))
+    if tparams != sorted(normalize(raw) for raw, _, _ in params):
+        return None
+    if normalize(_return_of(target, ctx["entity_names"])) != normalize(returns):
+        return None
+    entry = _match_entry(ctx, service_name, method.get("name"))
+    if isinstance(entry, dict):
+        kind, payload = tie_rules.effective_directive(entry)
+        if kind == "pattern" and payload in GUARD_PATTERNS:
+            return None
+    return (target_cls, codegen.sanitize(target.get("name"), "method"))
+
+
 def _service_filter_plan(ctx, method, params):
     """`(repo_cls, read_all, entity, fields, detail)` for a service filter.
 
@@ -502,6 +548,24 @@ def emit_repositories(ctx, stats):
             fname = codegen.sanitize(method["name"], "method")
             declaration, params = _signature(method, ctx["entity_names"])
             returns = _return_of(method, ctx["entity_names"])
+            pattern, slots = _slot_pattern(ctx, holder, method)
+            if pattern is not None and _slots_usable(pattern, slots, method, True):
+                slot_detail = ", ".join(
+                    f"{slot}={slots[slot]}"
+                    for slot in SLOT_REQUIREMENTS.get(pattern, ())
+                    if slots.get(slot) not in (None, ""))
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          f'[{pattern} via answered slots: {slot_detail}]"""']
+                field_types = {name: (field.get("type") or "")
+                               for name, field in fields_of(ctx, entity)}
+                body = _repo_slot_body(ctx, entity, model_cls, field_types,
+                                       method, pattern, slots)
+                lines.extend("        " + line if line else "" for line in body)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        f"slots:{pattern}")
+                continue
             lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
                       f'        """{_docstring(method.get("description"))} [{strategy}: {detail}]"""']
             body = _repo_body(ctx, strategy, detail, method, params, entity,
@@ -659,6 +723,8 @@ def emit_services(ctx, repo_index, stats):
              "",
              "from typing import Any, Dict, List, Optional",
              "",
+             "import calendar",
+             "",
              "import models",
              "import errors",
              "from store import match_criterion",
@@ -730,7 +796,33 @@ def emit_services(ctx, repo_index, stats):
                         _record(stats, name, method["name"], strategy, True,
                                 f"compose:{repo_cls}.{read_all}")
                         continue
+            record = ctx.get("slots", {}).get((name, method["name"]))
+            plan = _service_guard_plan(
+                ctx, name, method,
+                record.get("slots", {}) if isinstance(record, dict) else {})
+            if plan is not None:
+                body = _service_guard_body(
+                    fname, declaration, returns, method, plan, detail)
+                if body is not None:
+                    lines += body
+                    stats["implemented"] += 1
+                    _record(stats, name, method["name"], strategy, True,
+                            "guard")
+                    continue
             if delegate is not None:
+                realized = _realized_delegate(ctx, name, method, params,
+                                              returns, delegate)
+                if realized is not None:
+                    target_cls, tname = realized
+                    call = ", ".join(ident for _, ident, _ in params)
+                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                              f'        """{_docstring(method.get("description"))} '
+                              f'[delegates to {target_cls}.{tname} — pattern realized by target]"""',
+                              f"        return self._repos[{target_cls!r}].{tname}({call})"]
+                    stats["implemented"] += 1
+                    _record(stats, name, method["name"], strategy, True,
+                            f"delegate-realized:{target_cls}.{tname}")
+                    continue
                 where = f" [same-name repo method on {delegate[0]} is {detail}]"
             elif strategy.startswith("crud:"):
                 where = " [no same-name repository method to delegate to]"
@@ -791,18 +883,319 @@ def _service_filter_body(fname, declaration, returns, method, repo_cls,
     ]
 
 
+def _guard_entity_param(ctx, method):
+    """The single record the guard acts on: `(raw, ident, entity)`, or None.
+
+    A budget guard wraps one record (add this expense); anything else — no
+    record, several records, extra scalar arguments — is update/exclusion
+    semantics no template covers, so a stub.
+    """
+    found = [(p.get("name"), codegen.sanitize(p.get("name"), "param"), ptype)
+             for p in method.get("params") or [] if isinstance(p, dict)
+             for ptype in [p.get("type")] if codegen.is_entity_type(ptype, ctx["entity_names"])]
+    params = [p for p in method.get("params") or [] if isinstance(p, dict)]
+    if len(found) != 1 or len(params) != 1:
+        return None
+    return found[0]
+
+
+def _mechanical_creates(ctx, entity):
+    """`[(repo_cls, method)]` crud:create methods for one entity, in order."""
+    out = []
+    for repo in ctx["repositories"]:
+        if repo.get("entity") != entity:
+            continue
+        holder = repo.get("interface_name") or entity
+        cls = codegen.sanitize(holder, "Repository")
+        for method in repo.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            strategy, _ = codegen.plan_method(
+                method, _match_entry(ctx, holder, method["name"]),
+                ctx["entity_names"])
+            if strategy == "crud:create":
+                out.append((cls, method))
+    return out
+
+
+def _usable_aggregates(ctx, entity):
+    """`[(repo_cls, method)]` slot-answered aggregates over one entity."""
+    out = []
+    for repo in ctx["repositories"]:
+        if repo.get("entity") != entity:
+            continue
+        holder = repo.get("interface_name") or entity
+        cls = codegen.sanitize(holder, "Repository")
+        for method in repo.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            pattern, slots = _slot_pattern(ctx, holder, method)
+            if pattern is not None and pattern.startswith("AGGREGATE") \
+                    and _slots_usable(pattern, slots, method, True):
+                out.append((cls, method))
+    return out
+
+
+def _aggregate_feed(ctx, entity, date_field, method):
+    """How an aggregate's parameters are fed, or None when one cannot be.
+
+    An fk parameter takes the same-named entity field; `month`/`year` take
+    the date field's `YYYY-MM` prefix; `start`/`end` take that month's
+    bounds. Anything else is unfeedable — the aggregate answers a different
+    question than the guard asks. Kinds: `field`, `month`, `start`, `end`.
+    """
+    feed = {}
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            return None
+        raw = param["name"]
+        if any(normalize(raw) == normalize(name)
+               for name, _ in fields_of(ctx, entity)):
+            feed[raw] = ("field", next(
+                name for name, _ in fields_of(ctx, entity)
+                if normalize(name) == normalize(raw)))
+        elif normalize(raw) in ("month", "year"):
+            feed[raw] = ("month",)
+        else:
+            tokens = codegen.canon_tokens(raw)
+            if tokens[:1] == ["start"]:
+                feed[raw] = ("start",)
+            elif tokens[:1] == ["end"]:
+                feed[raw] = ("end",)
+            else:
+                return None
+    return feed
+
+
+def _service_guard_plan(ctx, service_name, method, slots):
+    """A resolved budget-guard composition, or None.
+
+    Every reference answers from the recorded slots and is re-verified
+    here — a renamed method, a dropped aggregate, a hand-written record —
+    so a stale answer degrades to a stub at generation time, never to a
+    body wired to the wrong call.
+    """
+    entry = _match_entry(ctx, service_name, method.get("name"))
+    pattern = None
+    if isinstance(entry, dict):
+        kind, payload = tie_rules.effective_directive(entry)
+        if kind == "pattern" and payload == "BUDGET_OVERFLOW_GUARD":
+            pattern = payload
+    if pattern is None:
+        return None
+    if not _complete_slots(pattern, slots, False):
+        return None
+    acted = _guard_entity_param(ctx, method)
+    if acted is None:
+        return None
+    _, entity_ident, entity = acted
+    entity_name = next((n for n in ctx["entity_names"]
+                        if codegen.is_entity_type(entity, [n])), None)
+    if entity_name is None:
+        return None
+    creates = {m["name"]: (c, m) for c, m in _mechanical_creates(ctx, entity_name)}
+    if slots.get("create_method") not in creates:
+        return None
+    create_cls, create_method = creates[slots["create_method"]]
+    aggregates = {}
+    for agg_cls, agg_method in _usable_aggregates(ctx, entity_name):
+        feed = _aggregate_feed(ctx, entity_name, slots.get("date_field"),
+                               agg_method)
+        if feed is not None:
+            aggregates[agg_method["name"]] = (agg_cls, agg_method, feed)
+    if slots.get("aggregate_method") not in aggregates:
+        return None
+    agg_cls, agg_method, feed = aggregates[slots["aggregate_method"]]
+    budget = _resolve_budget_read(ctx, entity_name, slots.get("budget_method"),
+                                  slots.get("date_field"))
+    if budget is None:
+        return None
+    budget_cls, budget_method, budget_entity, budget_feed, budget_kind = budget
+    limit_field = slots.get("limit_field")
+    if not any(name == limit_field or normalize(name) == normalize(limit_field)
+               for name, _ in fields_of(ctx, budget_entity)):
+        return None
+    errors = {e["name"] for e in ctx["errors"]
+              if isinstance(e, dict) and e.get("name")}
+    if slots.get("error") not in errors:
+        return None
+    budget_errors = []
+    for candidate in (method_error(ctx, budget_method, budget_entity),
+                      "LookupError"):
+        if candidate not in budget_errors:
+            budget_errors.append(candidate)
+    amount_field = slots.get("amount_field")
+    if not any(name == amount_field or normalize(name) == normalize(amount_field)
+               for name, _ in fields_of(ctx, entity_name)):
+        return None
+    date_field = slots.get("date_field")
+    if not any(name == date_field or normalize(name) == normalize(date_field)
+               for name, _ in fields_of(ctx, entity_name)):
+        return None
+    return {
+        "entity": entity_name, "entity_ident": entity_ident,
+        "create_cls": create_cls, "create_method": create_method,
+        "agg_cls": agg_cls, "agg_method": agg_method, "feed": feed,
+        "budget_cls": budget_cls, "budget_method": budget_method,
+        "budget_entity": budget_entity, "budget_feed": budget_feed,
+        "budget_kind": budget_kind, "budget_errors": budget_errors,
+        "amount_field": amount_field, "date_field": date_field,
+        "limit_field": limit_field, "error": slots["error"],
+    }
+
+
+def _resolve_budget_read(ctx, entity_name, method_name, date_field):
+    """`(cls, method, budget_entity, feed, kind)` for a recorded budget read.
+
+    The read returns one budget record (`kind="one"`) or a list to pick
+    from (`kind="many"`); a missing record means no limit either way. Its
+    parameters must all feed from the guarded entity (same name, or the
+    month from the date field), and at least one must — an unscoped read
+    cannot serve a scoped guard. The read itself must be mechanical
+    (crud or usable slots): the guard refuses to build on a refusal.
+    """
+    for repo in ctx["repositories"]:
+        holder = repo.get("interface_name") or repo.get("entity")
+        for method in repo.get("methods") or []:
+            if not isinstance(method, dict) or method.get("name") != method_name:
+                continue
+            returns = (method.get("return_type") or "")
+            words = {normalize(token) for token in
+                     re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+            budget_entity = next(
+                (n for n in ctx["entity_names"]
+                 if isinstance(n, str) and normalize(n) in words
+                 and normalize(n) not in ("dict", "optional", "none")),
+                None)
+            if budget_entity is None:
+                return None
+            strategy, _ = codegen.plan_method(
+                method, _match_entry(ctx, holder, method["name"]),
+                ctx["entity_names"])
+            mechanical = strategy.startswith("crud:")
+            if not mechanical:
+                pattern, slots = _slot_pattern(ctx, holder, method)
+                mechanical = pattern is not None and _slots_usable(
+                    pattern, slots, method, True)
+            if not mechanical:
+                return None
+            feed = _aggregate_feed(ctx, entity_name, date_field, method)
+            if not feed:
+                return None
+            kind = "many" if "list" in words else "one"
+            return (codegen.sanitize(holder, "Repository"), method,
+                    budget_entity, feed, kind)
+    return None
+
+
+def _service_guard_body(fname, declaration, returns, method, plan, detail):
+    """Check-then-act: scope the month, total it, compare the limit, create."""
+    entity_ident = plan["entity_ident"]
+
+    def call_args(feed, params):
+        """One call-site expression per parameter, in signature order."""
+        args = []
+        for param in params:
+            if not isinstance(param, dict):
+                continue
+            kind = feed.get(param.get("name"), (None,))[0]
+            if kind == "field":
+                args.append(f"record.get({feed[param['name']][1]!r})")
+            elif kind == "month":
+                args.append("month")
+            elif kind == "start":
+                args.append("month_start")
+            elif kind == "end":
+                args.append("month_end")
+            else:
+                return None
+        return args
+
+    agg = plan["agg_method"]
+    agg_args = call_args(plan["feed"],
+                         [p for p in agg.get("params") or [] if isinstance(p, dict)])
+    budget = plan["budget_method"]
+    budget_args = call_args(
+        plan["budget_feed"],
+        [p for p in budget.get("params") or [] if isinstance(p, dict)])
+    if agg_args is None or budget_args is None:
+        return None
+    create = plan["create_method"]
+    needs_bounds = any(kind in ("start", "end")
+                       for kind, *_ in list(plan["feed"].values())
+                       + list(plan["budget_feed"].values()))
+    lines = [
+        "",
+        f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+        f'        """{_docstring(method.get("description"))} '
+        f'[budget guard over {plan["agg_cls"]}.{agg["name"]}]"""',
+        f"        record = {entity_ident} if isinstance({entity_ident}, dict) "
+        f"else vars({entity_ident})",
+        f"        month = str(record.get({plan['date_field']!r}) or '')[:7]",
+    ]
+    if needs_bounds:
+        lines += [
+            "        year, mon = [int(part) for part in month.split('-')]",
+            "        month_start = f\"{year:04d}-{mon:02d}-01\"",
+            "        month_end = f\"{year:04d}-{mon:02d}-{calendar.monthrange(year, mon)[1]:02d}\"",
+        ]
+    lines += [
+        f"        current = self._repos[{plan['agg_cls']!r}]."
+        f"{codegen.sanitize(agg['name'], 'method')}({', '.join(agg_args)})",
+    ]
+    budget_call = (
+        f"self._repos[{plan['budget_cls']!r}]."
+        f"{codegen.sanitize(budget['name'], 'method')}({', '.join(budget_args)})"
+    )
+    if plan["budget_kind"] == "many":
+        lines += [
+            f"        rows = {budget_call}",
+            f"        if len(rows) > 1:",
+            f"            raise ValueError("
+            f"f\"several budgets match this scope\")",
+            f"        budget = rows[0] if rows else None",
+        ]
+    else:
+        caught = ", ".join(plan["budget_errors"])
+        lines += [
+            f"        try:",
+            f"            budget = {budget_call}",
+            f"        except ({caught}):",
+            f"            budget = None  # no budget record: no limit to exceed",
+        ]
+    lines += [
+        f"        if budget is not None:",
+        f"            limit = budget.get({plan['limit_field']!r}) "
+        f"if isinstance(budget, dict) else getattr(budget, {plan['limit_field']!r}, None)",
+        f"            new_amount = record.get({plan['amount_field']!r}) or 0",
+        f"            if limit is not None and current + new_amount > limit:",
+        f"                raise errors.{codegen.sanitize(plan['error'])}("
+        f"f\"exceeds budget limit of {{limit}}\")",
+        f"        return self._repos[{plan['create_cls']!r}]."
+        f"{codegen.sanitize(create['name'], 'method')}({entity_ident})",
+    ]
+    return lines
+
+
 # --------------------------------------------------------------------------
 # slotted patterns (human-answered slots -> mechanical bodies)
 # --------------------------------------------------------------------------
 
 # Required slots per pattern, from the kernel catalogues. COUNT needs no
-# target (it counts rows); everything else does.
+# target (it counts rows); everything else does. BUDGET differs by role: a
+# repository check reads the limit and compares, while a service guard also
+# names the create to run, the aggregate for the current total, the budget
+# read, and the error to raise.
 SLOT_REQUIREMENTS = {
     "AGGREGATE_BY_FK": ("fk_field", "target_field", "aggregate_func"),
     "AGGREGATE_BY_FK_AND_DATE": ("fk_field", "date_field", "target_field",
                                  "aggregate_func"),
     "THRESHOLD_SCAN": ("comparison_field", "operator", "threshold"),
+    "BUDGET_OVERFLOW_GUARD": ("limit_field", "target_field", "date_field",
+                              "spend_entity"),
 }
+SERVICE_BUDGET_SLOTS = ("create_method", "aggregate_method", "budget_method",
+                        "amount_field", "date_field", "limit_field", "error")
 
 
 def _slot_pattern(ctx, holder, method):
@@ -819,7 +1212,19 @@ def _slot_pattern(ctx, holder, method):
     return payload, record["slots"]
 
 
-def _complete_slots(pattern, slots):
+def _required_slots(pattern, slots, is_repo=True):
+    """Required slots: catalog minus the optional fk slice, minus the target
+    under COUNT, service guards naming their full cast instead."""
+    if pattern == "BUDGET_OVERFLOW_GUARD" and not is_repo:
+        return list(SERVICE_BUDGET_SLOTS)
+    required = [slot for slot in SLOT_REQUIREMENTS.get(pattern, ())
+                if slot != "fk_field"]
+    if pattern.startswith("AGGREGATE") and slots.get("aggregate_func") == "COUNT":
+        required = [slot for slot in required if slot != "target_field"]
+    return required
+
+
+def _complete_slots(pattern, slots, is_repo=True):
     """True when every required slot is answered (COUNT needs no target).
 
     `fk_field` is never required: it scopes the aggregate only when a
@@ -827,26 +1232,24 @@ def _complete_slots(pattern, slots):
     asks it solely when a matching parameter exists — otherwise the record
     simply carries no slice.
     """
-    required = [slot for slot in SLOT_REQUIREMENTS.get(pattern, ())
-                if slot != "fk_field"]
-    if pattern.startswith("AGGREGATE") and slots.get("aggregate_func") == "COUNT":
-        required = [slot for slot in required if slot != "target_field"]
-    return all(slots.get(slot) not in (None, "") for slot in required)
+    return all(slots.get(slot) not in (None, "")
+               for slot in _required_slots(pattern, slots, is_repo))
 
 
-def _slots_usable(pattern, slots, method):
+def _slots_usable(pattern, slots, method, is_repo=True):
     """True when recorded slots are well-formed enough to emit from.
 
     Completeness is not enough: a hand-written record could name an unknown
     func, a threshold that is neither `today` nor a parameter, or an fk no
     argument supplies — and the emitter would write a body that fails at
     runtime. Anything off here is a stub, exactly as if the question were
-    still open.
+    still open. Service guards resolve their cast in `_service_guard_plan`
+    instead; here only their shapes are checked.
     """
-    if not _complete_slots(pattern, slots):
+    if not _complete_slots(pattern, slots, is_repo):
         return False
     if not all(isinstance(slots.get(slot), str)
-               for slot in SLOT_REQUIREMENTS.get(pattern, ())):
+               for slot in _required_slots(pattern, slots, is_repo)):
         return False
     params = {p.get("name") for p in method.get("params") or []
               if isinstance(p, dict) and isinstance(p.get("name"), str)}
@@ -862,6 +1265,8 @@ def _slots_usable(pattern, slots, method):
             return False
         threshold = slots.get("threshold")
         return threshold == "today" or threshold in params
+    # BUDGET_OVERFLOW_GUARD: cross-method references resolve in the plan
+    # (`_service_guard_plan`) and the repo check body; here only shapes.
     return True
 
 
@@ -892,12 +1297,82 @@ def _slot_date_role(method):
 
 
 def _repo_slot_body(ctx, entity, model_cls, field_types, method, pattern, slots):
-    """An aggregate or threshold body from answered slots; None if unusable."""
+    """An aggregate, threshold, or budget-check body from answered slots."""
     fname = method.get("name") if isinstance(method.get("name"), str) else "?"
     if pattern.startswith("AGGREGATE"):
         return _repo_aggregate_body(entity, model_cls, method, fname, slots)
-    return _repo_threshold_body(entity, model_cls, field_types, method,
-                                fname, slots)
+    if pattern == "THRESHOLD_SCAN":
+        return _repo_threshold_body(entity, model_cls, field_types, method,
+                                    fname, slots)
+    if pattern == "BUDGET_OVERFLOW_GUARD":
+        return _repo_budget_check_body(ctx, entity, method, fname, slots)
+    return None
+
+
+def _repo_budget_check_body(ctx, entity, method, fname, slots):
+    """True while spending stays within the budget limit, else False.
+
+    Reads the matching budget record (scope comes from the method's own
+    parameters, mapped by name onto budget fields), totals the spending
+    entity's scoped records, and compares. No budget record means no limit:
+    True, stated in the code. Only `bool` returns are emitted — a status
+    vocabulary would be invented — and every parameter must scope something,
+    or the check is not this shape.
+    """
+    returns = normalize(method.get("return_type") or "")
+    if returns not in ("bool", "boolean"):
+        return None
+    spend_entity = slots.get("spend_entity")
+    spend_fields = [name for name, _ in fields_of(ctx, spend_entity)]
+    if not spend_fields:
+        return None
+    date_field = slots.get("date_field")
+    target = slots.get("target_field")
+    scope_lines = []
+    spend_lines = []
+    budget_fields = [name for name, _ in fields_of(ctx, entity)]
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            return None
+        raw = param["name"]
+        ident = codegen.sanitize(raw, "param")
+        if normalize(raw) in ("month", "year"):
+            field = next((name for name in budget_fields
+                          if normalize(name) == normalize(raw)), None)
+            if field is None:
+                return None
+            scope_lines.append(f"            if record.get({field!r}) == {ident}")
+            spend_lines.append(
+                f"    if not str(record.get({date_field!r}) or '').startswith({ident}):")
+            spend_lines.append(f"        continue")
+        elif any(normalize(raw) == normalize(name) for name in budget_fields):
+            field = next(name for name in budget_fields
+                         if normalize(name) == normalize(raw))
+            scope_lines.append(f"            if record.get({field!r}) == {ident}")
+            if any(normalize(raw) == normalize(name) for name in spend_fields):
+                sfield = next(name for name in spend_fields
+                              if normalize(name) == normalize(raw))
+                spend_lines.append(f"    if record.get({sfield!r}) != {ident}:")
+                spend_lines.append(f"        continue")
+            else:
+                return None
+        else:
+            return None
+    lines = [
+        f"budgets = self._store.select(self.ENTITY, [])",
+        f"match = [record for record in budgets",
+    ] + scope_lines + [
+        f"]",
+        f"if not match:",
+        f"    return True  # no budget record: no limit to exceed",
+        f"limit = match[0].get({slots['limit_field']!r})",
+        f"spent = 0",
+        f"for record in self._store.select({spend_entity!r}, []):",
+    ] + spend_lines + [
+        f"    spent += record.get({target!r}) or 0",
+        f"return spent <= limit if limit is not None else True",
+    ]
+    return lines
 
 
 def _repo_aggregate_body(entity, model_cls, method, fname, slots):
@@ -1796,6 +2271,9 @@ def main(argv=None):
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)
+    if ctx.get("dropped_slots"):
+        print(f"dropped {ctx['dropped_slots']} predated slot record(s) — "
+              f"their questions reopen in review_slots.py")
     for filename, text in files.items():
         with open(os.path.join(target, filename), "w", encoding="utf-8") as handle:
             handle.write(text)

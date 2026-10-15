@@ -67,7 +67,7 @@ class ChatLoopTests(unittest.TestCase):
         checks = [list(items) for items in params["checks"]]
 
         def fake_flow(path, out_fn=None, tie_runner=None, alias_runner=None,
-                      surface_runner=None):
+                      surface_runner=None, slot_runner=None):
             return flows.pop(0)
 
         def fake_check(name, path):

@@ -169,11 +169,6 @@ def plan_method(method, entry, entity_names=()):
             if crud is not None:
                 return (f"crud:{crud}", payload)
             return ("stub", f"rule {payload}: method needs custom logic")
-        if kind == "rule":
-            crud = classify_crud(name)
-            if crud is not None:
-                return (f"crud:{crud}", payload)
-            return ("stub", f"rule {payload}: method needs custom logic")
         if kind == "llm-gap":
             return ("stub", _gap_reason(entry, payload))
         return ("stub", _tie_reason(payload))
@@ -182,6 +177,10 @@ def plan_method(method, entry, entity_names=()):
         return ("stub", "no pattern entry and a filter with no parameters")
     if crud is not None:
         return (f"crud:{crud}", "name-only: step F never saw this method")
+    shape = _shape_crud(method, entity_names)
+    if shape is not None:
+        return (f"crud:{shape}",
+                "name-only: step F never saw this method; by parameter shape")
     return ("stub", "no pattern entry and an ambiguous method name")
 
 
@@ -200,15 +199,39 @@ def _filter_by_shape(method, entity_names):
     filtering wrong). Entity-typed parameters disqualify — that shape is a
     create/update carrying a record, not a filter over scalars.
     """
+    if _shape_crud(method, entity_names) == "filter":
+        return "filter"
+    return None
+
+
+def _shape_crud(method, entity_names):
+    """`filter`, `read_one`, or None from parameter shape alone.
+
+    List-of-entity returns with scalar-only parameters are filters;
+    single-entity returns with scalar-only parameters are unique lookups
+    (`read_budget_by_category_and_month` over a UNIQUE scope reads exactly
+    the read_one body: criteria plus a loud complaint unless one record
+    matches). Anything carrying a record, taking nothing, or returning
+    nothing shaped is not a query shape at all.
+    """
     params = [p for p in (method.get("params") or []) if isinstance(p, dict)]
     if not params:
-        return None
-    if "list" not in (method.get("return_type") or "").strip().lower():
         return None
     for param in params:
         if is_entity_type(param.get("type"), entity_names):
             return None
-    return "filter"
+    returns = (method.get("return_type") or "")
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    entity = next((name for name in entity_names
+                   if isinstance(name, str) and normalize(name) in words
+                   and normalize(name) not in ("list", "dict", "optional",
+                                               "none")), None)
+    if entity is None:
+        return None
+    if "list" in words:
+        return "filter"
+    return "read_one"
 
 
 def _gap_reason(entry, payload):
