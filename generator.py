@@ -2297,6 +2297,11 @@ def main(argv=None):
     parser.add_argument("--gui-tech", default=None,
                         help="Override the declared GUI technology (default: "
                              "the components facade declaration)")
+    parser.add_argument("--verbose", action="store_true",
+                        help="Also print harmless diagnostics (skipped "
+                             "argparse-owned options, adapter fields with no "
+                             "CLI flag). Anything actionable is already a "
+                             "probe blocker, which refuses generation.")
     args = parser.parse_args(argv)
 
     ok, message = gate(args.out_dir)
@@ -2343,9 +2348,9 @@ def main(argv=None):
     for where, bound in sorted(stats["bindings"].items()):
         print(f"  cli {where} -> {bound[0] if bound else 'UNBOUND'}"
               f"{'' if not bound else f' [score {bound[1]}]'}")
-    if stats["skipped_options"]:
+    if args.verbose and stats["skipped_options"]:
         print(f"skipped argparse-owned options: {sorted(set(stats['skipped_options']))}")
-    if stats.get("unbound_fields"):
+    if args.verbose and stats.get("unbound_fields"):
         print(f"adapter fields with no CLI flag: {sorted(set(stats['unbound_fields']))}")
     return 0
 
