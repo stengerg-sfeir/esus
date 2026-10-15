@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Cross-check the internal consistency of extract_archi.py output.
+"""Cross-check the internal consistency of extract_arch.py output.
 
 Each directory passed to --dirs is given as "name:path" and must hold the
-per-step JSON documents written by extract_archi.py. The exit code is 0 when no
+per-step JSON documents written by extract_arch.py. The exit code is 0 when no
 error was found and 1 otherwise.
 
 Usage:

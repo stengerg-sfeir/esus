@@ -1,4 +1,4 @@
-"""Would a code generator have to invent anything? Checks the documents directly.
+"""Is the extraction output ready for a code generator? Checks the documents directly.
 
 The consistency checker proves the documents agree with each other. A generator
 needs more: every command backed by a method, every adapter resolving, every
@@ -6,201 +6,183 @@ crud operation implemented by its own entity's interface, every parameter
 well-typed, every raised error registered. This probe measures those, per
 prompt, and prints the blockers a generator would have to paper over.
 
-A CLI verb and a service method rarely share a spelling (`add` is `create_book`,
-`list` is `read_all_books`), so a verb is matched by a family of method-name
-stems — that is a rename the generator does once, not an invention.
+Implementation: this probe reuses kernel.consistency.check_directory as the
+single definition of each defect (no duplicated stem tables), then classifies
+findings into generator blockers vs consistency risks:
 
-Every check is scoped to the interface that owns the thing being checked. An
-earlier version searched *all* services' methods for a crud operation, so
-`ExpenseRepository.create_expense` satisfied a `Category create` claim and the
-probe reported readiness for a repository that had no create method at all
-(expenses, 2026-08-10). A blocker must be judged against the interface that
-would have to implement it.
+- blockers: every error + every warning + unbacked_command notes promoted to
+  blockers (a CLI verb no method serves is a call the generator cannot write).
+- risks: narrow_margin / low_confidence / missing_pattern / corrected_claim
+  notes. They do not force invention, but they mean the JSON may differ
+  between runs or name a vocabulary gap the generator must work around.
+
+Exit code is 0 when no blocker was found and 1 otherwise, so CI can gate on it.
+Usage:
+    python probe_readiness.py [--dirs NAME:PATH ...]
+    python probe_readiness.py   # checks out/<PROMPTS>
 """
 
-import json
+import argparse
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from kernel.consistency import check_directory  # noqa: E402
+from kernel import tie_rules  # noqa: E402
+from kernel import codegen as codegen_rules  # noqa: E402
+from kernel.consistency.loader import load_documents  # noqa: E402
+from kernel.consistency.report import Finding, Report  # noqa: E402
 
 OUT = "out"
 PROMPTS = ("hello", "cli_tool", "inventory", "gui", "expenses", "60", "library")
 
-VERB_STEMS = {
-    "add": ("add", "create", "save", "insert", "new"),
-    "create": ("add", "create", "save", "insert", "new"),
-    "list": ("all", "list"),
-    "search": ("search", "query", "find", "filter"),
-    "update": ("update", "edit", "set"),
-    "delete": ("delete", "remove"),
-    "get": ("get", "find", "read"),
-    "report": ("report", "stats", "summary", "value"),
-    "low-stock": ("lowstock",),
-    "value": ("value",),
-    "confirm": ("confirm",),
-    "cancel": ("cancel",),
-    "restock": ("restock",),
-}
-OP_STEMS = {
-    "create": ("add", "create", "save", "insert"),
-    "read_one": ("byid", "readone", "read", "find", "get"),
-    "read_all": ("all", "list"),
-    "update": ("update", "edit"),
-    "delete": ("delete", "remove"),
-}
+# Notes that do not force invention but mean the JSON may differ per run or
+# name a pattern the catalogue lacks. Reported separately, never counted as
+# blockers.
+RISK_RULES = frozenset(
+    {"narrow_margin", "low_confidence", "missing_pattern", "corrected_claim"}
+)
+
+# The one note the checker cannot call a defect (stem match only) but a
+# generator cannot survive: a command with no method behind it.
+PROMOTED_NOTES = frozenset({"unbacked_command"})
 
 
-def load(name, key):
-    path = os.path.join(OUT, name, f"{key}.json")
-    if not os.path.exists(path):
-        return None
-    with open(path) as handle:
-        return json.load(handle).get(key)
+def open_questions(path):
+    """Ties needing a human that have no recorded answer (`review_ties.py`)."""
+    import json
+
+    try:
+        with open(os.path.join(path, "pattern_matches.json"), encoding="utf-8") as handle:
+            matches = json.load(handle).get("pattern_matches")
+    except (OSError, ValueError, AttributeError):
+        return 0
+    if not isinstance(matches, list):
+        return 0
+    return sum(1 for entry in matches if tie_rules.needs_user(entry))
 
 
-def norm(value):
-    return value.replace("_", "").replace("-", "").lower() if isinstance(value, str) else ""
+def check_prompt(name, path):
+    """Run the checker over one output directory; return (blockers, risks)."""
+    report = check_directory(path, name)
+    blockers = list(report.errors) + list(report.warnings)
+    risks = []
+    for note in report.notes:
+        if note.rule in PROMOTED_NOTES:
+            blockers.append(note)
+        elif note.rule in RISK_RULES:
+            risks.append(note)
+    # Deterministic order: severity already split, sort by rule then message.
+    blockers.sort(key=lambda f: (f.rule, f.message))
+    risks.sort(key=lambda f: (f.rule, f.message))
+    for action, field in uncovered_fields(path):
+        blockers.append(Finding(
+            "warning", "uncovered_field",
+            f"interaction_adapters: '{action}' requires field '{field}' "
+            f"but no CLI flag supplies it — the action parses but can never run"))
+    for action, field, entity in unknown_model_fields(path):
+        blockers.append(Finding(
+            "warning", "unknown_model_field",
+            f"interaction_adapters: '{action}' builds {entity} with '{field}', "
+            f"which {entity} does not declare — construction always fails"))
+    blockers.sort(key=lambda f: (f.rule, f.message))
+    return blockers, risks, report
 
 
-def service_index(services):
-    index = {}
-    for service in services or []:
-        methods = {norm(m.get("name")) for m in service.get("methods", [])}
-        index[norm(service.get("service_name"))] = methods
-    return index
+def uncovered_fields(path):
+    """Required adapter fields no bound CLI flag can supply, as `(action, field)`.
+
+    Non-CLI facades (a GUI takes no flags) and missing invocations have no
+    flags by design and are skipped — the rule judges CLI surfaces only.
+    """
+    documents = load_documents(path, Report("probe"))
+    facade = (documents.get("components") or {}).get("facade") or {}
+    if facade.get("type") != "cli" or not isinstance(facade.get("invocation"), dict):
+        return []
+    models = documents.get("data_models") or []
+    entity_names = [m.get("name") for m in models
+                    if isinstance(m, dict) and m.get("name")]
+    ports = documents.get("persistence_ports")
+    repositories = []
+    if isinstance(ports, dict) and isinstance(ports.get("repositories"), list):
+        repositories = ports["repositories"]
+    targets = codegen_rules.action_targets(
+        documents.get("interaction_adapters") or [],
+        documents.get("service_contracts") or [],
+        repositories, entity_names)
+    return codegen_rules.uncovered_required_fields(
+        documents.get("interaction_adapters") or [], facade["invocation"], targets)
 
 
-def flatten_commands(commands):
+def unknown_model_fields(path):
+    """Adapter fields assembling undeclared model fields, as `(action, field, entity)`."""
+    documents = load_documents(path, Report("probe"))
+    models = documents.get("data_models")
+    ports = documents.get("persistence_ports")
+    repositories = []
+    if isinstance(ports, dict) and isinstance(ports.get("repositories"), list):
+        repositories = ports["repositories"]
+    return codegen_rules.unknown_model_fields(
+        documents.get("interaction_adapters") or [],
+        documents.get("service_contracts") or [],
+        repositories, models or [])
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument(
+        "--dirs",
+        nargs="+",
+        metavar="NAME:PATH",
+        help="One or more output directories (format: name:path). "
+        "Defaults to out/<PROMPTS>.",
+    )
+    return parser
+
+
+def parse_dirs(entries):
     pairs = []
-    for command in commands or []:
-        pairs.append((command.get("name"), None))
-        for sub in command.get("subcommands") or []:
-            pairs.append((command.get("name"), sub.get("name")))
+    for entry in entries:
+        name, sep, path = entry.partition(":")
+        if not sep or not name.strip() or not path.strip():
+            raise argparse.ArgumentTypeError(
+                f"expected 'NAME:PATH', got '{entry}'"
+            )
+        pairs.append((name.strip(), path.strip()))
     return pairs
 
 
-def entity_methods(entry, services, ports):
-    """The methods that could implement an entity's operations, and only those.
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    if args.dirs:
+        targets = parse_dirs(args.dirs)
+    else:
+        targets = [(name, os.path.join(OUT, name)) for name in PROMPTS]
 
-    The operations of `crud_services[].entity` belong to that entity's own
-    interface: its repository in `persistence_ports`, plus any service named for
-    the entity.
-    """
-    entity = norm(entry.get("entity"))
-    methods = set()
-    for repo in ports.get("repositories", []):
-        if norm(repo.get("entity")) == entity:
-            methods.update(norm(m.get("name")) for m in repo.get("methods", []))
-    for service in services:
-        name = norm(service.get("service_name"))
-        if entity and entity in name:
-            methods.update(norm(m.get("name")) for m in service.get("methods", []))
-    return methods
-
-
-def served_by_stems(stems, methods):
-    return any(any(stem in method for stem in stems) for method in methods)
-
-
-def check_prompt(name):
-    blockers = []
-    services = load(name, "service_contracts") or []
-    ports = load(name, "persistence_ports") or {}
-    components = load(name, "components") or {}
-    models = load(name, "data_models") or []
-    errors = load(name, "errors") or []
-    adapters = load(name, "interaction_adapters") or []
-    index = service_index(services)
-    all_methods = set().union(*index.values()) if index else set()
-
-    facade = components.get("facade") or {}
-    invocation = facade.get("invocation") or {}
-    for command, sub in flatten_commands(invocation.get("commands")):
-        verb = norm(sub or command)
-        stems = VERB_STEMS.get(verb, (verb,))
-        if verb and not served_by_stems(stems, all_methods):
-            where = f"{command} {sub}" if sub else f"{command}"
-            blockers.append(f"command '{where}' has no method")
-
-    for adapter in adapters:
-        target = norm(adapter.get("target_service"))
-        if target not in index:
-            blockers.append(f"adapter -> unknown service '{adapter.get('target_service')}'")
-            continue
-        method = norm(adapter.get("target_method"))
-        if method not in index[target]:
-            blockers.append(f"adapter -> method '{adapter.get('target_method')}' not in service")
-            continue
-        params = {
-            norm(p.get("name"))
-            for service in services
-            if norm(service.get("service_name")) == target
-            for m in service.get("methods", [])
-            if norm(m.get("name")) == method
-            for p in m.get("params", [])
-        }
-        for field in adapter.get("input_fields", []):
-            if norm(field.get("target_param")) not in params:
-                blockers.append(
-                    f"adapter {adapter.get('action_name')} -> unknown param '{field.get('target_param')}'"
-                )
-
-    for entry in components.get("crud_services") or []:
-        owned = entity_methods(entry, services, ports)
-        for op in entry.get("operations", []):
-            stems = OP_STEMS.get(op, (norm(op),))
-            if not served_by_stems(stems, owned):
-                blockers.append(f"{entry.get('entity')} op '{op}' has no method of its own")
-
-    fields_by_entity = {
-        norm(model.get("name")): {norm(f.get("name")) for f in model.get("fields", [])}
-        for model in models
-    }
-    mapped = {norm(m.get("entity")) for m in ports.get("entity_mappings", [])}
-    for repo in ports.get("repositories", []):
-        if norm(repo.get("entity")) not in mapped:
-            blockers.append(f"repository '{repo.get('entity')}' has no mapping")
-    for mapping in ports.get("entity_mappings", []):
-        entity = norm(mapping.get("entity"))
-        pk = norm(mapping.get("primary_key"))
-        if entity in fields_by_entity and pk and pk not in fields_by_entity[entity]:
-            blockers.append(f"mapping pk '{mapping.get('primary_key')}' not a field of {mapping.get('entity')}")
-
-    holders = list(services) + list(ports.get("repositories", []))
-    for holder in holders:
-        owner = holder.get("service_name") or holder.get("interface_name") or holder.get("entity")
-        for method in holder.get("methods", []):
-            if not (method.get("return_type") or "").strip():
-                blockers.append(f"{owner}.{method.get('name')} has no return type")
-            for param in method.get("params", []):
-                pname = (param.get("name") or "").strip()
-                ptype = (param.get("type") or "").strip()
-                if not pname or pname.lower() in ("none", "void", ":", "nonetype"):
-                    blockers.append(f"{owner}.{method.get('name')} placeholder param name '{pname}'")
-                if not ptype:
-                    blockers.append(f"{owner}.{method.get('name')}.{pname} has no type")
-
-    registered = {norm(e.get("name")) for e in errors}
-    for holder in holders:
-        owner = holder.get("service_name") or holder.get("interface_name")
-        for method in holder.get("methods", []):
-            for raised in method.get("raises") or []:
-                if norm(raised) not in registered:
-                    blockers.append(f"{owner}.{method.get('name')} raises unregistered '{raised}'")
-    return blockers
-
-
-def main():
-    total = 0
-    for name in PROMPTS:
-        if not os.path.isdir(os.path.join(OUT, name)):
+    total_blockers = 0
+    total_risks = 0
+    total_questions = 0
+    for name, path in targets:
+        if not os.path.isdir(path):
             print(f"{name:10} MISSING OUTPUT")
             continue
-        blockers = check_prompt(name)
-        total += len(blockers)
-        print(f"{name:10} {len(blockers)} blocker(s)")
-        for blocker in blockers:
-            print(f"           - {blocker}")
-    print(f"\nTOTAL generator blockers: {total}")
+        blockers, risks, _ = check_prompt(name, path)
+        questions = open_questions(path)
+        total_blockers += len(blockers)
+        total_risks += len(risks)
+        total_questions += questions
+        print(f"{name:10} {len(blockers)} blocker(s), {len(risks)} risk(s), "
+              f"{questions} open tie(s)")
+        for finding in blockers:
+            print(f"           - [{finding.rule}] {finding.message}")
+    print(f"\nTOTAL generator blockers: {total_blockers}")
+    print(f"TOTAL consistency risks: {total_risks} (narrow/low/missing/corrected)")
+    if total_questions:
+        print(f"TOTAL open ties needing a human: {total_questions} "
+              f"(python review_ties.py OUT_DIR)")
+    return 1 if total_blockers else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

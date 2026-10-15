@@ -14,7 +14,7 @@ Create a multi-module Python inventory management system with the following feat
    - low_stock_report(): returns products whose stock_qty is below their category's reorder_threshold
    - stock_value_by_category(): returns the total price_cents * stock_qty per category
 6. **CLI interface using click** with nested command groups:
-   - `product add --sku --name --category --price --stock [--stock]`
+   - `product add --sku --name --category --price [--stock]`
    - `product list [--category] [--low-only]`
    - `product update --id [--name] [--price] [---category]`
    - `product delete --id`

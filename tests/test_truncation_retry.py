@@ -82,7 +82,7 @@ class TruncatedStepIsRetried(unittest.TestCase):
         calls = []
 
         def fake_generate(llm, prompt, grammar_text, label, temperature=0.1,
-                          max_new_tokens=None):
+                          max_new_tokens=None, seed=None):
             calls.append((temperature, max_new_tokens))
             return results[len(calls) - 1]
 
@@ -169,7 +169,7 @@ class TheRetryRaisesTheCeiling(unittest.TestCase):
         calls = []
 
         def fake_generate(llm, prompt, grammar_text, label, temperature=0.1,
-                          max_new_tokens=None):
+                          max_new_tokens=None, seed=None):
             calls.append(max_new_tokens)
             return results[len(calls) - 1]
 

@@ -1,0 +1,76 @@
+[run] requirements: 2079 characters
+[run] temperature=0.0 seed=20261012
+[run] resuming at step components from archived documents
+[components] 2420 tokens in 79.2s (30.5 tok/s)
+[ok] step components: removed 20 exactly repeated name(s)
+[ok] step components: book add lacked '--copies' the requirements pass — added as int (typed from Book.available_copies)
+[ok] step components: borrow  lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: borrow  lacked '--book-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: return  lacked '--loan-id' the requirements pass — added as int (typed from 4 models agreeing on int)
+[!] step components omits 1 surface item(s) the requirements name — retrying once
+[components] 2944 tokens in 101.8s (28.9 tok/s)
+[ok] step components: removed 31 exactly repeated name(s)
+[ok] step components: command 'overdue' had 1 placeholder subcommand(s) meaning no subcommand — dropped
+[ok] step components: borrow  lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: borrow  lacked '--book-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: return  lacked '--loan-id' the requirements pass — added as int (typed from 4 models agreeing on int)
+[service_contracts] 2430 tokens in 84.0s (28.9 tok/s)
+  [1/38] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [2/38] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [3/38] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [4/38] invariant -> STATE_TRANSITION_GUARD (0.37)
+  [5/38] invariant -> BUDGET_OVERFLOW_GUARD (0.56)
+  [6/38] contract:BookRepository.create_book -> STANDARD_CRUD (0.68)
+  [7/38] contract:BookRepository.read_one_book -> STANDARD_CRUD (0.75)
+  [8/38] contract:BookRepository.read_all_books -> READ_ALL (0.86)
+  [9/38] contract:BookRepository.update_book -> STANDARD_CRUD (0.74)
+  [10/38] contract:BookRepository.delete_book -> STANDARD_CRUD (0.74)
+  [11/38] contract:BookRepository.filter_books_by_available_copies -> FILTER_BY_FIELD (0.57)
+  [12/38] contract:BookRepository.search_books_by_title_author_isbn -> FILTER_BY_FIELD (0.89)
+  [13/38] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.78)
+  [14/38] contract:AuthorRepository.read_one_author -> STANDARD_CRUD (0.79)
+  [15/38] contract:AuthorRepository.read_all_authors -> READ_ALL (0.84)
+  [16/38] contract:AuthorRepository.update_author -> STANDARD_CRUD (0.84)
+  [17/38] contract:AuthorRepository.delete_author -> STANDARD_CRUD (0.87)
+  [18/38] contract:AuthorRepository.find_books_by_author -> FILTER_BY_FIELD (0.86)
+  [19/38] contract:MemberRepository.create_member -> STANDARD_CRUD (0.83)
+  [20/38] contract:MemberRepository.read_one_member -> STANDARD_CRUD (0.82)
+  [21/38] contract:MemberRepository.read_all_members -> READ_ALL (0.82)
+  [22/38] contract:MemberRepository.update_member -> STANDARD_CRUD (0.85)
+  [23/38] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.89)
+  [24/38] contract:MemberRepository.filter_members_by_active_status -> FILTER_BY_FIELD (0.85)
+  [25/38] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.79)
+  [26/38] contract:LoanRepository.read_one_loan -> STANDARD_CRUD (0.82)
+  [27/38] contract:LoanRepository.read_all_loans -> READ_ALL (0.86)
+  [28/38] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.85)
+  [29/38] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.86)
+  [30/38] contract:LoanRepository.get_active_loans -> READ_ALL (0.80)
+  [31/38] contract:LoanRepository.get_overdue_loans -> READ_ALL (0.36)  <- undecided (pattern): THRESHOLD_SCAN at 0.28
+  [32/38] contract:LoanRepository.get_member_loan_history -> FILTER_BY_FIELD (0.64)
+  [33/38] contract:LoanRepository.get_book_loan_history -> FILTER_BY_FIELD (0.72)
+  [34/38] contract:LibraryService.borrow_book -> STANDARD_CRUD (0.71)
+  [35/38] contract:LibraryService.return_book -> STANDARD_CRUD (0.64)
+  [36/38] contract:LibraryService.get_overdue_loans -> READ_ALL (0.42)
+  [37/38] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.63)
+  [38/38] contract:LibraryService.search_books -> FILTER_BY_FIELD (0.95)
+[ok] step patterns: 38 item(s) — 19 standard CRUD, 19 pattern(s), 0 gap(s)
+[interaction_adapters] 2198 tokens in 71.2s (30.9 tok/s)
+[ok] step adapters: update_book_available_copies.available_copies was 'DECIMAL_TO_CENTS' but its name describes no such value — replaced with DIRECT
+[ok] step adapters: add_book.author_id went to 'book' while the method declares 'author_id' — redirected to 'author_id'
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 1584 tokens in 50.9s (31.1 tok/s)
+[ok] step adapters: add_book.author_id went to 'book' while the method declares 'author_id' — redirected to 'author_id'
+[!] step adapters still has 3 unreachable field(s) — kept, the probe will report it
+[persistence_ports] 1967 tokens in 67.2s (29.3 tok/s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/invariants.json
+[write] out/library/data_models.json
+[write] out/library/errors.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[write] out/library/requirements.txt
+[run] 6 steps, 13543 generated tokens in 454.3s

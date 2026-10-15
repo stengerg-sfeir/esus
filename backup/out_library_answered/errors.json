@@ -1,0 +1,44 @@
+{
+  "errors": [
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a book with the given ISBN or ID is not found in the database."
+    },
+    {
+      "name": "AuthorNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an author with the given ID is not found in the database."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a member with the given ID is not found in the database."
+    },
+    {
+      "name": "LoanNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a loan with the given ID is not found in the database."
+    },
+    {
+      "name": "BookAlreadyExistsError",
+      "base": "ValueError",
+      "description": "Raised when attempting to add a book with an existing ISBN."
+    },
+    {
+      "name": "MemberAlreadyExistsError",
+      "base": "ValueError",
+      "description": "Raised when attempting to add a member with an existing email."
+    },
+    {
+      "name": "InsufficientCopiesError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to borrow a book with zero available copies."
+    },
+    {
+      "name": "InvalidReturnDateError",
+      "base": "RuntimeError",
+      "description": "Raised when a book is returned before its due date."
+    }
+  ]
+}

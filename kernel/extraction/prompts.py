@@ -289,8 +289,8 @@ def invariants(requirements, names=None):
     return _prompt(INVARIANTS_SYSTEM, requirements, names)
 
 
-def components(requirements, names):
-    return _prompt(COMPONENTS_SYSTEM, requirements, names)
+def components(requirements, names, extra=None):
+    return _prompt(COMPONENTS_SYSTEM, requirements, names, extra)
 
 
 def errors(requirements, names=None):
@@ -312,6 +312,28 @@ def components_block(vocabulary):
         "only the entity names listed here, copied exactly. If the requirements ask for "
         "no stored data, leave crud_services empty and set persistence.required=false.\n"
         f"Entities:\n{vocabulary.entity_block()}"
+    )
+
+
+def command_lines_block(spans):
+    """The enumerated command lines step D must cover, or None when empty.
+
+    Each span is quoted verbatim — brackets included, so `[--stock]` still
+    reads as optional — preceded by how to file it: `<thing> <verb> --flag`
+    becomes command `<thing>` with subcommand `<verb>` carrying those flags,
+    `<program> <verb> --flag` becomes a top-level command `<verb>` carrying
+    its own. Not exhaustive by design: unparseable lines stay the model's
+    judgment, and the checker (which parses with the same rules) verifies.
+    """
+    if not spans:
+        return None
+    listed = "\n".join(f"{number}. `{span}`" for number, span in enumerate(spans, start=1))
+    return (
+        "Each of the following command lines must appear in the surface. "
+        "Go through them one by one: a line `<thing> <verb> --flag` becomes "
+        "command `<thing>` with subcommand `<verb>` carrying those flags, and "
+        "a line `<program> <verb> --flag` becomes a top-level command `<verb>` "
+        "carrying its own flags:\n" + listed
     )
 
 
@@ -368,8 +390,10 @@ def requirements_block(vocabulary):
     return f"{NAMES_HEADING}\n" + "\n".join(sections)
 
 
-def _prompt(system, requirements, names=None):
+def _prompt(system, requirements, names=None, extra=None):
     names_section = f"\n\n{names}\n" if names else "\n"
+    if extra:
+        names_section += f"\n{extra}\n"
     return (
         f"<|im_start|>system\n{system}{names_section}<|im_end|>\n"
         f"<|im_start|>user\n{requirements}<|im_end|>\n<|im_start|>assistant\n"

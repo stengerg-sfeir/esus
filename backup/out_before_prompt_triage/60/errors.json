@@ -1,0 +1,64 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer with the given customer_id is not found in the database."
+    },
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a category with the given category_id is not found in the database."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product with the given product_id is not found in the database."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order with the given order_id is not found in the database."
+    },
+    {
+      "name": "OrderItemNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an OrderItem with the given order_item_id is not found in the description."
+    },
+    {
+      "name": "InvoiceNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an invoice with the given invoice_id is not found in the database."
+    },
+    {
+      "name": "InvalidOrderStatusError",
+      "base": "ValueError",
+      "description": "Raised when an order status is neither 'pending', 'confirmed', 'shipped', nor 'cancelled'."
+    },
+    {
+      "name": "InsufficientStockError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to confirm an order that would exceed the available stock of a product."
+    },
+    {
+      "name": "InvalidQuantityError",
+      "base": "ValueError",
+      "description": "Raised when a quantity in an order item is not a positive integer."
+    },
+    {
+      "name": "InvalidInvoiceNumberError",
+      "base": "ValueError",
+      "description": "Raised when an invoice number is not a valid alphanumeric string."
+    },
+    {
+      "name": "DuplicateInvoiceNumberError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to create an invoice with a duplicate invoice number."
+    },
+    {
+      "name": "InvalidOrderItemError",
+      "base": "RuntimeError",
+      "description": "Raised when an order item is invalid (e.g., product not found, quantity too high)."
+    }
+  ]
+}

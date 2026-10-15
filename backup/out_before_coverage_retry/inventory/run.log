@@ -1,0 +1,58 @@
+[run] requirements: 2312 characters
+[intentions] 159 tokens in 7.4s (21.5 tok/s)
+[data_models] 648 tokens in 21.3s (30.4 tok/s)
+[errors] 367 tokens in 14.4s (25.5 tok/s)
+[invariants] 303 tokens in 12.5s (24.3 tok/s)
+[components] 3458 tokens in 117.8s (29.3 tok/s)
+[ok] step components: removed 38 exactly repeated name(s)
+[service_contracts] 1905 tokens in 68.1s (28.0 tok/s)
+[ok] step errors: 'MissingCategoryError' and 'CategoryNotFoundError' name one missing record (category) — dropped 'MissingCategoryError', kept 'CategoryNotFoundError'
+[ok] step errors: 'MissingProductError' and 'ProductNotFoundError' name one missing record (product) — dropped 'MissingProductError', kept 'ProductNotFoundError'
+[ok] step contracts: CategoryRepository.create_category is a create and cannot fail to find what it creates — dropped raises 'CategoryNotFoundError'
+[ok] step contracts: ProductRepository.create_product is a create and cannot fail to find what it creates — dropped raises 'ProductNotFoundError'
+[ok] step contracts: InventoryService.add_product is a create and cannot fail to find what it creates — dropped raises 'ProductNotFoundError'
+[ok] step errors: no method raises 'InvalidSkuError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidStockQtyError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidPriceError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidThresholdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'MalformedCSVError' and it is a validation shape the requirements never name — dropped
+  [1/23] invariant -> AGGREGATE_BY_FK (0.23)  <- undecided (pattern): AGGREGATE_BY_FK_AND_DATE at 0.17
+  [2/23] invariant -> AGGREGATE_BY_FK_AND_DATE (0.25)  <- undecided (domain): STANDARD_CRUD at 0.38
+  [3/23] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.79)
+  [4/23] contract:CategoryRepository.read_one_category -> STANDARD_CRUD (0.78)
+  [5/23] contract:CategoryRepository.read_all_categories -> READ_ALL (0.90)
+  [6/23] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.71)
+  [7/23] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.87)
+  [8/23] contract:ProductRepository.create_product -> STANDARD_CRUD (0.78)
+  [9/23] contract:ProductRepository.read_one_product -> STANDARD_CRUD (0.81)
+  [10/23] contract:ProductRepository.read_all_products -> READ_ALL (0.84)
+  [11/23] contract:ProductRepository.update_product -> STANDARD_CRUD (0.80)
+  [12/23] contract:ProductRepository.delete_product -> STANDARD_CRUD (0.89)
+  [13/23] contract:ProductRepository.find_products_by_category -> FILTER_BY_FIELD (0.90)
+  [14/23] contract:ProductRepository.find_low_stock_products -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: STOCK_SUFFICIENCY_GUARD returns boolean/none, but this method returns collection (List[Product])
+  [15/23] contract:ProductRepository.stock_value_by_category -> AGGREGATE_BY_FK (0.61)
+  [16/23] contract:InventoryService.add_product -> NO_PATTERN_IN_DOMAIN (0.09)  <- UNKNOWN: READ_ALL returns collection, but this method returns entity (Product)
+  [17/23] contract:InventoryService.update_product -> STANDARD_CRUD (0.80)
+  [18/23] contract:InventoryService.delete_product -> STANDARD_CRUD (0.89)
+  [19/23] contract:InventoryService.get_product_by_id -> STANDARD_CRUD (0.82)
+  [20/23] contract:InventoryService.list_products -> FILTER_BY_FIELD (0.66)
+  [21/23] contract:InventoryService.restock -> STANDARD_CRUD (0.61)
+  [22/23] contract:InventoryService.low_stock_report -> THRESHOLD_SCAN (0.52)
+  [23/23] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK (0.61)
+[ok] step patterns: 23 item(s) — 12 standard CRUD, 9 pattern(s), 2 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:ProductRepository.find_low_stock_products: find_low_stock_products() -> List[Product]: Finds products with stock_qty below their category's reorder_threshold.
+    gap [NO_PATTERN_IN_DOMAIN] contract:InventoryService.add_product: add_product(sku: str, name: str, category_id: int, price_cents: int, stock_qty: int) -> Product: Adds a new product with validation for category existence and sku uniqueness.
+[interaction_adapters] 1694 tokens in 57.0s (29.7 tok/s)
+[persistence_ports] 1165 tokens in 40.7s (28.6 tok/s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/inventory/intentions.json
+[write] out/inventory/data_models.json
+[write] out/inventory/errors.json
+[write] out/inventory/invariants.json
+[write] out/inventory/components.json
+[write] out/inventory/service_contracts.json
+[write] out/inventory/pattern_matches.json
+[write] out/inventory/interaction_adapters.json
+[write] out/inventory/persistence_ports.json
+[write] out/inventory/requirements.txt
+[run] 8 steps, 9699 generated tokens in 339.2s

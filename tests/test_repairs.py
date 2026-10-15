@@ -6,6 +6,7 @@ worse than no repair. The predicates are shared with the checker, so these also
 assert that the repair agrees with the rule that used to report the defect.
 """
 
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -21,6 +22,9 @@ class Log:
 
     def write(self, text):
         self.lines.append(text)
+
+    def joined(self):
+        return "\n".join(self.lines)
 
 
 def contract(name, raises):
@@ -178,6 +182,593 @@ class UnraisedErrorTests(unittest.TestCase):
         ]
         kept = repairs.repair_unraised_errors(errors, [], self.REQUIREMENTS, Log())
         self.assertEqual([item["name"] for item in kept], ["OverdueLoanFoundError"])
+
+
+class MisplacedTargetTests(unittest.TestCase):
+    """A field sent past a parameter of its own name is redirected to it.
+
+    The predicate is the checker's (`misplaced_field`): the method has already
+    said where the value goes, so mapping it elsewhere silently drops the
+    field. Measured on expenses (`add_expense` sent `category_id` into `data`,
+    `update_budget` sent `month` into `budget`).
+    """
+
+    def services(self):
+        return [
+            {
+                "service_name": "ExpenseService",
+                "methods": [
+                    {
+                        "name": "add_expense",
+                        "params": [{"name": "data"}, {"name": "category_id"}],
+                    }
+                ],
+            }
+        ]
+
+    def adapter(self, field_name, target_param):
+        return {
+            "action_name": "add_expense",
+            "target_service": "ExpenseService",
+            "target_method": "add_expense",
+            "input_fields": [
+                {"field_name": field_name, "target_param": target_param}
+            ],
+        }
+
+    def test_a_field_sent_past_its_own_parameter_is_redirected(self):
+        adapters = [self.adapter("category_id", "data")]
+        log = Log()
+        repairs.repair_adapter_targets(adapters, self.services(), log)
+        self.assertEqual(
+            adapters[0]["input_fields"][0]["target_param"], "category_id"
+        )
+        self.assertEqual(len(log.lines), 1)
+
+    def test_a_field_sent_to_its_own_parameter_is_left_alone(self):
+        adapters = [self.adapter("category_id", "category_id")]
+        log = Log()
+        repairs.repair_adapter_targets(adapters, self.services(), log)
+        self.assertEqual(
+            adapters[0]["input_fields"][0]["target_param"], "category_id"
+        )
+        self.assertEqual(log.lines, [])
+
+    def test_a_field_with_no_parameter_of_its_own_is_left_alone(self):
+        """`description` folded into `data` has no same-named parameter to prefer."""
+        adapters = [self.adapter("description", "data")]
+        log = Log()
+        repairs.repair_adapter_targets(adapters, self.services(), log)
+        self.assertEqual(adapters[0]["input_fields"][0]["target_param"], "data")
+        self.assertEqual(log.lines, [])
+
+    def test_an_adapter_with_an_unknown_method_is_left_alone(self):
+        adapters = [self.adapter("category_id", "data")]
+        adapters[0]["target_method"] = "no_such_method"
+        log = Log()
+        repairs.repair_adapter_targets(adapters, self.services(), log)
+        self.assertEqual(adapters[0]["input_fields"][0]["target_param"], "data")
+        self.assertEqual(log.lines, [])
+
+    def test_an_adapter_with_an_unknown_service_is_left_alone(self):
+        adapters = [self.adapter("category_id", "data")]
+        adapters[0]["target_service"] = "NoSuchService"
+        log = Log()
+        repairs.repair_adapter_targets(adapters, self.services(), log)
+        self.assertEqual(adapters[0]["input_fields"][0]["target_param"], "data")
+        self.assertEqual(log.lines, [])
+
+
+class PlaceholderSubcommandTests(unittest.TestCase):
+    """A subcommand named `none` states there is none, and is dropped.
+
+    Library's bare `` `library overdue` `` line came back as command `overdue`
+    with subcommand `none`: no method serves it, so the probe reports
+    `unbacked_command` and the generator cannot write the call. Dropping it
+    leaves the bare command the requirements describe.
+    """
+
+    def components(self, subcommands):
+        return {
+            "facade": {
+                "invocation": {
+                    "commands": [
+                        {"name": "overdue", "subcommands": subcommands}
+                    ]
+                }
+            }
+        }
+
+    def test_a_none_subcommand_is_dropped(self):
+        body = self.components([{"name": "none", "options": []}])
+        log = Log()
+        repairs.repair_placeholder_subcommands(body, log)
+        self.assertEqual(
+            body["facade"]["invocation"]["commands"][0]["subcommands"], []
+        )
+        self.assertEqual(len(log.lines), 1)
+
+    def test_real_siblings_are_kept(self):
+        body = self.components([{"name": "add"}, {"name": "none"}, {"name": "list"}])
+        repairs.repair_placeholder_subcommands(body, Log())
+        self.assertEqual(
+            [s["name"] for s in body["facade"]["invocation"]["commands"][0]["subcommands"]],
+            ["add", "list"],
+        )
+
+    def test_case_does_not_save_a_placeholder(self):
+        body = self.components([{"name": "None"}])
+        repairs.repair_placeholder_subcommands(body, Log())
+        self.assertEqual(
+            body["facade"]["invocation"]["commands"][0]["subcommands"], []
+        )
+
+    def test_a_clean_surface_is_left_alone(self):
+        body = self.components([{"name": "add"}])
+        log = Log()
+        repairs.repair_placeholder_subcommands(body, log)
+        self.assertEqual(
+            [s["name"] for s in body["facade"]["invocation"]["commands"][0]["subcommands"]],
+            ["add"],
+        )
+        self.assertEqual(log.lines, [])
+
+    def test_a_body_with_no_surface_is_left_alone(self):
+        self.assertEqual(repairs.repair_placeholder_subcommands({}, Log()), {})
+        self.assertIsNone(repairs.repair_placeholder_subcommands(None, Log()))
+
+
+class FlatCommandDuplicateTests(unittest.TestCase):
+    """A flat `a_b` duplicating a declared `a b` pair is the flat form that goes.
+
+    Library emitted command `member` with subcommand `history` (carrying the
+    flags) plus a flat `member_history` with no subcommands: the flat form has
+    no method behind it, so the probe reports `unbacked_command` and the
+    generator refuses. Only the flat duplicate is dropped, and only when the
+    spaced pair exists — a genuinely flat command is untouched.
+    """
+
+    def components(self, commands):
+        return {"facade": {"invocation": {"commands": commands}}}
+
+    def test_flat_duplicate_is_dropped(self):
+        body = self.components([
+            {"name": "member",
+             "subcommands": [{"name": "history", "options": []}],
+             "options": []},
+            {"name": "member_history", "subcommands": [], "options": []},
+        ])
+        log = Log()
+        repairs.repair_flat_command_duplicates(body, log)
+        self.assertEqual(
+            [c["name"] for c in body["facade"]["invocation"]["commands"]],
+            ["member"],
+        )
+        self.assertEqual(len(log.lines), 1)
+
+    def test_genuinely_flat_command_is_kept(self):
+        body = self.components([
+            {"name": "overdue", "subcommands": [], "options": []},
+        ])
+        log = Log()
+        repairs.repair_flat_command_duplicates(body, log)
+        self.assertEqual(
+            [c["name"] for c in body["facade"]["invocation"]["commands"]],
+            ["overdue"],
+        )
+        self.assertEqual(log.lines, [])
+
+    def test_flat_form_with_subcommands_is_kept(self):
+        body = self.components([
+            {"name": "member",
+             "subcommands": [{"name": "history", "options": []}],
+             "options": []},
+            {"name": "member_history",
+             "subcommands": [{"name": "x", "options": []}],
+             "options": []},
+        ])
+        repairs.repair_flat_command_duplicates(body, Log())
+        self.assertEqual(
+            [c["name"] for c in body["facade"]["invocation"]["commands"]],
+            ["member", "member_history"],
+        )
+
+
+class PrimaryKeyUniquenessTests(unittest.TestCase):
+    """A primary key declaring `unique=false` contradicts itself; set it true.
+
+    The predicate is the checker's own, so repair and rule cannot disagree.
+    Only the contradicted flag is touched: a nullable primary key is left
+    alone (auto-incremented ids are declared optional-None by several
+    prompts, so nullability is modeling, not noise), as is a non-key field
+    declaring `unique=false` (legitimate).
+    """
+
+    def test_contradicted_flag_is_set_true_and_logged(self):
+        models = [{"name": "Assoc", "fields": [
+            {"name": "wine_id", "type": "int", "primary_key": True,
+             "unique": False}]}]
+        log = Log()
+        repairs.repair_primary_key_uniqueness(models, log)
+        self.assertTrue(models[0]["fields"][0]["unique"])
+        self.assertEqual(len(log.lines), 1)
+
+    def test_nullable_keys_and_plain_fields_are_untouched(self):
+        models = [{"name": "M", "fields": [
+            {"name": "id", "type": "int", "primary_key": True,
+             "nullable": True},
+            {"name": "tag", "type": "str", "unique": False}]}]
+        log = Log()
+        repairs.repair_primary_key_uniqueness(models, log)
+        self.assertNotIn("unique", models[0]["fields"][0])
+        self.assertFalse(models[0]["fields"][1]["unique"])
+        self.assertEqual(log.lines, [])
+
+    def test_non_lists_pass_through(self):
+        self.assertEqual(repairs.repair_primary_key_uniqueness({}, Log()), {})
+        self.assertIsNone(repairs.repair_primary_key_uniqueness(None, Log()))
+
+    def test_pair_repaired_in_first_still_drops_the_flat(self):
+        """The pipeline order: placeholder, surface, flat-duplicate.
+
+        A retry body can lack `member history` while keeping a flat
+        `member_history` with a placeholder sub: the placeholder goes, the
+        surface repair adds the pair, and only then does the flat form have
+        a pair to match — an earlier pass finds nothing and keeps it.
+        """
+        body = {"facade": {"invocation": {"commands": [
+            {"name": "member",
+             "subcommands": [{"name": "add", "options": []}],
+             "options": []},
+            {"name": "member_history",
+             "subcommands": [{"name": "none", "options": []}],
+             "options": []},
+        ]}}}
+        requirements = "Run `library member history --member-id`."
+        models = [{"name": "Member", "fields": [
+            {"name": "id", "type": "int"}]}]
+        log = Log()
+        repairs.repair_placeholder_subcommands(body, log)
+        repairs.repair_missing_surface(body, requirements, models, log)
+        repairs.repair_flat_command_duplicates(body, log)
+        commands = {c["name"]: [s["name"] for s in c.get("subcommands", [])]
+                    for c in body["facade"]["invocation"]["commands"]}
+        self.assertIn("history", commands.get("member", []))
+        self.assertNotIn("member_history", commands)
+
+
+class MissingFlagRepairTests(unittest.TestCase):
+    """A required requirements flag the leaf lacks is added, typed by the model.
+
+    Both halves are grounded elsewhere — the flag name in the requirements'
+    own command line, the option type in the data model field it binds to —
+    so nothing is invented. Anything ungrounded (no model field, disagreeing
+    types, an optional flag, a missing leaf) is left for the retry and probe.
+    """
+
+    MODELS = [
+        {"name": "Product", "fields": [
+            {"name": "sku", "type": "string"},
+            {"name": "name", "type": "string"},
+            {"name": "price_cents", "type": "int"}]},
+        {"name": "Category", "fields": [
+            {"name": "name", "type": "string"}]},
+    ]
+
+    def components(self, options):
+        return {
+            "facade": {"type": "cli", "technology": "click",
+                       "invocation": {"commands": [
+                           {"name": "product", "options": [],
+                            "subcommands": [
+                                {"name": "add", "options": [
+                                    {"name": name, "type": "str"} for name in options]}]}]}}
+        }
+
+    def options_of(self, body):
+        subs = body["facade"]["invocation"]["commands"][0]["subcommands"]
+        return {o["name"]: o for o in subs[0]["options"]}
+
+    def test_a_missing_required_flag_is_added_typed_by_the_model(self):
+        body = self.components(["--name"])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add --sku --name`.", self.MODELS, log)
+        options = self.options_of(body)
+        self.assertIn("--sku", options)
+        self.assertEqual(options["--sku"]["type"], "str")
+        self.assertTrue(options["--sku"]["required"])
+        self.assertEqual(len(log.lines), 1)
+
+    def test_an_abbreviated_flag_binds_its_model_field(self):
+        body = self.components([])
+        repairs.repair_missing_flags(
+            body, "Run `product add --price`.", self.MODELS, Log())
+        self.assertEqual(self.options_of(body)["--price"]["type"], "int")
+
+    def test_a_flag_two_models_agree_on_is_added(self):
+        """`--name` matches Category.name and Product.name: both strings."""
+        body = self.components([])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add --name`.", self.MODELS, log)
+        self.assertEqual(self.options_of(body)["--name"]["type"], "str")
+        self.assertIn("2 models", log.lines[0])
+
+    def test_a_bracketed_optional_flag_is_left_alone(self):
+        body = self.components([])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add [--icon]`.", self.MODELS, log)
+        self.assertEqual(self.options_of(body), {})
+        self.assertEqual(log.lines, [])
+
+    def test_a_flag_with_no_model_field_is_left_alone(self):
+        body = self.components([])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add --frob`.", self.MODELS, log)
+        self.assertEqual(self.options_of(body), {})
+        self.assertEqual(log.lines, [])
+
+    def test_a_present_flag_is_left_alone(self):
+        body = self.components(["--sku"])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add --sku`.", self.MODELS, log)
+        self.assertEqual(len(self.options_of(body)), 1)
+        self.assertEqual(log.lines, [])
+
+    def test_no_models_means_no_repair(self):
+        body = self.components([])
+        repairs.repair_missing_flags(
+            body, "Run `product add --sku`.", [], Log())
+        self.assertEqual(self.options_of(body), {})
+
+
+class AdapterFieldRenameTests(unittest.TestCase):
+    """An entity-targeted field spelling no model field is renamed to it.
+
+    The generator builds `Model(**fields)`, so `amount` into an Expense is
+    construction that always fails — while `amount_cents` under
+    DECIMAL_TO_CENTS converts flag dollars to model cents and is grounded on
+    three sides (containment, uniqueness, units). DIRECT carries no unit
+    evidence and is never renamed: flag `amount` in dollars into a cents
+    field would silently change money.
+    """
+
+    SERVICES = [{"service_name": "ExpenseService", "methods": [
+        {"name": "add_expense", "params": [{"name": "data", "type": "Expense"}]}]}]
+    MODELS = [{"name": "Expense", "fields": [
+        {"name": "amount_cents", "type": "int"},
+        {"name": "description", "type": "string"}]}]
+
+    def adapters(self, fields):
+        return [{"action_name": "add_expense", "target_service": "ExpenseService",
+                 "target_method": "add_expense",
+                 "input_fields": [
+                     {"field_name": name, "target_param": "data",
+                      "transform": transform, "lookup_entity": None,
+                      "required": True}
+                     for name, transform in fields]}]
+
+    def test_a_money_field_is_renamed_to_its_unique_model_field(self):
+        adapters = self.adapters([("amount", "DECIMAL_TO_CENTS")])
+        log = Log()
+        repairs.repair_adapter_field_names(adapters, self.SERVICES, self.MODELS, log)
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "amount_cents")
+        self.assertEqual(len(log.lines), 1)
+
+    def test_a_lookup_field_is_renamed_to_its_unique_model_field(self):
+        services = [{"service_name": "S", "methods": [
+            {"name": "m", "params": [{"name": "data", "type": "E"}]}]}]
+        models = [{"name": "E", "fields": [{"name": "category_id", "type": "int"}]}]
+        adapters = [{"action_name": "a", "target_service": "S", "target_method": "m",
+                     "input_fields": [
+                         {"field_name": "category", "target_param": "data",
+                          "transform": "LOOKUP_ID", "lookup_entity": "E",
+                          "required": True}]}]
+        repairs.repair_adapter_field_names(adapters, services, models, Log())
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "category_id")
+
+    def test_a_direct_field_is_never_renamed(self):
+        """`copies` into available_copies needs a human: counts are not cents."""
+        adapters = self.adapters([("amount", "DIRECT")])
+        log = Log()
+        repairs.repair_adapter_field_names(adapters, self.SERVICES, self.MODELS, log)
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "amount")
+        self.assertEqual(log.lines, [])
+
+    def test_an_ambiguous_spelling_is_left_alone(self):
+        models = [{"name": "E", "fields": [
+            {"name": "amount_cents", "type": "int"},
+            {"name": "amount_limit", "type": "int"}]}]
+        services = [{"service_name": "S", "methods": [
+            {"name": "m", "params": [{"name": "data", "type": "E"}]}]}]
+        adapters = [{"action_name": "a", "target_service": "S", "target_method": "m",
+                     "input_fields": [
+                         {"field_name": "amount", "target_param": "data",
+                          "transform": "DECIMAL_TO_CENTS", "lookup_entity": None,
+                          "required": True}]}]
+        repairs.repair_adapter_field_names(adapters, services, models, Log())
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "amount")
+
+    def test_an_exact_spelling_is_untouched(self):
+        adapters = self.adapters([("description", "DIRECT")])
+        log = Log()
+        repairs.repair_adapter_field_names(adapters, self.SERVICES, self.MODELS, log)
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "description")
+        self.assertEqual(log.lines, [])
+
+    def test_a_collision_with_a_sibling_is_left_alone(self):
+        adapters = self.adapters([("amount", "DECIMAL_TO_CENTS"),
+                                  ("amount_cents", "DECIMAL_TO_CENTS")])
+        repairs.repair_adapter_field_names(adapters, self.SERVICES, self.MODELS, Log())
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "amount")
+
+    def test_a_scalar_target_is_untouched(self):
+        adapters = [{"action_name": "a", "target_service": "S", "target_method": "m",
+                     "input_fields": [
+                         {"field_name": "id", "target_param": "id",
+                          "transform": "DIRECT", "lookup_entity": None,
+                          "required": True}]}]
+        services = [{"service_name": "S", "methods": [
+            {"name": "m", "params": [{"name": "id", "type": "int"}]}]}]
+        repairs.repair_adapter_field_names(adapters, services, self.MODELS, Log())
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "id")
+
+
+class FlagSubcommandCollisionTests(unittest.TestCase):
+    """A flag matching a subcommand name is not added.
+
+    Library files `--member-id` under `borrow` while declaring a `member_id`
+    subcommand beside it: adding the flag makes one word both a flag and a
+    command. The repair yields — the probe reports the unbacked subcommand,
+    correctly attributed to the model text rather than the repair.
+    """
+
+    MODELS = [{"name": "M", "fields": [{"name": "member_id", "type": "int"}]}]
+
+    def components(self):
+        return {
+            "facade": {"type": "cli", "technology": "click",
+                       "invocation": {"commands": [
+                           {"name": "borrow", "options": [],
+                            "subcommands": [
+                                {"name": "member_id", "options": []}]}]}}
+        }
+
+    def test_a_colliding_flag_is_skipped_with_a_log_line(self):
+        body = self.components()
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `library borrow --member-id --book-id`.", self.MODELS, log)
+        options = body["facade"]["invocation"]["commands"][0]["options"]
+        self.assertEqual(options, [])
+        self.assertTrue(any("not added" in line for line in log.lines))
+
+    def test_a_non_colliding_flag_is_still_added(self):
+        body = self.components()
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `library borrow --book-id`.", self.MODELS, log)
+        # --book-id binds no model field here (M has only member_id): untouched.
+        self.assertEqual(
+            body["facade"]["invocation"]["commands"][0]["options"], [])
+        self.assertEqual(log.lines, [])
+
+
+class AdapterFieldRenameDirectionTests(unittest.TestCase):
+    """Only flag-abbreviates-field renames; never the reverse.
+
+    `author_id` contains `id`, but renaming it to `id` repoints an author
+    reference at the record itself — a silent corruption the probe would
+    then bless as clean. Reverse containment is not evidence.
+    """
+
+    def test_a_suffix_match_is_left_alone(self):
+        services = [{"service_name": "R", "methods": [
+            {"name": "create_book", "params": [{"name": "book", "type": "Book"}]}]}]
+        models = [{"name": "Book", "fields": [
+            {"name": "id", "type": "int"},
+            {"name": "title", "type": "string"}]}]
+        adapters = [{"action_name": "add_book", "target_service": "R",
+                     "target_method": "create_book",
+                     "input_fields": [
+                         {"field_name": "author_id", "target_param": "book",
+                          "transform": "LOOKUP_ID", "lookup_entity": "Author",
+                          "required": True}]}]
+        log = Log()
+        repairs.repair_adapter_field_names(adapters, services, models, log)
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "author_id")
+        self.assertEqual(log.lines, [])
+
+
+class MissingSurfaceTests(unittest.TestCase):
+    """Attributable command lines exist on the surface — built, not wished for.
+
+    The model omits whole commands no retry recovers; the lines parse
+    without it, so structure (commands, subcommands) is ensured here while
+    judgment (shorts, crud, persistence) stays modeled. Flag filling
+    delegates to the flag repair, so one pass covers both. Nothing model
+    made is ever removed or restructured — including a bare line against a
+    nested command, which stays the probe's to report.
+    """
+
+    MODELS = [
+        {"name": "Member", "fields": [
+            {"name": "name", "type": "string"},
+            {"name": "email", "type": "string"}]},
+        {"name": "Book", "fields": [{"name": "title", "type": "string"}]},
+    ]
+    REQUIREMENTS = ("Run `library member add --name --email`, "
+                    "`library member history --member-id`.")
+
+    def surface(self, commands):
+        return {
+            "facade": {"type": "cli", "technology": "click",
+                       "invocation": {"commands": commands}}
+        }
+
+    def command(self, name, subs=()):
+        return {"name": name, "options": [],
+                "subcommands": [{"name": sub, "options": []} for sub in subs]}
+
+    def test_a_missing_command_is_created_with_its_verbs_and_flags(self):
+        body = self.surface([self.command("book", ["add"])])
+        log = Log()
+        repairs.repair_missing_surface(body, self.REQUIREMENTS, self.MODELS, log)
+        commands = {c["name"]: c for c in
+                    body["facade"]["invocation"]["commands"]}
+        self.assertIn("member", commands)
+        subs = {s["name"]: s for s in commands["member"]["subcommands"]}
+        self.assertEqual(set(subs), {"add", "history"})
+        names = {o["name"] for o in subs["add"]["options"]}
+        self.assertIn("--name", names)
+        self.assertIn("--email", names)
+        self.assertIn("added command 'member'", log.joined()
+                      if hasattr(log, "joined") else "")
+
+    def test_existing_content_is_untouched(self):
+        body = self.surface([{"name": "book", "options": [],
+                              "subcommands": [
+                                  {"name": "add",
+                                   "options": [{"name": "--title",
+                                                "type": "str"}]}]}])
+        before = json.dumps(body, sort_keys=True)
+        repairs.repair_missing_surface(
+            body, "Run `library book add --title`.", self.MODELS, Log())
+        self.assertEqual(json.dumps(body, sort_keys=True), before)
+
+    def test_a_bare_line_creates_a_command_without_subcommands(self):
+        body = self.surface([])
+        repairs.repair_missing_surface(
+            body, "Run `library borrow --member-id`.", self.MODELS, Log())
+        commands = body["facade"]["invocation"]["commands"]
+        self.assertEqual([(c["name"], c["subcommands"]) for c in commands],
+                         [("borrow", [])])
+
+    def test_a_bare_line_against_nested_content_restructures_nothing(self):
+        """`borrow` filed with subcommands keeps them; the probe judges."""
+        body = self.surface([{"name": "borrow", "options": [],
+                              "subcommands": [{"name": "member-id",
+                                               "options": []}]}])
+        repairs.repair_missing_surface(
+            body, "Run `library borrow --member-id`.", self.MODELS, Log())
+        subs = body["facade"]["invocation"]["commands"][0]["subcommands"]
+        self.assertEqual([s["name"] for s in subs], ["member-id"])
+
+    def test_healed_surfaces_come_back_unchanged(self):
+        """Idempotent: a second pass adds nothing and logs nothing structural."""
+        body = self.surface([self.command("member", ["add", "history"])])
+
+        class LoudLog(Log):
+            def write(self, text):
+                if "added command" in text or "added '" in text:
+                    raise AssertionError(f"second pass added: {text}")
+
+        repairs.repair_missing_surface(
+            body, self.REQUIREMENTS, self.MODELS, LoudLog())
 
 
 if __name__ == "__main__":

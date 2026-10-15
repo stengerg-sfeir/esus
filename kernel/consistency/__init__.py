@@ -1,9 +1,10 @@
-"""Consistency checks for the JSON documents written by extract_archi.py."""
+"""Consistency checks for the JSON documents written by extract_arch.py."""
 
 from kernel.consistency.checks_architecture import check_architecture_layer
 from kernel.consistency.checks_domain import check_domain_layer
 from kernel.consistency.checks_surface import (
     check_command_backing,
+    check_flag_coverage,
     check_surface_coverage,
 )
 from kernel.consistency.loader import load_documents, load_requirements
@@ -47,5 +48,7 @@ def check_directory(output_dir, prompt_name):
         documents.get("service_contracts") or [],
         report,
     )
+    if requirements:
+        check_flag_coverage(documents.get("components"), requirements, report)
 
     return report

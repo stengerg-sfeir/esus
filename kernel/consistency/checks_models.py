@@ -89,6 +89,18 @@ def _collect_fields(fields, model_name, report):
     return field_names, primary_keys, fields_by_name
 
 
+def key_uniqueness_contradicted(field):
+    """True when a primary-key field declares `unique=false`.
+
+    A primary key is unique by definition, so the two flags contradict each
+    other. The single definition shared by the checker
+    (`_check_primary_keys`) and the repair
+    (`repairs.repair_primary_key_uniqueness`).
+    """
+    return bool(isinstance(field, dict) and field.get("primary_key")) \
+        and field.get("unique") is False
+
+
 def _check_primary_keys(model_name, primary_keys, fields_by_name, report):
     if not primary_keys:
         report.warning("missing_primary_key", f"data_models: model '{model_name}' declares no primary key")
@@ -100,10 +112,9 @@ def _check_primary_keys(model_name, primary_keys, fields_by_name, report):
                 "nullable_primary_key",
                 f"data_models: {model_name}.{key} is a primary key but nullable=true",
             )
-        if field.get("unique") is False:
-            # A primary key is unique by definition, so the two flags contradict
-            # each other. `unique` was never read anywhere in this package, so
-            # the value was free to be wrong on every model.
+        if key_uniqueness_contradicted(field):
+            # `unique` was never read anywhere in this package, so the value
+            # was free to be wrong on every model.
             report.warning(
                 "non_unique_primary_key",
                 f"data_models: {model_name}.{key} is a primary key but unique=false",

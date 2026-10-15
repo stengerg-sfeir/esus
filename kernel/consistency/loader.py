@@ -60,7 +60,7 @@ class Documents:
 def load_requirements(output_dir):
     """The requirements a run was given, when the run recorded them.
 
-    Written beside the documents by `extract_archi.py`. A directory from before
+    Written beside the documents by `extract_arch.py`. A directory from before
     that change has no such file, and its absence is not a finding: the coverage
     check simply does not run, rather than reporting every older run for a file
     it could not have written.

@@ -22,6 +22,20 @@
           ]
         },
         {
+          "name": "read_one_book",
+          "description": "Reads a single book by its ID or ISBN.",
+          "params": [
+            {
+              "name": "book_id_or_isbn",
+              "type": "Union[str, int]"
+            }
+          ],
+          "return_type": "Book | None",
+          "raises": [
+            "BookNotFoundError"
+          ]
+        },
+        {
           "name": "read_all_books",
           "description": "Reads all books from the database.",
           "params": [],
@@ -29,40 +43,12 @@
           "raises": []
         },
         {
-          "name": "read_book_by_id",
-          "description": "Reads a book by its ID from the database.",
-          "params": [
-            {
-              "name": "book_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "Book",
-          "raises": [
-            "BookNotFoundError"
-          ]
-        },
-        {
-          "name": "read_book_by_isbn",
-          "description": "Reads a book by its ISBN from the database.",
-          "params": [
-            {
-              "name": "isbn",
-              "type": "str"
-            }
-          ],
-          "return_type": "Book",
-          "raises": [
-            "BookNotFoundError"
-          ]
-        },
-        {
           "name": "update_book",
-          "description": "Updates a book's details by its ID.",
+          "description": "Updates a book's details by its ID or ISBN.",
           "params": [
             {
-              "name": "book_id",
-              "type": "int"
+              "name": "book_id_or_isbn",
+              "type": "Union[str, int]"
             },
             {
               "name": "book",
@@ -76,14 +62,14 @@
         },
         {
           "name": "delete_book",
-          "description": "Deletes a book by its ID.",
+          "description": "Deletes a book by its ID or ISBN.",
           "params": [
             {
-              "name": "book_id",
-              "type": "int"
+              "name": "book_id_or_isbn",
+              "type": "Union[str, int]"
             }
           ],
-          "return_type": "None",
+          "return_type": "bool",
           "raises": [
             "BookNotFoundError"
           ]
@@ -93,7 +79,7 @@
           "description": "Filters books by available copies count.",
           "params": [
             {
-              "name": "available_copies",
+              "name": "min_available_copies",
               "type": "int"
             }
           ],
@@ -101,8 +87,8 @@
           "raises": []
         },
         {
-          "name": "search_books_by_title_or_author",
-          "description": "Searches books by title or author name.",
+          "name": "search_books_by_title_author_isbn",
+          "description": "Searches books by title, author, or ISBN.",
           "params": [
             {
               "name": "query",
@@ -130,25 +116,25 @@
           "raises": []
         },
         {
-          "name": "read_all_authors",
-          "description": "Reads all authors from the database.",
-          "params": [],
-          "return_type": "List[Author]",
-          "raises": []
-        },
-        {
-          "name": "read_author_by_id",
-          "description": "Reads an author by its ID from the database.",
+          "name": "read_one_author",
+          "description": "Reads a single author by its ID.",
           "params": [
             {
               "name": "author_id",
               "type": "int"
             }
           ],
-          "return_type": "Author",
+          "return_type": "Author | None",
           "raises": [
             "AuthorNotFoundError"
           ]
+        },
+        {
+          "name": "read_all_authors",
+          "description": "Reads all authors from the database.",
+          "params": [],
+          "return_type": "List[Author]",
+          "raises": []
         },
         {
           "name": "update_author",
@@ -177,7 +163,7 @@
               "type": "int"
             }
           ],
-          "return_type": "None",
+          "return_type": "bool",
           "raises": [
             "AuthorNotFoundError"
           ]
@@ -208,6 +194,10 @@
             {
               "name": "member",
               "type": "Member"
+            },
+            {
+              "name": "email",
+              "type": "str"
             }
           ],
           "return_type": "Member",
@@ -216,25 +206,25 @@
           ]
         },
         {
-          "name": "read_all_members",
-          "description": "Reads all members from the database.",
-          "params": [],
-          "return_type": "List[Member]",
-          "raises": []
-        },
-        {
-          "name": "read_member_by_id",
-          "description": "Reads a member by its ID from the database.",
+          "name": "read_one_member",
+          "description": "Reads a single member by its ID.",
           "params": [
             {
               "name": "member_id",
               "type": "int"
             }
           ],
-          "return_type": "Member",
+          "return_type": "Member | None",
           "raises": [
             "MemberNotFoundError"
           ]
+        },
+        {
+          "name": "read_all_members",
+          "description": "Reads all members from the database.",
+          "params": [],
+          "return_type": "List[Member]",
+          "raises": []
         },
         {
           "name": "update_member",
@@ -263,20 +253,22 @@
               "type": "int"
             }
           ],
-          "return_type": "None",
+          "return_type": "bool",
           "raises": [
             "MemberNotFoundError"
           ]
         },
         {
-          "name": "filter_members_by_active_status",
-          "description": "Filters members by active/inactive status.",
-          "params": [
-            {
-              "name": "is_active",
-              "type": "bool"
-            }
-          ],
+          "name": "find_active_members",
+          "description": "Finds all active members.",
+          "params": [],
+          "return_type": "List[Member]",
+          "raises": []
+        },
+        {
+          "name": "find_inactive_members",
+          "description": "Finds all inactive members.",
+          "params": [],
           "return_type": "List[Member]",
           "raises": []
         }
@@ -298,25 +290,25 @@
           "raises": []
         },
         {
-          "name": "read_all_loans",
-          "description": "Reads all loans from the database.",
-          "params": [],
-          "return_type": "List[Loan]",
-          "raises": []
-        },
-        {
-          "name": "read_loan_by_id",
-          "description": "Reads a loan by its ID from the database.",
+          "name": "read_one_loan",
+          "description": "Reads a single loan by its ID.",
           "params": [
             {
               "name": "loan_id",
               "type": "int"
             }
           ],
-          "return_type": "Loan",
+          "return_type": "Loan | None",
           "raises": [
             "LoanNotFoundError"
           ]
+        },
+        {
+          "name": "read_all_loans",
+          "description": "Reads all loans from the database.",
+          "params": [],
+          "return_type": "List[Loan]",
+          "raises": []
         },
         {
           "name": "update_loan",
@@ -345,28 +337,28 @@
               "type": "int"
             }
           ],
-          "return_type": "None",
+          "return_type": "bool",
           "raises": [
             "LoanNotFoundError"
           ]
         },
         {
-          "name": "find_active_loans",
+          "name": "get_active_loans",
           "description": "Finds all active loans.",
           "params": [],
           "return_type": "List[Loan]",
           "raises": []
         },
         {
-          "name": "find_overdue_loans",
+          "name": "get_overdue_loans",
           "description": "Finds all overdue loans.",
           "params": [],
           "return_type": "List[Loan]",
           "raises": []
         },
         {
-          "name": "find_loans_by_member_id",
-          "description": "Finds all loans by a specific member ID.",
+          "name": "get_member_loan_history",
+          "description": "Finds all loans for a specific member.",
           "params": [
             {
               "name": "member_id",
@@ -374,11 +366,13 @@
             }
           ],
           "return_type": "List[Loan]",
-          "raises": []
+          "raises": [
+            "MemberNotFoundError"
+          ]
         },
         {
-          "name": "find_loans_by_book_id",
-          "description": "Finds all loans by a specific book ID.",
+          "name": "get_book_loan_history",
+          "description": "Finds all loans for a specific book.",
           "params": [
             {
               "name": "book_id",
@@ -386,7 +380,9 @@
             }
           ],
           "return_type": "List[Loan]",
-          "raises": []
+          "raises": [
+            "BookNotFoundError"
+          ]
         }
       ]
     },
@@ -395,7 +391,7 @@
       "methods": [
         {
           "name": "borrow_book",
-          "description": "Borrow a book by member and book IDs, checks availability, and creates a loan.",
+          "description": "Borrow a book by member and book IDs, checks availability, creates loan, and decrements copies.",
           "params": [
             {
               "name": "member_id",
@@ -408,14 +404,14 @@
           ],
           "return_type": "Loan",
           "raises": [
-            "BookNotFoundError",
             "MemberNotFoundError",
+            "BookNotFoundError",
             "InsufficientCopiesError"
           ]
         },
         {
           "name": "return_book",
-          "description": "Returns a book by loan ID, updates status and return date.",
+          "description": "Returns a book by loan ID, sets return_date, updates status, and increments copies.",
           "params": [
             {
               "name": "loan_id",
@@ -437,7 +433,7 @@
         },
         {
           "name": "renew_membership",
-          "description": "Renews membership by toggling active status.",
+          "description": "Renews membership by toggling is_active status.",
           "params": [
             {
               "name": "member_id",

@@ -1,4 +1,4 @@
-"""Chained extraction: vocabularies, grammars and prompts for extract_archi.py.
+"""Chained extraction: vocabularies, grammars and prompts for extract_arch.py.
 
 The extractor runs eight steps over the same requirements. Historically each
 step read the raw prompt only, so every step invented its own names for the

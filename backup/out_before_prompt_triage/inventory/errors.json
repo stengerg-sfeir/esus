@@ -1,0 +1,34 @@
+{
+  "errors": [
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a category with the given id or name is not found in the database."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product with the given id is not found in the database."
+    },
+    {
+      "name": "SkuAlreadyExistsError",
+      "base": "ValueError",
+      "description": "Raised when attempting to add a product with a sku that already exists."
+    },
+    {
+      "name": "InvalidSkuError",
+      "base": "ValueError",
+      "description": "Raised when the sku is not a valid string."
+    },
+    {
+      "name": "InvalidStockQtyError",
+      "base": "ValueError",
+      "description": "Raised when stock_qty is negative or zero."
+    },
+    {
+      "name": "InvalidPriceError",
+      "base": "ValueError",
+      "description": "Raised when price_cents is negative."
+    }
+  ]
+}

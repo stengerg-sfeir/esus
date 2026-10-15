@@ -2,8 +2,8 @@
   "interaction_adapters": [
     {
       "action_name": "add_product",
-      "target_service": "InventoryService",
-      "target_method": "add_product",
+      "target_service": "ProductRepository",
+      "target_method": "create_product",
       "input_fields": [
         {
           "field_name": "sku",
@@ -22,19 +22,19 @@
         {
           "field_name": "category_id",
           "target_param": "category_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Category",
+          "transform": "DIRECT",
+          "lookup_entity": null,
           "required": true
         },
         {
-          "field_name": "price",
+          "field_name": "price_cents",
           "target_param": "price_cents",
           "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
           "required": true
         },
         {
-          "field_name": "stock",
+          "field_name": "stock_qty",
           "target_param": "stock_qty",
           "transform": "DIRECT",
           "lookup_entity": null,
@@ -44,22 +44,15 @@
     },
     {
       "action_name": "update_product",
-      "target_service": "InventoryService",
+      "target_service": "ProductRepository",
       "target_method": "update_product",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "product_id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
-        },
-        {
-          "field_name": "sku",
-          "target_param": "sku",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
         },
         {
           "field_name": "name",
@@ -71,27 +64,20 @@
         {
           "field_name": "category_id",
           "target_param": "category_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Category",
+          "transform": "DIRECT",
+          "lookup_entity": null,
           "required": false
         },
         {
-          "field_name": "price",
+          "field_name": "price_cents",
           "target_param": "price_cents",
           "transform": "DECIMAL_TO_CENTS",
           "lookup_entity": null,
           "required": false
         },
         {
-          "field_name": "stock",
+          "field_name": "stock_qty",
           "target_param": "stock_qty",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "low_active",
-          "target_param": "low_active",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": false
@@ -100,12 +86,12 @@
     },
     {
       "action_name": "delete_product",
-      "target_service": "InventoryService",
+      "target_service": "ProductRepository",
       "target_method": "delete_product",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "product_id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -113,48 +99,13 @@
       ]
     },
     {
-      "action_name": "get_product_by_id",
-      "target_service": "ProductRepository",
-      "target_method": "read_one_product",
+      "action_name": "restock_product",
+      "target_service": "InventoryService",
+      "target_method": "restock_product",
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "product_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "list_products",
-      "target_service": "InventoryService",
-      "target_method": "list_products",
-      "input_fields": [
-        {
-          "field_name": "category_id",
-          "target_param": "category_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Category",
-          "required": false
-        },
-        {
-          "field_name": "low_only",
-          "target_param": "low_only",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "restock",
-      "target_service": "InventoryService",
-      "target_method": "restock",
-      "input_fields": [
-        {
-          "field_name": "id",
-          "target_param": "product_id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -167,18 +118,6 @@
           "required": true
         }
       ]
-    },
-    {
-      "action_name": "low_stock_report",
-      "target_service": "ProductRepository",
-      "target_method": "find_low_stock_products",
-      "input_fields": []
-    },
-    {
-      "action_name": "stock_value_by_category",
-      "target_service": "ProductRepository",
-      "target_method": "stock_value_by_category",
-      "input_fields": []
     },
     {
       "action_name": "add_category",
@@ -215,7 +154,7 @@
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "category_id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
@@ -250,32 +189,12 @@
       "input_fields": [
         {
           "field_name": "id",
-          "target_param": "category_id",
+          "target_param": "id",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
         }
       ]
-    },
-    {
-      "action_name": "find_products_by_category",
-      "target_service": "ProductRepository",
-      "target_method": "find_products_by_category",
-      "input_fields": [
-        {
-          "field_name": "category_id",
-          "target_param": "category_id",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Category",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "read_all_categories",
-      "target_service": "CategoryRepository",
-      "target_method": "read_all_categories",
-      "input_fields": []
     }
   ]
 }

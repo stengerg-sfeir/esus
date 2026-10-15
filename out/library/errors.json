@@ -33,17 +33,12 @@
     {
       "name": "InsufficientCopiesError",
       "base": "RuntimeError",
-      "description": "Raised when attempting to borrow a book that has zero available copies."
+      "description": "Raised when attempting to borrow a book with zero available copies."
     },
     {
       "name": "InvalidReturnDateError",
       "base": "RuntimeError",
       "description": "Raised when a book is returned before its due date."
-    },
-    {
-      "name": "OverdueLoanFoundError",
-      "base": "RuntimeError",
-      "description": "Raised when a loan is found during overdue checks, indicating a bug in the due date logic."
     }
   ]
 }

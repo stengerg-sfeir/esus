@@ -1,0 +1,40 @@
+[run] requirements: 1764 characters
+[intentions] 113 tokens in 4.9s (23.2 tok/s)
+[data_models] 827 tokens in 25.7s (32.1 tok/s)
+[errors] 378 tokens in 14.1s (26.9 tok/s)
+[invariants] 525 tokens in 19.8s (26.6 tok/s)
+[components] 164 tokens in 7.5s (22.0 tok/s)
+[service_contracts] 1299 tokens in 44.2s (29.4 tok/s)
+  [1/17] invariant -> PRICE_MARGIN_GUARD (0.72)
+  [2/17] invariant -> QUOTA_CAPACITY_GUARD (0.71)
+  [3/17] invariant -> STOCK_SUFFICIENCY_GUARD (0.48)
+  [4/17] invariant -> STATE_TRANSITION_GUARD (0.38)  <- undecided (pattern): QUOTA_CAPACITY_GUARD at 0.28
+  [5/17] contract:WineRepository.create_wine -> STANDARD_CRUD (0.82)
+  [6/17] contract:WineRepository.read_all_wines -> READ_ALL (0.84)
+  [7/17] contract:WineRepository.read_wine_by_id -> STANDARD_CRUD (0.80)
+  [8/17] contract:WineRepository.update_wine -> STANDARD_CRUD (0.82)
+  [9/17] contract:WineRepository.delete_wine -> STANDARD_CRUD (0.85)
+  [10/17] contract:StorageLocationRepository.create_location -> STANDARD_CRUD (0.84)
+  [11/17] contract:StorageLocationRepository.read_all_locations -> READ_ALL (0.86)
+  [12/17] contract:StorageLocationRepository.read_location_by_id -> STANDARD_CRUD (0.78)
+  [13/17] contract:StorageLocationRepository.update_location -> STANDARD_CRUD (0.70)
+  [14/17] contract:StorageLocationRepository.delete_location -> STANDARD_CRUD (0.86)
+  [15/17] contract:WineLocationService.assign_wine_to_location -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: QUOTA_CAPACITY_GUARD returns boolean/none, but this method returns entity (Wine)
+  [16/17] contract:WineLocationService.remove_wine_from_location -> STANDARD_CRUD (0.71)
+  [17/17] contract:WineLocationService.get_wine_by_location -> FILTER_BY_FIELD (0.73)
+[ok] step patterns: 17 item(s) — 9 standard CRUD, 7 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:WineLocationService.assign_wine_to_location: assign_wine_to_location(wine_id: int, location_id: int) -> Wine: Assigns a wine to a storage location, ensuring the location's capacity is not exceeded.
+[interaction_adapters] 2023 tokens in 63.9s (31.7 tok/s)
+[persistence_ports] 1300 tokens in 43.2s (30.1 tok/s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/gui/intentions.json
+[write] out/gui/data_models.json
+[write] out/gui/errors.json
+[write] out/gui/invariants.json
+[write] out/gui/components.json
+[write] out/gui/service_contracts.json
+[write] out/gui/pattern_matches.json
+[write] out/gui/interaction_adapters.json
+[write] out/gui/persistence_ports.json
+[write] out/gui/requirements.txt
+[run] 8 steps, 6629 generated tokens in 223.2s

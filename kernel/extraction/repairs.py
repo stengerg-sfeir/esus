@@ -18,6 +18,10 @@ properties of the document rather than the shape of any one field:
   `copies` needs the field's *name* and its *transform* to agree on a kind of
   value; the adapter grammar closes `transform` to an enum and `field_name` to
   free text, so the pair is not a regular property either.
+- **A field sent past its own parameter.** `category_id` mapped into `data`
+  while the method declares a `category_id` needs the field's *name* and the
+  method's *parameter list* to be compared; neither the prompt block nor the
+  grammar relates the two, so it cannot.
 
 This is the same move as `dedupe.py` (§9.7): a *removal* of something that
 contradicts the rest of the document, never the invention or rewriting of a
@@ -29,7 +33,11 @@ after every step that produces the documents it touches, and before writing.
 
 import re
 
-from kernel.consistency import checks_adapters, checks_errors
+from kernel.consistency import checks_adapters, checks_errors, checks_models
+from kernel.consistency import checks_surface as surface_checks
+from kernel.consistency.methods import PLACEHOLDER_VALUES, param_names
+from kernel.consistency.naming import normalize
+from kernel.codegen import bind_field, is_entity_type, option_dest
 
 
 def repair_errors(errors, services, log):
@@ -295,8 +303,235 @@ def _drop_contradictory_raises(services, log):
     return services
 
 
-# --- a transform that does not fit the field's name -------------------------------
+# --- a field sent past its own parameter ----------------------------------------
 
+def repair_adapter_targets(adapters, services, log):
+    """Redirect a field to the parameter spelled like the field itself.
+
+    A field whose own name is a parameter of the target method belongs to that
+    parameter — the method has already said where the value goes. Sending it
+    into an aggregate beside it silently drops the value (expenses'
+    `add_expense` sent `category_id` into `data` while the method declares a
+    `category_id` of its own; `update_budget` sent `month` into `budget` while
+    a `month` parameter exists). The predicate is the checker's
+    (`_check_target_param`), so the repair and `misplaced_field` share one
+    definition of "belongs". An adapter whose service or method cannot be
+    resolved is left alone: the checker reports the unknown reference, and
+    there is no honest target to redirect to.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    index = _service_method_index(services)
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        action = adapter.get("action_name")
+        method = _resolve_adapter_method(adapter, index)
+        if method is None:
+            continue
+        declared = {}
+        for name in param_names(method):
+            if isinstance(name, str) and name.strip():
+                declared.setdefault(normalize(name), name)
+        if not declared:
+            continue
+        for field_entry in adapter.get("input_fields") or []:
+            if not isinstance(field_entry, dict):
+                continue
+            field_name = field_entry.get("field_name")
+            target_param = field_entry.get("target_param")
+            if not isinstance(field_name, str) or not isinstance(target_param, str):
+                continue
+            if normalize(field_name) in declared and normalize(field_name) != normalize(target_param):
+                honest = declared[normalize(field_name)]
+                if log is not None:
+                    log.write(
+                        f"[ok] step adapters: {action}.{field_name} went to "
+                        f"'{target_param}' while the method declares '{honest}' — "
+                        f"redirected to '{honest}'"
+                    )
+                field_entry["target_param"] = honest
+    return adapters
+
+
+def _service_method_index(services):
+    """Map (normalized service, normalized method) to the method object."""
+    index = {}
+    if not isinstance(services, list):
+        return index
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        service_name = service.get("service_name")
+        if not isinstance(service_name, str) or not service_name.strip():
+            continue
+        methods = index.setdefault(normalize(service_name), {})
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            method_name = method.get("name")
+            if isinstance(method_name, str) and method_name.strip():
+                methods.setdefault(normalize(method_name), method)
+    return index
+
+
+def _resolve_adapter_method(adapter, index):
+    """The service-contract method an adapter targets, or None when unknown."""
+    target_service = adapter.get("target_service")
+    target_method = adapter.get("target_method")
+    if not isinstance(target_service, str) or not isinstance(target_method, str):
+        return None
+    return index.get(normalize(target_service), {}).get(normalize(target_method))
+
+
+# --- a subcommand named as a placeholder ------------------------------------------
+
+def repair_placeholder_subcommands(components, log):
+    """Drop a subcommand whose name is a placeholder.
+
+    A subcommand named `none` states that the command takes no subcommand —
+    library's bare `` `library overdue` `` line came back as command `overdue`
+    with subcommand `none`, which no method can serve and no CLI framework can
+    route. The grammar leaves subcommand names free text, so presence of a
+    placeholder cannot be unrepresentable; it is removed here, leaving the
+    command with no subcommands, which is what the requirements describe. Only
+    the placeholder entries go: real siblings are untouched, and every removal
+    is logged.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components
+    commands = invocation.get("commands")
+    if not isinstance(commands, list):
+        return components
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        subcommands = command.get("subcommands")
+        if not isinstance(subcommands, list):
+            continue
+        kept = [
+            sub for sub in subcommands
+            if not (isinstance(sub, dict) and _is_placeholder_name(sub.get("name")))
+        ]
+        removed = len(subcommands) - len(kept)
+        if removed:
+            if log is not None:
+                log.write(
+                    f"[ok] step components: command '{command.get('name')}' had "
+                    f"{removed} placeholder subcommand(s) meaning no subcommand — "
+                    f"dropped"
+                )
+            command["subcommands"] = kept
+    return components
+
+
+def _is_placeholder_name(name):
+    """True when a command name is junk rather than a word of the requirements."""
+    return normalize(name) in PLACEHOLDER_VALUES if isinstance(name, str) else False
+
+
+def repair_flat_command_duplicates(components, log):
+    """Drop a flat `a_b` command duplicating a declared `a b` pair.
+
+    The model sometimes emits both the spaced pair (command `member` with
+    subcommand `history`, carrying the flags) and a flat single command
+    (`member_history`, with no subcommands and no method behind it). The
+    flat form is the same path spelled twice: it adds no flags, serves no
+    method, and the checker reports it as `unbacked_command` while the
+    spaced form passes. Only the flat duplicate goes — kept is the form
+    carrying the subcommand — and only when the spaced pair exists, so a
+    genuinely flat command is never touched. Every removal is logged.
+
+    Ordering matters: run this after `repair_missing_surface`, because the
+    pair it matches may itself have been repaired in — a retry body can
+    lack `member history` while keeping a flat `member_history`, and an
+    earlier pass would find no pair and keep the flat form.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components
+    commands = invocation.get("commands")
+    if not isinstance(commands, list):
+        return components
+
+    def parts(name):
+        return [p for p in re.split(r"[_\-\s]+", name.strip().lower()) if p] \
+            if isinstance(name, str) else []
+
+    paired = set()
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        name = command.get("name")
+        subs = command.get("subcommands")
+        if not isinstance(name, str) or not isinstance(subs, list):
+            continue
+        for sub in subs:
+            if isinstance(sub, dict) and isinstance(sub.get("name"), str):
+                paired.add((name.strip().lower(),
+                            sub["name"].strip().lower()))
+
+    kept = []
+    for command in commands:
+        if not isinstance(command, dict):
+            kept.append(command)
+            continue
+        name = command.get("name")
+        subs = command.get("subcommands")
+        if (isinstance(name, str) and (not subs)
+                and len(parts(name)) == 2
+                and tuple(parts(name)) in paired):
+            if log is not None:
+                first, second = parts(name)
+                log.write(
+                    f"[ok] step components: dropped flat '{name}' duplicating "
+                    f"'{first} {second}' — kept the form carrying the subcommand"
+                )
+            continue
+        kept.append(command)
+    invocation["commands"] = kept
+    return components
+
+
+def repair_primary_key_uniqueness(models, log):
+    """Set `unique=true` on primary-key fields declaring `unique=false`.
+
+    A primary key is unique by definition; the predicate is the checker's own
+    (`checks_models.key_uniqueness_contradicted`), so repair and rule cannot
+    disagree. Only the contradicted flag is touched — a nullable primary key
+    is left alone (auto-incremented ids are declared optional-None by several
+    prompts, so nullability is modeling, not noise). Every fix is logged.
+    """
+    if not isinstance(models, list):
+        return models
+    fixed = 0
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if checks_models.key_uniqueness_contradicted(field):
+                field["unique"] = True
+                fixed += 1
+                if log is not None:
+                    log.write(
+                        f"[ok] step data_models: {model.get('name')}.{field.get('name')} "
+                        f"is a primary key — unique=false contradicts it, set true"
+                    )
+    return models
+
+
+# --- a transform that does not fit the field's name -------------------------------
 
 def repair_adapter_transforms(adapters, log):
     """Replace a transform whose kind contradicts the field's name with DIRECT.
@@ -349,4 +584,332 @@ def _fitter_transform(field_entry):
     for claimed, hints in _TRANSFORM_HINTS:
         if transform == claimed and not checks_adapters._mentions(lowered, hints):
             return "DIRECT"
+    return None
+
+
+# --- a required flag the requirements pass and the leaf does not declare ----
+
+OPTION_TYPES_BY_MODEL = {
+    "int": "int",
+    "string": "str",
+    "text": "str",
+    "boolean": "bool",
+    "float": "float",
+    "decimal": "float",
+    "datetime": "str",
+    "date": "str",
+}
+
+
+def repair_missing_surface(components, requirements, models, log):
+    """Ensure every attributable command line exists on the surface.
+
+    The model omits whole commands (`member` with add/history/list) that no
+    retry recovers; the lines themselves are parseable without it, so the
+    structure is built here and only judgment stays modeled. For each
+    attributed line the command and subcommand are created when absent
+    (requirements spelling, empty options), then `repair_missing_flags`
+    fills the flags it can type — one function, one pass, no divergence.
+    Never deletes or restructures model content: a bare line against a
+    nested command (`borrow` filed with subcommands) is left for the probe,
+    as is anything the lines never resolve to. Idempotent: a healed surface
+    comes back unchanged and unlogged.
+    """
+    from kernel.extraction import command_lines
+
+    if not isinstance(components, dict) or not requirements:
+        return repair_missing_flags(components, requirements, models, log)
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components
+    entities = {m.get("name") for m in (models or [])
+                if isinstance(m, dict) and m.get("name")}
+    spans = command_lines.extract_command_lines(requirements)
+    attributed = command_lines.attribute_lines(spans, entities)
+    if len(attributed) != len(spans) and log is not None:
+        log.write(
+            f"[!] step components: {len(spans) - len(attributed)} command line(s) "
+            f"need judgment, left to the model"
+        )
+    for command, sub, _flags in attributed:
+        entry = _ensure_command(invocation, command, log)
+        if entry is None:
+            continue
+        if sub is not None:
+            _ensure_subcommand(entry, command, sub, log)
+    return repair_missing_flags(components, requirements, models, log)
+
+
+def _ensure_command(invocation, command, log):
+    """The named command entry, created with empty options when absent."""
+    commands = invocation.get("commands")
+    if not isinstance(commands, list):
+        return None
+    for entry in commands:
+        if isinstance(entry, dict) and normalize(entry.get("name") or "") == normalize(command):
+            return entry
+    entry = {"name": command, "options": [], "subcommands": []}
+    commands.append(entry)
+    if log is not None:
+        log.write(f"[ok] step components: added command '{command}' the requirements name")
+    return entry
+
+
+def _ensure_subcommand(entry, command, sub, log):
+    """The named subcommand entry, created with empty options when absent."""
+    subcommands = entry.get("subcommands")
+    if not isinstance(subcommands, list):
+        return
+    for item in subcommands:
+        if isinstance(item, dict) and normalize(item.get("name") or "") == normalize(sub):
+            return
+    subcommands.append({"name": sub, "options": []})
+    if log is not None:
+        log.write(f"[ok] step components: added '{command} {sub}' the requirements name")
+
+
+def repair_missing_flags(components, requirements, models, log):
+    """Add a required requirements flag the owning leaf does not declare.
+
+    Inventory's `product add` carried only `-help`/`-version` while the
+    requirements pass `--sku --name --category --price`: the verb check passes
+    and the path is still stranded. Both halves of the addition are grounded
+    elsewhere — the flag name in the requirements' own command line, the
+    option type in the data model field it uniquely binds to — so nothing is
+    invented: a flag with no unique model field, an unmappable type, a
+    bracketed (optional) flag, or a missing leaf is left for the retry and the
+    probe, and every addition is logged.
+    """
+    if not isinstance(components, dict) or not requirements:
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components
+    commands = surface_checks._commands_by_name(invocation)
+    if not commands:
+        return components
+    program = surface_checks._program_name(requirements)
+    fields = _model_fields(models)
+    if not fields:
+        return components
+    seen = set()
+    for span in re.findall(r"`([^`]*)`", requirements):
+        target = surface_checks._resolve_span(span, program, commands)
+        if target is None:
+            continue
+        command, sub = target
+        leaf = _find_leaf(invocation, command, sub)
+        if leaf is None:
+            continue
+        for flag, bracketed in surface_checks._flags_in(span):
+            if bracketed or (command, sub, flag) in seen:
+                continue
+            seen.add((command, sub, flag))
+            if _leaf_has_flag(leaf, flag):
+                continue
+            if _collides_with_subcommand(leaf, flag):
+                # The leaf already has this word as a subcommand (`borrow`
+                # carries `member_id` while the requirements pass
+                # `--member-id`): adding the flag would make one word both a
+                # flag and a command, a defect of its own. Yield to the model
+                # text — the probe reports the unbacked subcommand instead.
+                if log is not None:
+                    log.write(
+                        f"[ok] step components: '--{flag}' matches subcommand "
+                        f"'{flag}' of {command} {sub or ''} — flag not added".rstrip()
+                    )
+                continue
+            match = _typed_model_field(fields, flag)
+            if match is None:
+                continue
+            label, option_type = match
+            leaf.setdefault("options", []).append({
+                "name": f"--{flag}",
+                "short": None,
+                "type": option_type,
+                "required": True,
+                "default": None,
+            })
+            if log is not None:
+                log.write(
+                    f"[ok] step components: {command} {sub or ''} lacked '--{flag}' "
+                    f"the requirements pass — added as {option_type} "
+                    f"(typed from {label})".rstrip()
+                )
+    return components
+
+
+def _model_fields(models):
+    """`[(model, field, type)]` for every declared model field."""
+    found = []
+    if not isinstance(models, list):
+        return found
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        for field in model.get("fields") or []:
+            if isinstance(field, dict) and field.get("name"):
+                found.append((model["name"], field["name"], field.get("type")))
+    return found
+
+
+def _find_leaf(invocation, command, sub):
+    """The command or subcommand dict owning a leaf, or None."""
+    for entry in invocation.get("commands") or []:
+        if not isinstance(entry, dict) or entry.get("name") != command:
+            continue
+        if sub is None:
+            return entry
+        for item in entry.get("subcommands") or []:
+            if isinstance(item, dict) and item.get("name") == sub:
+                return item
+    return None
+
+
+def _collides_with_subcommand(leaf, flag):
+    """True when the flag normalizes to an existing subcommand name."""
+    wanted = normalize(flag or "")
+    return any(isinstance(sub, dict) and normalize(sub.get("name")) == wanted
+               for sub in leaf.get("subcommands") or [])
+
+
+def _leaf_has_flag(leaf, flag):
+    """True when any declared option already supplies the flag (aliases count)."""
+    dests = [dest for dest in (option_dest(o) for o in leaf.get("options") or []) if dest]
+    return bind_field(dests, flag) is not None
+
+
+def _typed_model_field(fields, flag):
+    """`(label, option_type)` for a flag, or None when ungrounded.
+
+    The flag must bind at least one model field, and every binding must agree
+    on the option type (`--name` matches `Category.name` and `Product.name`,
+    both strings). A flag matching nothing, or fields of different types, is
+    left for the retry and the probe — typing it would be invention.
+    """
+    matched = [(model, name) for model, name, _ in fields
+               if bind_field([flag], name) == flag]
+    if not matched:
+        return None
+    typed = {OPTION_TYPES_BY_MODEL.get(_field_type(fields, model, name))
+             for model, name in matched}
+    typed.discard(None)
+    if len(typed) != 1:
+        return None
+    [option_type] = typed
+    if len(matched) == 1:
+        label = f"{matched[0][0]}.{matched[0][1]}"
+    else:
+        label = f"{len(matched)} models agreeing on {option_type}"
+    return label, option_type
+
+
+def _field_type(fields, model, name):
+    for candidate_model, candidate_name, candidate_type in fields:
+        if candidate_model == model and candidate_name == name:
+            return (candidate_type or "").strip().lower()
+    return ""
+
+
+# --- an entity-targeted field spelled like the flag, not the model field -----
+
+# Transforms that carry unit evidence: DECIMAL_TO_CENTS turns flag dollars
+# into model cents, LOOKUP_ID turns a flag value into a foreign-key id. A
+# field renamed under either keeps its meaning — the value was already that
+# unit. DIRECT carries no unit evidence (flag `amount` in dollars into a
+# cents field would silently change money), so it is never renamed.
+RENAMEABLE_TRANSFORMS = frozenset({"DECIMAL_TO_CENTS", "LOOKUP_ID"})
+
+
+def repair_adapter_field_names(adapters, services, models, log):
+    """Rename an entity-targeted field to the model field it uniquely contains.
+
+    The generator builds `Model(**fields)`, so a field targeting an entity
+    parameter must spell a declared model field — yet adapters are written
+    from the command line outward and spell flag names (`amount` for
+    `amount_cents`, `category` for `category_id`). When the spelling is
+    contained in exactly one model field, no sibling already holds that name,
+    and the transform proves the units, the rename is grounded on all three
+    sides. Anything else — DIRECT transforms, ambiguous or colliding names,
+    unresolvable methods — is left for the retry and the probe.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    index = _service_method_index(services)
+    model_fields = {}
+    for model in models or []:
+        if isinstance(model, dict) and model.get("name"):
+            model_fields[normalize(model["name"])] = [
+                f.get("name") for f in model.get("fields") or []
+                if isinstance(f, dict) and f.get("name")
+            ]
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        action = adapter.get("action_name")
+        method = _resolve_adapter_method(adapter, index)
+        if method is None:
+            continue
+        ptypes = {normalize(p.get("name")): p.get("type")
+                  for p in method.get("params") or []
+                  if isinstance(p, dict) and p.get("name")}
+        for field_entry in adapter.get("input_fields") or []:
+            if not isinstance(field_entry, dict):
+                continue
+            renamed = _rename_to_model_field(
+                adapter, field_entry, ptypes, model_fields)
+            if renamed is not None and log is not None:
+                old, new = renamed
+                log.write(
+                    f"[ok] step adapters: {action}.{old} targets an entity but "
+                    f"spells no model field — renamed to '{new}'"
+                )
+    return adapters
+
+
+def _rename_to_model_field(adapter, field_entry, ptypes, model_fields):
+    """The `(old, new)` spelling fix for one field, or None to leave it."""
+    field_name = field_entry.get("field_name")
+    target = field_entry.get("target_param")
+    if not isinstance(field_name, str) or not isinstance(target, str):
+        return None
+    entity = _entity_of(ptypes.get(normalize(target)), model_fields)
+    if entity is None:
+        return None
+    fields = model_fields[entity]
+    if normalize(field_name) in {normalize(name) for name in fields}:
+        return None
+    if field_entry.get("transform") not in RENAMEABLE_TRANSFORMS:
+        return None
+    # Forward containment only: the flag abbreviates the model field
+    # (`amount` in `amount_cents`). The reverse (`id` in `author_id`) matches
+    # a different concept sharing a suffix — renaming `author_id` to `id`
+    # silently repoints an author reference at the record itself — so it is
+    # never a rename, however unique.
+    candidates = [name for name in fields
+                  if normalize(field_name) in normalize(name)]
+    if len(candidates) != 1:
+        return None
+    if any(isinstance(other, dict) and other is not field_entry
+           and normalize(other.get("field_name")) == normalize(candidates[0])
+           for other in adapter.get("input_fields") or []):
+        return None
+    field_entry["field_name"] = candidates[0]
+    return field_name, candidates[0]
+
+
+def _entity_of(ptype, model_fields):
+    """The normalized entity a type spelling names, or None."""
+    if not isinstance(ptype, str):
+        return None
+    tokens = {normalize(token) for token in ptype.replace("[", " ").replace("]", " ").split()}
+    for entity in model_fields:
+        if entity in tokens:
+            return entity
     return None

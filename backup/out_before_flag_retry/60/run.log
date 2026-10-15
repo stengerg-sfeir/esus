@@ -1,0 +1,61 @@
+[run] requirements: 755 characters
+[intentions] 99 tokens in 3.9s (25.1 tok/s)
+[data_models] 1860 tokens in 56.6s (32.9 tok/s)
+[errors] 646 tokens in 22.7s (28.4 tok/s)
+[invariants] 845 tokens in 30.2s (28.0 tok/s)
+[components] 3504 tokens in 115.7s (30.3 tok/s)
+[ok] step components: removed 20 exactly repeated name(s)
+[service_contracts] 1892 tokens in 64.4s (29.4 tok/s)
+[ok] step errors: no method raises 'InvalidPriceError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'MalformedCSVError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'PermissionDeniedError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'InvalidInputError' and it is a validation shape the requirements never name — dropped
+  [1/35] invariant -> AGGREGATE_BY_FK (0.33)
+  [2/35] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.22)  <- undecided (pattern): AGGREGATE_BY_FK at 0.17
+  [3/35] invariant -> AGGREGATE_BY_FK (0.34)
+  [4/35] invariant -> AGGREGATE_BY_FK (0.40)
+  [5/35] invariant -> AGGREGATE_BY_FK (0.36)
+  [6/35] invariant -> AGGREGATE_BY_FK (0.34)
+  [7/35] invariant -> STATE_TRANSITION_GUARD (0.62)
+  [8/35] invariant -> STATE_TRANSITION_GUARD (0.58)
+  [9/35] invariant -> STATE_TRANSITION_GUARD (0.44)
+  [10/35] invariant -> STATE_TRANSITION_GUARD (0.62)
+  [11/35] invariant -> STOCK_SUFFICIENCY_GUARD (0.72)
+  [12/35] invariant -> STATE_TRANSITION_GUARD (0.64)
+  [13/35] invariant -> STATE_TRANSITION_GUARD (0.73)
+  [14/35] contract:CustomerService.create_customer -> STANDARD_CRUD (0.73)
+  [15/35] contract:CustomerService.read_all_customers -> READ_ALL (0.84)
+  [16/35] contract:CategoryService.create_category -> STANDARD_CRUD (0.81)
+  [17/35] contract:CategoryService.read_all_categories -> READ_ALL (0.90)
+  [18/35] contract:CategoryService.update_category -> STANDARD_CRUD (0.87)
+  [19/35] contract:CategoryService.delete_category -> STANDARD_CRUD (0.92)
+  [20/35] contract:ProductService.create_product -> STANDARD_CRUD (0.88)
+  [21/35] contract:ProductService.read_all_products -> READ_ALL (0.85)
+  [22/35] contract:ProductService.update_product -> STANDARD_CRUD (0.79)
+  [23/35] contract:ProductService.delete_product -> STANDARD_CRUD (0.92)
+  [24/35] contract:ProductService.get_product_by_category_and_month -> FILTER_BY_FIELD (0.03)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (List[Product]) (was AGGREGATE_BY_FK_AND_DATE)  <- undecided (pattern): FILTER_WITH_PAGINATION at 0.01
+  [25/35] contract:OrderService.create_order -> STANDARD_CRUD (0.65)
+  [26/35] contract:OrderService.read_all_orders -> READ_ALL (0.89)
+  [27/35] contract:OrderService.read_one_order -> STANDARD_CRUD (0.81)
+  [28/35] contract:OrderService.update_order_status -> STANDARD_CRUD (0.87)
+  [29/35] contract:OrderService.confirm_order -> STANDARD_CRUD (0.37)  <- undecided (domain): REPO_QUERY at 0.27
+  [30/35] contract:OrderService.cancel_order -> STOCK_SUFFICIENCY_GUARD (0.30)  <- undecided (domain): STANDARD_CRUD at 0.26
+  [31/35] contract:InvoiceService.create_invoice -> STANDARD_CRUD (0.60)
+  [32/35] contract:InvoiceService.read_all_invoices -> READ_ALL (0.84)
+  [33/35] contract:InvoiceService.search_invoices_by_customer -> FILTER_BY_FIELD (0.76)
+  [34/35] contract:InvoiceService.search_invoices_by_order -> FILTER_BY_FIELD (0.77)
+  [35/35] contract:OrderItemService.create_order_item -> STANDARD_CRUD (0.79)
+[ok] step patterns: 35 item(s) — 13 standard CRUD, 22 pattern(s), 0 gap(s)
+[interaction_adapters] 2434 tokens in 77.2s (31.5 tok/s)
+[persistence_ports] 1760 tokens in 57.5s (30.6 tok/s)
+[write] out/60/intentions.json
+[write] out/60/data_models.json
+[write] out/60/errors.json
+[write] out/60/invariants.json
+[write] out/60/components.json
+[write] out/60/service_contracts.json
+[write] out/60/pattern_matches.json
+[write] out/60/interaction_adapters.json
+[write] out/60/persistence_ports.json
+[write] out/60/requirements.txt
+[run] 8 steps, 13040 generated tokens in 428.3s

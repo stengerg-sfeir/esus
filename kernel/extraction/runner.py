@@ -13,6 +13,14 @@ import time
 
 from llama_cpp import Llama, LlamaGrammar
 
+try:  # the fd-level redirect the wrapper itself uses for backend init
+    from llama_cpp._utils import suppress_stdout_stderr
+except ImportError:  # pragma: no cover - very old bindings lack the helper
+    import contextlib
+
+    def suppress_stdout_stderr(disable=True):
+        return contextlib.nullcontext()
+
 try:  # llama-cpp-python < 0.2.x has no GPU offload probe
     from llama_cpp import llama_supports_gpu_offload
 except ImportError:
@@ -85,29 +93,44 @@ def threading_parameters():
     return {"n_threads": CPU_THREADS, "n_threads_batch": CPU_THREADS}
 
 
-def load_model(model_path, context_size=8192, logits_all=False):
+def load_model(model_path, context_size=8192, logits_all=False, quiet=False):
     """Load the GGUF model with the settings every step shares."""
-    device = "CPU" if resolve_gpu_layers() == GPU_LAYERS_NONE else "Metal"
-    threading = threading_parameters()
-    threads = threading.get("n_threads", "auto")
-    print(
-        f"[model] {model_path} on {device}, n_ctx={context_size}, "
-        f"n_threads={threads}, logits_all={logits_all}, "
-        f"flash_attn={FLASH_ATTENTION}",
-        file=sys.stderr,
-    )
     started = time.time()
-    llm = Llama(
+    if quiet:
+        # `verbose=False` silences the wrapper's own logs, but two things
+        # write to the fds straight from the C layer, bypassing that flag:
+        # the offload probe (`resolve_gpu_layers` initialises the Metal
+        # backend — device discovery and shader compile banners) and the
+        # model load itself. Both are redirected to devnull for the
+        # construction only — generation itself is silent, and any failure
+        # still raises as an exception.
+        with suppress_stdout_stderr(disable=False):
+            llm = _construct(model_path, context_size, logits_all)
+    else:
+        device = "CPU" if resolve_gpu_layers() == GPU_LAYERS_NONE else "Metal"
+        threads = threading_parameters().get("n_threads", "auto")
+        print(
+            f"[model] {model_path} on {device}, n_ctx={context_size}, "
+            f"n_threads={threads}, logits_all={logits_all}, "
+            f"flash_attn={FLASH_ATTENTION}",
+            file=sys.stderr,
+        )
+        llm = _construct(model_path, context_size, logits_all)
+        print(f"[model] loaded in {time.time() - started:.1f}s", file=sys.stderr)
+    return llm
+
+
+def _construct(model_path, context_size, logits_all):
+    """Build the `Llama` instance; callers handle noise and announcements."""
+    return Llama(
         model_path=model_path,
         n_ctx=context_size,
-        **threading,
+        **threading_parameters(),
         n_gpu_layers=resolve_gpu_layers(),
         flash_attn=FLASH_ATTENTION,
         logits_all=logits_all,
         verbose=False,
     )
-    print(f"[model] loaded in {time.time() - started:.1f}s", file=sys.stderr)
-    return llm
 
 
 class StepResult:
@@ -164,7 +187,7 @@ def generation_budget(llm, prompt, max_new_tokens=None):
     return max(MIN_BUDGET, min(ceiling, available_tokens(llm, prompt)))
 
 
-def generate(llm, prompt, grammar_text, label, temperature=0.1, max_new_tokens=None):
+def generate(llm, prompt, grammar_text, label, temperature=0.0, max_new_tokens=None, seed=None):
     """Generate one document under `grammar_text`, honouring the context budget.
 
     The call is **not** streamed. Streaming yields one chunk per token and
@@ -190,17 +213,36 @@ def generate(llm, prompt, grammar_text, label, temperature=0.1, max_new_tokens=N
     top of otherwise-good JSON. There is deliberately no switch to turn it off.
     """
     grammar = LlamaGrammar.from_string(grammar_text)
+    return _generate_impl(llm, prompt, grammar, label, temperature,
+                          max_new_tokens, seed)
+
+
+def generate_free(llm, prompt, label, temperature=0.0, max_new_tokens=None, seed=None):
+    """Generate free text (no grammar mask), returning a `StepResult`.
+
+    The one unmasked call in the project: the generator's degenerate fallback,
+    where the documents are clean but empty (no models, services or commands)
+    and the requirements describe a whole tiny program. A mask would only be
+    able to say "any text", so none is used — and the output is verified by
+    running it, the only check that means anything there.
+    """
+    return _generate_impl(llm, prompt, None, label, temperature,
+                          max_new_tokens, seed)
+
+
+def _generate_impl(llm, prompt, grammar, label, temperature, max_new_tokens, seed):
+    """One non-streaming call (see `generate` for why), timed and counted."""
     llm.reset()
 
     budget = generation_budget(llm, prompt, max_new_tokens)
 
     started = time.time()
-    response = llm(
-        prompt=prompt,
-        max_tokens=budget,
-        temperature=temperature,
-        grammar=grammar,
-    )
+    call = dict(prompt=prompt, max_tokens=budget, temperature=temperature)
+    if grammar is not None:
+        call["grammar"] = grammar
+    if seed is not None:
+        call["seed"] = seed
+    response = llm(**call)
 
     choice = (response.get("choices") or [{}])[0]
     text = choice.get("text") or ""

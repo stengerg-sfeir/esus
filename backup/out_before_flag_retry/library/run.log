@@ -1,0 +1,72 @@
+[run] requirements: 1965 characters
+[intentions] 87 tokens in 4.1s (21.0 tok/s)
+[data_models] 1225 tokens in 38.0s (32.2 tok/s)
+[errors] 536 tokens in 19.3s (27.7 tok/s)
+[invariants] 419 tokens in 16.4s (25.6 tok/s)
+[components] 2798 tokens in 91.2s (30.7 tok/s)
+[ok] step components: removed 58 exactly repeated name(s)
+[!] step components omits 1 command(s) the requirements name — retrying once
+[components] 2691 tokens in 89.6s (30.0 tok/s)
+[ok] step components: removed 27 exactly repeated name(s)
+[ok] step components: command 'overdue' had 1 placeholder subcommand(s) meaning no subcommand — dropped
+[service_contracts] 2358 tokens in 82.7s (28.5 tok/s)
+[ok] step errors: no method raises 'InvalidLoanStatusError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'MalformedCSVError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidInputError' and it is a validation shape the requirements never name — dropped
+  [1/39] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [2/39] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [3/39] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [4/39] invariant -> STATE_TRANSITION_GUARD (0.37)
+  [5/39] invariant -> BUDGET_OVERFLOW_GUARD (0.38)  <- undecided (pattern): QUOTA_CAPACITY_GUARD at 0.37
+  [6/39] invariant -> QUOTA_CAPACITY_GUARD (0.50)
+  [7/39] contract:BookRepository.create_book -> STANDARD_CRUD (0.73)
+  [8/39] contract:BookRepository.read_one_book -> STANDARD_CRUD (0.76)
+  [9/39] contract:BookRepository.read_all_books -> READ_ALL (0.86)
+  [10/39] contract:BookRepository.update_book -> STANDARD_CRUD (0.77)
+  [11/39] contract:BookRepository.delete_book -> STANDARD_CRUD (0.73)
+  [12/39] contract:BookRepository.filter_books_by_available_copies -> FILTER_BY_FIELD (0.45)
+  [13/39] contract:BookRepository.search_books_by_title_author_isbn -> FILTER_BY_FIELD (0.89)
+  [14/39] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.79)
+  [15/39] contract:AuthorRepository.read_one_author -> STANDARD_CRUD (0.81)
+  [16/39] contract:AuthorRepository.read_all_authors -> READ_ALL (0.84)
+  [17/39] contract:AuthorRepository.update_author -> STANDARD_CRUD (0.84)
+  [18/39] contract:AuthorRepository.delete_author -> STANDARD_CRUD (0.87)
+  [19/39] contract:AuthorRepository.find_books_by_author -> FILTER_BY_FIELD (0.86)
+  [20/39] contract:MemberRepository.create_member -> STANDARD_CRUD (0.73)
+  [21/39] contract:MemberRepository.read_one_member -> STANDARD_CRUD (0.81)
+  [22/39] contract:MemberRepository.read_all_members -> READ_ALL (0.82)
+  [23/39] contract:MemberRepository.update_member -> STANDARD_CRUD (0.85)
+  [24/39] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.89)
+  [25/39] contract:MemberRepository.filter_members_by_active_status -> FILTER_BY_FIELD (0.86)
+  [26/39] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.78)
+  [27/39] contract:LoanRepository.read_one_loan -> STANDARD_CRUD (0.83)
+  [28/39] contract:LoanRepository.read_all_loans -> READ_ALL (0.86)
+  [29/39] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.85)
+  [30/39] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.86)
+  [31/39] contract:LoanRepository.get_active_loans -> READ_ALL (0.80)
+  [32/39] contract:LoanRepository.get_overdue_loans -> READ_ALL (0.36)  <- undecided (pattern): THRESHOLD_SCAN at 0.28
+  [33/39] contract:LoanRepository.get_member_loan_history -> FILTER_BY_FIELD (0.64)
+  [34/39] contract:LoanRepository.get_book_loan_history -> FILTER_BY_FIELD (0.72)
+  [35/39] contract:LibraryService.borrow_book -> STANDARD_CRUD (0.43)  <- undecided (domain): REPO_QUERY at 0.41
+  [36/39] contract:LibraryService.return_book -> STANDARD_CRUD (0.66)
+  [37/39] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.43)
+  [38/39] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.68)
+  [39/39] contract:LibraryService.search_books -> FILTER_BY_FIELD (0.95)
+[ok] step patterns: 39 item(s) — 19 standard CRUD, 20 pattern(s), 0 gap(s)
+[interaction_adapters] 1314 tokens in 42.4s (31.0 tok/s)
+[ok] step adapters: add_member.email went to 'member' while the method declares 'email' — redirected to 'email'
+[persistence_ports] 3584 tokens in 125.8s (28.5 tok/s) TRUNCATED at the 3584-token ceiling
+[!] step persistence_ports hit the 3584-token ceiling — its document may be incomplete, retrying with a 6999-token ceiling — retrying once
+[persistence_ports] 1946 tokens in 66.2s (29.4 tok/s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/data_models.json
+[write] out/library/errors.json
+[write] out/library/invariants.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[write] out/library/requirements.txt
+[run] 10 steps, 16958 generated tokens in 575.7s

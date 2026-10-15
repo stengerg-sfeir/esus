@@ -24,6 +24,7 @@ from kernel.consistency.checks_errors import (  # noqa: E402
 )
 from kernel.consistency.checks_surface import (  # noqa: E402
     check_command_backing,
+    check_flag_coverage,
     check_surface_coverage,
 )
 from kernel.consistency.report import Report  # noqa: E402
@@ -251,6 +252,118 @@ class DuplicateErrorSubjectTests(unittest.TestCase):
         self.assertEqual(rules(report), [])
 
 
+class MisfiledCommandGroupTests(unittest.TestCase):
+    """A noun the requirements act on belongs on top, not nested elsewhere.
+
+    Library files `member` under `book` while the requirements use it with
+    add, history and list: three verbs, so it is a command of its own that
+    was misfiled — not a covered subcommand. A single stray verb filed
+    elsewhere (`report monthly`) stays silent.
+    """
+
+    def commands(self, entries):
+        return surface([command(name, subcommands=subs) for name, subs in entries])
+
+    def test_a_noun_with_several_verbs_filed_elsewhere_is_reported(self):
+        report = Report("t")
+        components = self.commands([("book", ["add", "member", "history"])])
+        check_surface_coverage(
+            components,
+            "Run `library member add --name`, `library member history --id`, "
+            "`library member list`.",
+            report)
+        self.assertIn("missing_command", rules(report))
+
+    def test_a_single_verb_filed_elsewhere_is_not_reported(self):
+        report = Report("t")
+        components = self.commands([("expense", ["report"])])
+        check_surface_coverage(
+            components, "Run `expense report monthly --month`.", report)
+        self.assertEqual(rules(report), [])
+
+
+class MisfiledValuesTests(unittest.TestCase):
+    """Selectors behind a filed subcommand are values, not verbs.
+
+    `expense report monthly --month` and `expense report yearly --year` give
+    `report` two words that name no action — monthly/yearly select which
+    report, so the filed `report` subcommand stands and nothing is missing.
+    """
+
+    def test_two_selectors_behind_a_filed_subcommand_are_silent(self):
+        report = Report("t")
+        components = surface([command("expense", subcommands=["report"])])
+        check_surface_coverage(
+            components,
+            "Run `expense report monthly --month` and `expense report yearly --year`.",
+            report)
+        self.assertEqual(rules(report), [])
+
+
+class TopLevelCommandTests(unittest.TestCase):
+    """A program-led line with one verb makes that verb a command.
+
+    The pair rule needs two words before a flag, so `library borrow
+    --member-id` was invisible when `borrow` vanished: no missing command
+    (the noun is the program), no unbacked command (undeclared verbs resolve
+    against nothing). The leading word is tested structurally — inventory's
+    program-less `product add --sku` must not read `product` as a program.
+    """
+
+    def surface(self, names):
+        return {
+            "facade": {
+                "type": "cli",
+                "technology": "click",
+                "invocation": {"positional": [], "options": [],
+                               "commands": [{"name": name, "options": [],
+                                             "subcommands": []} for name in names]},
+            }
+        }
+
+    def test_a_vanished_top_level_verb_is_reported(self):
+        report = Report("t")
+        check_surface_coverage(
+            self.surface(["book"]), "Run `library borrow --member-id --book-id`.",
+            report)
+        self.assertIn("missing_command", rules(report))
+
+    def test_a_present_top_level_verb_is_not_reported(self):
+        report = Report("t")
+        check_surface_coverage(
+            self.surface(["book", "borrow"]), "Run `library borrow --member-id`.",
+            report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_programless_noun_is_not_mistaken_for_a_program(self):
+        """Inventory writes `product add --sku` with no program word at all:
+        `product` names a command, so the line is judged by the pair rule
+        (whose verb is satisfied here), never as a program-led line."""
+        report = Report("t")
+        components = {
+            "facade": {
+                "type": "cli",
+                "technology": "click",
+                "invocation": {"positional": [], "options": [],
+                               "commands": [
+                                   {"name": "product", "options": [],
+                                    "subcommands": [{"name": "add",
+                                                     "options": []}]},
+                                   {"name": "category", "options": [],
+                                    "subcommands": []}]},
+            }
+        }
+        check_surface_coverage(
+            components, "Run `product add --sku`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_bare_line_with_no_flags_is_not_reported(self):
+        report = Report("t")
+        check_surface_coverage(self.surface(["book"]), "Run `library overdue`.",
+                               report)
+        self.assertEqual(rules(report), [])
+
+
 class UnbackedCommandTests(unittest.TestCase):
     """A command the surface declares and no service method can implement.
 
@@ -303,6 +416,164 @@ class UnbackedCommandTests(unittest.TestCase):
         components = surface([command("invoice", subcommands=["confirm"])])
         check_command_backing(components, self.services("cancel_order"), report)
         self.assertIn("unbacked_command", rules(report))
+
+
+class MissingFlagTests(unittest.TestCase):
+    """A flag the requirements pass and the surface cannot accept.
+
+    The flag-level half of the surface check: `missing_command` compares
+    verbs, this compares the flags behind them. A verb the surface declares
+    with none of its data flags parses and then can never run.
+    """
+
+    def leaf(self, options):
+        return [{"name": name, "type": "str"} for name in options]
+
+    def surface(self, leaves):
+        """`leaves`: `{command: {subcommand_or_None: [option names]}}`."""
+        commands = []
+        for name, subs in leaves.items():
+            commands.append({
+                "name": name,
+                "options": self.leaf(subs.get(None, [])),
+                "subcommands": [
+                    {"name": sub, "options": self.leaf(options)}
+                    for sub, options in subs.items() if sub is not None
+                ],
+            })
+        return {
+            "facade": {
+                "type": "cli",
+                "technology": "click",
+                "invocation": {"positional": [], "options": [], "commands": commands},
+            }
+        }
+
+    def test_a_required_flag_the_leaf_lacks_is_reported(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": ["name"]}})
+        check_flag_coverage(components, "Run `product add --sku --name`.", report)
+        self.assertIn("missing_flag", rules(report))
+        self.assertTrue(report.warnings)
+
+    def test_a_present_flag_is_not_reported(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": ["sku", "name"]}})
+        check_flag_coverage(components, "Run `product add --sku --name`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_bracketed_optional_flag_is_a_note_not_a_warning(self):
+        """The generator can omit an optional; it cannot conjure a required value."""
+        report = Report("t")
+        components = self.surface({"product": {"add": ["name"]}})
+        check_flag_coverage(components, "Run `product add --name [--icon]`.", report)
+        self.assertIn("missing_flag", rules(report))
+        self.assertFalse(report.warnings)
+
+    def test_an_abbreviated_flag_satisfies_its_field(self):
+        report = Report("t")
+        components = self.surface({"expense": {"add": ["category"]}})
+        check_flag_coverage(components, "Run `expense add --category-id`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_date_alias_satisfies_its_field(self):
+        report = Report("t")
+        components = self.surface({"expense": {"list": ["from-date"]}})
+        check_flag_coverage(components, "Run `expense list --start-date`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_bare_command_reads_its_subcommands_flags(self):
+        """`library borrow --member-id` files its flags under `book`."""
+        report = Report("t")
+        components = self.surface({"borrow": {"book": ["member-id", "book-id"]}})
+        check_flag_coverage(
+            components, "Run `library borrow --member-id --book-id`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_subcommand_written_first_resolves_to_its_owner(self):
+        report = Report("t")
+        components = self.surface({"expense": {"report": ["month"]}})
+        check_flag_coverage(components, "Run `expense report monthly --month`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_subcommand_written_first_reports_its_miss(self):
+        report = Report("t")
+        components = self.surface({"expense": {"report": []}})
+        check_flag_coverage(components, "Run `expense report monthly --month`.", report)
+        self.assertIn("missing_flag", rules(report))
+
+    def test_a_non_command_span_is_not_reported(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": []}})
+        check_flag_coverage(components, "With `UNIQUE(category_id, month)`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_an_unknown_command_span_is_not_reported(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": []}})
+        check_flag_coverage(components, "Run `frobnicate widget --x`.", report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_repeated_line_is_reported_once(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": []}})
+        check_flag_coverage(
+            components, "Run `product add --sku` or `product add --sku`.", report)
+        self.assertEqual(len(report.warnings), 1)
+
+    def test_no_requirements_means_no_check(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": []}})
+        check_flag_coverage(components, None, report)
+        self.assertEqual(rules(report), [])
+
+    def test_a_null_invocation_is_not_reported(self):
+        report = Report("t")
+        components = {"facade": {"type": "cli", "technology": "none", "invocation": None}}
+        check_flag_coverage(components, "Run `product add --sku`.", report)
+        self.assertEqual(rules(report), [])
+
+
+class ProgramlessSpanTests(unittest.TestCase):
+    """Lines with no program word resolve as written.
+
+    Inventory writes `` `product add --sku` `` — no program name — so the
+    program guess eats `product` and the remainder (`add`, in two commands'
+    lists) resolves to nothing. The full tokens are therefore tried too.
+    """
+
+    def surface(self, leaves):
+        commands = []
+        for name, subs in leaves.items():
+            commands.append({
+                "name": name,
+                "options": [],
+                "subcommands": [
+                    {"name": sub, "options": [{"name": o, "type": "str"} for o in options]}
+                    for sub, options in subs.items()
+                ],
+            })
+        return {
+            "facade": {
+                "type": "cli",
+                "technology": "click",
+                "invocation": {"positional": [], "options": [], "commands": commands},
+            }
+        }
+
+    def test_a_programless_line_checks_its_flags(self):
+        report = Report("t")
+        components = self.surface({"product": {"add": ["name"]},
+                                   "category": {"add": ["name"]}})
+        check_flag_coverage(components, "Run `product add --sku --name`.", report)
+        self.assertIn("missing_flag", rules(report))
+
+    def test_a_program_word_plus_an_unknown_word_is_skipped(self):
+        """`expense frobnicate --x` must not become a flag check on bare `expense`."""
+        report = Report("t")
+        components = self.surface({"expense": {"add": ["amount"]}})
+        check_flag_coverage(components, "Run `expense frobnicate --x`.", report)
+        self.assertEqual(rules(report), [])
 
 
 if __name__ == "__main__":

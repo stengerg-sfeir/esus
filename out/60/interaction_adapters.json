@@ -79,20 +79,6 @@
           "transform": "LOOKUP_ID",
           "lookup_entity": "Category",
           "required": true
-        },
-        {
-          "field_name": "name",
-          "target_param": "name",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        },
-        {
-          "field_name": "description",
-          "target_param": "description",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
         }
       ]
     },
@@ -222,6 +208,34 @@
       ]
     },
     {
+      "action_name": "get_product_by_category_and_month",
+      "target_service": "ProductService",
+      "target_method": "get_product_by_category_and_month",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "start_month",
+          "target_param": "start_month",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "end_month",
+          "target_param": "end_month",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
       "action_name": "create_order",
       "target_service": "OrderService",
       "target_method": "create_order",
@@ -314,13 +328,6 @@
           "target_param": "order_id",
           "transform": "LOOKUP_ID",
           "lookup_entity": "Order",
-          "required": true
-        },
-        {
-          "field_name": "invoice_number",
-          "target_param": "invoice_number",
-          "transform": "DIRECT",
-          "lookup_entity": null,
           "required": true
         }
       ]

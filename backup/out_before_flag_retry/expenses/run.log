@@ -1,0 +1,71 @@
+[run] requirements: 3299 characters
+[intentions] 164 tokens in 7.8s (21.1 tok/s)
+[data_models] 961 tokens in 31.0s (31.0 tok/s)
+[errors] 448 tokens in 17.1s (26.1 tok/s)
+[invariants] 436 tokens in 17.4s (25.1 tok/s)
+[components] 2158 tokens in 71.1s (30.4 tok/s)
+[!] step components omits 1 command(s) the requirements name — retrying once
+[components] 2931 tokens in 98.4s (29.8 tok/s)
+[ok] step components: removed 26 exactly repeated name(s)
+[service_contracts] 2760 tokens in 98.6s (28.0 tok/s)
+[ok] step errors: 'MissingCategoryError' and 'CategoryNotFoundError' name one missing record (category) — dropped 'MissingCategoryError', kept 'CategoryNotFoundError'
+[ok] step contracts: ExpenseService.add_expense is a create and cannot fail to find what it creates — dropped raises 'ExpenseNotFoundError'
+[ok] step errors: no method raises 'InvalidBudgetMonthError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidDateFormatError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidPaymentMethodError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidRecurringFlagError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidBudgetAmountError' and it is a validation shape the requirements never name — dropped
+  [1/34] invariant -> AGGREGATE_BY_FK (0.26)  <- undecided (pattern): AGGREGATE_BY_FK_AND_DATE at 0.16
+  [2/34] invariant -> BUDGET_OVERFLOW_GUARD (0.74)
+  [3/34] contract:ExpenseRepository.list_expenses -> FILTER_BY_FIELD (0.61)
+  [4/34] contract:ExpenseRepository.read_one_expense -> STANDARD_CRUD (0.83)
+  [5/34] contract:ExpenseRepository.read_all_expenses -> READ_ALL (0.71)
+  [6/34] contract:ExpenseRepository.update_expense -> STANDARD_CRUD (0.85)
+  [7/34] contract:ExpenseRepository.delete_expense -> STANDARD_CRUD (0.91)
+  [8/34] contract:ExpenseRepository.get_monthly_spending -> AGGREGATE_BY_FK_AND_DATE (0.96)
+  [9/34] contract:ExpenseRepository.get_yearly_spending -> AGGREGATE_BY_FK_AND_DATE (0.93)
+  [10/34] contract:ExpenseRepository.get_category_spending_range -> AGGREGATE_BY_FK_AND_DATE (0.98)
+  [11/34] contract:ExpenseRepository.export_expenses_to_csv -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: FILTER_WITH_PAGINATION returns collection, but this method returns none (None)
+  [12/34] contract:CategoryRepository.create_category -> STANDARD_CRUD (0.73)
+  [13/34] contract:CategoryRepository.read_one_category -> STANDARD_CRUD (0.69)
+  [14/34] contract:CategoryRepository.read_all_categories -> READ_ALL (0.70)
+  [15/34] contract:CategoryRepository.update_category -> STANDARD_CRUD (0.85)
+  [16/34] contract:CategoryRepository.delete_category -> STANDARD_CRUD (0.91)
+  [17/34] contract:CategoryRepository.find_expenses_by_category -> FILTER_BY_FIELD (0.85)
+  [18/34] contract:BudgetRepository.create_budget -> STANDARD_CRUD (0.50)  <- undecided (domain): REPO_QUERY at 0.42
+  [19/34] contract:BudgetRepository.read_one_budget -> STANDARD_CRUD (0.68)
+  [20/34] contract:BudgetRepository.read_all_budgets -> READ_ALL (0.81)
+  [21/34] contract:BudgetRepository.update_budget -> STANDARD_CRUD (0.35)  <- undecided (domain): REPO_QUERY at 0.31
+  [22/34] contract:BudgetRepository.delete_budget -> STANDARD_CRUD (0.69)
+  [23/34] contract:BudgetRepository.get_budget_status -> BUDGET_OVERFLOW_GUARD (0.89)
+  [24/34] contract:BudgetRepository.get_budgets_by_month -> FILTER_BY_FIELD (0.28)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (List[Budget]) (was AGGREGATE_BY_FK_AND_DATE)
+  [25/34] contract:ExpenseService.list_expenses -> FILTER_BY_FIELD (0.61)
+  [26/34] contract:ExpenseService.get_expense_by_id -> STANDARD_CRUD (0.82)
+  [27/34] contract:ExpenseService.add_expense -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (Expense)
+  [28/34] contract:ExpenseService.update_expense -> STANDARD_CRUD (0.85)
+  [29/34] contract:ExpenseService.delete_expense -> STANDARD_CRUD (0.91)
+  [30/34] contract:ExpenseService.get_monthly_report -> AGGREGATE_BY_FK_AND_DATE (0.86)
+  [31/34] contract:ExpenseService.get_yearly_summary -> AGGREGATE_BY_FK_AND_DATE (0.89)
+  [32/34] contract:ExpenseService.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (0.98)
+  [33/34] contract:ExpenseService.export_to_csv -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: FILTER_WITH_PAGINATION returns collection, but this method returns none (None)
+  [34/34] contract:ExpenseService.detect_recurring -> FILTER_BY_FIELD (0.14)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (List[Expense]) (was AGGREGATE_BY_FK_AND_DATE)  <- undecided (pattern): FILTER_WITH_PAGINATION at 0.09
+[ok] step patterns: 34 item(s) — 14 standard CRUD, 17 pattern(s), 3 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseRepository.export_expenses_to_csv: export_expenses_to_csv(file_path: str, start_date: Optional[str], end_date: Optional[str], category_id: Optional[int], payment_method: Optional[str]) -> None: Exports filtered expenses to a CSV file.
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.add_expense: add_expense(data: Expense) -> Expense: Adds a new expense, validates category exists, and checks budget.
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.export_to_csv: export_to_csv(file_path: str, start_date: Optional[str], end_date: Optional[str], category_id: Optional[int], payment_method: Optional[str]) -> None: Exports filtered expenses to a CSV file.
+[interaction_adapters] 3584 tokens in 653.6s (5.5 tok/s) TRUNCATED at the 3584-token ceiling
+[!] step interaction_adapters hit the 3584-token ceiling — its document may be incomplete, retrying with a 6491-token ceiling — retrying once
+[interaction_adapters] 3372 tokens in 486.6s (6.9 tok/s)
+[persistence_ports] 2028 tokens in 69.8s (29.1 tok/s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/expenses/intentions.json
+[write] out/expenses/data_models.json
+[write] out/expenses/errors.json
+[write] out/expenses/invariants.json
+[write] out/expenses/components.json
+[write] out/expenses/service_contracts.json
+[write] out/expenses/pattern_matches.json
+[write] out/expenses/interaction_adapters.json
+[write] out/expenses/persistence_ports.json
+[write] out/expenses/requirements.txt
+[run] 10 steps, 18842 generated tokens in 1551.4s

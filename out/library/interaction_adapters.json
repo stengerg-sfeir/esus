@@ -49,6 +49,20 @@
       "input_fields": []
     },
     {
+      "action_name": "list_books_by_author",
+      "target_service": "BookRepository",
+      "target_method": "filter_books_by_available_copies",
+      "input_fields": [
+        {
+          "field_name": "author_id",
+          "target_param": "min_available_copies",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": true
+        }
+      ]
+    },
+    {
       "action_name": "search_books",
       "target_service": "LibraryService",
       "target_method": "search_books",
@@ -61,6 +75,74 @@
           "required": true
         }
       ]
+    },
+    {
+      "action_name": "add_author",
+      "target_service": "AuthorRepository",
+      "target_method": "create_author",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "birth_year",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "biography",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "list_authors",
+      "target_service": "AuthorRepository",
+      "target_method": "read_all_authors",
+      "input_fields": []
+    },
+    {
+      "action_name": "add_member",
+      "target_service": "MemberRepository",
+      "target_method": "create_member",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "member",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "membership_date",
+          "target_param": "member",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "list_members",
+      "target_service": "MemberRepository",
+      "target_method": "read_all_members",
+      "input_fields": []
     },
     {
       "action_name": "borrow_book",
@@ -98,158 +180,15 @@
       ]
     },
     {
-      "action_name": "find_overdue_loans",
+      "action_name": "get_overdue_loans",
       "target_service": "LoanRepository",
-      "target_method": "find_overdue_loans",
+      "target_method": "get_overdue_loans",
       "input_fields": []
     },
     {
       "action_name": "renew_membership",
-      "target_service": "MemberRepository",
-      "target_method": "update_member",
-      "input_fields": [
-        {
-          "field_name": "member_id",
-          "target_param": "member_id",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "is_active",
-          "target_param": "member",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "list_authors",
-      "target_service": "AuthorRepository",
-      "target_method": "read_all_authors",
-      "input_fields": []
-    },
-    {
-      "action_name": "find_books_by_author",
-      "target_service": "BookRepository",
-      "target_method": "filter_books_by_available_copies",
-      "input_fields": [
-        {
-          "field_name": "author_id",
-          "target_param": "available_copies",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Author",
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "list_members",
-      "target_service": "MemberRepository",
-      "target_method": "read_all_members",
-      "input_fields": []
-    },
-    {
-      "action_name": "filter_members_by_active_status",
-      "target_service": "MemberRepository",
-      "target_method": "filter_members_by_active_status",
-      "input_fields": [
-        {
-          "field_name": "is_active",
-          "target_param": "is_active",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "create_author",
-      "target_service": "AuthorRepository",
-      "target_method": "create_author",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "author",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "birth_year",
-          "target_param": "author",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "biography",
-          "target_param": "author",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "action_name": "create_member",
-      "target_service": "MemberRepository",
-      "target_method": "create_member",
-      "input_fields": [
-        {
-          "field_name": "name",
-          "target_param": "member",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        },
-        {
-          "field_name": "email",
-          "target_param": "member",
-          "transform": "DIRECT",
-          "lookup_entity": null,
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "create_loan",
-      "target_service": "LoanRepository",
-      "target_method": "create_loan",
-      "input_fields": [
-        {
-          "field_name": "book_id",
-          "target_param": "loan",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Book",
-          "required": true
-        },
-        {
-          "field_name": "member_id",
-          "target_param": "loan",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Member",
-          "required": true
-        }
-      ]
-    },
-    {
-      "action_name": "list_loans",
-      "target_service": "LoanRepository",
-      "target_method": "read_all_loans",
-      "input_fields": []
-    },
-    {
-      "action_name": "find_active_loans",
-      "target_service": "LoanRepository",
-      "target_method": "find_active_loans",
-      "input_fields": []
-    },
-    {
-      "action_name": "find_loans_by_member_id",
-      "target_service": "LoanRepository",
-      "target_method": "find_loans_by_member_id",
+      "target_service": "LibraryService",
+      "target_method": "renew_membership",
       "input_fields": [
         {
           "field_name": "member_id",
@@ -261,9 +200,23 @@
       ]
     },
     {
-      "action_name": "find_loans_by_book_id",
+      "action_name": "get_member_loan_history",
       "target_service": "LoanRepository",
-      "target_method": "find_loans_by_book_id",
+      "target_method": "get_member_loan_history",
+      "input_fields": [
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_book_loan_history",
+      "target_service": "LoanRepository",
+      "target_method": "get_book_loan_history",
       "input_fields": [
         {
           "field_name": "book_id",

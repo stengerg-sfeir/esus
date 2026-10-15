@@ -1,0 +1,32 @@
+{
+  "aliases": [
+    {
+      "action": "add_book",
+      "field": "author_id",
+      "flag": "author_id",
+      "create": {
+        "entity": "Book",
+        "name": "author_id",
+        "type": "int",
+        "nullable": false,
+        "unique": false,
+        "foreign_key": {
+          "target_entity": "Author",
+          "target_field": "id",
+          "relationship": "many_to_one"
+        },
+        "status": "deduced",
+        "provenance": "flag '-author-id' : int"
+      },
+      "decided_by": "user",
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    },
+    {
+      "action": "add_book",
+      "field": "copies",
+      "flag": "available_copies",
+      "decided_by": "user",
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    }
+  ]
+}

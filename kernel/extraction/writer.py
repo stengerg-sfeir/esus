@@ -36,15 +36,22 @@ DOCUMENT_NAMES = (
 
 
 class RunLog:
-    """Collects progress lines, echoing them to stderr and to run.log."""
+    """Collects progress lines, echoing them to stderr and to run.log.
 
-    def __init__(self, path=None):
+    With `quiet=True` the lines are still collected for `run.log` but not
+    echoed: the caller prints its own concise summary instead, so a `--quiet`
+    run shows steps and results while the full detail stays in the file.
+    """
+
+    def __init__(self, path=None, quiet=False):
         self.path = Path(path) if path else None
         self.lines = []
+        self.quiet = quiet
 
     def write(self, message):
         self.lines.append(message)
-        print(message, file=sys.stderr)
+        if not self.quiet:
+            print(message, file=sys.stderr)
 
     def flush(self):
         if self.path is None:

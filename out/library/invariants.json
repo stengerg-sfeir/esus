@@ -49,12 +49,12 @@
       "kind": "rule"
     },
     {
-      "text": "Book.available_copies must not exceed the number of copies added for that Book",
+      "text": "Book.available_copies must not exceed the total copies added for that Book",
       "kind": "rule"
     },
     {
-      "text": "The total number of loans for a Member must not exceed the maximum allowed (not specified in requirements, so not enforced)",
-      "kind": "rule"
+      "text": "Member.membership_date must be a valid date (exists in Member entity)",
+      "kind": "schema"
     }
   ]
 }

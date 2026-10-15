@@ -5,7 +5,7 @@
       "methods": [
         {
           "name": "create_category",
-          "description": "Creates a new category with the given name and optional description and reorder_threshold.",
+          "description": "Creates a new category with the given name, description, and optional reorder_threshold.",
           "params": [
             {
               "name": "name",
@@ -13,7 +13,7 @@
             },
             {
               "name": "description",
-              "type": "Optional[str]"
+              "type": "str"
             },
             {
               "name": "reorder_threshold",
@@ -21,19 +21,22 @@
             }
           ],
           "return_type": "Category",
-          "raises": []
+          "raises": [
+            "MissingRequiredFieldError"
+          ]
         },
         {
           "name": "read_one_category",
-          "description": "Reads a single category by its id.",
+          "description": "Reads a single category by its ID.",
           "params": [
             {
-              "name": "category_id",
+              "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Category",
+          "return_type": "Optional[Category]",
           "raises": [
+            "InvalidIdError",
             "CategoryNotFoundError"
           ]
         },
@@ -46,10 +49,10 @@
         },
         {
           "name": "update_category",
-          "description": "Updates a category's name, description, or reorder_threshold by its id.",
+          "description": "Updates a category's name, description, or reorder_threshold by its ID.",
           "params": [
             {
-              "name": "category_id",
+              "name": "id",
               "type": "int"
             },
             {
@@ -58,7 +61,7 @@
             },
             {
               "name": "description",
-              "type": "Optional[str]"
+              "type": "str"
             },
             {
               "name": "reorder_threshold",
@@ -67,21 +70,39 @@
           ],
           "return_type": "Category",
           "raises": [
-            "CategoryNotFoundError"
+            "InvalidIdError",
+            "CategoryNotFoundError",
+            "MissingRequiredFieldError",
+            "InvalidThresholdError"
           ]
         },
         {
           "name": "delete_category",
-          "description": "Deletes a category by its id.",
+          "description": "Deletes a category by its ID.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "InvalidIdError",
+            "CategoryNotFoundError"
+          ]
+        },
+        {
+          "name": "get_products_by_category",
+          "description": "Finds all products belonging to a given category by its ID.",
           "params": [
             {
               "name": "category_id",
               "type": "int"
             }
           ],
-          "return_type": "bool",
+          "return_type": "List[Product]",
           "raises": [
-            "CategoryNotFoundError"
+            "InvalidIdError"
           ]
         }
       ]
@@ -91,7 +112,7 @@
       "methods": [
         {
           "name": "create_product",
-          "description": "Creates a new product with the given sku, name, category_id, price_cents, and stock_qty.",
+          "description": "Creates a new product with the given details.",
           "params": [
             {
               "name": "sku",
@@ -116,21 +137,25 @@
           ],
           "return_type": "Product",
           "raises": [
-            "SkuAlreadyExistsError",
+            "MissingRequiredFieldError",
+            "InvalidSkuError",
+            "InvalidPriceError",
+            "InvalidStockQtyError",
             "CategoryNotFoundError"
           ]
         },
         {
           "name": "read_one_product",
-          "description": "Reads a single product by its id.",
+          "description": "Reads a single product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Product",
+          "return_type": "Optional[Product]",
           "raises": [
+            "InvalidIdError",
             "ProductNotFoundError"
           ]
         },
@@ -143,15 +168,11 @@
         },
         {
           "name": "update_product",
-          "description": "Updates a product's fields by its id.",
+          "description": "Updates a product's fields by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
-            },
-            {
-              "name": "sku",
-              "type": "Optional[str]"
             },
             {
               "name": "name",
@@ -168,34 +189,36 @@
             {
               "name": "stock_qty",
               "type": "Optional[int]"
-            },
-            {
-              "name": "low_active",
-              "type": "Optional[bool]"
             }
           ],
           "return_type": "Product",
           "raises": [
-            "ProductNotFoundError"
+            "InvalidIdError",
+            "ProductNotFoundError",
+            "InvalidPriceError",
+            "InvalidStockQtyError",
+            "MissingRequiredFieldError",
+            "CategoryNotFoundError"
           ]
         },
         {
           "name": "delete_product",
-          "description": "Deletes a product by its id.",
+          "description": "Deletes a product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
           "return_type": "bool",
           "raises": [
+            "InvalidIdError",
             "ProductNotFoundError"
           ]
         },
         {
-          "name": "find_products_by_category",
-          "description": "Finds all products belonging to a specific category.",
+          "name": "get_products_by_category",
+          "description": "Finds all products belonging to a given category by its ID.",
           "params": [
             {
               "name": "category_id",
@@ -204,7 +227,7 @@
           ],
           "return_type": "List[Product]",
           "raises": [
-            "CategoryNotFoundError"
+            "InvalidIdError"
           ]
         },
         {
@@ -215,7 +238,7 @@
           "raises": []
         },
         {
-          "name": "stock_value_by_category",
+          "name": "calculate_stock_value_by_category",
           "description": "Calculates the total stock value (price_cents * stock_qty) per category.",
           "params": [],
           "return_type": "Dict[int, int]",
@@ -228,7 +251,7 @@
       "methods": [
         {
           "name": "add_product",
-          "description": "Adds a new product with validation for category existence and sku uniqueness.",
+          "description": "Adds a new product to the inventory, ensuring the category exists and the sku is unique.",
           "params": [
             {
               "name": "sku",
@@ -253,21 +276,20 @@
           ],
           "return_type": "Product",
           "raises": [
-            "SkuAlreadyExistsError",
-            "CategoryNotFoundError"
+            "InvalidSkuError",
+            "InvalidPriceError",
+            "InvalidStockQtyError",
+            "CategoryNotFoundError",
+            "SkuAlreadyExistsError"
           ]
         },
         {
           "name": "update_product",
-          "description": "Updates a product's fields by its id.",
+          "description": "Updates a product's fields by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
-            },
-            {
-              "name": "sku",
-              "type": "Optional[str]"
             },
             {
               "name": "name",
@@ -292,34 +314,40 @@
           ],
           "return_type": "Product",
           "raises": [
-            "ProductNotFoundError"
+            "InvalidIdError",
+            "ProductNotFoundError",
+            "InvalidPriceError",
+            "InvalidStockQtyError",
+            "MissingRequiredFieldError"
           ]
         },
         {
           "name": "delete_product",
-          "description": "Deletes a product by its id.",
+          "description": "Deletes a product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
           "return_type": "bool",
           "raises": [
+            "InvalidIdError",
             "ProductNotFoundError"
           ]
         },
         {
           "name": "get_product_by_id",
-          "description": "Returns a single product by its id.",
+          "description": "Retrieves a product by its ID.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             }
           ],
-          "return_type": "Product",
+          "return_type": "Optional[Product]",
           "raises": [
+            "InvalidIdError",
             "ProductNotFoundError"
           ]
         },
@@ -337,14 +365,16 @@
             }
           ],
           "return_type": "List[Product]",
-          "raises": []
+          "raises": [
+            "InvalidIdError"
+          ]
         },
         {
-          "name": "restock",
-          "description": "Increases a product's stock_qty by the specified quantity.",
+          "name": "restock_product",
+          "description": "Increases a product's stock quantity by the specified amount.",
           "params": [
             {
-              "name": "product_id",
+              "name": "id",
               "type": "int"
             },
             {
@@ -354,12 +384,14 @@
           ],
           "return_type": "Product",
           "raises": [
-            "ProductNotFoundError"
+            "InvalidIdError",
+            "ProductNotFoundError",
+            "InvalidStockQtyError"
           ]
         },
         {
           "name": "low_stock_report",
-          "description": "Returns products with stock_qty below their category's reorder_threshold.",
+          "description": "Generates a report of products with stock_qty below their category's reorder_threshold.",
           "params": [],
           "return_type": "List[Product]",
           "raises": []

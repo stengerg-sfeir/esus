@@ -46,7 +46,20 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
+        },
+        {
+          "name": "author_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Author",
+            "target_field": "id",
+            "relationship": "many_to_one"
+          },
+          "status": "deduced"
         }
       ]
     },
@@ -137,7 +150,7 @@
           "nullable": false,
           "unique": false,
           "foreign_key": null,
-          "status": "explicit"
+          "status": "deduced"
         }
       ]
     },

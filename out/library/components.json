@@ -56,6 +56,34 @@
                     "type": "str",
                     "required": true,
                     "default": null
+                  },
+                  {
+                    "name": "--isbn",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--author-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--published-year",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--copies",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
                   }
                 ]
               },
@@ -64,13 +92,6 @@
                 "options": [
                   {
                     "name": "-author",
-                    "short": "-a",
-                    "type": "str",
-                    "required": false,
-                    "default": null
-                  },
-                  {
-                    "name": "-author-only",
                     "short": "-a",
                     "type": "bool",
                     "required": false,
@@ -91,6 +112,151 @@
                 ]
               }
             ]
+          },
+          {
+            "name": "member",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "-name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "-email",
+                    "short": "-e",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "-active-only",
+                    "short": "-a",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "history",
+                "options": [
+                  {
+                    "name": "--member-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "borrow",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--member-id",
+                "short": null,
+                "type": "int",
+                "required": true,
+                "default": null
+              },
+              {
+                "name": "--book-id",
+                "short": null,
+                "type": "int",
+                "required": true,
+                "default": null
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "return",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--loan-id",
+                "short": null,
+                "type": "int",
+                "required": true,
+                "default": null
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "overdue",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": []
           }
         ]
       }
@@ -105,8 +271,8 @@
         "entity": "Book",
         "operations": [
           "create",
-          "read_all",
           "read_one",
+          "read_all",
           "update",
           "delete"
         ]
@@ -115,8 +281,8 @@
         "entity": "Author",
         "operations": [
           "create",
-          "read_all",
           "read_one",
+          "read_all",
           "update",
           "delete"
         ]
@@ -125,8 +291,8 @@
         "entity": "Member",
         "operations": [
           "create",
-          "read_all",
           "read_one",
+          "read_all",
           "update",
           "delete"
         ]
@@ -135,8 +301,8 @@
         "entity": "Loan",
         "operations": [
           "create",
-          "read_all",
           "read_one",
+          "read_all",
           "update",
           "delete"
         ]

@@ -63,7 +63,7 @@
           },
           {
             "name": "update_category",
-            "description": "Updates a category by its ID with the provided name and description.",
+            "description": "Updates a category by its ID with the provided details.",
             "params": [
               {
                 "name": "category_id",
@@ -151,6 +151,10 @@
                 "type": "float"
               },
               {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
                 "name": "stock_quantity",
                 "type": "int"
               }
@@ -203,8 +207,19 @@
             "return_type": "List[Order]"
           },
           {
+            "name": "read_order_by_id",
+            "description": "Retrieves an order by its ID.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Order"
+          },
+          {
             "name": "update_order_status",
-            "description": "Updates the status of an order by its ID.",
+            "description": "Updates the status of an order to confirmed, shipped, or cancelled.",
             "params": [
               {
                 "name": "order_id",
@@ -213,28 +228,6 @@
               {
                 "name": "status",
                 "type": "str"
-              }
-            ],
-            "return_type": "Order"
-          },
-          {
-            "name": "read_order_by_customer",
-            "description": "Retrieves all orders placed by a specific customer.",
-            "params": [
-              {
-                "name": "customer_id",
-                "type": "int"
-              }
-            ],
-            "return_type": "List[Order]"
-          },
-          {
-            "name": "read_order_by_id",
-            "description": "Retrieves an order by its ID.",
-            "params": [
-              {
-                "name": "order_id",
-                "type": "int"
               }
             ],
             "return_type": "Order"
@@ -247,7 +240,7 @@
         "methods": [
           {
             "name": "create_order_item",
-            "description": "Creates a new order item linked to an order.",
+            "description": "Creates a new order item linking an order to a product.",
             "params": [
               {
                 "name": "order_id",
@@ -276,7 +269,7 @@
         "methods": [
           {
             "name": "create_invoice",
-            "description": "Creates an invoice linked to an order.",
+            "description": "Creates an invoice linked to an order and customer.",
             "params": [
               {
                 "name": "order_id",
