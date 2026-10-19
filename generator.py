@@ -2927,6 +2927,25 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
     `book.author`, `models.date_today` and made-up exception names).
     """
     method = _stub_method(info)
+    # The store rule is for repository bodies: a service has no
+    # `self._store` and no `self.ENTITY`, and the first live service
+    # answer copied the example verbatim into a class with neither.
+    if info.get("file") == "services.py":
+        call_rule = [
+            "- Call only what the module shows: `self._repos['Name']`",
+            "  repositories and the methods listed below, `models.*`,",
+            "  `errors.*`, module helpers. A service body has no",
+            "  `self._store` and no `self.ENTITY`: read through the",
+            "  repositories and filter what they return in Python.",
+        ]
+    else:
+        call_rule = [
+            "- Call only what the module shows: `self._store` methods used",
+            "  in sibling bodies, `models.*`, `errors.*`, module helpers.",
+            "  `_store.select` criteria support only `eq`, `ge` and `le` —",
+            "  anything else (substring search, several fields) reads",
+            "  `self._store.all(self.ENTITY)` and filters in Python.",
+        ]
     lines = [
         "A Python module was generated mechanically from the architecture",
         "documents below. Exactly one method could not be derived",
@@ -2939,12 +2958,9 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         f"- The method is `{info['cls']}.{method}`; the emitter refused it"
         " with:",
         f"  {info['reason']}",
-        "- Call only what the module shows: `self._store` methods used in",
-        "  sibling bodies, `self._repos['Name']` repositories, `models.*`,",
-        "  `errors.*`, module helpers. `_store.select` criteria support",
-        "  only `eq`, `ge` and `le` — anything else (substring search,",
-        "  several fields) reads `self._store.all(self.ENTITY)` and",
-        "  filters in Python.",
+    ]
+    lines += call_rule
+    lines += [
         "- If the requirements do not determine the behavior, reply with",
         '  `raise NotImplementedError("...")` and nothing else.',
     ]
@@ -3028,17 +3044,31 @@ def _model_fields(text):
     return [f"{name}({', '.join(fields)})" for name, fields in classes]
 
 
-def _api_reference(files):
-    """Prompt lines naming the data surfaces the module text cannot show."""
+def _api_reference(files, filename=""):
+    """Prompt lines naming the data surfaces the module text cannot show.
+
+    Tailored by file: a repository body reads `self._store` and its
+    `self.ENTITY` table, a service body has `self._repos` and no store —
+    the shared block (and the shared rule, above) taught a live service
+    answer to write `self._store.all(self.ENTITY)` in a class with
+    neither, and the invented-name guard rightly refused it.
+    """
     lines = ["The data the sibling modules hand you:"]
+    if filename == "services.py":
+        lines.append("- `self._repos` maps repository names to instances:")
+        lines.append("  call their methods and filter the dataclasses they")
+        lines.append("  return, in Python. A service has no `self._store`")
+        lines.append("  and no `self.ENTITY`.")
+    else:
+        lines.append("- `self._store` reads return plain records (dicts):")
+        lines.append('  read them with `record.get("field")`; `self.ENTITY`')
+        lines.append("  is this class's table.")
     entries = _model_fields(files.get("models.py") or "")
     if entries:
-        lines.append("- Repository reads return these dataclasses: read")
-        lines.append("  their fields as attributes (`book.title`), never")
-        lines.append("  `.get(...)`, never a nested object:")
+        lines.append("- The dataclasses in models.py and their fields; read")
+        lines.append("  them as attributes (`book.title`), never `.get(...)`,")
+        lines.append("  never a field that is not listed:")
         lines += [f"  {entry}" for entry in entries]
-    lines.append("- `self._store` reads return plain records (dicts): read")
-    lines.append('  them with `record.get("field")`.')
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
@@ -3123,12 +3153,13 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     leaves the stub in place and says why. Every accepted body passes the
     module's `compile` and only touches `self.<name>`, `self._store.<name>`,
     `models.<name>` and `errors.<name>` names the sibling modules actually
-    define; it gains any import it uses and is tagged in its docstring as
-    LLM-written — nothing here verifies behavior, and only reading the
-    body (and running it) can. Returns `[(label, status, note)]`, one row
-    per refused stub, `status` `written` or `kept`. With `dump_path`,
-    every raw answer lands there as JSON, so a refusal can be read instead
-    of guessed at.
+    define; it gains any import it uses, is spliced by re-finding the stub
+    in the current text (an import added for a lower body moves every stub
+    above it), and is tagged in its docstring as LLM-written — nothing
+    here verifies behavior, and only reading the body (and running it)
+    can. Returns `[(label, status, note)]`, one row per refused stub,
+    `status` `written` or `kept`. With `dump_path`, every raw answer lands
+    there as JSON, so a refusal can be read instead of guessed at.
     """
     targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
                if isinstance(files.get(name), str)]
@@ -3146,7 +3177,6 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                                re.M)}
     model_names = _class_names(files.get("models.py") or "")
     error_names = _class_names(files.get("errors.py") or "")
-    api = _api_reference(files)
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body by body")
     rows, dumped = [], []
     for filename, spans in targets:
@@ -3154,9 +3184,26 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
         references = ()
         if filename == "services.py":
             references = _method_signatures(files.get("repositories.py") or "")
-        for start, end, info in reversed(spans):
+        api = _api_reference(files, filename)
+        for planned in reversed(spans):
+            # Re-find the span in the current text before every splice: a
+            # body that adds an import lands at the top of the file and
+            # moves every stub above it, and a stale span then cuts into
+            # the wrong lines and leaves the stub's own reason behind —
+            # the live `borrow_book` refusal blamed the model for exactly
+            # that.
+            label = f"{planned[2]['cls']}.{_stub_method(planned[2])}"
+            span = next((found for found in find_stub_spans(text)
+                         if f"{found[2]['cls']}.{_stub_method(found[2])}"
+                         == label), None)
+            if span is None:
+                note = "the stub is no longer in the module"
+                rows.append((label, "kept", note))
+                dumped.append({"label": label, "status": "kept",
+                               "note": note, "answer": None})
+                continue
+            start, end, info = span
             info["file"] = filename
-            label = f"{info['cls']}.{_stub_method(info)}"
             out(f"llm: {label} ...")
             prompt = stub_prompt(requirements, text, info, references, api)
             try:

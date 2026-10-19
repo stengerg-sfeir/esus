@@ -1363,6 +1363,67 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("raise NotImplementedError(", files["repositories.py"])
         self.assertNotIn("[llm-written", files["repositories.py"])
 
+    def test_a_body_that_adds_an_import_does_not_shift_the_next_stub(self):
+        """Bodies fill bottom-up; an import added for one lands at the top
+        of the file and moves every stub above it, so each splice must
+        re-find its span in the current text. Trusting the original span
+        cut one line short and left the stub's own reason line behind —
+        the live `borrow_book` refusal was this shift, blamed on the
+        model."""
+        text = (
+            '"""Repositories."""\n'
+            "\n"
+            "import models\n"
+            "import errors\n"
+            "\n"
+            "\n"
+            "class WidgetRepository:\n"
+            '    ENTITY = "Widget"\n'
+            "\n"
+            "    def __init__(self, store):\n"
+            "        self._store = store\n"
+            "\n"
+            "    def export_widgets(self, file_path: str = None) -> None:\n"
+            '        """Writes widgets. [rule plain-method: method needs '
+            'custom logic]"""\n'
+            "        raise NotImplementedError(\n"
+            '            "WidgetRepository.export_widgets: rule plain-method: '
+            'method needs custom logic")\n'
+            "\n"
+            "    def stamp_widgets(self) -> None:\n"
+            '        """Stamps widgets. [rule plain-method: method needs '
+            'custom logic]"""\n'
+            "        raise NotImplementedError(\n"
+            '            "WidgetRepository.stamp_widgets: rule plain-method: '
+            'method needs custom logic")\n'
+        )
+        files = {
+            "repositories.py": text,
+            "store.py": "class Store:\n"
+                        "    def all(self, entity):\n"
+                        "        return []\n",
+        }
+        rows = self.fill(files, [
+            "rows = self._store.all(self.ENTITY)\n"
+            "return datetime.date.today()",
+            "return None",
+        ])
+        self.assertEqual(rows, [
+            ("WidgetRepository.stamp_widgets", "written",
+             "added import datetime"),
+            ("WidgetRepository.export_widgets", "written", ""),
+        ])
+        module = files["repositories.py"]
+        compile(module, "repositories.py", "exec")
+        self.assertIn("import datetime", module)
+        self.assertNotIn("raise NotImplementedError(", module)
+        self.assertLess(module.index("def export_widgets"),
+                        module.index("return None"))
+        self.assertLess(module.index("return None"),
+                        module.index("def stamp_widgets"))
+        self.assertLess(module.index("def stamp_widgets"),
+                        module.index("datetime.date.today()"))
+
     def test_an_invented_name_keeps_the_stub(self):
         cases = [
             ("return self.helper()",
@@ -1410,6 +1471,12 @@ class StubFillTests(unittest.TestCase):
         self.assertIn('record.get("field")', prompt)
         self.assertIn("errors.py defines only these: AppError", prompt)
         self.assertIn("stdlib modules", prompt)
+        # The service prompt must not teach the store a service lacks: the
+        # live `search_books` refusal copied exactly that example.
+        service_prompt = captured[-1]
+        self.assertIn("Widget(widget_id, title)", service_prompt)
+        self.assertIn("A service body has no", service_prompt)
+        self.assertNotIn('record.get("field")', service_prompt)
 
     def test_nothing_to_fill_never_loads_the_model(self):
         from unittest import mock
