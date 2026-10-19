@@ -1455,7 +1455,7 @@ class StubFillTests(unittest.TestCase):
         files, _stats = self.rendered()
         captured = []
 
-        def answer(prompt, label, **kwargs):
+        def answer(llm, prompt, label, **kwargs):
             captured.append(prompt)
             return mock.Mock(text="        return None\n", tokens=3,
                              seconds=0.1)
