@@ -225,27 +225,81 @@ def generate_free(llm, prompt, label, temperature=0.0, max_new_tokens=None, seed
     and the requirements describe a whole tiny program. A mask would only be
     able to say "any text", so none is used — and the output is verified by
     running it, the only check that means anything there.
+
+    Raw continuation is the wrong frame for a free *ask*, though — see
+    `generate_chat`, which the stub filler prefers whenever the GGUF can
+    provide one.
     """
     return _generate_impl(llm, prompt, None, label, temperature,
                           max_new_tokens, seed)
 
 
-def _generate_impl(llm, prompt, grammar, label, temperature, max_new_tokens, seed):
+def generate_chat(llm, prompt, label, temperature=0.0, max_new_tokens=None, seed=None):
+    """Generate free text through the model's chat template, returning a `StepResult`.
+
+    Raw completion is right for the document steps: a grammar mask makes the
+    output machine-readable, and there is nothing to converse about. A free
+    ask is different. An instruct model continued as raw text does not answer
+    it; it continues the *document*, and the continuation is reasoning.
+    Measured on Qwen3-4B-Instruct-2507 (`LibraryService.borrow_book`, the
+    same prompt at temperature 0, seed 20261012):
+
+      - raw: `finish_reason='length'` at 3584/3584 tokens, and again at
+        5905/5905 with the whole context — still mid-sentence reasoning;
+      - the GGUF's chat template: `finish_reason='stop'`, 220 tokens, a body
+        that starts at the first line.
+
+    The template is what selects the assistant mode. `has_chat_template`
+    lets the caller choose between the two framings per model.
+    """
+    return _generate_impl(llm, prompt, None, label, temperature,
+                          max_new_tokens, seed, chat=True)
+
+
+def has_chat_template(llm):
+    """True when the GGUF carries a chat template `create_chat_completion` uses.
+
+    Every model measured so far does; the check keeps a template-less GGUF
+    (and a bare test mock, which answers truthy for every attribute) on
+    `generate_free` instead of failing body by body.
+    """
+    try:
+        metadata = llm.metadata or {}
+        template = metadata.get("tokenizer.chat_template")
+    except Exception:  # a mock or a binding without the property
+        template = None
+    if isinstance(template, str) and template.strip():
+        return True
+    return isinstance(getattr(llm, "chat_format", None), str)
+
+
+def _generate_impl(llm, prompt, grammar, label, temperature, max_new_tokens,
+                   seed, chat=False):
     """One non-streaming call (see `generate` for why), timed and counted."""
     llm.reset()
 
     budget = generation_budget(llm, prompt, max_new_tokens)
 
     started = time.time()
-    call = dict(prompt=prompt, max_tokens=budget, temperature=temperature)
-    if grammar is not None:
-        call["grammar"] = grammar
-    if seed is not None:
-        call["seed"] = seed
-    response = llm(**call)
-
-    choice = (response.get("choices") or [{}])[0]
-    text = choice.get("text") or ""
+    if chat:
+        if grammar is not None:
+            raise ValueError("a chat call cannot carry a GBNF mask")
+        call = dict(messages=[{"role": "user", "content": prompt}],
+                    max_tokens=budget, temperature=temperature)
+        if seed is not None:
+            call["seed"] = seed
+        response = llm.create_chat_completion(**call)
+        choice = (response.get("choices") or [{}])[0]
+        text = (choice.get("message") or {}).get("content") or ""
+    else:
+        call = dict(prompt=prompt, max_tokens=budget, temperature=temperature)
+        if grammar is not None:
+            call["grammar"] = grammar
+        if seed is not None:
+            call["seed"] = seed
+        response = llm(**call)
+        choice = (response.get("choices") or [{}])[0]
+        text = choice.get("text") or ""
     finish_reason = choice.get("finish_reason")
     usage = response.get("usage") or {}
     tokens = usage.get("completion_tokens")

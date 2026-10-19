@@ -2794,7 +2794,7 @@ def fallback_prompt(requirements, errors):
     return "\n".join(lines) + "\n"
 
 
-def extract_code(text, keep_indent=False):
+def extract_code(text, keep_indent=False, open_fence=False):
     """The model's code: the ```python block when fenced, else the bare text.
 
     Told to emit bare code, the model usually obeys (cli_tool) but sometimes
@@ -2808,12 +2808,27 @@ def extract_code(text, keep_indent=False):
     A single, unpaired fence line is dropped too: the prompt opens the
     block, the model usually just closes it, and a ``` line at indent 0
     would drag the body's base indent to zero the same way.
+
+    `open_fence` is for the ask whose prompt ended with an open ``` block
+    (the stub filler's). The answer then *starts* inside a fence and its
+    first fence line closes the prompt's; a model that echoes the stub,
+    closes the fence and only then reasons — Qwen3-4B does under raw
+    completion — puts its body in a later block. The plain `findall` read
+    that closing fence as the next block's opener and returned the prose
+    between the two; `_continuation_block` keeps the answer's own last
+    ```python block instead.
     """
     raw = text or ""
     stripped = raw.strip()
     if "```" not in raw:
         return raw if keep_indent else stripped
-    import re
+    if open_fence:
+        block = _continuation_block(raw)
+        if block is not None:
+            return block if keep_indent else block.strip()
+        source = raw if keep_indent else stripped
+        return "\n".join(line for line in source.splitlines()
+                         if not _FENCE_LINE.match(line))
     blocks = re.findall(r"```(?:python)?\s*\n(.*?)```", stripped, re.DOTALL)
     if blocks:
         for block in blocks:
@@ -2824,7 +2839,77 @@ def extract_code(text, keep_indent=False):
     # stopped). The fence line is packaging, never code.
     source = raw if keep_indent else stripped
     return "\n".join(line for line in source.splitlines()
-                     if not re.match(r"^\s*```(?:python3?|py)?\s*$", line))
+                     if not _FENCE_LINE.match(line))
+
+
+_FENCE_LINE = re.compile(r"^\s*```([A-Za-z0-9_+.-]*)\s*$")
+_PYTHON_TAGS = ("python", "py", "python3")
+_CODE_LINE = re.compile(
+    r"^\s*(?:return|raise|yield|assert|pass|del|import|from|def|class|if|"
+    r"elif|else|for|while|with|try|except|finally)\b"
+    r"|^\s*[A-Za-z_][\w.\[\]'\"]*\s*[-+*/|&^%@]?=(?!=)")
+
+
+def _is_stub_echo(text):
+    """The model repeated the stub instead of replacing its raise."""
+    return bool(re.match(r"^\s*def \w+", text)) or "NotImplementedError" in text
+
+
+def _looks_like_code(text):
+    """One keyword-led or assignment line is enough for a continuation body."""
+    return any(_CODE_LINE.match(line) for line in text.splitlines())
+
+
+def _fenced_blocks(lines, inside, tag=""):
+    """`[(tag, lines)]` for the fenced regions in `lines`, from `inside` state."""
+    blocks = []
+    current = []
+    for line in lines:
+        match = _FENCE_LINE.match(line)
+        if match:
+            if inside:
+                blocks.append((tag, current))
+                current = []
+                tag = ""
+            else:
+                tag = match.group(1)
+            inside = not inside
+            continue
+        if inside:
+            current.append(line)
+    if inside:
+        blocks.append((tag, current))
+    return blocks
+
+
+def _continuation_block(raw):
+    """The body of an answer that starts inside the prompt's open fence.
+
+    The first fence line decides how to read the rest: a tagged one
+    (```` ```python ````) is the model opening its own block, a bare one is
+    the model closing the prompt's. The text before it is the prompt's own
+    region — the body when it is code, an echo when the model repeated the
+    stub (the body then lives in the model's own last ```python block), and
+    prose when it narrated (the fenced block wins, as everywhere else).
+    """
+    lines = raw.splitlines()
+    first = next((index for index, line in enumerate(lines)
+                  if _FENCE_LINE.match(line)), None)
+    if first is None:
+        return None
+    region = "\n".join(lines[:first])
+    if (region.strip() and not _is_stub_echo(region)
+            and _looks_like_code(region)):
+        return region
+    opener = _FENCE_LINE.match(lines[first])
+    blocks = _fenced_blocks(lines[first + 1:], bool(opener.group(1)),
+                            opener.group(1))
+    fenced = [(tag, "\n".join(lines_)) for tag, lines_ in blocks
+              if tag and "\n".join(lines_).strip()]
+    if fenced:
+        python = [text for tag, text in fenced if tag in _PYTHON_TAGS]
+        return python[-1] if python else fenced[-1][1]
+    return region if region.strip() else None
 
 
 def strip_code_fences(text):
@@ -3060,9 +3145,11 @@ def _clean_body(text):
     in the shown module's style — the usual case — dedents to zero here
     instead of leaving its first line shallower than the rest. The `def`
     line and an echoed docstring are dropped; the filler writes both itself.
+    The stub ask ends with an open fence, so the answer is parsed as a
+    continuation (`open_fence`).
     """
     lines = [line.rstrip() for line in
-             extract_code(text, keep_indent=True).splitlines()]
+             extract_code(text, keep_indent=True, open_fence=True).splitlines()]
     while lines and not lines[0].strip():
         lines.pop(0)
     while lines and not lines[-1].strip():
@@ -3429,6 +3516,39 @@ def _spliced_candidate(text, start, end, info, body, model_name):
     return candidate
 
 
+def _attempt_fields(result):
+    """The generation facts recorded beside every raw answer in the dump."""
+    return {"finish_reason": result.finish_reason, "tokens": result.tokens,
+            "budget": result.budget, "truncated": result.truncated}
+
+
+def _first_fields(result):
+    return {f"first_{key}": value
+            for key, value in _attempt_fields(result).items()}
+
+
+def _answered(framing, llm, prompt, label):
+    """One generation, retried once with the whole room when it was truncated.
+
+    The first attempt stops at `MAX_NEW_TOKENS`; an answer that hit that
+    ceiling is not one, and the retry is what tells a model that needed
+    more room from one that will never stop. Qwen3-4B-Instruct-2507 under
+    raw completion filled 3584 tokens and was still mid-reasoning, then
+    filled the whole 5905-token room the same way; through its chat
+    template the same ask stopped at 220. A reply that is still truncated
+    after the retry is kept as `truncated` and never spliced.
+    """
+    result = framing(llm, prompt, label, temperature=FALLBACK_TEMPERATURE,
+                     seed=FALLBACK_SEED)
+    if result.truncated:
+        room = runner.available_tokens(llm, prompt)
+        if room > (result.budget or 0):
+            result = framing(llm, prompt, f"{label}:retry",
+                             temperature=FALLBACK_TEMPERATURE,
+                             seed=FALLBACK_SEED, max_new_tokens=room)
+    return result
+
+
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     """Ask the model for the bodies the mechanical emitter refused.
 
@@ -3443,9 +3563,17 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     current text (an import added for a lower body moves every stub above
     it), and is tagged in its docstring as LLM-written — nothing here
     verifies behavior, and only reading the body (and running it) can.
+
+    The ask is a free conversation, so it goes through the model's chat
+    template when the GGUF carries one (`runner.generate_chat`); raw
+    continuation makes an instruct model reason at the document instead of
+    answering (see the runner). An answer that is still truncated after one
+    retry with the whole room is never spliced — it is kept as `truncated`
+    in the dump, because a cut-off body compiles and can still be wrong.
     Returns `[(label, status, note)]`, one row per refused stub, `status`
     `written` or `kept`. With `dump_path`, every raw answer lands there as
-    JSON — both attempts when a repair was asked, so the refusal and the
+    JSON — both attempts when a repair was asked, with `finish_reason`,
+    `tokens`, `budget` and `truncated` beside each, so the refusal and the
     correction can be read instead of guessed at.
     """
     targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
@@ -3464,7 +3592,18 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                                re.M)}
     model_names = _class_names(files.get("models.py") or "")
     error_names = _class_names(files.get("errors.py") or "")
-    out(f"llm: {todo} refused stub(s) — {model_name} writes them body by body")
+    # The free ask is conversation-shaped: an instruct model continued as
+    # raw text reasons at the document instead of answering it (probe:
+    # Qwen3-4B-Instruct-2507 filled every raw budget and was still
+    # mid-sentence). The chat template answers when the GGUF has one.
+    framing = (runner.generate_chat if runner.has_chat_template(llm)
+               else runner.generate_free)
+    if framing is runner.generate_chat:
+        out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
+            "by body (chat template)")
+    else:
+        out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
+            "by body (no chat template: raw continuation)")
     rows, dumped = [], []
     for filename, spans in targets:
         text = files[filename]
@@ -3519,33 +3658,58 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
 
             prompt = stub_prompt(requirements, text, info, references, api)
             try:
-                result = runner.generate_free(
-                    llm, prompt, f"stub:{label}",
-                    temperature=FALLBACK_TEMPERATURE, seed=FALLBACK_SEED)
+                result = _answered(framing, llm, prompt, f"stub:{label}")
             except Exception as error:  # one failed call keeps one stub
                 note = f"the model failed ({error})"
                 rows.append((label, "kept", note))
                 dumped.append({"label": label, "status": "kept",
                                "note": note, "answer": None})
                 continue
+            if result.truncated:
+                # A cut-off answer was judged as complete before this check
+                # and its prose was spliced into the module.
+                note = (f"the answer was cut off at the {result.budget}-token "
+                        "ceiling")
+                rows.append((label, "kept", note))
+                dumped.append({"label": label, "status": "kept", "note": note,
+                               "answer": result.text,
+                               **_attempt_fields(result)})
+                continue
             first_answer = result.text
+            first_result = result
             candidate, problems, body = attempt(result.text)
             extra = {}
             if problems:
                 out(f"llm: {label} refused ({problems[0]}) — one repair ask")
+                # Quote the body that was judged, not the raw answer: a
+                # reasoning transcript is both huge (the repair ask then no
+                # longer fits the context) and not what the complaints are
+                # about.
                 repair = stub_prompt(requirements, text, info, references,
-                                     api, previous=first_answer,
+                                     api, previous="\n".join(body) or None,
                                      complaints=problems)
                 try:
-                    result = runner.generate_free(
-                        llm, repair, f"stub:{label}:repair",
-                        temperature=FALLBACK_TEMPERATURE, seed=FALLBACK_SEED)
+                    result = _answered(framing, llm, repair,
+                                       f"stub:{label}:repair")
                 except Exception as error:  # the stub stands, said aloud
                     note = f"the model failed on the repair ask ({error})"
                     rows.append((label, "kept", note))
                     dumped.append({"label": label, "status": "kept",
                                    "note": note, "answer": first_answer,
-                                   "complaints": problems})
+                                   "complaints": problems,
+                                   **_attempt_fields(result)})
+                    continue
+                if result.truncated:
+                    note = ("still refused: the repair answer was cut off at "
+                            f"the {result.budget}-token ceiling")
+                    rows.append((label, "kept", note))
+                    dumped.append({"label": label, "status": "kept",
+                                   "note": note, "answer": result.text,
+                                   "first_answer": first_answer,
+                                   "complaints": problems,
+                                   "second_complaints": [],
+                                   **_first_fields(first_result),
+                                   **_attempt_fields(result)})
                     continue
                 candidate, second, body = attempt(result.text)
                 if second:
@@ -3554,11 +3718,15 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                     dumped.append({"label": label, "status": "kept",
                                    "note": note, "answer": result.text,
                                    "first_answer": first_answer,
-                                   "complaints": second})
+                                   "complaints": problems,
+                                   "second_complaints": second,
+                                   **_first_fields(first_result),
+                                   **_attempt_fields(result)})
                     continue
                 note = "repaired: " + "; ".join(problems)
                 extra = {"first_answer": first_answer,
-                         "complaints": problems}
+                         "complaints": problems,
+                         **_first_fields(first_result)}
             else:
                 note = ""
             text, added = _add_imports(candidate, "\n".join(body))
@@ -3570,6 +3738,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
             entry = {"label": label, "status": "written", "note": note,
                      "answer": result.text}
             entry.update(extra)
+            entry.update(_attempt_fields(result))
             dumped.append(entry)
         files[filename] = text
     if dump_path and dumped:

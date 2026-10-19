@@ -1294,7 +1294,8 @@ class StubFillTests(unittest.TestCase):
     def fill(self, files, answers):
         """`fill_stubs` with a stand-in model answering body by body."""
         from unittest import mock
-        replies = [mock.Mock(text=text, tokens=9, seconds=0.1)
+        replies = [mock.Mock(text=text, tokens=9, seconds=0.1, budget=3584,
+                             finish_reason="stop", truncated=False)
                    for text in answers]
         with mock.patch.object(generator.runner, "load_model",
                                return_value=object()), \
@@ -1380,6 +1381,41 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("        rows = self._store.all(self.ENTITY)", repos)
         self.assertNotIn("```", repos)
         compile(repos, "repositories.py", "exec")
+
+    def test_a_continuation_answer_takes_the_models_own_python_block(self):
+        """The Qwen3 raw shape: it echoes the stub inside the prompt's open
+        fence, closes the fence, reasons, and writes the body in a
+        ```python block of its own. The old parse read the closing fence as
+        the next block's opener and returned the prose between the two."""
+        answer = (
+            "    def export_widgets(self, file_path: str = None) -> None:\n"
+            '        """Writes widgets. [rule plain-method]"""\n'
+            "        raise NotImplementedError(\n"
+            '            "plain-method")\n'
+            "```\n"
+            "\n"
+            "We are to write the body — an em-dash, U+2014.\n"
+            "A first attempt follows:\n"
+            "\n"
+            "```python\n"
+            "rows = self._store.all(self.ENTITY)\n"
+            "return None\n"
+            "```\n"
+        )
+        self.assertEqual(
+            generator._clean_body(answer),
+            ["rows = self._store.all(self.ENTITY)", "return None"])
+
+    def test_a_narrated_front_keeps_the_fenced_block(self):
+        """Prose inside the prompt's fence is not a body; the model's own
+        fenced block wins, as it does outside a continuation."""
+        self.assertEqual(
+            generator._clean_body("Sure:\n```python\n    return 0\n```"),
+            ["return 0"])
+        self.assertEqual(
+            generator.extract_code("Sure:\n```python\nreturn 0\n```",
+                                   open_fence=True),
+            "return 0")
 
     def test_clean_body_dedents_the_answers_own_base(self):
         self.assertEqual(
@@ -1504,7 +1540,8 @@ class StubFillTests(unittest.TestCase):
         def answer(llm, prompt, label, **kwargs):
             captured.append(prompt)
             return mock.Mock(text="        return None\n", tokens=3,
-                             seconds=0.1)
+                             seconds=0.1, budget=3584, finish_reason="stop",
+                             truncated=False)
 
         with mock.patch.object(generator.runner, "load_model",
                                return_value=object()), \
@@ -1544,6 +1581,81 @@ class StubFillTests(unittest.TestCase):
                              [])
             loader.assert_not_called()
 
+    def test_the_stub_pass_uses_the_chat_template_when_the_model_has_one(self):
+        """The ask is a conversation. Raw completion made the instruct model
+        reason at the document instead of answering it (Qwen3 probe: every
+        raw budget filled, the chat template stopped at 220 tokens of code)."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        model = mock.Mock(metadata={"tokenizer.chat_template": "{{ prompt }}"})
+        replies = [
+            mock.Mock(text="rows = self._store.all(self.ENTITY)\n"
+                           "with open(file_path, \"w\") as handle:\n"
+                           "    handle.write(str(rows))\n"
+                           "return None",
+                      tokens=9, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+            mock.Mock(text="return 0", tokens=9, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+        ]
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=model), \
+                mock.patch.object(generator.runner, "generate_chat",
+                                  side_effect=replies) as chat, \
+                mock.patch.object(generator.runner, "generate_free") as raw:
+            rows = generator.fill_stubs(files, "fake.gguf", "req",
+                                        out=lambda _line: None)
+        self.assertEqual(rows, [
+            ("WidgetRepository.export_widgets", "written", ""),
+            ("WidgetService.custom_total", "written", ""),
+        ])
+        chat.assert_called()
+        raw.assert_not_called()
+
+    def test_a_truncated_answer_is_retried_then_kept_not_spliced(self):
+        """A cut-off body compiles and can still be wrong. The first attempt
+        stops at `MAX_NEW_TOKENS`; the retry gets the room the prompt left,
+        and an answer truncated even then never lands."""
+        from unittest import mock
+        files, _stats = self.rendered()
+
+        class Model:
+            metadata = {"tokenizer.chat_template": "{{ prompt }}"}
+
+            def n_ctx(self):
+                return 8192
+
+            def tokenize(self, data):
+                return []
+
+        def cut(budget):
+            return mock.Mock(text="rows = self._store.all(", tokens=budget,
+                             seconds=1.0, budget=budget,
+                             finish_reason="length", truncated=True)
+
+        replies = [cut(3584), cut(8128),
+                   mock.Mock(text="return 0", tokens=3, seconds=0.1,
+                             budget=8128, finish_reason="stop",
+                             truncated=False)]
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=Model()), \
+                mock.patch.object(generator.runner, "generate_chat",
+                                  side_effect=replies) as chat:
+            rows = generator.fill_stubs(files, "fake.gguf", "req",
+                                        out=lambda _line: None)
+        self.assertEqual(rows, [
+            ("WidgetRepository.export_widgets", "kept",
+             "the answer was cut off at the 8128-token ceiling"),
+            ("WidgetService.custom_total", "written", ""),
+        ])
+        labels = [call.args[2] for call in chat.call_args_list]
+        self.assertEqual(labels, ["stub:WidgetRepository.export_widgets",
+                                  "stub:WidgetRepository.export_widgets:retry",
+                                  "stub:WidgetService.custom_total"])
+        self.assertEqual(chat.call_args_list[1].kwargs["max_new_tokens"], 8128)
+        self.assertIn("raise NotImplementedError(", files["repositories.py"])
+        self.assertNotIn("[llm-written", files["repositories.py"])
+
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
         from unittest import mock
@@ -1553,8 +1665,12 @@ class StubFillTests(unittest.TestCase):
                       "with open(file_path, \"w\") as handle:\n"
                       "    handle.write(str(rows))\n"
                       "return None")
-            replies = [mock.Mock(text=writes, tokens=3, seconds=0.1),
-                       mock.Mock(text="return 0", tokens=3, seconds=0.1)]
+            replies = [mock.Mock(text=writes, tokens=3, seconds=0.1,
+                                 budget=3584, finish_reason="stop",
+                                 truncated=False),
+                       mock.Mock(text="return 0", tokens=3, seconds=0.1,
+                                 budget=3584, finish_reason="stop",
+                                 truncated=False)]
             with mock.patch.object(generator.runner, "load_model",
                                    return_value=object()), \
                     mock.patch.object(generator.runner, "generate_free",
@@ -1609,11 +1725,14 @@ class StubFillTests(unittest.TestCase):
         from unittest import mock
         files, _stats = self.rendered()
         replies = [
-            mock.Mock(text="return None", tokens=3, seconds=0.1),
+            mock.Mock(text="return None", tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
             mock.Mock(text="handle = open(file_path, \"w\")\n"
                            "handle.close()\nreturn None",
-                      tokens=3, seconds=0.1),
-            mock.Mock(text="return 0", tokens=3, seconds=0.1),
+                      tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+            mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
         ]
         with mock.patch.object(generator.runner, "load_model",
                                return_value=object()), \
@@ -1629,6 +1748,44 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("The refused answer was:", repair)
         self.assertIn("return None", repair)
 
+    def test_the_repair_ask_quotes_the_judged_body_not_the_raw_transcript(self):
+        """The raw transcript is what made the live repair ask overflow the
+        context (Qwen3's echo-and-reason answer was 13 kB); the complaints
+        are about the body, so the body is what goes back."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        first = ("    def export_widgets(self, file_path: str = None) -> None:\n"
+                 '        """Writes widgets."""\n'
+                 "        raise NotImplementedError(\n"
+                 '            "plain-method")\n'
+                 "```\n"
+                 "\n"
+                 "Reasoning that is not the answer, with an em-dash.\n"
+                 "\n"
+                 "```python\n"
+                 "return None\n"
+                 "```\n")
+        replies = [
+            mock.Mock(text=first, tokens=30, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+            mock.Mock(text="handle = open(file_path, \"w\")\n"
+                           "handle.close()\nreturn None",
+                      tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+            mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+        ]
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=replies) as ask:
+            generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                 out=lambda _line: None)
+        repair = ask.call_args_list[1].args[1]
+        self.assertIn("The refused answer was:", repair)
+        self.assertIn("return None", repair)
+        self.assertNotIn("Reasoning that is not the answer", repair)
+
     def test_the_dump_records_both_attempts_when_repaired(self):
         import tempfile
         from unittest import mock
@@ -1636,11 +1793,14 @@ class StubFillTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             dump = Path(directory) / "llm_stub_answers.json"
             replies = [
-                mock.Mock(text="return None", tokens=3, seconds=0.1),
+                mock.Mock(text="return None", tokens=3, seconds=0.1,
+                          budget=3584, finish_reason="stop", truncated=False),
                 mock.Mock(text="handle = open(file_path, \"w\")\n"
                                "handle.close()\nreturn None",
-                          tokens=3, seconds=0.1),
-                mock.Mock(text="return 0", tokens=3, seconds=0.1),
+                          tokens=3, seconds=0.1, budget=3584,
+                          finish_reason="stop", truncated=False),
+                mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
+                          finish_reason="stop", truncated=False),
             ]
             with mock.patch.object(generator.runner, "load_model",
                                    return_value=object()), \
@@ -1657,6 +1817,12 @@ class StubFillTests(unittest.TestCase):
             ["parameter `file_path` is never used in the body"])
         self.assertEqual(data[0]["first_answer"], "return None")
         self.assertIn("handle = open(file_path", data[0]["answer"])
+        # The attempt facts a truncation is judged by, per attempt.
+        self.assertEqual(data[0]["finish_reason"], "stop")
+        self.assertFalse(data[0]["truncated"])
+        self.assertEqual(data[0]["first_finish_reason"], "stop")
+        self.assertFalse(data[0]["first_truncated"])
+        self.assertEqual(data[0]["tokens"], 3)
 
 
 class ContractComplaintTests(unittest.TestCase):
