@@ -45,7 +45,8 @@ by the model, one call per method, temperature 0 with a fixed seed. An
 answer is accepted only when its module still compiles and it touches no
 `self.<name>` or store method that does not exist; its docstring is tagged
 `[llm-written by ... — review]` and its method still counts as a stub in the
-mechanical coverage, because nothing here verifies behavior — read the body.
+mechanical coverage, because nothing here verifies behavior — read the body,
+and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
 """
 
 import argparse
@@ -2787,25 +2788,28 @@ def fallback_prompt(requirements, errors):
     return "\n".join(lines) + "\n"
 
 
-def extract_code(text):
+def extract_code(text, keep_indent=False):
     """The model's code: the ```python block when fenced, else the bare text.
 
     Told to emit bare code, the model usually obeys (cli_tool) but sometimes
     narrates first and fences second (hello) — taking the whole text then
     writes prose into app.py. A fenced block wins over surrounding prose; a
     ```python tag wins over a bare fence; bare text passes through for the
-    caller to compile-check.
+    caller to compile-check. `keep_indent` leaves the answer's own leading
+    whitespace alone: a body fragment written in the shown module's style is
+    a fragment still, and `.strip()` would cut only the first line's share —
+    the filler then reads a stray deeper line and refuses a good answer.
     """
     stripped = (text or "").strip()
     if "```" not in stripped:
-        return stripped
+        return (text or "") if keep_indent else stripped
     import re
     blocks = re.findall(r"```(?:python)?\s*\n(.*?)```", stripped, re.DOTALL)
     if not blocks:
-        return stripped
+        return (text or "") if keep_indent else stripped
     for block in blocks:
         if block.strip():
-            return block.strip()
+            return block if keep_indent else block.strip()
     return ""
 
 
@@ -2948,8 +2952,15 @@ def stub_prompt(requirements, module_text, info, references=(),
 
 
 def _clean_body(text):
-    """The model's answer as unindented body lines: fences and `def` gone."""
-    lines = [line.rstrip() for line in extract_code(text).splitlines()]
+    """The model's answer as unindented body lines: fences and `def` gone.
+
+    The answer keeps its own base indent (`keep_indent`) so a body written
+    in the shown module's style — the usual case — dedents to zero here
+    instead of leaving its first line shallower than the rest. The `def`
+    line and an echoed docstring are dropped; the filler writes both itself.
+    """
+    lines = [line.rstrip() for line in
+             extract_code(text, keep_indent=True).splitlines()]
     while lines and not lines[0].strip():
         lines.pop(0)
     while lines and not lines[-1].strip():
@@ -2958,6 +2969,13 @@ def _clean_body(text):
         lines.pop(0)  # the whole method came back; only its body goes in
     while lines and not lines[0].strip():
         lines.pop(0)
+    if lines:
+        opener = re.match(r'^\s*[rubf]{0,2}("""|\'\'\')', lines[0])
+        if opener:  # the model echoed the docstring; the filler rewrites it
+            closing = opener.group(1)
+            tail = lines.pop(0)[opener.end():]
+            while closing not in tail and lines:
+                tail = lines.pop(0)
     indents = [len(line) - len(line.lstrip(" ")) for line in lines
                if line.strip()]
     if not indents:
@@ -3033,7 +3051,7 @@ def _method_signatures(text):
     return signatures
 
 
-def fill_stubs(files, model_path, requirements, out=print):
+def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     """Ask the model for the bodies the mechanical emitter refused.
 
     Best-effort by design: the mechanical set is already final and honest,
@@ -3043,7 +3061,9 @@ def fill_stubs(files, model_path, requirements, out=print):
     the module actually defines, gains any import it uses, and is tagged in
     its docstring as LLM-written — nothing here verifies behavior, and only
     reading the body (and running it) can. Returns `[(label, status,
-    note)]`, one row per refused stub, `status` `written` or `kept`.
+    note)]`, one row per refused stub, `status` `written` or `kept`. With
+    `dump_path`, every raw answer lands there as JSON, so a refusal can be
+    read instead of guessed at.
     """
     targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
                if isinstance(files.get(name), str)]
@@ -3060,7 +3080,7 @@ def fill_stubs(files, model_path, requirements, out=print):
                    re.finditer(r"^    def (\w+)", files.get("store.py") or "",
                                re.M)}
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body by body")
-    rows = []
+    rows, dumped = [], []
     for filename, spans in targets:
         text = files[filename]
         references = ()
@@ -3076,12 +3096,17 @@ def fill_stubs(files, model_path, requirements, out=print):
                     llm, prompt, f"stub:{label}",
                     temperature=FALLBACK_TEMPERATURE, seed=FALLBACK_SEED)
             except Exception as error:  # one failed call keeps one stub
-                rows.append((label, "kept", f"the model failed ({error})"))
+                note = f"the model failed ({error})"
+                rows.append((label, "kept", note))
+                dumped.append({"label": label, "status": "kept",
+                               "note": note, "answer": None})
                 continue
             body = _clean_body(result.text)
             refusal = _body_refusal(body, _module_names(text), store_names)
             if refusal is not None:
                 rows.append((label, "kept", refusal))
+                dumped.append({"label": label, "status": "kept",
+                               "note": refusal, "answer": result.text})
                 continue
             lines = text.splitlines()
             replacement = []
@@ -3099,13 +3124,22 @@ def fill_stubs(files, model_path, requirements, out=print):
             try:
                 compile(candidate, filename, "exec")
             except SyntaxError as error:
-                rows.append((label, "kept",
-                             f"the body does not compile ({error.msg})"))
+                note = f"the body does not compile ({error.msg})"
+                rows.append((label, "kept", note))
+                dumped.append({"label": label, "status": "kept",
+                               "note": note, "answer": result.text})
                 continue
             text, added = _add_imports(candidate, "\n".join(body))
             note = ("added import " + ", ".join(added)) if added else ""
             rows.append((label, "written", note))
+            dumped.append({"label": label, "status": "written", "note": note,
+                           "answer": result.text})
         files[filename] = text
+    if dump_path and dumped:
+        with open(dump_path, "w", encoding="utf-8") as handle:
+            json.dump(dumped, handle, indent=2, ensure_ascii=False)
+            handle.write("\n")
+        out(f"llm: raw answers -> {dump_path}")
     return rows
 
 
@@ -3191,8 +3225,9 @@ def main(argv=None):
     if kind == "gui" and tech == "pyimgui":
         files["gui.py"] = emit_gui_pyimgui(ctx, stats)
     if args.model:
-        stats["llm_stubs"] = fill_stubs(files, args.model,
-                                        load_requirements(args.out_dir))
+        stats["llm_stubs"] = fill_stubs(
+            files, args.model, load_requirements(args.out_dir),
+            dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"))
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)

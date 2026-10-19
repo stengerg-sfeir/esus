@@ -1268,10 +1268,14 @@ class StubFillTests(unittest.TestCase):
 
     def test_written_bodies_land_indented_marked_and_imported(self):
         files, _stats = self.rendered()
+        # The model writes in the style of the module it was shown — 4-space
+        # members, 8-space bodies. Losing the first line's indent to a strip
+        # was the first live run's bug: every answer, all five, arrived at
+        # the wrong depth and was refused as "unexpected indent".
         rows = self.fill(files, [
-            "rows = self._store.all(self.ENTITY)\n"
-            "return [json.dumps(record) for record in rows]",
-            "return 0",
+            "    rows = self._store.all(self.ENTITY)\n"
+            "    return [json.dumps(record) for record in rows]",
+            "        return 0",
         ])
         self.assertEqual(rows, [
             ("WidgetRepository.export_widgets", "written", "added import json"),
@@ -1289,6 +1293,44 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("        return 0", services)
         self.assertIn("[llm-written by fake.gguf — review]", services)
         compile(services, "services.py", "exec")
+
+    def test_whole_method_answers_are_unwrapped(self):
+        """`def` line, echoed docstring and fences are the model's packaging:
+        they are dropped, the body lands at the stub's depth."""
+        files, _stats = self.rendered()
+        rows = self.fill(files, [
+            "    def export_widgets(self, file_path: str = None) -> None:\n"
+            '        """Writes widgets to a file."""\n'
+            "        rows = self._store.all(self.ENTITY)\n"
+            '        with open(file_path, "w") as handle:\n'
+            "            handle.write(str(rows))\n",
+            "```python\n"
+            "    return 0\n"
+            "```",
+        ])
+        self.assertEqual(rows, [
+            ("WidgetRepository.export_widgets", "written", ""),
+            ("WidgetService.custom_total", "written", ""),
+        ])
+        repos = files["repositories.py"]
+        self.assertIn('        with open(file_path, "w") as handle:', repos)
+        self.assertIn("            handle.write(str(rows))", repos)
+        self.assertNotIn('"""Writes widgets to a file."""', repos)
+        compile(repos, "repositories.py", "exec")
+        compile(files["services.py"], "services.py", "exec")
+
+    def test_clean_body_dedents_the_answers_own_base(self):
+        self.assertEqual(
+            generator._clean_body("    if value:\n        return value\n"
+                                  "    return None\n"),
+            ["if value:", "    return value", "return None"])
+        self.assertEqual(
+            generator._clean_body("```python\n    x = 1\n```"),
+            ["x = 1"])
+        self.assertEqual(
+            generator._clean_body('def f():\n    """Doc.\n\n    More."""\n'
+                                  "    return 1\n"),
+            ["return 1"])
 
     def test_a_body_that_does_not_compile_keeps_the_stub(self):
         files, _stats = self.rendered()
@@ -1351,6 +1393,9 @@ class StubFillTests(unittest.TestCase):
             self.assertIn("llm written: ShopService.price_report", printed)
             text = (Path(out) / "generated" / "repositories.py").read_text()
             self.assertIn("[llm-written by fake.gguf — review]", text)
+            dump = (Path(out) / "llm_stub_answers.json").read_text()
+            self.assertIn('"ProductRepository.export_products"', dump)
+            self.assertIn('"ShopService.price_report"', dump)
 
 
 class GuiBackendTests(unittest.TestCase):
