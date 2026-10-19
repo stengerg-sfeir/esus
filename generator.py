@@ -3124,7 +3124,13 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
             try:
                 compile(candidate, filename, "exec")
             except SyntaxError as error:
-                note = f"the body does not compile ({error.msg})"
+                culprit = ""
+                lines = candidate.splitlines()
+                if error.lineno and error.lineno <= len(lines):
+                    culprit = lines[error.lineno - 1][:70]
+                note = (f"the body does not compile ({error.msg}"
+                        + (f"; line {error.lineno} {culprit!r}" if culprit
+                           else "") + ")")
                 rows.append((label, "kept", note))
                 dumped.append({"label": label, "status": "kept",
                                "note": note, "answer": result.text})
