@@ -2799,18 +2799,26 @@ def extract_code(text, keep_indent=False):
     whitespace alone: a body fragment written in the shown module's style is
     a fragment still, and `.strip()` would cut only the first line's share —
     the filler then reads a stray deeper line and refuses a good answer.
+    A single, unpaired fence line is dropped too: the prompt opens the
+    block, the model usually just closes it, and a ``` line at indent 0
+    would drag the body's base indent to zero the same way.
     """
-    stripped = (text or "").strip()
-    if "```" not in stripped:
-        return (text or "") if keep_indent else stripped
+    raw = text or ""
+    stripped = raw.strip()
+    if "```" not in raw:
+        return raw if keep_indent else stripped
     import re
     blocks = re.findall(r"```(?:python)?\s*\n(.*?)```", stripped, re.DOTALL)
-    if not blocks:
-        return (text or "") if keep_indent else stripped
-    for block in blocks:
-        if block.strip():
-            return block if keep_indent else block.strip()
-    return ""
+    if blocks:
+        for block in blocks:
+            if block.strip():
+                return block if keep_indent else block.strip()
+        return ""
+    # One unpaired fence: the prompt opened it (or the model opened one and
+    # stopped). The fence line is packaging, never code.
+    source = raw if keep_indent else stripped
+    return "\n".join(line for line in source.splitlines()
+                     if not re.match(r"^\s*```(?:python3?|py)?\s*$", line))
 
 
 def strip_code_fences(text):
@@ -2826,9 +2834,9 @@ STUB_PROMPT_BUDGET = 24000  # chars of module text one prompt may carry
 # Modules a filled body may reach for. The ones the file already imports are
 # left alone; the rest are added when the body's text actually uses them,
 # so an accepted body never meets a NameError at its first call.
-BODY_IMPORTS = ("csv", "json", "os", "re", "math", "time", "io", "random",
-                "string", "collections", "itertools", "functools", "decimal",
-                "uuid", "datetime", "pathlib", "sqlite3")
+BODY_IMPORTS = ("calendar", "csv", "json", "os", "re", "math", "time", "io",
+                "random", "string", "collections", "itertools", "functools",
+                "decimal", "uuid", "datetime", "pathlib", "sqlite3")
 
 
 def find_stub_spans(text):

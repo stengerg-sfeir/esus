@@ -1319,6 +1319,27 @@ class StubFillTests(unittest.TestCase):
         compile(repos, "repositories.py", "exec")
         compile(files["services.py"], "services.py", "exec")
 
+    def test_a_lone_closing_fence_is_packaging_not_code(self):
+        """The prompt opens the fence; the model only closes it. That
+        ``` line sat at indent 0, dragged min-indent to zero, and refused
+        every first live answer — this is the shape that did it."""
+        files, _stats = self.rendered()
+        rows = self.fill(files, [
+            "    def export_widgets(self, file_path: str = None) -> None:\n"
+            "        rows = self._store.all(self.ENTITY)\n"
+            "        return None\n"
+            "```",
+            "return 0",
+        ])
+        self.assertEqual(rows, [
+            ("WidgetRepository.export_widgets", "written", ""),
+            ("WidgetService.custom_total", "written", ""),
+        ])
+        repos = files["repositories.py"]
+        self.assertIn("        rows = self._store.all(self.ENTITY)", repos)
+        self.assertNotIn("```", repos)
+        compile(repos, "repositories.py", "exec")
+
     def test_clean_body_dedents_the_answers_own_base(self):
         self.assertEqual(
             generator._clean_body("    if value:\n        return value\n"
