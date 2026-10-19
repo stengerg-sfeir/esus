@@ -38,6 +38,14 @@ shell. With `--model PATH`, the generator instead writes one
 `generated/app.py` from `requirements.txt` directly (LLM fallback, said aloud
 on stdout and in the file header); without `--model` it stops with exit 2
 rather than writing the empty shell silently.
+
+`--model PATH` also fills the stubs a normal run leaves behind: method
+bodies the emitter refused (custom logic, unmappable parameters) are written
+by the model, one call per method, temperature 0 with a fixed seed. An
+answer is accepted only when its module still compiles and it touches no
+`self.<name>` or store method that does not exist; its docstring is tagged
+`[llm-written by ... — review]` and its method still counts as a stub in the
+mechanical coverage, because nothing here verifies behavior — read the body.
 """
 
 import argparse
@@ -2806,6 +2814,301 @@ def strip_code_fences(text):
     return extract_code(text)
 
 
+# --- the model pass: bodies for what the emitter refused -------------------
+
+
+STUB_FILES = ("repositories.py", "services.py")
+STUB_PROMPT_BUDGET = 24000  # chars of module text one prompt may carry
+# Modules a filled body may reach for. The ones the file already imports are
+# left alone; the rest are added when the body's text actually uses them,
+# so an accepted body never meets a NameError at its first call.
+BODY_IMPORTS = ("csv", "json", "os", "re", "math", "time", "io", "random",
+                "string", "collections", "itertools", "functools", "decimal",
+                "uuid", "datetime", "pathlib", "sqlite3")
+
+
+def find_stub_spans(text):
+    """`[(start, end, info)]` for every `raise NotImplementedError` stub.
+
+    `start` is the docstring line when the emitted method has one — the
+    filler rewrites its `[...]` work order — and `end` the closing line of
+    the raise. `info` carries the class, the method's `def` line and the
+    reason the emitter refused, so the prompt can state the exact hole.
+    """
+    lines = text.splitlines()
+    spans = []
+    cls = None
+    def_line = None
+    for index, line in enumerate(lines):
+        if re.match(r"^class (\w+)", line):
+            cls = line.split()[1].rstrip(":")
+            def_line = None
+            continue
+        if re.match(r"^    def (\w+)", line):
+            def_line = line.strip()
+            continue
+        if line != "        raise NotImplementedError(" or def_line is None:
+            continue
+        end = None
+        reason = ""
+        for offset in (1, 2):
+            probe = lines[index + offset] if index + offset < len(lines) else ""
+            if probe.strip().startswith('"') and probe.strip().endswith('")'):
+                reason = probe.strip()[1:-2]
+                end = index + offset
+                break
+        if end is None:
+            continue
+        start = index
+        docstring = None
+        if index and lines[index - 1].startswith('        """'):
+            start = index - 1
+            docstring = lines[index - 1]
+        spans.append((start, end, {"cls": cls, "def": def_line,
+                                   "reason": reason, "docstring": docstring}))
+    return spans
+
+
+def _stub_method(info):
+    """The method name a stub span belongs to."""
+    match = re.match(r"def (\w+)", info.get("def") or "")
+    return match.group(1) if match else "?"
+
+
+def _clip_module(text, cls, budget):
+    """The module text, or its header plus the stub's own class when huge.
+
+    The module is the API reference; trimming it in the middle would show
+    a half-finished body as if it were the pattern to imitate. One class
+    over budget at least keeps the stub's own class whole.
+    """
+    if len(text) <= budget:
+        return text
+    lines = text.splitlines()
+    header = []
+    for line in lines:
+        if re.match(r"^class ", line):
+            break
+        header.append(line)
+    block, inside = [], False
+    for line in lines:
+        if re.match(r"^class ", line):
+            inside = line.split()[1].rstrip(":") == cls
+        if inside:
+            block.append(line)
+    return "\n".join(header + [""] + block)[:budget]
+
+
+def stub_prompt(requirements, module_text, info, references=(),
+                budget=STUB_PROMPT_BUDGET):
+    """One ask: the emitted module is the API reference; fill one hole.
+
+    Nothing is rewritten into a summary — the module shows the real store
+    calls, model constructors and error raises the body must imitate, and
+    a model told a simplified API invents one that does not exist. When
+    the text would not fit `budget` it is clipped to the module header and
+    the stub's own class; `references` lists signatures a service body
+    may need from the repositories module.
+    """
+    method = _stub_method(info)
+    lines = [
+        "A Python module was generated mechanically from the architecture",
+        "documents below. Exactly one method could not be derived",
+        "mechanically and raises NotImplementedError; write its body.",
+        "",
+        "Rules:",
+        "- Reply with ONLY the replacement for the raise statement: the",
+        "  body's lines, indented with 8 spaces. No `def` line, no",
+        "  docstring, no markdown fences, no explanation.",
+        f"- The method is `{info['cls']}.{method}`; the emitter refused it"
+        " with:",
+        f"  {info['reason']}",
+        "- Call only what the module shows: `self._store` methods used in",
+        "  sibling bodies, `self._repos['Name']` repositories, `models.*`,",
+        "  `errors.*`, module helpers. `_store.select` criteria support",
+        "  only `eq`, `ge` and `le` — anything else (substring search,",
+        "  several fields) reads `self._store.all(self.ENTITY)` and",
+        "  filters in Python.",
+        "- If the requirements do not determine the behavior, reply with",
+        '  `raise NotImplementedError("...")` and nothing else.',
+    ]
+    if references:
+        lines += ["", "Methods this module may lean on:"]
+        lines += [f"  {signature}" for signature in references]
+    lines += ["", "requirements:", (requirements or "").strip(), "",
+              f"module ({info.get('file', 'module')}):",
+              "```python",
+              _clip_module(module_text, info["cls"], budget).rstrip(),
+              "```",
+              "",
+              f"Now write the body of `{info['cls']}.{method}`, replacing",
+              "the `raise NotImplementedError(...)` statement:",
+              "```python"]
+    return "\n".join(lines) + "\n"
+
+
+def _clean_body(text):
+    """The model's answer as unindented body lines: fences and `def` gone."""
+    lines = [line.rstrip() for line in extract_code(text).splitlines()]
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    if lines and re.match(r"^\s*def \w+", lines[0]):
+        lines.pop(0)  # the whole method came back; only its body goes in
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    indents = [len(line) - len(line.lstrip(" ")) for line in lines
+               if line.strip()]
+    if not indents:
+        return []
+    trim = min(indents)
+    return [line[trim:] if line.strip() else "" for line in lines]
+
+
+def _module_names(text):
+    """Class attributes and methods: the `self.<name>` a body may touch."""
+    names = {"_store", "_repos"}
+    for line in text.splitlines():
+        match = re.match(r"^    (?:def )?(\w+)", line)
+        if match:
+            names.add(match.group(1))
+    return names
+
+
+def _body_refusal(body, module_names, store_names):
+    """Why this answer may not replace a stub, or None when it may.
+
+    Compilation is checked by the caller; this catches the two ways a
+    compiling body still cannot work: the model kept the refusal, or it
+    invented an API surface the module and store never defined.
+    """
+    if not body or all(not line.strip() for line in body):
+        return "the model returned nothing"
+    text = "\n".join(body)
+    if "NotImplementedError" in text:
+        return "the model kept it unimplemented"
+    unknown = sorted({name for name in re.findall(r"self\.(\w+)", text)
+                      if name not in module_names})
+    if unknown:
+        return f"calls self.{unknown[0]}, which the module does not define"
+    invented = sorted({name for name in re.findall(r"self\._store\.(\w+)", text)
+                       if name not in store_names})
+    if invented:
+        return (f"calls self._store.{invented[0]}, which the store does not "
+                "define")
+    return None
+
+
+def _add_imports(text, body_text):
+    """Add the imports a filled body needs; return `(text, added)`."""
+    added = []
+    for module in BODY_IMPORTS:
+        if not re.search(rf"\b{re.escape(module)}\.", body_text):
+            continue
+        if re.search(rf"^import {re.escape(module)}\b", text, re.M) \
+                or re.search(rf"^from {re.escape(module)}\b", text, re.M):
+            continue
+        lines = text.splitlines()
+        anchor = max((index for index, line in enumerate(lines)
+                      if re.match(r"^(?:import|from) \w", line)), default=0)
+        lines.insert(anchor + 1, f"import {module}")
+        text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+        added.append(module)
+    return text, added
+
+
+def _method_signatures(text):
+    """`Class.method(...) -> returns` lines: what a service may delegate to."""
+    signatures = []
+    cls = None
+    for line in text.splitlines():
+        match = re.match(r"^class (\w+)", line)
+        if match:
+            cls = match.group(1)
+            continue
+        match = re.match(r"^    def (\w+\(.*\)(?:\s*->\s*[^:]+)?):$", line)
+        if match and cls:
+            signatures.append(f"{cls}.{match.group(1)}")
+    return signatures
+
+
+def fill_stubs(files, model_path, requirements, out=print):
+    """Ask the model for the bodies the mechanical emitter refused.
+
+    Best-effort by design: the mechanical set is already final and honest,
+    so a missing model, a refused answer or a body that does not compile
+    leaves the stub in place and says why. Every accepted body passes the
+    module's `compile`, may only touch `self.<name>` and `self._store.<name>`
+    the module actually defines, gains any import it uses, and is tagged in
+    its docstring as LLM-written — nothing here verifies behavior, and only
+    reading the body (and running it) can. Returns `[(label, status,
+    note)]`, one row per refused stub, `status` `written` or `kept`.
+    """
+    targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
+               if isinstance(files.get(name), str)]
+    todo = sum(len(spans) for _name, spans in targets)
+    if not todo:
+        return []
+    model_name = os.path.basename(model_path)
+    try:
+        llm = runner.load_model(model_path, logits_all=False, quiet=True)
+    except Exception as error:  # missing file or missing runtime: stubs stand
+        return [(f"{todo} refused stub(s)", "kept",
+                 f"the model would not load ({error})")]
+    store_names = {match.group(1) for match in
+                   re.finditer(r"^    def (\w+)", files.get("store.py") or "",
+                               re.M)}
+    out(f"llm: {todo} refused stub(s) — {model_name} writes them body by body")
+    rows = []
+    for filename, spans in targets:
+        text = files[filename]
+        references = ()
+        if filename == "services.py":
+            references = _method_signatures(files.get("repositories.py") or "")
+        for start, end, info in reversed(spans):
+            info["file"] = filename
+            label = f"{info['cls']}.{_stub_method(info)}"
+            out(f"llm: {label} ...")
+            prompt = stub_prompt(requirements, text, info, references)
+            try:
+                result = runner.generate_free(
+                    llm, prompt, f"stub:{label}",
+                    temperature=FALLBACK_TEMPERATURE, seed=FALLBACK_SEED)
+            except Exception as error:  # one failed call keeps one stub
+                rows.append((label, "kept", f"the model failed ({error})"))
+                continue
+            body = _clean_body(result.text)
+            refusal = _body_refusal(body, _module_names(text), store_names)
+            if refusal is not None:
+                rows.append((label, "kept", refusal))
+                continue
+            lines = text.splitlines()
+            replacement = []
+            docstring = info.get("docstring")
+            if docstring:
+                replacement.append(re.sub(
+                    r"\[[^\]]*\]\s*(\"\"\")$",
+                    lambda match: f"[llm-written by {model_name} — review]"
+                    f"{match.group(1)}", docstring))
+            replacement.extend("        " + line if line.strip() else ""
+                               for line in body)
+            candidate = "\n".join(lines[:start] + replacement + lines[end + 1:])
+            if text.endswith("\n"):
+                candidate += "\n"
+            try:
+                compile(candidate, filename, "exec")
+            except SyntaxError as error:
+                rows.append((label, "kept",
+                             f"the body does not compile ({error.msg})"))
+                continue
+            text, added = _add_imports(candidate, "\n".join(body))
+            note = ("added import " + ", ".join(added)) if added else ""
+            rows.append((label, "written", note))
+        files[filename] = text
+    return rows
+
+
 def generate_fallback(out_dir, model_path):
     """Write `generated/app.py` from the requirements; return the exit code."""
     requirements = load_requirements(out_dir)
@@ -2848,10 +3151,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("out_dir", help="Extraction output directory (e.g. out/expenses)")
     parser.add_argument("--model", default=None,
-                        help="GGUF model for the degenerate fallback: when the "
-                             "documents are clean but empty (no models, services "
-                             "or commands), the whole tiny program is written "
-                             "from requirements.txt instead of an empty shell")
+                        help="GGUF model for the LLM passes: the degenerate "
+                             "fallback (clean but empty documents) writes "
+                             "generated/app.py from requirements.txt, and a "
+                             "normal run fills every method body the "
+                             "mechanical emitter refused (bodies are tagged "
+                             "`llm-written`; read them before trusting them)")
     parser.add_argument("--gui-tech", default=None,
                         help="Override the declared GUI technology (default: "
                              "the components facade declaration)")
@@ -2885,6 +3190,9 @@ def main(argv=None):
         print(f"gui: {note}")
     if kind == "gui" and tech == "pyimgui":
         files["gui.py"] = emit_gui_pyimgui(ctx, stats)
+    if args.model:
+        stats["llm_stubs"] = fill_stubs(files, args.model,
+                                        load_requirements(args.out_dir))
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)
@@ -2902,6 +3210,15 @@ def main(argv=None):
     coverage = stats["implemented"] / total if total else 1.0
     print(f"methods: {stats['implemented']} implemented, {stats['stubs']} stubs "
           f"({coverage:.0%} mechanical)")
+    rows = stats.get("llm_stubs") or []
+    if rows:
+        written = sum(1 for _label, status, _note in rows if status == "written")
+        print(f"llm: {written} of {len(rows)} refused stub(s) written by "
+              f"{os.path.basename(args.model)} — read the tagged bodies "
+              f"before trusting them")
+        for label, status, note in rows:
+            word = "llm written" if status == "written" else "llm kept stub"
+            print(f"  {word}: {label}{' — ' + note if note else ''}")
     if stats.get("gui_panels") is not None:
         print(f"  gui pyimgui panels: {stats['gui_panels'] or 'none'}")
     for reason in stats["stub_reasons"]:

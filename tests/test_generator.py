@@ -1219,6 +1219,140 @@ class CliChoiceTests(unittest.TestCase):
         self.assertNotIn("read:7", output)
 
 
+class StubFillTests(unittest.TestCase):
+    """`--model` fills refused stubs, under mechanical guards.
+
+    The answer is a body, not a vote: it replaces the raise only when the
+    module still compiles and the body touches no `self.<name>` or store
+    method the module never defined. Accepted bodies are tagged and still
+    counted as stubs — reading them is the review.
+    """
+
+    @staticmethod
+    def rendered():
+        ctx = {
+            "models": [{"name": "Widget", "fields": [
+                {"name": "widget_id", "type": "int", "primary_key": True},
+                {"name": "title", "type": "string"}]}],
+            "errors": [], "entity_names": ["Widget"],
+            "services": [{"service_name": "WidgetService", "methods": [
+                {"name": "custom_total", "params": [], "return_type": "int",
+                 "description": "A custom aggregate."}]}],
+            "repositories": [{"entity": "Widget",
+                              "interface_name": "WidgetRepository",
+                              "methods": [
+                                  {"name": "read_all_widgets", "params": [],
+                                   "return_type": "List[Widget]"},
+                                  {"name": "export_widgets",
+                                   "params": [{"name": "file_path",
+                                               "type": "str"}],
+                                   "return_type": "None"}]}],
+            "mappings": {}, "match_index": {}, "adapters": [],
+            "components": {},
+        }
+        stats = {"prog": "widgets", "source": "out/widgets", "unmapped": [],
+                 "implemented": 0, "stubs": 0, "stub_reasons": []}
+        return generator.render_program(ctx, stats), stats
+
+    def fill(self, files, answers):
+        """`fill_stubs` with a stand-in model answering body by body."""
+        from unittest import mock
+        replies = [mock.Mock(text=text, tokens=9, seconds=0.1)
+                   for text in answers]
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=replies):
+            return generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                        out=lambda _line: None)
+
+    def test_written_bodies_land_indented_marked_and_imported(self):
+        files, _stats = self.rendered()
+        rows = self.fill(files, [
+            "rows = self._store.all(self.ENTITY)\n"
+            "return [json.dumps(record) for record in rows]",
+            "return 0",
+        ])
+        self.assertEqual(rows, [
+            ("WidgetRepository.export_widgets", "written", "added import json"),
+            ("WidgetService.custom_total", "written", ""),
+        ])
+        repos = files["repositories.py"]
+        self.assertIn("        rows = self._store.all(self.ENTITY)", repos)
+        self.assertIn("        return [json.dumps(record) for record in rows]",
+                      repos)
+        self.assertIn("import json", repos)
+        self.assertIn("[llm-written by fake.gguf — review]", repos)
+        self.assertNotIn("no pattern entry and an ambiguous method name", repos)
+        compile(repos, "repositories.py", "exec")
+        services = files["services.py"]
+        self.assertIn("        return 0", services)
+        self.assertIn("[llm-written by fake.gguf — review]", services)
+        compile(services, "services.py", "exec")
+
+    def test_a_body_that_does_not_compile_keeps_the_stub(self):
+        files, _stats = self.rendered()
+        rows = self.fill(files, ["return (((", "return 0"])
+        label, status, note = rows[0]
+        self.assertEqual((label, status),
+                         ("WidgetRepository.export_widgets", "kept"))
+        self.assertTrue(note.startswith("the body does not compile"), note)
+        self.assertIn("raise NotImplementedError(", files["repositories.py"])
+        self.assertNotIn("[llm-written", files["repositories.py"])
+
+    def test_an_invented_name_keeps_the_stub(self):
+        cases = [
+            ("return self.helper()",
+             "calls self.helper, which the module does not define"),
+            ("return self._store.frobnicate(self.ENTITY)",
+             "calls self._store.frobnicate, which the store does not define"),
+            ('raise NotImplementedError("no idea")',
+             "the model kept it unimplemented"),
+            ("", "the model returned nothing"),
+        ]
+        for answer, expected in cases:
+            files, _stats = self.rendered()
+            rows = self.fill(files, [answer, "return 0"])
+            self.assertEqual(rows[0], ("WidgetRepository.export_widgets",
+                                       "kept", expected))
+            self.assertIn("raise NotImplementedError(",
+                          files["repositories.py"])
+
+    def test_nothing_to_fill_never_loads_the_model(self):
+        from unittest import mock
+        ctx = {
+            "models": [], "errors": [], "entity_names": [],
+            "services": [], "repositories": [], "mappings": {},
+            "match_index": {}, "adapters": [], "components": {},
+        }
+        stats = {"prog": "empty", "source": "out/empty", "unmapped": [],
+                 "implemented": 0, "stubs": 0, "stub_reasons": []}
+        files = generator.render_program(ctx, stats)
+        with mock.patch.object(generator.runner, "load_model") as loader:
+            self.assertEqual(generator.fill_stubs(files, "fake.gguf", "req"),
+                             [])
+            loader.assert_not_called()
+
+    def test_main_model_flag_fills_the_fixture_stubs(self):
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as directory:
+            out = write_out(Path(directory) / "shop", fixture())
+            replies = [mock.Mock(text="return None", tokens=3, seconds=0.1)] * 8
+            with mock.patch.object(generator.runner, "load_model",
+                                   return_value=object()), \
+                    mock.patch.object(generator.runner, "generate_free",
+                                      side_effect=replies), \
+                    io.StringIO() as buffer, redirect_stdout(buffer):
+                self.assertEqual(generator.main([out, "--model", "fake.gguf"]), 0)
+                printed = buffer.getvalue()
+            self.assertIn("llm written: ProductRepository.export_products",
+                          printed)
+            self.assertIn("llm written: ShopService.price_report", printed)
+            text = (Path(out) / "generated" / "repositories.py").read_text()
+            self.assertIn("[llm-written by fake.gguf — review]", text)
+
+
 class GuiBackendTests(unittest.TestCase):
     """A gui facade gets gui.py from its declared backend, nothing else does."""
 
