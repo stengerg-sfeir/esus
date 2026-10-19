@@ -171,9 +171,11 @@ def match_criterion(field_names, param):
     """Map a filter parameter to `(field, operator)` or None.
 
     Twin of `kernel.codegen.match_param` — copied here so generated programs
-    are dependency-free. Exact normalized equality is `eq`; a `start_`/`from_`
-    prefix is `ge` and an `end_`/`to_` prefix is `le` against the field
-    containing the remainder (`start_date` filters `expense_date`).
+    are dependency-free. Exact normalized equality is `eq`; a `<x>_id`
+    parameter names the entity's own `id` when no field matches. A
+    `start_`/`from_`/`min_` prefix is `ge` and an `end_`/`to_`/`max_`
+    prefix is `le` against the field containing the remainder (`start_date`
+    filters `expense_date`); a remainder matching several fields refuses.
     """
     wanted = "".join(character for character in str(param or "").lower()
                      if character.isalnum())
@@ -183,11 +185,22 @@ def match_criterion(field_names, param):
         if "".join(c for c in str(field).lower() if c.isalnum()) == wanted:
             return (field, "eq")
     for prefix, operator in (("start", "ge"), ("from", "ge"),
-                             ("end", "le"), ("to", "le")):
+                             ("end", "le"), ("to", "le"),
+                             ("min", "ge"), ("max", "le")):
         if wanted.startswith(prefix) and len(wanted) > len(prefix):
             rest = wanted[len(prefix):]
+            candidates = []
             for field in field_names:
-                flat = "".join(c for c in str(field).lower() if c.isalnum())
+                flat = "".join(c for c in str(field).lower()
+                               if c.isalnum())
                 if rest and (rest in flat or flat in rest):
-                    return (field, operator)
+                    candidates.append(field)
+            if len(candidates) == 1:
+                return (candidates[0], operator)
+    raw = str(param or "").strip().lower()
+    if raw.endswith("_id") and len(raw) > 3:
+        for field in field_names:
+            if "".join(c for c in str(field).lower()
+                       if c.isalnum()) == "id":
+                return (field, "eq")
     return None

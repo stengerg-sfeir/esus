@@ -2,7 +2,7 @@
 to it; anything else raises NotImplementedError with its work order.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import calendar
 
@@ -49,7 +49,7 @@ class LibraryService:
         raise NotImplementedError(
             "LibraryService.renew_membership: pattern STANDARD_CRUD: no mechanical reading")
 
-    def search_books(self, query: Any = None) -> List[models.Book]:
+    def search_books(self, query: str = None) -> List[models.Book]:
         """Searches books by title, author, or ISBN. [no same-name repository method to delegate to]"""
         raise NotImplementedError(
             "LibraryService.search_books: FILTER_BY_FIELD")

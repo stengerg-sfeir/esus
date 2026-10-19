@@ -539,6 +539,56 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(codegen.match_param(["id"], "id"), ("id", "eq"))
         self.assertIsNone(codegen.match_param(["name"], "total"))
 
+    def test_match_param_reads_pk_aliases_and_bound_prefixes(self):
+        """`author_id` names the own `id`; `min_`/`max_` are range bounds.
+
+        The extraction spells primary keys `<entity>_id` as often as `id`;
+        without the alias every read_one/update/delete by that parameter
+        raised at runtime. Exact fields still win (`book_id` on a Loan
+        stays the foreign key). A prefix remainder matching several fields
+        refuses — first-match-wins would filter the wrong field.
+        """
+        self.assertEqual(codegen.match_param(["id", "name"], "author_id"),
+                         ("id", "eq"))
+        self.assertEqual(codegen.match_param(["id", "book_id"], "book_id"),
+                         ("book_id", "eq"))
+        self.assertEqual(
+            codegen.match_param(["available_copies"], "min_available_copies"),
+            ("available_copies", "ge"))
+        self.assertEqual(
+            codegen.match_param(["available_copies"], "max_available_copies"),
+            ("available_copies", "le"))
+        self.assertIsNone(
+            codegen.match_param(["expense_date", "payment_date"], "start_date"))
+
+    def test_match_alternatives_need_every_part_to_map(self):
+        self.assertEqual(
+            codegen.match_alternatives(["id", "isbn"], "book_id_or_isbn"),
+            [("id", "eq"), ("isbn", "eq")])
+        self.assertIsNone(codegen.match_alternatives(["id"], "id"))
+        self.assertIsNone(codegen.match_alternatives(["id"], "id_or_title"))
+        self.assertIsNone(
+            codegen.match_alternatives(["id", "title"], "start_id_or_title"))
+
+    def test_filter_with_pagination_plans_by_shape_when_signature_is_a_filter(self):
+        """A date-range read claimed as FILTER_WITH_PAGINATION but carrying no
+        pagination parameters describes a filter exactly — the filter body is
+        the whole method. Pagination parameters (limit, offset) map to no
+        field and the emitter refuses those bodies at generation time."""
+        entry = {"pattern_id": "FILTER_WITH_PAGINATION", "decision": "decided"}
+        method = {"name": "read_expenses_by_date_range",
+                  "params": [{"name": "start_date", "type": "str"},
+                             {"name": "end_date", "type": "str"}],
+                  "return_type": "List[Expense]"}
+        strategy, detail = codegen.plan_method(method, entry, ["Expense"])
+        self.assertEqual(strategy, "crud:filter")
+        self.assertIn("FILTER_WITH_PAGINATION", detail)
+
+    def test_model_types_spell_str_bool_and_dict(self):
+        self.assertEqual(codegen.map_type("str"), "str")
+        self.assertEqual(codegen.map_type("bool"), "bool")
+        self.assertEqual(codegen.map_type("dict"), "Dict[str, Any]")
+
     def test_filter_pattern_without_filter_name_plans_by_shape(self):
         """`read_expenses_by_category` matches no name prefix, yet describes
         a filter exactly: list return, scalar-only params."""
@@ -1091,6 +1141,140 @@ class EmittedImportsTests(unittest.TestCase):
         self.assertIn("WineRepository", namespace)
         self.assertTrue(any(line.startswith("from typing import") and "Union" in line
                             for line in repos_text.splitlines()))
+
+
+class MappingEmissionTests(unittest.TestCase):
+    """Emitted bodies resolve parameters the way the kernel says.
+
+    Every case here was a live defect: `read_one_book(book_id_or_isbn)`
+    raised on every call, `find_books_by_author` read the Author table and
+    returned Authors while annotated `List[Book]`, and
+    `search_books_by_title_author_isbn(query)` pretended to be mechanical
+    while raising `cannot filter Book by 'query'` — counted as done, dead
+    when called.
+    """
+
+    def ctx(self):
+        def method(name, params=(), returns="None", raises=(), description=""):
+            return {"name": name, "description": description or name,
+                    "params": [{"name": n, "type": t} for n, t in params],
+                    "return_type": returns, "raises": list(raises)}
+
+        return {
+            "models": [
+                {"name": "Author", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "name", "type": "string"}]},
+                {"name": "Book", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "title", "type": "string"},
+                    {"name": "isbn", "type": "string"},
+                    {"name": "author_id", "type": "int",
+                     "foreign_key": {"target_entity": "Author",
+                                     "target_field": "id"}}]}],
+            "errors": [
+                {"name": "BookNotFoundError", "base": "LookupError",
+                 "description": "no such book"},
+                {"name": "AuthorNotFoundError", "base": "LookupError",
+                 "description": "no such author"}],
+            "services": [],
+            "repositories": [
+                {"entity": "Author", "interface_name": "AuthorRepository",
+                 "methods": [
+                     method("read_one_author", [("author_id", "int")],
+                            "Author", ["AuthorNotFoundError"]),
+                     method("find_books_by_author", [("author_id", "int")],
+                            "List[Book]")]},
+                {"entity": "Book", "interface_name": "BookRepository",
+                 "methods": [
+                     method("read_one_book",
+                            [("book_id_or_isbn", "Union[str, int]")],
+                            "Book | None", ["BookNotFoundError"]),
+                     method("update_book",
+                            [("book_id_or_isbn", "Union[str, int]"),
+                             ("data", "Book")],
+                            "Book", ["BookNotFoundError"]),
+                     method("delete_book",
+                            [("book_id_or_isbn", "Union[str, int]")],
+                            "None", ["BookNotFoundError"]),
+                     method("search_books_by_title_author_isbn",
+                            [("query", "str")], "List[Book]")]}],
+            "mappings": {}, "match_index": {}, "adapters": [],
+            "components": {}, "entity_names": ["Author", "Book"],
+        }
+
+    def exec_repositories(self, ctx):
+        """Emit and run the repositories against the real store template."""
+        import importlib.util
+        import types
+        from unittest import mock
+        spec = importlib.util.spec_from_file_location(
+            "store", "kernel/codegen_store_template.py")
+        store = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(store)
+        models = types.ModuleType("models")
+        models.Author = lambda **kw: kw
+        models.Book = lambda **kw: kw
+        errors = types.ModuleType("errors")
+        for name in ("BookNotFoundError", "AuthorNotFoundError"):
+            setattr(errors, name, type(name, (LookupError,), {}))
+        mods = {"models": models, "errors": errors, "store": store}
+        stats = {"source": "t", "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        text = generator.emit_repositories(ctx, stats)
+        with mock.patch.dict(sys.modules, mods):
+            namespace = dict(mods)
+            exec(compile(text, "repositories.py", "exec"), namespace)
+        return namespace, store, stats
+
+    def test_identifiers_scan_every_alternative(self):
+        """`book_id_or_isbn` finds by id and by isbn, updating and deleting
+        through the same scan; a miss reports not-found, not a crash."""
+        namespace, store, _ = self.exec_repositories(self.ctx())
+        backend = store.Store()
+        backend.add("Book", "id", {"id": 1, "title": "T", "isbn": "X",
+                                   "author_id": 1})
+        books = namespace["BookRepository"](backend)
+        self.assertEqual(books.read_one_book(1)["title"], "T")
+        self.assertEqual(books.read_one_book("X")["title"], "T")
+        updated = books.update_book("X", {"title": "T2"})
+        self.assertEqual(updated["title"], "T2")
+        with self.assertRaises(namespace["errors"].BookNotFoundError):
+            books.read_one_book(99)
+        books.delete_book(1)
+        self.assertEqual(backend.select("Book", []), [])
+
+    def test_pk_alias_reads_the_own_id(self):
+        namespace, store, _ = self.exec_repositories(self.ctx())
+        backend = store.Store()
+        backend.add("Author", "id", {"id": 7, "name": "A"})
+        authors = namespace["AuthorRepository"](backend)
+        self.assertEqual(authors.read_one_author(7)["name"], "A")
+
+    def test_cross_entity_filter_reads_the_returned_entity(self):
+        """`find_books_by_author` returns Books: the query reads the Book
+        table with the borrowed `author_id` parameter, not the Author table."""
+        namespace, store, _ = self.exec_repositories(self.ctx())
+        backend = store.Store()
+        backend.add("Author", "id", {"id": 7, "name": "A"})
+        backend.add("Book", "id", {"id": 1, "title": "T", "isbn": "X",
+                                   "author_id": 7})
+        authors = namespace["AuthorRepository"](backend)
+        found = authors.find_books_by_author(7)
+        self.assertEqual([book["title"] for book in found], ["T"])
+        self.assertEqual(authors.find_books_by_author(8), [])
+
+    def test_unmappable_filter_parameter_refuses_with_a_stub(self):
+        namespace, store, stats = self.exec_repositories(self.ctx())
+        books = namespace["BookRepository"](store.Store())
+        with self.assertRaises(NotImplementedError) as caught:
+            books.search_books_by_title_author_isbn("T")
+        self.assertIn("maps to no field", str(caught.exception))
+        self.assertTrue(any("search_books_by_title_author_isbn" in reason
+                            for reason in stats["stub_reasons"]))
+        kinds = {m["method"]: m["implemented"] for m in stats["methods"]}
+        self.assertFalse(kinds["search_books_by_title_author_isbn"])
+        self.assertTrue(kinds["read_one_book"])
 
 
 if __name__ == "__main__":

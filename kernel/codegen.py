@@ -26,6 +26,9 @@ import re
 
 MODEL_TYPES = {
     "int": "int",
+    "str": "str",
+    "bool": "bool",
+    "dict": "Dict[str, Any]",
     "string": "str",
     "boolean": "bool",
     "decimal": "Decimal",
@@ -86,9 +89,13 @@ def match_param(field_names, param):
 
     The single definition of the rule; `codegen_store_template` carries a
     twin beside its user so generated programs stay dependency-free.
-    Exact normalized equality is `eq`; a `start_`/`from_` prefix is `ge` and
-    an `end_`/`to_` prefix is `le` against the field containing the remainder
-    (`start_date` filters `expense_date`).
+    Exact normalized equality is `eq`; a `start_`/`from_`/`min_` prefix is
+    `ge` and an `end_`/`to_`/`max_` prefix is `le` against the field
+    containing the remainder (`start_date` filters `expense_date`,
+    `min_available_copies` filters `available_copies`). A remainder matching
+    several fields refuses — first-match-wins would silently filter the
+    wrong field. Finally a `<x>_id` parameter names the entity's own `id`
+    (`author_id` reads `Author.id`) when nothing else claimed it.
     """
     wanted = normalize(param or "")
     if not wanted:
@@ -97,14 +104,43 @@ def match_param(field_names, param):
         if normalize(field) == wanted:
             return (field, "eq")
     for prefix, operator in (("start", "ge"), ("from", "ge"),
-                             ("end", "le"), ("to", "le")):
+                             ("end", "le"), ("to", "le"),
+                             ("min", "ge"), ("max", "le")):
         if wanted.startswith(prefix) and len(wanted) > len(prefix):
             rest = wanted[len(prefix):]
-            for field in field_names:
-                flat = normalize(field)
-                if rest and (rest in flat or flat in rest):
-                    return (field, operator)
+            candidates = [field for field in field_names
+                          if rest and (rest in normalize(field)
+                                       or normalize(field) in rest)]
+            if len(candidates) == 1:
+                return (candidates[0], operator)
+    raw = str(param or "").strip().lower()
+    if raw.endswith("_id") and len(raw) > 3:
+        for field in field_names:
+            if normalize(field) == "id":
+                return (field, "eq")
     return None
+
+
+def match_alternatives(field_names, param):
+    """Field mappings for an `a_or_b` parameter, or None when not all map.
+
+    `book_id_or_isbn` resolves to `[("id", "eq"), ("isbn", "eq")]`: each
+    part must map to a distinct equality criterion, so a lookup can scan
+    every alternative and stay exact. Anything less — a part mapping
+    nothing, a part wanting a range, two parts collapsing to one field —
+    is not mechanical and refuses.
+    """
+    parts = re.split(r"(?i)_or_", str(param or ""))
+    if len(parts) < 2 or any(not part.strip() for part in parts):
+        return None
+    unique = []
+    for part in parts:
+        matched = match_param(field_names, part.strip())
+        if matched is None or matched[1] != "eq":
+            return None
+        if matched not in unique:
+            unique.append(matched)
+    return unique if len(unique) >= 2 else None
 
 
 def is_entity_type(text, entity_names):
@@ -157,7 +193,12 @@ def plan_method(method, entry, entity_names=()):
                 return ("stub", f"pattern {payload}: filter with no parameters filters nothing")
             if payload in MECHANICAL_PATTERNS and crud is not None:
                 return (f"crud:{crud}", payload)
-            if payload == "FILTER_BY_FIELD":
+            if payload in ("FILTER_BY_FIELD", "FILTER_WITH_PAGINATION"):
+                # Both patterns describe a filtered read; when the signature
+                # is exactly that (list return, scalar-only parameters) the
+                # filter body is the whole method. Pagination parameters
+                # (limit, offset, order_by) match no field and the emitter
+                # refuses those bodies loudly, so nothing is dropped here.
                 shape = _filter_by_shape(method, entity_names)
                 if shape is not None:
                     return (f"crud:{shape}", f"{payload}: by parameter shape")

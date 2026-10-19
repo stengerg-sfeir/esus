@@ -566,10 +566,30 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         f"slots:{pattern}")
                 continue
-            lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
-                      f'        """{_docstring(method.get("description"))} [{strategy}: {detail}]"""']
-            body = _repo_body(ctx, strategy, detail, method, params, entity,
-                              model_cls, field_names, pk, fk_literal)
+            lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:"]
+            query_fields, query_model, query_table = field_names, model_cls, "self.ENTITY"
+            target = _query_entity(ctx, method, entity)
+            if target is not None and strategy in ("crud:read_all", "crud:filter"):
+                query_fields = [name for name, _ in fields_of(ctx, target)]
+                query_model = f"models.{codegen.sanitize(target, 'Model')}"
+                query_table = repr(target)
+            try:
+                body = _repo_body(ctx, strategy, detail, method, params, entity,
+                                  query_model, query_fields, pk, fk_literal,
+                                  table=query_table)
+            except _Unmappable as stuck:
+                detail = f"parameter {stuck.param!r} maps to no field"
+                body = None
+            if body is None:
+                lines += [f'        """{_docstring(method.get("description"))} '
+                          f'[{strategy}: {detail}]"""',
+                          "        raise NotImplementedError(",
+                          f'            "{cls}.{fname}: {strategy}: {detail}")']
+                stats["stubs"] += 1
+                stats["stub_reasons"].append(f"{cls}.{fname}: {detail}")
+                _record(stats, holder, method["name"], strategy, False, detail)
+                continue
+            lines.append(f'        """{_docstring(method.get("description"))} [{strategy}: {detail}]"""')
             lines.extend("        " + line if line else "" for line in body)
             if strategy.startswith("crud:"):
                 stats["implemented"] += 1
@@ -581,7 +601,32 @@ def emit_repositories(ctx, stats):
     return "\n".join(lines) + "\n"
 
 
-def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal):
+def _query_entity(ctx, method, entity):
+    """The declared entity a query reads, when it is not this repo's own.
+
+    `AuthorRepository.find_books_by_author -> List[Book]` reads Book: the
+    return type names the table, and the borrowed parameters (`author_id`)
+    are Book fields. A return type naming several declared entities is
+    ambiguous and refuses (None).
+    """
+    returns = method.get("return_type")
+    if not isinstance(returns, str):
+        return None
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    targets = [name for name in ctx["entity_names"]
+               if isinstance(name, str)
+               and normalize(name) in words
+               and normalize(name) != normalize(entity)]
+    if len(targets) != 1:
+        return None
+    target = targets[0]
+    if model_of(ctx, target) is None:
+        return None
+    return target
+
+
+def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal, table="self.ENTITY"):
     """The statement list of one repository method."""
     kind = strategy[5:] if strategy.startswith("crud:") else None
     err = method_error(ctx, method, entity)
@@ -590,7 +635,7 @@ def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_n
     if kind == "read_one":
         return _read_one_body(params, entity, model_cls, field_names, pk, err)
     if kind in ("read_all", "filter"):
-        return _select_body(params, entity, model_cls, field_names)
+        return _select_body(params, entity, model_cls, field_names, table=table)
     if kind == "update":
         return _update_body(ctx, method, params, entity, model_cls, field_names, err)
     if kind == "delete":
@@ -598,6 +643,19 @@ def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_n
     name = method.get("name") if isinstance(method.get("name"), str) else "?"
     return ["raise NotImplementedError(",
             f'    "{entity}.{name}: {strategy}: {detail}")']
+
+
+class _Unmappable(Exception):
+    """A criteria parameter no field satisfies.
+
+    A body built from it would raise ValueError on every call — not a
+    mechanical reading. Emission catches this and writes a stub instead.
+    """
+
+    def __init__(self, param):
+        super().__init__(param)
+        self.param = param
+
 
 
 def _entity_params(params, entity_names):
@@ -638,18 +696,36 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
     return lines
 
 
-def _criteria_block(params, entity, field_names):
-    """`criteria = [...]`; each param is `(raw, ident[, type])`, `None` skipped."""
+def _criteria_block(params, field_names):
+    """`criteria = [...]` with every parameter resolved to its field now.
+
+    Parameters come as `(raw, ident[, type])`; `None` values are skipped.
+    The mapping is the kernel's own (`match_param`), resolved at generation
+    time: a parameter matching no field raises `_Unmappable`, so the caller
+    emits a stub instead of a body that raises on every call.
+    """
     lines = ["criteria = []"]
     for item in params:
         raw, ident = item[0], item[1]
+        matched = codegen.match_param(field_names, raw)
+        if matched is None:
+            raise _Unmappable(raw)
         lines.append(f"if {ident} is not None:")
-        lines.append(f"    matched = match_criterion({field_names!r}, {raw!r})")
-        lines.append("    if matched is None:")
-        lines.append(f"        raise ValueError(f\"cannot filter {entity} by {raw!r}\")")
-        lines.append("    field, operator = matched")
-        lines.append(f"    criteria.append((field, operator, {ident}))")
+        lines.append(f"    criteria.append(({matched[0]!r}, {matched[1]!r}, {ident}))")
     return lines
+
+
+def _alternative_scan(ident, alternatives):
+    """Locate records through any of `ident`'s identity alternatives.
+
+    `book_id_or_isbn` scans `id` and `isbn` and unions the hits; callers
+    add their own uniqueness/strictness check on `found`.
+    """
+    return ["found = []",
+            f"if {ident} is not None:",
+            f"    for field, operator in {alternatives!r}:",
+            f"        found.extend(self._store.select("
+            f"self.ENTITY, [(field, operator, {ident})]))"]
 
 
 def _read_one_body(params, entity, model_cls, field_names, pk, err):
@@ -658,16 +734,26 @@ def _read_one_body(params, entity, model_cls, field_names, pk, err):
     The old fast path read every single-parameter lookup through the
     primary key — `read_x_by_email(email)` searched `PK == email` and
     reported "not found" instead of finding. Now only a parameter mapping
-    to the PK with `eq` takes it; anything else goes through criteria
-    (unmappable parameters fail loudly there, as everywhere).
+    to the PK with `eq` takes it; an `a_or_b` parameter (`book_id_or_isbn`)
+    scans its alternatives; anything else goes through criteria, which
+    refuses unmappable parameters at generation time.
     """
     if len(params) == 1:
-        matched = codegen.match_param(field_names, params[0][0])
+        raw, ident = params[0][0], params[0][1]
+        matched = codegen.match_param(field_names, raw)
         if matched is not None and list(matched) == [pk, "eq"]:
-            lines = [f"record = self._store.get(self.ENTITY, self.PK, {params[0][1]}, error={err})"]
+            lines = [f"record = self._store.get(self.ENTITY, self.PK, {ident}, error={err})"]
             lines.append(_result_wrap(model_cls))
             return lines
-    lines = _criteria_block(params, entity, field_names)
+        alternatives = codegen.match_alternatives(field_names, raw)
+        if alternatives is not None:
+            lines = _alternative_scan(ident, alternatives)
+            lines += ["if len(found) != 1:",
+                      f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
+                      "record = found[0]"]
+            lines.append(_result_wrap(model_cls))
+            return lines
+    lines = _criteria_block(params, field_names)
     lines += ["found = self._store.select(self.ENTITY, criteria)",
               "if len(found) != 1:",
               f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
@@ -676,9 +762,9 @@ def _read_one_body(params, entity, model_cls, field_names, pk, err):
     return lines
 
 
-def _select_body(params, entity, model_cls, field_names):
-    lines = _criteria_block(params, entity, field_names)
-    lines.append("found = self._store.select(self.ENTITY, criteria)")
+def _select_body(params, entity, model_cls, field_names, table="self.ENTITY"):
+    lines = _criteria_block(params, field_names)
+    lines.append(f"found = self._store.select({table}, criteria)")
     if model_cls is None:
         lines.append("return [dict(r) for r in found]")
     else:
@@ -691,11 +777,19 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
     if not scalars:
         return ["raise ValueError(",
                 f"    \"{entity}.{method.get('name')}: update needs key parameters\")"]
-    lines = _criteria_block(scalars, entity, field_names)
-    lines += ["found = self._store.select(self.ENTITY, criteria)",
-              "if len(found) != 1:",
-              f"    raise {err}(f\"{entity} update matched {{len(found)}} records\")",
-              "patch = {}"]
+    alternatives = None
+    if len(scalars) == 1:
+        alternatives = codegen.match_alternatives(field_names, scalars[0][0])
+    if alternatives is not None:
+        lines = _alternative_scan(scalars[0][1], alternatives)
+        lines += ["if len(found) != 1:",
+                  f"    raise {err}(f\"{entity} update matched {{len(found)}} records\")"]
+    else:
+        lines = _criteria_block(scalars, field_names)
+        lines += ["found = self._store.select(self.ENTITY, criteria)",
+                  "if len(found) != 1:",
+                  f"    raise {err}(f\"{entity} update matched {{len(found)}} records\")"]
+    lines += ["patch = {}"]
     if entity_param is not None:
         lines.append(f"for key, value in _record_values({entity_param[1]}, {field_names!r}).items():")
         lines.append("    if value is not None:")
@@ -712,9 +806,15 @@ def _delete_body(params, entity, field_names, err):
     if not params:
         return ["raise ValueError(",
                 f"    \"{entity}: delete needs key parameters\")"]
-    lines = _criteria_block(params, entity, field_names)
-    lines += ["found = self._store.select(self.ENTITY, criteria)",
-              "if not found:",
+    alternatives = None
+    if len(params) == 1:
+        alternatives = codegen.match_alternatives(field_names, params[0][0])
+    if alternatives is not None:
+        lines = _alternative_scan(params[0][1], alternatives)
+    else:
+        lines = _criteria_block(params, field_names)
+        lines += ["found = self._store.select(self.ENTITY, criteria)"]
+    lines += ["if not found:",
               f"    raise {err}(f\"{entity} delete matched no records\")",
               "for record in found:",
               "    self._store.delete(self.ENTITY, self.PK, record[self.PK])",
@@ -800,13 +900,20 @@ def emit_services(ctx, repo_index, stats):
                     composed = _service_filter_plan(ctx, method, params)
                     if composed is not None:
                         repo_cls, read_all, entity, field_names = composed
-                        lines += _service_filter_body(
-                            fname, declaration, returns, method, repo_cls,
-                            read_all, entity, field_names, params, detail)
-                        stats["implemented"] += 1
-                        _record(stats, name, method["name"], strategy, True,
-                                f"compose:{repo_cls}.{read_all}")
-                        continue
+                        try:
+                            body = _service_filter_body(
+                                fname, declaration, returns, method, repo_cls,
+                                read_all, entity, field_names, params, detail)
+                        except _Unmappable as stuck:
+                            body = None
+                            detail = (f"parameter {stuck.param!r} maps to "
+                                      "no field")
+                        if body is not None:
+                            lines += body
+                            stats["implemented"] += 1
+                            _record(stats, name, method["name"], strategy, True,
+                                    f"compose:{repo_cls}.{read_all}")
+                            continue
             record = ctx.get("slots", {}).get((name, method["name"]))
             plan = _service_guard_plan(
                 ctx, name, method,
@@ -861,29 +968,27 @@ def _service_filter_body(fname, declaration, returns, method, repo_cls,
                          read_all, entity, field_names, params, detail):
     """A service filter over the entity's read-all, with kernel criteria.
 
-    The criteria are the kernel's own field matching (`match_criterion`),
-    so the body filters exactly as the repository would — same fields, same
-    operators, same fail-loud on unmappable parameters.
+    The criteria are the kernel's own field matching (`match_param`),
+    resolved at generation time — the body filters exactly as the
+    repository would, and a parameter no field satisfies refuses
+    (`_Unmappable`) instead of emitting a body that raises when called.
     """
-    values = ", ".join(f"{raw!r}: {ident}" for raw, ident, _ in params)
-    return [
+    lines = [
         "",
         f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
         f'        """{_docstring(method.get("description"))} '
         f'[composes {repo_cls}.{read_all} over {detail}]"""',
         f"        records = self._repos[{repo_cls!r}].{read_all}()",
-        f"        fields = {field_names!r}",
         "        criteria = []",
-        f"        values = {{{values}}}",
-        "        for param, value in values.items():",
-        "            if value is None:",
-        "                continue",
-        "            matched = match_criterion(fields, param)",
-        "            if matched is None:",
-        '                raise ValueError(f"cannot filter '
-        f'{entity} by {{param!r}}")',
-        "            field, operator = matched",
-        "            criteria.append((field, operator, value))",
+    ]
+    for raw, ident, _ in params:
+        matched = codegen.match_param(field_names, raw)
+        if matched is None:
+            raise _Unmappable(raw)
+        lines.append(f"        if {ident} is not None:")
+        lines.append(f"            criteria.append(({matched[0]!r}, "
+                     f"{matched[1]!r}, {ident}))")
+    lines += [
         "        out = []",
         "        for record in records:",
         "            row = record if isinstance(record, dict) else vars(record)",
@@ -892,6 +997,7 @@ def _service_filter_body(fname, declaration, returns, method, repo_cls,
         "                out.append(record)",
         "        return out",
     ]
+    return lines
 
 
 def _guard_entity_param(ctx, method):

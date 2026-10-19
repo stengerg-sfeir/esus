@@ -1,0 +1,39 @@
+{
+  "errors": [
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a category with the given ID is not found in the database."
+    },
+    {
+      "name": "ExpenseNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an expense with the given ID is not found in the database."
+    },
+    {
+      "name": "BudgetExceededException",
+      "base": "RuntimeError",
+      "description": "Raised when an expense exceeds the budget limit for its category and month."
+    },
+    {
+      "name": "InvalidBudgetMonthError",
+      "base": "ValueError",
+      "description": "Raised when an invalid month format (not 'YYYY-MM') is provided for budget operations."
+    },
+    {
+      "name": "InvalidDateFormatError",
+      "base": "ValueError",
+      "description": "Raised when an expense date is not in ISO format (YYYY-MM-DD)."
+    },
+    {
+      "name": "MalformedCSVError",
+      "base": "ValueError",
+      "description": "Raised when the CSV data is malformed or incomplete."
+    },
+    {
+      "name": "MissingFileError",
+      "base": "OSError",
+      "description": "Raised when a required file is missing during export operations."
+    }
+  ]
+}

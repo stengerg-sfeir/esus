@@ -5,7 +5,7 @@ NotImplementedError with its work order — an aggregate or guard body
 is specified by its pattern, not invented here.
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import datetime
 
@@ -32,7 +32,7 @@ class BookRepository:
         self._store = store
 
 
-    def create_book(self, book: models.Book = None, isbn: Any = None) -> models.Book:
+    def create_book(self, book: models.Book = None, isbn: str = None) -> models.Book:
         """Creates a new book entry with the provided details. [crud:create: STANDARD_CRUD]"""
         values = {}
         values.update(_record_values(book, ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']))
@@ -46,7 +46,13 @@ class BookRepository:
 
     def read_one_book(self, book_id_or_isbn: Union[str, int] = None) -> models.Book | None:
         """Reads a single book by its ID or ISBN. [crud:read_one: STANDARD_CRUD]"""
-        record = self._store.get(self.ENTITY, self.PK, book_id_or_isbn, error=errors.BookNotFoundError)
+        found = []
+        if book_id_or_isbn is not None:
+            for field, operator in [('id', 'eq'), ('isbn', 'eq')]:
+                found.extend(self._store.select(self.ENTITY, [(field, operator, book_id_or_isbn)]))
+        if len(found) != 1:
+            raise errors.BookNotFoundError(f"Book lookup matched {len(found)} records")
+        record = found[0]
         return models.Book(**record)
 
     def read_all_books(self) -> List[models.Book]:
@@ -57,14 +63,10 @@ class BookRepository:
 
     def update_book(self, book_id_or_isbn: Union[str, int] = None, book: models.Book = None) -> models.Book:
         """Updates a book's details by its ID or ISBN. [crud:update: STANDARD_CRUD]"""
-        criteria = []
+        found = []
         if book_id_or_isbn is not None:
-            matched = match_criterion(['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id'], 'book_id_or_isbn')
-            if matched is None:
-                raise ValueError(f"cannot filter Book by 'book_id_or_isbn'")
-            field, operator = matched
-            criteria.append((field, operator, book_id_or_isbn))
-        found = self._store.select(self.ENTITY, criteria)
+            for field, operator in [('id', 'eq'), ('isbn', 'eq')]:
+                found.extend(self._store.select(self.ENTITY, [(field, operator, book_id_or_isbn)]))
         if len(found) != 1:
             raise errors.BookNotFoundError(f"Book update matched {len(found)} records")
         patch = {}
@@ -76,16 +78,12 @@ class BookRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.BookNotFoundError)
         return models.Book(**record)
 
-    def delete_book(self, book_id_or_isbn: Union[str, int] = None) -> Any:
+    def delete_book(self, book_id_or_isbn: Union[str, int] = None) -> bool:
         """Deletes a book by its ID or ISBN. [crud:delete: STANDARD_CRUD]"""
-        criteria = []
+        found = []
         if book_id_or_isbn is not None:
-            matched = match_criterion(['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id'], 'book_id_or_isbn')
-            if matched is None:
-                raise ValueError(f"cannot filter Book by 'book_id_or_isbn'")
-            field, operator = matched
-            criteria.append((field, operator, book_id_or_isbn))
-        found = self._store.select(self.ENTITY, criteria)
+            for field, operator in [('id', 'eq'), ('isbn', 'eq')]:
+                found.extend(self._store.select(self.ENTITY, [(field, operator, book_id_or_isbn)]))
         if not found:
             raise errors.BookNotFoundError(f"Book delete matched no records")
         for record in found:
@@ -96,25 +94,14 @@ class BookRepository:
         """Filters books by available copies count. [crud:filter: FILTER_BY_FIELD]"""
         criteria = []
         if min_available_copies is not None:
-            matched = match_criterion(['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id'], 'min_available_copies')
-            if matched is None:
-                raise ValueError(f"cannot filter Book by 'min_available_copies'")
-            field, operator = matched
-            criteria.append((field, operator, min_available_copies))
+            criteria.append(('available_copies', 'ge', min_available_copies))
         found = self._store.select(self.ENTITY, criteria)
         return [models.Book(**r) for r in found]
 
-    def search_books_by_title_author_isbn(self, query: Any = None) -> List[models.Book]:
-        """Searches books by title, author, or ISBN. [crud:filter: FILTER_BY_FIELD]"""
-        criteria = []
-        if query is not None:
-            matched = match_criterion(['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id'], 'query')
-            if matched is None:
-                raise ValueError(f"cannot filter Book by 'query'")
-            field, operator = matched
-            criteria.append((field, operator, query))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Book(**r) for r in found]
+    def search_books_by_title_author_isbn(self, query: str = None) -> List[models.Book]:
+        """Searches books by title, author, or ISBN. [crud:filter: parameter 'query' maps to no field]"""
+        raise NotImplementedError(
+            "BookRepository.search_books_by_title_author_isbn: crud:filter: parameter 'query' maps to no field")
 
 
 class AuthorRepository:
@@ -146,11 +133,7 @@ class AuthorRepository:
         """Updates an author's details by its ID. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if author_id is not None:
-            matched = match_criterion(['id', 'name', 'birth_year', 'biography'], 'author_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Author by 'author_id'")
-            field, operator = matched
-            criteria.append((field, operator, author_id))
+            criteria.append(('id', 'eq', author_id))
         found = self._store.select(self.ENTITY, criteria)
         if len(found) != 1:
             raise errors.AuthorNotFoundError(f"Author update matched {len(found)} records")
@@ -163,15 +146,11 @@ class AuthorRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.AuthorNotFoundError)
         return models.Author(**record)
 
-    def delete_author(self, author_id: int = None) -> Any:
+    def delete_author(self, author_id: int = None) -> bool:
         """Deletes an author by its ID. [crud:delete: STANDARD_CRUD]"""
         criteria = []
         if author_id is not None:
-            matched = match_criterion(['id', 'name', 'birth_year', 'biography'], 'author_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Author by 'author_id'")
-            field, operator = matched
-            criteria.append((field, operator, author_id))
+            criteria.append(('id', 'eq', author_id))
         found = self._store.select(self.ENTITY, criteria)
         if not found:
             raise errors.AuthorNotFoundError(f"Author delete matched no records")
@@ -183,13 +162,9 @@ class AuthorRepository:
         """Finds all books by a specific author. [crud:filter: FILTER_BY_FIELD]"""
         criteria = []
         if author_id is not None:
-            matched = match_criterion(['id', 'name', 'birth_year', 'biography'], 'author_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Author by 'author_id'")
-            field, operator = matched
-            criteria.append((field, operator, author_id))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Author(**r) for r in found]
+            criteria.append(('author_id', 'eq', author_id))
+        found = self._store.select('Book', criteria)
+        return [models.Book(**r) for r in found]
 
 
 class MemberRepository:
@@ -200,7 +175,7 @@ class MemberRepository:
         self._store = store
 
 
-    def create_member(self, member: models.Member = None, email: Any = None) -> models.Member:
+    def create_member(self, member: models.Member = None, email: str = None) -> models.Member:
         """Creates a new member entry with the provided details. [crud:create: STANDARD_CRUD]"""
         values = {}
         values.update(_record_values(member, ['id', 'name', 'email', 'membership_date', 'is_active']))
@@ -227,11 +202,7 @@ class MemberRepository:
         """Updates a member's details by its ID. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if member_id is not None:
-            matched = match_criterion(['id', 'name', 'email', 'membership_date', 'is_active'], 'member_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Member by 'member_id'")
-            field, operator = matched
-            criteria.append((field, operator, member_id))
+            criteria.append(('id', 'eq', member_id))
         found = self._store.select(self.ENTITY, criteria)
         if len(found) != 1:
             raise errors.MemberNotFoundError(f"Member update matched {len(found)} records")
@@ -244,15 +215,11 @@ class MemberRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.MemberNotFoundError)
         return models.Member(**record)
 
-    def delete_member(self, member_id: int = None) -> Any:
+    def delete_member(self, member_id: int = None) -> bool:
         """Deletes a member by its ID. [crud:delete: STANDARD_CRUD]"""
         criteria = []
         if member_id is not None:
-            matched = match_criterion(['id', 'name', 'email', 'membership_date', 'is_active'], 'member_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Member by 'member_id'")
-            field, operator = matched
-            criteria.append((field, operator, member_id))
+            criteria.append(('id', 'eq', member_id))
         found = self._store.select(self.ENTITY, criteria)
         if not found:
             raise errors.MemberNotFoundError(f"Member delete matched no records")
@@ -300,11 +267,7 @@ class LoanRepository:
         """Updates a loan's details by its ID. [crud:update: STANDARD_CRUD]"""
         criteria = []
         if loan_id is not None:
-            matched = match_criterion(['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status'], 'loan_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Loan by 'loan_id'")
-            field, operator = matched
-            criteria.append((field, operator, loan_id))
+            criteria.append(('id', 'eq', loan_id))
         found = self._store.select(self.ENTITY, criteria)
         if len(found) != 1:
             raise errors.LoanNotFoundError(f"Loan update matched {len(found)} records")
@@ -317,15 +280,11 @@ class LoanRepository:
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.LoanNotFoundError)
         return models.Loan(**record)
 
-    def delete_loan(self, loan_id: int = None) -> Any:
+    def delete_loan(self, loan_id: int = None) -> bool:
         """Deletes a loan by its ID. [crud:delete: STANDARD_CRUD]"""
         criteria = []
         if loan_id is not None:
-            matched = match_criterion(['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status'], 'loan_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Loan by 'loan_id'")
-            field, operator = matched
-            criteria.append((field, operator, loan_id))
+            criteria.append(('id', 'eq', loan_id))
         found = self._store.select(self.ENTITY, criteria)
         if not found:
             raise errors.LoanNotFoundError(f"Loan delete matched no records")
@@ -347,11 +306,7 @@ class LoanRepository:
         """Finds all loans for a specific member. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
         criteria = []
         if member_id is not None:
-            matched = match_criterion(['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status'], 'member_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Loan by 'member_id'")
-            field, operator = matched
-            criteria.append((field, operator, member_id))
+            criteria.append(('member_id', 'eq', member_id))
         found = self._store.select(self.ENTITY, criteria)
         return [models.Loan(**r) for r in found]
 
@@ -359,10 +314,6 @@ class LoanRepository:
         """Finds all loans for a specific book. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
         criteria = []
         if book_id is not None:
-            matched = match_criterion(['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status'], 'book_id')
-            if matched is None:
-                raise ValueError(f"cannot filter Loan by 'book_id'")
-            field, operator = matched
-            criteria.append((field, operator, book_id))
+            criteria.append(('book_id', 'eq', book_id))
         found = self._store.select(self.ENTITY, criteria)
         return [models.Loan(**r) for r in found]
