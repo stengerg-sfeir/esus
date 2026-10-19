@@ -64,8 +64,12 @@ GENERATED_DIR = "generated"
 # required slot recorded, the emitters below write the body mechanically.
 # Guard patterns are deliberately absent — a guard must run its check, never
 # delegate past it or reduce to a scan; those stay stubs until we design them.
+# FILTER_CRITERION is synthetic: a parameterless status filter (`find_active_
+# members`) that currently stubs — the equality criterion is exactly the
+# finite, enumerable thing a human answers, and no name rule may invent it.
 SLOT_PATTERNS = frozenset({"AGGREGATE_BY_FK", "AGGREGATE_BY_FK_AND_DATE",
-                            "THRESHOLD_SCAN", "BUDGET_OVERFLOW_GUARD"})
+                            "THRESHOLD_SCAN", "BUDGET_OVERFLOW_GUARD",
+                            "FILTER_CRITERION"})
 GUARD_PATTERNS = frozenset({"BUDGET_OVERFLOW_GUARD", "QUOTA_CAPACITY_GUARD",
                             "STOCK_SUFFICIENCY_GUARD", "PRICE_MARGIN_GUARD",
                             "STATE_TRANSITION_GUARD"})
@@ -91,6 +95,7 @@ def load_context(output_dir):
     documents = load_documents(output_dir, report)
     models = [m for m in (documents.get("data_models") or []) if isinstance(m, dict) and m.get("name")]
     errors = [e for e in (documents.get("errors") or []) if isinstance(e, dict) and e.get("name")]
+    invariants = [i for i in (documents.get("invariants") or []) if isinstance(i, dict)]
     services = [s for s in (documents.get("service_contracts") or []) if isinstance(s, dict) and s.get("service_name")]
     ports = documents.get("persistence_ports")
     repositories = []
@@ -134,6 +139,7 @@ def load_context(output_dir):
     return {
         "models": models,
         "errors": errors,
+        "invariants": invariants,
         "services": services,
         "repositories": repositories,
         "mappings": mappings,
@@ -550,22 +556,23 @@ def emit_repositories(ctx, stats):
             returns = _return_of(method, ctx["entity_names"])
             pattern, slots = _slot_pattern(ctx, holder, method)
             if pattern is not None and _slots_usable(pattern, slots, method, True):
-                slot_detail = ", ".join(
-                    f"{slot}={slots[slot]}"
-                    for slot in SLOT_REQUIREMENTS.get(pattern, ())
-                    if slots.get(slot) not in (None, ""))
-                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
-                          f'        """{_docstring(method.get("description"))} '
-                          f'[{pattern} via answered slots: {slot_detail}]"""']
                 field_types = {name: (field.get("type") or "")
                                for name, field in fields_of(ctx, entity)}
                 body = _repo_slot_body(ctx, entity, model_cls, field_types,
                                        method, pattern, slots)
-                lines.extend("        " + line if line else "" for line in body)
-                stats["implemented"] += 1
-                _record(stats, holder, method["name"], strategy, True,
-                        f"slots:{pattern}")
-                continue
+                if body is not None:
+                    slot_detail = ", ".join(
+                        f"{slot}={slots[slot]}"
+                        for slot in SLOT_REQUIREMENTS.get(pattern, ())
+                        if slots.get(slot) not in (None, ""))
+                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                              f'        """{_docstring(method.get("description"))} '
+                              f'[{pattern} via answered slots: {slot_detail}]"""']
+                    lines.extend("        " + line if line else "" for line in body)
+                    stats["implemented"] += 1
+                    _record(stats, holder, method["name"], strategy, True,
+                            f"slots:{pattern}")
+                    continue
             lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:"]
             query_fields, query_model, query_table = field_names, model_cls, "self.ENTITY"
             target = _query_entity(ctx, method, entity)
@@ -1334,17 +1341,84 @@ SLOT_REQUIREMENTS = {
     "THRESHOLD_SCAN": ("comparison_field", "operator", "threshold"),
     "BUDGET_OVERFLOW_GUARD": ("limit_field", "target_field", "date_field",
                               "spend_entity"),
+    "FILTER_CRITERION": ("criterion_field", "criterion_value"),
 }
 SERVICE_BUDGET_SLOTS = ("create_method", "aggregate_method", "budget_method",
                         "amount_field", "date_field", "limit_field", "error")
 
 
+def _field_enum(ctx, entity, field_name):
+    """The documented value set for a field, or [].
+
+    The invariants carry schema lines like `Loan.status must be one of
+    ['active', 'returned', 'overdue']` — the only place a status vocabulary
+    is written down, so the only place it may be read from.
+    """
+    wanted = f"{entity}.{field_name}"
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if not isinstance(text, str):
+            continue
+        match = re.search(
+            rf"\b{re.escape(wanted)}\b[^.]*?must be one of\s*\[([^\]]*)\]",
+            text, re.IGNORECASE)
+        if match:
+            return re.findall(r"['\"]([^'\"]+)['\"]", match.group(1))
+    return []
+
+
+def _criterion_values(ctx, entity, field_name):
+    """Literal candidates for an equality criterion on a model field, or [].
+
+    Boolean fields read True/False; a string field must carry a documented
+    value set — a status word with no vocabulary would be invented, not
+    read. Fields of any other type offer nothing.
+    """
+    model = model_of(ctx, entity)
+    if model is None or not isinstance(field_name, str) or not field_name:
+        return []
+    for field in model.get("fields") or []:
+        if not isinstance(field, dict):
+            continue
+        if normalize(field.get("name") or "") != normalize(field_name):
+            continue
+        ftype = str(field.get("type") or "").strip().lower()
+        if ftype in ("boolean", "bool"):
+            return ["True", "False"]
+        if ftype in ("str", "string", "text"):
+            return _field_enum(ctx, entity, field.get("name") or field_name)
+        return []
+    return []
+
+
+def _collection_return(method):
+    """True when the declared return type is a list of something."""
+    returns = method.get("return_type")
+    if not isinstance(returns, str):
+        return False
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    return "list" in words
+
+
 def _slot_pattern(ctx, holder, method):
-    """The slottable pattern id for a method, or None (with its slots)."""
+    """The slottable pattern id for a method, or None (with its slots).
+
+    A parameterless list-returning method whose filter-ish pattern currently
+    stubs is offered the synthetic FILTER_CRITERION question instead:
+    `find_active_members` cannot read `is_active` off its name, but a human
+    can say which field equals which documented value.
+    """
     entry = _match_entry(ctx, holder, method.get("name"))
     if not isinstance(entry, dict):
         return None, {}
     kind, payload = tie_rules.effective_directive(entry)
+    if kind == "pattern" and payload in ("READ_ALL", "FILTER_BY_FIELD",
+                                         "FILTER_WITH_PAGINATION"):
+        strategy, _ = codegen.plan_method(method, entry, ctx["entity_names"])
+        if (strategy == "stub" and not method.get("params")
+                and _collection_return(method)):
+            payload = "FILTER_CRITERION"
     if kind != "pattern" or payload not in SLOT_PATTERNS:
         return None, {}
     record = ctx.get("slots", {}).get((holder, method.get("name")))
@@ -1447,7 +1521,41 @@ def _repo_slot_body(ctx, entity, model_cls, field_types, method, pattern, slots)
                                     fname, slots)
     if pattern == "BUDGET_OVERFLOW_GUARD":
         return _repo_budget_check_body(ctx, entity, method, fname, slots)
+    if pattern == "FILTER_CRITERION":
+        return _repo_criterion_body(ctx, entity, model_cls, field_types,
+                                    method, fname, slots)
     return None
+
+
+def _repo_criterion_body(ctx, entity, model_cls, field_types, method, fname,
+                         slots):
+    """A flat equality filter from an answered criterion.
+
+    The literal must be grounded: True/False on a boolean field, or a value
+    the invariants document for the field. An unverifiable literal refuses —
+    the emitter falls back to the stub rather than inventing the constraint
+    the method exists for.
+    """
+    field = slots.get("criterion_field")
+    value = slots.get("criterion_value")
+    if not isinstance(field, str) or not isinstance(value, str):
+        return None
+    ftype = str((field_types or {}).get(field) or "").strip().lower()
+    if ftype in ("boolean", "bool"):
+        if value not in ("True", "False"):
+            return None
+        literal = value
+    else:
+        if value not in _field_enum(ctx, entity, field):
+            return None
+        literal = repr(value)
+    lines = [f"criteria = [({field!r}, 'eq', {literal})]",
+             "found = self._store.select(self.ENTITY, criteria)"]
+    if model_cls is None:
+        lines.append("return [dict(record) for record in found]")
+    else:
+        lines.append(f"return [{model_cls}(**record) for record in found]")
+    return lines
 
 
 def _repo_budget_check_body(ctx, entity, method, fname, slots):
@@ -1619,13 +1727,14 @@ def _repo_threshold_body(entity, model_cls, field_types, method, fname, slots):
     lines.append("return out")
     return lines
 
-def _emit_options(indent, parser_var, options, stats):
+def _emit_options(indent, parser_var, options, stats, destinations=None):
     """`add_argument` lines; argparse already owns `help`/`version`.
 
     A flag string taken twice on one parser (the documents give `-a` to two
     options of `book list`) cannot register twice: the option keeps its free
     strings, or is skipped with none left — reported, since one flag goes
-    unreachable either way.
+    unreachable either way. Emitted `(dest, flag)` pairs are collected into
+    `destinations` for the caller's dead-option check.
     """
     lines = []
     seen = set()
@@ -1673,7 +1782,39 @@ def _emit_options(indent, parser_var, options, stats):
                 parts.append(f"default={default!r}")
         parts.append(f"dest={dest!r}")
         lines.append(f"{indent}{parser_var}.add_argument({', '.join(parts)})")
+        if destinations is not None:
+            destinations.append((dest, flags[0]))
     return lines
+
+
+def _report_dead_options(where, destinations, bound, actions, assembled, argv,
+                         stats):
+    """Declared options no adapter input field reads: parsed, then ignored.
+
+    `member list -active-only` printed every member — the flag parsed and
+    did nothing, which is worse than refusing. The surface is the
+    documents'; removing or wiring the flag is a human decision, so it is
+    reported here, never silently dropped and never guessed at.
+    """
+    if not bound or not destinations:
+        return
+    action = bound[0]
+    adapter = actions.get(action)
+    if not isinstance(adapter, dict):
+        return
+    consumed = set()
+    for field in adapter.get("input_fields") or []:
+        if not isinstance(field, dict) or not field.get("field_name"):
+            continue
+        if field["field_name"] in assembled.get(action, []):
+            continue
+        dest = argv.get(action, {}).get(field["field_name"])
+        if dest:
+            consumed.add(dest)
+    for dest, flag in destinations:
+        if dest not in consumed:
+            stats.setdefault("dead_options", []).append(
+                f"{where}: {flag} — no adapter field reads it")
 
 
 def emit_cli(ctx, bindings, stats):
@@ -1817,8 +1958,11 @@ def emit_cli(ctx, bindings, stats):
         if not subs:
             options = codegen.leaf_options(invocation, cname, None)
             lines.append(f"    p_{cvar} = sub.add_parser({cname!r})")
-            lines.extend(_emit_options("    ", f"p_{cvar}", options, stats))
+            dests = []
+            lines.extend(_emit_options("    ", f"p_{cvar}", options, stats, dests))
             lines.append("    p_" + cvar + ".set_defaults(_binding=" + repr((cname, None)) + ")")
+            _report_dead_options(cname, dests, bindings.get((cname, None)),
+                                 actions, assembled, argv, stats)
         else:
             lines.append(f"    p_{cvar} = sub.add_parser({cname!r})")
             lines.append(f"    sub_{cvar} = p_{cvar}.add_subparsers(dest='subcommand')")
@@ -1827,8 +1971,13 @@ def emit_cli(ctx, bindings, stats):
                 svar = codegen.sanitize(sname, "sub")
                 options = codegen.leaf_options(invocation, cname, sname)
                 lines.append(f"    p_{cvar}_{svar} = sub_{cvar}.add_parser({sname!r})")
-                lines.extend(_emit_options("    ", f"p_{cvar}_{svar}", options, stats))
+                dests = []
+                lines.extend(_emit_options("    ", f"p_{cvar}_{svar}", options,
+                                           stats, dests))
                 lines.append("    p_" + cvar + "_" + svar + ".set_defaults(_binding=" + repr((cname, sname)) + ")")
+                _report_dead_options(f"{cname} {sname}", dests,
+                                     bindings.get((cname, sname)), actions,
+                                     assembled, argv, stats)
     lines += ["    return parser",
               "",
               "",
@@ -1925,6 +2074,7 @@ def render_program(ctx, stats):
     """Every file of the package as `{filename: text}`."""
     stats.setdefault("skipped_options", [])
     stats.setdefault("unmapped", [])
+    stats.setdefault("dead_options", [])
     repo_index = _repo_index(ctx)
     files = {
         "models.py": emit_models(ctx),
@@ -2458,6 +2608,8 @@ def main(argv=None):
         print(f"skipped argparse-owned options: {sorted(set(stats['skipped_options']))}")
     if args.verbose and stats.get("unbound_fields"):
         print(f"adapter fields with no CLI flag: {sorted(set(stats['unbound_fields']))}")
+    for finding in sorted(set(stats.get("dead_options") or [])):
+        print(f"  dead option: {finding}")
     return 0
 
 

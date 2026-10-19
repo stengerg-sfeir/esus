@@ -813,6 +813,52 @@ class ServiceCompositionTests(unittest.TestCase):
         self.assertIn("'-author-only'", second)
         self.assertNotIn("'-a',", second)
 
+    def test_a_declared_option_no_field_reads_is_reported(self):
+        """`member list -active-only` parsed and did nothing: a finding, and
+        a consumed sibling flag proves the check has no false positives."""
+        from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+        adapters = [
+            {"action_name": "list_members", "target_service": "MemberRepository",
+             "target_method": "read_all_members", "input_fields": []},
+            {"action_name": "find_members", "target_service": "MemberRepository",
+             "target_method": "find_members_by_name",
+             "input_fields": [
+                 {"field_name": "name", "target_param": "name",
+                  "transform": "DIRECT", "required": False}]}]
+        invocation = {"commands": [
+            {"name": "member", "options": [], "subcommands": [
+                {"name": "list", "options": [
+                    {"name": "-active-only", "short": "-a", "type": "bool",
+                     "required": False, "default": None}]},
+                {"name": "find", "options": [
+                    {"name": "-name", "type": "str", "required": False,
+                     "default": None}]}]}]}
+        bindings, _ = codegen.bind_commands(adapters, invocation,
+                                            COMMAND_VERB_STEMS)
+        ctx = {
+            "repositories": [{"entity": "Member",
+                              "interface_name": "MemberRepository",
+                              "methods": [
+                                  {"name": "read_all_members", "params": [],
+                                   "return_type": "List[Member]"},
+                                  {"name": "find_members_by_name",
+                                   "params": [{"name": "name", "type": "str"}],
+                                   "return_type": "List[Member]"}]}],
+            "services": [],
+            "models": [{"name": "Member", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "name", "type": "string"}]}],
+            "adapters": adapters, "entity_names": ["Member"],
+            "components": {"facade": {"invocation": invocation}},
+        }
+        stats = {"prog": "member", "unmapped": []}
+        text = generator.emit_cli(ctx, bindings, stats)
+        # The surface keeps declaring the flag; the finding says it is dead.
+        self.assertIn("'-active-only'", text)
+        self.assertEqual(
+            stats["dead_options"],
+            ["member list: -active-only — no adapter field reads it"])
+
     def test_scoring_prefers_the_command_own_entity(self):
         """`budget add` reaches the budget creator, not `add_category`."""
         from kernel.consistency.checks_surface import COMMAND_VERB_STEMS

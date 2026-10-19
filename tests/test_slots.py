@@ -371,6 +371,7 @@ def exec_repos(text):
             "store": store}
     mods["models"].Expense = lambda **kw: kw
     mods["models"].Budget = lambda **kw: kw
+    mods["models"].Widget = lambda **kw: kw
     with mock.patch.dict(sys.modules, mods):
         namespace = dict(mods)
         exec(compile(text, "repositories.py", "exec"), namespace)
@@ -458,6 +459,137 @@ class CollectTests(unittest.TestCase):
         method = {"name": "low_stock", "params": []}
         self.assertIsNone(slots_module._slot_options(
             ctx, repo, method, "THRESHOLD_SCAN"))
+
+
+WIDGET_MODEL = {"name": "Widget", "fields": [
+    {"name": "id", "type": "int", "primary_key": True},
+    {"name": "name", "type": "string"},
+    {"name": "is_flagged", "type": "boolean"},
+    {"name": "status", "type": "string"}]}
+
+WIDGET_INVARIANTS = [
+    {"kind": "schema",
+     "text": "Widget.status must be one of ['draft', 'live']"}]
+
+
+def criterion_ctx(slots=None, invariants=None):
+    """Hand ctx for FILTER_CRITERION: a boolean field and a documented set."""
+    ctx = {
+        "models": [WIDGET_MODEL], "errors": [],
+        "invariants": (WIDGET_INVARIANTS if invariants is None
+                       else invariants),
+        "services": [], "entity_names": ["Widget"],
+        "repositories": [{"entity": "Widget",
+                          "interface_name": "WidgetRepository",
+                          "methods": [
+                              {"name": "find_flagged_widgets", "params": [],
+                               "return_type": "List[Widget]",
+                               "description": "flagged"},
+                              {"name": "find_live_widgets", "params": [],
+                               "return_type": "List[Widget]",
+                               "description": "live"},
+                              {"name": "read_all_widgets", "params": [],
+                               "return_type": "List[Widget]",
+                               "description": "all"},
+                          ]}],
+        "mappings": {}, "match_index": {
+            "contract:WidgetRepository.find_flagged_widgets":
+                {"pattern_id": "READ_ALL", "decision": "decided"},
+            "contract:WidgetRepository.find_live_widgets":
+                {"pattern_id": "FILTER_BY_FIELD", "decision": "decided"},
+            "contract:WidgetRepository.read_all_widgets":
+                {"pattern_id": "READ_ALL", "decision": "decided"},
+        },
+        "adapters": [], "components": {}, "slots": {},
+    }
+    for name, spec in (slots or {}).items():
+        ctx["slots"][("WidgetRepository", name)] = {
+            "holder": "WidgetRepository", "method": name, "slots": spec}
+    return ctx
+
+
+class CriterionTests(unittest.TestCase):
+    """Parameterless status filters: offered with documented candidates,
+    emitted as real equality filters, refused when nothing grounds the
+    literal — the generator never reads `active` off a method name."""
+
+    def test_question_offers_documented_fields_only(self):
+        ctx = criterion_ctx()
+        repo = ctx["repositories"][0]
+        method = repo["methods"][0]
+        slots = dict(review_slots._slot_options(ctx, repo, method,
+                                                "FILTER_CRITERION"))
+        self.assertEqual(slots["criterion_field"], ["is_flagged", "status"])
+        self.assertNotIn("name", slots["criterion_field"])
+        self.assertIsNone(slots["criterion_value"])
+        question = {"entity": "Widget", "role": "repository"}
+        self.assertEqual(
+            review_slots._resolve_deferred(
+                ctx, question, method, "criterion_value",
+                {"criterion_field": "is_flagged"}), ["True", "False"])
+        self.assertEqual(
+            review_slots._resolve_deferred(
+                ctx, question, method, "criterion_value",
+                {"criterion_field": "status"}), ["draft", "live"])
+
+    def test_only_stubbed_filters_are_asked(self):
+        ctx = criterion_ctx()
+        flagged = ctx["repositories"][0]["methods"][0]
+        read_all = ctx["repositories"][0]["methods"][2]
+        self.assertEqual(generator._slot_pattern(
+            ctx, "WidgetRepository", flagged)[0], "FILTER_CRITERION")
+        # A genuine read-all plans mechanically: nothing to ask.
+        self.assertIsNone(generator._slot_pattern(
+            ctx, "WidgetRepository", read_all)[0])
+
+    def test_field_enum_reads_only_the_documented_line(self):
+        ctx = criterion_ctx()
+        self.assertEqual(generator._field_enum(ctx, "Widget", "status"),
+                         ["draft", "live"])
+        self.assertEqual(generator._field_enum(ctx, "Widget", "name"), [])
+        self.assertEqual(generator._field_enum(ctx, "Missing", "status"), [])
+
+    def test_answered_booleans_and_vocabulary_run(self):
+        ctx = criterion_ctx({
+            "find_flagged_widgets": {"criterion_field": "is_flagged",
+                                     "criterion_value": "True"},
+            "find_live_widgets": {"criterion_field": "status",
+                                  "criterion_value": "live"}})
+        stats = {"source": "t", "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        namespace, store = exec_repos(generator.emit_repositories(ctx, stats))
+        # Two criteria plus the repo's plain mechanical read-all.
+        self.assertEqual(stats["implemented"], 3)
+        backend = store.Store()
+        backend.add("Widget", "id", {"name": "a", "is_flagged": True,
+                                     "status": "draft"})
+        backend.add("Widget", "id", {"name": "b", "is_flagged": False,
+                                     "status": "live"})
+        backend.add("Widget", "id", {"name": "c", "is_flagged": False,
+                                     "status": "draft"})
+        repo = namespace["WidgetRepository"](backend)
+        self.assertEqual([w["name"] for w in repo.find_flagged_widgets()],
+                         ["a"])
+        self.assertEqual([w["name"] for w in repo.find_live_widgets()],
+                         ["b"])
+
+    def test_undocumented_literals_refuse_to_emit(self):
+        # A boolean field takes exactly True/False; a plain string field has
+        # no vocabulary, so no value of it may be baked in.
+        ctx = criterion_ctx({
+            "find_flagged_widgets": {"criterion_field": "is_flagged",
+                                     "criterion_value": "yes"},
+            "find_live_widgets": {"criterion_field": "name",
+                                  "criterion_value": "a"}})
+        stats = {"source": "t", "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        text = generator.emit_repositories(ctx, stats)
+        # Only the repo's plain mechanical read-all survives; the two
+        # criterion methods refuse rather than filter on an invented value.
+        self.assertEqual(stats["implemented"], 1)
+        for name in ("find_flagged_widgets", "find_live_widgets"):
+            body = text.split(f"def {name}")[1].split("    def ")[0]
+            self.assertIn("NotImplementedError", body)
 
 
 class ReviewFlowTests(unittest.TestCase):

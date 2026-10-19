@@ -228,14 +228,16 @@ class MemberRepository:
         return None
 
     def find_active_members(self) -> List[models.Member]:
-        """Finds all active members. [stub: pattern READ_ALL: filter with no parameters filters nothing]"""
-        raise NotImplementedError(
-            "Member.find_active_members: stub: pattern READ_ALL: filter with no parameters filters nothing")
+        """Finds all active members. [FILTER_CRITERION via answered slots: criterion_field=is_active, criterion_value=True]"""
+        criteria = [('is_active', 'eq', True)]
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**record) for record in found]
 
     def find_inactive_members(self) -> List[models.Member]:
-        """Finds all inactive members. [stub: pattern FILTER_BY_FIELD: filter with no parameters filters nothing]"""
-        raise NotImplementedError(
-            "Member.find_inactive_members: stub: pattern FILTER_BY_FIELD: filter with no parameters filters nothing")
+        """Finds all inactive members. [FILTER_CRITERION via answered slots: criterion_field=is_active, criterion_value=False]"""
+        criteria = [('is_active', 'eq', False)]
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**record) for record in found]
 
 
 class LoanRepository:
@@ -293,14 +295,21 @@ class LoanRepository:
         return None
 
     def get_active_loans(self) -> List[models.Loan]:
-        """Finds all active loans. [stub: pattern READ_ALL: no mechanical reading]"""
-        raise NotImplementedError(
-            "Loan.get_active_loans: stub: pattern READ_ALL: no mechanical reading")
+        """Finds all active loans. [FILTER_CRITERION via answered slots: criterion_field=status, criterion_value=active]"""
+        criteria = [('status', 'eq', 'active')]
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Loan(**record) for record in found]
 
     def get_overdue_loans(self) -> List[models.Loan]:
-        """Finds all overdue loans. [stub: pattern THRESHOLD_SCAN: no mechanical reading]"""
-        raise NotImplementedError(
-            "Loan.get_overdue_loans: stub: pattern THRESHOLD_SCAN: no mechanical reading")
+        """Finds all overdue loans. [THRESHOLD_SCAN via answered slots: comparison_field=due_date, operator=<, threshold=today]"""
+        bound = datetime.date.today().isoformat()
+        out = []
+        for record in self._store.select(self.ENTITY, []):
+            key = str(record.get('due_date') or '')[:10]
+            hit = key < str(bound)[:10]
+            if hit:
+                out.append(models.Loan(**record))
+        return out
 
     def get_member_loan_history(self, member_id: int = None) -> List[models.Loan]:
         """Finds all loans for a specific member. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""

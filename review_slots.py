@@ -13,10 +13,12 @@ Usage:
     python review_slots.py out/expenses          # ask open questions
     python review_slots.py out/expenses --list   # show open questions only
 
-Only slottable patterns are asked (`generator.SLOT_PATTERNS` — aggregates
-and threshold scans). Guards and custom logic have no finite options to
-offer; those stay stubs for the LLM pass. Skipping any slot records
-nothing — the probe keeps reporting the stub and the question reopens.
+Only slottable patterns are asked (`generator.SLOT_PATTERNS` — aggregates,
+threshold scans, parameterless status filters via the synthetic
+`FILTER_CRITERION` question, and budget guards). Custom logic has no finite
+options to offer; those stay stubs for the LLM pass. Skipping any slot
+records nothing — the probe keeps reporting the stub and the question
+reopens.
 """
 
 import json
@@ -216,6 +218,16 @@ def _slot_options(ctx, repo, method, pattern):
         # options — never from a stale precomputed list.
         options.append(("threshold", None))
         return options
+    if pattern == "FILTER_CRITERION":
+        candidates = [name for name, _ftype, _field in fields
+                      if generator._criterion_values(ctx, entity, name)]
+        if not candidates:
+            return None
+        # The value follows the chosen field: True/False for a boolean, the
+        # documented vocabulary for a string (`Loan.status` and its
+        # invariant). Never offered blind, never invented off the name.
+        return [("criterion_field", candidates[:6]),
+                ("criterion_value", None)]
     if pattern == "BUDGET_OVERFLOW_GUARD":
         entity = repo.get("entity")
         own_numeric = _summable(_model_fields(ctx, entity))
@@ -355,6 +367,11 @@ def _resolve_deferred(ctx, question, method, slot, answers):
     if slot == "threshold":
         return _threshold_options(ctx, question["entity"], method,
                                   answers.get("comparison_field"))
+    if slot == "criterion_value":
+        field = answers.get("criterion_field")
+        if not field:
+            return []
+        return generator._criterion_values(ctx, question["entity"], field)
     if slot in ("target_field", "date_field") and question.get("role") == "repository":
         spend = answers.get("spend_entity")
         if not spend:

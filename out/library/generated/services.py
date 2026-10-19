@@ -40,9 +40,8 @@ class LibraryService:
             "LibraryService.return_book: pattern STANDARD_CRUD: no mechanical reading")
 
     def get_overdue_loans(self) -> List[models.Loan]:
-        """Returns all overdue loans. [same-name repo method on LoanRepository is pattern THRESHOLD_SCAN: no mechanical reading]"""
-        raise NotImplementedError(
-            "LibraryService.get_overdue_loans: pattern THRESHOLD_SCAN: no mechanical reading")
+        """Returns all overdue loans. [delegates to LoanRepository.get_overdue_loans — pattern realized by target]"""
+        return self._repos['LoanRepository'].get_overdue_loans()
 
     def renew_membership(self, member_id: int = None) -> models.Member:
         """Renews membership by toggling is_active status. [pattern STANDARD_CRUD: no mechanical reading]"""
