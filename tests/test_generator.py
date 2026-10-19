@@ -1671,8 +1671,15 @@ class MappingEmissionTests(unittest.TestCase):
         store = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(store)
         models = types.ModuleType("models")
-        models.Author = lambda **kw: kw
-        models.Book = lambda **kw: kw
+        # Real `models.py` entities are dataclasses; these stand-ins are
+        # dicts so the assertions can index records. They must be *classes*:
+        # with eager annotations (3.12) `models.Book | None` evaluates at
+        # class creation, and a lambda cannot be unioned — lazy 3.14
+        # annotations hid that until the suite ran here.
+        models.Author = type("Author", (dict,), {
+            "__init__": lambda self, **kw: dict.__init__(self, kw)})
+        models.Book = type("Book", (dict,), {
+            "__init__": lambda self, **kw: dict.__init__(self, kw)})
         errors = types.ModuleType("errors")
         for name in ("BookNotFoundError", "AuthorNotFoundError"):
             setattr(errors, name, type(name, (LookupError,), {}))
