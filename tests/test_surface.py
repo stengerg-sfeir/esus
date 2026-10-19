@@ -158,5 +158,113 @@ class ApplyTests(unittest.TestCase):
         self.assertIn("category", [s["name"] for s in expense["subcommands"]])
 
 
+def stranded():
+    """A library-like output: `member list -active-only` has no adapter field.
+
+    The documents link the flag to nothing; the leaf reads the parameterless
+    `read_all_members`, and its sibling parameterless reads are the finite
+    candidates a human may pick from.
+    """
+    return {
+        "components": components([
+            {"name": "member", "options": [], "subcommands": [
+                {"name": "list", "options": [
+                    {"name": "-active-only", "short": "-a", "type": "bool",
+                     "required": False, "default": None}]}]}]),
+        "data_models": [{"name": "Member", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "name", "type": "string"},
+            {"name": "is_active", "type": "boolean"}]}],
+        "interaction_adapters": [
+            {"action_name": "list_members",
+             "target_service": "MemberRepository",
+             "target_method": "read_all_members", "input_fields": []}],
+        "persistence_ports": {
+            "repositories": [
+                {"entity": "Member", "interface_name": "MemberRepository",
+                 "methods": [
+                     {"name": "read_all_members", "params": [],
+                      "return_type": "List[Member]"},
+                     {"name": "find_active_members", "params": [],
+                      "return_type": "List[Member]"},
+                     {"name": "find_members_by_name",
+                      "params": [{"name": "name", "type": "str"}],
+                      "return_type": "List[Member]"}]}],
+            "entity_mappings": [
+                {"entity": "Member", "table": "members",
+                 "primary_key": "id", "indexes": []}]},
+        "pattern_matches": [
+            {"source": "contract:MemberRepository.read_all_members",
+             "pattern_id": "READ_ALL", "decision": "decided"},
+            {"source": "contract:MemberRepository.find_active_members",
+             "pattern_id": "READ_ALL", "decision": "decided"},
+            {"source": "contract:MemberRepository.find_members_by_name",
+             "pattern_id": "READ_ALL", "decision": "decided"}],
+        "service_contracts": [], "errors": [], "intentions": [],
+        "invariants": [],
+    }
+
+
+def writes_stranded(directory, records=None):
+    path = Path(directory)
+    for name, body in stranded().items():
+        (path / f"{name}.json").write_text(json.dumps({name: body}),
+                                           encoding="utf-8")
+    # `find_active_members` reads as any parameterless filter — nothing but a
+    # human answer says `is_active == True`; that answer is what makes the
+    # method a candidate (a stub can be routed into, never fixed by routing).
+    (path / "method_slots.json").write_text(json.dumps({"slots": [
+        {"holder": "MemberRepository", "method": "find_active_members",
+         "pattern": "FILTER_CRITERION",
+         "slots": {"criterion_field": "is_active", "criterion_value": "True"},
+         "decided_by": "user"}]}), encoding="utf-8")
+    (path / "requirements.txt").write_text(
+        "Run `member list [--active-only]`.", encoding="utf-8")
+    if records is not None:
+        (path / "surface_decisions.json").write_text(
+            json.dumps({"decisions": records}), encoding="utf-8")
+    return str(path)
+
+
+class RouteCollectTests(unittest.TestCase):
+    """A stranded flag offers parameterless reads, and only those; the
+    recorded pick dispatches and never reopens while the prompt stands."""
+
+    def test_stranded_flag_offers_parameterless_reads(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_stranded(directory)
+            questions, _context = review_surface.collect_routes(out)
+            self.assertEqual(len(questions), 1)
+            question = questions[0]
+            self.assertEqual(
+                (question["command"], question["subcommand"],
+                 question["flag"]), ("member", "list", "active_only"))
+            self.assertEqual(question["candidates"],
+                             [("MemberRepository", "find_active_members")])
+
+    def test_a_recorded_route_closes_the_question(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_stranded(directory)
+            review_surface.run_review(out, input_fn=lambda _: "1",
+                                      out_fn=lambda _: None)
+            self.assertEqual(review_surface.collect_routes(out)[0], [])
+            records = json.loads(
+                (Path(out) / "surface_decisions.json").read_text())["decisions"]
+            self.assertEqual(records[0]["kind"], "route")
+            self.assertEqual(records[0]["service"], "MemberRepository")
+            self.assertEqual(records[0]["method"], "find_active_members")
+            self.assertEqual(records[0]["decided_by"], "user")
+
+    def test_a_route_pointing_at_a_vanished_method_reopens(self):
+        record = {"kind": "route", "command": "member", "subcommand": "list",
+                  "flag": "active_only", "service": "MemberRepository",
+                  "method": "find_gone_members", "decided_by": "user"}
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_stranded(directory, [record])
+            questions, _context = review_surface.collect_routes(out)
+            self.assertEqual(len(questions), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
+

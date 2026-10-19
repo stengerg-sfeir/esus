@@ -84,6 +84,14 @@ FALLBACK_SEED = 20261012
 METHOD_SLOTS_NAME = "method_slots.json"
 METHOD_SLOTS_KEY = "slots"
 
+# `surface_decisions.json` beside the documents (written by
+# review_surface.py): duplicate-node keeps, and `kind: "route"` records
+# binding a declared CLI flag to the method it selects. Route records are
+# consumed here, at generation time — they shape the emitted dispatch.
+SURFACE_DECISIONS_NAME = "surface_decisions.json"
+SURFACE_DECISIONS_KEY = "decisions"
+SURFACE_ROUTE_KIND = "route"
+
 
 # --------------------------------------------------------------------------
 # document access
@@ -136,6 +144,28 @@ def load_context(output_dir):
                     slots[(record["holder"], record["method"])] = record
     except (OSError, ValueError):
         pass
+    routes = []
+    dropped_routes = 0
+    try:
+        with open(os.path.join(output_dir, SURFACE_DECISIONS_NAME),
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+        records = payload.get(SURFACE_DECISIONS_KEY)
+        if isinstance(records, list):
+            for record in records:
+                if not (isinstance(record, dict)
+                        and record.get("kind") == SURFACE_ROUTE_KIND
+                        and record.get("command") and record.get("flag")
+                        and record.get("service") and record.get("method")):
+                    continue
+                stamped = record.get("requirements_sha")
+                if current is not None and isinstance(stamped, str) \
+                        and stamped != current:
+                    dropped_routes += 1
+                    continue
+                routes.append(record)
+    except (OSError, ValueError):
+        pass
     return {
         "models": models,
         "errors": errors,
@@ -149,6 +179,8 @@ def load_context(output_dir):
         "entity_names": [m["name"] for m in models],
         "slots": slots,
         "dropped_slots": dropped,
+        "routes": routes,
+        "dropped_routes": dropped_routes,
     }
 
 
@@ -1727,16 +1759,16 @@ def _repo_threshold_body(entity, model_cls, field_types, method, fname, slots):
     lines.append("return out")
     return lines
 
-def _emit_options(indent, parser_var, options, stats, destinations=None):
-    """`add_argument` lines; argparse already owns `help`/`version`.
+def _option_plans(options, stats):
+    """Emitted `{flags, dest, type, ...}` per declared option.
 
-    A flag string taken twice on one parser (the documents give `-a` to two
-    options of `book list`) cannot register twice: the option keeps its free
-    strings, or is skipped with none left — reported, since one flag goes
-    unreachable either way. Emitted `(dest, flag)` pairs are collected into
-    `destinations` for the caller's dead-option check.
+    One planning pass so the parser lines and the binding choices read the
+    same skips: help/version are argparse's, a repeated dest registers once,
+    a flag string taken twice on one parser keeps its free strings or is
+    skipped with none left — reported either way, since one flag goes
+    unreachable.
     """
-    lines = []
+    plans = []
     seen = set()
     taken = {"-h", "--help"}
     for option in options or []:
@@ -1763,78 +1795,305 @@ def _emit_options(indent, parser_var, options, stats, destinations=None):
             stats.setdefault("skipped_options", []).append(f"{raw} (all flag strings taken)")
             continue
         taken.update(flags)
-        otype = (option.get("type") or "str").strip().lower()
-        required = bool(option.get("required"))
-        default = option.get("default")
-        parts = [f"{flag!r}" for flag in flags]
-        if otype == "bool":
-            parts.append("action='store_true'" if not default else "action='store_false'")
-            if default:
-                parts.append("default=True")
-        elif otype == "list":
-            parts.append("nargs='*'")
-            if default is not None:
-                parts.append(f"default={default!r}")
-        else:
-            parts.append(f"type={ {'str': 'str', 'int': 'int', 'float': 'float'}.get(otype, 'str')}")
-            parts.append(f"required={required!r}")
-            if default is not None:
-                parts.append(f"default={default!r}")
-        parts.append(f"dest={dest!r}")
-        lines.append(f"{indent}{parser_var}.add_argument({', '.join(parts)})")
+        plans.append({"flags": flags, "dest": dest,
+                      "otype": (option.get("type") or "str").strip().lower(),
+                      "required": bool(option.get("required")),
+                      "default": option.get("default")})
+    return plans
+
+
+def _render_plan(indent, parser_var, plan):
+    """The `add_argument` line for one planned option."""
+    parts = [f"{flag!r}" for flag in plan["flags"]]
+    otype = plan["otype"]
+    if otype == "bool":
+        parts.append("action='store_true'" if not plan["default"] else "action='store_false'")
+        if plan["default"]:
+            parts.append("default=True")
+    elif otype == "list":
+        parts.append("nargs='*'")
+        if plan["default"] is not None:
+            parts.append(f"default={plan['default']!r}")
+    else:
+        parts.append(f"type={ {'str': 'str', 'int': 'int', 'float': 'float'}.get(otype, 'str')}")
+        parts.append(f"required={plan['required']!r}")
+        if plan["default"] is not None:
+            parts.append(f"default={plan['default']!r}")
+    parts.append(f"dest={plan['dest']!r}")
+    return f"{indent}{parser_var}.add_argument({', '.join(parts)})"
+
+
+def _emit_options(indent, parser_var, options, stats, destinations=None):
+    """`add_argument` lines; emitted `(dest, flag, kind)` pairs are collected
+    into `destinations` for the binding choices and dead-option check."""
+    lines = []
+    for plan in _option_plans(options, stats):
+        lines.append(_render_plan(indent, parser_var, plan))
         if destinations is not None:
-            destinations.append((dest, flags[0]))
+            destinations.append(
+                (plan["dest"], plan["flags"][0],
+                 "truthy" if plan["otype"] == "bool" else "value"))
     return lines
 
 
-def _report_dead_options(where, destinations, bound, actions, assembled, argv,
-                         stats):
-    """Declared options no adapter input field reads: parsed, then ignored.
+def _service_method(ctx, service_ref, method_name):
+    """The documented method object for a service/repo reference, or None."""
+    wanted = normalize(service_ref or "")
+    for repo in ctx["repositories"]:
+        names = {normalize(repo.get("interface_name") or ""),
+                 normalize(repo.get("entity") or "")}
+        if wanted not in names:
+            continue
+        for method in repo.get("methods") or []:
+            if isinstance(method, dict) and method.get("name") == method_name:
+                return method
+    for service in ctx["services"]:
+        if normalize(service.get("service_name") or "") != wanted:
+            continue
+        for method in service.get("methods") or []:
+            if isinstance(method, dict) and method.get("name") == method_name:
+                return method
+    return None
+
+
+def _return_shape(ctx, returns):
+    """`collection`, `entity` or `scalar` — how a method's result displays."""
+    if not isinstance(returns, str):
+        return "scalar"
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    if "list" in words:
+        return "collection"
+    names = {normalize(name) for name in ctx["entity_names"]
+             if isinstance(name, str)}
+    return "entity" if words & names else "scalar"
+
+
+def _alternate_actions(ctx, base_action, dests, actions):
+    """Adapter actions this leaf's flags feed end-to-end, sorted.
+
+    Only a leaf whose bound method takes no arguments can be refined by its
+    flags — `budget list` reading everything becomes the category-month
+    read when both flags are passed. A method that already takes arguments
+    (`remove_product(id)`, `get_product(id)`) is not an unfiltered fallback,
+    and its flags must never redirect it to a different action.
+
+    An alternate counts only when every declared field binds to one of the
+    leaf's own flags AND the same names are actual parameters of the
+    action's target method, whose result still displays like a list. The
+    parameter check is what refuses a mis-targeted document: the action
+    `list_books_by_author` points at the availability filter with an
+    `author_id` field, and no wiring may paper over that contradiction.
+    """
+    base = actions.get(base_action) or {}
+    service = base.get("target_service")
+    base_method = _service_method(ctx, service, base.get("target_method"))
+    if base_method is None or base_method.get("params"):
+        return []
+    alternates = []
+    for name in sorted(actions):
+        spec = actions.get(name)
+        if not isinstance(spec, dict) or name == base_action:
+            continue
+        if spec.get("target_service") != service:
+            continue
+        fields = [f for f in spec.get("input_fields") or []
+                  if isinstance(f, dict) and f.get("field_name")]
+        if not fields:
+            continue
+        method = _service_method(ctx, service, spec.get("target_method"))
+        if method is None:
+            continue
+        params = {p.get("name") for p in method.get("params") or []
+                  if isinstance(p, dict) and isinstance(p.get("name"), str)}
+        if not all(f["field_name"] in params for f in fields):
+            continue
+        if _return_shape(ctx, method.get("return_type")) not in ("collection",
+                                                                 "entity"):
+            continue
+        bindings = []
+        used = set()
+        ok = True
+        for field in fields:
+            dest = codegen.bind_field(dests, field["field_name"])
+            if dest is None or dest in used:
+                ok = False
+                break
+            used.add(dest)
+            bindings.append((field["field_name"], dest))
+        if not ok:
+            continue
+        alternates.append((name, bindings))
+    return alternates
+
+
+def _route_action_key(actions, service, method):
+    """An action key for a recorded route, synthesized when none exists.
+
+    A routed method usually has no adapter action (that is why the flag is
+    stranded); the virtual entry calls it with no arguments, which is what
+    makes it a route candidate in the first place.
+    """
+    for name, spec in actions.items():
+        if (isinstance(spec, dict)
+                and spec.get("target_service") == service
+                and spec.get("target_method") == method):
+            return name
+    key = codegen.sanitize(method, "route")
+    while key in actions:
+        key += "_route"
+    actions[key] = {"action_name": key, "target_service": service,
+                    "target_method": method, "input_fields": []}
+    return key
+
+
+def _leaf_choices(ctx, where, destinations, base_bound, actions, usage):
+    """`[(action, score, need)]`: routes, mechanical alternates, fallback.
+
+    `need` items are `(dest, kind, flag)` — `kind` `truthy` for boolean
+    selectors, `value` for valued flags. The recorded routes come first
+    (explicit human decisions), then alternates (document-derived), and
+    the bound action last with an empty need, so dispatch always has a
+    fallback and flags win over it whenever they are passed.
+    """
+    command, subcommand = where
+    base_action, base_score = base_bound
+    flag_of = {dest: flag for dest, flag, _kind in destinations}
+    kind_of = {dest: kind for dest, _flag, kind in destinations}
+    choices = []
+    for record in ctx.get("routes") or []:
+        if (record.get("command"), record.get("subcommand")) != where:
+            continue
+        flag = record.get("flag")
+        if flag not in flag_of:
+            continue
+        service = record.get("service")
+        method = record.get("method")
+        if _service_method(ctx, service, method) is None:
+            continue
+        key = _route_action_key(actions, service, method)
+        choices.append((key, base_score,
+                        ((flag, kind_of[flag], flag_of[flag]),)))
+    used = [dest for dest, _flag, _kind in destinations]
+    for name, bindings in _alternate_actions(ctx, base_action, used, actions):
+        usage.setdefault(name, []).extend(bindings)
+        need = tuple((dest, kind_of[dest], flag_of[dest])
+                     for _field, dest in bindings)
+        choices.append((name, base_score, need))
+    choices.append((base_action, base_score, ()))
+    return choices
+
+
+def _report_dead_options(where, dead, stats):
+    """Declared options no choice reads: parsed, then ignored.
 
     `member list -active-only` printed every member — the flag parsed and
     did nothing, which is worse than refusing. The surface is the
     documents'; removing or wiring the flag is a human decision, so it is
     reported here, never silently dropped and never guessed at.
     """
-    if not bound or not destinations:
-        return
-    action = bound[0]
-    adapter = actions.get(action)
-    if not isinstance(adapter, dict):
-        return
-    consumed = set()
-    for field in adapter.get("input_fields") or []:
-        if not isinstance(field, dict) or not field.get("field_name"):
+    for _dest, flag, _kind in dead:
+        stats.setdefault("dead_options", []).append(
+            f"{where}: {flag} — no adapter field reads it")
+
+
+def _leaf_scan(ctx, bindings, stats):
+    """Plan every leaf once: flags, choices, and flags no choice reads.
+
+    Shared by the emitter and the route review (`review_surface.py`): the
+    same numbers decide what the CLI dispatches to and what the review asks
+    about. Returns `(leaves, actions, argv, targets, assembled)`; each leaf
+    carries `plans`, `destinations`, `choices` and `dead`.
+    """
+    actions = {a["action_name"]: a for a in ctx["adapters"]}
+    invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
+    argv = codegen.action_argv(ctx["adapters"], bindings, invocation)
+    targets = codegen.action_targets(ctx["adapters"], ctx["services"],
+                                     ctx["repositories"], ctx["entity_names"])
+    assembled = {}
+    for name, adapter in actions.items():
+        assembled[name] = [
+            f["field_name"] for f in adapter.get("input_fields") or []
+            if isinstance(f, dict) and f.get("field_name")
+            and codegen.is_assembly_field(adapter, f["field_name"],
+                                          targets.get(name, {}))]
+    # The choices phase: plan every leaf's flags once, work out what each
+    # leaf may dispatch to, and only then let the emitter write the file in
+    # its final order.
+    leaves = []
+    usage = {}
+    for command in invocation.get("commands") or []:
+        if not isinstance(command, dict) or not command.get("name"):
             continue
-        if field["field_name"] in assembled.get(action, []):
-            continue
-        dest = argv.get(action, {}).get(field["field_name"])
-        if dest:
-            consumed.add(dest)
-    for dest, flag in destinations:
-        if dest not in consumed:
-            stats.setdefault("dead_options", []).append(
-                f"{where}: {flag} — no adapter field reads it")
+        cname = command["name"]
+        subs = [s for s in (command.get("subcommands") or [])
+                if isinstance(s, dict) and s.get("name")]
+        for sname in ([None] if not subs else [s["name"] for s in subs]):
+            plans = _option_plans(codegen.leaf_options(invocation, cname, sname),
+                                  stats)
+            destinations = [(plan["dest"], plan["flags"][0],
+                             "truthy" if plan["otype"] == "bool" else "value")
+                            for plan in plans]
+            bound = bindings.get((cname, sname))
+            choices = None
+            consumed = set()
+            if bound:
+                choices = _leaf_choices(ctx, (cname, sname), destinations,
+                                        bound, actions, usage)
+                for _action, _score, need in choices:
+                    consumed.update(dest for dest, _kind, _flag in need)
+                base_action = bound[0]
+                for field in (actions.get(base_action) or {}).get("input_fields") or []:
+                    if not isinstance(field, dict) or not field.get("field_name"):
+                        continue
+                    if field["field_name"] in assembled.get(base_action, []):
+                        continue
+                    dest = argv.get(base_action, {}).get(field["field_name"])
+                    if dest:
+                        consumed.add(dest)
+            leaves.append({"command": cname, "subcommand": sname,
+                           "plans": plans, "destinations": destinations,
+                           "choices": choices,
+                           "dead": [item for item in destinations
+                                    if item[0] not in consumed] if bound else []})
+    # Alternate choices read flags through argv: fill in their field→dest
+    # mapping from the leaves that select them (the action itself was never
+    # bound, so action_argv could not know these).
+    for action, pairs in usage.items():
+        entry = argv.setdefault(action, {})
+        for field, dest in pairs:
+            if entry.get(field) is None:
+                entry[field] = dest
+    return leaves, actions, argv, targets, assembled
 
 
 def emit_cli(ctx, bindings, stats):
-    """An argparse CLI: every declared verb parses; bound verbs dispatch."""
+    """An argparse CLI: every declared verb parses; bound verbs dispatch.
+
+    A leaf may bind several choices: recorded routes (a flag selecting a
+    method the documents never linked it to), mechanical alternates (an
+    adapter action every one of whose fields the leaf's flags supply, and
+    whose own target method agrees with those field names), then the plain
+    bound action as the fallback. The first choice whose flags are all
+    passed wins; flags that select nothing are reported, not ignored.
+    """
     repo_classes = [codegen.sanitize(r.get("interface_name") or r.get("entity"), "Repository")
                     for r in ctx["repositories"]]
     port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
     service_classes = [codegen.sanitize(s["service_name"], "Service") for s in ctx["services"]
                        if normalize(s["service_name"]) not in port_names]
     model_names = [codegen.sanitize(m["name"], "Model") for m in ctx["models"]]
-    actions = {a["action_name"]: a for a in ctx["adapters"]}
-    invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
-    argv = codegen.action_argv(ctx["adapters"], bindings, invocation)
-    targets = codegen.action_targets(ctx["adapters"], ctx["services"], ctx["repositories"], ctx["entity_names"])
-    assembled = {}
-    for name, adapter in actions.items():
-        assembled[name] = [
-            f["field_name"] for f in adapter.get("input_fields") or []
-            if isinstance(f, dict) and f.get("field_name")
-            and codegen.is_assembly_field(adapter, f["field_name"], targets.get(name, {}))]
+    leaves, actions, argv, targets, assembled = _leaf_scan(ctx, bindings, stats)
+    for leaf in leaves:
+        where = (leaf["command"] if leaf["subcommand"] is None
+                 else f"{leaf['command']} {leaf['subcommand']}")
+        _report_dead_options(where, leaf["dead"], stats)
+        for action, _score, need in leaf["choices"] or []:
+            if not need:
+                continue
+            stats.setdefault("choice_routes", []).append(
+                f"{where}: "
+                f"{' '.join(flag for _dest, _kind, flag in need)} -> {action}")
     lines = ['"""Command line. Every declared verb parses; bound verbs dispatch to',
              "their adapter's service method, unbound ones fail with the reason.",
              "",
@@ -1923,18 +2182,62 @@ def emit_cli(ctx, bindings, stats):
                 stats.setdefault("unbound_fields", []).append(
                     f"{name}.{field['field_name']} (required={bool(field.get('required'))})")
     lines.append("}")
-    lines += ["", "", "BINDINGS = {  # (command, subcommand) -> (action, score)"]
+    choice_index = {(leaf["command"], leaf["subcommand"]): leaf["choices"]
+                    for leaf in leaves}
+    lines += ["", "", "BINDINGS = {  # (command, subcommand) -> [(action, score, need)]"]
     for (command, sub), bound in sorted(bindings.items(), key=lambda item: str(item[0])):
         if bound is None:
             lines.append(f"    {(command, sub)!r}: None,")
             stats["unmapped"].append(f"{command} {sub}" if sub else f"{command}")
         else:
-            action, score = bound
-            lines.append(f"    {(command, sub)!r}: ({action!r}, {score}),")
+            choices = choice_index.get((command, sub)) or [(bound[0], bound[1], ())]
+            rendered = ", ".join(f"({action!r}, {score}, {need!r})"
+                                 for action, score, need in choices)
+            lines.append(f"    {(command, sub)!r}: [{rendered}],")
     lines.append("}")
     lines += ["", "",
               "def _normalize(text):",
               '    return "".join(c for c in str(text).lower() if c.isalnum())',
+              "",
+              "",
+              "def _needs_met(present, need):",
+              "    for dest, kind, _flag in need:",
+              "        value = present.get(_normalize(dest))",
+              "        if kind == 'truthy':",
+              "            if not value:",
+              "                return False",
+              "        elif value is None:",
+              "            return False",
+              "    return True",
+              "",
+              "",
+              "def _choose(bound, values):",
+              "    \"\"\"The first choice whose flags are all passed: routes and",
+              "    filters before the fallback, which needs nothing.\"\"\"",
+              "    present = {_normalize(k): v for k, v in values.items()}",
+              "    for choice in bound:",
+              "        if _needs_met(present, choice[2]):",
+              "            return choice, present",
+              "    return bound[-1], present",
+              "",
+              "",
+              "def _incomplete(chosen, bound, present):",
+              "    \"\"\"Flags passed that select a choice also needing companions",
+              "    (`-category` without `-month`): naming the missing flag beats",
+              "    ignoring the one passed.\"\"\"",
+              "    consumed = {dest for dest, _kind, _flag in chosen[2]}",
+              "    for action, _score, need in bound:",
+              "        if action == chosen[0]:",
+              "            continue",
+              "        passed = [item for item in need if _needs_met(present, (item,))]",
+              "        if not passed or len(passed) == len(need):",
+              "            continue",
+              "        if any(item[0] in consumed for item in passed):",
+              "            continue",
+              "        missing = ' and '.join(item[2] for item in need",
+              "                               if item not in passed)",
+              "        return f'{action!r} also needs {missing}'",
+              "    return None",
               "",
               "",
               f"DEFAULT_DB = {stats['prog'] + '.db'!r}",
@@ -1948,6 +2251,8 @@ def emit_cli(ctx, bindings, stats):
               "use :memory: to stay in memory)'))",
               "    sub = parser.add_subparsers(dest='command')"]
     invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
+    leaf_index = {(leaf["command"], leaf["subcommand"]): leaf
+                  for leaf in leaves}
     for command in invocation.get("commands") or []:
         if not isinstance(command, dict) or not command.get("name"):
             continue
@@ -1956,33 +2261,25 @@ def emit_cli(ctx, bindings, stats):
         subs = [s for s in (command.get("subcommands") or [])
                 if isinstance(s, dict) and s.get("name")]
         if not subs:
-            options = codegen.leaf_options(invocation, cname, None)
             lines.append(f"    p_{cvar} = sub.add_parser({cname!r})")
-            dests = []
-            lines.extend(_emit_options("    ", f"p_{cvar}", options, stats, dests))
+            for plan in (leaf_index.get((cname, None)) or {}).get("plans", []):
+                lines.append(_render_plan("    ", f"p_{cvar}", plan))
             lines.append("    p_" + cvar + ".set_defaults(_binding=" + repr((cname, None)) + ")")
-            _report_dead_options(cname, dests, bindings.get((cname, None)),
-                                 actions, assembled, argv, stats)
         else:
             lines.append(f"    p_{cvar} = sub.add_parser({cname!r})")
             lines.append(f"    sub_{cvar} = p_{cvar}.add_subparsers(dest='subcommand')")
             for item in subs:
                 sname = item["name"]
                 svar = codegen.sanitize(sname, "sub")
-                options = codegen.leaf_options(invocation, cname, sname)
                 lines.append(f"    p_{cvar}_{svar} = sub_{cvar}.add_parser({sname!r})")
-                dests = []
-                lines.extend(_emit_options("    ", f"p_{cvar}_{svar}", options,
-                                           stats, dests))
+                for plan in (leaf_index.get((cname, sname)) or {}).get("plans", []):
+                    lines.append(_render_plan("    ", f"p_{cvar}_{svar}", plan))
                 lines.append("    p_" + cvar + "_" + svar + ".set_defaults(_binding=" + repr((cname, sname)) + ")")
-                _report_dead_options(f"{cname} {sname}", dests,
-                                     bindings.get((cname, sname)), actions,
-                                     assembled, argv, stats)
     lines += ["    return parser",
               "",
               "",
               "def _call(bound, values, deps):",
-              "    action, _score = bound",
+              "    action = bound[0]",
               "    spec = ADAPTERS[action]",
               "    service = deps['services'][_sanitize(spec['service'])]",
               "    method = getattr(service, _sanitize(spec['method']))",
@@ -2052,8 +2349,13 @@ def emit_cli(ctx, bindings, stats):
               "        return 1",
               "    values = {key: value for key, value in vars(args).items()",
               "              if key not in ('command', 'subcommand', '_binding', 'db')}",
+              "    choice, present = _choose(bound, values)",
+              "    trouble = _incomplete(choice, bound, present)",
+              "    if trouble:",
+              "        print(f\"error: {' '.join(binding)}: {trouble}\")",
+              "        return 1",
               "    try:",
-              "        _show(_call(bound, values, deps))",
+              "        _show(_call(choice, values, deps))",
               "    except Exception as error:",
               "        print(f\"error: {error}\")",
               "        return 1",
@@ -2589,6 +2891,9 @@ def main(argv=None):
     if ctx.get("dropped_slots"):
         print(f"dropped {ctx['dropped_slots']} predated slot record(s) — "
               f"their questions reopen in review_slots.py")
+    if ctx.get("dropped_routes"):
+        print(f"dropped {ctx['dropped_routes']} predated route decision(s) — "
+              f"their questions reopen in review_surface.py")
     for filename, text in files.items():
         with open(os.path.join(target, filename), "w", encoding="utf-8") as handle:
             handle.write(text)
@@ -2604,6 +2909,8 @@ def main(argv=None):
     for where, bound in sorted(stats["bindings"].items()):
         print(f"  cli {where} -> {bound[0] if bound else 'UNBOUND'}"
               f"{'' if not bound else f' [score {bound[1]}]'}")
+    for route in stats.get("choice_routes") or []:
+        print(f"  cli route: {route}")
     if args.verbose and stats["skipped_options"]:
         print(f"skipped argparse-owned options: {sorted(set(stats['skipped_options']))}")
     if args.verbose and stats.get("unbound_fields"):

@@ -110,6 +110,15 @@ ADAPTERS = {
         'targets': {'member_id': None, 'book_id': None},
         'assembled': [],
     },
+    'find_active_members': {
+        'service': 'MemberRepository',
+        'method': 'find_active_members',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
     'get_book_loan_history': {
         'service': 'LoanRepository',
         'method': 'get_book_loan_history',
@@ -209,21 +218,61 @@ ADAPTERS = {
 }
 
 
-BINDINGS = {  # (command, subcommand) -> (action, score)
-    ('book', 'add'): ('add_book', 5),
-    ('book', 'list'): ('list_books', 5),
-    ('book', 'search'): ('search_books', 7),
-    ('borrow', None): ('borrow_book', 7),
-    ('member', 'add'): ('add_member', 5),
-    ('member', 'history'): ('get_member_loan_history', 7),
-    ('member', 'list'): ('list_members', 5),
-    ('overdue', None): ('get_overdue_loans', 7),
-    ('return', None): ('return_book', 7),
+BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
+    ('book', 'add'): [('add_book', 5, ())],
+    ('book', 'list'): [('list_books', 5, ())],
+    ('book', 'search'): [('search_books', 7, ())],
+    ('borrow', None): [('borrow_book', 7, ())],
+    ('member', 'add'): [('add_member', 5, ())],
+    ('member', 'history'): [('get_member_loan_history', 7, ())],
+    ('member', 'list'): [('find_active_members', 5, (('active_only', 'truthy', '-active-only'),)), ('list_members', 5, ())],
+    ('overdue', None): [('get_overdue_loans', 7, ())],
+    ('return', None): [('return_book', 7, ())],
 }
 
 
 def _normalize(text):
     return "".join(c for c in str(text).lower() if c.isalnum())
+
+
+def _needs_met(present, need):
+    for dest, kind, _flag in need:
+        value = present.get(_normalize(dest))
+        if kind == 'truthy':
+            if not value:
+                return False
+        elif value is None:
+            return False
+    return True
+
+
+def _choose(bound, values):
+    """The first choice whose flags are all passed: routes and
+    filters before the fallback, which needs nothing."""
+    present = {_normalize(k): v for k, v in values.items()}
+    for choice in bound:
+        if _needs_met(present, choice[2]):
+            return choice, present
+    return bound[-1], present
+
+
+def _incomplete(chosen, bound, present):
+    """Flags passed that select a choice also needing companions
+    (`-category` without `-month`): naming the missing flag beats
+    ignoring the one passed."""
+    consumed = {dest for dest, _kind, _flag in chosen[2]}
+    for action, _score, need in bound:
+        if action == chosen[0]:
+            continue
+        passed = [item for item in need if _needs_met(present, (item,))]
+        if not passed or len(passed) == len(need):
+            continue
+        if any(item[0] in consumed for item in passed):
+            continue
+        missing = ' and '.join(item[2] for item in need
+                               if item not in passed)
+        return f'{action!r} also needs {missing}'
+    return None
 
 
 DEFAULT_DB = 'library.db'
@@ -274,7 +323,7 @@ def build_parser():
 
 
 def _call(bound, values, deps):
-    action, _score = bound
+    action = bound[0]
     spec = ADAPTERS[action]
     service = deps['services'][_sanitize(spec['service'])]
     method = getattr(service, _sanitize(spec['method']))
@@ -344,8 +393,13 @@ def dispatch(parser, args, deps):
         return 1
     values = {key: value for key, value in vars(args).items()
               if key not in ('command', 'subcommand', '_binding', 'db')}
+    choice, present = _choose(bound, values)
+    trouble = _incomplete(choice, bound, present)
+    if trouble:
+        print(f"error: {' '.join(binding)}: {trouble}")
+        return 1
     try:
-        _show(_call(bound, values, deps))
+        _show(_call(choice, values, deps))
     except Exception as error:
         print(f"error: {error}")
         return 1

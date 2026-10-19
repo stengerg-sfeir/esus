@@ -941,6 +941,284 @@ class ServiceCompositionTests(unittest.TestCase):
         self.assertEqual(codegen.unknown_model_fields(adapters, services, [], models), [])
 
 
+class CliChoiceTests(unittest.TestCase):
+    """One leaf, several possible methods: flags pick, partial flags name gaps.
+
+    A recorded route (`member list -active-only` → `find_active_members`)
+    wins when its flag is passed. A mechanical alternate (`budget list
+    -category -month`) must have every one of its flags, and a partial set
+    names the missing flag instead of quietly reading everything. A leaf
+    whose own method takes arguments is nobody's fallback: `product remove
+    -id` may never redirect to the read that shares the flag.
+    """
+
+    def emitted(self, ctx):
+        from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+        bindings, _unmapped = codegen.bind_commands(
+            ctx["adapters"],
+            (ctx["components"].get("facade") or {}).get("invocation") or {},
+            COMMAND_VERB_STEMS)
+        stats = {"prog": "app", "unmapped": []}
+        return generator.emit_cli(ctx, bindings, stats), stats
+
+    def run_cli(self, text, repository_factories, argv,
+                models=("Member", "Budget", "Product")):
+        """Execute the emitted CLI with stand-in modules; `(rc, stdout)`."""
+        import types
+        from unittest import mock
+
+        class NullStore:
+            def close(self):
+                pass
+
+        modules = {}
+        for name in ("models", "errors", "store", "repositories", "services"):
+            modules[name] = types.ModuleType(name)
+        for name in models:
+            setattr(modules["models"], name, type(name, (), {}))
+        modules["store"].Store = lambda path=None: NullStore()
+        for name, factory in repository_factories.items():
+            setattr(modules["repositories"], name, factory)
+        with mock.patch.dict(sys.modules, modules):
+            namespace = {}
+            exec(compile(text, "cli.py", "exec"), namespace)  # noqa: S102
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                code = namespace["main"](argv)
+        return code, buffer.getvalue()
+
+    @staticmethod
+    def member_ctx(routes):
+        adapters = [
+            {"action_name": "list_members", "target_service": "MemberRepository",
+             "target_method": "read_all_members", "input_fields": []}]
+        invocation = {"commands": [{"name": "member", "options": [], "subcommands": [
+            {"name": "list", "options": [
+                {"name": "-active-only", "short": "-a", "type": "bool",
+                 "required": False, "default": None}]}]}]}
+        return {
+            "models": [{"name": "Member", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "name", "type": "string"},
+                {"name": "is_active", "type": "boolean"}]}],
+            "errors": [], "services": [],
+            "repositories": [{"entity": "Member",
+                              "interface_name": "MemberRepository",
+                              "methods": [
+                                  {"name": "read_all_members", "params": [],
+                                   "return_type": "List[Member]"},
+                                  {"name": "find_active_members", "params": [],
+                                   "return_type": "List[Member]"}]}],
+            "mappings": {}, "match_index": {}, "adapters": adapters,
+            "entity_names": ["Member"],
+            "components": {"facade": {"invocation": invocation}},
+            "routes": routes,
+        }
+
+    def test_recorded_route_wins_when_its_flag_is_passed(self):
+        route = {"kind": "route", "command": "member", "subcommand": "list",
+                 "flag": "active_only", "service": "MemberRepository",
+                 "method": "find_active_members", "decided_by": "user"}
+        text, stats = self.emitted(self.member_ctx([route]))
+        line = next(l for l in text.splitlines() if "('member', 'list')" in l)
+        self.assertLess(line.index("'find_active_members'"),
+                        line.index("'list_members'"))
+        self.assertNotIn("dead_options", stats)
+        self.assertEqual(stats["choice_routes"],
+                         ["member list: -active-only -> find_active_members"])
+
+        class MemberRepository:
+            def __init__(self, store):
+                pass
+
+            def read_all_members(self):
+                return ["all-members"]
+
+            def find_active_members(self):
+                return ["active-members"]
+
+        code, output = self.run_cli(text, {"MemberRepository": MemberRepository},
+                                    ["--db", ":memory:", "member", "list",
+                                     "-active-only"])
+        self.assertEqual(code, 0)
+        self.assertIn("active-members", output)
+        code, output = self.run_cli(text, {"MemberRepository": MemberRepository},
+                                    ["--db", ":memory:", "member", "list"])
+        self.assertEqual(code, 0)
+        self.assertIn("all-members", output)
+
+    def test_an_unrouted_flag_stays_declared_and_reported(self):
+        """The surface is the documents': the flag keeps parsing, and the
+        finding — not a guess — is what says nothing reads it."""
+        text, stats = self.emitted(self.member_ctx([]))
+        self.assertIn("'-active-only'", text)
+        self.assertEqual(
+            stats["dead_options"],
+            ["member list: -active-only — no adapter field reads it"])
+
+        class MemberRepository:
+            def __init__(self, store):
+                pass
+
+            def read_all_members(self):
+                return ["all-members"]
+
+            def find_active_members(self):
+                return ["active-members"]
+
+        code, output = self.run_cli(text, {"MemberRepository": MemberRepository},
+                                    ["--db", ":memory:", "member", "list",
+                                     "-active-only"])
+        self.assertEqual(code, 0)
+        self.assertIn("all-members", output)
+
+    @staticmethod
+    def budget_ctx():
+        adapters = [
+            {"action_name": "read_all_budgets",
+             "target_service": "BudgetRepository",
+             "target_method": "read_all_budgets", "input_fields": []},
+            {"action_name": "read_budget_by_category_and_month",
+             "target_service": "BudgetRepository",
+             "target_method": "read_budget_by_category_and_month",
+             "input_fields": [
+                 {"field_name": "category_id", "target_param": "category_id",
+                  "transform": "DIRECT", "required": True},
+                 {"field_name": "month", "target_param": "month",
+                  "transform": "DIRECT", "required": True}]}]
+        invocation = {"commands": [{"name": "budget", "options": [], "subcommands": [
+            {"name": "list", "options": [
+                {"name": "-category", "short": "-c", "type": "int",
+                 "required": False, "default": None},
+                {"name": "-month", "short": "-m", "type": "str",
+                 "required": False, "default": None}]}]}]}
+        return {
+            "models": [{"name": "Budget", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "category_id", "type": "int"},
+                {"name": "month", "type": "string"},
+                {"name": "amount_limit_cents", "type": "int"}]}],
+            "errors": [], "services": [],
+            "repositories": [{"entity": "Budget",
+                              "interface_name": "BudgetRepository",
+                              "methods": [
+                                  {"name": "read_all_budgets", "params": [],
+                                   "return_type": "List[Budget]"},
+                                  {"name": "read_budget_by_category_and_month",
+                                   "params": [
+                                       {"name": "category_id", "type": "int"},
+                                       {"name": "month", "type": "str"}],
+                                   "return_type": "Budget"}]}],
+            "mappings": {}, "match_index": {}, "adapters": adapters,
+            "entity_names": ["Budget"],
+            "components": {"facade": {"invocation": invocation}},
+            "routes": [],
+        }
+
+    def test_alternate_needs_every_flag_and_names_the_missing_one(self):
+        text, stats = self.emitted(self.budget_ctx())
+        line = next(l for l in text.splitlines() if "('budget', 'list')" in l)
+        self.assertLess(line.index("'read_budget_by_category_and_month'"),
+                        line.index("'read_all_budgets'"))
+        self.assertNotIn("dead_options", stats)
+        self.assertEqual(
+            stats["choice_routes"],
+            ["budget list: -category -month -> read_budget_by_category_and_month"])
+
+        class BudgetRepository:
+            def __init__(self, store):
+                pass
+
+            def read_all_budgets(self):
+                return ["all-budgets"]
+
+            def read_budget_by_category_and_month(self, category_id=None,
+                                                  month=None):
+                return [f"filtered:{category_id}:{month}"]
+
+        code, output = self.run_cli(
+            text, {"BudgetRepository": BudgetRepository},
+            ["--db", ":memory:", "budget", "list", "-category", "1",
+             "-month", "2026-10"])
+        self.assertEqual(code, 0)
+        self.assertIn("filtered:1:2026-10", output)
+        code, output = self.run_cli(text, {"BudgetRepository": BudgetRepository},
+                                    ["--db", ":memory:", "budget", "list"])
+        self.assertEqual(code, 0)
+        self.assertIn("all-budgets", output)
+        code, output = self.run_cli(text, {"BudgetRepository": BudgetRepository},
+                                    ["--db", ":memory:", "budget", "list",
+                                     "-category", "1"])
+        self.assertEqual(code, 1)
+        self.assertIn("also needs -month", output)
+
+    @staticmethod
+    def product_ctx():
+        adapters = [
+            {"action_name": "remove_product",
+             "target_service": "ProductRepository",
+             "target_method": "delete_product",
+             "input_fields": [
+                 {"field_name": "id", "target_param": "id",
+                  "transform": "DIRECT", "required": True}]},
+            {"action_name": "get_product",
+             "target_service": "ProductRepository",
+             "target_method": "read_one_product",
+             "input_fields": [
+                 {"field_name": "id", "target_param": "id",
+                  "transform": "DIRECT", "required": True}]}]
+        invocation = {"commands": [{"name": "product", "options": [], "subcommands": [
+            {"name": "remove", "options": [
+                {"name": "-id", "short": "-i", "type": "int",
+                 "required": True, "default": None}]}]}]}
+        return {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "name", "type": "string"}]}],
+            "errors": [], "services": [],
+            "repositories": [{"entity": "Product",
+                              "interface_name": "ProductRepository",
+                              "methods": [
+                                  {"name": "delete_product", "params": [
+                                      {"name": "id", "type": "int"}],
+                                   "return_type": "None"},
+                                  {"name": "read_one_product", "params": [
+                                      {"name": "id", "type": "int"}],
+                                   "return_type": "Product"}]}],
+            "mappings": {}, "match_index": {}, "adapters": adapters,
+            "entity_names": ["Product"],
+            "components": {"facade": {"invocation": invocation}},
+            "routes": [],
+        }
+
+    def test_a_flag_never_redirects_a_write_to_a_read(self):
+        """`product remove -id` is a delete with a required argument — the
+        read sharing the flag is not a filtered version of it."""
+        text, _stats = self.emitted(self.product_ctx())
+        line = next(l for l in text.splitlines() if "('product', 'remove')" in l)
+        self.assertIn("'remove_product'", line)
+        self.assertNotIn("'get_product'", line)
+
+        deleted = []
+
+        class ProductRepository:
+            def __init__(self, store):
+                pass
+
+            def delete_product(self, id=None):
+                deleted.append(id)
+
+            def read_one_product(self, id=None):
+                return f"read:{id}"
+
+        code, output = self.run_cli(text, {"ProductRepository": ProductRepository},
+                                    ["--db", ":memory:", "product", "remove",
+                                     "-id", "7"])
+        self.assertEqual(code, 0)
+        self.assertEqual(deleted, [7])
+        self.assertNotIn("read:7", output)
+
+
 class GuiBackendTests(unittest.TestCase):
     """A gui facade gets gui.py from its declared backend, nothing else does."""
 
