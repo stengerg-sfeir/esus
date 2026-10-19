@@ -531,6 +531,43 @@ class StorePersistenceTests(unittest.TestCase):
             self.assertEqual(reopened.get("E", "id", 1)["name"], "int")
             self.assertEqual(reopened.get("E", "id", "1")["name"], "str")
 
+    def test_date_values_enter_as_iso_strings_for_memory_and_file(self):
+        """A body that stores `datetime.date.today()` must not blow up the
+        JSON write, and memory must read back exactly what a reload gives:
+        dates normalize at the door, records and criteria alike."""
+        import datetime
+        import tempfile
+        Store = self.template()
+        store = Store()
+        record = store.add("Loan", "id", {
+            "loan_date": datetime.date(2026, 10, 5),
+            "due_date": datetime.datetime(2026, 10, 19, 12, 30)})
+        self.assertEqual(record["loan_date"], "2026-10-05")
+        self.assertEqual(record["due_date"], "2026-10-19T12:30:00")
+        self.assertEqual(
+            store.select("Loan",
+                         [("due_date", "le",
+                           datetime.datetime(2026, 10, 19, 12, 30))]),
+            [record])
+        self.assertEqual(
+            store.select("Loan",
+                         [("loan_date", "ge", datetime.date(2026, 10, 1))]),
+            [record])
+        with tempfile.TemporaryDirectory() as directory:
+            path = str(Path(directory) / "t.db")
+            filed = Store(path)
+            filed.add("Loan", "id", {
+                "loan_date": datetime.date(2026, 10, 5),
+                "due_date": datetime.datetime(2026, 10, 19, 12, 30)})
+            filed.update("Loan", "id", 1,
+                         {"return_date": datetime.date(2026, 10, 18)})
+            filed.close()
+            reopened = Store(path)
+            self.assertEqual(reopened.get("Loan", "id", 1), {
+                "id": 1, "loan_date": "2026-10-05",
+                "due_date": "2026-10-19T12:30:00",
+                "return_date": "2026-10-18"})
+
 
 class PlanTests(unittest.TestCase):
     def test_match_param_covers_prefixes_and_rejects_noise(self):
@@ -1467,14 +1504,19 @@ class StubFillTests(unittest.TestCase):
             generator.fill_stubs(files, "fake.gguf", "req",
                                  out=lambda _line: None)
         prompt = captured[0]
-        self.assertIn("Widget(widget_id, title)", prompt)
+        self.assertIn("Widget(widget_id: int, title: str)", prompt)
         self.assertIn('record.get("field")', prompt)
         self.assertIn("errors.py defines only these: AppError", prompt)
         self.assertIn("stdlib modules", prompt)
+        # The shapes bare names hid: a live body stored a `datetime` the
+        # store could not serialize, another called pydantic's `.copy`.
+        self.assertIn("no `copy(...)` with keyword updates", prompt)
+        self.assertIn('- Date fields hold ISO strings (`"2026-10-05"`):',
+                      prompt)
         # The service prompt must not teach the store a service lacks: the
         # live `search_books` refusal copied exactly that example.
         service_prompt = captured[-1]
-        self.assertIn("Widget(widget_id, title)", service_prompt)
+        self.assertIn("Widget(widget_id: int, title: str)", service_prompt)
         self.assertIn("A service body has no", service_prompt)
         self.assertNotIn('record.get("field")', service_prompt)
 

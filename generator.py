@@ -3031,12 +3031,21 @@ def _class_names(text):
 
 
 def _model_fields(text):
-    """`Entity(field, field, ...)` lines from the emitted models module."""
+    """`Entity(field: type, ...)` lines from the emitted models module.
+
+    Field names alone left the shape to guessing: a live body stored a
+    `datetime` into a string field and another sliced a value that was
+    not a string. The emitted annotation tells the two apart.
+    """
     classes = []
     for line in (text or "").splitlines():
         match = re.match(r"^class (\w+)", line)
         if match:
             classes.append((match.group(1), []))
+            continue
+        match = re.match(r"^    (\w+):\s*(.+?)\s*=", line)
+        if match and classes:
+            classes[-1][1].append(f"{match.group(1)}: {match.group(2)}")
             continue
         match = re.match(r"^    (\w+):", line)
         if match and classes:
@@ -3067,8 +3076,15 @@ def _api_reference(files, filename=""):
     if entries:
         lines.append("- The dataclasses in models.py and their fields; read")
         lines.append("  them as attributes (`book.title`), never `.get(...)`,")
-        lines.append("  never a field that is not listed:")
+        lines.append("  never a field that is not listed. They are plain")
+        lines.append("  dataclasses: set the fields and pass the instance back —")
+        lines.append("  there is no `copy(...)` with keyword updates:")
         lines += [f"  {entry}" for entry in entries]
+        lines.append('- Date fields hold ISO strings (`"2026-10-05"`):')
+        lines.append("  compare and slice them as strings; convert with")
+        lines.append("  `datetime.date.fromisoformat` /")
+        lines.append("  `datetime.datetime.fromisoformat` only for date")
+        lines.append("  arithmetic.")
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
