@@ -1311,6 +1311,8 @@ class StubFillTests(unittest.TestCase):
         # the wrong depth and was refused as "unexpected indent".
         rows = self.fill(files, [
             "    rows = self._store.all(self.ENTITY)\n"
+            "    with open(file_path, \"w\") as handle:\n"
+            "        handle.write(json.dumps(rows))\n"
             "    return [json.dumps(record) for record in rows]",
             "        return 0",
         ])
@@ -1364,6 +1366,8 @@ class StubFillTests(unittest.TestCase):
         rows = self.fill(files, [
             "    def export_widgets(self, file_path: str = None) -> None:\n"
             "        rows = self._store.all(self.ENTITY)\n"
+            "        with open(file_path, \"w\") as handle:\n"
+            "            handle.write(str(rows))\n"
             "        return None\n"
             "```",
             "return 0",
@@ -1392,11 +1396,13 @@ class StubFillTests(unittest.TestCase):
 
     def test_a_body_that_does_not_compile_keeps_the_stub(self):
         files, _stats = self.rendered()
-        rows = self.fill(files, ["return (((", "return 0"])
+        rows = self.fill(files, ["return (((", "return (((", "return 0"])
         label, status, note = rows[0]
         self.assertEqual((label, status),
                          ("WidgetRepository.export_widgets", "kept"))
-        self.assertTrue(note.startswith("the body does not compile"), note)
+        self.assertTrue(
+            note.startswith("still refused: the body does not compile"),
+            note)
         self.assertIn("raise NotImplementedError(", files["repositories.py"])
         self.assertNotIn("[llm-written", files["repositories.py"])
 
@@ -1443,6 +1449,8 @@ class StubFillTests(unittest.TestCase):
         rows = self.fill(files, [
             "rows = self._store.all(self.ENTITY)\n"
             "return datetime.date.today()",
+            "handle = open(file_path, \"w\")\n"
+            "handle.close()\n"
             "return None",
         ])
         self.assertEqual(rows, [
@@ -1478,9 +1486,10 @@ class StubFillTests(unittest.TestCase):
         ]
         for answer, expected in cases:
             files, _stats = self.rendered()
-            rows = self.fill(files, [answer, "return 0"])
+            rows = self.fill(files, [answer, answer, "return 0"])
             self.assertEqual(rows[0], ("WidgetRepository.export_widgets",
-                                       "kept", expected))
+                                       "kept",
+                                       "still refused: " + expected))
             self.assertIn("raise NotImplementedError(",
                           files["repositories.py"])
 
@@ -1540,7 +1549,12 @@ class StubFillTests(unittest.TestCase):
         from unittest import mock
         with tempfile.TemporaryDirectory() as directory:
             out = write_out(Path(directory) / "shop", fixture())
-            replies = [mock.Mock(text="return None", tokens=3, seconds=0.1)] * 8
+            writes = ("rows = self._store.all(self.ENTITY)\n"
+                      "with open(file_path, \"w\") as handle:\n"
+                      "    handle.write(str(rows))\n"
+                      "return None")
+            replies = [mock.Mock(text=writes, tokens=3, seconds=0.1),
+                       mock.Mock(text="return 0", tokens=3, seconds=0.1)]
             with mock.patch.object(generator.runner, "load_model",
                                    return_value=object()), \
                     mock.patch.object(generator.runner, "generate_free",
@@ -1551,11 +1565,203 @@ class StubFillTests(unittest.TestCase):
             self.assertIn("llm written: ProductRepository.export_products",
                           printed)
             self.assertIn("llm written: ShopService.price_report", printed)
+            self.assertNotIn("still refused", printed)
+            self.assertNotIn("one repair ask", printed)
             text = (Path(out) / "generated" / "repositories.py").read_text()
             self.assertIn("[llm-written by fake.gguf — review]", text)
             dump = (Path(out) / "llm_stub_answers.json").read_text()
             self.assertIn('"ProductRepository.export_products"', dump)
             self.assertIn('"ShopService.price_report"', dump)
+
+    def test_a_refused_body_is_repaired_once_and_lands(self):
+        """The repair ask quotes the complaint; a corrected answer passes
+        the same checks and lands like any other accepted body."""
+        files, _stats = self.rendered()
+        rows = self.fill(files, [
+            "return None",
+            "with open(file_path, \"w\") as handle:\n"
+            "    handle.write(\"\")\n"
+            "return None",
+            "return 0",
+        ])
+        self.assertEqual(rows, [
+            ("WidgetRepository.export_widgets", "written",
+             "repaired: parameter `file_path` is never used in the body"),
+            ("WidgetService.custom_total", "written", ""),
+        ])
+        repos = files["repositories.py"]
+        self.assertIn('with open(file_path, "w") as handle:', repos)
+        self.assertNotIn("raise NotImplementedError(", repos)
+        self.assertIn("[llm-written by fake.gguf — review]", repos)
+        compile(repos, "repositories.py", "exec")
+
+    def test_a_second_refusal_keeps_the_stub(self):
+        files, _stats = self.rendered()
+        rows = self.fill(files, ["return None", "return None", "return 0"])
+        self.assertEqual(rows[0],
+                         ("WidgetRepository.export_widgets", "kept",
+                          "still refused: parameter `file_path` is never "
+                          "used in the body"))
+        self.assertIn("raise NotImplementedError(", files["repositories.py"])
+        self.assertNotIn("[llm-written", files["repositories.py"])
+
+    def test_the_repair_prompt_shows_the_refused_answer(self):
+        from unittest import mock
+        files, _stats = self.rendered()
+        replies = [
+            mock.Mock(text="return None", tokens=3, seconds=0.1),
+            mock.Mock(text="handle = open(file_path, \"w\")\n"
+                           "handle.close()\nreturn None",
+                      tokens=3, seconds=0.1),
+            mock.Mock(text="return 0", tokens=3, seconds=0.1),
+        ]
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=replies) as ask:
+            generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                 out=lambda _line: None)
+        repair = ask.call_args_list[1].args[1]
+        self.assertIn("Your previous answer to this method was refused:",
+                      repair)
+        self.assertIn("  - parameter `file_path` is never used in the body",
+                      repair)
+        self.assertIn("The refused answer was:", repair)
+        self.assertIn("return None", repair)
+
+    def test_the_dump_records_both_attempts_when_repaired(self):
+        import tempfile
+        from unittest import mock
+        files, _stats = self.rendered()
+        with tempfile.TemporaryDirectory() as directory:
+            dump = Path(directory) / "llm_stub_answers.json"
+            replies = [
+                mock.Mock(text="return None", tokens=3, seconds=0.1),
+                mock.Mock(text="handle = open(file_path, \"w\")\n"
+                               "handle.close()\nreturn None",
+                          tokens=3, seconds=0.1),
+                mock.Mock(text="return 0", tokens=3, seconds=0.1),
+            ]
+            with mock.patch.object(generator.runner, "load_model",
+                                   return_value=object()), \
+                    mock.patch.object(generator.runner, "generate_free",
+                                      side_effect=replies):
+                generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                     out=lambda _line: None,
+                                     dump_path=str(dump))
+            data = json.loads(dump.read_text())
+        self.assertEqual(data[0]["label"], "WidgetRepository.export_widgets")
+        self.assertEqual(data[0]["status"], "written")
+        self.assertEqual(
+            data[0]["complaints"],
+            ["parameter `file_path` is never used in the body"])
+        self.assertEqual(data[0]["first_answer"], "return None")
+        self.assertIn("handle = open(file_path", data[0]["answer"])
+
+
+class ContractComplaintTests(unittest.TestCase):
+    """The API facts a compiling body can still break, as complaints.
+
+    Each shape here shipped in a live run and compiled: a book with no
+    `author` attribute (the fields were listed in the prompt), a
+    `dict.keys()[0]` subscript, a `year` parameter never read, a name read
+    before its assignment, and a service returning the updated book from
+    a method declared `-> models.Loan`.
+    """
+
+    module = (
+        "import models\n"
+        "import errors\n"
+        "\n"
+        "\n"
+        "class BookRepository:\n"
+        '    ENTITY = "Book"\n'
+        "\n"
+        "    def read_all_books(self) -> List[models.Book]:\n"
+        "        return []\n"
+        "\n"
+        "    def update_book(self) -> models.Book:\n"
+        "        return None\n"
+        "\n"
+        "    def fetch(self) -> models.Book:\n"
+        '        raise NotImplementedError("refused")\n'
+    )
+    models = ("class Book:\n"
+              "    id: int = 0\n"
+              '    title: str = ""\n'
+              "    author_id: int = 0\n")
+
+    def complaints(self, body, info=None, module=None, models=None,
+                   references=""):
+        files = {"models.py": self.models if models is None else models}
+        info = info or {"cls": "BookRepository",
+                        "def": "def fetch(self) -> List[models.Book]:",
+                        "reason": "refused"}
+        return generator._body_complaints(
+            body, info, self.module if module is None else module,
+            references, files)
+
+    def test_an_unknown_name_is_a_complaint(self):
+        self.assertEqual(
+            self.complaints(["return frobnicate(1)"]),
+            ["uses `frobnicate`, which neither the module nor the body "
+             "binds"])
+
+    def test_a_field_the_model_lacks_names_the_real_fields(self):
+        self.assertEqual(
+            self.complaints(["book = models.Book()",
+                             "return book.author"]),
+            ["`book.author`: Book has no field `author` "
+             "(fields: id, title, author_id)"])
+
+    def test_an_unused_declared_parameter_is_a_complaint(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, year: str = None) "
+                       "-> List[models.Book]:",
+                "reason": "refused"}
+        self.assertEqual(
+            self.complaints(["return []"], info=info),
+            ["parameter `year` is never used in the body"])
+        self.assertEqual(self.complaints(["return [year]"], info=info), [])
+
+    def test_indexing_a_dict_view_is_a_complaint(self):
+        self.assertEqual(
+            self.complaints(["months = {}",
+                             "first = months.keys()[0]",
+                             "return first"]),
+            ["indexes a dict view (`dict.keys()[i]` is not subscriptable); "
+             "wrap it in `list(...)` or iterate"])
+
+    def test_a_name_read_before_its_assignment_is_a_complaint(self):
+        self.assertEqual(
+            self.complaints(["total = count", "count = 1",
+                             "return total"]),
+            ["reads `count` (line 2) before it is assigned (line 3)"])
+
+    def test_returning_another_models_class_is_a_complaint(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self) -> models.Loan:",
+                "reason": "refused"}
+        self.assertEqual(
+            self.complaints(["book = self.update_book()", "return book"],
+                            info=info),
+            ["returns `book` from `update_book(...)` (a Book) but the "
+             "method is declared `-> models.Loan`"])
+
+    def test_a_clean_body_has_no_complaints(self):
+        self.assertEqual(
+            self.complaints(["pairs = [(1, 2)]",
+                             "ordered = sorted(pairs, "
+                             "key=lambda pair: pair[0])",
+                             "return ordered"]),
+            [])
+        # The dict comprehension reads its target in the key expression
+        # while the `for` clause that binds it is on the next line.
+        self.assertEqual(
+            self.complaints(["authors = {name: name.lower()",
+                             "           for name in ['Ada', 'Bob']}",
+                             "return authors"]),
+            [])
 
 
 class GuiBackendTests(unittest.TestCase):

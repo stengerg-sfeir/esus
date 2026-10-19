@@ -42,15 +42,20 @@ rather than writing the empty shell silently.
 `--model PATH` also fills the stubs a normal run leaves behind: method
 bodies the emitter refused (custom logic, unmappable parameters) are written
 by the model, one call per method, temperature 0 with a fixed seed. An
-answer is accepted only when its module still compiles and it names only
+answer is accepted only when its module still compiles, it names only
 `self.<name>`, store methods, `models.*` classes and `errors.*` classes the
-sibling modules define; its docstring is tagged
-`[llm-written by ... — review]` and its method still counts as a stub in the
-mechanical coverage, because nothing here verifies behavior — read the body,
-and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
+sibling modules define, and it breaks none of the API facts the prompt
+states (model fields, declared parameters, the method's return type). A
+refused answer gets one repair ask carrying the exact complaint; a body
+that still fails keeps the stub. Accepted docstrings are tagged
+`[llm-written by ... — review]` and the method still counts as a stub in
+the mechanical coverage, because nothing here verifies behavior — read the
+body, and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
 """
 
 import argparse
+import ast
+import builtins
 import json
 import os
 import re
@@ -2888,6 +2893,53 @@ def _stub_method(info):
     return match.group(1) if match else "?"
 
 
+def _split_signature(text):
+    """Split a parameter list at top-level commas only.
+
+    `Union[str, int]` carries a comma the naive split cuts inside,
+    leaving a bogus `int]` parameter behind.
+    """
+    parts, depth, current = [], 0, ""
+    for char in text:
+        if char in "[({":
+            depth += 1
+        elif char in "])}":
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append(current)
+            current = ""
+        else:
+            current += char
+    parts.append(current)
+    return parts
+
+
+def _stub_params(info):
+    """The stub's parameter names, `self` out — the body must use them."""
+    match = re.match(r"def \w+\(([^)]*)\)", info.get("def") or "")
+    if not match:
+        return []
+    names = []
+    for piece in _split_signature(match.group(1)):
+        name = piece.strip().split(":")[0].split("=")[0].strip()
+        if name and name != "self" and not name.startswith("*"):
+            names.append(name)
+    return names
+
+
+def _first_model(annotation):
+    """`models.X` from an annotation, or None for plain types."""
+    match = re.search(r"models\.(\w+)", annotation or "")
+    return match.group(1) if match else None
+
+
+def _declared_return(info):
+    """The `models.X` a stub's own `-> ...` names, or None."""
+    match = re.match(r"def \w+\([^)]*\)\s*->\s*(.+?):?$",
+                     info.get("def") or "")
+    return _first_model(match.group(1)) if match else None
+
+
 def _clip_module(text, cls, budget):
     """The module text, or its header plus the stub's own class when huge.
 
@@ -2913,7 +2965,7 @@ def _clip_module(text, cls, budget):
 
 
 def stub_prompt(requirements, module_text, info, references=(), api=(),
-                budget=STUB_PROMPT_BUDGET):
+                budget=STUB_PROMPT_BUDGET, previous=None, complaints=()):
     """One ask: the emitted module is the API reference; fill one hole.
 
     Nothing is rewritten into a summary — the module shows the real store
@@ -2925,6 +2977,10 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
     text cannot show — the fields of each model and the error classes the
     errors module defines (a model that could not see them guessed
     `book.author`, `models.date_today` and made-up exception names).
+
+    With `previous` and `complaints`, the same ask becomes the repair ask:
+    the refused answer is shown back with the exact contract violations,
+    so the second answer can be a correction instead of a guess.
     """
     method = _stub_method(info)
     # The store rule is for repository bodies: a service has no
@@ -2964,6 +3020,22 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         "- If the requirements do not determine the behavior, reply with",
         '  `raise NotImplementedError("...")` and nothing else.',
     ]
+    if complaints:
+        lines += [
+            "",
+            "Your previous answer to this method was refused:",
+        ]
+        lines += [f"  - {complaint}" for complaint in complaints]
+        if previous:
+            lines += [
+                "",
+                "The refused answer was:",
+                "```python",
+                previous.strip(),
+                "```",
+                "Write the body again, fixing exactly what was refused and",
+                "keeping what was right.",
+            ]
     if references:
         lines += ["", "Methods this module may lean on:"]
         lines += [f"  {signature}" for signature in references]
@@ -3021,6 +3093,32 @@ def _module_names(text):
         match = re.match(r"^    (?:def )?(\w+)", line)
         if match:
             names.add(match.group(1))
+    return names
+
+
+def _module_bindings(text):
+    """Names the module itself defines: imports, classes, defs, constants.
+
+    The mirror of `_module_names` for bare names: a body reading a name
+    that is neither a parameter, a local, an import nor a module-level
+    definition is a NameError waiting to happen.
+    """
+    names = set()
+    for node in ast.parse(text).body:
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                names.add(alias.asname or alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            for alias in node.names:
+                names.add(alias.asname or alias.name)
+        elif isinstance(node, (ast.ClassDef, ast.FunctionDef)):
+            names.add(node.name)
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) \
+                else [node.target]
+            for target in targets:
+                if isinstance(target, ast.Name):
+                    names.add(target.id)
     return names
 
 
@@ -3128,6 +3226,158 @@ def _body_refusal(body, module_names, store_names, model_names=frozenset(),
     return None
 
 
+def _field_map(text):
+    """`{class: [field, ...]}` from the emitted models module."""
+    mapping = {}
+    for entry in _model_fields(text):
+        name, _, fields = entry.partition("(")
+        mapping[name.strip()] = [
+            piece.split(":")[0].strip()
+            for piece in fields.rstrip(")").split(",") if piece.strip()]
+    return mapping
+
+
+def _target_names(target):
+    """The plain names a comprehension target binds (`for k, v in ...`)."""
+    if isinstance(target, ast.Name):
+        return [target.id]
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names = []
+        for element in target.elts:
+            names.extend(_target_names(element))
+        return names
+    return []
+
+
+def _body_complaints(body, info, module_text, references_text, files):
+    """The API-contract violations the refusal regexes cannot see.
+
+    The prompt's API section is a contract: it lists each model's fields,
+    the module's own names, the imports a body may gain and each method's
+    declared return type. A body that breaks one of those facts compiles
+    and still cannot work — a live body read `record.author` (no such
+    field), another indexed `dict.keys()[i]`, another never used its
+    `year` parameter, and two returned the updated book from methods
+    declared to return the loan. Each complaint names the fact, so the
+    repair ask can quote them and the second answer can be a correction
+    instead of a guess.
+    """
+    params = _stub_params(info)
+    source = ("def _wrapped(" + ", ".join(["self"] + params) + "):\n") \
+        + "\n".join(("    " + line if line.strip() else "")
+                    for line in body)
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as error:
+        return [f"the body does not compile ({error.msg})"]
+    module_names = _module_bindings(module_text)
+    bound, loads = {}, {}
+    for node in ast.walk(tree):
+        names = []
+        if isinstance(node, ast.Name):
+            if isinstance(node.ctx, ast.Store):
+                names.append(node.id)
+            elif isinstance(node.ctx, ast.Load):
+                loads[node.id] = min(loads.get(node.id, 10 ** 9),
+                                     node.lineno)
+        elif isinstance(node, (ast.Lambda, ast.FunctionDef,
+                               ast.AsyncFunctionDef)):
+            args = node.args
+            names += [arg.arg for arg in (*args.posonlyargs, *args.args,
+                                          *args.kwonlyargs)]
+        elif isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp,
+                               ast.GeneratorExp)):
+            # A comprehension binds its targets before its first use: in a
+            # dict comprehension the key expression is read while the
+            # `for` clause that binds the name is further down, so the
+            # target counts as bound where the comprehension starts.
+            for generator in node.generators:
+                names += _target_names(generator.target)
+        elif isinstance(node, (ast.With, ast.AsyncWith)):
+            names += [item.optional_vars.id for item in node.items
+                      if isinstance(item.optional_vars, ast.Name)]
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            names.append(node.name)
+        for name in names:
+            bound[name] = min(bound.get(name, 10 ** 9), node.lineno)
+    known = (set(params) | {"self"} | module_names | set(BODY_IMPORTS)
+             | set(bound) | set(dir(builtins)))
+    found = []
+    text = "\n".join(body)
+    if re.search(r"\.(?:keys|values|items)\(\)\s*\[", text):
+        found.append("indexes a dict view (`dict.keys()[i]` is not "
+                     "subscriptable); wrap it in `list(...)` or iterate")
+    for name in sorted(set(loads) - known):
+        found.append(f"uses `{name}`, which neither the module nor the "
+                     "body binds")
+    for param in params:
+        if param not in loads:
+            found.append(f"parameter `{param}` is never used in the body")
+    fields = _field_map(files.get("models.py") or "")
+    typed = {}
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Call)):
+            func = node.value.func
+            if (isinstance(func, ast.Attribute)
+                    and isinstance(func.value, ast.Name)
+                    and func.value.id == "models"
+                    and func.attr in fields):
+                typed[node.targets[0].id] = func.attr
+    seen = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Attribute) \
+                and isinstance(node.value, ast.Name):
+            cls = typed.get(node.value.id)
+            if cls and node.attr not in fields[cls] \
+                    and (node.value.id, node.attr) not in seen:
+                seen.add((node.value.id, node.attr))
+                found.append(
+                    f"`{node.value.id}.{node.attr}`: {cls} has no field "
+                    f"`{node.attr}` (fields: {', '.join(fields[cls])})")
+    for name in sorted(loads):
+        if name in params or name == "self" or name in module_names \
+                or name in BODY_IMPORTS:
+            continue
+        if name in bound and loads[name] < bound[name]:
+            found.append(f"reads `{name}` (line {loads[name]}) before it "
+                         f"is assigned (line {bound[name]})")
+    declared = _declared_return(info)
+    if declared:
+        returns = {}
+        for source_text in (module_text, references_text or ""):
+            for match in re.finditer(r"def (\w+)\([^)]*\)\s*->\s*([^:]+):",
+                                     source_text):
+                returns.setdefault(match.group(1), match.group(2))
+        reported = set()
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Return) \
+                    or not isinstance(node.value, ast.Name):
+                continue
+            name = node.value.id
+            for assign in ast.walk(tree):
+                if not (isinstance(assign, ast.Assign)
+                        and len(assign.targets) == 1
+                        and isinstance(assign.targets[0], ast.Name)
+                        and assign.targets[0].id == name
+                        and isinstance(assign.value, ast.Call)):
+                    continue
+                func = assign.value.func
+                method = func.attr if isinstance(func, ast.Attribute) else ""
+                actual = _first_model(returns.get(method, ""))
+                if actual and actual != declared:
+                    key = (name, method, actual)
+                    if key not in reported:
+                        reported.add(key)
+                        found.append(
+                            f"returns `{name}` from `{method}(...)` "
+                            f"(a {actual}) but the method is declared "
+                            f"`-> models.{declared}`")
+                    break
+    return found
+
+
 def _add_imports(text, body_text):
     """Add the imports a filled body needs; return `(text, added)`."""
     added = []
@@ -3161,21 +3411,42 @@ def _method_signatures(text):
     return signatures
 
 
+def _spliced_candidate(text, start, end, info, body, model_name):
+    """The module with the stub's raise replaced by `body`, tag rewritten."""
+    lines = text.splitlines()
+    replacement = []
+    docstring = info.get("docstring")
+    if docstring:
+        replacement.append(re.sub(
+            r"\[[^\]]*\]\s*(\"\"\")$",
+            lambda match: f"[llm-written by {model_name} — review]"
+            f"{match.group(1)}", docstring))
+    replacement.extend("        " + line if line.strip() else ""
+                       for line in body)
+    candidate = "\n".join(lines[:start] + replacement + lines[end + 1:])
+    if text.endswith("\n"):
+        candidate += "\n"
+    return candidate
+
+
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     """Ask the model for the bodies the mechanical emitter refused.
 
     Best-effort by design: the mechanical set is already final and honest,
-    so a missing model, a refused answer or a body that does not compile
-    leaves the stub in place and says why. Every accepted body passes the
-    module's `compile` and only touches `self.<name>`, `self._store.<name>`,
-    `models.<name>` and `errors.<name>` names the sibling modules actually
-    define; it gains any import it uses, is spliced by re-finding the stub
-    in the current text (an import added for a lower body moves every stub
-    above it), and is tagged in its docstring as LLM-written — nothing
-    here verifies behavior, and only reading the body (and running it)
-    can. Returns `[(label, status, note)]`, one row per refused stub,
-    `status` `written` or `kept`. With `dump_path`, every raw answer lands
-    there as JSON, so a refusal can be read instead of guessed at.
+    so a missing model or an answer that still fails leaves the stub in
+    place and says why. Every accepted body passes the module's `compile`,
+    only touches `self.<name>`, `self._store.<name>`, `models.<name>` and
+    `errors.<name>` names the sibling modules actually define, and breaks
+    none of the API facts the prompt states (`_body_complaints`); a body
+    that fails either gets one repair ask quoting the complaints back. It
+    gains any import it uses, is spliced by re-finding the stub in the
+    current text (an import added for a lower body moves every stub above
+    it), and is tagged in its docstring as LLM-written — nothing here
+    verifies behavior, and only reading the body (and running it) can.
+    Returns `[(label, status, note)]`, one row per refused stub, `status`
+    `written` or `kept`. With `dump_path`, every raw answer lands there as
+    JSON — both attempts when a repair was asked, so the refusal and the
+    correction can be read instead of guessed at.
     """
     targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
                if isinstance(files.get(name), str)]
@@ -3221,6 +3492,31 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
             start, end, info = span
             info["file"] = filename
             out(f"llm: {label} ...")
+
+            def attempt(raw):
+                """One raw answer as `(candidate, problems, body)`."""
+                body = _clean_body(raw)
+                refusal = _body_refusal(body, _module_names(text),
+                                        store_names, model_names, error_names)
+                problems = [refusal] if refusal else _body_complaints(
+                    body, info, text, files.get("repositories.py") or "",
+                    files)
+                if problems:
+                    return None, problems, body
+                candidate = _spliced_candidate(text, start, end, info, body,
+                                               model_name)
+                try:
+                    compile(candidate, filename, "exec")
+                except SyntaxError as error:
+                    culprit = ""
+                    culprit_lines = candidate.splitlines()
+                    if error.lineno and error.lineno <= len(culprit_lines):
+                        culprit = culprit_lines[error.lineno - 1][:70]
+                    return None, [f"the body does not compile ({error.msg}"
+                                  + (f"; line {error.lineno} {culprit!r}"
+                                     if culprit else "") + ")"], body
+                return candidate, [], body
+
             prompt = stub_prompt(requirements, text, info, references, api)
             try:
                 result = runner.generate_free(
@@ -3232,46 +3528,49 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                 dumped.append({"label": label, "status": "kept",
                                "note": note, "answer": None})
                 continue
-            body = _clean_body(result.text)
-            refusal = _body_refusal(body, _module_names(text), store_names,
-                                    model_names, error_names)
-            if refusal is not None:
-                rows.append((label, "kept", refusal))
-                dumped.append({"label": label, "status": "kept",
-                               "note": refusal, "answer": result.text})
-                continue
-            lines = text.splitlines()
-            replacement = []
-            docstring = info.get("docstring")
-            if docstring:
-                replacement.append(re.sub(
-                    r"\[[^\]]*\]\s*(\"\"\")$",
-                    lambda match: f"[llm-written by {model_name} — review]"
-                    f"{match.group(1)}", docstring))
-            replacement.extend("        " + line if line.strip() else ""
-                               for line in body)
-            candidate = "\n".join(lines[:start] + replacement + lines[end + 1:])
-            if text.endswith("\n"):
-                candidate += "\n"
-            try:
-                compile(candidate, filename, "exec")
-            except SyntaxError as error:
-                culprit = ""
-                lines = candidate.splitlines()
-                if error.lineno and error.lineno <= len(lines):
-                    culprit = lines[error.lineno - 1][:70]
-                note = (f"the body does not compile ({error.msg}"
-                        + (f"; line {error.lineno} {culprit!r}" if culprit
-                           else "") + ")")
-                rows.append((label, "kept", note))
-                dumped.append({"label": label, "status": "kept",
-                               "note": note, "answer": result.text})
-                continue
+            first_answer = result.text
+            candidate, problems, body = attempt(result.text)
+            extra = {}
+            if problems:
+                out(f"llm: {label} refused ({problems[0]}) — one repair ask")
+                repair = stub_prompt(requirements, text, info, references,
+                                     api, previous=first_answer,
+                                     complaints=problems)
+                try:
+                    result = runner.generate_free(
+                        llm, repair, f"stub:{label}:repair",
+                        temperature=FALLBACK_TEMPERATURE, seed=FALLBACK_SEED)
+                except Exception as error:  # the stub stands, said aloud
+                    note = f"the model failed on the repair ask ({error})"
+                    rows.append((label, "kept", note))
+                    dumped.append({"label": label, "status": "kept",
+                                   "note": note, "answer": first_answer,
+                                   "complaints": problems})
+                    continue
+                candidate, second, body = attempt(result.text)
+                if second:
+                    note = "still refused: " + "; ".join(second)
+                    rows.append((label, "kept", note))
+                    dumped.append({"label": label, "status": "kept",
+                                   "note": note, "answer": result.text,
+                                   "first_answer": first_answer,
+                                   "complaints": second})
+                    continue
+                note = "repaired: " + "; ".join(problems)
+                extra = {"first_answer": first_answer,
+                         "complaints": problems}
+            else:
+                note = ""
             text, added = _add_imports(candidate, "\n".join(body))
-            note = ("added import " + ", ".join(added)) if added else ""
+            if added:
+                note = "; ".join(filter(None,
+                                        [note,
+                                         "added import " + ", ".join(added)]))
             rows.append((label, "written", note))
-            dumped.append({"label": label, "status": "written", "note": note,
-                           "answer": result.text})
+            entry = {"label": label, "status": "written", "note": note,
+                     "answer": result.text}
+            entry.update(extra)
+            dumped.append(entry)
         files[filename] = text
     if dump_path and dumped:
         with open(dump_path, "w", encoding="utf-8") as handle:
