@@ -42,8 +42,9 @@ rather than writing the empty shell silently.
 `--model PATH` also fills the stubs a normal run leaves behind: method
 bodies the emitter refused (custom logic, unmappable parameters) are written
 by the model, one call per method, temperature 0 with a fixed seed. An
-answer is accepted only when its module still compiles and it touches no
-`self.<name>` or store method that does not exist; its docstring is tagged
+answer is accepted only when its module still compiles and it names only
+`self.<name>`, store methods, `models.*` classes and `errors.*` classes the
+sibling modules define; its docstring is tagged
 `[llm-written by ... — review]` and its method still counts as a stub in the
 mechanical coverage, because nothing here verifies behavior — read the body,
 and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
@@ -2911,7 +2912,7 @@ def _clip_module(text, cls, budget):
     return "\n".join(header + [""] + block)[:budget]
 
 
-def stub_prompt(requirements, module_text, info, references=(),
+def stub_prompt(requirements, module_text, info, references=(), api=(),
                 budget=STUB_PROMPT_BUDGET):
     """One ask: the emitted module is the API reference; fill one hole.
 
@@ -2920,7 +2921,10 @@ def stub_prompt(requirements, module_text, info, references=(),
     a model told a simplified API invents one that does not exist. When
     the text would not fit `budget` it is clipped to the module header and
     the stub's own class; `references` lists signatures a service body
-    may need from the repositories module.
+    may need from the repositories module, and `api` names what the module
+    text cannot show — the fields of each model and the error classes the
+    errors module defines (a model that could not see them guessed
+    `book.author`, `models.date_today` and made-up exception names).
     """
     method = _stub_method(info)
     lines = [
@@ -2947,6 +2951,8 @@ def stub_prompt(requirements, module_text, info, references=(),
     if references:
         lines += ["", "Methods this module may lean on:"]
         lines += [f"  {signature}" for signature in references]
+    if api:
+        lines += [""] + list(api)
     lines += ["", "requirements:", (requirements or "").strip(), "",
               f"module ({info.get('file', 'module')}):",
               "```python",
@@ -3002,12 +3008,54 @@ def _module_names(text):
     return names
 
 
-def _body_refusal(body, module_names, store_names):
+def _class_names(text):
+    """The `class ...` names a module defines."""
+    return {match.group(1) for match in
+            re.finditer(r"^class (\w+)", text or "", re.M)}
+
+
+def _model_fields(text):
+    """`Entity(field, field, ...)` lines from the emitted models module."""
+    classes = []
+    for line in (text or "").splitlines():
+        match = re.match(r"^class (\w+)", line)
+        if match:
+            classes.append((match.group(1), []))
+            continue
+        match = re.match(r"^    (\w+):", line)
+        if match and classes:
+            classes[-1][1].append(match.group(1))
+    return [f"{name}({', '.join(fields)})" for name, fields in classes]
+
+
+def _api_reference(files):
+    """Prompt lines naming the data surfaces the module text cannot show."""
+    lines = ["The data the sibling modules hand you:"]
+    entries = _model_fields(files.get("models.py") or "")
+    if entries:
+        lines.append("- Repository reads return these dataclasses: read")
+        lines.append("  their fields as attributes (`book.title`), never")
+        lines.append("  `.get(...)`, never a nested object:")
+        lines += [f"  {entry}" for entry in entries]
+    lines.append("- `self._store` reads return plain records (dicts): read")
+    lines.append('  them with `record.get("field")`.')
+    errors = sorted(_class_names(files.get("errors.py") or ""))
+    if errors:
+        lines.append(f"- errors.py defines only these: {', '.join(errors)}")
+    lines.append("- A body may use these stdlib modules; a needed import")
+    lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
+    return lines
+
+
+def _body_refusal(body, module_names, store_names, model_names=frozenset(),
+                  error_names=frozenset()):
     """Why this answer may not replace a stub, or None when it may.
 
-    Compilation is checked by the caller; this catches the two ways a
+    Compilation is checked by the caller; this catches the ways a
     compiling body still cannot work: the model kept the refusal, or it
-    invented an API surface the module and store never defined.
+    invented an API surface the module, store, models or errors never
+    defined (`self.helper`, `self._store.frobnicate`, `models.date_today`,
+    `errors.BookUnavailableError`).
     """
     if not body or all(not line.strip() for line in body):
         return "the model returned nothing"
@@ -3023,6 +3071,14 @@ def _body_refusal(body, module_names, store_names):
     if invented:
         return (f"calls self._store.{invented[0]}, which the store does not "
                 "define")
+    invented = sorted({name for name in re.findall(r"\bmodels\.(\w+)", text)
+                       if name not in model_names})
+    if invented:
+        return f"calls models.{invented[0]}, which models.py does not define"
+    invented = sorted({name for name in re.findall(r"\berrors\.(\w+)", text)
+                       if name not in error_names})
+    if invented:
+        return f"calls errors.{invented[0]}, which errors.py does not define"
     return None
 
 
@@ -3065,13 +3121,14 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     Best-effort by design: the mechanical set is already final and honest,
     so a missing model, a refused answer or a body that does not compile
     leaves the stub in place and says why. Every accepted body passes the
-    module's `compile`, may only touch `self.<name>` and `self._store.<name>`
-    the module actually defines, gains any import it uses, and is tagged in
-    its docstring as LLM-written — nothing here verifies behavior, and only
-    reading the body (and running it) can. Returns `[(label, status,
-    note)]`, one row per refused stub, `status` `written` or `kept`. With
-    `dump_path`, every raw answer lands there as JSON, so a refusal can be
-    read instead of guessed at.
+    module's `compile` and only touches `self.<name>`, `self._store.<name>`,
+    `models.<name>` and `errors.<name>` names the sibling modules actually
+    define; it gains any import it uses and is tagged in its docstring as
+    LLM-written — nothing here verifies behavior, and only reading the
+    body (and running it) can. Returns `[(label, status, note)]`, one row
+    per refused stub, `status` `written` or `kept`. With `dump_path`,
+    every raw answer lands there as JSON, so a refusal can be read instead
+    of guessed at.
     """
     targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
                if isinstance(files.get(name), str)]
@@ -3087,6 +3144,9 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     store_names = {match.group(1) for match in
                    re.finditer(r"^    def (\w+)", files.get("store.py") or "",
                                re.M)}
+    model_names = _class_names(files.get("models.py") or "")
+    error_names = _class_names(files.get("errors.py") or "")
+    api = _api_reference(files)
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body by body")
     rows, dumped = [], []
     for filename, spans in targets:
@@ -3098,7 +3158,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
             info["file"] = filename
             label = f"{info['cls']}.{_stub_method(info)}"
             out(f"llm: {label} ...")
-            prompt = stub_prompt(requirements, text, info, references)
+            prompt = stub_prompt(requirements, text, info, references, api)
             try:
                 result = runner.generate_free(
                     llm, prompt, f"stub:{label}",
@@ -3110,7 +3170,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                                "note": note, "answer": None})
                 continue
             body = _clean_body(result.text)
-            refusal = _body_refusal(body, _module_names(text), store_names)
+            refusal = _body_refusal(body, _module_names(text), store_names,
+                                    model_names, error_names)
             if refusal is not None:
                 rows.append((label, "kept", refusal))
                 dumped.append({"label": label, "status": "kept",

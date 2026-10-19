@@ -1369,6 +1369,11 @@ class StubFillTests(unittest.TestCase):
              "calls self.helper, which the module does not define"),
             ("return self._store.frobnicate(self.ENTITY)",
              "calls self._store.frobnicate, which the store does not define"),
+            ("return models.date_today()",
+             "calls models.date_today, which models.py does not define"),
+            ("raise errors.BookUnavailableError('no')",
+             "calls errors.BookUnavailableError, which errors.py does not "
+             "define"),
             ('raise NotImplementedError("no idea")',
              "the model kept it unimplemented"),
             ("", "the model returned nothing"),
@@ -1380,6 +1385,31 @@ class StubFillTests(unittest.TestCase):
                                        "kept", expected))
             self.assertIn("raise NotImplementedError(",
                           files["repositories.py"])
+
+    def test_prompt_names_fields_record_types_and_error_classes(self):
+        """The module cannot show what the sibling modules define — the
+        fields, the error classes. The first live run guessed them all
+        (`book.get`, `book.author`, `models.date_today`)."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        captured = []
+
+        def answer(prompt, label, **kwargs):
+            captured.append(prompt)
+            return mock.Mock(text="        return None\n", tokens=3,
+                             seconds=0.1)
+
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            generator.fill_stubs(files, "fake.gguf", "req",
+                                 out=lambda _line: None)
+        prompt = captured[0]
+        self.assertIn("Widget(widget_id, title)", prompt)
+        self.assertIn('record.get("field")', prompt)
+        self.assertIn("errors.py defines only these: AppError", prompt)
+        self.assertIn("stdlib modules", prompt)
 
     def test_nothing_to_fill_never_loads_the_model(self):
         from unittest import mock
