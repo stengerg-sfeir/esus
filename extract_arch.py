@@ -32,11 +32,18 @@ from review_surface import apply_surface_decisions, load_surface_decisions
 
 def build_parser():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--model", required=True, help="Path to the GGUF model")
+    parser.add_argument("--model", required=False, help="Path to the GGUF model")
     parser.add_argument(
         "--output",
         required=True,
         help="Directory to write the step documents and run.log into",
+    )
+    parser.add_argument(
+        "--repair",
+        action="store_true",
+        help="Apply the deterministic document repairs to an existing output "
+             "(no model run); used to heal archived documents after a repair "
+             "rule changes",
     )
     parser.add_argument(
         "--context",
@@ -214,6 +221,57 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     return final
 
 
+def repair_existing(output_dir):
+    """Re-run the deterministic repairs over archived documents, no model.
+
+    The repairs are part of extraction, not a hand edit: they add a missing
+    optional flag the requirements name, expose a required adapter field on
+    the leaf that can supply it, and drop placeholders/duplicate surface
+    nodes. This path exists so a repair-rule change can heal an existing
+    extraction without regenerating its model-written content.
+    """
+    from kernel.consistency.loader import load_documents, load_requirements
+    from kernel.consistency.report import Report
+    from kernel.extraction import repairs
+
+    directory = Path(output_dir)
+    report = Report(directory.name)
+    documents = load_documents(str(directory), report).bodies
+    if report.errors:
+        print(f"error: {directory} holds unusable documents:", file=sys.stderr)
+        for finding in report.errors:
+            print(f"  {finding.render()}", file=sys.stderr)
+        return 1
+    requirements = load_requirements(str(directory))
+    if not requirements:
+        print(f"error: {directory} has no requirements.txt", file=sys.stderr)
+        return 1
+
+    log = writer.RunLog(None)
+    components = documents.get(pipeline_module.COMPONENTS)
+    models = documents.get(pipeline_module.DATA_MODELS)
+    adapters = documents.get(pipeline_module.INTERACTION_ADAPTERS)
+    services = documents.get(pipeline_module.SERVICE_CONTRACTS)
+    if isinstance(components, dict):
+        repairs.repair_missing_surface(components, requirements, models, log)
+        repairs.repair_placeholder_subcommands(components, log)
+        repairs.repair_flat_command_duplicates(components, log)
+    if isinstance(adapters, list):
+        repairs.repair_adapter_transforms(adapters, log)
+        repairs.repair_adapter_targets(adapters, services, log)
+        repairs.repair_adapter_field_names(adapters, services, models, log)
+        repairs.repair_missing_adapter_flags(
+            components, adapters, services, models, log)
+    if isinstance(components, dict):
+        decisions = load_surface_decisions(directory)
+        if decisions:
+            documents[pipeline_module.COMPONENTS] = apply_surface_decisions(
+                components, decisions, log, requirements_text=requirements)
+    for path in writer.write_documents(directory, documents):
+        print(f"[write] {path}")
+    return 0
+
+
 def main():
     args = build_parser().parse_args()
     return run(args)
@@ -223,6 +281,11 @@ def run(args):
     """One extraction round (initial or resume); returns the exit code."""
 
     output_dir = Path(args.output)
+    if getattr(args, "repair", False):
+        return repair_existing(output_dir)
+    if not args.model:
+        print("error: --model is required unless --repair is used", file=sys.stderr)
+        return 2
     start = args.from_step
     if args.chat and args.requirements is None and start is None:
         # Questions arrive over stdin: a piped requirements text would leave

@@ -110,6 +110,15 @@ ADAPTERS = {
         'targets': {'member_id': None, 'book_id': None},
         'assembled': [],
     },
+    'find_active_members': {
+        'service': 'MemberRepository',
+        'method': 'find_active_members',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
     'get_book_loan_history': {
         'service': 'LoanRepository',
         'method': 'get_book_loan_history',
@@ -216,7 +225,7 @@ BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
     ('borrow', None): [('borrow_book', 7, ())],
     ('member', 'add'): [('add_member', 5, ())],
     ('member', 'history'): [('get_member_loan_history', 7, ())],
-    ('member', 'list'): [('list_members', 5, ())],
+    ('member', 'list'): [('find_active_members', 5, (('active_only', 'truthy', '-active-only'),)), ('list_members', 5, ())],
     ('overdue', None): [('get_overdue_loans', 7, ())],
     ('return', None): [('return_book', 7, ())],
 }
@@ -285,6 +294,7 @@ def build_parser():
     p_book_add.set_defaults(_binding=('book', 'add'))
     p_book_list = sub_book.add_parser('list')
     p_book_list.add_argument('-author', '-a', action='store_true', dest='author')
+    p_book_list.add_argument('--available-only', action='store_true', dest='available_only')
     p_book_list.set_defaults(_binding=('book', 'list'))
     p_book_search = sub_book.add_parser('search')
     p_book_search.add_argument('-query', '-q', type=str, required=True, dest='query')
