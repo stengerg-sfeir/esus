@@ -1939,7 +1939,8 @@ def _alternate_actions(ctx, base_action, dests, actions):
         used = set()
         ok = True
         for field in fields:
-            dest = codegen.bind_field(dests, field["field_name"])
+            source = field.get("flag") or field["field_name"]
+            dest = codegen.bind_field(dests, source)
             if dest is None or dest in used:
                 ok = False
                 break
@@ -2125,7 +2126,8 @@ def emit_cli(ctx, bindings, stats):
              "validates ISO format, DECIMAL_TO_CENTS converts money to integer cents,",
              "CSV_LIST splits on commas, LOOKUP_ID coerces to int (existence is",
              "enforced by the repository's foreign-key check on write, or by the",
-             "record lookup itself on read).",
+             "record lookup itself on read), BOOL_TO_ONE turns a selector such as",
+             "--available-only into the minimum count of one.",
              '"""',
              "",
              "import argparse",
@@ -2164,6 +2166,8 @@ def emit_cli(ctx, bindings, stats):
              "        return int(value)",
              '    if kind == "ENUM_LOOKUP":',
              "        return str(value)",
+             '    if kind == "BOOL_TO_ONE":',
+             "        return 1 if value else 0",
              '    raise ValueError(f"unknown transform {kind!r} for {field!r}")',
              "",
              "",

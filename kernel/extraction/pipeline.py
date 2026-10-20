@@ -612,6 +612,17 @@ class Pipeline:
             self.documents.get(DATA_MODELS),
             self.log,
         )
+        # A boolean selector can name a filter the adapter document never
+        # wired (`--available-only` beside `filter_books_by_available_copies`).
+        # The flag otherwise parses and is ignored; the one-parameter method
+        # supplies the missing action.
+        repairs.repair_missing_filter_actions(
+            self.documents.get(COMPONENTS),
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS),
+            self.log,
+        )
 
     def _repair_adapters(self):
         """Deterministic adapter repairs, sharing the checker's predicates."""

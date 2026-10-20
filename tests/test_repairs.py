@@ -853,5 +853,77 @@ class AdapterFlagRepairTests(unittest.TestCase):
         self.assertEqual([o["name"] for o in options], ["--stock"])
 
 
+class BooleanFilterActionRepairTests(unittest.TestCase):
+    """A boolean selector gets the one-parameter filter it names.
+
+    `book list --available-only` is a selector, not a new value: the
+    repository already declares `filter_books_by_available_copies(
+    min_available_copies)`. The repair may wire that action because the
+    selector noun and the parameter agree; it must not wire a bare `--author`
+    to an unrelated method whose parameter says `query`.
+    """
+
+    SERVICES = [{"service_name": "BookRepository", "methods": [
+        {"name": "read_all_books", "params": [], "return_type": "List[Book]"},
+        {"name": "filter_books_by_available_copies",
+         "params": [{"name": "min_available_copies", "type": "int"}],
+         "return_type": "List[Book]"},
+        {"name": "search_books_by_title_author_isbn",
+         "params": [{"name": "query", "type": "str"}],
+         "return_type": "List[Book]"},
+    ]}]
+
+    def surface(self, flag):
+        return {"facade": {"type": "cli", "technology": "argparse",
+                           "invocation": {"commands": [
+                               {"name": "book", "options": [],
+                                "subcommands": [
+                                    {"name": "list",
+                                     "options": [{"name": flag, "type": "bool"}]}]}]}}}
+
+    def adapters(self):
+        return [{"action_name": "list_books",
+                 "target_service": "BookRepository",
+                 "target_method": "read_all_books",
+                 "input_fields": []}]
+
+    def test_a_selector_is_wired_to_the_matching_filter(self):
+        components = self.surface("--available-only")
+        adapters = self.adapters()
+        log = Log()
+        repairs.repair_missing_filter_actions(
+            components, adapters, self.SERVICES, [], log)
+        self.assertEqual([a["action_name"] for a in adapters],
+                         ["list_books", "filter_books_by_available_copies"])
+        field = adapters[-1]["input_fields"][0]
+        self.assertEqual(field["field_name"], "min_available_copies")
+        self.assertEqual(field["flag"], "available_only")
+        self.assertEqual(field["transform"], "BOOL_TO_ONE")
+        self.assertIn("wired to BookRepository.filter_books_by_available_copies",
+                      log.joined())
+
+    def test_a_selector_with_no_matching_parameter_is_left_alone(self):
+        components = self.surface("--author")
+        adapters = self.adapters()
+        repairs.repair_missing_filter_actions(
+            components, adapters, self.SERVICES, [], Log())
+        self.assertEqual([a["action_name"] for a in adapters], ["list_books"])
+
+    def test_a_selector_already_bound_by_an_adapter_is_left_alone(self):
+        components = self.surface("--available-only")
+        adapters = self.adapters()
+        adapters.append({
+            "action_name": "list_books_by_author",
+            "target_service": "BookRepository",
+            "target_method": "filter_books_by_available_copies",
+            "input_fields": [{"field_name": "available_only",
+                              "target_param": "min_available_copies",
+                              "required": True}],
+        })
+        repairs.repair_missing_filter_actions(
+            components, adapters, self.SERVICES, [], Log())
+        self.assertEqual(len(adapters), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

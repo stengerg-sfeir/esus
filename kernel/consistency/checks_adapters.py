@@ -18,7 +18,7 @@ from kernel.consistency.naming import (
 )
 from kernel.consistency.report import with_suggestions
 
-TRANSFORMS = ("DIRECT", "LOOKUP_ID", "DECIMAL_TO_CENTS", "ISO_DATE", "CSV_LIST", "ENUM_LOOKUP")
+TRANSFORMS = ("DIRECT", "LOOKUP_ID", "DECIMAL_TO_CENTS", "ISO_DATE", "CSV_LIST", "ENUM_LOOKUP", "BOOL_TO_ONE")
 ADAPTER_AGGREGATION_THRESHOLD = 3
 LOOKUP_TRANSFORM = "LOOKUP_ID"
 

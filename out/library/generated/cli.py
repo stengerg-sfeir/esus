@@ -5,7 +5,8 @@ Transforms follow the adapter document: DIRECT passes through, ISO_DATE
 validates ISO format, DECIMAL_TO_CENTS converts money to integer cents,
 CSV_LIST splits on commas, LOOKUP_ID coerces to int (existence is
 enforced by the repository's foreign-key check on write, or by the
-record lookup itself on read).
+record lookup itself on read), BOOL_TO_ONE turns a selector such as
+--available-only into the minimum count of one.
 """
 
 import argparse
@@ -44,6 +45,8 @@ def _transform(kind, value, field):
         return int(value)
     if kind == "ENUM_LOOKUP":
         return str(value)
+    if kind == "BOOL_TO_ONE":
+        return 1 if value else 0
     raise ValueError(f"unknown transform {kind!r} for {field!r}")
 
 
@@ -108,6 +111,16 @@ ADAPTERS = {
         ],
         'argv': {'member_id': 'member_id', 'book_id': 'book_id'},
         'targets': {'member_id': None, 'book_id': None},
+        'assembled': [],
+    },
+    'filter_books_by_available_copies': {
+        'service': 'BookRepository',
+        'method': 'filter_books_by_available_copies',
+        'fields': [
+            ('min_available_copies', ('min_available_copies', 'BOOL_TO_ONE', False)),
+        ],
+        'argv': {'min_available_copies': 'available_only'},
+        'targets': {'min_available_copies': None},
         'assembled': [],
     },
     'find_active_members': {
@@ -220,7 +233,7 @@ ADAPTERS = {
 
 BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
     ('book', 'add'): [('add_book', 5, ())],
-    ('book', 'list'): [('list_books', 5, ())],
+    ('book', 'list'): [('filter_books_by_available_copies', 5, (('available_only', 'truthy', '--available-only'),)), ('list_books', 5, ())],
     ('book', 'search'): [('search_books', 7, ())],
     ('borrow', None): [('borrow_book', 7, ())],
     ('member', 'add'): [('add_member', 5, ())],

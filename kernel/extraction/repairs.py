@@ -926,6 +926,155 @@ def repair_missing_adapter_flags(components, adapters, services, models, log):
     return components
 
 
+# Boolean selectors whose name only narrows a result set; the remaining
+# noun is what has to meet the filter method's parameter (`available-only`
+# meets `min_available_copies`).
+SELECTOR_STOPWORDS = frozenset({"only", "all", "is", "has", "with", "show"})
+
+
+def repair_missing_filter_actions(components, adapters, services, models, log):
+    """Wire a boolean selector to a one-parameter filter on the same service.
+
+    A requirements line can say ``book list [--available-only]`` while the
+    adapter document only contains the unfiltered ``read_all_books`` call and
+    the filter method ``filter_books_by_available_copies(min_available_copies)``.
+    The flag then parses and is ignored. When the selector's noun occurs in
+    exactly that method's parameter, the action is grounded on both documents:
+    it selects the filter, and ``BOOL_TO_ONE`` supplies the minimum count the
+    selector means. A selector with no same-service parameter match (such as a
+    bare ``--author`` whose method lives on another service) is left for the
+    human surface review, not guessed.
+    """
+    if (not isinstance(components, dict) or not isinstance(adapters, list)
+            or not isinstance(services, list)):
+        return adapters
+    facade = components.get("facade")
+    invocation = (facade or {}).get("invocation") if isinstance(facade, dict) else None
+    if not isinstance(invocation, dict):
+        return adapters
+    from kernel.codegen import bind_commands
+    from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+
+    bindings, _unmapped = bind_commands(adapters, invocation, COMMAND_VERB_STEMS)
+    by_name = {a.get("action_name"): a for a in adapters
+               if isinstance(a, dict) and a.get("action_name")}
+    index = _service_method_index(services)
+    existing_targets = {
+        (normalize(a.get("target_service")), normalize(a.get("target_method")))
+        for a in adapters
+        if isinstance(a, dict) and a.get("action_name")
+        and _adapter_fields_are_parameters(a, index)
+    }
+    for (command, sub), bound in sorted(bindings.items(), key=lambda item: str(item[0])):
+        if bound is None:
+            continue
+        adapter = by_name.get(bound[0])
+        if adapter is None:
+            continue
+        base_method = _resolve_adapter_method(adapter, index)
+        if base_method is None or base_method.get("params"):
+            continue
+        service_name = adapter.get("target_service")
+        methods = index.get(normalize(service_name), {})
+        leaf = _find_leaf(invocation, command, sub)
+        if leaf is None:
+            continue
+        dests = [dest for dest in
+                 (option_dest(option) for option in leaf.get("options") or [])
+                 if dest]
+        for option in leaf.get("options") or []:
+            if not isinstance(option, dict) or option.get("type") != "bool":
+                continue
+            dest = option_dest(option)
+            if not dest:
+                continue
+            if _selector_already_consumed(adapters, dest):
+                continue
+            tokens = {word for word in re.findall(r"[a-z0-9]+", dest.lower())
+                      if word not in SELECTOR_STOPWORDS}
+            if not tokens:
+                continue
+            match = _filter_method_for(service_name, methods, tokens,
+                                       existing_targets, base_method)
+            if match is None:
+                continue
+            method_name, method = match
+            param = method["params"][0]["name"]
+            action_name = method_name
+            while action_name in by_name:
+                action_name += "_filter"
+            action = {
+                "action_name": action_name,
+                "target_service": service_name,
+                "target_method": method_name,
+                "input_fields": [{
+                    "field_name": param,
+                    "flag": dest,
+                    "target_param": param,
+                    "transform": "BOOL_TO_ONE",
+                    "lookup_entity": None,
+                    "required": False,
+                }],
+            }
+            adapters.append(action)
+            by_name[action_name] = action
+            existing_targets.add((normalize(service_name), normalize(method_name)))
+            if log is not None:
+                log.write(
+                    f"[ok] step adapters: {command} {sub or ''} selector "
+                    f"'--{dest.replace('_', '-')}' has no action — wired to "
+                    f"{service_name}.{method_name} as BOOL_TO_ONE"
+                )
+            break
+    return adapters
+
+
+def _adapter_fields_are_parameters(adapter, index):
+    """True when every field on the action names a target-method parameter."""
+    method = _resolve_adapter_method(adapter, index)
+    if method is None:
+        return False
+    params = {p.get("name") for p in method.get("params") or []
+              if isinstance(p, dict) and isinstance(p.get("name"), str)}
+    fields = [f for f in adapter.get("input_fields") or []
+              if isinstance(f, dict) and f.get("field_name")]
+    return bool(fields) and all(f["field_name"] in params for f in fields)
+
+
+def _selector_already_consumed(adapters, dest):
+    """True when any adapter field already binds this selector dest."""
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        for field in adapter.get("input_fields") or []:
+            if not isinstance(field, dict):
+                continue
+            source = field.get("flag") or field.get("field_name")
+            if isinstance(source, str) and bind_field([dest], source) == dest:
+                return True
+    return False
+
+
+def _filter_method_for(service, methods, tokens, existing_targets, base_method):
+    """The first one-parameter filter method whose parameter matches tokens."""
+    prefixes = ("filter", "find", "search", "list")
+    for method_name, method in sorted(methods.items()):
+        if method is base_method or not isinstance(method, dict):
+            continue
+        if not method_name.startswith(prefixes):
+            continue
+        params = [p for p in method.get("params") or []
+                  if isinstance(p, dict) and isinstance(p.get("name"), str)]
+        if len(params) != 1:
+            continue
+        if (normalize(service), normalize(method.get("name"))) in existing_targets:
+            continue
+        param_tokens = set(re.findall(r"[a-z0-9]+", params[0]["name"].lower()))
+        if param_tokens & set(tokens):
+            return method.get("name"), method
+    return None
+
+
 def _option_type(ptype):
     """A CLI option type for a documented parameter type, defaulting to str."""
     text = str(ptype or "").strip().lower()

@@ -262,6 +262,8 @@ def repair_existing(output_dir):
         repairs.repair_adapter_field_names(adapters, services, models, log)
         repairs.repair_missing_adapter_flags(
             components, adapters, services, models, log)
+        repairs.repair_missing_filter_actions(
+            components, adapters, services, models, log)
     if isinstance(components, dict):
         decisions = load_surface_decisions(directory)
         if decisions:

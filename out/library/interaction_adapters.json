@@ -226,6 +226,21 @@
           "required": true
         }
       ]
+    },
+    {
+      "action_name": "filter_books_by_available_copies",
+      "target_service": "BookRepository",
+      "target_method": "filter_books_by_available_copies",
+      "input_fields": [
+        {
+          "field_name": "min_available_copies",
+          "flag": "available_only",
+          "target_param": "min_available_copies",
+          "transform": "BOOL_TO_ONE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
     }
   ]
 }
