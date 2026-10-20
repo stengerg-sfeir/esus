@@ -1701,6 +1701,57 @@ class StubFillTests(unittest.TestCase):
                             if "module (services.py):" in p)
         self.assertIn("methods listed below", full_service)
 
+    def test_honest_stub_context_replaces_the_full_facts(self):
+        """The corrected block keeps the surfaces the minimal run proved
+        load-bearing (references, fields, errors) but stops the two lies a
+        live answer acted on: nullable `read_one_*` and ISO-string dates."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        captured = []
+
+        def answer(llm, prompt, label, **kwargs):
+            captured.append(prompt)
+            return mock.Mock(text="        return None\n", tokens=3,
+                             seconds=0.1, budget=3584, finish_reason="stop",
+                             truncated=False)
+
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                 out=lambda _line: None, context="honest")
+        service = next(p for p in captured
+                       if "module (services.py):" in p)
+        self.assertIn("Methods this module may lean on:", service)
+        self.assertIn("`read_one_*` raises", service)
+        self.assertIn("delegate to it", service)
+        self.assertIn("space-separated text does not match", service)
+        self.assertNotIn("Date fields hold ISO strings", service)
+
+    def test_honest_facts_treat_errors_as_a_vocabulary(self):
+        files = {
+            "models.py": "class Widget:\n    widget_id: int = None\n",
+            "errors.py": "class WidgetNotFoundError(LookupError):\n    pass\n",
+        }
+        text = "\n".join(
+            generator._honest_api_reference(files, "services.py"))
+        self.assertIn("WidgetNotFoundError", text)
+        self.assertIn("vocabulary, not a work order", text)
+        self.assertIn("not add checks", text)
+
+    def test_honest_search_rule_says_fields_are_independent(self):
+        info = {"cls": "BookRepository",
+                "def": "def search_books_by_title_author_isbn(self, query):",
+                "reason": "test", "file": "repositories.py"}
+        module = "class BookRepository:\n    pass\n"
+        honest = generator.stub_prompt("requirements", module, info,
+                                       context="honest")
+        self.assertIn("`elif` chain", honest)
+        minimal = generator.stub_prompt("requirements", module, info,
+                                        context="minimal")
+        self.assertNotIn("`elif` chain", minimal)
+
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
         from unittest import mock
@@ -1759,6 +1810,34 @@ class StubFillTests(unittest.TestCase):
             self.assertIn("minimal context: requirements + module only",
                           printed)
             self.assertNotIn("Methods this module may lean on:", captured[0])
+
+    def test_main_stub_context_honest_reaches_the_ask(self):
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as directory:
+            out = write_out(Path(directory) / "shop", fixture())
+            captured = []
+
+            def answer(llm, prompt, label, **kwargs):
+                captured.append(prompt)
+                return mock.Mock(text="        return None\n", tokens=3,
+                                 seconds=0.1, budget=3584,
+                                 finish_reason="stop", truncated=False)
+
+            with mock.patch.object(generator.runner, "load_model",
+                                   return_value=object()), \
+                    mock.patch.object(generator.runner, "generate_free",
+                                      side_effect=answer), \
+                    io.StringIO() as buffer, redirect_stdout(buffer):
+                self.assertEqual(
+                    generator.main([out, "--model", "fake.gguf",
+                                    "--stub-context", "honest"]), 0)
+                printed = buffer.getvalue()
+            self.assertIn("honest context: references + corrected facts",
+                          printed)
+            service = next(p for p in captured
+                           if "module (services.py):" in p)
+            self.assertIn("`read_one_*` raises", service)
 
     def test_a_refused_body_is_repaired_once_and_lands(self):
         """The repair ask quotes the complaint; a corrected answer passes

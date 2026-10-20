@@ -3111,6 +3111,13 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         f"  {info['reason']}",
     ]
     lines += call_rule
+    if context == "honest" and re.search(r"search|filter|find", method, re.I):
+        lines += [
+            "- A search or filter over several fields tests each field",
+            "  independently: a record matching any one is a hit. Do not",
+            "  put the fields in one `elif` chain — the later fields then",
+            "  never run.",
+        ]
     lines += [
         "- If the requirements do not determine the behavior, reply with",
         '  `raise NotImplementedError("...")` and nothing else.',
@@ -3283,6 +3290,63 @@ def _api_reference(files, filename=""):
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
+    lines.append("- A body may use these stdlib modules; a needed import")
+    lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
+    return lines
+
+
+def _honest_api_reference(files, filename=""):
+    """The full ask's facts, corrected where a live run showed them lying.
+
+    The full block tells a body to compare date fields as ISO strings but
+    calls `read_one_*` nullable when it raises, and lists error names
+    without saying when they apply: a live return body formatted a
+    space-separated timestamp (which never compares equal to the stored
+    ISO text) and reached for `InvalidReturnDateError` to enforce a
+    return-date rule the requirements never state. The surfaces are the
+    same; the lines that were wrong or missing are different.
+    """
+    lines = ["The data the sibling modules hand you:"]
+    if filename == "services.py":
+        lines += [
+            "- `self._repos` maps repository names to instances:",
+            "  call their methods and filter the dataclasses they",
+            "  return, in Python. A service has no `self._store`",
+            "  and no `self.ENTITY`.",
+            "- If a repository method already does the work under a",
+            "  different name, delegate to it; do not re-filter",
+            "  `read_all_*` in Python.",
+            "- `read_one_*` raises `<Entity>NotFoundError` when nothing",
+            "  matches, despite the `| None` in its annotation; a `None`",
+            "  check after it is dead code.",
+        ]
+    else:
+        lines.append("- `self._store` reads return plain records (dicts):")
+        lines.append('  read them with `record.get("field")`; `self.ENTITY`')
+        lines.append("  is this class's table.")
+    entries = _model_fields(files.get("models.py") or "")
+    if entries:
+        lines.append("- The dataclasses in models.py and their fields; read")
+        lines.append("  them as attributes (`book.title`), never `.get(...)`,")
+        lines.append("  never a field that is not listed. They are plain")
+        lines.append("  dataclasses: set the fields and pass the instance back —")
+        lines.append("  there is no `copy(...)` with keyword updates:")
+        lines += [f"  {entry}" for entry in entries]
+        lines.append("- The store normalizes `datetime.date`/`datetime.datetime`")
+        lines.append("  values to ISO strings on write, so values read back are")
+        lines.append('  ISO text (`"2026-10-05"`, `"2026-10-05T14:30:00"`).')
+        lines.append("  Compare them as strings; use `fromisoformat` for")
+        lines.append("  arithmetic and store a datetime (or its `.isoformat()`)")
+        lines.append('  back. Never `strftime("%Y-%m-%d %H:%M:%S")`:')
+        lines.append("  space-separated text does not match the stored ISO")
+        lines.append("  strings.")
+    errors = sorted(_class_names(files.get("errors.py") or ""))
+    if errors:
+        lines.append(f"- errors.py defines only these: {', '.join(errors)}")
+        lines.append("  The list is a vocabulary, not a work order: raise one")
+        lines.append("  only where the requirements describe that failure. Do")
+        lines.append("  not add checks (a return-date rule, a loan limit) the")
+        lines.append("  requirements do not state.")
     lines.append("- A body may use these stdlib modules; a needed import")
     lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
     return lines
@@ -3584,9 +3648,11 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     `context` controls what the ask shows besides the task rules, the
     requirements and the module text. `full` adds the repository signatures
     and the API facts (model fields and their types, error names, the date
-    rule, the allowed imports); `minimal` omits both — an experiment knob,
-    so the facts that survive are the ones a run showed the model needed,
-    not the ones that felt useful to write down.
+    rule, the allowed imports); `honest` adds the same surfaces with the
+    facts corrected where a live run proved them wrong (truthful
+    `read_one_*`, one ISO date rule, errors as a vocabulary, delegation
+    and search-order hints); `minimal` omits both — the experiment that
+    showed which facts were load-bearing.
     Returns `[(label, status, note)]`, one row per refused stub, `status`
     `written` or `kept`. With `dump_path`, every raw answer lands there as
     JSON — both attempts when a repair was asked, with `finish_reason`,
@@ -3619,15 +3685,22 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                     else "no chat template: raw continuation")
     if context == "minimal":
         framing_name += "; minimal context: requirements + module only"
+    elif context == "honest":
+        framing_name += "; honest context: references + corrected facts"
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
         f"by body ({framing_name})")
     rows, dumped = [], []
     for filename, spans in targets:
         text = files[filename]
         references = ()
-        if filename == "services.py" and context == "full":
+        if filename == "services.py" and context != "minimal":
             references = _method_signatures(files.get("repositories.py") or "")
-        api = _api_reference(files, filename) if context == "full" else ()
+        if context == "honest":
+            api = _honest_api_reference(files, filename)
+        elif context == "full":
+            api = _api_reference(files, filename)
+        else:
+            api = ()
         for planned in reversed(spans):
             # Re-find the span in the current text before every splice: a
             # body that adds an import lands at the top of the file and
@@ -3825,14 +3898,16 @@ def main(argv=None):
                              "argparse-owned options, adapter fields with no "
                              "CLI flag). Anything actionable is already a "
                              "probe blocker, which refuses generation.")
-    parser.add_argument("--stub-context", choices=("full", "minimal"),
+    parser.add_argument("--stub-context",
+                        choices=("full", "minimal", "honest"),
                         default="full",
-                        help="What a body ask shows besides the task rules, the "
-                             "requirements and the module text: `full` (default) "
-                             "adds the repository signatures and the API facts "
-                             "(model fields, error names, date rule); `minimal` "
-                             "omits both, to measure which facts the model "
-                             "actually needs")
+                        help="What a body ask shows besides the task rules, "
+                             "the requirements and the module text: `full` "
+                             "(default) adds the repository signatures and "
+                             "the API facts; `honest` adds them with the "
+                             "facts a live run proved wrong corrected; "
+                             "`minimal` omits both, to measure which facts "
+                             "the model actually needs")
     args = parser.parse_args(argv)
 
     ok, message = gate(args.out_dir)
