@@ -1430,6 +1430,56 @@ class StubFillTests(unittest.TestCase):
                                   "    return 1\n"),
             ["return 1"])
 
+    def test_an_answer_that_keeps_talking_after_the_body_is_flagged(self):
+        self.assertTrue(generator._answer_continued(
+            "    return 1\n```\n\nWait — no.\n\n```python\n"
+            "    return 2\n```\n"))
+        self.assertFalse(generator._answer_continued(
+            "    return 1\n```"))
+        self.assertFalse(generator._answer_continued(
+            "```python\n    return 1\n```"))
+
+    def test_a_deliberating_answer_is_repaired_not_accepted_as_a_draft(self):
+        """The exact-context return body: draft, closing fence, reasoning,
+        final block. The first block must not land silently."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        seen = []
+
+        def answer(llm, prompt, label, **kwargs):
+            seen.append((label, prompt))
+            if label == "stub:WidgetService.custom_total":
+                text = ("        return 1\n```\n\nWait — no.\n\n"
+                        "```python\n        return 2\n```\n")
+                return mock.Mock(text=text, tokens=9, seconds=0.1,
+                                 budget=3584, finish_reason="stop",
+                                 truncated=False)
+            if label == "stub:WidgetService.custom_total:repair":
+                return mock.Mock(text="        return 2\n", tokens=9,
+                                 seconds=0.1, budget=3584,
+                                 finish_reason="stop", truncated=False)
+            return mock.Mock(text="        return None\n", tokens=9,
+                             seconds=0.1, budget=3584,
+                             finish_reason="stop", truncated=False)
+
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            rows = generator.fill_stubs(files, "fake.gguf",
+                                        "requirements text",
+                                        out=lambda _line: None)
+        by_label = {label: (status, note) for label, status, note in rows}
+        status, note = by_label["WidgetService.custom_total"]
+        self.assertEqual(status, "written")
+        self.assertIn("the answer continued after the body", note)
+        repair = next(prompt for label, prompt in seen
+                      if label == "stub:WidgetService.custom_total:repair")
+        self.assertIn("the answer continued after the body", repair)
+        self.assertIn("return 1", repair)
+        self.assertIn("        return 2", files["services.py"])
+        self.assertNotIn("        return 1", files["services.py"])
+
     def test_a_body_that_does_not_compile_keeps_the_stub(self):
         files, _stats = self.rendered()
         rows = self.fill(files, ["return (((", "return (((", "return 0"])

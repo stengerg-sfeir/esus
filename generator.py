@@ -3195,6 +3195,33 @@ def _clean_body(text):
     return [line[trim:] if line.strip() else "" for line in lines]
 
 
+def _answer_continued(text):
+    """True when an answer keeps talking after its first code block.
+
+    The ask ends with an open fence, so a compliant answer is body lines
+    and one closing fence. A model that deliberates writes a draft, closes
+    the fence, then reasons and offers another body; `_clean_body` sees
+    only the first block, so landing it would accept a body the model was
+    itself about to correct. A live `return_book` answer did exactly this:
+    the accepted draft set the return date to the due date and skipped the
+    copy increment, while the model's final block had both right.
+    """
+    lines = (text or "").splitlines()
+    first = next((index for index, line in enumerate(lines)
+                  if line.strip().startswith("```")), None)
+    if first is None:
+        return False
+    if all(not line.strip() for line in lines[:first]):
+        close = next((index for index in range(first + 1, len(lines))
+                      if lines[index].strip().startswith("```")), None)
+    else:
+        # The prompt supplied the opening fence; this is its close.
+        close = first
+    if close is None:
+        return False
+    return any(line.strip() for line in lines[close + 1:])
+
+
 def _module_names(text):
     """Class attributes and methods: the `self.<name>` a body may touch."""
     names = {"_store", "_repos"}
@@ -3859,6 +3886,11 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 problems = [refusal] if refusal else _body_complaints(
                     body, info, text, files.get("repositories.py") or "",
                     files)
+                if _answer_continued(raw):
+                    problems.insert(
+                        0, "the answer continued after the body with "
+                           "reasoning or another candidate body; reply with "
+                           "only the final body")
                 if problems:
                     return None, problems, body
                 candidate = _spliced_candidate(text, start, end, info, body,
