@@ -276,7 +276,7 @@ def _obvious_preconditions(ctx, raises, fields, method):
         if match:
             entity = match.group(1)
             obvious.append({"check": f"{entity.lower()} exists",
-                            "error": name})
+                            "error": name, "raise_when": "false"})
             continue
         if "InsufficientCopies" in name:
             copies = [row for row in fields
@@ -288,10 +288,12 @@ def _obvious_preconditions(ctx, raises, fields, method):
                 obvious.append({
                     "check": f"{entity.lower()}.{field_name} > 0",
                     "error": name,
+                    "raise_when": "false",
                 })
                 continue
         if "InvalidStockQty" in name and "qty" in params:
-            obvious.append({"check": "qty > 0", "error": name})
+            obvious.append({"check": "qty > 0", "error": name,
+                            "raise_when": "false"})
             continue
         open_errors.append(name)
     return obvious, open_errors
@@ -483,7 +485,10 @@ def describe_proposal(index, total, proposal, questions=True):
     if proposal["preconditions"]:
         lines.append("  preconditions from declared errors:")
         for item in proposal["preconditions"]:
-            lines.append(f"    - {item['check']} -> {item['error']}")
+            when = item.get("raise_when")
+            suffix = f" (raise when {when})" if when else ""
+            lines.append(
+                f"    - {item['check']} -> {item['error']}{suffix}")
     if questions:
         for question in proposal["questions"]:
             if question["kind"] == "choice":
@@ -561,7 +566,8 @@ def _finalize(proposal, answers, prompt_sha, ctx):
             continue
         answer = answers.get(question["id"])
         if answer:
-            preconditions.append({"check": answer, "error": question["error"]})
+            preconditions.append({"check": answer, "error": question["error"],
+                                  "raise_when": "true"})
     order = []
     writes = []
     for effect in effects:

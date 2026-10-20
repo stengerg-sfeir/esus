@@ -3041,11 +3041,16 @@ def _direct_model(annotation):
     return _first_model(annotation)
 
 
-def _declared_return(info):
-    """The `models.X` a stub's own `-> ...` names, or None."""
+def _return_annotation(info):
+    """The stub's own return annotation as written, or an empty string."""
     match = re.match(r"def \w+\([^)]*\)\s*->\s*(.+?):?$",
                      info.get("def") or "")
-    return _first_model(match.group(1)) if match else None
+    return match.group(1).strip() if match else ""
+
+
+def _declared_return(info):
+    """The `models.X` a stub's own `-> ...` names, or None."""
+    return _first_model(_return_annotation(info))
 
 
 def _clip_module(text, cls, budget):
@@ -3111,6 +3116,10 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  `errors.*`, module helpers. A service body has no",
             "  `self._store` and no `self.ENTITY`: read through the",
             "  repositories and filter what they return in Python.",
+            "- Copy repository parameter names exactly from the method",
+            "  list; a keyword can use a different noun than the entity",
+            "  id. When a method takes one value, passing it positionally",
+            "  is always safe.",
         ]
     else:
         call_rule = [
@@ -3134,6 +3143,11 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         f"  {info['reason']}",
     ]
     lines += call_rule
+    lines += [
+        "- If the body both creates a record and changes an existing one,",
+        "  create the record first; a failed create must not leave the",
+        "  change behind.",
+    ]
     if context in ("honest", "exact") \
             and re.search(r"search|filter|find", method, re.I):
         lines += [
@@ -3593,9 +3607,15 @@ def _contract_lines(contract):
     if preconditions:
         lines.append("  preconditions:")
         for item in preconditions:
+            check = item["check"]
             error = item.get("error")
-            suffix = f"; otherwise raise `{error}`" if error else ""
-            lines.append(f"    - `{item['check']}`{suffix}")
+            raise_when = item.get("raise_when")
+            if error and raise_when in ("true", "false"):
+                lines.append(
+                    f"    - raise `{error}` when `{check}` is {raise_when}")
+            else:
+                suffix = f"; otherwise raise `{error}`" if error else ""
+                lines.append(f"    - `{check}`{suffix}")
     creates = contract.get("creates") or []
     if creates:
         lines.append("  creates:")
@@ -3935,6 +3955,24 @@ def _body_complaints(body, info, module_text, references_text, files,
                          f"is assigned (line {bound[name]})")
     declared = _declared_return(info)
     if declared:
+        annotation = _return_annotation(info)
+        value_returns = [
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.Return) and node.value is not None
+            and not (isinstance(node.value, ast.Constant)
+                     and node.value.value is None)]
+        yields = [node for node in ast.walk(tree)
+                  if isinstance(node, (ast.Yield, ast.YieldFrom))]
+        if yields and not re.search(
+                r"\b(?:Iterator|Generator|Iterable)\b", annotation):
+            found.append(
+                f"the body uses `yield`, but the method is declared "
+                f"`-> {annotation}`; a generator function does not return "
+                "that value")
+        elif not value_returns:
+            found.append(
+                f"the method is declared `-> {annotation}`, but the body "
+                "never returns a value")
         reported = set()
         for node in ast.walk(tree):
             if not isinstance(node, ast.Return) \
@@ -3962,6 +4000,7 @@ def _body_complaints(body, info, module_text, references_text, files,
                     break
     found.extend(_contract_complaints(tree, contract))
     found += _keyword_call_complaints(tree, references_text)
+    found += _store_operator_complaints(tree)
     return found
 
 
@@ -4022,16 +4061,34 @@ def _call_names(tree):
 
 
 def _signature_parameters(references_text):
-    """`{(class, method): [parameter, ...]}` from the repository signatures."""
+    """`{(class, method): [parameter, ...]}` from repository source OR lines.
+
+    `fill_stubs` passes the repositories module for its return types, while
+    the prompt and tests may pass the shorter `Class.method(...)` lines.
+    Accept both shapes so a keyword check uses the same signatures the body
+    was shown.
+    """
     mapping = {}
+    cls = None
     for line in (references_text or "").splitlines():
-        match = re.match(r"^(\w+)\.(\w+)\((.*)\)(?:\s*->.*)?$",
-                         line.strip())
-        if not match:
+        stripped = line.strip()
+        match = re.match(r"^class (\w+)", stripped)
+        if match:
+            cls = match.group(1)
             continue
-        params_text = match.group(3)
+        dotted = re.match(r"^(\w+)\.(\w+)\((.*)\)(?:\s*->.*)?$",
+                          stripped)
+        method = re.match(r"^def (\w+)\((.*)\)(?:\s*->.*)?:$", stripped)
+        if dotted:
+            owner, name, params_text = (
+                dotted.group(1), dotted.group(2), dotted.group(3))
+        elif method and cls:
+            owner, name, params_text = (
+                cls, method.group(1), method.group(2))
+        else:
+            continue
         if "**" in params_text:
-            mapping[(match.group(1), match.group(2))] = None
+            mapping[(owner, name)] = None
             continue
         try:
             node = ast.parse("def _f(" + params_text + "):\n    pass\n").body[0]
@@ -4045,7 +4102,7 @@ def _signature_parameters(references_text):
             params.append(node.args.vararg.arg)
         if node.args.kwarg:
             params.append(node.args.kwarg.arg)
-        mapping[(match.group(1), match.group(2))] = params
+        mapping[(owner, name)] = params
     return mapping
 
 
@@ -4063,6 +4120,40 @@ def _repo_name(node):
     if isinstance(key, ast.Constant) and isinstance(key.value, str):
         return key.value
     return None
+
+
+def _store_operator_complaints(tree):
+    """Reject a `select` operator the store does not implement."""
+    supported = {"eq", "ge", "le"}
+    found = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "select"):
+            continue
+        owner = node.func.value
+        if not (isinstance(owner, ast.Attribute) and owner.attr == "_store"
+                and isinstance(owner.value, ast.Name)
+                and owner.value.id == "self"):
+            continue
+        if len(node.args) < 2:
+            continue
+        criteria = node.args[1]
+        if not isinstance(criteria, (ast.List, ast.Tuple)):
+            continue
+        for item in criteria.elts:
+            if not (isinstance(item, (ast.Tuple, ast.List))
+                    and len(item.elts) >= 2):
+                continue
+            operator = item.elts[1]
+            if isinstance(operator, ast.Constant) \
+                    and isinstance(operator.value, str) \
+                    and operator.value not in supported:
+                found.append(
+                    f"calls `self._store.select` with operator "
+                    f"`{operator.value}`; the store supports only `eq`, "
+                    "`ge`, `le`")
+    return found
 
 
 def _keyword_call_complaints(tree, references_text):
@@ -4086,11 +4177,19 @@ def _keyword_call_complaints(tree, references_text):
         for keyword in node.keywords:
             if keyword.arg is None or keyword.arg in params:
                 continue
+            declared = (f"`{params[0]}`" if len(params) == 1
+                        else "one of " + ", ".join(
+                            f"`{name}`" for name in params))
+            suggestion = ""
+            if len(params) == 1 and len(node.keywords) == 1 \
+                    and not node.args:
+                suggestion = (
+                    f"; write `{ast.unparse(node.func)}("
+                    f"{ast.unparse(keyword.value)})`")
             found.append(
                 f"calls `{repo}.{method.attr}({keyword.arg}=...)`; the "
-                f"declared parameter is "
-                + (f"`{params[0]}`" if len(params) == 1
-                   else "one of " + ", ".join(f"`{name}`" for name in params)))
+                f"declared parameter is {declared}; pass the value "
+                f"positionally or use the declared keyword{suggestion}")
             break
     return found
 
@@ -4099,6 +4198,94 @@ def _raise_names(tree):
     """Exception names raised anywhere in the body."""
     return {_raised_name(node) for node in ast.walk(tree)
             if isinstance(node, ast.Raise)}
+
+
+def _expression(text):
+    """A contract's condition as an AST expression, or None when it is prose."""
+    try:
+        return ast.parse(str(text), mode="eval").body
+    except (SyntaxError, ValueError):
+        return None
+
+
+def _same_expression(left, right):
+    """True when two parsed conditions are structurally identical."""
+    return (left is not None and right is not None
+            and ast.dump(left, include_attributes=False)
+            == ast.dump(right, include_attributes=False))
+
+
+def _negated_expression(node):
+    """The condition's negation, flipping comparisons instead of wrapping."""
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+        return node.operand
+    if isinstance(node, ast.Compare) and len(node.ops) == 1 \
+            and len(node.comparators) == 1:
+        opposite = {
+            ast.Eq: ast.NotEq, ast.NotEq: ast.Eq,
+            ast.Gt: ast.LtE, ast.LtE: ast.Gt,
+            ast.GtE: ast.Lt, ast.Lt: ast.GtE,
+        }.get(type(node.ops[0]))
+        if opposite is not None:
+            return ast.Compare(left=node.left, ops=[opposite()],
+                               comparators=[node.comparators[0]])
+    return ast.UnaryOp(op=ast.Not(), operand=node)
+
+
+def _guard_expression(node):
+    """A branch condition in positive form: `not a == b` is `a != b`."""
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+        return _negated_expression(node.operand)
+    return node
+
+
+def _raise_guards(tree, error):
+    """The conditions under which a body directly raises `error`."""
+    guards = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.If):
+            continue
+        for statement in node.body:
+            if isinstance(statement, ast.Raise) \
+                    and _raised_name(statement) == error:
+                guards.append(_guard_expression(node.test))
+        for statement in node.orelse:
+            if isinstance(statement, ast.Raise) \
+                    and _raised_name(statement) == error:
+                guards.append(_guard_expression(
+                    _negated_expression(node.test)))
+    return guards
+
+
+def _raise_when_complaints(tree, precondition):
+    """Check a comparison's polarity, when the contract states its trigger.
+
+    `raise_when` says whether the named error fires when the condition is
+    true or when it is false. A precondition such as `loan is returned`
+    usually fires on true; a precondition such as `copies > 0` fires on
+    false. Without that bit the same record can be rendered backwards, and
+    a body can raise the right error at the wrong time while passing every
+    name-and-call check.
+    """
+    error = _last_name(precondition.get("error") or "")
+    raise_when = precondition.get("raise_when")
+    check = _expression(precondition.get("check") or "")
+    if not error or check is None or raise_when not in ("true", "false"):
+        return []
+    guards = _raise_guards(tree, error)
+    if not guards:
+        return []
+    expected = check if raise_when == "true" \
+        else _negated_expression(check)
+    opposite = _negated_expression(check) if raise_when == "true" else check
+    if any(_same_expression(guard, expected) for guard in guards):
+        return []
+    if any(_same_expression(guard, opposite) for guard in guards):
+        return [
+            f"raises `{error}` when `{precondition['check']}` is "
+            f"{'false' if raise_when == 'true' else 'true'}; the confirmed "
+            f"contract raises it when the condition is {raise_when}"]
+    return []
 
 
 def _contract_complaints(tree, contract):
@@ -4184,6 +4371,8 @@ def _contract_complaints(tree, contract):
             found.append(
                 f"the confirmed contract requires `{precondition.get('check')}` "
                 f"to raise `{error}`, but the body never raises it")
+        if error and precondition.get("raise_when") in ("true", "false"):
+            found.extend(_raise_when_complaints(tree, precondition))
 
     for rule in contract.get("forbid") or []:
         target, reads = rule.get("target") or "", rule.get("reads") or ""
@@ -4465,53 +4654,65 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                             "(the first was a draft)")
             extra = {}
             if problems:
-                out(f"llm: {label} refused ({problems[0]}) — one repair ask")
-                # Quote the body that was judged, not the raw answer: a
-                # reasoning transcript is both huge (the repair ask then no
-                # longer fits the context) and not what the complaints are
-                # about.
-                repair = stub_prompt(requirements, text, info, references,
-                                     api, previous="\n".join(body) or None,
-                                     complaints=problems, context=context,
-                                     contract=target_contract)
-                try:
-                    result = _answered(framing, llm, repair,
-                                       f"stub:{label}:repair")
-                except Exception as error:  # the stub stands, said aloud
-                    note = f"the model failed on the repair ask ({error})"
-                    rows.append((label, "kept", note))
-                    dumped.append({"label": label, "status": "kept",
-                                   "note": note, "answer": first_answer,
-                                   "complaints": problems,
-                                   **_attempt_fields(result)})
-                    continue
-                if result.truncated:
-                    note = ("still refused: the repair answer was cut off at "
+                initial_problems = list(problems)
+                # One complaint per ask when there are several: a small
+                # model that repeats a body with two independent mistakes
+                # (two wrong repository keywords) can still correct one
+                # when the repair names only that one. A single complaint
+                # keeps the old one-repair behavior.
+                max_repairs = 2 if len(initial_problems) > 1 else 1
+                repairs = 0
+                kept_note = None
+                while problems and repairs < max_repairs:
+                    repairs += 1
+                    ask = ("one repair ask" if max_repairs == 1
+                           else f"repair ask {repairs}")
+                    out(f"llm: {label} refused ({problems[0]}) — {ask}")
+                    pending = (problems[:1] if len(problems) > 1
+                               else problems)
+                    # Quote the body that was judged, not the raw answer: a
+                    # reasoning transcript is both huge (the repair ask then
+                    # no longer fits the context) and not what the
+                    # complaints are about.
+                    repair = stub_prompt(
+                        requirements, text, info, references, api,
+                        previous="\n".join(body) or None,
+                        complaints=pending, context=context,
+                        contract=target_contract)
+                    try:
+                        result = _answered(framing, llm, repair,
+                                           f"stub:{label}:repair")
+                    except Exception as error:  # the stub stands, said aloud
+                        kept_note = (f"the model failed on the repair ask "
+                                     f"({error})")
+                        break
+                    if result.truncated:
+                        kept_note = (
+                            "still refused: the repair answer was cut off at "
                             f"the {result.budget}-token ceiling")
+                        break
+                    candidate, second, body = attempt(result.text)
+                    if second:
+                        problems = second
+                    else:
+                        problems = []
+                if problems:
+                    note = kept_note or ("still refused: "
+                                         + "; ".join(problems))
                     rows.append((label, "kept", note))
                     dumped.append({"label": label, "status": "kept",
                                    "note": note, "answer": result.text,
                                    "first_answer": first_answer,
-                                   "complaints": problems,
-                                   "second_complaints": [],
+                                   "complaints": initial_problems,
+                                   "second_complaints": problems,
+                                   "repairs": repairs,
                                    **_first_fields(first_result),
                                    **_attempt_fields(result)})
                     continue
-                candidate, second, body = attempt(result.text)
-                if second:
-                    note = "still refused: " + "; ".join(second)
-                    rows.append((label, "kept", note))
-                    dumped.append({"label": label, "status": "kept",
-                                   "note": note, "answer": result.text,
-                                   "first_answer": first_answer,
-                                   "complaints": problems,
-                                   "second_complaints": second,
-                                   **_first_fields(first_result),
-                                   **_attempt_fields(result)})
-                    continue
-                note = "repaired: " + "; ".join(problems)
+                note = "repaired: " + "; ".join(initial_problems)
                 extra = {"first_answer": first_answer,
-                         "complaints": problems,
+                         "complaints": initial_problems,
+                         "repairs": repairs,
                          **_first_fields(first_result)}
                 if repaired_from_final:
                     extra["repair_draft"] = "final_block"

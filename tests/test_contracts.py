@@ -104,6 +104,8 @@ class ContractProposalTests(unittest.TestCase):
                          "ConsumptionRepository.create_consumption")
         self.assertIn("stock exists",
                       [item["check"] for item in proposal["preconditions"]])
+        self.assertTrue(all(item.get("raise_when") == "false"
+                            for item in proposal["preconditions"]))
         text = json.dumps(proposal).lower()
         for word in ("book", "copies", "return_date", "due_date", "loan"):
             self.assertNotIn(word, text)
@@ -142,9 +144,24 @@ class ContractProposalTests(unittest.TestCase):
             "StockRepository.update_stock",
         ])
         self.assertIn({"check": "stock.stock_qty >= qty",
-                       "error": "InsufficientStockError"},
+                       "error": "InsufficientStockError",
+                       "raise_when": "true"},
                       record["preconditions"])
         self.assertEqual(record["decided_by"], "user")
+
+    def test_normalization_keeps_the_raise_polarity(self):
+        record = contracts.normalize_contract({
+            "holder": "InventoryService", "method": "consume",
+            "preconditions": [{
+                "check": "stock.stock_qty >= qty",
+                "error": "InsufficientStockError",
+                "raise_when": "true",
+            }],
+        })
+        self.assertEqual(record["preconditions"],
+                         [{"check": "stock.stock_qty >= qty",
+                           "error": "InsufficientStockError",
+                           "raise_when": "true"}])
 
 
 if __name__ == "__main__":

@@ -21,15 +21,18 @@
       "preconditions": [
         {
           "check": "member exists",
-          "error": "MemberNotFoundError"
+          "error": "MemberNotFoundError",
+          "raise_when": "false"
         },
         {
           "check": "book exists",
-          "error": "BookNotFoundError"
+          "error": "BookNotFoundError",
+          "raise_when": "false"
         },
         {
           "check": "book.available_copies > 0",
-          "error": "InsufficientCopiesError"
+          "error": "InsufficientCopiesError",
+          "raise_when": "false"
         }
       ],
       "order": [
@@ -68,11 +71,13 @@
       "preconditions": [
         {
           "check": "loan exists",
-          "error": "LoanNotFoundError"
+          "error": "LoanNotFoundError",
+          "raise_when": "false"
         },
         {
           "check": "loan.status == 'returned'",
-          "error": "InvalidReturnDateError"
+          "error": "InvalidReturnDateError",
+          "raise_when": "true"
         }
       ],
       "order": [],
@@ -106,7 +111,8 @@
       "preconditions": [
         {
           "check": "member exists",
-          "error": "MemberNotFoundError"
+          "error": "MemberNotFoundError",
+          "raise_when": "false"
         }
       ],
       "order": [],

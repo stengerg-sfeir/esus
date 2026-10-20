@@ -15,7 +15,8 @@ the prompt and the body checks. The vocabulary is domain-neutral:
 
     effects       a field set/incremented/decremented and the write that saves it
     creates       a model class created through a named repository call
-    preconditions a check that must raise a named error
+    preconditions a check and whether a named error is raised when it is
+                  true or when it is false
     order         the required order of the preconditions/create/write steps
     forbid        a field assignment that must not read another field
 
@@ -159,6 +160,8 @@ def normalize_contract(raw):
         if isinstance(precondition.get("error"), str) \
                 and precondition["error"]:
             item["error"] = precondition["error"]
+        if precondition.get("raise_when") in ("true", "false"):
+            item["raise_when"] = precondition["raise_when"]
         preconditions.append(item)
     if preconditions:
         record["preconditions"] = preconditions

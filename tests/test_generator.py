@@ -1956,6 +1956,30 @@ class StubFillTests(unittest.TestCase):
         self.assertLess(text.index("The human-confirmed contract"),
                         text.index("The method you are writing:"))
 
+    def test_a_raise_when_contract_renders_its_polarity(self):
+        info = {"cls": "LibraryService",
+                "def": ("def return_book(self, loan_id: int = None)"
+                        " -> models.Loan:"),
+                "file": "services.py"}
+        files = {"models.py":
+                 "from dataclasses import dataclass\n\n"
+                 "@dataclass\nclass Loan:\n    id: int = None\n"
+                 "    status: str = None\n"}
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.status == 'returned'",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+        }
+        text = "\n".join(generator._target_contract(
+            info, files, contract=contract))
+        self.assertIn(
+            "raise `InvalidReturnDateError` when `loan.status == "
+            "'returned'` is true", text)
+        self.assertNotIn("otherwise raise `InvalidReturnDateError`", text)
+
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
         from unittest import mock
@@ -2418,7 +2442,7 @@ class ContractComplaintTests(unittest.TestCase):
                 "models.Loan())",
                 "else:",
                 "    raise errors.BookNotFoundError(book_id)",
-                "return None"]
+                "return models.Book()"]
         self.assertEqual(self.complaints(body, info=info), [])
 
     def test_an_update_before_the_create_is_a_complaint(self):
@@ -2521,6 +2545,47 @@ class ContractComplaintTests(unittest.TestCase):
             self.complaints(body, info=info, models=models,
                             contract=contract), [])
 
+    def test_a_confirmed_raise_when_true_rejects_the_inverted_guard(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    status: str = ''\n"
+                  "    return_date: datetime = None\n")
+        module = ("import models\n"
+                  "import errors\n"
+                  "\n"
+                  "class LoanRepository:\n"
+                  "    def read_one_loan(self, loan_id: int = None) "
+                  "-> models.Loan | None:\n"
+                  "        return None\n")
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.status == 'returned'",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+        }
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if loan.status != 'returned':",
+            "    raise errors.InvalidReturnDateError('already returned')",
+            "return loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract),
+            ["raises `InvalidReturnDateError` when `loan.status == "
+             "'returned'` is false; the confirmed contract raises it when "
+             "the condition is true"])
+        body[1] = "if loan.status == 'returned':"
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract), [])
+
     def test_a_repository_keyword_outside_the_signature_is_a_complaint(self):
         info = {"cls": "BookService",
                 "def": "def fetch(self, book_id: int = None) "
@@ -2537,7 +2602,33 @@ class ContractComplaintTests(unittest.TestCase):
         self.assertEqual(
             self.complaints(body, info=info, references=references),
             ["calls `BookRepository.read_one_book(book_id=...)`; the "
-             "declared parameter is `book_id_or_isbn`"])
+             "declared parameter is `book_id_or_isbn`; pass the value "
+             "positionally or use the declared keyword; write "
+             "`self._repos['BookRepository'].read_one_book(book_id)`"])
+
+    def test_a_repository_keyword_is_checked_against_the_module_source(self):
+        info = {"cls": "BookService",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> models.Book:",
+                "file": "services.py"}
+        references = (
+            "class BookRepository:\n"
+            "    ENTITY = \"Book\"\n"
+            "\n"
+            "    def read_one_book(self, book_id_or_isbn: "
+            "Union[str, int] = None) -> models.Book | None:\n"
+            "        return None\n")
+        body = [
+            "book = self._repos['BookRepository'].read_one_book("
+            "book_id=book_id)",
+            "return book",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, references=references),
+            ["calls `BookRepository.read_one_book(book_id=...)`; the "
+             "declared parameter is `book_id_or_isbn`; pass the value "
+             "positionally or use the declared keyword; write "
+             "`self._repos['BookRepository'].read_one_book(book_id)`"])
 
     def test_a_repository_keyword_matching_the_signature_is_clean(self):
         info = {"cls": "BookService",
@@ -2747,7 +2838,8 @@ class ContractComplaintTests(unittest.TestCase):
         contract = {
             "holder": "InventoryService", "method": "consume_material",
             "preconditions": [{"check": "stock.stock_qty >= qty",
-                               "error": "InsufficientStockError"}],
+                               "error": "InsufficientStockError",
+                               "raise_when": "false"}],
             "creates": [{"class": "Consumption",
                          "call": "ConsumptionRepository.create_consumption"}],
             "effects": [{"target": "stock.stock_qty", "op": "decrement",
@@ -2828,6 +2920,16 @@ class ContractComplaintTests(unittest.TestCase):
             ["indexes a dict view (`dict.keys()[i]` is not subscriptable); "
              "wrap it in `list(...)` or iterate"])
 
+    def test_an_unsupported_store_operator_is_a_complaint(self):
+        self.assertEqual(
+            self.complaints([
+                "rows = self._store.select('Book', "
+                "[('title', 'like', 'emma')])",
+                "return rows",
+            ]),
+            ["calls `self._store.select` with operator `like`; the store "
+             "supports only `eq`, `ge`, `le`"])
+
     def test_a_name_read_before_its_assignment_is_a_complaint(self):
         self.assertEqual(
             self.complaints(["total = count", "count = 1",
@@ -2843,6 +2945,30 @@ class ContractComplaintTests(unittest.TestCase):
                             info=info),
             ["returns `book` from `update_book(...)` (a Book) but the "
              "method is declared `-> models.Loan`"])
+
+    def test_a_missing_value_return_is_a_complaint(self):
+        info = {"cls": "BookService",
+                "def": "def fetch(self) -> models.Book:",
+                "file": "services.py"}
+        self.assertEqual(
+            self.complaints(["book = None"], info=info),
+            ["the method is declared `-> models.Book`, but the body never "
+             "returns a value"])
+
+    def test_a_generator_for_a_list_method_is_a_complaint(self):
+        info = {"cls": "BookService",
+                "def": "def fetch(self) -> List[models.Book]:",
+                "file": "services.py"}
+        body = [
+            "books = self._repos['BookRepository'].read_all_books()",
+            "for book in books:",
+            "    yield book",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info),
+            ["the body uses `yield`, but the method is declared "
+             "`-> List[models.Book]`; a generator function does not return "
+             "that value"])
 
     def test_a_clean_body_has_no_complaints(self):
         self.assertEqual(
