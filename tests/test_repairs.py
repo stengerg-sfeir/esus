@@ -495,13 +495,33 @@ class MissingFlagRepairTests(unittest.TestCase):
         self.assertEqual(self.options_of(body)["--name"]["type"], "str")
         self.assertIn("2 models", log.lines[0])
 
-    def test_a_bracketed_optional_flag_is_left_alone(self):
+    def test_an_untyped_optional_flag_is_left_alone(self):
         body = self.components([])
         log = Log()
         repairs.repair_missing_flags(
             body, "Run `product add [--icon]`.", self.MODELS, log)
         self.assertEqual(self.options_of(body), {})
         self.assertEqual(log.lines, [])
+
+    def test_an_optional_flag_typed_by_the_model_is_added(self):
+        body = self.components([])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add [--sku]`.", self.MODELS, log)
+        options = self.options_of(body)
+        self.assertEqual(options["--sku"]["type"], "str")
+        self.assertFalse(options["--sku"]["required"])
+        self.assertEqual(len(log.lines), 1)
+
+    def test_an_optional_boolean_selector_is_added(self):
+        body = self.components([])
+        log = Log()
+        repairs.repair_missing_flags(
+            body, "Run `product add [--available-only]`.", self.MODELS, log)
+        options = self.options_of(body)
+        self.assertEqual(options["--available-only"]["type"], "bool")
+        self.assertFalse(options["--available-only"]["required"])
+        self.assertIn("optional '--available-only'", log.lines[0])
 
     def test_a_flag_with_no_model_field_is_left_alone(self):
         body = self.components([])
@@ -769,6 +789,68 @@ class MissingSurfaceTests(unittest.TestCase):
 
         repairs.repair_missing_surface(
             body, self.REQUIREMENTS, self.MODELS, LoudLog())
+
+
+class AdapterFlagRepairTests(unittest.TestCase):
+    """A required adapter field the bound leaf lacks gets an optional flag.
+
+    The docs name both halves: the adapter field and the method parameter's
+    type. Adding a CLI option for them makes the command runnable instead of
+    reporting an uncovered field the generator cannot supply.
+    """
+
+    MODELS = [
+        {"name": "Product", "fields": [
+            {"name": "name", "type": "string"},
+            {"name": "stock_qty", "type": "int"}]},
+    ]
+    SERVICES = [{"service_name": "ProductRepository", "methods": [
+        {"name": "create_product", "params": [
+            {"name": "name", "type": "str"},
+            {"name": "stock_qty", "type": "int"}],
+         "return_type": "Product"}]}]
+
+    def surface(self, options=()):
+        return {"facade": {"type": "cli", "technology": "argparse",
+                           "invocation": {"commands": [
+                               {"name": "product", "options": [],
+                                "subcommands": [
+                                    {"name": "add",
+                                     "options": [{"name": name, "type": "str"}
+                                                 for name in options]}]}]}}}
+
+    def adapters(self, fields):
+        return [{"action_name": "add_product",
+                 "target_service": "ProductRepository",
+                 "target_method": "create_product",
+                 "input_fields": fields}]
+
+    def test_a_missing_required_field_becomes_an_optional_flag(self):
+        body = self.surface()
+        adapters = self.adapters([
+            {"field_name": "name", "target_param": "name", "required": True},
+            {"field_name": "stock_qty", "target_param": "stock_qty",
+             "required": True},
+        ])
+        log = Log()
+        repairs.repair_missing_adapter_flags(
+            body, adapters, self.SERVICES, self.MODELS, log)
+        options = {o["name"]: o
+                   for o in body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"]}
+        self.assertEqual(options["--stock-qty"]["type"], "int")
+        self.assertFalse(options["--stock-qty"]["required"])
+        self.assertIn("required by 'add_product'", log.lines[0])
+
+    def test_an_already_bindable_flag_is_not_duplicated(self):
+        body = self.surface(["--stock"])
+        adapters = self.adapters([
+            {"field_name": "stock_qty", "target_param": "stock_qty",
+             "required": True},
+        ])
+        repairs.repair_missing_adapter_flags(
+            body, adapters, self.SERVICES, self.MODELS, Log())
+        options = body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"]
+        self.assertEqual([o["name"] for o in options], ["--stock"])
 
 
 if __name__ == "__main__":

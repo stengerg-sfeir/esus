@@ -602,6 +602,16 @@ class Pipeline:
             # _generate stores every attempt: point the document back at the
             # kept one, or a degrading retry silently replaces good content.
             self.documents[INTERACTION_ADAPTERS] = kept
+        # The surface and adapter steps are separate: an adapter can require
+        # a value the surface never declares. Expose it after both exist so
+        # the readiness probe judges a runnable leaf, not a stranded call.
+        repairs.repair_missing_adapter_flags(
+            self.documents.get(COMPONENTS),
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS),
+            self.log,
+        )
 
     def _repair_adapters(self):
         """Deterministic adapter repairs, sharing the checker's predicates."""

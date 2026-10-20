@@ -672,16 +672,24 @@ def _ensure_subcommand(entry, command, sub, log):
 
 
 def repair_missing_flags(components, requirements, models, log):
-    """Add a required requirements flag the owning leaf does not declare.
+    """Add a requirements flag the owning leaf does not declare.
 
     Inventory's `product add` carried only `-help`/`-version` while the
     requirements pass `--sku --name --category --price`: the verb check passes
     and the path is still stranded. Both halves of the addition are grounded
     elsewhere — the flag name in the requirements' own command line, the
     option type in the data model field it uniquely binds to — so nothing is
-    invented: a flag with no unique model field, an unmappable type, a
-    bracketed (optional) flag, or a missing leaf is left for the retry and the
-    probe, and every addition is logged.
+    invented: a flag with no unique model field, an unmappable type, or a
+    missing leaf is left for the retry and the probe, and every addition is
+    logged.
+
+    An optional (bracketed) flag is added too when its type is grounded:
+    either it binds a unique model field (`[--stock]` to `Product.stock_qty`)
+    or its name is a boolean selector (`[--available-only]`, `[--low-only]`).
+    The old rule skipped every optional flag, which left inventory's
+    `stock_qty` adapter field with no CLI flag — a run that parsed and could
+    never complete. An optional flag with neither grounding (`[--icon]`) is
+    still left for the retry and the probe.
     """
     if not isinstance(components, dict) or not requirements:
         return components
@@ -708,7 +716,7 @@ def repair_missing_flags(components, requirements, models, log):
         if leaf is None:
             continue
         for flag, bracketed in surface_checks._flags_in(span):
-            if bracketed or (command, sub, flag) in seen:
+            if (command, sub, flag) in seen:
                 continue
             seen.add((command, sub, flag))
             if _leaf_has_flag(leaf, flag):
@@ -726,21 +734,25 @@ def repair_missing_flags(components, requirements, models, log):
                     )
                 continue
             match = _typed_model_field(fields, flag)
-            if match is None:
+            if match is None and bracketed and _boolean_flag(flag):
+                label, option_type = "boolean flag name", "bool"
+            elif match is not None:
+                label, option_type = match
+            else:
                 continue
-            label, option_type = match
             leaf.setdefault("options", []).append({
                 "name": f"--{flag}",
                 "short": None,
                 "type": option_type,
-                "required": True,
+                "required": not bracketed,
                 "default": None,
             })
             if log is not None:
+                qualifier = "optional " if bracketed else ""
                 log.write(
-                    f"[ok] step components: {command} {sub or ''} lacked '--{flag}' "
-                    f"the requirements pass — added as {option_type} "
-                    f"(typed from {label})".rstrip()
+                    f"[ok] step components: {command} {sub or ''} lacked "
+                    f"{qualifier}'--{flag}' the requirements pass — added as "
+                    f"{option_type} (typed from {label})".rstrip()
                 )
     return components
 
@@ -815,6 +827,118 @@ def _field_type(fields, model, name):
         if candidate_model == model and candidate_name == name:
             return (candidate_type or "").strip().lower()
     return ""
+
+
+# Words in a flag name that make it a boolean selector rather than a value.
+# This is only used for *optional* flags with no model field to type them;
+# an optional value flag (`[--author]`) has no such word and stays with the
+# retry/probe. The list is deliberately small and semantic, not a model of
+# the prompt: `only`, `all`, `active`, `available`, `include`, `force`,
+# `quiet`, `verbose`, `dry` describe switches, not data.
+_BOOLEAN_FLAG_TOKENS = frozenset({
+    "only", "all", "active", "available", "include", "force", "quiet",
+    "verbose", "dry", "no",
+})
+
+
+def _boolean_flag(flag):
+    """True when a flag's own name says it is a switch, not a value."""
+    tokens = [token for token in re.split(r"[-_]+", str(flag or "").lower())
+              if token]
+    return any(token in _BOOLEAN_FLAG_TOKENS for token in tokens)
+
+
+# --- a required adapter field the bound leaf does not expose -----------------
+
+
+def repair_missing_adapter_flags(components, adapters, services, models, log):
+    """Add an optional CLI flag for every required adapter field it lacks.
+
+    The surface step and the adapter step are generated independently. An
+    adapter can require a value the surface never declares (`stock_qty` with
+    only `--sku --name --category --price`, or `customer_id` on a search
+    leaf), and then the command parses and can never invoke its method. The
+    field name and the method's parameter type are already documented; this
+    repair exposes them as an optional flag on every leaf that binds the
+    action. It adds no value the documents do not already require: the
+    adapter names the field, the method names its type.
+    """
+    if not isinstance(components, dict) or not isinstance(adapters, list):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components
+    from kernel.codegen import bind_commands
+    from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+
+    bindings, _unmapped = bind_commands(adapters, invocation, COMMAND_VERB_STEMS)
+    by_name = {a.get("action_name"): a for a in adapters
+               if isinstance(a, dict) and a.get("action_name")}
+    index = _service_method_index(services)
+    for (command, sub), bound in bindings.items():
+        if bound is None:
+            continue
+        action_name = bound[0]
+        adapter = by_name.get(action_name)
+        if adapter is None:
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        if method is None:
+            continue
+        ptypes = {normalize(p.get("name")): p.get("type")
+                  for p in method.get("params") or []
+                  if isinstance(p, dict) and p.get("name")}
+        leaf = _find_leaf(invocation, command, sub)
+        if leaf is None:
+            continue
+        dests = [dest for dest in
+                 (option_dest(option) for option in leaf.get("options") or [])
+                 if dest]
+        for field_entry in adapter.get("input_fields") or []:
+            if not isinstance(field_entry, dict):
+                continue
+            field_name = field_entry.get("field_name")
+            if not isinstance(field_name, str) or not field_name.strip():
+                continue
+            if not field_entry.get("required"):
+                continue
+            if bind_field(dests, field_name) is not None:
+                continue
+            option_type = _option_type(ptypes.get(normalize(field_name)))
+            option = {
+                "name": "--" + field_name.replace("_", "-"),
+                "short": None,
+                "type": option_type,
+                "required": False,
+                "default": None,
+            }
+            leaf.setdefault("options", []).append(option)
+            dests.append(option_dest(option))
+            if log is not None:
+                log.write(
+                    f"[ok] step adapters: {command} {sub or ''} lacked "
+                    f"'--{field_name.replace('_', '-')}' required by "
+                    f"'{action_name}' — added as {option_type}"
+                )
+    return components
+
+
+def _option_type(ptype):
+    """A CLI option type for a documented parameter type, defaulting to str."""
+    text = str(ptype or "").strip().lower()
+    text = re.sub(r"optional\[|\]|list\[|union\[|\s+", "", text)
+    for spelling, option_type in (
+            ("bool", "bool"), ("boolean", "bool"),
+            ("int", "int"), ("integer", "int"),
+            ("float", "float"), ("decimal", "float"),
+            ("str", "str"), ("string", "str"), ("text", "str"),
+    ):
+        if text == spelling or text.startswith(spelling):
+            return option_type
+    return "str"
 
 
 # --- an entity-targeted field spelled like the flag, not the model field -----

@@ -183,8 +183,14 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
         out_fn(f"{questions} tie(s) need a human — starting the tie review")
         (tie_runner or review_ties.run_review)(str(output_dir))
     duplicates, _ = review_surface.collect_duplicates(str(output_dir))
-    if duplicates:
-        out_fn(f"{len(duplicates)} duplicated surface node(s) need a human — "
+    # A declared flag that selects nothing is a surface question too
+    # (`member list -active-only` parsed and printed every member). It is
+    # not a duplicate node, so the old duplicate-only test skipped it and
+    # the chat loop never asked. Ask both kinds through the one review.
+    routes, _ = review_surface.collect_routes(str(output_dir))
+    surface_questions = len(duplicates) + len(routes)
+    if surface_questions:
+        out_fn(f"{surface_questions} surface node/flag(s) need a human — "
                f"starting the surface review")
         (surface_runner or review_surface.run_review)(str(output_dir))
     pairs, _ = review_aliases.collect_questions(str(output_dir))

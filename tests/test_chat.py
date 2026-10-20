@@ -51,22 +51,28 @@ class ResolveRequirementsTests(unittest.TestCase):
 
 class ChatFlowTests(unittest.TestCase):
     def flow(self, directory, ties=0, pairs=(), blockers=(), tie_run=None,
-             alias_run=None, contracts=(), contract_run=None):
+             alias_run=None, contracts=(), contract_run=None,
+             duplicates=(), routes=(), surface_run=None):
         from kernel.consistency.report import Finding
 
         lines = []
         with mock.patch("probe_readiness.check_prompt") as checked, \
              mock.patch("probe_readiness.open_questions") as opened, \
              mock.patch("review_aliases.collect_questions") as collected, \
-             mock.patch("review_contracts.collect_contracts") as contract_collected:
+             mock.patch("review_contracts.collect_contracts") as contract_collected, \
+             mock.patch("review_surface.collect_duplicates") as duplicate_collected, \
+             mock.patch("review_surface.collect_routes") as route_collected:
             checked.return_value = (
                 [Finding("warning", "uncovered_field", b) for b in blockers], [], None)
             opened.return_value = ties
             collected.return_value = (list(pairs), {})
             contract_collected.return_value = (list(contracts), {})
+            duplicate_collected.return_value = (list(duplicates), {})
+            route_collected.return_value = (list(routes), {})
             remaining = extract_arch.chat_flow(
                 directory, out_fn=lines.append,
                 tie_runner=tie_run, alias_runner=alias_run,
+                surface_runner=surface_run,
                 contract_runner=contract_run)
         return remaining, lines
 
@@ -104,6 +110,24 @@ class ChatFlowTests(unittest.TestCase):
                 alias_run=run_aliases)
             self.assertEqual(asked, [("aliases", directory)])
             self.assertEqual(remaining, [])
+
+    def test_a_stranded_flag_runs_the_surface_review(self):
+        asked = []
+
+        def run_surface(path):
+            asked.append(("surface", path))
+            return 1, 1
+
+        with tempfile.TemporaryDirectory() as directory:
+            remaining, lines = self.flow(
+                directory,
+                routes=[{"command": "member", "subcommand": "list",
+                         "flag": "active_only"}],
+                surface_run=run_surface)
+            self.assertEqual(asked, [("surface", directory)])
+            self.assertEqual(remaining, [])
+            self.assertTrue(any("surface node/flag(s) need a human" in line
+                                for line in lines))
 
     def test_contract_questions_run_the_contract_review(self):
         asked = []
