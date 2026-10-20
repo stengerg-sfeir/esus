@@ -2091,6 +2091,42 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("The refused answer was:", repair)
         self.assertIn("return None", repair)
 
+    def test_the_requirement_line_reaches_the_body_check(self):
+        """The fill passes the target's requirement line to the contract
+        checks, so the copies rule can refuse a return that never updates
+        the book. Without the wiring, the live return landed wrong."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        files["models.py"] = files["models.py"].replace(
+            "    title: str = None\n",
+            "    title: str = None\n    available_copies: int = 0\n")
+        replies = [
+            mock.Mock(text='with open(file_path, "w") as handle:\n'
+                           '    handle.write("")\nreturn None',
+                      tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+            mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+            mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
+                      finish_reason="stop", truncated=False),
+        ]
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=replies) as ask:
+            rows = generator.fill_stubs(
+                files, "fake.gguf",
+                "   - custom_total(): increments copies\n",
+                out=lambda _line: None)
+        self.assertEqual(
+            rows[1],
+            ("WidgetService.custom_total", "kept",
+             "still refused: the requirement changes the book's copies, but "
+             "the body never changes `available_copies` through "
+             "`update_widget(...)`; the stored count stays the same"))
+        repair = ask.call_args_list[2].args[1]
+        self.assertIn("the requirement changes the book's copies", repair)
+
     def test_the_repair_ask_quotes_the_judged_body_not_the_raw_transcript(self):
         """The raw transcript is what made the live repair ask overflow the
         context (Qwen3's echo-and-reason answer was 13 kB); the complaints
@@ -2202,14 +2238,14 @@ class ContractComplaintTests(unittest.TestCase):
               "    author_id: int = 0\n")
 
     def complaints(self, body, info=None, module=None, models=None,
-                   references=""):
+                   references="", requirement=""):
         files = {"models.py": self.models if models is None else models}
         info = info or {"cls": "BookRepository",
                         "def": "def fetch(self) -> List[models.Book]:",
                         "reason": "refused"}
         return generator._body_complaints(
             body, info, self.module if module is None else module,
-            references, files)
+            references, files, requirement=requirement)
 
     def test_an_unknown_name_is_a_complaint(self):
         self.assertEqual(
@@ -2279,11 +2315,12 @@ class ContractComplaintTests(unittest.TestCase):
             self.complaints(body, info=info),
             ["`create_loan(...)` runs before `raise BookNotFoundError(...)`; "
              "the record is stored even when the operation is refused — "
-             "validate first, then create",
+             "validate first, create, then update; do not move the update "
+             "ahead of the create",
              "`create_loan(...)` runs before "
              "`raise InsufficientCopiesError(...)`; the record is stored "
-             "even when the operation is refused — validate first, then "
-             "create"])
+             "even when the operation is refused — validate first, create, "
+             "then update; do not move the update ahead of the create"])
 
     def test_validation_before_the_create_is_clean(self):
         info = {"cls": "BookRepository",
@@ -2340,6 +2377,163 @@ class ContractComplaintTests(unittest.TestCase):
                 "self._repos['BookRepository'].update_book(book_id, book)",
                 "return loan"]
         self.assertEqual(self.complaints(body, info=info), [])
+
+    def test_a_return_date_from_due_date_is_a_complaint(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    book_id: int = 0\n"
+                  "    return_date: datetime = None\n"
+                  "    due_date: datetime = None\n"
+                  "    status: str = ''\n")
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if not loan:",
+            "    raise errors.LoanNotFoundError(loan_id)",
+            "loan.return_date = datetime.datetime.fromisoformat("
+            "loan.due_date)",
+            "loan.status = 'returned'",
+            "updated_loan = self._repos['LoanRepository'].update_loan("
+            "loan_id, loan)",
+            "return updated_loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, models=models),
+            ["`return_date` is set from `due_date`; the return date is when "
+             "the book comes back, not when it was due"])
+
+    def test_a_return_date_set_to_now_is_clean(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    book_id: int = 0\n"
+                  "    return_date: datetime = None\n"
+                  "    due_date: datetime = None\n"
+                  "    status: str = ''\n")
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if not loan:",
+            "    raise errors.LoanNotFoundError(loan_id)",
+            "loan.return_date = datetime.datetime.now()",
+            "loan.status = 'returned'",
+            "updated_loan = self._repos['LoanRepository'].update_loan("
+            "loan_id, loan)",
+            "return updated_loan",
+        ]
+        self.assertEqual(self.complaints(body, info=info, models=models), [])
+
+    def test_a_copies_requirement_requires_a_book_update(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = (
+            "class Book:\n"
+            "    id: int = 0\n"
+            "    title: str = ''\n"
+            "    available_copies: int = 0\n"
+            "    author_id: int = 0\n"
+            "\n"
+            "class Loan:\n"
+            "    id: int = 0\n"
+            "    book_id: int = 0\n"
+            "    return_date: datetime = None\n"
+            "    due_date: datetime = None\n"
+            "    status: str = ''\n")
+        requirement = ("   - return_book(loan_id): sets return_date, "
+                       "updates status, increments copies")
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if not loan:",
+            "    raise errors.LoanNotFoundError(loan_id)",
+            "loan.return_date = datetime.datetime.now()",
+            "loan.status = 'returned'",
+            "updated_loan = self._repos['LoanRepository'].update_loan("
+            "loan_id, loan)",
+            "return updated_loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, models=models,
+                            requirement=requirement),
+            ["the requirement changes the book's copies, but the body never "
+             "changes `available_copies` through `update_book(...)`; the "
+             "stored count stays the same"])
+
+    def test_a_copies_requirement_is_satisfied_by_the_book_update(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = (
+            "class Book:\n"
+            "    id: int = 0\n"
+            "    title: str = ''\n"
+            "    available_copies: int = 0\n"
+            "    author_id: int = 0\n"
+            "\n"
+            "class Loan:\n"
+            "    id: int = 0\n"
+            "    book_id: int = 0\n"
+            "    return_date: datetime = None\n"
+            "    due_date: datetime = None\n"
+            "    status: str = ''\n")
+        requirement = ("   - return_book(loan_id): sets return_date, "
+                       "updates status, increments copies")
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if not loan:",
+            "    raise errors.LoanNotFoundError(loan_id)",
+            "loan.return_date = datetime.datetime.now()",
+            "loan.status = 'returned'",
+            "updated_loan = self._repos['LoanRepository'].update_loan("
+            "loan_id, loan)",
+            "book = self._repos['BookRepository'].read_one_book("
+            "loan.book_id)",
+            "if not book:",
+            "    raise errors.BookNotFoundError(loan.book_id)",
+            "book.available_copies += 1",
+            "self._repos['BookRepository'].update_book("
+            "loan.book_id, book)",
+            "return updated_loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, models=models,
+                            requirement=requirement),
+            [])
+
+    def test_a_requirement_without_a_copy_change_is_not_checked(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    book_id: int = 0\n"
+                  "    return_date: datetime = None\n"
+                  "    due_date: datetime = None\n"
+                  "    status: str = ''\n")
+        requirement = ("   - return_book(loan_id): sets return_date, "
+                       "updates status")
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if not loan:",
+            "    raise errors.LoanNotFoundError(loan_id)",
+            "loan.return_date = datetime.datetime.now()",
+            "loan.status = 'returned'",
+            "updated_loan = self._repos['LoanRepository'].update_loan("
+            "loan_id, loan)",
+            "return updated_loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, models=models,
+                            requirement=requirement),
+            [])
 
     def test_an_unused_declared_parameter_is_a_complaint(self):
         info = {"cls": "BookRepository",

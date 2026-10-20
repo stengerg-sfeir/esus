@@ -3663,7 +3663,8 @@ def _target_names(target):
     return []
 
 
-def _body_complaints(body, info, module_text, references_text, files):
+def _body_complaints(body, info, module_text, references_text, files,
+                     requirement=""):
     """The API-contract violations the refusal regexes cannot see.
 
     The prompt's API section is a contract: it lists each model's fields,
@@ -3680,9 +3681,14 @@ def _body_complaints(body, info, module_text, references_text, files):
     loan, so a create before a raise is a complaint too. The repaired
     borrow then decremented the book before creating the loan, so a
     missing member lost a copy; an update before the create that depends
-    on it is a complaint. Each complaint names the fact, so the repair
-    ask can quote them and the second answer can be a correction instead
-    of a guess.
+    on it is a complaint, and the create-before-raise complaint now names
+    the update order so the repair cannot fix one by creating the other.
+    A live return then set `return_date` from `due_date` and never touched
+    the book, so the copies stayed put; the requirement's "increments/
+    decrements copies" and the return-date fact are checked when the
+    target's requirement line is available. Each complaint names the fact,
+    so the repair ask can quote them and the second answer can be a
+    correction instead of a guess.
     """
     params = _stub_params(info)
     source = ("def _wrapped(" + ", ".join(["self"] + params) + "):\n") \
@@ -3825,7 +3831,8 @@ def _body_complaints(body, info, module_text, references_text, files):
             found.append(
                 f"`{write.func.attr}(...)` runs before `raise "
                 f"{_raised_name(raised)}(...)`; the record is stored even "
-                "when the operation is refused — validate first, then create")
+                "when the operation is refused — validate first, create, "
+                "then update; do not move the update ahead of the create")
     updates = [node for node in ast.walk(tree)
                if (isinstance(node, ast.Call)
                    and isinstance(node.func, ast.Attribute)
@@ -3879,6 +3886,49 @@ def _body_complaints(body, info, module_text, references_text, files):
                             f"(a {actual}) but the method is declared "
                             f"`-> models.{declared}`")
                     break
+    if re.search(r"\b(?:increments|decrements)\s+copies\b",
+                 requirement or "", re.I):
+        copy_fields = [(cls, field) for cls, names in fields.items()
+                       for field in names if "copies" in field]
+        if copy_fields:
+            cls, copy_field = copy_fields[0]
+            update_method = f"update_{cls.lower()}"
+            copy_written = any(
+                (isinstance(node, ast.AugAssign)
+                 and isinstance(node.target, ast.Attribute)
+                 and node.target.attr == copy_field)
+                or (isinstance(node, ast.Assign)
+                    and any(isinstance(target, ast.Attribute)
+                            and target.attr == copy_field
+                            for target in node.targets))
+                or (isinstance(node, ast.AnnAssign)
+                    and isinstance(node.target, ast.Attribute)
+                    and node.target.attr == copy_field)
+                for node in ast.walk(tree))
+            if (not copy_written
+                    or not re.search(rf"\b{re.escape(update_method)}\s*\(",
+                                     text)):
+                found.append(
+                    "the requirement changes the book's copies, but the "
+                    f"body never changes `{copy_field}` through "
+                    f"`{update_method}(...)`; the stored count stays the "
+                    "same")
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            targets, value = node.targets, node.value
+        elif isinstance(node, ast.AnnAssign) and node.value is not None:
+            targets, value = [node.target], node.value
+        else:
+            continue
+        if not any(isinstance(target, ast.Attribute)
+                   and target.attr == "return_date" for target in targets):
+            continue
+        if any(isinstance(inner, ast.Attribute) and inner.attr == "due_date"
+               for inner in ast.walk(value)):
+            found.append(
+                "`return_date` is set from `due_date`; the return date is "
+                "when the book comes back, not when it was due")
+            break
     return found
 
 
@@ -4069,6 +4119,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 continue
             start, end, info = span
             info["file"] = filename
+            requirement = _requirements_line(requirements,
+                                             _stub_method(info))
             contract = (_target_contract(info, files, requirements)
                         if context == "exact" else ())
             out(f"llm: {label} ...")
@@ -4080,7 +4132,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                                         store_names, model_names, error_names)
                 problems = [refusal] if refusal else _body_complaints(
                     body, info, text, files.get("repositories.py") or "",
-                    files)
+                    files, requirement=requirement)
                 if _answer_continued(raw):
                     problems.insert(
                         0, "the answer continued after the body with "
