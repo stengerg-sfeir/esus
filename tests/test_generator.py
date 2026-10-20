@@ -1914,7 +1914,30 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("checks availability, creates loan, decrements copies",
                       text)
         self.assertNotIn("sets return_date", text)
+        self.assertNotIn("Set `return_date`", text)
         self.assertLess(text.index("The requirement for this method:"),
+                        text.index("The method you are writing:"))
+
+    def test_exact_contract_spells_out_the_return_facts(self):
+        info = {"cls": "LibraryService",
+                "def": ("def return_book(self, loan_id: int = None)"
+                        " -> models.Loan:"),
+                "file": "services.py"}
+        files = {"models.py":
+                 "from dataclasses import dataclass\n\n"
+                 "@dataclass\nclass Loan:\n    id: int = None\n"
+                 "    book_id: int = None\n"}
+        requirements = (
+            "   - return_book(loan_id): sets return_date, updates status, "
+            "increments copies\n")
+        text = "\n".join(generator._target_contract(info, files,
+                                                    requirements))
+        self.assertIn("Set `return_date` to `datetime.datetime.now()`", text)
+        self.assertIn("not\n`due_date`", text)
+        self.assertIn("`available_copies` by one", text)
+        self.assertIn("read the book by `loan.book_id`", text)
+        self.assertIn("`update_book`", text)
+        self.assertLess(text.index("Set `return_date`"),
                         text.index("The method you are writing:"))
 
     def test_main_model_flag_fills_the_fixture_stubs(self):
@@ -2205,6 +2228,24 @@ class StubFillTests(unittest.TestCase):
         self.assertEqual(data[0]["context"], "full")
 
 
+class BodyRefusalTests(unittest.TestCase):
+    """A compiling answer can still import outside the prompt's surface."""
+
+    def test_an_import_outside_the_allowed_modules_is_refused(self):
+        self.assertEqual(
+            generator._body_refusal(
+                ["import numpy as np", "return None"],
+                frozenset({"fetch"}), frozenset()),
+            "imports `numpy`, which is not one of the modules the prompt "
+            "allows")
+
+    def test_an_allowed_inline_import_is_fine(self):
+        self.assertIsNone(
+            generator._body_refusal(
+                ["from datetime import datetime, timedelta", "return None"],
+                frozenset({"fetch"}), frozenset()))
+
+
 class ContractComplaintTests(unittest.TestCase):
     """The API facts a compiling body can still break, as complaints.
 
@@ -2252,6 +2293,16 @@ class ContractComplaintTests(unittest.TestCase):
             self.complaints(["return frobnicate(1)"]),
             ["uses `frobnicate`, which neither the module nor the body "
              "binds"])
+
+    def test_a_body_level_import_binds_its_names(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self) -> None:",
+                "reason": "refused"}
+        body = ["from datetime import datetime, timedelta",
+                "loan_date = datetime.now()",
+                "due_date = loan_date + timedelta(days=14)",
+                "return None"]
+        self.assertEqual(self.complaints(body, info=info), [])
 
     def test_a_field_the_model_lacks_names_the_real_fields(self):
         self.assertEqual(

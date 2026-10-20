@@ -3586,6 +3586,13 @@ def _target_contract(info, files, requirements=""):
     if requirement:
         lines += ["The requirement for this method:", "    " + requirement,
                   ""]
+    if re.search(r"\bsets?\s+return_date\b", requirement, re.I):
+        lines += ["Set `return_date` to `datetime.datetime.now()`, not",
+                  "`due_date`: it is the time the book comes back.", ""]
+    if re.search(r"\bincrements?\s+copies\b", requirement, re.I):
+        lines += ["The return increases the book's `available_copies` by one;",
+                  "read the book by `loan.book_id` and save it with",
+                  "`update_book`.", ""]
     signature = (info.get("def") or "").strip()
     if signature:
         lines += ["The method you are writing:", "    " + signature, ""]
@@ -3610,9 +3617,10 @@ def _body_refusal(body, module_names, store_names, model_names=frozenset(),
     """Why this answer may not replace a stub, or None when it may.
 
     Compilation is checked by the caller; this catches the ways a
-    compiling body still cannot work: the model kept the refusal, or it
-    invented an API surface the module, store, models or errors never
-    defined (`self.helper`, `self._store.frobnicate`, `models.date_today`,
+    compiling body still cannot work: the model kept the refusal, imported
+    a module outside the prompt's allowed list, or invented an API surface
+    the module, store, models or errors never defined (`self.helper`,
+    `self._store.frobnicate`, `models.date_today`,
     `errors.BookUnavailableError`).
     """
     if not body or all(not line.strip() for line in body):
@@ -3620,6 +3628,12 @@ def _body_refusal(body, module_names, store_names, model_names=frozenset(),
     text = "\n".join(body)
     if "NotImplementedError" in text:
         return "the model kept it unimplemented"
+    for match in re.finditer(r"^\s*(?:from\s+([\w.]+)|import\s+([\w.]+))",
+                             text, re.M):
+        module = (match.group(1) or match.group(2)).split(".")[0]
+        if module not in BODY_IMPORTS:
+            return (f"imports `{module}`, which is not one of the modules "
+                    "the prompt allows")
     unknown = sorted({name for name in re.findall(r"self\.(\w+)", text)
                       if name not in module_names})
     if unknown:
@@ -3724,6 +3738,9 @@ def _body_complaints(body, info, module_text, references_text, files,
         elif isinstance(node, (ast.With, ast.AsyncWith)):
             names += [item.optional_vars.id for item in node.items
                       if isinstance(item.optional_vars, ast.Name)]
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            names += [alias.asname or alias.name.split(".")[0]
+                      for alias in node.names]
         elif isinstance(node, ast.ExceptHandler) and node.name:
             names.append(node.name)
         for name in names:
