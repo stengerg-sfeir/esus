@@ -1656,6 +1656,51 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("raise NotImplementedError(", files["repositories.py"])
         self.assertNotIn("[llm-written", files["repositories.py"])
 
+    def test_minimal_stub_context_omits_the_api_and_references(self):
+        """The experiment knob: rules, requirements and the module stay; the
+        repository signatures and API facts go, so a run shows which facts
+        the model actually needed."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        captured = []
+
+        def answer(llm, prompt, label, **kwargs):
+            captured.append(prompt)
+            return mock.Mock(text="        return None\n", tokens=3,
+                             seconds=0.1, budget=3584, finish_reason="stop",
+                             truncated=False)
+
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                 out=lambda _line: None, context="minimal")
+        prompt = captured[0]
+        self.assertIn("requirements:", prompt)
+        self.assertIn("module (repositories.py):", prompt)
+        self.assertIn("Reply with ONLY the replacement", prompt)
+        self.assertNotIn("Methods this module may lean on:", prompt)
+        self.assertNotIn("The data the sibling modules hand you", prompt)
+        # Minimal drops the reference list, so the service rule must not
+        # tell the model to call "the methods listed below" - there are none.
+        service_prompt = next(p for p in captured
+                              if "module (services.py):" in p)
+        self.assertNotIn("methods listed below", service_prompt)
+        self.assertIn("read through the repositories", service_prompt)
+
+        files, _stats = self.rendered()
+        captured.clear()
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                 out=lambda _line: None)
+        full_service = next(p for p in captured
+                            if "module (services.py):" in p)
+        self.assertIn("methods listed below", full_service)
+
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
         from unittest import mock
@@ -1688,6 +1733,32 @@ class StubFillTests(unittest.TestCase):
             dump = (Path(out) / "llm_stub_answers.json").read_text()
             self.assertIn('"ProductRepository.export_products"', dump)
             self.assertIn('"ShopService.price_report"', dump)
+
+    def test_main_stub_context_minimal_reaches_the_ask(self):
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as directory:
+            out = write_out(Path(directory) / "shop", fixture())
+            captured = []
+
+            def answer(llm, prompt, label, **kwargs):
+                captured.append(prompt)
+                return mock.Mock(text="        return None\n", tokens=3,
+                                 seconds=0.1, budget=3584,
+                                 finish_reason="stop", truncated=False)
+
+            with mock.patch.object(generator.runner, "load_model",
+                                   return_value=object()), \
+                    mock.patch.object(generator.runner, "generate_free",
+                                      side_effect=answer), \
+                    io.StringIO() as buffer, redirect_stdout(buffer):
+                self.assertEqual(
+                    generator.main([out, "--model", "fake.gguf",
+                                    "--stub-context", "minimal"]), 0)
+                printed = buffer.getvalue()
+            self.assertIn("minimal context: requirements + module only",
+                          printed)
+            self.assertNotIn("Methods this module may lean on:", captured[0])
 
     def test_a_refused_body_is_repaired_once_and_lands(self):
         """The repair ask quotes the complaint; a corrected answer passes
@@ -1823,6 +1894,7 @@ class StubFillTests(unittest.TestCase):
         self.assertEqual(data[0]["first_finish_reason"], "stop")
         self.assertFalse(data[0]["first_truncated"])
         self.assertEqual(data[0]["tokens"], 3)
+        self.assertEqual(data[0]["context"], "full")
 
 
 class ContractComplaintTests(unittest.TestCase):

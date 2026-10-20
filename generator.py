@@ -3050,7 +3050,8 @@ def _clip_module(text, cls, budget):
 
 
 def stub_prompt(requirements, module_text, info, references=(), api=(),
-                budget=STUB_PROMPT_BUDGET, previous=None, complaints=()):
+                budget=STUB_PROMPT_BUDGET, previous=None, complaints=(),
+                context="full"):
     """One ask: the emitted module is the API reference; fill one hole.
 
     Nothing is rewritten into a summary — the module shows the real store
@@ -3071,7 +3072,16 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
     # The store rule is for repository bodies: a service has no
     # `self._store` and no `self.ENTITY`, and the first live service
     # answer copied the example verbatim into a class with neither.
-    if info.get("file") == "services.py":
+    # Minimal has no reference list, so the rule must not point at one.
+    if info.get("file") == "services.py" and context == "minimal":
+        call_rule = [
+            "- Call only what the module shows: `self._repos['Name']`",
+            "  repositories, `models.*`, `errors.*`, module helpers.",
+            "  A service body has no `self._store` and no `self.ENTITY`:",
+            "  read through the repositories and filter what they return",
+            "  in Python.",
+        ]
+    elif info.get("file") == "services.py":
         call_rule = [
             "- Call only what the module shows: `self._repos['Name']`",
             "  repositories and the methods listed below, `models.*`,",
@@ -3549,7 +3559,8 @@ def _answered(framing, llm, prompt, label):
     return result
 
 
-def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
+def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
+               context="full"):
     """Ask the model for the bodies the mechanical emitter refused.
 
     Best-effort by design: the mechanical set is already final and honest,
@@ -3570,6 +3581,12 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     answering (see the runner). An answer that is still truncated after one
     retry with the whole room is never spliced — it is kept as `truncated`
     in the dump, because a cut-off body compiles and can still be wrong.
+    `context` controls what the ask shows besides the task rules, the
+    requirements and the module text. `full` adds the repository signatures
+    and the API facts (model fields and their types, error names, the date
+    rule, the allowed imports); `minimal` omits both — an experiment knob,
+    so the facts that survive are the ones a run showed the model needed,
+    not the ones that felt useful to write down.
     Returns `[(label, status, note)]`, one row per refused stub, `status`
     `written` or `kept`. With `dump_path`, every raw answer lands there as
     JSON — both attempts when a repair was asked, with `finish_reason`,
@@ -3598,19 +3615,19 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
     # mid-sentence). The chat template answers when the GGUF has one.
     framing = (runner.generate_chat if runner.has_chat_template(llm)
                else runner.generate_free)
-    if framing is runner.generate_chat:
-        out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
-            "by body (chat template)")
-    else:
-        out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
-            "by body (no chat template: raw continuation)")
+    framing_name = ("chat template" if framing is runner.generate_chat
+                    else "no chat template: raw continuation")
+    if context == "minimal":
+        framing_name += "; minimal context: requirements + module only"
+    out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
+        f"by body ({framing_name})")
     rows, dumped = [], []
     for filename, spans in targets:
         text = files[filename]
         references = ()
-        if filename == "services.py":
+        if filename == "services.py" and context == "full":
             references = _method_signatures(files.get("repositories.py") or "")
-        api = _api_reference(files, filename)
+        api = _api_reference(files, filename) if context == "full" else ()
         for planned in reversed(spans):
             # Re-find the span in the current text before every splice: a
             # body that adds an import lands at the top of the file and
@@ -3656,7 +3673,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                                      if culprit else "") + ")"], body
                 return candidate, [], body
 
-            prompt = stub_prompt(requirements, text, info, references, api)
+            prompt = stub_prompt(requirements, text, info, references, api,
+                                 context=context)
             try:
                 result = _answered(framing, llm, prompt, f"stub:{label}")
             except Exception as error:  # one failed call keeps one stub
@@ -3687,7 +3705,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
                 # about.
                 repair = stub_prompt(requirements, text, info, references,
                                      api, previous="\n".join(body) or None,
-                                     complaints=problems)
+                                     complaints=problems, context=context)
                 try:
                     result = _answered(framing, llm, repair,
                                        f"stub:{label}:repair")
@@ -3741,6 +3759,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None):
             entry.update(_attempt_fields(result))
             dumped.append(entry)
         files[filename] = text
+    for entry in dumped:
+        entry["context"] = context
     if dump_path and dumped:
         with open(dump_path, "w", encoding="utf-8") as handle:
             json.dump(dumped, handle, indent=2, ensure_ascii=False)
@@ -3805,6 +3825,14 @@ def main(argv=None):
                              "argparse-owned options, adapter fields with no "
                              "CLI flag). Anything actionable is already a "
                              "probe blocker, which refuses generation.")
+    parser.add_argument("--stub-context", choices=("full", "minimal"),
+                        default="full",
+                        help="What a body ask shows besides the task rules, the "
+                             "requirements and the module text: `full` (default) "
+                             "adds the repository signatures and the API facts "
+                             "(model fields, error names, date rule); `minimal` "
+                             "omits both, to measure which facts the model "
+                             "actually needs")
     args = parser.parse_args(argv)
 
     ok, message = gate(args.out_dir)
@@ -3833,7 +3861,8 @@ def main(argv=None):
     if args.model:
         stats["llm_stubs"] = fill_stubs(
             files, args.model, load_requirements(args.out_dir),
-            dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"))
+            dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
+            context=args.stub_context)
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)
