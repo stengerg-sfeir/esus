@@ -3593,6 +3593,14 @@ def _target_contract(info, files, requirements=""):
         lines += ["The return increases the book's `available_copies` by one;",
                   "read the book by `loan.book_id` and save it with",
                   "`update_book`.", ""]
+    if (re.search(r"\bchecks?\s+availability\b", requirement, re.I)
+            and re.search(r"\bcreates?\s+loan\b", requirement, re.I)):
+        lines += ["The order is:",
+                  "    1. read the book and check it exists with copies",
+                  "    2. create the loan",
+                  "    3. decrement `available_copies` and save the book with",
+                  "       `update_book`",
+                  ""]
     signature = (info.get("def") or "").strip()
     if signature:
         lines += ["The method you are writing:", "    " + signature, ""]

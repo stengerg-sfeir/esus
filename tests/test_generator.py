@@ -1915,6 +1915,9 @@ class StubFillTests(unittest.TestCase):
                       text)
         self.assertNotIn("sets return_date", text)
         self.assertNotIn("Set `return_date`", text)
+        self.assertIn("The order is:", text)
+        self.assertIn("2. create the loan", text)
+        self.assertIn("decrement `available_copies`", text)
         self.assertLess(text.index("The requirement for this method:"),
                         text.index("The method you are writing:"))
 
@@ -1937,6 +1940,7 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("`available_copies` by one", text)
         self.assertIn("read the book by `loan.book_id`", text)
         self.assertIn("`update_book`", text)
+        self.assertNotIn("The order is:", text)
         self.assertLess(text.index("Set `return_date`"),
                         text.index("The method you are writing:"))
 
