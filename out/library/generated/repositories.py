@@ -99,9 +99,26 @@ class BookRepository:
         return [models.Book(**r) for r in found]
 
     def search_books_by_title_author_isbn(self, query: str = None) -> List[models.Book]:
-        """Searches books by title, author, or ISBN. [crud:filter: parameter 'query' maps to no field]"""
-        raise NotImplementedError(
-            "BookRepository.search_books_by_title_author_isbn: crud:filter: parameter 'query' maps to no field")
+        """Searches books by title, author, or ISBN. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
+        found = self._store.all(self.ENTITY)
+        results = []
+        for record in found:
+            title = record.get("title")
+            isbn = record.get("isbn")
+            author_id = record.get("author_id")
+            if query is None:
+                continue
+            if title and query.lower() in title.lower():
+                results.append(models.Book(**record))
+            elif isbn and query.lower() in isbn.lower():
+                results.append(models.Book(**record))
+            elif author_id is not None:
+                # We need to check if the author's name matches, but we don't have it directly
+                # So we must fetch the author name from Author table
+                author_record = self._store.get("Author", "id", author_id)
+                if author_record and query.lower() in author_record.get("name", "").lower():
+                    results.append(models.Book(**record))
+        return results
 
 
 class AuthorRepository:

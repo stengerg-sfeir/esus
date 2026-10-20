@@ -1,18 +1,6 @@
 {
   "slots": [
     {
-      "holder": "LoanRepository",
-      "method": "get_overdue_loans",
-      "pattern": "THRESHOLD_SCAN",
-      "slots": {
-        "comparison_field": "due_date",
-        "operator": "<",
-        "threshold": "today"
-      },
-      "decided_by": "user",
-      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
-    },
-    {
       "holder": "MemberRepository",
       "method": "find_active_members",
       "pattern": "FILTER_CRITERION",
@@ -41,6 +29,18 @@
       "slots": {
         "criterion_field": "status",
         "criterion_value": "active"
+      },
+      "decided_by": "user",
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    },
+    {
+      "holder": "LoanRepository",
+      "method": "get_overdue_loans",
+      "pattern": "THRESHOLD_SCAN",
+      "slots": {
+        "comparison_field": "due_date",
+        "operator": "<",
+        "threshold": "today"
       },
       "decided_by": "user",
       "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"

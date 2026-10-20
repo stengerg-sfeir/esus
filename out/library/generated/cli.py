@@ -110,15 +110,6 @@ ADAPTERS = {
         'targets': {'member_id': None, 'book_id': None},
         'assembled': [],
     },
-    'find_active_members': {
-        'service': 'MemberRepository',
-        'method': 'find_active_members',
-        'fields': [
-        ],
-        'argv': {},
-        'targets': {},
-        'assembled': [],
-    },
     'get_book_loan_history': {
         'service': 'LoanRepository',
         'method': 'get_book_loan_history',
@@ -225,7 +216,7 @@ BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
     ('borrow', None): [('borrow_book', 7, ())],
     ('member', 'add'): [('add_member', 5, ())],
     ('member', 'history'): [('get_member_loan_history', 7, ())],
-    ('member', 'list'): [('find_active_members', 5, (('active_only', 'truthy', '-active-only'),)), ('list_members', 5, ())],
+    ('member', 'list'): [('list_members', 5, ())],
     ('overdue', None): [('get_overdue_loans', 7, ())],
     ('return', None): [('return_book', 7, ())],
 }

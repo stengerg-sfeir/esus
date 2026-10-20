@@ -8,9 +8,10 @@ immediately, and loading restores records plus the id counters.
 
 Tables hold one JSON blob per record keyed by the primary-key value, so
 there is no column mapping to drift from the models; values must stay
-JSON-shaped (str, int, float, bool, None — everything the CLI parses),
-and anything else fails loudly instead of persisting wrong. Deleting the
-file resets the program; schema migration is a non-goal.
+JSON-shaped (str, int, float, bool, None — everything the CLI parses;
+`datetime.date`/`datetime.datetime` enter as ISO strings), and anything
+else fails loudly instead of persisting wrong. Deleting the file resets
+the program; schema migration is a non-goal.
 
 Records are plain dicts keyed by field name. The store knows nothing about
 your domain: every operation takes the entity name, the primary-key field,
@@ -22,6 +23,7 @@ Criteria are `(field, operator, value)` triples with operators `eq`, `ge`,
 is a real constraint.
 """
 
+import datetime
 import json
 import sqlite3
 
@@ -67,7 +69,8 @@ class Store:
             self._db.execute(
                 "INSERT OR REPLACE INTO records (entity, key, doc) VALUES (?, ?, ?)",
                 (entity, self._key(key),
-                 json.dumps(self._records[entity][key], sort_keys=True)))
+                 json.dumps(self._records[entity][key], sort_keys=True,
+                            default=_iso)))
         self._db.commit()
 
     def close(self):
@@ -83,7 +86,7 @@ class Store:
     def add(self, entity, pk_name, values, check_fk=()):
         """Store a copy of `values`; assign an integer key when it is None."""
         space = self._space(entity)
-        record = dict(values)
+        record = {name: _iso(value) for name, value in values.items()}
         key = record.get(pk_name)
         if key is None:
             key = self._next_id.get(entity, 1)
@@ -133,7 +136,7 @@ class Store:
         merged = dict(space[key])
         for field_name, value in values.items():
             if value is not None:
-                merged[field_name] = value
+                merged[field_name] = _iso(value)
         space[key] = merged
         self._persist(entity, key)
         return dict(merged)
@@ -150,11 +153,27 @@ class Store:
     def select(self, entity, criteria):
         """Records matching every `(field, operator, value)` criterion."""
         matches = []
+        prepared = [(field, operator, _iso(value))
+                    for field, operator, value in criteria]
         for record in self._space(entity).values():
             if all(_holds(record.get(field), operator, value)
-                   for field, operator, value in criteria):
+                   for field, operator, value in prepared):
                 matches.append(dict(record))
         return matches
+
+
+def _iso(value):
+    """`datetime.date`/`datetime.datetime` become ISO strings; else no-op.
+
+    Dates normalize at the door, for records as for criteria, so memory
+    and file agree by construction: a body that stored
+    `datetime.date.today()` reads back the same `"2026-10-19"` a reload
+    would give, and a criterion comparing against a date object matches
+    the stored string instead of failing the comparison.
+    """
+    if isinstance(value, (datetime.date, datetime.datetime)):
+        return value.isoformat()
+    return value
 
 
 def _holds(actual, operator, expected):
