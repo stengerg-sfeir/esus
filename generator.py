@@ -71,6 +71,10 @@ from kernel.consistency.loader import load_documents, load_requirements  # noqa:
 from kernel.consistency.naming import normalize  # noqa: E402
 from kernel.consistency.report import Report  # noqa: E402
 from kernel.extraction import runner  # noqa: E402
+from kernel.extraction.contracts import (  # noqa: E402
+    contract_for,
+    load_method_contracts,
+)
 from kernel.extraction.decisions import requirements_sha  # noqa: E402
 
 GENERATED_DIR = "generated"
@@ -141,7 +145,10 @@ def load_context(output_dir):
     if not isinstance(components, dict):
         components = {}
     slots = {}
-    current = requirements_sha(load_requirements(output_dir))
+    requirements_text = load_requirements(output_dir)
+    current = requirements_sha(requirements_text)
+    contracts, dropped_contracts = load_method_contracts(
+        output_dir, requirements_text)
     dropped = 0
     try:
         with open(os.path.join(output_dir, METHOD_SLOTS_NAME),
@@ -194,6 +201,8 @@ def load_context(output_dir):
         "entity_names": [m["name"] for m in models],
         "slots": slots,
         "dropped_slots": dropped,
+        "contracts": contracts,
+        "dropped_contracts": dropped_contracts,
         "routes": routes,
         "dropped_routes": dropped_routes,
     }
@@ -3391,7 +3400,7 @@ def _api_reference(files, filename=""):
     entries = _model_fields(files.get("models.py") or "")
     if entries:
         lines.append("- The dataclasses in models.py and their fields; read")
-        lines.append("  them as attributes (`book.title`), never `.get(...)`,")
+        lines.append("  them as attributes (`entity.title`), never `.get(...)`,")
         lines.append("  never a field that is not listed. They are plain")
         lines.append("  dataclasses: set the fields and pass the instance back —")
         lines.append("  there is no `copy(...)` with keyword updates:")
@@ -3414,11 +3423,11 @@ def _honest_api_reference(files, filename=""):
 
     The full block tells a body to compare date fields as ISO strings but
     calls `read_one_*` nullable when it raises, and lists error names
-    without saying when they apply: a live return body formatted a
-    space-separated timestamp (which never compares equal to the stored
-    ISO text) and reached for `InvalidReturnDateError` to enforce a
-    return-date rule the requirements never state. The surfaces are the
-    same; the lines that were wrong or missing are different.
+    without saying when they apply: a live body formatted a space-separated
+    timestamp (which never compares equal to the stored ISO text) and
+    reached for an error to enforce a rule the requirements never stated.
+    The surfaces are the same; the lines that were wrong or missing are
+    different.
     """
     lines = ["The data the sibling modules hand you:"]
     if filename == "services.py":
@@ -3441,7 +3450,7 @@ def _honest_api_reference(files, filename=""):
     entries = _model_fields(files.get("models.py") or "")
     if entries:
         lines.append("- The dataclasses in models.py and their fields; read")
-        lines.append("  them as attributes (`book.title`), never `.get(...)`,")
+        lines.append("  them as attributes (`entity.title`), never `.get(...)`,")
         lines.append("  never a field that is not listed. They are plain")
         lines.append("  dataclasses: set the fields and pass the instance back —")
         lines.append("  there is no `copy(...)` with keyword updates:")
@@ -3458,9 +3467,9 @@ def _honest_api_reference(files, filename=""):
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
         lines.append("  The list is a vocabulary, not a work order: raise one")
-        lines.append("  only where the requirements describe that failure. Do")
-        lines.append("  not add checks (a return-date rule, a loan limit) the")
-        lines.append("  requirements do not state.")
+        lines.append("  only where the requirements or the human-confirmed")
+        lines.append("  contract describe that failure. Do not add checks")
+        lines.append("  they do not state.")
     lines.append("- A body may use these stdlib modules; a needed import")
     lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
     return lines
@@ -3547,9 +3556,9 @@ def _exact_api_reference(files, filename=""):
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
         lines.append("  The list is a vocabulary, not a work order: raise one")
-        lines.append("  only where the requirements describe that failure. Do")
-        lines.append("  not add checks (a return-date rule, a loan limit) the")
-        lines.append("  requirements do not state.")
+        lines.append("  only where the requirements or the human-confirmed")
+        lines.append("  contract describe that failure. Do not add checks")
+        lines.append("  they do not state.")
     lines.append("- A body may use these stdlib modules; a needed import")
     lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
     return lines
@@ -3558,11 +3567,11 @@ def _exact_api_reference(files, filename=""):
 def _requirements_line(requirements, method):
     """The requirements sentence that names this method, if any.
 
-    The borrow requirement carries the order the repair missed: "checks
-    availability, creates loan, decrements copies." The full requirements
-    are at the top of the prompt; the target contract repeats the one line
-    at the elbow so a small model does not have to retrieve it from the
-    middle.
+    A method's requirement line can carry an order or a value the model
+    would otherwise retrieve from the middle of a long prompt. The full
+    requirements are at the top; the target contract repeats the one line
+    at the elbow. Domain facts, when they exist, come from the human-
+    confirmed method contract rather than from this line.
     """
     for line in (requirements or "").splitlines():
         if method and re.search(rf"\b{re.escape(method)}\s*\(", line):
@@ -3570,37 +3579,81 @@ def _requirements_line(requirements, method):
     return ""
 
 
-def _target_contract(info, files, requirements=""):
-    """The target method, its requirement and return class, above the ask.
+def _contract_lines(contract):
+    """The human's method contract as prompt lines.
+
+    The generator knows the schema, never the domain: every name below comes
+    from the record. A library return and a stock consumption render through
+    the same function.
+    """
+    if not contract:
+        return []
+    lines = ["The human-confirmed contract for this method:"]
+    preconditions = contract.get("preconditions") or []
+    if preconditions:
+        lines.append("  preconditions:")
+        for item in preconditions:
+            error = item.get("error")
+            suffix = f"; otherwise raise `{error}`" if error else ""
+            lines.append(f"    - `{item['check']}`{suffix}")
+    creates = contract.get("creates") or []
+    if creates:
+        lines.append("  creates:")
+        for item in creates:
+            class_name, call = item.get("class"), item.get("call")
+            if class_name and call:
+                lines.append(
+                    f"    - create `models.{class_name}` through `{call}(...)`")
+            elif call:
+                lines.append(f"    - create through `{call}(...)`")
+            elif class_name:
+                lines.append(f"    - create `models.{class_name}`")
+    effects = contract.get("effects") or []
+    if effects:
+        lines.append("  effects:")
+        for item in effects:
+            target, op = item["target"], item["op"]
+            detail = ""
+            if op == "set":
+                detail = (f" to `{item['value']}`" if "value" in item else "")
+            elif "by" in item:
+                detail = f" by `{item['by']}`"
+            write = item.get("write")
+            suffix = f"; save it with `{write}(...)`" if write else ""
+            lines.append(f"    - {op} `{target}`{detail}{suffix}")
+    order = contract.get("order") or []
+    if order:
+        lines.append("  order: " + " -> ".join(f"`{step}`" for step in order))
+    forbid = contract.get("forbid") or []
+    if forbid:
+        lines.append("  forbidden:")
+        for item in forbid:
+            message = f": {item['message']}" if item.get("message") else ""
+            lines.append(
+                f"    - `{item['target']}` must not read `{item['reads']}`"
+                f"{message}")
+    if len(lines) == 1:
+        return []
+    return lines + [""]
+
+
+def _target_contract(info, files, requirements="", contract=None):
+    """The target method, its requirement and confirmed contract, above the ask.
 
     The API block is long by design; a small model does not reliably
     retrieve a schema from its middle. The class the declared return type
     names is the one the body must construct or mutate, so it goes last.
-    The requirement sentence goes first: it is where an order like
-    "checks availability, creates loan, decrements copies" lives, and the
-    live borrow repair lost that order between the requirements block and
-    the ask.
+    The requirement sentence goes first so the model does not have to find
+    it in the middle. The human-confirmed contract follows it: those are the
+    only domain-specific facts the generator uses, and they come from a
+    review record rather than a phrase in this file.
     """
     lines = []
     requirement = _requirements_line(requirements, _stub_method(info))
     if requirement:
         lines += ["The requirement for this method:", "    " + requirement,
                   ""]
-    if re.search(r"\bsets?\s+return_date\b", requirement, re.I):
-        lines += ["Set `return_date` to `datetime.datetime.now()`, not",
-                  "`due_date`: it is the time the book comes back.", ""]
-    if re.search(r"\bincrements?\s+copies\b", requirement, re.I):
-        lines += ["The return increases the book's `available_copies` by one;",
-                  "read the book by `loan.book_id` and save it with",
-                  "`update_book`.", ""]
-    if (re.search(r"\bchecks?\s+availability\b", requirement, re.I)
-            and re.search(r"\bcreates?\s+loan\b", requirement, re.I)):
-        lines += ["The order is:",
-                  "    1. read the book and check it exists with copies",
-                  "    2. create the loan",
-                  "    3. decrement `available_copies` and save the book with",
-                  "       `update_book`",
-                  ""]
+    lines += _contract_lines(contract)
     signature = (info.get("def") or "").strip()
     if signature:
         lines += ["The method you are writing:", "    " + signature, ""]
@@ -3686,31 +3739,27 @@ def _target_names(target):
 
 
 def _body_complaints(body, info, module_text, references_text, files,
-                     requirement=""):
-    """The API-contract violations the refusal regexes cannot see.
+                     requirement="", contract=None):
+    """The contract violations the refusal regexes cannot see.
 
     The prompt's API section is a contract: it lists each model's fields,
     the module's own names, the imports a body may gain and each method's
     declared return type. A body that breaks one of those facts compiles
-    and still cannot work — a live body read `record.author` (no such
-    field), another indexed `dict.keys()[i]`, another never used its
-    `year` parameter, and two returned the updated book from methods
-    declared to return the loan. A repository read carries its type too:
-    a live borrow assigned loan fields to the Book `read_one_book`
-    returned and decremented its copies without an update, so the store
-    kept the old count. A live borrow also created the loan before
-    checking the book had copies; the zero-copy refusal left a phantom
-    loan, so a create before a raise is a complaint too. The repaired
-    borrow then decremented the book before creating the loan, so a
-    missing member lost a copy; an update before the create that depends
-    on it is a complaint, and the create-before-raise complaint now names
-    the update order so the repair cannot fix one by creating the other.
-    A live return then set `return_date` from `due_date` and never touched
-    the book, so the copies stayed put; the requirement's "increments/
-    decrements copies" and the return-date fact are checked when the
-    target's requirement line is available. Each complaint names the fact,
-    so the repair ask can quote them and the second answer can be a
-    correction instead of a guess.
+    and still cannot work — a live body read a field the model lacks,
+    another indexed `dict.keys()[i]`, another never used a parameter, and
+    two returned the wrong dataclass. A repository read carries its type
+    too; changes to a read instance must reach an `update_*` call or the
+    store keeps the old record. Those checks are domain-neutral.
+
+    The same function checks the human-confirmed method contract when one
+    is present: the named fields are written, the named create/write calls
+    exist, the named error is raised, and a forbidden field-to-field
+    assignment does not appear. The domain names all come from the record;
+    this module only knows effects, calls, raises and fields. The generic
+    create-before-raise and update-before-create checks remain independent
+    of any contract because they describe a safe write order for every
+    application. Each complaint names the fact, so the repair ask can quote
+    it and the second answer can be a correction instead of a guess.
     """
     params = _stub_params(info)
     source = ("def _wrapped(" + ", ".join(["self"] + params) + "):\n") \
@@ -3911,49 +3960,166 @@ def _body_complaints(body, info, module_text, references_text, files,
                             f"(a {actual}) but the method is declared "
                             f"`-> models.{declared}`")
                     break
-    if re.search(r"\b(?:increments|decrements)\s+copies\b",
-                 requirement or "", re.I):
-        copy_fields = [(cls, field) for cls, names in fields.items()
-                       for field in names if "copies" in field]
-        if copy_fields:
-            cls, copy_field = copy_fields[0]
-            update_method = f"update_{cls.lower()}"
-            copy_written = any(
-                (isinstance(node, ast.AugAssign)
-                 and isinstance(node.target, ast.Attribute)
-                 and node.target.attr == copy_field)
-                or (isinstance(node, ast.Assign)
-                    and any(isinstance(target, ast.Attribute)
-                            and target.attr == copy_field
-                            for target in node.targets))
-                or (isinstance(node, ast.AnnAssign)
-                    and isinstance(node.target, ast.Attribute)
-                    and node.target.attr == copy_field)
-                for node in ast.walk(tree))
-            if (not copy_written
-                    or not re.search(rf"\b{re.escape(update_method)}\s*\(",
-                                     text)):
-                found.append(
-                    "the requirement changes the book's copies, but the "
-                    f"body never changes `{copy_field}` through "
-                    f"`{update_method}(...)`; the stored count stays the "
-                    "same")
+    found.extend(_contract_complaints(tree, contract))
+    return found
+
+
+def _last_name(value):
+    """The final segment of a contract reference (`Repo.update_x` -> `update_x`)."""
+    return str(value).rsplit(".", 1)[-1]
+
+
+def _target_names_of(target):
+    """Field names a store target writes: an attribute or a string subscript."""
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names = set()
+        for item in target.elts:
+            names |= _target_names_of(item)
+        return names
+    if isinstance(target, ast.Attribute):
+        return {target.attr}
+    if isinstance(target, ast.Subscript) \
+            and isinstance(target.slice, ast.Constant) \
+            and isinstance(target.slice.value, str):
+        return {target.slice.value}
+    return set()
+
+
+def _assignment(node):
+    """`(targets, value)` for an assignment, ann-assignment or aug-assignment."""
+    if isinstance(node, ast.Assign):
+        return node.targets, node.value
+    if isinstance(node, ast.AugAssign):
+        return [node.target], node.value
+    if isinstance(node, ast.AnnAssign) and node.value is not None:
+        return [node.target], node.value
+    return [], None
+
+
+def _field_writes(tree, field):
+    """Every assignment whose target writes `field`, with its right-hand side."""
+    writes = []
     for node in ast.walk(tree):
-        if isinstance(node, ast.Assign):
-            targets, value = node.targets, node.value
-        elif isinstance(node, ast.AnnAssign) and node.value is not None:
-            targets, value = [node.target], node.value
-        else:
-            continue
-        if not any(isinstance(target, ast.Attribute)
-                   and target.attr == "return_date" for target in targets):
-            continue
-        if any(isinstance(inner, ast.Attribute) and inner.attr == "due_date"
-               for inner in ast.walk(value)):
+        targets, value = _assignment(node)
+        if any(field in _target_names_of(target) for target in targets):
+            writes.append((node, value))
+    return writes
+
+
+def _mentions_field(node, field):
+    """True when an expression reads `field` as an attribute or string key."""
+    if node is None:
+        return False
+    return any(field in _target_names_of(inner) for inner in ast.walk(node))
+
+
+def _call_names(tree):
+    """Method names called anywhere in the body (`update_book`, `now`, ...)."""
+    return {node.func.attr for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)}
+
+
+def _raise_names(tree):
+    """Exception names raised anywhere in the body."""
+    return {_raised_name(node) for node in ast.walk(tree)
+            if isinstance(node, ast.Raise)}
+
+
+def _contract_complaints(tree, contract):
+    """Check the human-confirmed method contract, using only its vocabulary.
+
+    Every target, call, error and field below comes from the record. This
+    function has no `copies`, `return_date`, `stock_qty` or `book` in it; the
+    same checks serve a library return and a factory consumption.
+    """
+    if not isinstance(contract, dict):
+        return []
+    found = []
+    text = ast.unparse(tree)
+    calls = _call_names(tree)
+    raises = _raise_names(tree)
+
+    for effect in contract.get("effects") or []:
+        target = effect.get("target") or ""
+        field = _last_name(target)
+        writes = _field_writes(tree, field)
+        if not writes:
             found.append(
-                "`return_date` is set from `due_date`; the return date is "
-                "when the book comes back, not when it was due")
-            break
+                f"the confirmed contract changes `{target}`, but the body "
+                f"never writes `{field}`")
+            continue
+        op = effect.get("op")
+        if op in ("increment", "decrement"):
+            wanted = ast.Add if op == "increment" else ast.Sub
+            matched = False
+            for node, value in writes:
+                if isinstance(node, ast.AugAssign) \
+                        and isinstance(node.op, wanted):
+                    matched = True
+                    break
+                if isinstance(node, ast.Assign) \
+                        and isinstance(value, ast.BinOp) \
+                        and isinstance(value.op, wanted) \
+                        and (_mentions_field(value.left, field)
+                             or _mentions_field(value.right, field)):
+                    matched = True
+                    break
+            if not matched:
+                found.append(
+                    f"the confirmed contract says {op} `{target}`, but the "
+                    f"body does not {op} `{field}`")
+        if effect.get("write"):
+            write = _last_name(effect["write"])
+            if write not in calls:
+                found.append(
+                    f"the confirmed contract saves `{target}` with "
+                    f"`{effect['write']}(...)`, but the body never calls "
+                    f"`{write}`")
+        if effect.get("op") == "set" and str(effect.get("value", "")).lower() \
+                == "now" and "now" not in calls:
+            found.append(
+                f"the confirmed contract sets `{target}` to `now`, but the "
+                "body never reads the current time")
+        if effect.get("op") == "set":
+            value = effect.get("value")
+            simple = (isinstance(value, (str, int, float, bool))
+                      and str(value).lower() != "now"
+                      and " " not in str(value) and "." not in str(value))
+            if simple and not any(
+                    (isinstance(inner, ast.Constant)
+                     and inner.value == value)
+                    or (isinstance(value, str) and value in text)
+                    for _node, rhs in writes for inner in ast.walk(rhs)):
+                found.append(
+                    f"the confirmed contract sets `{target}` to `{value}`, "
+                    "but the body does not use that value")
+
+    for create in contract.get("creates") or []:
+        call = create.get("call")
+        if call and _last_name(call) not in calls:
+            found.append(
+                f"the confirmed contract creates `{create.get('class') or 'a record'}` "
+                f"through `{call}(...)`, but the body never calls "
+                f"`{_last_name(call)}`")
+
+    for precondition in contract.get("preconditions") or []:
+        error = precondition.get("error")
+        if error and _last_name(error) not in raises:
+            found.append(
+                f"the confirmed contract requires `{precondition.get('check')}` "
+                f"to raise `{error}`, but the body never raises it")
+
+    for rule in contract.get("forbid") or []:
+        target, reads = rule.get("target") or "", rule.get("reads") or ""
+        target_field, read_field = _last_name(target), _last_name(reads)
+        for _node, value in _field_writes(tree, target_field):
+            if _mentions_field(value, read_field):
+                found.append(
+                    rule.get("message")
+                    or f"`{target}` is set from `{reads}`; the confirmed "
+                       "contract forbids it")
+                break
     return found
 
 
@@ -4042,7 +4208,7 @@ def _answered(framing, llm, prompt, label):
 
 
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
-               context="full"):
+               context="full", contracts=None):
     """Ask the model for the bodies the mechanical emitter refused.
 
     Best-effort by design: the mechanical set is already final and honest,
@@ -4064,7 +4230,11 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     retry with the whole room is never spliced — it is kept as `truncated`
     in the dump, because a cut-off body compiles and can still be wrong.
     `context` controls what the ask shows besides the task rules, the
-    requirements and the module text. `full` adds the repository signatures
+    requirements and the module text. `contracts` are the human-confirmed
+    method records loaded from `method_contracts.json`; a matching record
+    adds its domain facts to the exact ask and every context checks the
+    accepted body against it. No matching record means the old behavior:
+    the requirement and the generic API checks only. `full` adds the repository signatures
     and the API facts (model fields and their types, error names, the date
     rule, the allowed imports); `honest` adds the same surfaces with the
     facts corrected where a live run proved them wrong (truthful
@@ -4146,8 +4316,12 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
             info["file"] = filename
             requirement = _requirements_line(requirements,
                                              _stub_method(info))
-            contract = (_target_contract(info, files, requirements)
-                        if context == "exact" else ())
+            method_contract = contract_for(
+                contracts, info["cls"], _stub_method(info))
+            target_contract = (
+                _target_contract(info, files, requirements,
+                                 contract=method_contract)
+                if context == "exact" or method_contract else ())
             out(f"llm: {label} ...")
 
             def attempt(raw):
@@ -4157,7 +4331,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                                         store_names, model_names, error_names)
                 problems = [refusal] if refusal else _body_complaints(
                     body, info, text, files.get("repositories.py") or "",
-                    files, requirement=requirement)
+                    files, requirement=requirement, contract=method_contract)
                 if _answer_continued(raw):
                     problems.insert(
                         0, "the answer continued after the body with "
@@ -4180,7 +4354,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 return candidate, [], body
 
             prompt = stub_prompt(requirements, text, info, references, api,
-                                 context=context, contract=contract)
+                                 context=context, contract=target_contract)
             try:
                 result = _answered(framing, llm, prompt, f"stub:{label}")
             except Exception as error:  # one failed call keeps one stub
@@ -4224,7 +4398,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 repair = stub_prompt(requirements, text, info, references,
                                      api, previous="\n".join(body) or None,
                                      complaints=problems, context=context,
-                                     contract=contract)
+                                     contract=target_contract)
                 try:
                     result = _answered(framing, llm, repair,
                                        f"stub:{label}:repair")
@@ -4392,13 +4566,16 @@ def main(argv=None):
         stats["llm_stubs"] = fill_stubs(
             files, args.model, load_requirements(args.out_dir),
             dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
-            context=args.stub_context)
+            context=args.stub_context, contracts=ctx.get("contracts"))
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)
     if ctx.get("dropped_slots"):
         print(f"dropped {ctx['dropped_slots']} predated slot record(s) — "
               f"their questions reopen in review_slots.py")
+    if ctx.get("dropped_contracts"):
+        print(f"dropped {ctx['dropped_contracts']} predated method "
+              f"contract(s) — their questions reopen in review_contracts.py")
     if ctx.get("dropped_routes"):
         print(f"dropped {ctx['dropped_routes']} predated route decision(s) — "
               f"their questions reopen in review_surface.py")

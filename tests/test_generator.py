@@ -1915,13 +1915,11 @@ class StubFillTests(unittest.TestCase):
                       text)
         self.assertNotIn("sets return_date", text)
         self.assertNotIn("Set `return_date`", text)
-        self.assertIn("The order is:", text)
-        self.assertIn("2. create the loan", text)
-        self.assertIn("decrement `available_copies`", text)
+        self.assertNotIn("The order is:", text)
         self.assertLess(text.index("The requirement for this method:"),
                         text.index("The method you are writing:"))
 
-    def test_exact_contract_spells_out_the_return_facts(self):
+    def test_exact_contract_renders_the_human_confirmed_facts(self):
         info = {"cls": "LibraryService",
                 "def": ("def return_book(self, loan_id: int = None)"
                         " -> models.Loan:"),
@@ -1930,18 +1928,32 @@ class StubFillTests(unittest.TestCase):
                  "from dataclasses import dataclass\n\n"
                  "@dataclass\nclass Loan:\n    id: int = None\n"
                  "    book_id: int = None\n"}
-        requirements = (
-            "   - return_book(loan_id): sets return_date, updates status, "
-            "increments copies\n")
-        text = "\n".join(generator._target_contract(info, files,
-                                                    requirements))
-        self.assertIn("Set `return_date` to `datetime.datetime.now()`", text)
-        self.assertIn("not\n`due_date`", text)
-        self.assertIn("`available_copies` by one", text)
-        self.assertIn("read the book by `loan.book_id`", text)
-        self.assertIn("`update_book`", text)
-        self.assertNotIn("The order is:", text)
-        self.assertLess(text.index("Set `return_date`"),
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{"check": "loan exists",
+                               "error": "LoanNotFoundError"}],
+            "effects": [
+                {"target": "loan.return_date", "op": "set",
+                 "value": "now", "write": "LoanRepository.update_loan"},
+                {"target": "book.available_copies", "op": "increment",
+                 "by": "1", "write": "BookRepository.update_book"},
+            ],
+            "forbid": [{"target": "loan.return_date",
+                        "reads": "loan.due_date",
+                        "message": "the return date is when it comes back"}],
+            "order": ["preconditions", "BookRepository.update_book"],
+        }
+        text = "\n".join(generator._target_contract(
+            info, files, "return_book(loan_id): sets return_date",
+            contract=contract))
+        self.assertIn("The human-confirmed contract for this method:", text)
+        self.assertIn("`loan.return_date`", text)
+        self.assertIn("to `now`", text)
+        self.assertIn("`BookRepository.update_book(...)`", text)
+        self.assertIn("must not read `loan.due_date`", text)
+        self.assertIn("order: `preconditions` -> "
+                      "`BookRepository.update_book`", text)
+        self.assertLess(text.index("The human-confirmed contract"),
                         text.index("The method you are writing:"))
 
     def test_main_model_flag_fills_the_fixture_stubs(self):
@@ -2118,15 +2130,17 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("The refused answer was:", repair)
         self.assertIn("return None", repair)
 
-    def test_the_requirement_line_reaches_the_body_check(self):
-        """The fill passes the target's requirement line to the contract
-        checks, so the copies rule can refuse a return that never updates
-        the book. Without the wiring, the live return landed wrong."""
+    def test_a_confirmed_contract_reaches_the_prompt_and_the_check(self):
+        """A record from method_contracts.json is passed into the exact ask
+        and the same record refuses a body that omits its fact. The generator
+        sees only the contract vocabulary, not the application's words."""
         from unittest import mock
         files, _stats = self.rendered()
-        files["models.py"] = files["models.py"].replace(
-            "    title: str = None\n",
-            "    title: str = None\n    available_copies: int = 0\n")
+        contract = {
+            "holder": "WidgetService", "method": "custom_total",
+            "preconditions": [{"check": "the total is valid",
+                               "error": "AppError"}],
+        }
         replies = [
             mock.Mock(text='with open(file_path, "w") as handle:\n'
                            '    handle.write("")\nreturn None',
@@ -2134,7 +2148,8 @@ class StubFillTests(unittest.TestCase):
                       finish_reason="stop", truncated=False),
             mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
                       finish_reason="stop", truncated=False),
-            mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
+            mock.Mock(text='raise errors.AppError("invalid")\nreturn 0',
+                      tokens=3, seconds=0.1, budget=3584,
                       finish_reason="stop", truncated=False),
         ]
         with mock.patch.object(generator.runner, "load_model",
@@ -2142,17 +2157,20 @@ class StubFillTests(unittest.TestCase):
                 mock.patch.object(generator.runner, "generate_free",
                                   side_effect=replies) as ask:
             rows = generator.fill_stubs(
-                files, "fake.gguf",
-                "   - custom_total(): increments copies\n",
-                out=lambda _line: None)
-        self.assertEqual(
-            rows[1],
-            ("WidgetService.custom_total", "kept",
-             "still refused: the requirement changes the book's copies, but "
-             "the body never changes `available_copies` through "
-             "`update_widget(...)`; the stored count stays the same"))
+                files, "fake.gguf", "requirements text",
+                out=lambda _line: None, context="exact",
+                contracts=[contract])
+        self.assertEqual(rows[1][:2],
+                         ("WidgetService.custom_total", "written"))
+        self.assertIn("confirmed contract requires", rows[1][2])
+        first_custom = ask.call_args_list[1].args[1]
+        self.assertIn("The human-confirmed contract for this method:",
+                      first_custom)
+        self.assertIn("the total is valid", first_custom)
         repair = ask.call_args_list[2].args[1]
-        self.assertIn("the requirement changes the book's copies", repair)
+        self.assertIn(
+            "the confirmed contract requires `the total is valid` to raise "
+            "`AppError`", repair)
 
     def test_the_repair_ask_quotes_the_judged_body_not_the_raw_transcript(self):
         """The raw transcript is what made the live repair ask overflow the
@@ -2283,14 +2301,14 @@ class ContractComplaintTests(unittest.TestCase):
               "    author_id: int = 0\n")
 
     def complaints(self, body, info=None, module=None, models=None,
-                   references="", requirement=""):
+                   references="", requirement="", contract=None):
         files = {"models.py": self.models if models is None else models}
         info = info or {"cls": "BookRepository",
                         "def": "def fetch(self) -> List[models.Book]:",
                         "reason": "refused"}
         return generator._body_complaints(
             body, info, self.module if module is None else module,
-            references, files, requirement=requirement)
+            references, files, requirement=requirement, contract=contract)
 
     def test_an_unknown_name_is_a_complaint(self):
         self.assertEqual(
@@ -2433,7 +2451,7 @@ class ContractComplaintTests(unittest.TestCase):
                 "return loan"]
         self.assertEqual(self.complaints(body, info=info), [])
 
-    def test_a_return_date_from_due_date_is_a_complaint(self):
+    def test_a_confirmed_forbid_catches_a_forbidden_source(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
                        "-> models.Loan:",
@@ -2455,12 +2473,22 @@ class ContractComplaintTests(unittest.TestCase):
             "loan_id, loan)",
             "return updated_loan",
         ]
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "effects": [{"target": "loan.return_date", "op": "set",
+                         "write": "LoanRepository.update_loan"}],
+            "forbid": [{"target": "loan.return_date",
+                        "reads": "loan.due_date",
+                        "message": "the return date is when the book comes "
+                                   "back, not when it was due"}],
+        }
         self.assertEqual(
-            self.complaints(body, info=info, models=models),
-            ["`return_date` is set from `due_date`; the return date is when "
-             "the book comes back, not when it was due"])
+            self.complaints(body, info=info, models=models,
+                            contract=contract),
+            ["the return date is when the book comes back, not when it was "
+             "due"])
 
-    def test_a_return_date_set_to_now_is_clean(self):
+    def test_a_confirmed_now_effect_is_clean(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
                        "-> models.Loan:",
@@ -2481,9 +2509,51 @@ class ContractComplaintTests(unittest.TestCase):
             "loan_id, loan)",
             "return updated_loan",
         ]
-        self.assertEqual(self.complaints(body, info=info, models=models), [])
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "effects": [{"target": "loan.return_date", "op": "set",
+                         "value": "now",
+                         "write": "LoanRepository.update_loan"}],
+            "forbid": [{"target": "loan.return_date",
+                        "reads": "loan.due_date"}],
+        }
+        self.assertEqual(
+            self.complaints(body, info=info, models=models,
+                            contract=contract), [])
 
-    def test_a_copies_requirement_requires_a_book_update(self):
+    def test_a_confirmed_literal_value_is_checked(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    book_id: int = 0\n"
+                  "    return_date: datetime = None\n"
+                  "    due_date: datetime = None\n"
+                  "    status: str = ''\n")
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if not loan:",
+            "    raise errors.LoanNotFoundError(loan_id)",
+            "loan.status = 'active'",
+            "updated_loan = self._repos['LoanRepository'].update_loan("
+            "loan_id, loan)",
+            "return updated_loan",
+        ]
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "effects": [{"target": "loan.status", "op": "set",
+                         "value": "returned",
+                         "write": "LoanRepository.update_loan"}],
+        }
+        self.assertEqual(
+            self.complaints(body, info=info, models=models,
+                            contract=contract),
+            ["the confirmed contract sets `loan.status` to `returned`, but "
+             "the body does not use that value"])
+
+    def test_a_confirmed_effect_requires_a_field_write(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
                        "-> models.Loan:",
@@ -2501,8 +2571,6 @@ class ContractComplaintTests(unittest.TestCase):
             "    return_date: datetime = None\n"
             "    due_date: datetime = None\n"
             "    status: str = ''\n")
-        requirement = ("   - return_book(loan_id): sets return_date, "
-                       "updates status, increments copies")
         body = [
             "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
             "if not loan:",
@@ -2513,14 +2581,19 @@ class ContractComplaintTests(unittest.TestCase):
             "loan_id, loan)",
             "return updated_loan",
         ]
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "effects": [{"target": "book.available_copies", "op": "increment",
+                         "by": "1",
+                         "write": "BookRepository.update_book"}],
+        }
         self.assertEqual(
             self.complaints(body, info=info, models=models,
-                            requirement=requirement),
-            ["the requirement changes the book's copies, but the body never "
-             "changes `available_copies` through `update_book(...)`; the "
-             "stored count stays the same"])
+                            contract=contract),
+            ["the confirmed contract changes `book.available_copies`, but "
+             "the body never writes `available_copies`"])
 
-    def test_a_copies_requirement_is_satisfied_by_the_book_update(self):
+    def test_confirmed_effects_are_satisfied_by_the_body(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
                        "-> models.Loan:",
@@ -2538,8 +2611,6 @@ class ContractComplaintTests(unittest.TestCase):
             "    return_date: datetime = None\n"
             "    due_date: datetime = None\n"
             "    status: str = ''\n")
-        requirement = ("   - return_book(loan_id): sets return_date, "
-                       "updates status, increments copies")
         body = [
             "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
             "if not loan:",
@@ -2557,12 +2628,24 @@ class ContractComplaintTests(unittest.TestCase):
             "loan.book_id, book)",
             "return updated_loan",
         ]
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "effects": [
+                {"target": "loan.return_date", "op": "set", "value": "now",
+                 "write": "LoanRepository.update_loan"},
+                {"target": "loan.status", "op": "set", "value": "returned",
+                 "write": "LoanRepository.update_loan"},
+                {"target": "book.available_copies", "op": "increment",
+                 "by": "1", "write": "BookRepository.update_book"},
+            ],
+            "forbid": [{"target": "loan.return_date",
+                        "reads": "loan.due_date"}],
+        }
         self.assertEqual(
             self.complaints(body, info=info, models=models,
-                            requirement=requirement),
-            [])
+                            contract=contract), [])
 
-    def test_a_requirement_without_a_copy_change_is_not_checked(self):
+    def test_a_requirement_alone_is_not_a_contract(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
                        "-> models.Loan:",
@@ -2589,6 +2672,109 @@ class ContractComplaintTests(unittest.TestCase):
             self.complaints(body, info=info, models=models,
                             requirement=requirement),
             [])
+
+    def stock_fixture(self):
+        module = (
+            "import models\n"
+            "import errors\n"
+            "\n"
+            "class StockRepository:\n"
+            "    def read_one_stock(self, stock_id: int = None) "
+            "-> models.Stock | None:\n"
+            "        return None\n"
+            "    def update_stock(self, stock_id: int = None, "
+            "stock: models.Stock = None) -> models.Stock:\n"
+            "        return None\n"
+            "\n"
+            "class ConsumptionRepository:\n"
+            "    def create_consumption(self, consumption: "
+            "models.Consumption = None) -> models.Consumption:\n"
+            "        return None\n"
+            "\n"
+            "class InventoryService:\n"
+            "    def consume_material(self, stock_id: int = None, "
+            "qty: int = None) -> models.Consumption:\n"
+            "        raise NotImplementedError('refused')\n"
+        )
+        models = (
+            "class Stock:\n"
+            "    id: int = 0\n"
+            "    stock_qty: int = 0\n"
+            "\n"
+            "class Consumption:\n"
+            "    id: int = 0\n"
+            "    stock_id: int = 0\n"
+            "    qty: int = 0\n"
+        )
+        info = {"cls": "InventoryService",
+                "def": ("def consume_material(self, stock_id: int = None, "
+                        "qty: int = None) -> models.Consumption:"),
+                "file": "services.py"}
+        contract = {
+            "holder": "InventoryService", "method": "consume_material",
+            "preconditions": [{"check": "stock.stock_qty >= qty",
+                               "error": "InsufficientStockError"}],
+            "creates": [{"class": "Consumption",
+                         "call": "ConsumptionRepository.create_consumption"}],
+            "effects": [{"target": "stock.stock_qty", "op": "decrement",
+                         "by": "qty",
+                         "write": "StockRepository.update_stock"}],
+            "order": ["preconditions",
+                      "ConsumptionRepository.create_consumption",
+                      "StockRepository.update_stock"],
+        }
+        return info, module, models, contract
+
+    def test_a_stock_contract_renders_without_library_vocabulary(self):
+        info, _module, models, contract = self.stock_fixture()
+        text = "\n".join(generator._target_contract(
+            info, {"models.py": models}, "", contract=contract))
+        self.assertIn("stock.stock_qty", text)
+        self.assertIn("ConsumptionRepository.create_consumption", text)
+        self.assertIn("StockRepository.update_stock", text)
+        self.assertIn("InsufficientStockError", text)
+        for word in ("book", "copies", "return_date", "due_date", "Loan"):
+            self.assertNotIn(word, text)
+
+    def test_a_stock_contract_passes_a_correct_body(self):
+        info, module, models, contract = self.stock_fixture()
+        body = [
+            "stock = self._repos['StockRepository'].read_one_stock(stock_id)",
+            "if not stock:",
+            "    raise errors.StockNotFoundError(stock_id)",
+            "if stock.stock_qty < qty:",
+            "    raise errors.InsufficientStockError(stock_id)",
+            "consumption = self._repos['ConsumptionRepository']"
+            ".create_consumption(models.Consumption("
+            "stock_id=stock_id, qty=qty))",
+            "stock.stock_qty -= qty",
+            "self._repos['StockRepository'].update_stock(stock_id, stock)",
+            "return consumption",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract), [])
+
+    def test_a_stock_contract_catches_a_missing_save(self):
+        info, module, models, contract = self.stock_fixture()
+        body = [
+            "stock = self._repos['StockRepository'].read_one_stock(stock_id)",
+            "if not stock:",
+            "    raise errors.StockNotFoundError(stock_id)",
+            "if stock.stock_qty < qty:",
+            "    raise errors.InsufficientStockError(stock_id)",
+            "consumption = self._repos['ConsumptionRepository']"
+            ".create_consumption(models.Consumption("
+            "stock_id=stock_id, qty=qty))",
+            "stock.stock_qty -= qty",
+            "return consumption",
+        ]
+        complaints = self.complaints(body, info=info, module=module,
+                                     models=models, contract=contract)
+        self.assertIn(
+            "the confirmed contract saves `stock.stock_qty` with "
+            "`StockRepository.update_stock(...)`, but the body never calls "
+            "`update_stock`", complaints)
 
     def test_an_unused_declared_parameter_is_a_complaint(self):
         info = {"cls": "BookRepository",

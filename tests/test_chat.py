@@ -50,20 +50,24 @@ class ResolveRequirementsTests(unittest.TestCase):
 
 
 class ChatFlowTests(unittest.TestCase):
-    def flow(self, directory, ties=0, pairs=(), blockers=(), tie_run=None, alias_run=None):
+    def flow(self, directory, ties=0, pairs=(), blockers=(), tie_run=None,
+             alias_run=None, contracts=(), contract_run=None):
         from kernel.consistency.report import Finding
 
         lines = []
         with mock.patch("probe_readiness.check_prompt") as checked, \
              mock.patch("probe_readiness.open_questions") as opened, \
-             mock.patch("review_aliases.collect_questions") as collected:
+             mock.patch("review_aliases.collect_questions") as collected, \
+             mock.patch("review_contracts.collect_contracts") as contract_collected:
             checked.return_value = (
                 [Finding("warning", "uncovered_field", b) for b in blockers], [], None)
             opened.return_value = ties
             collected.return_value = (list(pairs), {})
+            contract_collected.return_value = (list(contracts), {})
             remaining = extract_arch.chat_flow(
                 directory, out_fn=lines.append,
-                tie_runner=tie_run, alias_runner=alias_run)
+                tie_runner=tie_run, alias_runner=alias_run,
+                contract_runner=contract_run)
         return remaining, lines
 
     def test_a_clean_output_asks_nothing(self):
@@ -100,6 +104,22 @@ class ChatFlowTests(unittest.TestCase):
                 alias_run=run_aliases)
             self.assertEqual(asked, [("aliases", directory)])
             self.assertEqual(remaining, [])
+
+    def test_contract_questions_run_the_contract_review(self):
+        asked = []
+
+        def run_contracts(path):
+            asked.append(("contracts", path))
+            return 1, 1
+
+        with tempfile.TemporaryDirectory() as directory:
+            remaining, lines = self.flow(
+                directory, contracts=[{"holder": "S", "method": "m"}],
+                contract_run=run_contracts)
+            self.assertEqual(asked, [("contracts", directory)])
+            self.assertEqual(remaining, [])
+            self.assertTrue(any("method contract(s) need a human" in line
+                                for line in lines))
 
     def test_structural_blockers_are_reported_never_asked(self):
         asked = []

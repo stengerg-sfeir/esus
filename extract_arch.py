@@ -156,20 +156,22 @@ def print_quiet_results(log, out_fn=print):
 
 
 def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
-              surface_runner=None, slot_runner=None):
+              surface_runner=None, slot_runner=None, contract_runner=None):
     """Probe, ask, re-probe: the attended tail of an extraction run.
 
     Runs the probe over `output_dir`; when ties need a human, runs the tie
     review, surface duplicates get the surface review, field pairs the alias
-    review, and pattern slots the slot review. Structural blockers
-    (missing commands, uncovered fields, unknown model fields) are reported,
-    never asked — no answer the user can type fixes those; a rerun or a code
-    fix does. Returns the remaining blockers (a list — the loop judges
-    them without re-probing). `*_runner` override the reviews
-    (output_dir -> (asked, answered)) for tests.
+    review, pattern slots the slot review, and method behavior facts the
+    contract review. Structural blockers (missing commands, uncovered
+    fields, unknown model fields) are reported, never asked — no answer the
+    user can type fixes those; a rerun or a code fix does. Returns the
+    remaining blockers (a list — the loop judges them without re-probing).
+    `*_runner` override the reviews (output_dir -> (asked, answered)) for
+    tests.
     """
     import probe_readiness
     import review_aliases
+    import review_contracts
     import review_slots
     import review_surface
     import review_ties
@@ -194,6 +196,11 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
         out_fn(f"{len(slot_questions)} pattern slot(s) need a human — "
                f"starting the slot review")
         (slot_runner or review_slots.run_review)(str(output_dir))
+    contract_questions, _ = review_contracts.collect_contracts(str(output_dir))
+    if contract_questions:
+        out_fn(f"{len(contract_questions)} method contract(s) need a human — "
+               f"starting the contract review")
+        (contract_runner or review_contracts.run_review)(str(output_dir))
     final, _, _ = probe_readiness.check_prompt(name, str(output_dir))
     out_fn(f"chat: {len(final)} blocker(s) remain")
     for finding in final:
