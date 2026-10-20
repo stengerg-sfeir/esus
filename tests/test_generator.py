@@ -1752,6 +1752,56 @@ class StubFillTests(unittest.TestCase):
                                         context="minimal")
         self.assertNotIn("`elif` chain", minimal)
 
+    def test_exact_stub_context_shows_models_as_code_and_repeats_the_contract(self):
+        """The compressed field line becomes the real source, and the
+        method's signature and return class sit above the ask."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        captured = []
+
+        def answer(llm, prompt, label, **kwargs):
+            captured.append(prompt)
+            return mock.Mock(text="        return None\n", tokens=3,
+                             seconds=0.1, budget=3584, finish_reason="stop",
+                             truncated=False)
+
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            generator.fill_stubs(files, "fake.gguf", "requirements text",
+                                 out=lambda _line: None, context="exact")
+        service = next(p for p in captured
+                       if "module (services.py):" in p)
+        self.assertIn("models.py, exactly as defined", service)
+        self.assertIn("@dataclass", service)
+        self.assertIn("class Widget:", service)
+        self.assertNotIn("Widget(widget_id: int", service)
+        self.assertIn("The method you are writing:", service)
+        self.assertIn("def custom_total", service)
+        self.assertLess(service.index("module (services.py):"),
+                        service.index("The method you are writing:"))
+        self.assertLess(service.index("The method you are writing:"),
+                        service.index("Now write the body"))
+        self.assertIn("Changing a dataclass does not save it", service)
+
+    def test_exact_contract_repeats_the_returned_dataclass(self):
+        info = {"cls": "LibraryService",
+                "def": ("def return_book(self, loan_id: int = None)"
+                        " -> models.Loan:"),
+                "file": "services.py"}
+        files = {"models.py":
+                 "from dataclasses import dataclass\n\n"
+                 "@dataclass\nclass Loan:\n    id: int = None\n"
+                 "    book_id: int = None\n"}
+        text = "\n".join(generator._target_contract(info, files))
+        self.assertIn("def return_book", text)
+        self.assertIn("@dataclass", text)
+        self.assertIn("class Loan:", text)
+        self.assertIn("book_id: int", text)
+        self.assertIn("update_*", text)
+        self.assertNotIn("class Book:", text)
+
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
         from unittest import mock
@@ -1838,6 +1888,34 @@ class StubFillTests(unittest.TestCase):
             service = next(p for p in captured
                            if "module (services.py):" in p)
             self.assertIn("`read_one_*` raises", service)
+
+    def test_main_stub_context_exact_reaches_the_ask(self):
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as directory:
+            out = write_out(Path(directory) / "shop", fixture())
+            captured = []
+
+            def answer(llm, prompt, label, **kwargs):
+                captured.append(prompt)
+                return mock.Mock(text="        return None\n", tokens=3,
+                                 seconds=0.1, budget=3584,
+                                 finish_reason="stop", truncated=False)
+
+            with mock.patch.object(generator.runner, "load_model",
+                                   return_value=object()), \
+                    mock.patch.object(generator.runner, "generate_free",
+                                      side_effect=answer), \
+                    io.StringIO() as buffer, redirect_stdout(buffer):
+                self.assertEqual(
+                    generator.main([out, "--model", "fake.gguf",
+                                    "--stub-context", "exact"]), 0)
+                printed = buffer.getvalue()
+            self.assertIn("exact context: models as code + local contract",
+                          printed)
+            service = next(p for p in captured
+                           if "module (services.py):" in p)
+            self.assertIn("models.py, exactly as defined", service)
 
     def test_a_refused_body_is_repaired_once_and_lands(self):
         """The repair ask quotes the complaint; a corrected answer passes

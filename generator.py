@@ -3051,7 +3051,7 @@ def _clip_module(text, cls, budget):
 
 def stub_prompt(requirements, module_text, info, references=(), api=(),
                 budget=STUB_PROMPT_BUDGET, previous=None, complaints=(),
-                context="full"):
+                context="full", contract=()):
     """One ask: the emitted module is the API reference; fill one hole.
 
     Nothing is rewritten into a summary — the module shows the real store
@@ -3111,7 +3111,8 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         f"  {info['reason']}",
     ]
     lines += call_rule
-    if context == "honest" and re.search(r"search|filter|find", method, re.I):
+    if context in ("honest", "exact") \
+            and re.search(r"search|filter|find", method, re.I):
         lines += [
             "- A search or filter over several fields tests each field",
             "  independently: a record matching any one is a hit. Do not",
@@ -3148,6 +3149,10 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
               "```python",
               _clip_module(module_text, info["cls"], budget).rstrip(),
               "```",
+              ]
+    if contract:
+        lines += [""] + list(contract)
+    lines += [
               "",
               f"Now write the body of `{info['cls']}.{method}`, replacing",
               "the `raise NotImplementedError(...)` statement:",
@@ -3349,6 +3354,122 @@ def _honest_api_reference(files, filename=""):
         lines.append("  requirements do not state.")
     lines.append("- A body may use these stdlib modules; a needed import")
     lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
+    return lines
+
+
+def _class_source(text, name):
+    """One `class` block from the emitted models module, decorator included."""
+    lines = (text or "").splitlines()
+    class_line = next((index for index, line in enumerate(lines)
+                       if re.match(rf"^class {re.escape(name)}\b", line)),
+                      None)
+    if class_line is None:
+        return ""
+    start = class_line
+    while start and lines[start - 1].lstrip().startswith("@"):
+        start -= 1
+    end = class_line + 1
+    while end < len(lines) and not re.match(r"^class \w+", lines[end]):
+        end += 1
+    return "\n".join(lines[start:end]).rstrip()
+
+
+def _exact_api_reference(files, filename=""):
+    """The honest facts, with models.py shown as code instead of a summary.
+
+    A compressed `Loan(id, book_id, ...)` line is technically complete and
+    practically invisible: a live return body read `loan.title` from it.
+    The class source carries the decorator, the defaults and the layout a
+    body can pattern-match; the target method's return class is repeated
+    above the ask by `_target_contract`. The behavioral facts stay, because
+    they are not visible in the source: dates are normalized by the store,
+    mutating a dataclass does not persist it, and the error list is a
+    vocabulary rather than a work order.
+    """
+    lines = ["The data the sibling modules hand you:"]
+    if filename == "services.py":
+        lines += [
+            "- `self._repos` maps repository names to instances:",
+            "  call their methods and filter the dataclasses they",
+            "  return, in Python. A service has no `self._store`",
+            "  and no `self.ENTITY`.",
+            "- If a repository method already does the work under a",
+            "  different name, delegate to it; do not re-filter",
+            "  `read_all_*` in Python.",
+            "- `read_one_*` raises `<Entity>NotFoundError` when nothing",
+            "  matches, despite the `| None` in its annotation; a `None`",
+            "  check after it is dead code.",
+        ]
+    else:
+        lines += [
+            "- `self._store` reads return plain records (dicts):",
+            '  read them with `record.get("field")`; `self.ENTITY`',
+            "  is this class's table.",
+        ]
+    models_text = (files.get("models.py") or "").rstrip()
+    if models_text:
+        lines.append("- models.py, exactly as defined (types, defaults and")
+        lines.append("  imports); read attributes, never `.get(...)`:")
+        lines.append("```python")
+        lines += models_text.splitlines()
+        lines.append("```")
+        lines += [
+            "- The dataclasses annotate dates as `datetime.date`/",
+            "  `datetime.datetime`, but the store normalizes them to ISO",
+            "  strings on write and hands them back as strings. Values you",
+            '  read are ISO text (`"2026-10-05"`, `"2026-10-05T14:30:00"`);',
+            "  compare them as strings, use `fromisoformat` for arithmetic,",
+            "  and store a datetime (or its `.isoformat()`) back. Never",
+            '  `strftime("%Y-%m-%d %H:%M:%S")`: space-separated text does',
+            "  not match the stored ISO strings.",
+        ]
+        if filename == "services.py":
+            lines += [
+                "- Changing a dataclass does not save it: write through the",
+                "  repository's `update_*` method; returning a mutated",
+                "  object alone saves nothing.",
+            ]
+        else:
+            lines += [
+                "- Changing a record dict does not save it: write through",
+                "  `self._store.update(...)`.",
+            ]
+    errors = sorted(_class_names(files.get("errors.py") or ""))
+    if errors:
+        lines.append(f"- errors.py defines only these: {', '.join(errors)}")
+        lines.append("  The list is a vocabulary, not a work order: raise one")
+        lines.append("  only where the requirements describe that failure. Do")
+        lines.append("  not add checks (a return-date rule, a loan limit) the")
+        lines.append("  requirements do not state.")
+    lines.append("- A body may use these stdlib modules; a needed import")
+    lines.append(f"  is added for you: {', '.join(BODY_IMPORTS)}")
+    return lines
+
+
+def _target_contract(info, files):
+    """The target method and its return dataclass, repeated above the ask.
+
+    The API block is long by design; a small model does not reliably
+    retrieve a schema from its middle. The class the declared return type
+    names is the one the body must construct or mutate, so it goes last.
+    """
+    lines = []
+    signature = (info.get("def") or "").strip()
+    if signature:
+        lines += ["The method you are writing:", "    " + signature, ""]
+    declared = _declared_return(info)
+    if declared:
+        source = _class_source(files.get("models.py") or "", declared)
+        if source:
+            lines += [f"`models.{declared}` is exactly:", "```python",
+                      *source.splitlines(), "```", ""]
+    if info.get("file") == "services.py":
+        lines += ["Changing a dataclass does not save it: call the",
+                  "repository's `update_*` method with the instance.",
+                  "Returning the mutated object alone saves nothing.", ""]
+    else:
+        lines += ["Changing a record dict does not save it: write through",
+                  "`self._store.update(...)`.", ""]
     return lines
 
 
@@ -3651,8 +3772,10 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     rule, the allowed imports); `honest` adds the same surfaces with the
     facts corrected where a live run proved them wrong (truthful
     `read_one_*`, one ISO date rule, errors as a vocabulary, delegation
-    and search-order hints); `minimal` omits both — the experiment that
-    showed which facts were load-bearing.
+    and search-order hints); `exact` adds the honest facts but shows
+    `models.py` as code instead of a field summary, and repeats the
+    target's signature and return dataclass above the ask; `minimal`
+    omits the facts — the experiment that showed which were load-bearing.
     Returns `[(label, status, note)]`, one row per refused stub, `status`
     `written` or `kept`. With `dump_path`, every raw answer lands there as
     JSON — both attempts when a repair was asked, with `finish_reason`,
@@ -3687,6 +3810,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
         framing_name += "; minimal context: requirements + module only"
     elif context == "honest":
         framing_name += "; honest context: references + corrected facts"
+    elif context == "exact":
+        framing_name += "; exact context: models as code + local contract"
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
         f"by body ({framing_name})")
     rows, dumped = [], []
@@ -3695,7 +3820,9 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
         references = ()
         if filename == "services.py" and context != "minimal":
             references = _method_signatures(files.get("repositories.py") or "")
-        if context == "honest":
+        if context == "exact":
+            api = _exact_api_reference(files, filename)
+        elif context == "honest":
             api = _honest_api_reference(files, filename)
         elif context == "full":
             api = _api_reference(files, filename)
@@ -3720,6 +3847,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 continue
             start, end, info = span
             info["file"] = filename
+            contract = (_target_contract(info, files)
+                        if context == "exact" else ())
             out(f"llm: {label} ...")
 
             def attempt(raw):
@@ -3747,7 +3876,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 return candidate, [], body
 
             prompt = stub_prompt(requirements, text, info, references, api,
-                                 context=context)
+                                 context=context, contract=contract)
             try:
                 result = _answered(framing, llm, prompt, f"stub:{label}")
             except Exception as error:  # one failed call keeps one stub
@@ -3778,7 +3907,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 # about.
                 repair = stub_prompt(requirements, text, info, references,
                                      api, previous="\n".join(body) or None,
-                                     complaints=problems, context=context)
+                                     complaints=problems, context=context,
+                                     contract=contract)
                 try:
                     result = _answered(framing, llm, repair,
                                        f"stub:{label}:repair")
@@ -3899,14 +4029,16 @@ def main(argv=None):
                              "CLI flag). Anything actionable is already a "
                              "probe blocker, which refuses generation.")
     parser.add_argument("--stub-context",
-                        choices=("full", "minimal", "honest"),
+                        choices=("full", "minimal", "honest", "exact"),
                         default="full",
                         help="What a body ask shows besides the task rules, "
                              "the requirements and the module text: `full` "
                              "(default) adds the repository signatures and "
                              "the API facts; `honest` adds them with the "
                              "facts a live run proved wrong corrected; "
-                             "`minimal` omits both, to measure which facts "
+                             "`exact` shows models.py as code and repeats "
+                             "the target's return dataclass above the ask; "
+                             "`minimal` omits the facts, to measure which "
                              "the model actually needs")
     args = parser.parse_args(argv)
 
