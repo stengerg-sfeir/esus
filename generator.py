@@ -3961,6 +3961,7 @@ def _body_complaints(body, info, module_text, references_text, files,
                             f"`-> models.{declared}`")
                     break
     found.extend(_contract_complaints(tree, contract))
+    found += _keyword_call_complaints(tree, references_text)
     return found
 
 
@@ -4018,6 +4019,80 @@ def _call_names(tree):
     return {node.func.attr for node in ast.walk(tree)
             if isinstance(node, ast.Call)
             and isinstance(node.func, ast.Attribute)}
+
+
+def _signature_parameters(references_text):
+    """`{(class, method): [parameter, ...]}` from the repository signatures."""
+    mapping = {}
+    for line in (references_text or "").splitlines():
+        match = re.match(r"^(\w+)\.(\w+)\((.*)\)(?:\s*->.*)?$",
+                         line.strip())
+        if not match:
+            continue
+        params_text = match.group(3)
+        if "**" in params_text:
+            mapping[(match.group(1), match.group(2))] = None
+            continue
+        try:
+            node = ast.parse("def _f(" + params_text + "):\n    pass\n").body[0]
+        except SyntaxError:
+            continue
+        params = [arg.arg for arg in (*node.args.posonlyargs,
+                                      *node.args.args,
+                                      *node.args.kwonlyargs)
+                  if arg.arg not in ("self", "cls")]
+        if node.args.vararg:
+            params.append(node.args.vararg.arg)
+        if node.args.kwarg:
+            params.append(node.args.kwarg.arg)
+        mapping[(match.group(1), match.group(2))] = params
+    return mapping
+
+
+def _repo_name(node):
+    """The repository name in `self._repos['BookRepository']`, or None."""
+    if not isinstance(node, ast.Subscript):
+        return None
+    owner = node.value
+    if not (isinstance(owner, ast.Attribute)
+            and owner.attr == "_repos"
+            and isinstance(owner.value, ast.Name)
+            and owner.value.id == "self"):
+        return None
+    key = node.slice
+    if isinstance(key, ast.Constant) and isinstance(key.value, str):
+        return key.value
+    return None
+
+
+def _keyword_call_complaints(tree, references_text):
+    """Reject a repository keyword the repository signature does not define."""
+    signatures = _signature_parameters(references_text)
+    if not signatures:
+        return []
+    found = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        method = node.func
+        if not isinstance(method, ast.Attribute):
+            continue
+        repo = _repo_name(method.value)
+        if repo is None:
+            continue
+        params = signatures.get((repo, method.attr))
+        if params is None:
+            continue
+        for keyword in node.keywords:
+            if keyword.arg is None or keyword.arg in params:
+                continue
+            found.append(
+                f"calls `{repo}.{method.attr}({keyword.arg}=...)`; the "
+                f"declared parameter is "
+                + (f"`{params[0]}`" if len(params) == 1
+                   else "one of " + ", ".join(f"`{name}`" for name in params)))
+            break
+    return found
 
 
 def _raise_names(tree):

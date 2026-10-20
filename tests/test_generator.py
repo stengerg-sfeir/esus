@@ -2521,6 +2521,40 @@ class ContractComplaintTests(unittest.TestCase):
             self.complaints(body, info=info, models=models,
                             contract=contract), [])
 
+    def test_a_repository_keyword_outside_the_signature_is_a_complaint(self):
+        info = {"cls": "BookService",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> models.Book:",
+                "file": "services.py"}
+        references = (
+            "BookRepository.read_one_book(self, book_id_or_isbn: "
+            "Union[str, int] = None) -> models.Book | None")
+        body = [
+            "book = self._repos['BookRepository'].read_one_book("
+            "book_id=book_id)",
+            "return book",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, references=references),
+            ["calls `BookRepository.read_one_book(book_id=...)`; the "
+             "declared parameter is `book_id_or_isbn`"])
+
+    def test_a_repository_keyword_matching_the_signature_is_clean(self):
+        info = {"cls": "BookService",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> models.Book:",
+                "file": "services.py"}
+        references = (
+            "BookRepository.read_one_book(self, book_id_or_isbn: "
+            "Union[str, int] = None) -> models.Book | None")
+        body = [
+            "book = self._repos['BookRepository'].read_one_book("
+            "book_id_or_isbn=book_id)",
+            "return book",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, references=references), [])
+
     def test_a_confirmed_literal_value_is_checked(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
