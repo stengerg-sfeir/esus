@@ -3143,11 +3143,12 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         f"  {info['reason']}",
     ]
     lines += call_rule
-    lines += [
-        "- If the body both creates a record and changes an existing one,",
-        "  create the record first; a failed create must not leave the",
-        "  change behind.",
-    ]
+    if any(line.strip() == "creates:" for line in contract):
+        lines += [
+            "- If the body both creates a record and changes an existing",
+            "  one, create the record first; a failed create must not leave",
+            "  the change behind.",
+        ]
     if context in ("honest", "exact") \
             and re.search(r"search|filter|find", method, re.I):
         lines += [
