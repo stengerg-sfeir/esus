@@ -1480,7 +1480,10 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("        return 2", files["services.py"])
         self.assertNotIn("        return 1", files["services.py"])
 
-    def test_a_bad_final_block_falls_back_to_the_repair_ask(self):
+    def test_a_bad_final_block_is_repaired_from_that_block(self):
+        """The final block is the draft to repair even when it is wrong:
+        the first block was already rejected, so quoting it again would
+        invite the same draft back."""
         from unittest import mock
         files, _stats = self.rendered()
         seen = []
@@ -1511,10 +1514,11 @@ class StubFillTests(unittest.TestCase):
         by_label = {label: (status, note) for label, status, note in rows}
         status, note = by_label["WidgetService.custom_total"]
         self.assertEqual(status, "written")
-        self.assertIn("repaired: the answer continued after the body", note)
+        self.assertIn("repaired: the body does not compile", note)
         repair = next(prompt for label, prompt in seen
                       if label == "stub:WidgetService.custom_total:repair")
-        self.assertIn("return 1", repair)
+        self.assertIn("return (((", repair)
+        self.assertNotIn("return 1", repair)
         self.assertIn("        return 2", files["services.py"])
         self.assertNotIn("        return (((\n", files["services.py"])
 
@@ -2234,6 +2238,55 @@ class ContractComplaintTests(unittest.TestCase):
             self.complaints(body[:2] + ["self.update_book(book_id, book)"]
                             + body[2:], info=info, module=module),
             [])
+
+    def test_a_create_before_a_refusal_is_a_complaint(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> List[models.Book]:",
+                "reason": "refused"}
+        body = ["loan = self._repos['LoanRepository'].create_loan("
+                "models.Loan())",
+                "book = self._repos['BookRepository'].read_one_book(book_id)",
+                "if book is None:",
+                "    raise errors.BookNotFoundError(book_id)",
+                "if book.available_copies <= 0:",
+                "    raise errors.InsufficientCopiesError(book_id)",
+                "return loan"]
+        self.assertEqual(
+            self.complaints(body, info=info),
+            ["`create_loan(...)` runs before `raise BookNotFoundError(...)`; "
+             "the record is stored even when the operation is refused — "
+             "validate first, then create",
+             "`create_loan(...)` runs before "
+             "`raise InsufficientCopiesError(...)`; the record is stored "
+             "even when the operation is refused — validate first, then "
+             "create"])
+
+    def test_validation_before_the_create_is_clean(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> List[models.Book]:",
+                "reason": "refused"}
+        body = ["book = self._repos['BookRepository'].read_one_book(book_id)",
+                "if book is None:",
+                "    raise errors.BookNotFoundError(book_id)",
+                "loan = self._repos['LoanRepository'].create_loan("
+                "models.Loan())",
+                "return loan"]
+        self.assertEqual(self.complaints(body, info=info), [])
+
+    def test_a_create_in_the_other_branch_is_not_blamed(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> List[models.Book]:",
+                "reason": "refused"}
+        body = ["if book_id:",
+                "    loan = self._repos['LoanRepository'].create_loan("
+                "models.Loan())",
+                "else:",
+                "    raise errors.BookNotFoundError(book_id)",
+                "return None"]
+        self.assertEqual(self.complaints(body, info=info), [])
 
     def test_an_unused_declared_parameter_is_a_complaint(self):
         info = {"cls": "BookRepository",

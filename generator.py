@@ -3253,6 +3253,57 @@ def _last_code_block(text):
     return "\n".join(lines[fences[-2] + 1:fences[-1]])
 
 
+def _raised_name(node):
+    """The exception name in a raise statement, for the complaint."""
+    exc = node.exc
+    if isinstance(exc, ast.Call):
+        exc = exc.func
+    if isinstance(exc, ast.Attribute):
+        return exc.attr
+    if isinstance(exc, ast.Name):
+        return exc.id
+    return "an exception"
+
+
+def _block_chain(node, parents):
+    """The statement blocks that enclose `node`, outermost first.
+
+    A write in an ancestor block runs before a raise in a nested block;
+    a write in one branch of an `if` does not run in the other branch.
+    The chain keeps that distinction: `(If, body)` and `(If, orelse)`
+    differ, so the create in an `else` is not blamed for the raise in the
+    `if`.
+    """
+    chain, child = [], node
+    while child in parents:
+        parent = parents[child]
+        branch = None
+        for name in ("body", "orelse", "finalbody"):
+            block = getattr(parent, name, None)
+            if isinstance(block, list) and child in block:
+                branch = name
+                break
+        if branch is None and child in getattr(parent, "handlers", []):
+            branch = "handlers"
+        if branch is not None:
+            chain.append((id(parent), branch))
+        child = parent
+    chain.reverse()
+    return chain
+
+
+def _in_nested_function(node, parents):
+    """Whether `node` sits inside a function defined within the body."""
+    functions, child = 0, node
+    while child in parents:
+        parent = parents[child]
+        if isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef,
+                               ast.Lambda)):
+            functions += 1
+        child = parent
+    return functions > 1
+
+
 def _module_names(text):
     """Class attributes and methods: the `self.<name>` a body may touch."""
     names = {"_store", "_repos"}
@@ -3601,9 +3652,11 @@ def _body_complaints(body, info, module_text, references_text, files):
     declared to return the loan. A repository read carries its type too:
     a live borrow assigned loan fields to the Book `read_one_book`
     returned and decremented its copies without an update, so the store
-    kept the old count. Each complaint names the fact, so the repair ask
-    can quote them and the second answer can be a correction instead of a
-    guess.
+    kept the old count. A live borrow also created the loan before
+    checking the book had copies; the zero-copy refusal left a phantom
+    loan, so a create before a raise is a complaint too. Each complaint
+    names the fact, so the repair ask can quote them and the second
+    answer can be a correction instead of a guess.
     """
     params = _stub_params(info)
     source = ("def _wrapped(" + ", ".join(["self"] + params) + "):\n") \
@@ -3657,6 +3710,10 @@ def _body_complaints(body, info, module_text, references_text, files):
         if param not in loads:
             found.append(f"parameter `{param}` is never used in the body")
     fields = _field_map(files.get("models.py") or "")
+    parents = {}
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parents[child] = parent
     returns = {}
     for source_text in (module_text, references_text or ""):
         for match in re.finditer(r"def (\w+)\([^)]*\)\s*->\s*([^:]+):",
@@ -3722,6 +3779,27 @@ def _body_complaints(body, info, module_text, references_text, files):
                 f"`{name}.{mutations[name]}` is changed, but `{name}` is "
                 "never passed to an update_* method; a dataclass is a copy, "
                 "so the change is lost")
+    writes = [node for node in ast.walk(tree)
+              if (isinstance(node, ast.Call)
+                  and isinstance(node.func, ast.Attribute)
+                  and node.func.attr.startswith("create_")
+                  and not _in_nested_function(node, parents))]
+    raises = [node for node in ast.walk(tree)
+              if isinstance(node, ast.Raise)
+              and not _in_nested_function(node, parents)]
+    for write in writes:
+        chain = _block_chain(write, parents)
+        if not chain:
+            continue
+        for raised in raises:
+            if raised.lineno <= write.lineno:
+                continue
+            if _block_chain(raised, parents)[:len(chain)] != chain:
+                continue
+            found.append(
+                f"`{write.func.attr}(...)` runs before `raise "
+                f"{_raised_name(raised)}(...)`; the record is stored even "
+                "when the operation is refused — validate first, then create")
     for name in sorted(loads):
         if name in params or name == "self" or name in module_names \
                 or name in BODY_IMPORTS:
@@ -4003,14 +4081,14 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
             first_result = result
             candidate, problems, body = attempt(result.text)
             used_final = False
+            repaired_from_final = False
             if _answer_continued(result.text):
                 final_block = _last_code_block(result.text)
                 if final_block:
-                    final_candidate, final_problems, final_body = attempt(
-                        final_block)
-                    if not final_problems:
-                        candidate, problems, body = (final_candidate, [],
-                                                     final_body)
+                    candidate, problems, body = attempt(final_block)
+                    if problems:
+                        repaired_from_final = True
+                    else:
                         used_final = True
                         out(f"llm: {label} used its final block "
                             "(the first was a draft)")
@@ -4064,6 +4142,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 extra = {"first_answer": first_answer,
                          "complaints": problems,
                          **_first_fields(first_result)}
+                if repaired_from_final:
+                    extra["repair_draft"] = "final_block"
             else:
                 note = ("used the final block of a deliberating answer"
                         if used_final else "")
