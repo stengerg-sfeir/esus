@@ -1438,10 +1438,49 @@ class StubFillTests(unittest.TestCase):
             "    return 1\n```"))
         self.assertFalse(generator._answer_continued(
             "```python\n    return 1\n```"))
+        self.assertEqual(
+            generator._last_code_block(
+                "    return 1\n```\n\nWait — no.\n\n```python\n"
+                "    return 2\n```\n"),
+            "    return 2")
 
-    def test_a_deliberating_answer_is_repaired_not_accepted_as_a_draft(self):
+    def test_a_deliberating_answer_uses_its_final_block(self):
         """The exact-context return body: draft, closing fence, reasoning,
-        final block. The first block must not land silently."""
+        final block. The final block is the answer the model arrived at;
+        the draft must not land, and no repair call is needed."""
+        from unittest import mock
+        files, _stats = self.rendered()
+        seen = []
+
+        def answer(llm, prompt, label, **kwargs):
+            seen.append(label)
+            if label == "stub:WidgetService.custom_total":
+                text = ("        return 1\n```\n\nWait — no.\n\n"
+                        "```python\n        return 2\n```\n")
+                return mock.Mock(text=text, tokens=9, seconds=0.1,
+                                 budget=3584, finish_reason="stop",
+                                 truncated=False)
+            return mock.Mock(text="        return None\n", tokens=9,
+                             seconds=0.1, budget=3584,
+                             finish_reason="stop", truncated=False)
+
+        with mock.patch.object(generator.runner, "load_model",
+                               return_value=object()), \
+                mock.patch.object(generator.runner, "generate_free",
+                                  side_effect=answer):
+            rows = generator.fill_stubs(files, "fake.gguf",
+                                        "requirements text",
+                                        out=lambda _line: None)
+        by_label = {label: (status, note) for label, status, note in rows}
+        status, note = by_label["WidgetService.custom_total"]
+        self.assertEqual(status, "written")
+        self.assertIn("used the final block", note)
+        self.assertFalse([label for label in seen
+                          if label == "stub:WidgetService.custom_total:repair"])
+        self.assertIn("        return 2", files["services.py"])
+        self.assertNotIn("        return 1", files["services.py"])
+
+    def test_a_bad_final_block_falls_back_to_the_repair_ask(self):
         from unittest import mock
         files, _stats = self.rendered()
         seen = []
@@ -1450,7 +1489,7 @@ class StubFillTests(unittest.TestCase):
             seen.append((label, prompt))
             if label == "stub:WidgetService.custom_total":
                 text = ("        return 1\n```\n\nWait — no.\n\n"
-                        "```python\n        return 2\n```\n")
+                        "```python\n        return (((\n```\n")
                 return mock.Mock(text=text, tokens=9, seconds=0.1,
                                  budget=3584, finish_reason="stop",
                                  truncated=False)
@@ -1472,13 +1511,12 @@ class StubFillTests(unittest.TestCase):
         by_label = {label: (status, note) for label, status, note in rows}
         status, note = by_label["WidgetService.custom_total"]
         self.assertEqual(status, "written")
-        self.assertIn("the answer continued after the body", note)
+        self.assertIn("repaired: the answer continued after the body", note)
         repair = next(prompt for label, prompt in seen
                       if label == "stub:WidgetService.custom_total:repair")
-        self.assertIn("the answer continued after the body", repair)
         self.assertIn("return 1", repair)
         self.assertIn("        return 2", files["services.py"])
-        self.assertNotIn("        return 1", files["services.py"])
+        self.assertNotIn("        return (((\n", files["services.py"])
 
     def test_a_body_that_does_not_compile_keeps_the_stub(self):
         files, _stats = self.rendered()
@@ -2158,6 +2196,44 @@ class ContractComplaintTests(unittest.TestCase):
                              "return book.author"]),
             ["`book.author`: Book has no field `author` "
              "(fields: id, title, author_id)"])
+
+    def test_a_repository_read_is_typed_for_field_checks(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> models.Book:",
+                "reason": "refused"}
+        module = self.module + (
+            "\n    def read_one_book(self, book_id: int = None) "
+            "-> models.Book | None:\n        return None\n")
+        self.assertEqual(
+            self.complaints(["loan = self.read_one_book(book_id)",
+                             "loan.loan_date = 1",
+                             "return loan"], info=info, module=module),
+            ["`loan.loan_date`: Book has no field `loan_date` "
+             "(fields: id, title, author_id)",
+             "`loan.loan_date` is changed, but `loan` is never passed to "
+             "an update_* method; a dataclass is a copy, so the change is "
+             "lost"])
+
+    def test_a_changed_repository_read_must_be_updated(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> models.Book:",
+                "reason": "refused"}
+        module = self.module + (
+            "\n    def read_one_book(self, book_id: int = None) "
+            "-> models.Book | None:\n        return None\n")
+        body = ["book = self.read_one_book(book_id)",
+                "book.title = 'new'",
+                "return book"]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module),
+            ["`book.title` is changed, but `book` is never passed to an "
+             "update_* method; a dataclass is a copy, so the change is lost"])
+        self.assertEqual(
+            self.complaints(body[:2] + ["self.update_book(book_id, book)"]
+                            + body[2:], info=info, module=module),
+            [])
 
     def test_an_unused_declared_parameter_is_a_complaint(self):
         info = {"cls": "BookRepository",

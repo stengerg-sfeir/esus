@@ -3018,6 +3018,20 @@ def _first_model(annotation):
     return match.group(1) if match else None
 
 
+def _direct_model(annotation):
+    """The model a return annotation names, or None for a container.
+
+    A `List[models.Book]` variable is a list, not a Book: typing it as a
+    Book would make `rows.title` look valid and `rows[0].title` invisible.
+    `Optional[models.Member]` and `models.Book | None` are one object.
+    """
+    if not annotation or re.search(
+            r"\b(?:List|list|Dict|dict|Set|set|Tuple|tuple|Iterable|"
+            r"Iterator|Sequence)\s*\[", annotation):
+        return None
+    return _first_model(annotation)
+
+
 def _declared_return(info):
     """The `models.X` a stub's own `-> ...` names, or None."""
     match = re.match(r"def \w+\([^)]*\)\s*->\s*(.+?):?$",
@@ -3220,6 +3234,23 @@ def _answer_continued(text):
     if close is None:
         return False
     return any(line.strip() for line in lines[close + 1:])
+
+
+def _last_code_block(text):
+    """The final fenced block in a deliberating answer, or None.
+
+    The first block is the draft the model was about to correct; the last
+    fenced block is the answer it arrived at (the live `return_book`
+    transcript ended with `Final answer:` and a complete body). Taking the
+    last pair of fence lines avoids the parity shift a stray closing fence
+    at the start causes for a block-matching regex.
+    """
+    lines = (text or "").splitlines()
+    fences = [index for index, line in enumerate(lines)
+              if line.strip().startswith("```")]
+    if len(fences) < 2:
+        return None
+    return "\n".join(lines[fences[-2] + 1:fences[-1]])
 
 
 def _module_names(text):
@@ -3567,9 +3598,12 @@ def _body_complaints(body, info, module_text, references_text, files):
     and still cannot work — a live body read `record.author` (no such
     field), another indexed `dict.keys()[i]`, another never used its
     `year` parameter, and two returned the updated book from methods
-    declared to return the loan. Each complaint names the fact, so the
-    repair ask can quote them and the second answer can be a correction
-    instead of a guess.
+    declared to return the loan. A repository read carries its type too:
+    a live borrow assigned loan fields to the Book `read_one_book`
+    returned and decremented its copies without an update, so the store
+    kept the old count. Each complaint names the fact, so the repair ask
+    can quote them and the second answer can be a correction instead of a
+    guess.
     """
     params = _stub_params(info)
     source = ("def _wrapped(" + ", ".join(["self"] + params) + "):\n") \
@@ -3623,17 +3657,31 @@ def _body_complaints(body, info, module_text, references_text, files):
         if param not in loads:
             found.append(f"parameter `{param}` is never used in the body")
     fields = _field_map(files.get("models.py") or "")
-    typed = {}
+    returns = {}
+    for source_text in (module_text, references_text or ""):
+        for match in re.finditer(r"def (\w+)\([^)]*\)\s*->\s*([^:]+):",
+                                 source_text):
+            returns.setdefault(match.group(1), match.group(2))
+    typed, read_names = {}, set()
     for node in ast.walk(tree):
-        if (isinstance(node, ast.Assign) and len(node.targets) == 1
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1
                 and isinstance(node.targets[0], ast.Name)
                 and isinstance(node.value, ast.Call)):
-            func = node.value.func
-            if (isinstance(func, ast.Attribute)
-                    and isinstance(func.value, ast.Name)
-                    and func.value.id == "models"
-                    and func.attr in fields):
-                typed[node.targets[0].id] = func.attr
+            continue
+        name = node.targets[0].id
+        func = node.value.func
+        cls = None
+        if (isinstance(func, ast.Attribute)
+                and isinstance(func.value, ast.Name)
+                and func.value.id == "models"
+                and func.attr in fields):
+            cls = func.attr
+        elif isinstance(func, ast.Attribute) and func.attr in returns:
+            cls = _direct_model(returns[func.attr])
+            if cls and not func.attr.startswith(("create_", "update_")):
+                read_names.add(name)
+        if cls:
+            typed[name] = cls
     seen = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute) \
@@ -3645,6 +3693,35 @@ def _body_complaints(body, info, module_text, references_text, files):
                 found.append(
                     f"`{node.value.id}.{node.attr}`: {cls} has no field "
                     f"`{node.attr}` (fields: {', '.join(fields[cls])})")
+    mutations = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        elif isinstance(node, ast.AugAssign):
+            targets = [node.target]
+        else:
+            continue
+        for target in targets:
+            if (isinstance(target, ast.Attribute)
+                    and isinstance(target.value, ast.Name)
+                    and target.value.id in typed):
+                mutations.setdefault(target.value.id, target.attr)
+    updated = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr.startswith("update_")):
+            continue
+        for arg in list(node.args) + [kw.value for kw in node.keywords]:
+            for inner in ast.walk(arg):
+                if isinstance(inner, ast.Name) and inner.id in mutations:
+                    updated.add(inner.id)
+    for name in sorted(mutations):
+        if name in read_names and name not in updated:
+            found.append(
+                f"`{name}.{mutations[name]}` is changed, but `{name}` is "
+                "never passed to an update_* method; a dataclass is a copy, "
+                "so the change is lost")
     for name in sorted(loads):
         if name in params or name == "self" or name in module_names \
                 or name in BODY_IMPORTS:
@@ -3654,11 +3731,6 @@ def _body_complaints(body, info, module_text, references_text, files):
                          f"is assigned (line {bound[name]})")
     declared = _declared_return(info)
     if declared:
-        returns = {}
-        for source_text in (module_text, references_text or ""):
-            for match in re.finditer(r"def (\w+)\([^)]*\)\s*->\s*([^:]+):",
-                                     source_text):
-                returns.setdefault(match.group(1), match.group(2))
         reported = set()
         for node in ast.walk(tree):
             if not isinstance(node, ast.Return) \
@@ -3930,6 +4002,18 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
             first_answer = result.text
             first_result = result
             candidate, problems, body = attempt(result.text)
+            used_final = False
+            if _answer_continued(result.text):
+                final_block = _last_code_block(result.text)
+                if final_block:
+                    final_candidate, final_problems, final_body = attempt(
+                        final_block)
+                    if not final_problems:
+                        candidate, problems, body = (final_candidate, [],
+                                                     final_body)
+                        used_final = True
+                        out(f"llm: {label} used its final block "
+                            "(the first was a draft)")
             extra = {}
             if problems:
                 out(f"llm: {label} refused ({problems[0]}) — one repair ask")
@@ -3981,7 +4065,12 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                          "complaints": problems,
                          **_first_fields(first_result)}
             else:
-                note = ""
+                note = ("used the final block of a deliberating answer"
+                        if used_final else "")
+                if used_final:
+                    extra = {"first_answer": first_answer,
+                             "used_final_block": True,
+                             **_first_fields(first_result)}
             text, added = _add_imports(candidate, "\n".join(body))
             if added:
                 note = "; ".join(filter(None,
