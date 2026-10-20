@@ -3555,14 +3555,37 @@ def _exact_api_reference(files, filename=""):
     return lines
 
 
-def _target_contract(info, files):
-    """The target method and its return dataclass, repeated above the ask.
+def _requirements_line(requirements, method):
+    """The requirements sentence that names this method, if any.
+
+    The borrow requirement carries the order the repair missed: "checks
+    availability, creates loan, decrements copies." The full requirements
+    are at the top of the prompt; the target contract repeats the one line
+    at the elbow so a small model does not have to retrieve it from the
+    middle.
+    """
+    for line in (requirements or "").splitlines():
+        if method and re.search(rf"\b{re.escape(method)}\s*\(", line):
+            return line.strip()
+    return ""
+
+
+def _target_contract(info, files, requirements=""):
+    """The target method, its requirement and return class, above the ask.
 
     The API block is long by design; a small model does not reliably
     retrieve a schema from its middle. The class the declared return type
     names is the one the body must construct or mutate, so it goes last.
+    The requirement sentence goes first: it is where an order like
+    "checks availability, creates loan, decrements copies" lives, and the
+    live borrow repair lost that order between the requirements block and
+    the ask.
     """
     lines = []
+    requirement = _requirements_line(requirements, _stub_method(info))
+    if requirement:
+        lines += ["The requirement for this method:", "    " + requirement,
+                  ""]
     signature = (info.get("def") or "").strip()
     if signature:
         lines += ["The method you are writing:", "    " + signature, ""]
@@ -3654,9 +3677,12 @@ def _body_complaints(body, info, module_text, references_text, files):
     returned and decremented its copies without an update, so the store
     kept the old count. A live borrow also created the loan before
     checking the book had copies; the zero-copy refusal left a phantom
-    loan, so a create before a raise is a complaint too. Each complaint
-    names the fact, so the repair ask can quote them and the second
-    answer can be a correction instead of a guess.
+    loan, so a create before a raise is a complaint too. The repaired
+    borrow then decremented the book before creating the loan, so a
+    missing member lost a copy; an update before the create that depends
+    on it is a complaint. Each complaint names the fact, so the repair
+    ask can quote them and the second answer can be a correction instead
+    of a guess.
     """
     params = _stub_params(info)
     source = ("def _wrapped(" + ", ".join(["self"] + params) + "):\n") \
@@ -3800,6 +3826,25 @@ def _body_complaints(body, info, module_text, references_text, files):
                 f"`{write.func.attr}(...)` runs before `raise "
                 f"{_raised_name(raised)}(...)`; the record is stored even "
                 "when the operation is refused — validate first, then create")
+    updates = [node for node in ast.walk(tree)
+               if (isinstance(node, ast.Call)
+                   and isinstance(node.func, ast.Attribute)
+                   and node.func.attr.startswith("update_")
+                   and not _in_nested_function(node, parents))]
+    for update in updates:
+        chain = _block_chain(update, parents)
+        if not chain:
+            continue
+        for create in writes:
+            if create.lineno <= update.lineno:
+                continue
+            if _block_chain(create, parents)[:len(chain)] != chain:
+                continue
+            found.append(
+                f"`{update.func.attr}(...)` runs before "
+                f"`{create.func.attr}(...)`; if the create fails, the "
+                "change is kept without the new record — create first, "
+                "then update")
     for name in sorted(loads):
         if name in params or name == "self" or name in module_names \
                 or name in BODY_IMPORTS:
@@ -4024,7 +4069,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 continue
             start, end, info = span
             info["file"] = filename
-            contract = (_target_contract(info, files)
+            contract = (_target_contract(info, files, requirements)
                         if context == "exact" else ())
             out(f"llm: {label} ...")
 

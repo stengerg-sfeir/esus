@@ -1894,6 +1894,29 @@ class StubFillTests(unittest.TestCase):
         self.assertIn("update_*", text)
         self.assertNotIn("class Book:", text)
 
+    def test_exact_contract_repeats_the_target_requirement(self):
+        info = {"cls": "LibraryService",
+                "def": ("def borrow_book(self, member_id: int = None, "
+                        "book_id: int = None) -> models.Loan:"),
+                "file": "services.py"}
+        files = {"models.py":
+                 "from dataclasses import dataclass\n\n"
+                 "@dataclass\nclass Loan:\n    id: int = None\n"}
+        requirements = (
+            "9. **LibraryService** — business logic:\n"
+            "   - borrow_book(member_id, book_id): checks availability, "
+            "creates loan, decrements copies\n"
+            "   - return_book(loan_id): sets return_date, updates status, "
+            "increments copies\n")
+        text = "\n".join(generator._target_contract(info, files,
+                                                    requirements))
+        self.assertIn("The requirement for this method:", text)
+        self.assertIn("checks availability, creates loan, decrements copies",
+                      text)
+        self.assertNotIn("sets return_date", text)
+        self.assertLess(text.index("The requirement for this method:"),
+                        text.index("The method you are writing:"))
+
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
         from unittest import mock
@@ -2286,6 +2309,36 @@ class ContractComplaintTests(unittest.TestCase):
                 "else:",
                 "    raise errors.BookNotFoundError(book_id)",
                 "return None"]
+        self.assertEqual(self.complaints(body, info=info), [])
+
+    def test_an_update_before_the_create_is_a_complaint(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> List[models.Book]:",
+                "reason": "refused"}
+        body = ["book = self._repos['BookRepository'].read_one_book(book_id)",
+                "book.available_copies -= 1",
+                "self._repos['BookRepository'].update_book(book_id, book)",
+                "loan = self._repos['LoanRepository'].create_loan("
+                "models.Loan())",
+                "return loan"]
+        self.assertEqual(
+            self.complaints(body, info=info),
+            ["`update_book(...)` runs before `create_loan(...)`; if the "
+             "create fails, the change is kept without the new record — "
+             "create first, then update"])
+
+    def test_the_create_before_the_update_is_clean(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> List[models.Book]:",
+                "reason": "refused"}
+        body = ["book = self._repos['BookRepository'].read_one_book(book_id)",
+                "book.available_copies -= 1",
+                "loan = self._repos['LoanRepository'].create_loan("
+                "models.Loan())",
+                "self._repos['BookRepository'].update_book(book_id, book)",
+                "return loan"]
         self.assertEqual(self.complaints(body, info=info), [])
 
     def test_an_unused_declared_parameter_is_a_complaint(self):
