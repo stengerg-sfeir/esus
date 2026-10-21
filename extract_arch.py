@@ -342,19 +342,12 @@ def run(args):
                                     logits_all=False,
                                     quiet=getattr(args, "quiet", False))
 
-    # The classifier is a second model whose context is built with
-    # `logits_all=True`, which only step F's `logprobs` needs — every other step
-    # would pay that cost for nothing. It is therefore loaded lazily, the first
-    # time a run actually has something to classify, so a program with no domain
-    # (hello, cli_tool) loads one model rather than two. See
-    # `Pipeline._step_patterns`.
+    # Step F reads last-token logits from the extractor's own context, so the
+    # GGUF is loaded once. The high-level `logprobs` API would need a second
+    # `logits_all=True` context; `_next_token_logprobs` avoids that.
     pipeline = pipeline_module.Pipeline(
         extractor,
         log=log,
-        classifier_factory=lambda: runner.load_model(
-            args.model, context_size=args.context, logits_all=True,
-            quiet=getattr(args, "quiet", False)
-        ),
         progress_fn=lambda name, summary: print(f"{name}: {summary}"),
     )
     pipeline.documents.update(preloaded)

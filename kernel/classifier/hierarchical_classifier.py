@@ -1,6 +1,6 @@
 import math
 
-from llama_cpp import Llama
+import numpy as np
 
 # The pattern vocabulary lives in one dependency-free module so the classifier
 # that emits these ids and the checker that validates them cannot disagree.
@@ -11,9 +11,79 @@ from kernel.pattern_catalog import (
     load_catalog,
 )
 
+# The classifier only needs the distribution for the token after the prompt.
+# llama-cpp-python's high-level `logprobs` API requires `logits_all=True` at
+# context construction, which makes the classifier a second model: every prompt
+# token's logits are materialised, and the context's score buffer is sized
+# `n_ctx × n_vocab`. Reading the last row directly works with the extractor's
+# ordinary `logits_all=False` context, so step F can use the model already
+# loaded for steps A–E.
+TOP_LOGPROBS = 15
+
+
+def _longest_token_prefix(cached, tokens) -> int:
+    """Length of the longest common prefix of two token sequences."""
+    prefix = 0
+    for cached_token, token in zip(cached, tokens):
+        if cached_token != token:
+            break
+        prefix += 1
+    return prefix
+
+
+def _next_token_logprobs(llm, prompt: str, top_n: int = TOP_LOGPROBS) -> dict:
+    """Top next-token logprobs without requiring a `logits_all=True` context.
+
+    The high-level path (`llm(..., logprobs=N)`) asserts that the context was
+    built with `logits_all=True`. It is not the only way to read a next-token
+    distribution: after evaluating the prompt, llama.cpp keeps the logits for
+    the final token even when `logits_all=False`. `llama_get_logits_ith(-1)`
+    returns exactly those logits, which is all a one-token classifier needs.
+
+    KV caching is preserved manually. The options prefix is shared by most
+    calls, so the common case is to evaluate only the differing requirement
+    suffix; a full reset would throw away that prefix and make the classifier
+    much slower.
+    """
+    tokens = llm.tokenize(prompt.encode("utf-8"), add_bos=True, special=True)
+
+    prefix = _longest_token_prefix(llm.input_ids[: llm.n_tokens], tokens)
+    if prefix < llm.n_tokens:
+        # Drop the old suffix, but keep the shared prefix in the KV cache.
+        llm._ctx.kv_cache_seq_rm(-1, prefix, -1)
+        llm.n_tokens = prefix
+
+    if prefix == len(tokens):
+        if llm.n_tokens > len(tokens):
+            # The context ended in generated tokens. Re-evaluate the final
+            # prompt token so the logits belong to the prompt, not to the
+            # continuation that happened to follow it.
+            llm._ctx.kv_cache_seq_rm(-1, len(tokens) - 1, -1)
+            llm.n_tokens = len(tokens) - 1
+            llm.eval(tokens[-1:])
+    elif tokens:
+        llm.eval(tokens[prefix:])
+
+    n_vocab = llm.n_vocab()
+    logits = np.ctypeslib.as_array(
+        llm._ctx.get_logits_ith(-1), shape=(n_vocab,)
+    ).astype(np.float64, copy=True)
+    logits -= logits.max()
+    logprobs = logits - math.log(float(np.exp(logits).sum()))
+
+    count = min(top_n, logprobs.size)
+    ids = np.argpartition(logprobs, -count)[-count:]
+    ids = ids[np.argsort(logprobs[ids])[::-1]]
+
+    return {
+        llm.detokenize([int(token)]).decode("utf-8", errors="replace"): float(logprobs[token])
+        for token in ids
+    }
+
+
 def softmax_classify(llm, target_text: str, candidates: list, id_key: str = "id", desc_key: str = "description") -> tuple[str, float, dict]:
     """
-    Executes a single forward pass with max_tokens=1 and computes softmax over candidate letters.
+    Executes a single forward pass and computes softmax over candidate letters.
 
     The option list is placed before the requirement and `reset()` is deliberately
     not called. llama.cpp reuses the longest common KV prefix of consecutive
@@ -43,15 +113,7 @@ Requirement: "{target_text}"<|im_end|>
 <|im_start|>assistant
 """
 
-    response = llm(
-        prompt=prompt,
-        max_tokens=1,
-        temperature=0.0,
-        logprobs=15
-    )
-    
-    choice = response["choices"][0]
-    top_logprobs = choice.get("logprobs", {}).get("top_logprobs", [{}])[0]
+    top_logprobs = _next_token_logprobs(llm, prompt)
     
     # Calculate softmax across candidate letters (supporting 'A', ' A', '[A', etc.)
     scores = {}

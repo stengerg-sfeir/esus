@@ -129,13 +129,11 @@ class Pipeline:
         # The run log already narrates repairs and retries; this is the
         # concise per-step result the terminal shows, quiet or not.
         self.progress_fn = progress_fn
-        # The classifier is a second `Llama` instance whose context is built with
-        # `logits_all=True`, which step F's `logprobs` needs and every other step
-        # would only pay for. It is therefore loaded on first use rather than at
-        # startup — a program with no domain classifies nothing, and should not
-        # load a second model to find that out. `classifier_factory` is that
-        # deferred loader (see `extract_arch.py`); `classifier` stays accepted
-        # for an already-built instance and in tests.
+        # Step F reads the next-token distribution from the model already
+        # loaded for A–E, so `classifier` defaults to `llm` when no separate
+        # instance is supplied. `classifier_factory` remains for callers and
+        # tests that want a deferred or different classifier; it is no longer
+        # used by `extract_arch.py`, which would otherwise load the GGUF twice.
         self.classifier = classifier
         self.classifier_factory = classifier_factory
         self.log = log
@@ -532,12 +530,11 @@ class Pipeline:
     def _step_patterns(self):
         """Step F: classify invariants and contract methods into kernel patterns.
 
-        The classifier model is loaded here, on the first run that actually has
-        something to classify, rather than at startup. Its context is built with
-        `logits_all=True` — the pattern classifier reads per-token `logprobs`,
-        which nothing else needs — so it is a second full model load, and a
-        program with no domain (hello, cli_tool) must not pay for one it will
-        never call. Building it here means a no-domain run loads one model.
+        The classifier reads the last-token logits from the ordinary
+        `logits_all=False` extractor context, so a no-domain run still loads
+        nothing extra. `classifier_factory` is a deferred-loader escape hatch
+        for callers that genuinely need a separate model; when it is absent,
+        the extractor itself is the classifier.
         """
         items = classification.classification_items(self.documents)
         if not items:
@@ -546,7 +543,8 @@ class Pipeline:
             return
         if self.classifier is None and self.classifier_factory is not None:
             self.classifier = self.classifier_factory()
-        matches = classification.classify_documents(self.classifier, self.documents, self.log)
+        classifier = self.classifier or self.llm
+        matches = classification.classify_documents(classifier, self.documents, self.log)
         self.documents[PATTERN_MATCHES] = matches
 
     def _step_adapters(self, requirements):

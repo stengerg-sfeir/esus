@@ -1,10 +1,9 @@
-"""Step F must not load the classifier model when there is nothing to classify.
+"""Step F's classifier is lazy, and defaults to the extractor model.
 
-The classifier is a second full model load (`logits_all=True`, for the per-token
-`logprobs` the pattern classifier reads). It used to be loaded at startup, so a
-program with no domain — hello, cli_tool — paid for a model step F would never
-call. These tests pin the deferral: no items means the factory is never invoked,
-and items means it is invoked exactly once.
+The classifier reads the extractor's last-token logits, so the normal path loads
+the GGUF once. A caller may still supply a `classifier_factory` for a deferred or
+separate classifier; these tests pin that escape hatch: no items means the
+factory is never invoked, and items means it is invoked exactly once.
 """
 
 import unittest
@@ -63,6 +62,27 @@ class LazyClassifierTests(unittest.TestCase):
         self.assertEqual(loaded, [sentinel])
         self.assertIs(seen["classifier"], sentinel)
         self.assertEqual(run.documents["pattern_matches"], [])
+
+    def test_without_a_factory_the_extractor_is_the_classifier(self):
+        extractor = object()
+
+        run = pipeline.Pipeline(llm=extractor, log=_RecordingLog())
+        run.documents = {
+            "invariants": [{"kind": "rule", "text": "a borrow must not exceed copies"}],
+            "service_contracts": [],
+        }
+
+        seen = {}
+
+        def fake_classify(classifier, documents, log):
+            seen["classifier"] = classifier
+            return []
+
+        with mock.patch.object(pipeline.classification, "classify_documents", fake_classify):
+            run._step_patterns()
+
+        self.assertIs(seen["classifier"], extractor)
+        self.assertIsNone(run.classifier)
 
     def test_an_already_built_classifier_is_reused(self):
         existing = object()
