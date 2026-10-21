@@ -147,15 +147,30 @@ def _evidence(requirements, command, subcommand):
     return lines
 
 
+def _emitted_methods(ctx):
+    """`{(holder, method): implemented}` from the mechanical emitters.
+
+    A planned `crud:` strategy is not enough: a filter whose parameter maps
+    no field, or a service with no same-name repository to delegate to,
+    still emits a stub. Route candidates must be methods that actually run,
+    so ask the emitters once and use their rows.
+    """
+    cached = ctx.get("_review_emitted")
+    if isinstance(cached, dict):
+        return cached
+    stats = {"implemented": 0, "stubs": 0, "stub_reasons": [], "methods": []}
+    generator.emit_repositories(ctx, stats)
+    generator.emit_services(ctx, generator._repo_index(ctx), stats)
+    index = {(row.get("holder"), row.get("method")): bool(row.get("implemented"))
+             for row in stats.get("methods") or [] if isinstance(row, dict)}
+    ctx["_review_emitted"] = index
+    return index
+
+
 def _usable(ctx, holder, method):
-    """Mechanical, or fully answered by slots: a routed read must run."""
-    entry = generator._match_entry(ctx, holder, method.get("name"))
-    strategy, _detail = codegen.plan_method(method, entry, ctx["entity_names"])
-    if strategy.startswith("crud:"):
-        return True
-    pattern, slots = generator._slot_pattern(ctx, holder, method)
-    return bool(pattern) and generator._slots_usable(pattern, slots, method,
-                                                     True)
+    """The method's emitted body runs (mechanical, slots, or delegation)."""
+    index = _emitted_methods(ctx)
+    return index.get((holder, method.get("name")), False)
 
 
 # Command verb -> operation family. A route is offered only when the method
@@ -359,10 +374,14 @@ def _route_candidates(ctx, service, base_method_name, command_verb=None,
     wanted = normalize(service or "")
     candidates = []
     pools = []
+    repo_names = {normalize(repo.get("interface_name") or "")
+                  for repo in ctx["repositories"]}
     for repo in ctx["repositories"]:
         holder = repo.get("interface_name") or repo.get("entity")
         pools.append((holder, repo.get("methods") or []))
     for svc in ctx["services"]:
+        if normalize(svc.get("service_name") or "") in repo_names:
+            continue  # the persistence emitter already owns this holder
         pools.append((svc.get("service_name"), svc.get("methods") or []))
     for holder, methods in pools:
         if not isinstance(holder, str):

@@ -376,6 +376,9 @@ def book_author_fixture():
                 {"entity": "Book", "interface_name": "BookRepository",
                  "methods": [
                      {"name": "read_all_books", "params": [],
+                      "return_type": "List[Book]"},
+                     {"name": "search_books_by_title_author_isbn",
+                      "params": [{"name": "query", "type": "str"}],
                       "return_type": "List[Book]"}]},
                 {"entity": "Author", "interface_name": "AuthorRepository",
                  "methods": [
@@ -386,6 +389,8 @@ def book_author_fixture():
         "pattern_matches": [
             {"source": "contract:BookRepository.read_all_books",
              "pattern_id": "READ_ALL", "decision": "decided"},
+            {"source": "contract:BookRepository.search_books_by_title_author_isbn",
+             "pattern_id": "FILTER_BY_FIELD", "decision": "decided"},
             {"source": "contract:AuthorRepository.find_books_by_author",
              "pattern_id": "FILTER_BY_FIELD", "decision": "decided"}],
         "service_contracts": [], "errors": [], "intentions": [],
