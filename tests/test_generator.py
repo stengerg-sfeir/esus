@@ -3558,6 +3558,14 @@ class SchemaAndClickTests(unittest.TestCase):
             store.add("Book", "id", {
                 "id": None, "title": "T2", "isbn": "I",
                 "available_copies": 1, "author_id": author["id"]})
+        with self.assertRaises(RuntimeError):
+            with store.transaction():
+                store.add("Book", "id", {
+                    "id": None, "title": "Rollback", "isbn": "R",
+                    "available_copies": 1, "author_id": author["id"]})
+                raise RuntimeError("stop")
+        self.assertEqual(
+            store.select("Book", [("isbn", "eq", "R")]), [])
         store.delete("Author", "id", author["id"])
         self.assertEqual(store.all("Book"), [])
 

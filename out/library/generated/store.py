@@ -25,6 +25,7 @@ is a real constraint.
 import datetime
 import json
 import sqlite3
+from contextlib import contextmanager
 
 
 class Store:
@@ -35,6 +36,7 @@ class Store:
         self._next_id = {}
         self._db = None
         self._schema = schema or {}
+        self._tx_depth = 0
         if self._schema:
             self._db = sqlite3.connect(path if path is not None else ":memory:")
             self._db.execute("PRAGMA foreign_keys = ON")
@@ -103,7 +105,7 @@ class Store:
             self._db.execute(
                 "CREATE TABLE IF NOT EXISTS "
                 + self._quote(entity) + " (" + ", ".join(columns) + ")")
-        self._db.commit()
+        self._commit()
 
     def _load_schema(self):
         self._records = {}
@@ -159,7 +161,7 @@ class Store:
             parameters)
         if key is None:
             key = cursor.lastrowid
-        self._db.commit()
+        self._commit()
         self._load_schema()
         return dict(self._records[entity][key])
 
@@ -182,7 +184,7 @@ class Store:
                 "UPDATE " + self._quote(entity) + " SET "
                 + ", ".join(assignments) + " WHERE "
                 + self._quote(pk_name) + " = ?", parameters)
-            self._db.commit()
+            self._commit()
             self._load_schema()
         return dict(self._records[entity][key])
 
@@ -194,7 +196,7 @@ class Store:
         self._db.execute(
             "DELETE FROM " + self._quote(entity) + " WHERE "
             + self._quote(pk_name) + " = ?", (key,))
-        self._db.commit()
+        self._commit()
         self._load_schema()
 
     def _persist(self, entity, key):
@@ -210,7 +212,32 @@ class Store:
                 (entity, self._key(key),
                  json.dumps(self._records[entity][key], sort_keys=True,
                             default=_iso)))
-        self._db.commit()
+        self._commit()
+
+    def _commit(self):
+        """Commit unless an enclosing `transaction()` owns the boundary."""
+        if self._db is not None and self._tx_depth == 0:
+            self._db.commit()
+
+    @contextmanager
+    def transaction(self):
+        """Make the writes inside one SQLite transaction, or do nothing."""
+        if self._db is None or not self._schema:
+            yield
+            return
+        self._tx_depth += 1
+        try:
+            yield
+        except BaseException:
+            self._tx_depth -= 1
+            if self._tx_depth == 0:
+                self._db.rollback()
+                self._load_schema()
+            raise
+        else:
+            self._tx_depth -= 1
+            if self._tx_depth == 0:
+                self._db.commit()
 
     def close(self):
         """Flush and release the file, if any (commits already happened)."""

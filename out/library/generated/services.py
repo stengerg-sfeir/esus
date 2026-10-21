@@ -115,3 +115,26 @@ class LibraryService:
                 unique_results.append(book)
 
         return unique_results
+
+
+def _atomic(method):
+    """Run a multi-write service method in one store transaction."""
+    def wrapper(self, *args, **kwargs):
+        store = None
+        for repo in self._repos.values():
+            store = getattr(repo, '_store', None)
+            if store is not None:
+                break
+        if store is None or not hasattr(store, 'transaction'):
+            return method(self, *args, **kwargs)
+        with store.transaction():
+            return method(self, *args, **kwargs)
+    wrapper.__name__ = method.__name__
+    wrapper.__doc__ = method.__doc__
+    wrapper.__wrapped__ = method
+    return wrapper
+
+
+for _name in ['borrow_book', 'return_book']:
+    if hasattr(LibraryService, _name):
+        setattr(LibraryService, _name, _atomic(getattr(LibraryService, _name)))

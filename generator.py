@@ -1089,11 +1089,13 @@ def emit_services(ctx, repo_index, stats):
              '    raise ValueError(f"unknown operator {operator!r}")',
              ""]
     port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
+    emitted = set()
     for service in ctx["services"]:
         name = service.get("service_name")
         if normalize(name) in port_names:
             continue
         cls = codegen.sanitize(name, "Service")
+        emitted.add(cls)
         lines += ["", "", f"class {cls}:",
                   "",
                   "    def __init__(self, repos):",
@@ -1190,6 +1192,41 @@ def emit_services(ctx, repo_index, stats):
             stats["stubs"] += 1
             stats["stub_reasons"].append(f"{cls}.{fname}: {detail}")
             _record(stats, name, method["name"], strategy, False, detail)
+    atomic = {}
+    for contract in ctx.get("contracts") or []:
+        if not isinstance(contract, dict):
+            continue
+        writes = (len(contract.get("effects") or [])
+                  + len(contract.get("creates") or []))
+        holder = codegen.sanitize(contract.get("holder"), "Service")
+        method = codegen.sanitize(contract.get("method"), "method")
+        if writes > 1 and holder in emitted and method:
+            atomic.setdefault(holder, []).append(method)
+    if atomic:
+        lines += [
+            "", "",
+            "def _atomic(method):",
+            '    """Run a multi-write service method in one store transaction."""',
+            "    def wrapper(self, *args, **kwargs):",
+            "        store = None",
+            "        for repo in self._repos.values():",
+            "            store = getattr(repo, '_store', None)",
+            "            if store is not None:",
+            "                break",
+            "        if store is None or not hasattr(store, 'transaction'):",
+            "            return method(self, *args, **kwargs)",
+            "        with store.transaction():",
+            "            return method(self, *args, **kwargs)",
+            "    wrapper.__name__ = method.__name__",
+            "    wrapper.__doc__ = method.__doc__",
+            "    wrapper.__wrapped__ = method",
+            "    return wrapper",
+        ]
+        for holder in sorted(atomic):
+            lines += ["", "", f"for _name in {atomic[holder]!r}:"]
+            lines += [f"    if hasattr({holder}, _name):"]
+            lines += [f"        setattr({holder}, _name, "
+                      f"_atomic(getattr({holder}, _name)))"]
     return "\n".join(lines) + "\n"
 
 
