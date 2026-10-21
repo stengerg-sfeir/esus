@@ -237,17 +237,20 @@ def collect_routes(output_dir):
         service = spec.get("target_service")
         base_method = generator._service_method(ctx, service,
                                                 spec.get("target_method"))
-        if base_method is None or base_method.get("params"):
+        if base_method is None:
             continue
         for dest, flag, kind in leaf["dead"]:
             if (where[0], where[1], dest) in decided:
                 continue
-            # Every dead option is a question. A truthy selector can offer
-            # the service's parameterless reads; a valued flag can still be
-            # reported (and dropped) even when no route fits its value.
+            # Every dead option is a question. A truthy selector on an
+            # unfiltered read can offer the service's parameterless reads;
+            # a valued flag, or a flag on a method that already takes
+            # arguments, is still reported (and can be dropped) even when
+            # no route fits it.
             candidates = (_route_candidates(ctx, service,
                                             base_method.get("name"))
-                          if kind == "truthy" else [])
+                          if kind == "truthy" and not base_method.get("params")
+                          else [])
             questions.append({
                 "command": where[0],
                 "subcommand": where[1],
@@ -256,6 +259,9 @@ def collect_routes(output_dir):
                 "kind": kind,
                 "service": service,
                 "reads": base_method.get("name"),
+                "reads_params": [
+                    p.get("name") for p in base_method.get("params") or []
+                    if isinstance(p, dict) and p.get("name")],
                 "candidates": candidates,
             })
     context = {"prompt_sha": requirements_sha(load_requirements(output_dir))}
@@ -271,8 +277,10 @@ def describe_route(index, total, question):
         f"--- question {index}/{total} ---",
         f"DEAD OPTION: '{leaf} {question['flag_name']}' parses today "
         f"and does nothing.",
-        f"  the command reads {question['service']}.{question['reads']} "
-        f"(no arguments) when the flag is passed.",
+        f"  the command reads {question['service']}.{question['reads']}"
+        + (f"({', '.join(question['reads_params'])})"
+           if question.get("reads_params") else " (no arguments)")
+        + " when the flag is passed.",
     ]
     if question["candidates"]:
         lines.append("  candidate methods:")
