@@ -1,0 +1,32 @@
+[
+  {
+    "label": "BookRepository.search_books_by_title_author_isbn",
+    "status": "written",
+    "note": "",
+    "answer": "    def search_books_by_title_author_isbn(self, query: str = None) -> List[models.Book]:\n        \"\"\"Searches books by title, author, or ISBN. [crud:filter: parameter 'query' maps to no field]\"\"\"\n        books = self._store.all(self.ENTITY)\n        found = []\n        for book in books:\n            record = models.Book(**book)\n            if (query.lower() in record.title.lower() or\n                query.lower() in record.author.name.lower() or\n                query.lower() in record.isbn.lower()):\n                found.append(record)\n        return found\n```"
+  },
+  {
+    "label": "LibraryService.search_books",
+    "status": "written",
+    "note": "",
+    "answer": "    def search_books(self, query: str = None) -> List[models.Book]:\n        books = self._repos['BookRepository'].search_books_by_title_author_isbn(query)\n        return books\n```"
+  },
+  {
+    "label": "LibraryService.renew_membership",
+    "status": "written",
+    "note": "",
+    "answer": "        member = self._repos['MemberRepository'].read_one_member(member_id)\n        if member is None:\n            raise errors.MemberNotFoundError(\"Member not found\")\n\n        member.is_active = not member.is_active\n        updated_member = self._repos['MemberRepository'].update_member(member_id, member)\n\n        return updated_member\n```"
+  },
+  {
+    "label": "LibraryService.return_book",
+    "status": "written",
+    "note": "added import datetime",
+    "answer": "    def return_book(self, loan_id: int = None) -> models.Loan:\n        loan = self._repos['LoanRepository'].read_one_loan(loan_id)\n        if loan is None:\n            raise errors.LoanNotFoundError(\"Loan not found\")\n\n        # Update return_date and status\n        loan.return_date = datetime.datetime.now()\n        loan.status = \"returned\"\n\n        # Increment available copies for the book\n        book = self._repos['BookRepository'].read_one_book(loan.book_id)\n        if book is None:\n            raise errors.BookNotFoundError(\"Book not found\")\n\n        book.available_copies += 1\n        updated_book = self._repos['BookRepository'].update_book(loan.book_id, book)\n\n        return updated_book\n```"
+  },
+  {
+    "label": "LibraryService.borrow_book",
+    "status": "written",
+    "note": "",
+    "answer": "    def borrow_book(self, member_id: int = None, book_id: int = None) -> models.Loan:\n        \"\"\"Borrow a book by member and book IDs, checks availability, creates loan, and decrements copies.\"\"\"\n        member = self._repos['MemberRepository'].read_one_member(member_id)\n        if member is None:\n            raise errors.MemberNotFoundError(\"Member not found\")\n\n        book = self._repos['BookRepository'].read_one_book(book_id)\n        if book is None:\n            raise errors.BookNotFoundError(\"Book not found\")\n\n        if book.available_copies <= 0:\n            raise errors.InsufficientCopiesError(\"No available copies of this book\")\n\n        loan = models.Loan(\n            book_id=book.id,\n            member_id=member.id,\n            loan_date=datetime.datetime.now(),\n            due_date=datetime.datetime.now() + datetime.timedelta(days=14),\n            status=\"active\"\n        )\n\n        self._repos['LoanRepository'].create_loan(loan)\n        book.available_copies -= 1\n        updated_book = self._repos['BookRepository'].update_book(book_id, book)\n\n        return updated_book\n```"
+  }
+]

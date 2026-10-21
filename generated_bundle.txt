@@ -1,0 +1,1214 @@
+
+===== __init__.py =====
+
+"""Generated program. Do not edit by hand: regenerate with `generator.py`."""
+
+Source documents: /tmp/library_contract_qwen
+Methods: 29 implemented, 5 stubs (each stub names its work order in its docstring).
+CLI backend is argparse (stdlib); the declared facade technology is
+recorded in the documents and porting the CLI to it is later work.
+
+
+===== cli.py =====
+
+"""Command line. Every declared verb parses; bound verbs dispatch to
+their adapter's service method, unbound ones fail with the reason.
+
+Transforms follow the adapter document: DIRECT passes through, ISO_DATE
+validates ISO format, DECIMAL_TO_CENTS converts money to integer cents,
+CSV_LIST splits on commas, LOOKUP_ID coerces to int (existence is
+enforced by the repository's foreign-key check on write, or by the
+record lookup itself on read).
+"""
+
+import argparse
+import dataclasses
+import datetime
+import json
+import sys
+
+import models
+import errors
+from store import Store
+import repositories
+import services
+
+
+MODELS = ['Book', 'Author', 'Member', 'Loan']
+REPOSITORIES = ['BookRepository', 'AuthorRepository', 'MemberRepository', 'LoanRepository']
+SERVICES = ['LibraryService']
+
+
+def _transform(kind, value, field):
+    if kind == "DIRECT" or value is None:
+        return value
+    if kind == "ISO_DATE":
+        datetime.date.fromisoformat(str(value))
+        return value
+    if kind == "DECIMAL_TO_CENTS":
+        return int(round(float(value) * 100))
+    if kind == "CSV_LIST":
+        items = value if isinstance(value, list) else [value]
+        split = []
+        for part in items:
+            split.extend(p.strip() for p in str(part).split(",") if p.strip())
+        return split
+    if kind == "LOOKUP_ID":
+        return int(value)
+    if kind == "ENUM_LOOKUP":
+        return str(value)
+    raise ValueError(f"unknown transform {kind!r} for {field!r}")
+
+
+def _show(result):
+    if result is None:
+        return
+    if isinstance(result, list):
+        for item in result:
+            _show(item)
+        return
+    if dataclasses.is_dataclass(result):
+        print(json.dumps(dataclasses.asdict(result), default=str))
+        return
+    print(result)
+
+
+ADAPTERS = {
+    'add_author': {
+        'service': 'AuthorRepository',
+        'method': 'create_author',
+        'fields': [
+            ('name', ('author', 'DIRECT', True)),
+            ('birth_year', ('author', 'DIRECT', True)),
+            ('biography', ('author', 'DIRECT', False)),
+        ],
+        'argv': {'name': None, 'birth_year': None, 'biography': None},
+        'targets': {'author': 'Author'},
+        'assembled': [],
+    },
+    'add_book': {
+        'service': 'BookRepository',
+        'method': 'create_book',
+        'fields': [
+            ('title', ('book', 'DIRECT', True)),
+            ('isbn', ('isbn', 'DIRECT', True)),
+            ('author_id', ('book', 'LOOKUP_ID', True)),
+            ('published_year', ('book', 'DIRECT', True)),
+            ('available_copies', ('book', 'DIRECT', False)),
+        ],
+        'argv': {'title': 'title', 'isbn': 'isbn', 'author_id': 'author_id', 'published_year': 'published_year', 'available_copies': 'copies'},
+        'targets': {'book': 'Book', 'isbn': None},
+        'assembled': [],
+    },
+    'add_member': {
+        'service': 'MemberRepository',
+        'method': 'create_member',
+        'fields': [
+            ('name', ('member', 'DIRECT', True)),
+            ('email', ('email', 'DIRECT', True)),
+            ('membership_date', ('member', 'ISO_DATE', False)),
+        ],
+        'argv': {'name': 'name', 'email': 'email', 'membership_date': None},
+        'targets': {'member': 'Member', 'email': None},
+        'assembled': [],
+    },
+    'borrow_book': {
+        'service': 'LibraryService',
+        'method': 'borrow_book',
+        'fields': [
+            ('member_id', ('member_id', 'DIRECT', True)),
+            ('book_id', ('book_id', 'DIRECT', True)),
+        ],
+        'argv': {'member_id': 'member_id', 'book_id': 'book_id'},
+        'targets': {'member_id': None, 'book_id': None},
+        'assembled': [],
+    },
+    'find_active_members': {
+        'service': 'MemberRepository',
+        'method': 'find_active_members',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
+    'get_book_loan_history': {
+        'service': 'LoanRepository',
+        'method': 'get_book_loan_history',
+        'fields': [
+            ('book_id', ('book_id', 'DIRECT', True)),
+        ],
+        'argv': {'book_id': None},
+        'targets': {'book_id': None},
+        'assembled': [],
+    },
+    'get_member_loan_history': {
+        'service': 'LoanRepository',
+        'method': 'get_member_loan_history',
+        'fields': [
+            ('member_id', ('member_id', 'DIRECT', True)),
+        ],
+        'argv': {'member_id': 'member_id'},
+        'targets': {'member_id': None},
+        'assembled': [],
+    },
+    'get_overdue_loans': {
+        'service': 'LoanRepository',
+        'method': 'get_overdue_loans',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
+    'list_authors': {
+        'service': 'AuthorRepository',
+        'method': 'read_all_authors',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
+    'list_books': {
+        'service': 'BookRepository',
+        'method': 'read_all_books',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
+    'list_books_by_author': {
+        'service': 'BookRepository',
+        'method': 'filter_books_by_available_copies',
+        'fields': [
+            ('author_id', ('min_available_copies', 'LOOKUP_ID', True)),
+        ],
+        'argv': {'author_id': None},
+        'targets': {'min_available_copies': None},
+        'assembled': [],
+    },
+    'list_members': {
+        'service': 'MemberRepository',
+        'method': 'read_all_members',
+        'fields': [
+        ],
+        'argv': {},
+        'targets': {},
+        'assembled': [],
+    },
+    'renew_membership': {
+        'service': 'LibraryService',
+        'method': 'renew_membership',
+        'fields': [
+            ('member_id', ('member_id', 'DIRECT', True)),
+        ],
+        'argv': {'member_id': None},
+        'targets': {'member_id': None},
+        'assembled': [],
+    },
+    'return_book': {
+        'service': 'LibraryService',
+        'method': 'return_book',
+        'fields': [
+            ('loan_id', ('loan_id', 'DIRECT', True)),
+        ],
+        'argv': {'loan_id': 'loan_id'},
+        'targets': {'loan_id': None},
+        'assembled': [],
+    },
+    'search_books': {
+        'service': 'LibraryService',
+        'method': 'search_books',
+        'fields': [
+            ('query', ('query', 'DIRECT', True)),
+        ],
+        'argv': {'query': 'query'},
+        'targets': {'query': None},
+        'assembled': [],
+    },
+}
+
+
+BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
+    ('book', 'add'): [('add_book', 5, ())],
+    ('book', 'list'): [('list_books', 5, ())],
+    ('book', 'search'): [('search_books', 7, ())],
+    ('borrow', None): [('borrow_book', 7, ())],
+    ('member', 'add'): [('add_member', 5, ())],
+    ('member', 'history'): [('get_member_loan_history', 7, ())],
+    ('member', 'list'): [('find_active_members', 5, (('active_only', 'truthy', '-active-only'),)), ('list_members', 5, ())],
+    ('overdue', None): [('get_overdue_loans', 7, ())],
+    ('return', None): [('return_book', 7, ())],
+}
+
+
+def _normalize(text):
+    return "".join(c for c in str(text).lower() if c.isalnum())
+
+
+def _needs_met(present, need):
+    for dest, kind, _flag in need:
+        value = present.get(_normalize(dest))
+        if kind == 'truthy':
+            if not value:
+                return False
+        elif value is None:
+            return False
+    return True
+
+
+def _choose(bound, values):
+    """The first choice whose flags are all passed: routes and
+    filters before the fallback, which needs nothing."""
+    present = {_normalize(k): v for k, v in values.items()}
+    for choice in bound:
+        if _needs_met(present, choice[2]):
+            return choice, present
+    return bound[-1], present
+
+
+def _incomplete(chosen, bound, present):
+    """Flags passed that select a choice also needing companions
+    (`-category` without `-month`): naming the missing flag beats
+    ignoring the one passed."""
+    consumed = {dest for dest, _kind, _flag in chosen[2]}
+    for action, _score, need in bound:
+        if action == chosen[0]:
+            continue
+        passed = [item for item in need if _needs_met(present, (item,))]
+        if not passed or len(passed) == len(need):
+            continue
+        if any(item[0] in consumed for item in passed):
+            continue
+        missing = ' and '.join(item[2] for item in need
+                               if item not in passed)
+        return f'{action!r} also needs {missing}'
+    return None
+
+
+DEFAULT_DB = 'library_contract_qwen.db'
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog='library_contract_qwen')
+    parser.add_argument('--db', default=None,
+                        help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
+    sub = parser.add_subparsers(dest='command')
+    p_book = sub.add_parser('book')
+    sub_book = p_book.add_subparsers(dest='subcommand')
+    p_book_add = sub_book.add_parser('add')
+    p_book_add.add_argument('-title', '-t', type=str, required=True, dest='title')
+    p_book_add.add_argument('--isbn', type=str, required=True, dest='isbn')
+    p_book_add.add_argument('--author-id', type=int, required=True, dest='author_id')
+    p_book_add.add_argument('--published-year', type=int, required=True, dest='published_year')
+    p_book_add.add_argument('--copies', type=int, required=True, dest='copies')
+    p_book_add.set_defaults(_binding=('book', 'add'))
+    p_book_list = sub_book.add_parser('list')
+    p_book_list.add_argument('-author', '-a', action='store_true', dest='author')
+    p_book_list.set_defaults(_binding=('book', 'list'))
+    p_book_search = sub_book.add_parser('search')
+    p_book_search.add_argument('-query', '-q', type=str, required=True, dest='query')
+    p_book_search.set_defaults(_binding=('book', 'search'))
+    p_member = sub.add_parser('member')
+    sub_member = p_member.add_subparsers(dest='subcommand')
+    p_member_add = sub_member.add_parser('add')
+    p_member_add.add_argument('-name', '-n', type=str, required=True, dest='name')
+    p_member_add.add_argument('-email', '-e', type=str, required=True, dest='email')
+    p_member_add.set_defaults(_binding=('member', 'add'))
+    p_member_list = sub_member.add_parser('list')
+    p_member_list.add_argument('-active-only', '-a', action='store_true', dest='active_only')
+    p_member_list.set_defaults(_binding=('member', 'list'))
+    p_member_history = sub_member.add_parser('history')
+    p_member_history.add_argument('--member-id', type=int, required=True, dest='member_id')
+    p_member_history.set_defaults(_binding=('member', 'history'))
+    p_borrow = sub.add_parser('borrow')
+    p_borrow.add_argument('--member-id', type=int, required=True, dest='member_id')
+    p_borrow.add_argument('--book-id', type=int, required=True, dest='book_id')
+    p_borrow.set_defaults(_binding=('borrow', None))
+    p_return = sub.add_parser('return')
+    p_return.add_argument('--loan-id', type=int, required=True, dest='loan_id')
+    p_return.set_defaults(_binding=('return', None))
+    p_overdue = sub.add_parser('overdue')
+    p_overdue.set_defaults(_binding=('overdue', None))
+    return parser
+
+
+def _call(bound, values, deps):
+    action = bound[0]
+    spec = ADAPTERS[action]
+    service = deps['services'][_sanitize(spec['service'])]
+    method = getattr(service, _sanitize(spec['method']))
+    present = {_normalize(k): v for k, v in values.items()}
+    argv = spec.get('argv', {})
+    targets = spec.get('targets', {})
+    assembled = set(spec.get('assembled', []))
+    grouped = {}
+    for field_name, (target_param, kind, required) in spec['fields']:
+        if field_name in assembled:
+            continue  # built from its sibling fields, not from argv
+        dest = argv.get(field_name)
+        if dest is None or present.get(_normalize(dest)) is None:
+            if required:
+                raise ValueError(f"missing required field {field_name!r} for {action!r}")
+            continue
+        value = _transform(kind, present[_normalize(dest)], field_name)
+        if targets.get(target_param) is not None:
+            grouped.setdefault(target_param, {})[field_name] = value
+        else:
+            grouped[target_param] = value
+    call_kwargs = {}
+    for target_param, value in grouped.items():
+        model_name = targets.get(target_param)
+        if model_name is not None and isinstance(value, dict):
+            call_kwargs[_sanitize(target_param)] = getattr(models, model_name)(**value)
+        else:
+            call_kwargs[_sanitize(target_param)] = value
+    return method(**call_kwargs)
+
+
+def _sanitize(text):
+    cleaned = "".join(c if c.isalnum() or c == "_" else "_" for c in str(text))
+    cleaned = cleaned.strip("_") or "opt"
+    return "_" + cleaned if cleaned[:1].isdigit() else cleaned
+
+
+def build_cli(db_path=None):
+    store = Store(db_path)
+    repos = {cls_name: getattr(repositories, cls_name)(store) for cls_name in REPOSITORIES}
+    hired = {cls_name: getattr(services, cls_name)(repos) for cls_name in SERVICES}
+    entities = {_normalize(name): getattr(models, name) for name in MODELS}
+    return build_parser(), {'store': store, 'repos': repos,
+                           'services': {**repos, **hired},
+                           'entities': entities}
+
+
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    _, deps = build_cli(args.db or DEFAULT_DB)
+    try:
+        return dispatch(parser, args, deps)
+    finally:
+        deps['store'].close()
+
+
+def dispatch(parser, args, deps):
+    """Run one parsed command against shared dependencies."""
+    binding = getattr(args, '_binding', None)
+    if binding is None:
+        parser.print_usage()
+        return 2
+    bound = BINDINGS.get(tuple(binding))
+    if bound is None:
+        print(f"no adapter bound for {' '.join(binding)} — not implemented")
+        return 1
+    values = {key: value for key, value in vars(args).items()
+              if key not in ('command', 'subcommand', '_binding', 'db')}
+    choice, present = _choose(bound, values)
+    trouble = _incomplete(choice, bound, present)
+    if trouble:
+        print(f"error: {' '.join(binding)}: {trouble}")
+        return 1
+    try:
+        _show(_call(choice, values, deps))
+    except Exception as error:
+        print(f"error: {error}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+
+
+===== errors.py =====
+
+"""Application errors, one class per registered failure."""
+
+
+
+class BookNotFoundError(LookupError):
+    """Raised when a book with the given ISBN or ID is not found in the database."""
+
+
+class AuthorNotFoundError(LookupError):
+    """Raised when an author with the given ID is not found in the database."""
+
+
+class MemberNotFoundError(LookupError):
+    """Raised when a member with the given ID is not found in the database."""
+
+
+class LoanNotFoundError(LookupError):
+    """Raised when a loan with the given ID is not found in the database."""
+
+
+class BookAlreadyExistsError(ValueError):
+    """Raised when attempting to add a book with an existing ISBN."""
+
+
+class MemberAlreadyExistsError(ValueError):
+    """Raised when attempting to add a member with an existing email."""
+
+
+class InsufficientCopiesError(RuntimeError):
+    """Raised when attempting to borrow a book with zero available copies."""
+
+
+class InvalidReturnDateError(RuntimeError):
+    """Raised when a book is returned before its due date."""
+
+===== models.py =====
+
+"""Data models. Every field defaults to None: the store assigns integer
+primary keys on insert, and updates merge only non-None values."""
+
+from dataclasses import dataclass
+from decimal import Decimal
+import datetime
+from typing import Any, Dict, List, Optional
+
+
+
+@dataclass
+class Book:
+    id: int = None
+    title: str = None
+    isbn: str = None
+    published_year: Optional[int] = None
+    available_copies: int = None
+    author_id: int = None
+
+
+@dataclass
+class Author:
+    id: int = None
+    name: str = None
+    birth_year: Optional[int] = None
+    biography: Optional[str] = None
+
+
+@dataclass
+class Member:
+    id: int = None
+    name: str = None
+    email: str = None
+    membership_date: datetime.date = None
+    is_active: bool = None
+
+
+@dataclass
+class Loan:
+    id: int = None
+    book_id: int = None
+    member_id: int = None
+    loan_date: datetime.datetime = None
+    due_date: datetime.datetime = None
+    return_date: Optional[datetime.datetime] = None
+    status: str = None
+
+===== repositories.py =====
+
+"""Repositories over an in-memory Store, one class per persistence port.
+
+CRUD, reads and filters run for real. Anything else raises
+NotImplementedError with its work order — an aggregate or guard body
+is specified by its pattern, not invented here.
+"""
+
+from typing import Any, Dict, List, Optional, Union
+
+import datetime
+
+import models
+import errors
+from store import Store, match_criterion
+
+
+def _record_values(data, field_names):
+    """A dataclass or dict entity argument as a `{field: value}` dict."""
+    if data is None:
+        return {}
+    if isinstance(data, dict):
+        return {name: data.get(name) for name in field_names}
+    return {name: getattr(data, name, None) for name in field_names}
+
+
+
+class BookRepository:
+    ENTITY = "Book"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create_book(self, book: models.Book = None, isbn: str = None) -> models.Book:
+        """Creates a new book entry with the provided details. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        values.update(_record_values(book, ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']))
+        if isbn is not None:
+            values['isbn'] = isbn
+        unknown = [k for k in values if k not in ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']]
+        if unknown:
+            raise ValueError(f"cannot create Book from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("author_id", "Author", "id", errors.AuthorNotFoundError)])
+        return models.Book(**record)
+
+    def read_one_book(self, book_id_or_isbn: Union[str, int] = None) -> models.Book | None:
+        """Reads a single book by its ID or ISBN. [crud:read_one: STANDARD_CRUD]"""
+        found = []
+        if book_id_or_isbn is not None:
+            for field, operator in [('id', 'eq'), ('isbn', 'eq')]:
+                found.extend(self._store.select(self.ENTITY, [(field, operator, book_id_or_isbn)]))
+        if len(found) != 1:
+            raise errors.BookNotFoundError(f"Book lookup matched {len(found)} records")
+        record = found[0]
+        return models.Book(**record)
+
+    def read_all_books(self) -> List[models.Book]:
+        """Reads all books from the database. [crud:read_all: READ_ALL]"""
+        criteria = []
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Book(**r) for r in found]
+
+    def update_book(self, book_id_or_isbn: Union[str, int] = None, book: models.Book = None) -> models.Book:
+        """Updates a book's details by its ID or ISBN. [crud:update: STANDARD_CRUD]"""
+        found = []
+        if book_id_or_isbn is not None:
+            for field, operator in [('id', 'eq'), ('isbn', 'eq')]:
+                found.extend(self._store.select(self.ENTITY, [(field, operator, book_id_or_isbn)]))
+        if len(found) != 1:
+            raise errors.BookNotFoundError(f"Book update matched {len(found)} records")
+        patch = {}
+        for key, value in _record_values(book, ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']).items():
+            if value is not None:
+                patch[key] = value
+        if book_id_or_isbn is not None and 'book_id_or_isbn' in ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']:
+            patch['book_id_or_isbn'] = book_id_or_isbn
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.BookNotFoundError)
+        return models.Book(**record)
+
+    def delete_book(self, book_id_or_isbn: Union[str, int] = None) -> bool:
+        """Deletes a book by its ID or ISBN. [crud:delete: STANDARD_CRUD]"""
+        found = []
+        if book_id_or_isbn is not None:
+            for field, operator in [('id', 'eq'), ('isbn', 'eq')]:
+                found.extend(self._store.select(self.ENTITY, [(field, operator, book_id_or_isbn)]))
+        if not found:
+            raise errors.BookNotFoundError(f"Book delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def filter_books_by_available_copies(self, min_available_copies: int = None) -> List[models.Book]:
+        """Filters books by available copies count. [crud:filter: FILTER_BY_FIELD]"""
+        criteria = []
+        if min_available_copies is not None:
+            criteria.append(('available_copies', 'ge', min_available_copies))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Book(**r) for r in found]
+
+    def search_books_by_title_author_isbn(self, query: str = None) -> List[models.Book]:
+        """Searches books by title, author, or ISBN. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
+        found = self._store.all(self.ENTITY)
+        results = []
+        for record in found:
+            title = record.get("title")
+            isbn = record.get("isbn")
+            author_id = record.get("author_id")
+            if query is None:
+                continue
+            if title and query.lower() in title.lower():
+                results.append(models.Book(**record))
+            elif isbn and query.lower() in isbn.lower():
+                results.append(models.Book(**record))
+            elif author_id is not None:
+                # We need to check if the author's name matches, but we don't have it directly
+                # So we must fetch the author name from Author table
+                author_record = self._store.get("Author", "id", author_id)
+                if author_record and query.lower() in author_record.get("name", "").lower():
+                    results.append(models.Book(**record))
+        return results
+
+
+class AuthorRepository:
+    ENTITY = "Author"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create_author(self, author: models.Author = None) -> models.Author:
+        """Creates a new author entry with the provided details. [crud:create: STANDARD_CRUD]"""
+        values = _record_values(author, ['id', 'name', 'birth_year', 'biography'])
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Author(**record)
+
+    def read_one_author(self, author_id: int = None) -> models.Author | None:
+        """Reads a single author by its ID. [crud:read_one: STANDARD_CRUD]"""
+        record = self._store.get(self.ENTITY, self.PK, author_id, error=errors.AuthorNotFoundError)
+        return models.Author(**record)
+
+    def read_all_authors(self) -> List[models.Author]:
+        """Reads all authors from the database. [crud:read_all: READ_ALL]"""
+        criteria = []
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Author(**r) for r in found]
+
+    def update_author(self, author_id: int = None, author: models.Author = None) -> models.Author:
+        """Updates an author's details by its ID. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if author_id is not None:
+            criteria.append(('id', 'eq', author_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.AuthorNotFoundError(f"Author update matched {len(found)} records")
+        patch = {}
+        for key, value in _record_values(author, ['id', 'name', 'birth_year', 'biography']).items():
+            if value is not None:
+                patch[key] = value
+        if author_id is not None and 'author_id' in ['id', 'name', 'birth_year', 'biography']:
+            patch['author_id'] = author_id
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.AuthorNotFoundError)
+        return models.Author(**record)
+
+    def delete_author(self, author_id: int = None) -> bool:
+        """Deletes an author by its ID. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if author_id is not None:
+            criteria.append(('id', 'eq', author_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.AuthorNotFoundError(f"Author delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def find_books_by_author(self, author_id: int = None) -> List[models.Book]:
+        """Finds all books by a specific author. [crud:filter: FILTER_BY_FIELD]"""
+        criteria = []
+        if author_id is not None:
+            criteria.append(('author_id', 'eq', author_id))
+        found = self._store.select('Book', criteria)
+        return [models.Book(**r) for r in found]
+
+
+class MemberRepository:
+    ENTITY = "Member"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create_member(self, member: models.Member = None, email: str = None) -> models.Member:
+        """Creates a new member entry with the provided details. [crud:create: STANDARD_CRUD]"""
+        values = {}
+        values.update(_record_values(member, ['id', 'name', 'email', 'membership_date', 'is_active']))
+        if email is not None:
+            values['email'] = email
+        unknown = [k for k in values if k not in ['id', 'name', 'email', 'membership_date', 'is_active']]
+        if unknown:
+            raise ValueError(f"cannot create Member from {unknown}")
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
+        return models.Member(**record)
+
+    def read_one_member(self, member_id: int = None) -> models.Member | None:
+        """Reads a single member by its ID. [crud:read_one: STANDARD_CRUD]"""
+        record = self._store.get(self.ENTITY, self.PK, member_id, error=errors.MemberNotFoundError)
+        return models.Member(**record)
+
+    def read_all_members(self) -> List[models.Member]:
+        """Reads all members from the database. [crud:read_all: READ_ALL]"""
+        criteria = []
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**r) for r in found]
+
+    def update_member(self, member_id: int = None, member: models.Member = None) -> models.Member:
+        """Updates a member's details by its ID. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if member_id is not None:
+            criteria.append(('id', 'eq', member_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.MemberNotFoundError(f"Member update matched {len(found)} records")
+        patch = {}
+        for key, value in _record_values(member, ['id', 'name', 'email', 'membership_date', 'is_active']).items():
+            if value is not None:
+                patch[key] = value
+        if member_id is not None and 'member_id' in ['id', 'name', 'email', 'membership_date', 'is_active']:
+            patch['member_id'] = member_id
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.MemberNotFoundError)
+        return models.Member(**record)
+
+    def delete_member(self, member_id: int = None) -> bool:
+        """Deletes a member by its ID. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if member_id is not None:
+            criteria.append(('id', 'eq', member_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.MemberNotFoundError(f"Member delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def find_active_members(self) -> List[models.Member]:
+        """Finds all active members. [FILTER_CRITERION via answered slots: criterion_field=is_active, criterion_value=True]"""
+        criteria = [('is_active', 'eq', True)]
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**record) for record in found]
+
+    def find_inactive_members(self) -> List[models.Member]:
+        """Finds all inactive members. [FILTER_CRITERION via answered slots: criterion_field=is_active, criterion_value=False]"""
+        criteria = [('is_active', 'eq', False)]
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Member(**record) for record in found]
+
+
+class LoanRepository:
+    ENTITY = "Loan"
+    PK = "id"
+
+    def __init__(self, store):
+        self._store = store
+
+
+    def create_loan(self, loan: models.Loan = None) -> models.Loan:
+        """Creates a new loan entry with the provided details. [crud:create: STANDARD_CRUD]"""
+        values = _record_values(loan, ['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status'])
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("book_id", "Book", "id", errors.BookNotFoundError), ("member_id", "Member", "id", errors.MemberNotFoundError)])
+        return models.Loan(**record)
+
+    def read_one_loan(self, loan_id: int = None) -> models.Loan | None:
+        """Reads a single loan by its ID. [crud:read_one: STANDARD_CRUD]"""
+        record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)
+        return models.Loan(**record)
+
+    def read_all_loans(self) -> List[models.Loan]:
+        """Reads all loans from the database. [crud:read_all: READ_ALL]"""
+        criteria = []
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Loan(**r) for r in found]
+
+    def update_loan(self, loan_id: int = None, loan: models.Loan = None) -> models.Loan:
+        """Updates a loan's details by its ID. [crud:update: STANDARD_CRUD]"""
+        criteria = []
+        if loan_id is not None:
+            criteria.append(('id', 'eq', loan_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise errors.LoanNotFoundError(f"Loan update matched {len(found)} records")
+        patch = {}
+        for key, value in _record_values(loan, ['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status']).items():
+            if value is not None:
+                patch[key] = value
+        if loan_id is not None and 'loan_id' in ['id', 'book_id', 'member_id', 'loan_date', 'due_date', 'return_date', 'status']:
+            patch['loan_id'] = loan_id
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.LoanNotFoundError)
+        return models.Loan(**record)
+
+    def delete_loan(self, loan_id: int = None) -> bool:
+        """Deletes a loan by its ID. [crud:delete: STANDARD_CRUD]"""
+        criteria = []
+        if loan_id is not None:
+            criteria.append(('id', 'eq', loan_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise errors.LoanNotFoundError(f"Loan delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
+
+    def get_active_loans(self) -> List[models.Loan]:
+        """Finds all active loans. [FILTER_CRITERION via answered slots: criterion_field=status, criterion_value=active]"""
+        criteria = [('status', 'eq', 'active')]
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Loan(**record) for record in found]
+
+    def get_overdue_loans(self) -> List[models.Loan]:
+        """Finds all overdue loans. [THRESHOLD_SCAN via answered slots: comparison_field=due_date, operator=<, threshold=today]"""
+        bound = datetime.date.today().isoformat()
+        out = []
+        for record in self._store.select(self.ENTITY, []):
+            key = str(record.get('due_date') or '')[:10]
+            hit = key < str(bound)[:10]
+            if hit:
+                out.append(models.Loan(**record))
+        return out
+
+    def get_member_loan_history(self, member_id: int = None) -> List[models.Loan]:
+        """Finds all loans for a specific member. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        criteria = []
+        if member_id is not None:
+            criteria.append(('member_id', 'eq', member_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Loan(**r) for r in found]
+
+    def get_book_loan_history(self, book_id: int = None) -> List[models.Loan]:
+        """Finds all loans for a specific book. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        criteria = []
+        if book_id is not None:
+            criteria.append(('book_id', 'eq', book_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Loan(**r) for r in found]
+
+===== services.py =====
+
+"""Services. A method with the same name as a repository method delegates
+to it; anything else raises NotImplementedError with its work order.
+"""
+
+from typing import Any, Dict, List, Optional, Union
+
+import calendar
+
+import models
+import errors
+from store import match_criterion
+import datetime
+
+
+def _holds(actual, operator, expected):
+    """Twin of `store._holds`: the operators filter composition reuses."""
+    if operator == "eq":
+        return actual == expected
+    if operator == "ge":
+        return actual is not None and actual >= expected
+    if operator == "le":
+        return actual is not None and actual <= expected
+    raise ValueError(f"unknown operator {operator!r}")
+
+
+
+class LibraryService:
+
+    def __init__(self, repos):
+        self._repos = repos
+
+
+    def borrow_book(self, member_id: int = None, book_id: int = None) -> models.Loan:
+        """Borrow a book by member and book IDs, checks availability, creates loan, and decrements copies. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
+        member = self._repos['MemberRepository'].read_one_member(member_id)
+        if not member:
+            raise errors.MemberNotFoundError(f"Member with id {member_id} not found")
+
+        book = self._repos['BookRepository'].read_one_book(book_id=book_id)
+        if not book:
+            raise errors.BookNotFoundError(f"Book with id {book_id} not found")
+
+        if book.available_copies <= 0:
+            raise errors.InsufficientCopiesError(f"Book with id {book_id} has no available copies")
+
+        # Create a new loan with current date and due date (e.g., 14 days from loan date)
+        loan_date = datetime.datetime.now()
+        due_date = loan_date + datetime.timedelta(days=14)
+
+        loan = models.Loan(
+            book_id=book_id,
+            member_id=member_id,
+            loan_date=loan_date,
+            due_date=due_date,
+            status='active'
+        )
+
+        created_loan = self._repos['LoanRepository'].create_loan(loan)
+
+        # Decrement available copies and update book
+        book.available_copies -= 1
+        updated_book = self._repos['BookRepository'].update_book(book_id, book)
+
+        return created_loan
+
+    def return_book(self, loan_id: int = None) -> models.Loan:
+        """Returns a book by loan ID, sets return_date, updates status, and increments copies. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
+        loan = self._repos['LoanRepository'].read_one_loan(loan_id)
+        if not loan:
+            raise errors.LoanNotFoundError(f"Loan with id {loan_id} not found")
+        if loan.status != 'returned':
+            raise errors.InvalidReturnDateError(f"Loan with id {loan_id} is not in 'returned' status")
+
+        loan.return_date = datetime.datetime.now()
+        loan.status = 'returned'
+
+        updated_loan = self._repos['LoanRepository'].update_loan(loan_id, loan)
+
+        book = self._repos['BookRepository'].read_one_book(book_id=loan.book_id)
+        if not book:
+            raise errors.BookNotFoundError(f"Book with id {loan.book_id} not found")
+
+        book.available_copies = book.available_copies + 1
+        updated_book = self._repos['BookRepository'].update_book(loan.book_id, book)
+
+        return updated_loan
+
+    def get_overdue_loans(self) -> List[models.Loan]:
+        """Returns all overdue loans. [delegates to LoanRepository.get_overdue_loans — pattern realized by target]"""
+        return self._repos['LoanRepository'].get_overdue_loans()
+
+    def renew_membership(self, member_id: int = None) -> models.Member:
+        """Renews membership by toggling is_active status. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
+        member = self._repos['MemberRepository'].read_one_member(member_id)
+        if not member:
+            raise errors.MemberNotFoundError(f"Member with id {member_id} not found")
+        member.is_active = not member.is_active
+        updated_member = self._repos['MemberRepository'].update_member(member_id, member)
+        return updated_member
+
+    def search_books(self, query: str = None) -> List[models.Book]:
+        """Searches books by title, author, or ISBN. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
+        results = []
+        if not query:
+            return results
+
+        books = self._repos['BookRepository'].search_books_by_title_author_isbn(query)
+        results.extend(books)
+
+        # Search by author: find books where author name matches query
+        authors = self._repos['AuthorRepository'].read_all_authors()
+        author_ids = {author.id: author.name for author in authors}
+        for author_name in author_ids:
+            if query.lower() in author_ids[author_name].lower():
+                books_by_author = self._repos['AuthorRepository'].find_books_by_author(author_id=author_ids[author_name])
+                results.extend(books_by_author)
+
+        # Search by ISBN: already covered in search_books_by_title_author_isbn
+        # But ensure no duplicates by filtering unique books
+        unique_books = {}
+        for book in results:
+            book_key = (book.title, book.isbn, book.author_id)
+            if book_key not in unique_books:
+                unique_books[book_key] = book
+        return list(unique_books.values())
+
+===== store.py =====
+
+"""Record store for generated programs: dependency-free, no surprises.
+
+In-memory by default; SQLite-backed when given a path (`Store("shop.db")`,
+`:memory:` included). All querying stays in Python (criteria, `_holds`):
+sqlite is a durable record drawer, not a query engine, so file-backed
+behavior is identical to memory by construction — every mutation commits
+immediately, and loading restores records plus the id counters.
+
+Tables hold one JSON blob per record keyed by the primary-key value, so
+there is no column mapping to drift from the models; values must stay
+JSON-shaped (str, int, float, bool, None — everything the CLI parses;
+`datetime.date`/`datetime.datetime` enter as ISO strings), and anything
+else fails loudly instead of persisting wrong. Deleting the file resets
+the program; schema migration is a non-goal.
+
+Records are plain dicts keyed by field name. The store knows nothing about
+your domain: every operation takes the entity name, the primary-key field,
+and explicit criteria, so a wrong call fails loudly (`KeyError`, `ValueError`)
+instead of filtering on a field that does not exist.
+
+Criteria are `(field, operator, value)` triples with operators `eq`, `ge`,
+`le`. `None` values never reach here — callers skip them — so every criterion
+is a real constraint.
+"""
+
+import datetime
+import json
+import sqlite3
+
+
+class Store:
+    """Maps entity names to `{primary_key_value: record}` dicts."""
+
+    def __init__(self, path=None):
+        self._records = {}
+        self._next_id = {}
+        self._db = None
+        if path is not None:
+            self._db = sqlite3.connect(path)
+            self._db.execute(
+                "CREATE TABLE IF NOT EXISTS records "
+                "(entity TEXT NOT NULL, key TEXT NOT NULL, "
+                "doc TEXT NOT NULL, PRIMARY KEY (entity, key))")
+            self._load()
+
+    def _key(self, key):
+        """A stable TEXT key: `1` and `"1"` stay distinct records."""
+        return json.dumps(key, sort_keys=True)
+
+    def _load(self):
+        """Restore records and id counters from the file, if any."""
+        for entity, key, doc in self._db.execute(
+                "SELECT entity, key, doc FROM records"):
+            self._records.setdefault(entity, {})[json.loads(key)] = json.loads(doc)
+        for entity, space in self._records.items():
+            ints = [key for key in space
+                    if isinstance(key, int) and not isinstance(key, bool)]
+            if ints:
+                self._next_id[entity] = max(ints) + 1
+
+    def _persist(self, entity, key):
+        """Write one record through (or its deletion) and commit."""
+        if self._db is None:
+            return
+        if key not in self._records.get(entity, {}):
+            self._db.execute("DELETE FROM records WHERE entity = ? AND key = ?",
+                             (entity, self._key(key)))
+        else:
+            self._db.execute(
+                "INSERT OR REPLACE INTO records (entity, key, doc) VALUES (?, ?, ?)",
+                (entity, self._key(key),
+                 json.dumps(self._records[entity][key], sort_keys=True,
+                            default=_iso)))
+        self._db.commit()
+
+    def close(self):
+        """Flush and release the file, if any (commits already happened)."""
+        if self._db is not None:
+            self._db.commit()
+            self._db.close()
+            self._db = None
+
+    def _space(self, entity):
+        return self._records.setdefault(entity, {})
+
+    def add(self, entity, pk_name, values, check_fk=()):
+        """Store a copy of `values`; assign an integer key when it is None."""
+        space = self._space(entity)
+        record = {name: _iso(value) for name, value in values.items()}
+        key = record.get(pk_name)
+        if key is None:
+            key = self._next_id.get(entity, 1)
+            while key in space:
+                key += 1
+            record[pk_name] = key
+            self._next_id[entity] = key + 1
+        elif key in space:
+            raise ValueError(f"{entity} with {pk_name}={key!r} already exists")
+        for field_name, target_entity, target_field, exc in check_fk:
+            self._check_fk(entity, record, field_name,
+                           target_entity, target_field, exc)
+        space[key] = record
+        self._persist(entity, key)
+        return dict(record)
+
+    def _check_fk(self, entity, record, field_name,
+                  target_entity, target_field, exc):
+        value = record.get(field_name)
+        if value is None:
+            return
+        for candidate in self._space(target_entity).values():
+            if candidate.get(target_field) == value:
+                return
+        message = (f"{entity}.{field_name}={value!r} references missing "
+                   f"{target_entity}.{target_field}")
+        raise exc(message) if exc is not None else KeyError(message)
+
+    def get(self, entity, pk_name, key, error=None):
+        """One record by key, or `error` (default `KeyError`)."""
+        try:
+            return dict(self._space(entity)[key])
+        except KeyError:
+            message = f"{entity} with {pk_name}={key!r} not found"
+            raise error(message) if error is not None else KeyError(message)
+
+    def all(self, entity):
+        """Every record of an entity, in insertion order."""
+        return [dict(record) for record in self._space(entity).values()]
+
+    def update(self, entity, pk_name, key, values, error=None):
+        """Merge `values` into the record at `key`; unknown keys fail like `get`."""
+        space = self._space(entity)
+        if key not in space:
+            message = f"{entity} with {pk_name}={key!r} not found"
+            raise error(message) if error is not None else KeyError(message)
+        merged = dict(space[key])
+        for field_name, value in values.items():
+            if value is not None:
+                merged[field_name] = _iso(value)
+        space[key] = merged
+        self._persist(entity, key)
+        return dict(merged)
+
+    def delete(self, entity, pk_name, key, error=None):
+        """Remove the record at `key`; unknown keys fail like `get`."""
+        space = self._space(entity)
+        if key not in space:
+            message = f"{entity} with {pk_name}={key!r} not found"
+            raise error(message) if error is not None else KeyError(message)
+        del space[key]
+        self._persist(entity, key)
+
+    def select(self, entity, criteria):
+        """Records matching every `(field, operator, value)` criterion."""
+        matches = []
+        prepared = [(field, operator, _iso(value))
+                    for field, operator, value in criteria]
+        for record in self._space(entity).values():
+            if all(_holds(record.get(field), operator, value)
+                   for field, operator, value in prepared):
+                matches.append(dict(record))
+        return matches
+
+
+def _iso(value):
+    """`datetime.date`/`datetime.datetime` become ISO strings; else no-op.
+
+    Dates normalize at the door, for records as for criteria, so memory
+    and file agree by construction: a body that stored
+    `datetime.date.today()` reads back the same `"2026-10-19"` a reload
+    would give, and a criterion comparing against a date object matches
+    the stored string instead of failing the comparison.
+    """
+    if isinstance(value, (datetime.date, datetime.datetime)):
+        return value.isoformat()
+    return value
+
+
+def _holds(actual, operator, expected):
+    if operator == "eq":
+        return actual == expected
+    if operator == "ge":
+        return actual is not None and actual >= expected
+    if operator == "le":
+        return actual is not None and actual <= expected
+    raise ValueError(f"unknown operator {operator!r}")
+
+
+def match_criterion(field_names, param):
+    """Map a filter parameter to `(field, operator)` or None.
+
+    Twin of `kernel.codegen.match_param` — copied here so generated programs
+    are dependency-free. Exact normalized equality is `eq`; a `<x>_id`
+    parameter names the entity's own `id` when no field matches. A
+    `start_`/`from_`/`min_` prefix is `ge` and an `end_`/`to_`/`max_`
+    prefix is `le` against the field containing the remainder (`start_date`
+    filters `expense_date`); a remainder matching several fields refuses.
+    """
+    wanted = "".join(character for character in str(param or "").lower()
+                     if character.isalnum())
+    if not wanted:
+        return None
+    for field in field_names:
+        if "".join(c for c in str(field).lower() if c.isalnum()) == wanted:
+            return (field, "eq")
+    for prefix, operator in (("start", "ge"), ("from", "ge"),
+                             ("end", "le"), ("to", "le"),
+                             ("min", "ge"), ("max", "le")):
+        if wanted.startswith(prefix) and len(wanted) > len(prefix):
+            rest = wanted[len(prefix):]
+            candidates = []
+            for field in field_names:
+                flat = "".join(c for c in str(field).lower()
+                               if c.isalnum())
+                if rest and (rest in flat or flat in rest):
+                    candidates.append(field)
+            if len(candidates) == 1:
+                return (candidates[0], operator)
+    raw = str(param or "").strip().lower()
+    if raw.endswith("_id") and len(raw) > 3:
+        for field in field_names:
+            if "".join(c for c in str(field).lower()
+                       if c.isalnum()) == "id":
+                return (field, "eq")
+    return None

@@ -1,0 +1,24 @@
+[run] requirements: 210 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 40 tokens in 1.7s (22.9 tok/s)
+[data_models] 7 tokens in 1.5s (4.6 tok/s)
+[errors] 9 tokens in 1.2s (7.2 tok/s)
+[invariants] 46 tokens in 2.9s (15.7 tok/s)
+[!] step components: no entities from step B — crud_services unconstrained
+[!] step components: no command lines extracted — deriving the surface from prose
+[components] 224 tokens in 7.7s (29.0 tok/s)
+[ok] step contracts: step B produced no entities — no services
+  [1/1] invariant -> AGGREGATE_BY_FK_AND_DATE (0.18)  <- undecided (domain): NO_MATCH at 0.35
+[ok] step patterns: 1 item(s) — 0 standard CRUD, 1 pattern(s), 0 gap(s)
+[ok] step adapters: step E produced no services — no adapters
+[ok] step persistence: components declare no persistence — step skipped
+[write] out/hello/intentions.json
+[write] out/hello/data_models.json
+[write] out/hello/errors.json
+[write] out/hello/invariants.json
+[write] out/hello/components.json
+[write] out/hello/service_contracts.json
+[write] out/hello/pattern_matches.json
+[write] out/hello/interaction_adapters.json
+[write] out/hello/requirements.txt
+[run] 5 steps, 326 generated tokens in 15.2s

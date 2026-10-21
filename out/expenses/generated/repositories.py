@@ -12,6 +12,7 @@ import datetime
 import models
 import errors
 from store import Store, match_criterion
+import csv
 
 
 def _record_values(data, field_names):
@@ -209,9 +210,22 @@ class ExpenseRepository:
         return total
 
     def export_expenses_to_csv(self, file_path: str = None, start_date: str = None, end_date: str = None) -> None:
-        """Exports expenses to a CSV file. [stub: gap NO_PATTERN_IN_DOMAIN: AGGREGATE_BY_FK_AND_DATE refused (AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns none (None))]"""
-        raise NotImplementedError(
-            "Expense.export_expenses_to_csv: stub: gap NO_PATTERN_IN_DOMAIN: AGGREGATE_BY_FK_AND_DATE refused (AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns none (None))")
+        """Exports expenses to a CSV file. [llm-written by Ministral-3-3B-Instruct-2512-Q4_K_M.gguf — review]"""
+        expenses = self.read_expenses_by_date_range(start_date, end_date)
+        with open(file_path, 'w', newline='') as csvfile:
+            fieldnames = ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for expense in expenses:
+                writer.writerow({
+                    'id': expense.id,
+                    'amount_cents': expense.amount_cents,
+                    'description': expense.description,
+                    'expense_date': expense.expense_date,
+                    'category_id': expense.category_id,
+                    'payment_method': expense.payment_method,
+                    'is_recurring': expense.is_recurring
+                })
 
 
 class BudgetRepository:

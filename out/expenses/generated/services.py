@@ -9,6 +9,7 @@ import calendar
 import models
 import errors
 from store import match_criterion
+import csv
 
 
 def _holds(actual, operator, expected):
@@ -80,25 +81,118 @@ class ExpenseService:
         return self._repos['ExpenseRepository'].delete_expense(id)
 
     def get_monthly_report(self, month: str = None) -> Dict[str, Any]:
-        """Generates a monthly expense report with total spent, category breakdown, and budget status. [pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading]"""
-        raise NotImplementedError(
-            "ExpenseService.get_monthly_report: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading")
+        """Generates a monthly expense report with total spent, category breakdown, and budget status. [llm-written by Ministral-3-3B-Instruct-2512-Q4_K_M.gguf — review]"""
+        category_expenses = self._repos['ExpenseRepository'].read_expenses_by_category(category_id)
+        monthly_expenses = {}
+        for expense in category_expenses:
+            month = expense.expense_date[:7]
+            if month not in monthly_expenses:
+                monthly_expenses[month] = []
+            monthly_expenses[month].append(expense)
+
+        total_spent = sum(expense.amount_cents for expense in monthly_expenses[month])
+
+        category_spending = {}
+        for expense in monthly_expenses[month]:
+            category_id = expense.category_id
+            if category_id not in category_spending:
+                category_spending[category_id] = 0
+            category_spending[category_id] += expense.amount_cents
+
+        budget_status = self._repos['BudgetRepository'].check_budget_status(category_id, month)
+
+        return {
+            'total_spent': total_spent,
+            'category_spending': category_spending,
+            'budget_status': budget_status
+        }
 
     def get_yearly_summary(self, year: str = None) -> Dict[str, Any]:
-        """Generates a yearly expense summary with monthly totals and top spending categories. [pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading]"""
-        raise NotImplementedError(
-            "ExpenseService.get_yearly_summary: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading")
+        """Generates a yearly expense summary with monthly totals and top spending categories. [llm-written by Ministral-3-3B-Instruct-2512-Q4_K_M.gguf — review]"""
+        expenses = self._repos['ExpenseRepository'].read_all_expenses()
+        monthly_totals = {}
+        for expense in expenses:
+            month = expense.expense_date[:7]
+            if month not in monthly_totals:
+                monthly_totals[month] = 0
+            monthly_totals[month] += expense.amount_cents
+
+        top_categories = {}
+        for expense in expenses:
+            category_id = expense.category_id
+            if category_id not in top_categories:
+                top_categories[category_id] = 0
+            top_categories[category_id] += expense.amount_cents
+
+        # Sort top categories by total spending
+        sorted_categories = sorted(top_categories.items(), key=lambda x: x[1], reverse=True)
+
+        # Calculate average monthly spend
+        total_spend = sum(monthly_totals.values())
+        num_months = len(monthly_totals)
+        average_monthly_spend = total_spend / num_months if num_months > 0 else 0
+
+        return {
+            'monthly_totals': monthly_totals,
+            'top_categories': sorted_categories,
+            'average_monthly_spend': average_monthly_spend
+        }
 
     def get_category_spending(self, category_id: int = None, start_date: str = None, end_date: str = None) -> int:
         """Calculates total spending for a category over a period. [delegates to ExpenseRepository.get_category_spending — pattern realized by target]"""
         return self._repos['ExpenseRepository'].get_category_spending(category_id, start_date, end_date)
 
     def export_to_csv(self, file_path: str = None, start_date: Optional[str] = None, end_date: Optional[str] = None) -> None:
-        """Exports filtered expenses to a CSV file. [gap NO_PATTERN_IN_DOMAIN: FILTER_BY_FIELD refused (FILTER_BY_FIELD returns collection, but this method returns none (None))]"""
-        raise NotImplementedError(
-            "ExpenseService.export_to_csv: gap NO_PATTERN_IN_DOMAIN: FILTER_BY_FIELD refused (FILTER_BY_FIELD returns collection, but this method returns none (None))")
+        """Exports filtered expenses to a CSV file. [llm-written by Ministral-3-3B-Instruct-2512-Q4_K_M.gguf — review]"""
+        expenses = self.list_expenses(start_date=start_date, end_date=end_date)
+        with open(file_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['ID', 'Amount (cents)', 'Description', 'Expense Date', 'Category ID', 'Payment Method', 'Is Recurring'])
+
+            for expense in expenses:
+                writer.writerow([
+                    expense.id,
+                    expense.amount_cents,
+                    expense.description,
+                    expense.expense_date,
+                    expense.category_id,
+                    expense.payment_method,
+                    expense.is_recurring
+                ])
 
     def detect_recurring(self) -> List[models.Expense]:
-        """Detects recurring expenses by checking for consistent monthly expenses. [rule signature-pagination: method needs custom logic]"""
-        raise NotImplementedError(
-            "ExpenseService.detect_recurring: rule signature-pagination: method needs custom logic")
+        """Detects recurring expenses by checking for consistent monthly expenses. [llm-written by Ministral-3-3B-Instruct-2512-Q4_K_M.gguf — review]"""
+        expenses = self._repos['ExpenseRepository'].read_all_expenses()
+        recurring_expenses = []
+
+        for expense in expenses:
+            if expense.is_recurring:
+                continue
+
+            category_id = expense.category_id
+            category_expenses = self._repos['ExpenseRepository'].read_expenses_by_category(category_id)
+
+            # Group expenses by month
+            monthly_expenses = {}
+            for exp in category_expenses:
+                month = exp.expense_date[:7]  # Format as YYYY-MM
+                if month not in monthly_expenses:
+                    monthly_expenses[month] = []
+                monthly_expenses[month].append(exp)
+
+            # Check for recurring pattern
+            for month, expenses_in_month in monthly_expenses.items():
+                if len(expenses_in_month) > 1:
+                    # Check if all expenses in the month have the same amount
+                    amounts = [exp.amount_cents for exp in expenses_in_month]
+                    if len(set(amounts)) == 1:
+                        # Check if the same amount appears in consecutive months
+                        for i in range(len(monthly_expenses) - 1):
+                            current_month = monthly_expenses.keys()[i]
+                            next_month = monthly_expenses.keys()[i + 1]
+                            current_amounts = [exp.amount_cents for exp in monthly_expenses[current_month]]
+                            next_amounts = [exp.amount_cents for exp in monthly_expenses[next_month]]
+                            if current_amounts == next_amounts:
+                                recurring_expenses.append(expense)
+
+        return recurring_expenses

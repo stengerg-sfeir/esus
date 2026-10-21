@@ -1,0 +1,32 @@
+[
+  {
+    "label": "ExpenseRepository.export_expenses_to_csv",
+    "status": "written",
+    "note": "added import csv",
+    "answer": "def export_expenses_to_csv(self, file_path: str = None, start_date: str = None, end_date: str = None) -> None:\n    expenses = self.read_expenses_by_date_range(start_date, end_date)\n    with open(file_path, 'w', newline='') as csvfile:\n        fieldnames = ['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring']\n        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)\n        writer.writeheader()\n        for expense in expenses:\n            writer.writerow({\n                'id': expense.id,\n                'amount_cents': expense.amount_cents,\n                'description': expense.description,\n                'expense_date': expense.expense_date,\n                'category_id': expense.category_id,\n                'payment_method': expense.payment_method,\n                'is_recurring': expense.is_recurring\n            })\n```"
+  },
+  {
+    "label": "ExpenseService.detect_recurring",
+    "status": "written",
+    "note": "",
+    "answer": "        expenses = self._repos['ExpenseRepository'].read_all_expenses()\n        recurring_expenses = []\n\n        for expense in expenses:\n            if expense.is_recurring:\n                continue\n\n            category_id = expense.category_id\n            category_expenses = self._repos['ExpenseRepository'].read_expenses_by_category(category_id)\n\n            # Group expenses by month\n            monthly_expenses = {}\n            for exp in category_expenses:\n                month = exp.expense_date[:7]  # Format as YYYY-MM\n                if month not in monthly_expenses:\n                    monthly_expenses[month] = []\n                monthly_expenses[month].append(exp)\n\n            # Check for recurring pattern\n            for month, expenses_in_month in monthly_expenses.items():\n                if len(expenses_in_month) > 1:\n                    # Check if all expenses in the month have the same amount\n                    amounts = [exp.amount_cents for exp in expenses_in_month]\n                    if len(set(amounts)) == 1:\n                        # Check if the same amount appears in consecutive months\n                        for i in range(len(monthly_expenses) - 1):\n                            current_month = monthly_expenses.keys()[i]\n                            next_month = monthly_expenses.keys()[i + 1]\n                            current_amounts = [exp.amount_cents for exp in monthly_expenses[current_month]]\n                            next_amounts = [exp.amount_cents for exp in monthly_expenses[next_month]]\n                            if current_amounts == next_amounts:\n                                recurring_expenses.append(expense)\n\n        return recurring_expenses\n```"
+  },
+  {
+    "label": "ExpenseService.export_to_csv",
+    "status": "written",
+    "note": "added import csv",
+    "answer": "        expenses = self.list_expenses(start_date=start_date, end_date=end_date)\n        with open(file_path, 'w', newline='') as csvfile:\n            writer = csv.writer(csvfile)\n            writer.writerow(['ID', 'Amount (cents)', 'Description', 'Expense Date', 'Category ID', 'Payment Method', 'Is Recurring'])\n\n            for expense in expenses:\n                writer.writerow([\n                    expense.id,\n                    expense.amount_cents,\n                    expense.description,\n                    expense.expense_date,\n                    expense.category_id,\n                    expense.payment_method,\n                    expense.is_recurring\n                ])\n```"
+  },
+  {
+    "label": "ExpenseService.get_yearly_summary",
+    "status": "written",
+    "note": "",
+    "answer": "def get_yearly_summary(self, year: str = None) -> Dict[str, Any]:\n    expenses = self._repos['ExpenseRepository'].read_all_expenses()\n    monthly_totals = {}\n    for expense in expenses:\n        month = expense.expense_date[:7]\n        if month not in monthly_totals:\n            monthly_totals[month] = 0\n        monthly_totals[month] += expense.amount_cents\n\n    top_categories = {}\n    for expense in expenses:\n        category_id = expense.category_id\n        if category_id not in top_categories:\n            top_categories[category_id] = 0\n        top_categories[category_id] += expense.amount_cents\n\n    # Sort top categories by total spending\n    sorted_categories = sorted(top_categories.items(), key=lambda x: x[1], reverse=True)\n\n    # Calculate average monthly spend\n    total_spend = sum(monthly_totals.values())\n    num_months = len(monthly_totals)\n    average_monthly_spend = total_spend / num_months if num_months > 0 else 0\n\n    return {\n        'monthly_totals': monthly_totals,\n        'top_categories': sorted_categories,\n        'average_monthly_spend': average_monthly_spend\n    }\n```"
+  },
+  {
+    "label": "ExpenseService.get_monthly_report",
+    "status": "written",
+    "note": "",
+    "answer": "        category_expenses = self._repos['ExpenseRepository'].read_expenses_by_category(category_id)\n        monthly_expenses = {}\n        for expense in category_expenses:\n            month = expense.expense_date[:7]\n            if month not in monthly_expenses:\n                monthly_expenses[month] = []\n            monthly_expenses[month].append(expense)\n\n        total_spent = sum(expense.amount_cents for expense in monthly_expenses[month])\n\n        category_spending = {}\n        for expense in monthly_expenses[month]:\n            category_id = expense.category_id\n            if category_id not in category_spending:\n                category_spending[category_id] = 0\n            category_spending[category_id] += expense.amount_cents\n\n        budget_status = self._repos['BudgetRepository'].check_budget_status(category_id, month)\n\n        return {\n            'total_spent': total_spent,\n            'category_spending': category_spending,\n            'budget_status': budget_status\n        }\n```"
+  }
+]
