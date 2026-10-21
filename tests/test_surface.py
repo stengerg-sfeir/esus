@@ -332,6 +332,82 @@ class DeadOptionWithoutRouteTests(unittest.TestCase):
             self.assertEqual(review_surface.collect_routes(out)[0], [])
 
 
+def writes_family_fixture(directory, verb):
+    """One command whose service offers creates, reads and deletes."""
+    base = {
+        "add": ("create_widget", "add_widget"),
+        "list": ("read_all_widgets", "list_widgets"),
+        "delete": ("delete_widget", "delete_widget"),
+    }[verb]
+    methods = [
+        {"name": "create_widget", "params": [], "return_type": "Widget"},
+        {"name": "create_other_widget", "params": [], "return_type": "Widget"},
+        {"name": "read_all_widgets", "params": [], "return_type": "List[Widget]"},
+        {"name": "list_other_widgets", "params": [], "return_type": "List[Widget]"},
+        {"name": "delete_widget", "params": [], "return_type": "bool"},
+        {"name": "delete_other_widget", "params": [], "return_type": "bool"},
+    ]
+    patterns = []
+    for method in methods:
+        name = method["name"]
+        pattern = ("READ_ALL" if name.startswith(("read_", "list_"))
+                   else "STANDARD_CRUD")
+        patterns.append({"source": f"contract:WidgetRepository.{name}",
+                         "pattern_id": pattern, "decision": "decided"})
+    body = {
+        "components": components([
+            {"name": "widget", "options": [], "subcommands": [
+                {"name": verb, "options": [
+                    {"name": "--special", "short": None, "type": "bool",
+                     "required": False, "default": None}]}]}]),
+        "data_models": [{"name": "Widget", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "name", "type": "string"}]}],
+        "interaction_adapters": [
+            {"action_name": base[1], "target_service": "WidgetRepository",
+             "target_method": base[0], "input_fields": []}],
+        "persistence_ports": {
+            "repositories": [
+                {"entity": "Widget", "interface_name": "WidgetRepository",
+                 "methods": methods}],
+            "entity_mappings": []},
+        "pattern_matches": patterns, "service_contracts": [], "errors": [],
+        "intentions": [], "invariants": [],
+    }
+    path = Path(directory)
+    for name, doc in body.items():
+        (path / f"{name}.json").write_text(json.dumps({name: doc}),
+                                           encoding="utf-8")
+    (path / "requirements.txt").write_text(
+        f"Run `widget {verb} [--special]`.", encoding="utf-8")
+    return str(path)
+
+
+class CommandFamilyRouteTests(unittest.TestCase):
+    """Routes are filtered by the verb: list→reads, add→creates, delete→deletes."""
+
+    def test_list_offers_only_read_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_family_fixture(directory, "list")
+            question = review_surface.collect_routes(out)[0][0]
+            self.assertEqual(question["candidates"],
+                             [("WidgetRepository", "list_other_widgets")])
+
+    def test_add_offers_only_create_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_family_fixture(directory, "add")
+            question = review_surface.collect_routes(out)[0][0]
+            self.assertEqual(question["candidates"],
+                             [("WidgetRepository", "create_other_widget")])
+
+    def test_delete_offers_only_delete_candidates(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_family_fixture(directory, "delete")
+            question = review_surface.collect_routes(out)[0][0]
+            self.assertEqual(question["candidates"],
+                             [("WidgetRepository", "delete_other_widget")])
+
+
 if __name__ == "__main__":
     unittest.main()
 

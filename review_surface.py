@@ -155,12 +155,65 @@ def _usable(ctx, holder, method):
                                                      True)
 
 
-def _route_candidates(ctx, service, base_method_name):
-    """Parameterless collection reads on the leaf's own service.
+# Command verb -> operation family. A route is offered only when the method
+# belongs to the family the command promises: `book list` may select a read,
+# `book add` a create, `book delete` a delete. This uses the same CRUD
+# vocabulary as the generator; it is a name/pattern classification, not a
+# claim that every domain verb folds into CRUD.
+COMMAND_FAMILIES = {
+    "add": "create", "create": "create", "insert": "create",
+    "save": "create", "new": "create", "register": "create",
+    "list": "read", "search": "read", "get": "read", "show": "read",
+    "history": "read", "report": "read", "export": "read",
+    "overdue": "read", "detect": "read",
+    "update": "update", "edit": "update", "set": "update",
+    "delete": "delete", "remove": "delete",
+    "borrow": "create", "return": "update", "renew": "update",
+    "confirm": "update", "cancel": "update", "assign": "update",
+    "restock": "update",
+}
 
-    `(service, method)` pairs, the base read excluded, stubs excluded —
-    routing a flag to a stub moves the stub, it does not fix it.
+CRUD_FAMILIES = {
+    "create": "create",
+    "read_one": "read", "read_all": "read", "filter": "read",
+    "update": "update",
+    "delete": "delete",
+}
+
+
+def _command_family(verb):
+    """The CRUD family a command's verb promises, or None when unknown."""
+    return COMMAND_FAMILIES.get(normalize(verb or ""))
+
+
+def _method_family(ctx, holder, method):
+    """The CRUD family of a method, from its plan then its name.
+
+    The planned strategy is authoritative when the pattern step classified
+    the method. Otherwise the shared `classify_crud` prefixes decide; an
+    unrecognized method is `None`, never guessed into a family.
     """
+    entry = generator._match_entry(ctx, holder, method.get("name"))
+    strategy, _detail = codegen.plan_method(
+        method, entry, ctx["entity_names"])
+    if strategy.startswith("crud:"):
+        kind = strategy.split(":", 1)[1]
+    else:
+        kind = codegen.classify_crud(method.get("name"))
+    return CRUD_FAMILIES.get(kind)
+
+
+def _route_candidates(ctx, service, base_method_name, command_verb=None):
+    """Parameterless methods on the leaf's service, in the command's family.
+
+    `(service, method)` pairs, the base method excluded and stubs excluded —
+    routing a flag to a stub moves the stub, it does not fix it. A list
+    command is offered reads, an add command creates, a delete command
+    deletes; a method whose family cannot be classified is not offered.
+    """
+    family = _command_family(command_verb)
+    if family is None:
+        return []
     wanted = normalize(service or "")
     candidates = []
     pools = []
@@ -173,14 +226,19 @@ def _route_candidates(ctx, service, base_method_name):
     for svc in ctx["services"]:
         if normalize(svc.get("service_name") or "") == wanted:
             pools.append((svc.get("service_name"), svc.get("methods") or []))
+    shapes = ("collection", "entity")
+    if family in ("delete", "update"):
+        shapes += ("scalar",)
     for holder, methods in pools:
         for method in methods:
             if not isinstance(method, dict) or not method.get("name"):
                 continue
             if method["name"] == base_method_name or method.get("params"):
                 continue
+            if _method_family(ctx, holder, method) != family:
+                continue
             if generator._return_shape(ctx, method.get("return_type")) \
-                    not in ("collection", "entity"):
+                    not in shapes:
                 continue
             if not _usable(ctx, holder, method):
                 continue
@@ -247,10 +305,11 @@ def collect_routes(output_dir):
             # a valued flag, or a flag on a method that already takes
             # arguments, is still reported (and can be dropped) even when
             # no route fits it.
-            candidates = (_route_candidates(ctx, service,
-                                            base_method.get("name"))
-                          if kind == "truthy" and not base_method.get("params")
-                          else [])
+            verb = where[1] or where[0]
+            candidates = (_route_candidates(
+                ctx, service, base_method.get("name"), verb)
+                if kind == "truthy" and not base_method.get("params")
+                else [])
             questions.append({
                 "command": where[0],
                 "subcommand": where[1],
