@@ -265,6 +265,73 @@ class RouteCollectTests(unittest.TestCase):
             self.assertEqual(len(questions), 1)
 
 
+def dead_without_candidates():
+    """A library-like output whose dead flag has no parameterless route."""
+    return {
+        "components": components([
+            {"name": "book", "options": [], "subcommands": [
+                {"name": "list", "options": [
+                    {"name": "-author", "short": "-a", "type": "bool",
+                     "required": False, "default": None}]}]}]),
+        "data_models": [{"name": "Book", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "title", "type": "string"},
+            {"name": "author_id", "type": "int"}]}],
+        "interaction_adapters": [
+            {"action_name": "list_books",
+             "target_service": "BookRepository",
+             "target_method": "read_all_books", "input_fields": []}],
+        "persistence_ports": {
+            "repositories": [
+                {"entity": "Book", "interface_name": "BookRepository",
+                 "methods": [
+                     {"name": "read_all_books", "params": [],
+                      "return_type": "List[Book]"}]}],
+            "entity_mappings": []},
+        "pattern_matches": [], "service_contracts": [], "errors": [],
+        "intentions": [], "invariants": [],
+    }
+
+
+def writes_dead_without_candidates(directory):
+    path = Path(directory)
+    for name, body in dead_without_candidates().items():
+        (path / f"{name}.json").write_text(json.dumps({name: body}),
+                                           encoding="utf-8")
+    (path / "requirements.txt").write_text(
+        "Run `book list [--author]`.", encoding="utf-8")
+    return str(path)
+
+
+class DeadOptionWithoutRouteTests(unittest.TestCase):
+    """Every dead option is asked, even when no parameterless read fits."""
+
+    def test_a_dead_flag_with_no_candidates_is_still_a_question(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_dead_without_candidates(directory)
+            questions, _context = review_surface.collect_routes(out)
+            self.assertEqual(len(questions), 1)
+            self.assertEqual(questions[0]["flag"], "author")
+            self.assertEqual(questions[0]["candidates"], [])
+
+    def test_drop_removes_the_flag_and_closes_the_question(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_dead_without_candidates(directory)
+            asked, answered = review_surface.run_review(
+                out, input_fn=lambda _: "drop", out_fn=lambda _: None)
+            self.assertEqual((asked, answered), (1, 1))
+            components = json.loads(
+                (Path(out) / "components.json").read_text())["components"]
+            options = components["facade"]["invocation"]["commands"][0][
+                "subcommands"][0]["options"]
+            self.assertEqual(options, [])
+            records = json.loads(
+                (Path(out) / "surface_decisions.json").read_text())["decisions"]
+            self.assertEqual(records[0]["kind"], "drop-flag")
+            self.assertEqual(records[0]["flag"], "author")
+            self.assertEqual(review_surface.collect_routes(out)[0], [])
+
+
 if __name__ == "__main__":
     unittest.main()
 

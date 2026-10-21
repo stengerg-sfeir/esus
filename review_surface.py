@@ -11,10 +11,12 @@ pattern decisions and field aliases), and applies the drop to the on-disk
 components immediately plus on every future run while the prompt stands.
 
 A declared flag can also parse and select nothing (`member list
--active-only` printed every member): its leaf binds a parameterless read,
-and the service's other parameterless reads are the finite candidates.
-The human names the one the flag selects; that lands as a `kind: "route"`
-record in the same file, and the generator emits the dispatch.
+-active-only` printed every member, `book list --author` is ignored): its
+leaf binds a parameterless read, and the service's other parameterless
+reads are the finite route candidates when the flag is a selector. A dead
+option with no candidate is still asked; the deterministic answer there is
+`drop`, recorded as `kind: "drop-flag"` beside the route records and applied
+to the surface.
 
 Usage:
     python review_surface.py out/expenses          # ask open questions
@@ -45,10 +47,12 @@ from kernel.extraction.decisions import requirements_sha  # noqa: E402
 SURFACE_DECISIONS_NAME = generator.SURFACE_DECISIONS_NAME
 SURFACE_DECISIONS_KEY = generator.SURFACE_DECISIONS_KEY
 ROUTE_KIND = generator.SURFACE_ROUTE_KIND
+DROP_FLAG_KIND = "drop-flag"
 
 KEEP_PARENT = "parent"
 KEEP_SUB = "sub"
 KEEP_BOTH = "both"
+DROP_FLAG = "drop"
 
 
 def load_surface_decisions(output_dir):
@@ -185,14 +189,17 @@ def _route_candidates(ctx, service, base_method_name):
 
 
 def collect_routes(output_dir):
-    """`(questions, context)`: dead flags that could select a read.
+    """`(questions, context)`: every dead flag, with any read candidates.
 
     A declared flag whose adapter fields never consume it parses and does
-    nothing (`member list -active-only`). The leaf's own bound method must
-    be a parameterless read; its service's other parameterless read
-    methods are the finite candidates. The human says which one the flag
-    selects — no name rule may — and the generator emits that dispatch on
-    every run while the prompt stands.
+    nothing (`member list -active-only`, `book list --author`). Every such
+    option is a question: a truthy selector offers the leaf service's
+    parameterless reads as finite route candidates, and a flag with no
+    candidate — a bare boolean whose real method takes a value, or a valued
+    flag the adapter ignores — is still asked, with `drop` as its only
+    deterministic resolution. The human says which read a selector selects,
+    or removes the flag; the generator emits a route on every run while the
+    prompt stands.
     """
     ctx = generator.load_context(output_dir)
     invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
@@ -202,10 +209,21 @@ def collect_routes(output_dir):
         ctx, bindings, {})
     # Only a record that still resolves closes its question: one pointing at
     # a method the documents no longer carry must reopen, not silently hide.
+    current = requirements_sha(load_requirements(output_dir))
     decided = set()
     for record in ctx.get("routes") or []:
         if generator._service_method(ctx, record.get("service"),
                                      record.get("method")) is None:
+            continue
+        decided.add((record.get("command"), record.get("subcommand"),
+                     record.get("flag")))
+    for record in load_surface_decisions(output_dir):
+        if not (isinstance(record, dict)
+                and record.get("kind") == DROP_FLAG_KIND
+                and record.get("command") and record.get("flag")):
+            continue
+        stamped = record.get("requirements_sha")
+        if current is not None and isinstance(stamped, str) and stamped != current:
             continue
         decided.add((record.get("command"), record.get("subcommand"),
                      record.get("flag")))
@@ -222,19 +240,20 @@ def collect_routes(output_dir):
         if base_method is None or base_method.get("params"):
             continue
         for dest, flag, kind in leaf["dead"]:
-            if kind != "truthy":
-                continue  # a valued flag selects nothing by itself
             if (where[0], where[1], dest) in decided:
                 continue
-            candidates = _route_candidates(ctx, service,
-                                           base_method.get("name"))
-            if not candidates:
-                continue
+            # Every dead option is a question. A truthy selector can offer
+            # the service's parameterless reads; a valued flag can still be
+            # reported (and dropped) even when no route fits its value.
+            candidates = (_route_candidates(ctx, service,
+                                            base_method.get("name"))
+                          if kind == "truthy" else [])
             questions.append({
                 "command": where[0],
                 "subcommand": where[1],
                 "flag": dest,
                 "flag_name": flag,
+                "kind": kind,
                 "service": service,
                 "reads": base_method.get("name"),
                 "candidates": candidates,
@@ -244,34 +263,44 @@ def collect_routes(output_dir):
 
 
 def describe_route(index, total, question):
-    """The stranded flag, the unfiltered read it rides on, the candidates."""
+    """The dead option, the unfiltered read it rides on, the candidates."""
     leaf = question["command"]
     if question["subcommand"]:
         leaf += f" {question['subcommand']}"
     lines = [
         f"--- question {index}/{total} ---",
-        f"FLAG SELECTING A READ: '{leaf} {question['flag_name']}' parses today "
+        f"DEAD OPTION: '{leaf} {question['flag_name']}' parses today "
         f"and does nothing.",
         f"  the command reads {question['service']}.{question['reads']} "
         f"(no arguments) when the flag is passed.",
-        "  candidate methods:",
     ]
-    for number, (service, method) in enumerate(question["candidates"], start=1):
-        lines.append(f"    {number}) {service}.{method}")
-    lines += [
-        "  The documents link the flag to none of them; only you can say",
-        "  which one it selects. skip leaves the flag reported.",
-    ]
+    if question["candidates"]:
+        lines.append("  candidate methods:")
+        for number, (service, method) in enumerate(question["candidates"], start=1):
+            lines.append(f"    {number}) {service}.{method}")
+        lines.append(
+            "  The documents link the flag to none of them; only you can say "
+            "which one it selects.")
+    else:
+        lines.append(
+            "  no parameterless read on that service can select it"
+            + (" (it is a valued flag)" if question.get("kind") != "truthy"
+               else "") + ".")
+    lines.append(
+        "  drop removes the flag from the surface; skip leaves it reported.")
     return lines
 
 
 def ask_route(question, input_fn=input):
-    """One candidate number (or name); None on skip."""
+    """One candidate number/name, `drop`, or None on skip."""
     shown = ", ".join(str(n) for n in range(1, len(question["candidates"]) + 1))
+    choices = f"choose {shown}, drop, or skip: " if shown else "drop or skip: "
     try:
-        answer = input_fn(f"choose {shown}, or skip: ").strip().lower()
+        answer = input_fn(choices).strip().lower()
     except (EOFError, KeyboardInterrupt):
         return None
+    if answer in (DROP_FLAG, "d", "drop flag", "remove"):
+        return DROP_FLAG
     if answer.isdigit():
         index = int(answer) - 1
         if 0 <= index < len(question["candidates"]):
@@ -334,18 +363,23 @@ def apply_surface_decisions(components, records, log=None, requirements_text=Non
     current = requirements_sha(requirements_text) if requirements_text else None
     kept = []
     for record in records or []:
-        if not (isinstance(record, dict)
-                and isinstance(record.get("command"), str)
-                and isinstance(record.get("subcommand"), str)
-                and record.get("keep") in (KEEP_PARENT, KEEP_SUB, KEEP_BOTH)):
+        if not isinstance(record, dict) or not isinstance(record.get("command"), str):
+            continue
+        is_duplicate = (isinstance(record.get("subcommand"), str)
+                        and record.get("keep") in (KEEP_PARENT, KEEP_SUB, KEEP_BOTH))
+        is_drop = (record.get("kind") == DROP_FLAG_KIND
+                   and isinstance(record.get("flag"), str))
+        if not (is_duplicate or is_drop):
             continue
         stamped = record.get("requirements_sha")
         if (current is not None and isinstance(stamped, str)
                 and stamped != current):
             if log is not None:
+                subject = (record.get("subcommand")
+                           if record.get("keep") else record.get("flag"))
                 log.write(
                     f"[!] step components: surface decision for "
-                    f"'{record['command']} {record['subcommand']}' "
+                    f"'{record['command']} {subject}' "
                     f"predates a prompt change — dropped, will be re-asked"
                 )
             continue
@@ -358,6 +392,29 @@ def apply_surface_decisions(components, records, log=None, requirements_text=Non
         return components
     applied = 0
     for record in kept:
+        if record.get("kind") == DROP_FLAG_KIND:
+            command, sub = record["command"], record.get("subcommand")
+            leaf = next((c for c in commands
+                         if isinstance(c, dict) and c.get("name") == command), None)
+            if sub is not None and isinstance(leaf, dict):
+                leaf = next((s for s in leaf.get("subcommands") or []
+                             if isinstance(s, dict) and s.get("name") == sub), None)
+            options = leaf.get("options") if isinstance(leaf, dict) else None
+            if isinstance(options, list):
+                kept_options = [
+                    option for option in options
+                    if codegen.option_dest(option) != record["flag"]
+                ]
+                if len(kept_options) != len(options):
+                    leaf["options"] = kept_options
+                    applied += 1
+                    if log is not None:
+                        where = f"{command} {sub}" if sub else command
+                        log.write(
+                            f"[ok] step components: dropped flag "
+                            f"'{record['flag']}' from '{where}' (human decision)"
+                        )
+            continue
         command, sub, keep = record["command"], record["subcommand"], record["keep"]
         if keep == KEEP_BOTH:
             applied += 1
@@ -392,13 +449,13 @@ def apply_surface_decisions(components, records, log=None, requirements_text=Non
 
 
 def run_review(output_dir, input_fn=input, out_fn=print):
-    """Ask every open duplicate and stranded flag; return (asked, answered)."""
+    """Ask every open duplicate and dead option; return (asked, answered)."""
     duplicates, context = collect_duplicates(output_dir)
     routes, _route_context = collect_routes(output_dir)
     questions = ([("duplicate", question) for question in duplicates]
                  + [("route", question) for question in routes])
     if not questions:
-        out_fn("no duplicated surface nodes or stranded flags — nothing to decide")
+        out_fn("no duplicated surface nodes or dead options — nothing to decide")
         return 0, 0
     records = load_surface_decisions(output_dir)
     answered = 0
@@ -423,16 +480,25 @@ def run_review(output_dir, input_fn=input, out_fn=print):
             if picked is None:
                 out_fn("skipped — left open")
                 continue
-            service, method = picked
-            record = {
-                "kind": ROUTE_KIND,
-                "command": question["command"],
-                "subcommand": question["subcommand"],
-                "flag": question["flag"],
-                "service": service,
-                "method": method,
-                "decided_by": "user",
-            }
+            if picked == DROP_FLAG:
+                record = {
+                    "kind": DROP_FLAG_KIND,
+                    "command": question["command"],
+                    "subcommand": question["subcommand"],
+                    "flag": question["flag"],
+                    "decided_by": "user",
+                }
+            else:
+                service, method = picked
+                record = {
+                    "kind": ROUTE_KIND,
+                    "command": question["command"],
+                    "subcommand": question["subcommand"],
+                    "flag": question["flag"],
+                    "service": service,
+                    "method": method,
+                    "decided_by": "user",
+                }
         if context["prompt_sha"] is not None:
             record["requirements_sha"] = context["prompt_sha"]
         records.append(record)
@@ -467,7 +533,7 @@ def main(argv=None):
         routes, _ = collect_routes(args[0])
         total = len(duplicates) + len(routes)
         if not total:
-            print("no duplicated surface nodes or stranded flags — nothing to decide")
+            print("no duplicated surface nodes or dead options — nothing to decide")
             return 0
         for number, question in enumerate(duplicates, start=1):
             for line in describe_question(number, total, question):
