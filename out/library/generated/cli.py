@@ -10,7 +10,7 @@ BOOL_TO_ONE turns a selector such as --available-only into the
 minimum count of one.
 """
 
-import argparse
+import click
 import dataclasses
 import datetime
 import json
@@ -18,6 +18,7 @@ import sys
 
 import models
 import errors
+from schema import SCHEMA
 from store import Store
 import repositories
 import services
@@ -37,13 +38,13 @@ def _transform(kind, value, field):
     if kind == "DECIMAL_TO_CENTS":
         return int(round(float(value) * 100))
     if kind == "CSV_LIST":
-        items = value if isinstance(value, list) else [value]
+        items = value if isinstance(value, (list, tuple)) else [value]
         split = []
         for part in items:
             split.extend(p.strip() for p in str(part).split(",") if p.strip())
         return split
     if kind == "INT_LIST":
-        items = value if isinstance(value, list) else [value]
+        items = value if isinstance(value, (list, tuple)) else [value]
         return [int(item) for item in items]
     if kind == "LOOKUP_ID":
         return int(value)
@@ -247,12 +248,12 @@ ADAPTERS = {
 
 BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
     ('book', 'add'): [('add_book', 5, ())],
-    ('book', 'list'): [('find_books_by_author_author', 5, (('author', 'value', '-author'),)), ('filter_books_by_available_copies', 5, (('available_only', 'truthy', '--available-only'),)), ('list_books', 5, ())],
+    ('book', 'list'): [('find_books_by_author_author', 5, (('author', 'value', '--author'),)), ('filter_books_by_available_copies', 5, (('available_only', 'truthy', '--available-only'),)), ('list_books', 5, ())],
     ('book', 'search'): [('search_books', 7, ())],
     ('borrow', None): [('borrow_book', 7, ())],
     ('member', 'add'): [('add_member', 5, ())],
     ('member', 'history'): [('get_member_loan_history', 7, ())],
-    ('member', 'list'): [('find_active_members', 5, (('active_only', 'truthy', '-active-only'),)), ('list_members', 5, ())],
+    ('member', 'list'): [('find_active_members', 5, (('active_only', 'truthy', '--active-only'),)), ('list_members', 5, ())],
     ('overdue', None): [('get_overdue_loans', 7, ())],
     ('return', None): [('return_book', 7, ())],
 }
@@ -285,7 +286,7 @@ def _choose(bound, values):
 
 def _incomplete(chosen, bound, present):
     """Flags passed that select a choice also needing companions
-    (`-category` without `-month`): naming the missing flag beats
+    (`--category` without `--month`): naming the missing flag beats
     ignoring the one passed."""
     consumed = {dest for dest, _kind, _flag in chosen[2]}
     for action, _score, need in bound:
@@ -302,52 +303,132 @@ def _incomplete(chosen, bound, present):
     return None
 
 
+def _error_text(error):
+    """A domain error keeps its class name when it carries no text."""
+    detail = str(error)
+    name = type(error).__name__
+    return f'{name}: {detail}' if detail else name
+
+
 DEFAULT_DB = 'library.db'
 
 
-def build_parser():
-    parser = argparse.ArgumentParser(prog='library')
-    parser.add_argument('--db', default=None,
-                        help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
-    sub = parser.add_subparsers(dest='command')
-    p_book = sub.add_parser('book')
-    sub_book = p_book.add_subparsers(dest='subcommand')
-    p_book_add = sub_book.add_parser('add')
-    p_book_add.add_argument('-title', '-t', type=str, required=True, dest='title')
-    p_book_add.add_argument('--isbn', type=str, required=True, dest='isbn')
-    p_book_add.add_argument('--author-id', type=int, required=True, dest='author_id')
-    p_book_add.add_argument('--published-year', type=int, required=True, dest='published_year')
-    p_book_add.add_argument('--copies', type=int, required=True, dest='copies')
-    p_book_add.set_defaults(_binding=('book', 'add'))
-    p_book_list = sub_book.add_parser('list')
-    p_book_list.add_argument('-author', '-a', type=int, required=False, dest='author')
-    p_book_list.add_argument('--available-only', action='store_true', dest='available_only')
-    p_book_list.set_defaults(_binding=('book', 'list'))
-    p_book_search = sub_book.add_parser('search')
-    p_book_search.add_argument('-query', '-q', type=str, required=True, dest='query')
-    p_book_search.set_defaults(_binding=('book', 'search'))
-    p_member = sub.add_parser('member')
-    sub_member = p_member.add_subparsers(dest='subcommand')
-    p_member_add = sub_member.add_parser('add')
-    p_member_add.add_argument('-name', '-n', type=str, required=True, dest='name')
-    p_member_add.add_argument('-email', '-e', type=str, required=True, dest='email')
-    p_member_add.set_defaults(_binding=('member', 'add'))
-    p_member_list = sub_member.add_parser('list')
-    p_member_list.add_argument('-active-only', '-a', action='store_true', dest='active_only')
-    p_member_list.set_defaults(_binding=('member', 'list'))
-    p_member_history = sub_member.add_parser('history')
-    p_member_history.add_argument('--member-id', type=int, required=True, dest='member_id')
-    p_member_history.set_defaults(_binding=('member', 'history'))
-    p_borrow = sub.add_parser('borrow')
-    p_borrow.add_argument('--member-id', type=int, required=True, dest='member_id')
-    p_borrow.add_argument('--book-id', type=int, required=True, dest='book_id')
-    p_borrow.set_defaults(_binding=('borrow', None))
-    p_return = sub.add_parser('return')
-    p_return.add_argument('--loan-id', type=int, required=True, dest='loan_id')
-    p_return.set_defaults(_binding=('return', None))
-    p_overdue = sub.add_parser('overdue')
-    p_overdue.set_defaults(_binding=('overdue', None))
-    return parser
+
+COMMANDS = {'book': {'subcommands': {'add': {'binding': ('book', 'add'),
+                                  'plans': [{'flags': ['--title', '-t'],
+                                             'dest': 'title',
+                                             'otype': 'str',
+                                             'required': True,
+                                             'default': None},
+                                            {'flags': ['--isbn'],
+                                             'dest': 'isbn',
+                                             'otype': 'str',
+                                             'required': True,
+                                             'default': None},
+                                            {'flags': ['--author-id'],
+                                             'dest': 'author_id',
+                                             'otype': 'int',
+                                             'required': True,
+                                             'default': None},
+                                            {'flags': ['--published-year'],
+                                             'dest': 'published_year',
+                                             'otype': 'int',
+                                             'required': True,
+                                             'default': None},
+                                            {'flags': ['--copies'],
+                                             'dest': 'copies',
+                                             'otype': 'int',
+                                             'required': True,
+                                             'default': None}]},
+                          'list': {'binding': ('book', 'list'),
+                                   'plans': [{'flags': ['--author', '-a'],
+                                              'dest': 'author',
+                                              'otype': 'int',
+                                              'required': False,
+                                              'default': None},
+                                             {'flags': ['--available-only'],
+                                              'dest': 'available_only',
+                                              'otype': 'bool',
+                                              'required': False,
+                                              'default': None}]},
+                          'search': {'binding': ('book', 'search'),
+                                     'plans': [{'flags': ['--query', '-q'],
+                                                'dest': 'query',
+                                                'otype': 'str',
+                                                'required': True,
+                                                'default': None}]}}},
+ 'member': {'subcommands': {'add': {'binding': ('member', 'add'),
+                                    'plans': [{'flags': ['--name', '-n'],
+                                               'dest': 'name',
+                                               'otype': 'str',
+                                               'required': True,
+                                               'default': None},
+                                              {'flags': ['--email', '-e'],
+                                               'dest': 'email',
+                                               'otype': 'str',
+                                               'required': True,
+                                               'default': None}]},
+                            'list': {'binding': ('member', 'list'),
+                                     'plans': [{'flags': ['--active-only', '-a'],
+                                                'dest': 'active_only',
+                                                'otype': 'bool',
+                                                'required': False,
+                                                'default': None}]},
+                            'history': {'binding': ('member', 'history'),
+                                        'plans': [{'flags': ['--member-id'],
+                                                   'dest': 'member_id',
+                                                   'otype': 'int',
+                                                   'required': True,
+                                                   'default': None}]}}},
+ 'borrow': {'binding': ('borrow', None),
+            'plans': [{'flags': ['--member-id'],
+                       'dest': 'member_id',
+                       'otype': 'int',
+                       'required': True,
+                       'default': None},
+                      {'flags': ['--book-id'],
+                       'dest': 'book_id',
+                       'otype': 'int',
+                       'required': True,
+                       'default': None}]},
+ 'return': {'binding': ('return', None),
+            'plans': [{'flags': ['--loan-id'],
+                       'dest': 'loan_id',
+                       'otype': 'int',
+                       'required': True,
+                       'default': None}]},
+ 'overdue': {'binding': ('overdue', None), 'plans': []}}
+
+
+def _make_option(plan):
+    attrs = {}
+    otype = plan.get('otype')
+    if otype == 'bool':
+        attrs['is_flag'] = True
+        attrs['default'] = bool(plan.get('default'))
+    elif otype == 'list':
+        attrs['multiple'] = True
+        attrs['type'] = str
+    else:
+        attrs['type'] = {'str': str, 'int': int,
+                         'float': float}.get(otype, str)
+        attrs['required'] = bool(plan.get('required'))
+        if plan.get('default') is not None:
+            attrs['default'] = plan['default']
+    return click.Option(list(plan['flags']) + [plan['dest']], **attrs)
+
+
+def _make_command(name, spec):
+    if 'subcommands' in spec:
+        group = click.Group(name)
+        for child_name, child in spec['subcommands'].items():
+            group.add_command(_make_command(child_name, child))
+        return group
+    def callback(deps, **kwargs):
+        return _dispatch(spec['binding'], kwargs, deps)
+    params = [_make_option(plan) for plan in spec.get('plans', [])]
+    return click.Command(name, params=params,
+                         callback=click.pass_obj(callback))
 
 
 def _call(bound, values, deps):
@@ -390,46 +471,60 @@ def _sanitize(text):
 
 
 def build_cli(db_path=None):
-    store = Store(db_path)
+    store = Store(db_path, SCHEMA)
     repos = {cls_name: getattr(repositories, cls_name)(store) for cls_name in REPOSITORIES}
     hired = {cls_name: getattr(services, cls_name)(repos) for cls_name in SERVICES}
     entities = {_normalize(name): getattr(models, name) for name in MODELS}
-    return build_parser(), {'store': store, 'repos': repos,
-                           'services': {**repos, **hired},
-                           'entities': entities}
+    return {'store': store, 'repos': repos,
+            'services': {**repos, **hired},
+            'entities': entities}
 
 
-def main(argv=None):
-    parser = build_parser()
-    args = parser.parse_args(argv)
-    _, deps = build_cli(args.db or DEFAULT_DB)
-    try:
-        return dispatch(parser, args, deps)
-    finally:
-        deps['store'].close()
-
-
-def dispatch(parser, args, deps):
-    """Run one parsed command against shared dependencies."""
-    binding = getattr(args, '_binding', None)
-    if binding is None:
-        parser.print_usage()
-        return 2
+def _dispatch(binding, values, deps):
+    """Run one click command against shared dependencies."""
     bound = BINDINGS.get(tuple(binding))
     if bound is None:
-        print(f"no adapter bound for {' '.join(binding)} — not implemented")
-        return 1
-    values = {key: value for key, value in vars(args).items()
-              if key not in ('command', 'subcommand', '_binding', 'db')}
+        raise click.ClickException(
+            f"no adapter bound for {' '.join(binding)} — not implemented")
     choice, present = _choose(bound, values)
     trouble = _incomplete(choice, bound, present)
     if trouble:
-        print(f"error: {' '.join(binding)}: {trouble}")
-        return 1
+        raise click.ClickException(
+            f"{' '.join(binding)}: {trouble}")
     try:
         _show(_call(choice, values, deps))
+    except click.ClickException:
+        raise
     except Exception as error:
-        print(f"error: {error}")
+        raise click.ClickException(_error_text(error)) from error
+    return 0
+
+
+@click.group('library')
+@click.option('--db', default=None,
+              help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
+@click.pass_context
+def cli(ctx, db):
+    deps = build_cli(db or DEFAULT_DB)
+    ctx.obj = deps
+    ctx.call_on_close(lambda: deps['store'].close())
+
+
+for _name, _spec in COMMANDS.items():
+    cli.add_command(_make_command(_name, _spec))
+
+
+def main(argv=None):
+    try:
+        cli.main(args=argv, prog_name='library',
+                 standalone_mode=False)
+    except click.exceptions.Exit as error:
+        return error.exit_code
+    except click.ClickException as error:
+        error.show()
+        return error.exit_code
+    except click.Abort:
+        click.echo('Aborted!', err=True)
         return 1
     return 0
 

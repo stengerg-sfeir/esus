@@ -925,5 +925,28 @@ class BooleanFilterActionRepairTests(unittest.TestCase):
         self.assertEqual(len(adapters), 2)
 
 
+class LongOptionSpellingTests(unittest.TestCase):
+    def test_multi_character_single_dash_names_become_long_flags(self):
+        body = {"facade": {"invocation": {
+            "options": [{"name": "-help", "short": "-h", "type": "bool"}],
+            "commands": [
+            {"name": "book", "options": [], "subcommands": [
+                {"name": "add", "options": [
+                    {"name": "-title", "short": "-t", "type": "str"},
+                    {"name": "-a", "short": None, "type": "bool"},
+                ]}]}]}}}
+        log = Log()
+        repairs.repair_long_option_names(body, log)
+        options = body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"]
+        self.assertEqual([option["name"] for option in options],
+                         ["--title", "-a"])
+        root = body["facade"]["invocation"]["options"][0]["name"]
+        self.assertEqual(root, "--help")
+        self.assertIn("normalized option '-title' to '--title'", log.joined())
+        before = json.dumps(body, sort_keys=True)
+        repairs.repair_long_option_names(body, log)
+        self.assertEqual(json.dumps(body, sort_keys=True), before)
+
+
 if __name__ == "__main__":
     unittest.main()

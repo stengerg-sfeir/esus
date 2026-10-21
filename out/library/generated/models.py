@@ -1,5 +1,6 @@
-"""Data models. Every field defaults to None: the store assigns integer
-primary keys on insert, and updates merge only non-None values."""
+"""Data models. The store assigns integer primary keys on insert,
+and updates merge only non-None values. Explicit application defaults
+from the requirements are preserved on the dataclasses."""
 
 from dataclasses import dataclass
 from decimal import Decimal
@@ -14,7 +15,7 @@ class Book:
     title: str = None
     isbn: str = None
     published_year: Optional[int] = None
-    available_copies: int = None
+    available_copies: int = 1
     author_id: int = None
 
 
@@ -32,7 +33,7 @@ class Member:
     name: str = None
     email: str = None
     membership_date: datetime.date = None
-    is_active: bool = None
+    is_active: bool = True
 
 
 @dataclass

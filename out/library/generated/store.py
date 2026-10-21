@@ -1,17 +1,16 @@
 """Record store for generated programs: dependency-free, no surprises.
 
 In-memory by default; SQLite-backed when given a path (`Store("shop.db")`,
-`:memory:` included). All querying stays in Python (criteria, `_holds`):
-sqlite is a durable record drawer, not a query engine, so file-backed
-behavior is identical to memory by construction — every mutation commits
-immediately, and loading restores records plus the id counters.
+`:memory:` included). When a schema is supplied, the durable form is real
+SQLite: one table per entity, typed columns, INTEGER primary keys, UNIQUE
+constraints and foreign keys with `ON DELETE CASCADE`. Without a schema the
+fallback is the original one-JSON-document-per-record drawer, which keeps
+small generated programs and the store's own tests dependency-free.
 
-Tables hold one JSON blob per record keyed by the primary-key value, so
-there is no column mapping to drift from the models; values must stay
-JSON-shaped (str, int, float, bool, None — everything the CLI parses;
-`datetime.date`/`datetime.datetime` enter as ISO strings), and anything
-else fails loudly instead of persisting wrong. Deleting the file resets
-the program; schema migration is a non-goal.
+All querying still goes through the Python record view (criteria, `_holds`),
+so memory and file-backed behavior match. With a schema, SQLite owns inserts,
+updates and deletes; the record view is reloaded after every mutation, which
+is also what makes cascades visible to callers.
 
 Records are plain dicts keyed by field name. The store knows nothing about
 your domain: every operation takes the entity name, the primary-key field,
@@ -31,11 +30,17 @@ import sqlite3
 class Store:
     """Maps entity names to `{primary_key_value: record}` dicts."""
 
-    def __init__(self, path=None):
+    def __init__(self, path=None, schema=None):
         self._records = {}
         self._next_id = {}
         self._db = None
-        if path is not None:
+        self._schema = schema or {}
+        if self._schema:
+            self._db = sqlite3.connect(path if path is not None else ":memory:")
+            self._db.execute("PRAGMA foreign_keys = ON")
+            self._create_schema()
+            self._load_schema()
+        elif path is not None:
             self._db = sqlite3.connect(path)
             self._db.execute(
                 "CREATE TABLE IF NOT EXISTS records "
@@ -57,6 +62,140 @@ class Store:
                     if isinstance(key, int) and not isinstance(key, bool)]
             if ints:
                 self._next_id[entity] = max(ints) + 1
+
+    @staticmethod
+    def _quote(identifier):
+        return '"' + str(identifier).replace('"', '""') + '"'
+
+    def _create_schema(self):
+        """Create one typed table per entity, in dependency-safe form.
+
+        SQLite permits a foreign key to name a table created later in the
+        same transaction, so declaration order does not matter. `ON DELETE
+        CASCADE` is part of the stored schema rather than a Python-side
+        cleanup step, and `PRAGMA foreign_keys = ON` makes it effective.
+        """
+        for entity, spec in self._schema.items():
+            columns = []
+            for field in spec.get("fields") or []:
+                name = self._quote(field.get("name"))
+                sql_type = _sql_type(field.get("type"))
+                if field.get("primary_key"):
+                    declaration = (sql_type + " PRIMARY KEY AUTOINCREMENT"
+                                   if sql_type == "INTEGER"
+                                   else sql_type + " PRIMARY KEY")
+                else:
+                    declaration = sql_type
+                    if not field.get("nullable", True):
+                        declaration += " NOT NULL"
+                    if field.get("unique"):
+                        declaration += " UNIQUE"
+                    if field.get("default") is not None:
+                        declaration += " DEFAULT " + _sql_literal(field["default"])
+                    foreign = field.get("foreign_key")
+                    if isinstance(foreign, dict) and foreign.get("target_entity"):
+                        declaration += (
+                            " REFERENCES "
+                            + self._quote(foreign["target_entity"])
+                            + "(" + self._quote(foreign.get("target_field") or "id")
+                            + ") ON DELETE CASCADE")
+                columns.append(name + " " + declaration)
+            self._db.execute(
+                "CREATE TABLE IF NOT EXISTS "
+                + self._quote(entity) + " (" + ", ".join(columns) + ")")
+        self._db.commit()
+
+    def _load_schema(self):
+        self._records = {}
+        for entity, spec in self._schema.items():
+            primary_key = spec.get("primary_key") or "id"
+            declared = {field.get("name"): field.get("type")
+                        for field in spec.get("fields") or []}
+            cursor = self._db.execute(
+                "SELECT * FROM " + self._quote(entity))
+            names = [description[0] for description in cursor.description]
+            space = self._records.setdefault(entity, {})
+            for values in cursor:
+                record = dict(zip(names, values))
+                for name, value in list(record.items()):
+                    record[name] = _from_sql(value, declared.get(name))
+                space[record.get(primary_key)] = record
+
+    def _add_schema(self, entity, pk_name, values, check_fk):
+        spec = self._schema.get(entity)
+        if spec is None:
+            raise ValueError(f"unknown entity {entity!r} for this schema")
+        defaults = {field.get("name"): field.get("default")
+                    for field in spec.get("fields") or []}
+        record = {name: _iso(value) for name, value in values.items()}
+        for name, default in defaults.items():
+            if name not in record or record[name] is None:
+                if default is not None:
+                    record[name] = default
+        key = record.get(pk_name)
+        if key is not None and key in self._records.get(entity, {}):
+            raise ValueError(f"{entity} with {pk_name}={key!r} already exists")
+        for field_name, target_entity, target_field, exc in check_fk:
+            self._check_fk(entity, record, field_name,
+                           target_entity, target_field, exc)
+        columns = []
+        parameters = []
+        for field in spec.get("fields") or []:
+            name = field.get("name")
+            if name == pk_name and record.get(name) is None:
+                continue
+            value = record.get(name)
+            # Let an explicit SQL default fill a field the caller omitted.
+            if value is None and field.get("default") is not None:
+                continue
+            columns.append(self._quote(name))
+            parameters.append(_to_sql(value))
+        cursor = self._db.execute(
+            "INSERT INTO " + self._quote(entity)
+            + (" (" + ", ".join(columns) + ")" if columns else "")
+            + " VALUES (" + ", ".join("?" for _ in columns) + ")"
+            if columns else
+            "INSERT INTO " + self._quote(entity) + " DEFAULT VALUES",
+            parameters)
+        if key is None:
+            key = cursor.lastrowid
+        self._db.commit()
+        self._load_schema()
+        return dict(self._records[entity][key])
+
+    def _update_schema(self, entity, pk_name, key, values, error):
+        spec = self._schema.get(entity)
+        if spec is None or key not in self._records.get(entity, {}):
+            message = f"{entity} with {pk_name}={key!r} not found"
+            raise error(message) if error is not None else KeyError(message)
+        assignments = []
+        parameters = []
+        for field in spec.get("fields") or []:
+            name = field.get("name")
+            if name == pk_name or name not in values or values[name] is None:
+                continue
+            assignments.append(self._quote(name) + " = ?")
+            parameters.append(_to_sql(values[name]))
+        if assignments:
+            parameters.append(key)
+            self._db.execute(
+                "UPDATE " + self._quote(entity) + " SET "
+                + ", ".join(assignments) + " WHERE "
+                + self._quote(pk_name) + " = ?", parameters)
+            self._db.commit()
+            self._load_schema()
+        return dict(self._records[entity][key])
+
+    def _delete_schema(self, entity, pk_name, key, error):
+        spec = self._schema.get(entity)
+        if spec is None or key not in self._records.get(entity, {}):
+            message = f"{entity} with {pk_name}={key!r} not found"
+            raise error(message) if error is not None else KeyError(message)
+        self._db.execute(
+            "DELETE FROM " + self._quote(entity) + " WHERE "
+            + self._quote(pk_name) + " = ?", (key,))
+        self._db.commit()
+        self._load_schema()
 
     def _persist(self, entity, key):
         """Write one record through (or its deletion) and commit."""
@@ -85,6 +224,8 @@ class Store:
 
     def add(self, entity, pk_name, values, check_fk=()):
         """Store a copy of `values`; assign an integer key when it is None."""
+        if self._schema:
+            return self._add_schema(entity, pk_name, values, check_fk)
         space = self._space(entity)
         record = {name: _iso(value) for name, value in values.items()}
         key = record.get(pk_name)
@@ -129,6 +270,8 @@ class Store:
 
     def update(self, entity, pk_name, key, values, error=None):
         """Merge `values` into the record at `key`; unknown keys fail like `get`."""
+        if self._schema:
+            return self._update_schema(entity, pk_name, key, values, error)
         space = self._space(entity)
         if key not in space:
             message = f"{entity} with {pk_name}={key!r} not found"
@@ -143,6 +286,8 @@ class Store:
 
     def delete(self, entity, pk_name, key, error=None):
         """Remove the record at `key`; unknown keys fail like `get`."""
+        if self._schema:
+            return self._delete_schema(entity, pk_name, key, error)
         space = self._space(entity)
         if key not in space:
             message = f"{entity} with {pk_name}={key!r} not found"
@@ -160,6 +305,67 @@ class Store:
                    for field, operator, value in prepared):
                 matches.append(dict(record))
         return matches
+
+
+def _sql_type(declared):
+    """The SQLite affinity for a model type; JSON-ish values stay portable."""
+    name = str(declared or "").strip().lower()
+    if name in ("int", "integer"):
+        return "INTEGER"
+    if name in ("bool", "boolean"):
+        return "INTEGER"
+    if name in ("float", "decimal", "number", "real"):
+        return "REAL"
+    return "TEXT"
+
+
+def _to_sql(value):
+    """Dates become ISO text; lists/dicts become JSON text for SQLite."""
+    value = _iso(value)
+    if isinstance(value, (list, dict, tuple)):
+        return json.dumps(value, default=str)
+    if isinstance(value, bool):
+        return 1 if value else 0
+    return value
+
+
+def _from_sql(value, declared):
+    """Restore the JSON-ish shapes the generic store promises."""
+    name = str(declared or "").strip().lower()
+    if value is None:
+        return None
+    if name in ("bool", "boolean"):
+        return bool(value)
+    if (name in ("list", "array", "dict", "object", "json")
+            or name.startswith(("list[", "array[", "dict[", "set["))):
+        try:
+            return json.loads(value)
+        except (TypeError, ValueError):
+            return value
+    if name == "date" and isinstance(value, str):
+        try:
+            return datetime.date.fromisoformat(value[:10])
+        except ValueError:
+            return value
+    if name in ("datetime", "timestamp") and isinstance(value, str):
+        try:
+            return datetime.datetime.fromisoformat(value)
+        except ValueError:
+            return value
+    return value
+
+
+def _sql_literal(value):
+    """A safe SQL literal for a schema DEFAULT (values are extraction data)."""
+    if value is True:
+        return "1"
+    if value is False:
+        return "0"
+    if value is None:
+        return "NULL"
+    if isinstance(value, (int, float)):
+        return repr(value)
+    return "'" + str(value).replace("'", "''") + "'"
 
 
 def _iso(value):

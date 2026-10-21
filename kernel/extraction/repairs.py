@@ -601,6 +601,45 @@ OPTION_TYPES_BY_MODEL = {
 }
 
 
+def repair_long_option_names(components, log=None):
+    """Normalize a multi-character single-dash option to `--name`.
+
+    The requirements spell long flags with two dashes (`--title`), and the
+    command-line parser accepts only that spelling. A model sometimes writes
+    `-title` (a long name with a short flag's arity); the destination and
+    review decisions are unchanged, only the spelling is repaired. A true
+    short flag (`-t`) is left alone. Idempotent.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    if not isinstance(invocation, dict):
+        return components
+
+    def visit(node):
+        if not isinstance(node, dict):
+            return
+        for option in node.get("options") or []:
+            if not isinstance(option, dict):
+                continue
+            name = option.get("name")
+            if (isinstance(name, str) and name.startswith("-")
+                    and not name.startswith("--") and len(name) > 2):
+                option["name"] = "--" + name[1:]
+                if log is not None:
+                    log.write(
+                        f"[ok] step components: normalized option '{name}' "
+                        f"to '{option['name']}'")
+        for child in node.get("subcommands") or []:
+            visit(child)
+        for child in node.get("commands") or []:
+            visit(child)
+
+    visit(invocation)
+    return components
+
+
 def repair_missing_surface(components, requirements, models, log):
     """Ensure every attributable command line exists on the surface.
 

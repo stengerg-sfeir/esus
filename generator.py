@@ -5,8 +5,8 @@ The probe proves the documents agree; this writes the program they describe:
 
     python generator.py out/expenses
 
-writes `out/expenses/generated/` — `models.py`, `errors.py`, `store.py`,
-`repositories.py`, `services.py`, `cli.py` — and refuses (exit 1) when the
+writes `out/expenses/generated/` — `models.py`, `errors.py`, `schema.py`,
+`store.py`, `repositories.py`, `services.py`, `cli.py` — and refuses (exit 1) when the
 probe reports blockers or open ties, because generating from a document the
 probe rejects means inventing code silently.
 
@@ -20,10 +20,10 @@ this file does not reimplement it):
   `raise NotImplementedError` stub carrying its directive and refusal reason
   in the docstring: a work order for the LLM pass, never an invented body.
 
-The CLI backend is `argparse` (stdlib) regardless of the declared technology —
-porting a CLI facade to click is later work — and
-each `(command, subcommand)` is bound to the adapter that serves its verb, the
-binding baked into `cli.py` with its score beside it.
+The CLI backend follows the facade declaration: `click` gets real click
+commands with typed options, every other technology gets the stdlib
+`argparse` fallback. Each `(command, subcommand)` is bound to the adapter that
+serves its verb, the binding baked into `cli.py` with its score beside it.
 
 A `gui` facade additionally gets `gui.py` from the backend its declaration
 names (`--gui-tech` overrides): today only `pyimgui`, a generic one-window-
@@ -61,6 +61,7 @@ import ast
 import builtins
 import json
 import os
+import pprint
 import re
 import sys
 
@@ -252,6 +253,7 @@ def load_context(output_dir):
         "dropped_contracts": dropped_contracts,
         "routes": routes,
         "dropped_routes": dropped_routes,
+        "requirements": requirements_text,
     }
 
 
@@ -327,20 +329,72 @@ from typing import Any, Dict, List, Optional
 
 
 def emit_init(ctx, stats):
+    technology = ((ctx.get("components") or {}).get("facade") or {}).get("technology")
+    backend = str(technology or "argparse").strip().lower()
     lines = ['"""Generated program. Do not edit by hand: regenerate with `generator.py`."""',
              "",
-             f"Source documents: {stats['source']}",
-             f"Methods: {stats['implemented']} implemented, {stats['stubs']} stubs "
+             f"# Source documents: {stats['source']}",
+             f"# Methods: {stats['implemented']} implemented, {stats['stubs']} stubs "
              "(each stub names its work order in its docstring).",
-             "CLI backend is argparse (stdlib); the declared facade technology is",
-             "recorded in the documents and porting the CLI to it is later work.",
+             f"# CLI backend: {backend}.",
              ""]
     return "\n".join(lines) + "\n"
 
 
+def _field_default(ctx, field):
+    """The field's default from the model, else the requirements' own words.
+
+    Extraction records types, keys and foreign keys but not default values;
+    requirements such as "available_copies (default 1)" and "is_active
+    (default True)" are still authoritative. Only a literal directly attached
+    to the field name is accepted, so an unrelated "default" sentence cannot
+    leak into the model.
+    """
+    if isinstance(field, dict) and "default" in field:
+        return field.get("default")
+    name = field.get("name") if isinstance(field, dict) else None
+    if not isinstance(name, str) or not name:
+        return None
+    text = ctx.get("requirements") or ""
+    if not text:
+        return None
+    literal = (
+        r"(true|false|none|null|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\"|"
+        r"-?\d+(?:\.\d+)?)"
+    )
+    patterns = (
+        # The requirements' own list spelling: `available_copies (default 1)`.
+        r"\b" + re.escape(name) + r"\b\s*\([^)\n]*?"
+        r"\bdefaults?(?:\s+to)?\s*[:=]?\s*" + literal + r"\s*\)",
+        # The prose spelling: `available_copies defaults to 1`.
+        r"\b" + re.escape(name) + r"\b\s+(?:defaults?(?:\s+to)?|"
+        r"has\s+a\s+default(?:\s+of)?)\s*[:=]?\s*" + literal + r"\b",
+    )
+    match = next((re.search(pattern, text, re.IGNORECASE)
+                  for pattern in patterns
+                  if re.search(pattern, text, re.IGNORECASE)), None)
+    if not match:
+        return None
+    token = match.group(1).strip()
+    lowered = token.lower()
+    if lowered == "true":
+        return True
+    if lowered == "false":
+        return False
+    if lowered in ("none", "null"):
+        return None
+    if token[:1] in ("'", '"') and token[-1:] == token[:1]:
+        return ast.literal_eval(token)
+    try:
+        return ast.literal_eval(token)
+    except (SyntaxError, ValueError):
+        return None
+
+
 def emit_models(ctx):
-    lines = ['"""Data models. Every field defaults to None: the store assigns integer',
-             'primary keys on insert, and updates merge only non-None values."""',
+    lines = ['"""Data models. The store assigns integer primary keys on insert,',
+             'and updates merge only non-None values. Explicit application defaults',
+             'from the requirements are preserved on the dataclasses."""',
              "", HEADER_IMPORTS.strip(), ""]
     for model in ctx["models"]:
         cls = codegen.sanitize(model["name"], "Model")
@@ -353,7 +407,8 @@ def emit_models(ctx):
             pytype = codegen.map_type(field.get("type"), ctx["entity_names"])
             if field.get("nullable"):
                 pytype = f"Optional[{pytype}]"
-            lines.append(f"    {codegen.sanitize(name)}: {pytype} = None")
+            default = _field_default(ctx, field)
+            lines.append(f"    {codegen.sanitize(name)}: {pytype} = {default!r}")
     return "\n".join(lines) + "\n"
 
 
@@ -786,6 +841,66 @@ def _result_wrap(model_cls):
     return f"return {model_cls}(**record)"
 
 
+def _create_defaults(ctx, entity):
+    """Fields a create command omits but a useful record still needs.
+
+    A membership created by `member add --name --email` has no date flag;
+    the domain's own date is today. Only conventional creation-date names
+    are filled, so a loan's due date is not silently invented.
+    """
+    defaults = {}
+    for name, field in fields_of(ctx, entity):
+        if _field_default(ctx, field) is not None:
+            continue
+        declared = str(field.get("type") or "").strip().lower()
+        if name not in ("membership_date", "joined_date", "created_date",
+                        "created_at", "registration_date"):
+            continue
+        if declared in ("datetime", "timestamp"):
+            defaults[name] = "datetime.datetime.now()"
+        else:
+            defaults[name] = "datetime.date.today()"
+    return defaults
+
+
+def _unique_fields(ctx, entity):
+    """Non-key fields the schema makes unique.
+
+    The invariants are more precise than the model flags: an extraction can
+    mark a descriptive field (`Book.title`) unique while the requirements
+    only make `isbn` unique. When the invariants name unique fields for the
+    entity, they win; otherwise the model's `unique` flags are the fallback.
+    """
+    fields = [name for name, field in fields_of(ctx, entity)
+              if not field.get("primary_key")]
+    invariant_fields = set()
+    wanted = normalize(entity)
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if not isinstance(text, str) or "unique" not in text.lower():
+            continue
+        for match in re.finditer(r"\b([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)\b", text):
+            if normalize(match.group(1)) == wanted:
+                invariant_fields.add(match.group(2))
+    if invariant_fields:
+        return [name for name in fields if name in invariant_fields]
+    return [name for name, field in fields_of(ctx, entity)
+            if field.get("unique") and not field.get("primary_key")]
+
+
+def _unique_error(ctx, entity):
+    wanted = normalize(entity)
+    for error in ctx["errors"]:
+        name = error.get("name")
+        if not isinstance(name, str):
+            continue
+        flat = normalize(name)
+        if wanted and wanted in flat and ("alreadyexists" in flat
+                                          or flat.endswith("existserror")):
+            return f"errors.{codegen.sanitize(name)}"
+    return "ValueError"
+
+
 def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal):
     entity_param, scalars = _entity_params(params, ctx["entity_names"])
     lines = []
@@ -801,6 +916,18 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
         lines.append(f"unknown = [k for k in values if k not in {field_names!r}]")
         lines.append("if unknown:")
         lines.append(f"    raise ValueError(f\"cannot create {entity} from {{unknown}}\")")
+    for field_name, expression in _create_defaults(ctx, entity).items():
+        lines.append(f"if values.get({field_name!r}) is None:")
+        lines.append(f"    values[{field_name!r}] = {expression}")
+    unique_fields = _unique_fields(ctx, entity)
+    if unique_fields:
+        unique_error = _unique_error(ctx, entity)
+        lines.append(f"for unique_field in {unique_fields!r}:")
+        lines.append("    value = values.get(unique_field)")
+        lines.append("    if value is not None and self._store.select("
+                     "self.ENTITY, [(unique_field, 'eq', value)]):")
+        lines.append(f"        raise {unique_error}("
+                     f"f\"{entity} with {{unique_field}}={{value!r}} already exists\")")
     lines.append(f"record = self._store.add(self.ENTITY, self.PK, values, check_fk={fk_literal})")
     lines.append(_result_wrap(model_cls))
     return lines
@@ -1816,6 +1943,9 @@ def _repo_threshold_body(entity, model_cls, field_types, method, fname, slots):
         lines.append(f"bound = {codegen.sanitize(threshold, 'param')}")
     lines.append("out = []")
     lines.append(f"for record in self._store.select(self.ENTITY, []):")
+    if "overdue" in normalize(fname) and "status" in field_types:
+        lines.append("    if str(record.get('status') or '').lower() == 'returned':")
+        lines.append("        continue")
     if dated:
         lines.append(f"    key = str(record.get({field!r}) or '')[:10]")
         lines.append(f"    hit = key {symbol} str(bound)[:10]")
@@ -1848,6 +1978,13 @@ def _option_plans(options, stats):
         raw = (option.get("name") or option.get("short") or "").strip()
         if not raw.startswith("-"):
             raw = "--" + raw if raw else ""
+        # A multi-character single-dash token is a long option written with
+        # the wrong arity (`-title`), not a short flag. Emit the standard
+        # spelling the requirements use (`--title`); a true short flag such
+        # as `-t` is left alone.
+        if raw.startswith("-") and not raw.startswith("--") \
+                and len(raw) > 2:
+            raw = "--" + raw[1:]
         if not raw:
             continue
         if raw.lstrip("-").lower() in ("help", "version"):
@@ -2182,8 +2319,182 @@ def _leaf_scan(ctx, bindings, stats):
     return leaves, actions, argv, targets, assembled
 
 
+def _click_commands(invocation, leaves):
+    """A declarative command tree for the click backend.
+
+    Keeping the tree as data makes the generated module small: one generic
+    `_make_command` turns plans into `click.Option`s, and click owns parsing,
+    help, typing and exit codes.
+    """
+    leaf_index = {(leaf["command"], leaf["subcommand"]): leaf
+                  for leaf in leaves}
+    tree = {}
+    for command in invocation.get("commands") or []:
+        if not isinstance(command, dict) or not command.get("name"):
+            continue
+        cname = command["name"]
+        subs = [sub for sub in (command.get("subcommands") or [])
+                if isinstance(sub, dict) and sub.get("name")]
+        if not subs:
+            leaf = leaf_index.get((cname, None)) or {}
+            tree[cname] = {"binding": (cname, None),
+                           "plans": leaf.get("plans") or []}
+            continue
+        children = {}
+        for sub in subs:
+            sname = sub["name"]
+            leaf = leaf_index.get((cname, sname)) or {}
+            children[sname] = {"binding": (cname, sname),
+                               "plans": leaf.get("plans") or []}
+        tree[cname] = {"subcommands": children}
+    return tree
+
+
+def _click_cli_tail(leaves, invocation, stats):
+    """The click-specific half of `cli.py`; shares ADAPTERS/BINDINGS/helpers."""
+    commands = _click_commands(invocation, leaves)
+    lines = ["", "",
+             "COMMANDS = " + pprint.pformat(commands, width=110,
+                                             sort_dicts=False),
+             "",
+             "",
+             "def _make_option(plan):",
+             "    attrs = {}",
+             "    otype = plan.get('otype')",
+             "    if otype == 'bool':",
+             "        attrs['is_flag'] = True",
+             "        attrs['default'] = bool(plan.get('default'))",
+             "    elif otype == 'list':",
+             "        attrs['multiple'] = True",
+             "        attrs['type'] = str",
+             "    else:",
+             "        attrs['type'] = {'str': str, 'int': int,",
+             "                         'float': float}.get(otype, str)",
+             "        attrs['required'] = bool(plan.get('required'))",
+             "        if plan.get('default') is not None:",
+             "            attrs['default'] = plan['default']",
+             "    return click.Option(list(plan['flags']) + [plan['dest']], **attrs)",
+             "",
+             "",
+             "def _make_command(name, spec):",
+             "    if 'subcommands' in spec:",
+             "        group = click.Group(name)",
+             "        for child_name, child in spec['subcommands'].items():",
+             "            group.add_command(_make_command(child_name, child))",
+             "        return group",
+             "    def callback(deps, **kwargs):",
+             "        return _dispatch(spec['binding'], kwargs, deps)",
+             "    params = [_make_option(plan) for plan in spec.get('plans', [])]",
+             "    return click.Command(name, params=params,",
+             "                         callback=click.pass_obj(callback))",
+             "",
+             "",
+             "def _call(bound, values, deps):",
+             "    action = bound[0]",
+             "    spec = ADAPTERS[action]",
+             "    service = deps['services'][_sanitize(spec['service'])]",
+             "    method = getattr(service, _sanitize(spec['method']))",
+             "    present = {_normalize(k): v for k, v in values.items()}",
+             "    argv = spec.get('argv', {})",
+             "    targets = spec.get('targets', {})",
+             "    assembled = set(spec.get('assembled', []))",
+             "    grouped = {}",
+             "    for field_name, (target_param, kind, required) in spec['fields']:",
+             "        if field_name in assembled:",
+             "            continue  # built from its sibling fields, not from argv",
+             "        dest = argv.get(field_name)",
+             "        if dest is None or present.get(_normalize(dest)) is None:",
+             "            if required:",
+             "                raise ValueError(f\"missing required field {field_name!r} for {action!r}\")",
+             "            continue",
+             "        value = _transform(kind, present[_normalize(dest)], field_name)",
+             "        if targets.get(target_param) is not None:",
+             "            grouped.setdefault(target_param, {})[field_name] = value",
+             "        else:",
+             "            grouped[target_param] = value",
+             "    call_kwargs = {}",
+             "    for target_param, value in grouped.items():",
+             "        model_name = targets.get(target_param)",
+             "        if model_name is not None and isinstance(value, dict):",
+             "            call_kwargs[_sanitize(target_param)] = getattr(models, model_name)(**value)",
+             "        else:",
+             "            call_kwargs[_sanitize(target_param)] = value",
+             "    return method(**call_kwargs)",
+             "",
+             "",
+             "def _sanitize(text):",
+             '    cleaned = "".join(c if c.isalnum() or c == "_" else "_" for c in str(text))',
+             '    cleaned = cleaned.strip("_") or "opt"',
+             '    return "_" + cleaned if cleaned[:1].isdigit() else cleaned',
+             "",
+             "",
+             "def build_cli(db_path=None):",
+             "    store = Store(db_path, SCHEMA)",
+             "    repos = {cls_name: getattr(repositories, cls_name)(store) for cls_name in REPOSITORIES}",
+             "    hired = {cls_name: getattr(services, cls_name)(repos) for cls_name in SERVICES}",
+             "    entities = {_normalize(name): getattr(models, name) for name in MODELS}",
+             "    return {'store': store, 'repos': repos,",
+             "            'services': {**repos, **hired},",
+             "            'entities': entities}",
+             "",
+             "",
+             "def _dispatch(binding, values, deps):",
+             "    \"\"\"Run one click command against shared dependencies.\"\"\"",
+             "    bound = BINDINGS.get(tuple(binding))",
+             "    if bound is None:",
+             "        raise click.ClickException(",
+             "            f\"no adapter bound for {' '.join(binding)} — not implemented\")",
+             "    choice, present = _choose(bound, values)",
+             "    trouble = _incomplete(choice, bound, present)",
+             "    if trouble:",
+             "        raise click.ClickException(",
+             "            f\"{' '.join(binding)}: {trouble}\")",
+             "    try:",
+             "        _show(_call(choice, values, deps))",
+             "    except click.ClickException:",
+             "        raise",
+             "    except Exception as error:",
+             "        raise click.ClickException(_error_text(error)) from error",
+             "    return 0",
+             "",
+             "",
+             "@click.group(" + repr(stats["prog"]) + ")",
+             "@click.option('--db', default=None,",
+             "              help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))",
+             "@click.pass_context",
+             "def cli(ctx, db):",
+             "    deps = build_cli(db or DEFAULT_DB)",
+             "    ctx.obj = deps",
+             "    ctx.call_on_close(lambda: deps['store'].close())",
+             "",
+             "",
+             "for _name, _spec in COMMANDS.items():",
+             "    cli.add_command(_make_command(_name, _spec))",
+             "",
+             "",
+             "def main(argv=None):",
+             "    try:",
+             "        cli.main(args=argv, prog_name=" + repr(stats["prog"]) + ",",
+             "                 standalone_mode=False)",
+             "    except click.exceptions.Exit as error:",
+             "        return error.exit_code",
+             "    except click.ClickException as error:",
+             "        error.show()",
+             "        return error.exit_code",
+             "    except click.Abort:",
+             "        click.echo('Aborted!', err=True)",
+             "        return 1",
+             "    return 0",
+             "",
+             "",
+             'if __name__ == "__main__":',
+             "    sys.exit(main())",
+             ""]
+    return lines
+
+
 def emit_cli(ctx, bindings, stats):
-    """An argparse CLI: every declared verb parses; bound verbs dispatch.
+    """A CLI in the declared backend: every verb parses; bound verbs dispatch.
 
     A leaf may bind several choices: recorded routes (a flag selecting a
     method the documents never linked it to), mechanical alternates (an
@@ -2192,6 +2503,8 @@ def emit_cli(ctx, bindings, stats):
     bound action as the fallback. The first choice whose flags are all
     passed wins; flags that select nothing are reported, not ignored.
     """
+    technology = ((ctx.get("components") or {}).get("facade") or {}).get("technology")
+    click_backend = str(technology or "").strip().lower() == "click"
     repo_classes = [codegen.sanitize(r.get("interface_name") or r.get("entity"), "Repository")
                     for r in ctx["repositories"]]
     port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
@@ -2221,7 +2534,7 @@ def emit_cli(ctx, bindings, stats):
              "minimum count of one.",
              '"""',
              "",
-             "import argparse",
+             "import click" if click_backend else "import argparse",
              "import dataclasses",
              "import datetime",
              "import json",
@@ -2229,6 +2542,7 @@ def emit_cli(ctx, bindings, stats):
              "",
              "import models",
              "import errors",
+             "from schema import SCHEMA",
              "from store import Store",
              "import repositories",
              "import services",
@@ -2248,13 +2562,13 @@ def emit_cli(ctx, bindings, stats):
              '    if kind == "DECIMAL_TO_CENTS":',
              "        return int(round(float(value) * 100))",
              '    if kind == "CSV_LIST":',
-              "        items = value if isinstance(value, list) else [value]",
+              "        items = value if isinstance(value, (list, tuple)) else [value]",
               "        split = []",
               "        for part in items:",
               "            split.extend(p.strip() for p in str(part).split(\",\") if p.strip())",
               "        return split",
              '    if kind == "INT_LIST":',
-              "        items = value if isinstance(value, list) else [value]",
+              "        items = value if isinstance(value, (list, tuple)) else [value]",
               "        return [int(item) for item in items]",
              '    if kind == "LOOKUP_ID":',
              "        return int(value)",
@@ -2345,7 +2659,7 @@ def emit_cli(ctx, bindings, stats):
               "",
               "def _incomplete(chosen, bound, present):",
               "    \"\"\"Flags passed that select a choice also needing companions",
-              "    (`-category` without `-month`): naming the missing flag beats",
+              "    (`--category` without `--month`): naming the missing flag beats",
               "    ignoring the one passed.\"\"\"",
               "    consumed = {dest for dest, _kind, _flag in chosen[2]}",
               "    for action, _score, need in bound:",
@@ -2362,9 +2676,20 @@ def emit_cli(ctx, bindings, stats):
               "    return None",
               "",
               "",
+              "def _error_text(error):",
+              "    \"\"\"A domain error keeps its class name when it carries no text.\"\"\"",
+              "    detail = str(error)",
+              "    name = type(error).__name__",
+              "    return f'{name}: {detail}' if detail else name",
+              "",
+              "",
               f"DEFAULT_DB = {stats['prog'] + '.db'!r}",
-              "",
-              "",
+              ""]
+    invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
+    if click_backend:
+        lines += _click_cli_tail(leaves, invocation, stats)
+        return "\n".join(lines) + "\n"
+    lines += ["",
               "def build_parser():",
               f"    parser = argparse.ArgumentParser(prog={stats['prog']!r})",
               "    parser.add_argument('--db', default=None,",
@@ -2372,7 +2697,6 @@ def emit_cli(ctx, bindings, stats):
               "(default: ' + DEFAULT_DB + ' in the working directory; "
               "use :memory: to stay in memory)'))",
               "    sub = parser.add_subparsers(dest='command')"]
-    invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
     leaf_index = {(leaf["command"], leaf["subcommand"]): leaf
                   for leaf in leaves}
     for command in invocation.get("commands") or []:
@@ -2440,7 +2764,7 @@ def emit_cli(ctx, bindings, stats):
               "",
               "",
               "def build_cli(db_path=None):",
-              "    store = Store(db_path)",
+              "    store = Store(db_path, SCHEMA)",
               "    repos = {cls_name: getattr(repositories, cls_name)(store) for cls_name in REPOSITORIES}",
               "    hired = {cls_name: getattr(services, cls_name)(repos) for cls_name in SERVICES}",
               "    entities = {_normalize(name): getattr(models, name) for name in MODELS}",
@@ -2479,7 +2803,7 @@ def emit_cli(ctx, bindings, stats):
               "    try:",
               "        _show(_call(choice, values, deps))",
               "    except Exception as error:",
-              "        print(f\"error: {error}\")",
+              "        print(f\"error: {_error_text(error)}\")",
               "        return 1",
               "    return 0",
               "",
@@ -2494,6 +2818,39 @@ def emit_cli(ctx, bindings, stats):
 # assembly
 # --------------------------------------------------------------------------
 
+def emit_schema(ctx):
+    """The database schema, generated from models and invariants.
+
+    It is a plain Python literal so the generated program stays dependency-
+    free. Unique flags follow the invariants when they are precise enough;
+    explicit application defaults come from the requirements (the extraction
+    format has no default slot).
+    """
+    schema = {}
+    for model in ctx["models"]:
+        entity = model["name"]
+        fields = fields_of(ctx, entity)
+        primary_key = next((name for name, field in fields
+                            if field.get("primary_key")), "id")
+        unique_fields = set(_unique_fields(ctx, entity))
+        entries = []
+        for name, field in fields:
+            foreign = field.get("foreign_key")
+            entries.append({
+                "name": name,
+                "type": field.get("type"),
+                "primary_key": name == primary_key,
+                "nullable": bool(field.get("nullable"))
+                            and name != primary_key,
+                "unique": name in unique_fields or name == primary_key,
+                "foreign_key": foreign if isinstance(foreign, dict) else None,
+                "default": _field_default(ctx, field),
+            })
+        schema[entity] = {"primary_key": primary_key, "fields": entries}
+    return "SCHEMA = " + pprint.pformat(schema, width=110,
+                                       sort_dicts=False) + "\n"
+
+
 def render_program(ctx, stats):
     """Every file of the package as `{filename: text}`."""
     stats.setdefault("skipped_options", [])
@@ -2505,6 +2862,7 @@ def render_program(ctx, stats):
         "errors.py": emit_errors(ctx),
         "repositories.py": emit_repositories(ctx, stats),
         "services.py": emit_services(ctx, repo_index, stats),
+        "schema.py": emit_schema(ctx),
     }
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            "kernel", "codegen_store_template.py"),
@@ -3083,6 +3441,127 @@ def _stub_method(info):
     """The method name a stub span belongs to."""
     match = re.match(r"def (\w+)", info.get("def") or "")
     return match.group(1) if match else "?"
+
+
+def load_previous_generated(out_dir):
+    """The generated stub modules already on disk, before this run overwrites them."""
+    target = os.path.join(out_dir, GENERATED_DIR)
+    files = {}
+    for filename in STUB_FILES:
+        path = os.path.join(target, filename)
+        if os.path.isfile(path):
+            with open(path, "r", encoding="utf-8") as handle:
+                files[filename] = handle.read()
+    return files
+
+
+def reviewed_bodies(files):
+    """`{(filename, class, method): (docstring, body_lines)}` for tagged bodies.
+
+    A body that a previous run tagged `llm-written` has been read or run at
+    least once; the mechanical emitter is allowed to evolve underneath it
+    (new imports, new CRUD helpers), but regenerating must not silently throw
+    a reviewed answer away. Only exact method labels are cached; a method the
+    emitter now handles mechanically is not overwritten.
+    """
+    found = {}
+    for filename in STUB_FILES:
+        text = files.get(filename)
+        if not isinstance(text, str):
+            continue
+        lines = text.splitlines()
+        cls = None
+        index = 0
+        while index < len(lines):
+            class_match = re.match(r"^class (\w+)", lines[index])
+            if class_match:
+                cls = class_match.group(1)
+                index += 1
+                continue
+            method_match = re.match(r"^    def (\w+)\(", lines[index])
+            if not method_match or cls is None:
+                index += 1
+                continue
+            method = method_match.group(1)
+            docstring = None
+            cursor = index + 1
+            if cursor < len(lines) and lines[cursor].lstrip().startswith('"""'):
+                docstring = lines[cursor]
+                cursor += 1
+            body = []
+            while cursor < len(lines):
+                line = lines[cursor]
+                if line.strip() and not line.startswith("        "):
+                    break
+                body.append(line[8:] if line.startswith("        ") else line)
+                cursor += 1
+            while body and not body[-1].strip():
+                body.pop()
+            if docstring and "llm-written by" in docstring:
+                found[(filename, cls, method)] = (docstring, body)
+            index = max(cursor, index + 1)
+    return found
+
+
+def _spliced_reviewed(text, start, end, info, cached):
+    """Replace one fresh stub with a reviewed body, keeping its original tag."""
+    docstring, body = cached
+    lines = text.splitlines()
+    replacement = [docstring] if docstring else []
+    if not docstring and info.get("docstring"):
+        replacement.append(info["docstring"])
+    replacement.extend("        " + line if line.strip() else ""
+                       for line in body)
+    candidate = "\n".join(lines[:start] + replacement + lines[end + 1:])
+    if text.endswith("\n"):
+        candidate += "\n"
+    return candidate
+
+
+def reuse_reviewed_bodies(files, previous):
+    """Re-splice reviewed LLM bodies into the freshly emitted stubs.
+
+    Returns `[(label, status, note)]`: `reused` for a matching body, `kept`
+    when a cached body no longer compiles against the new module. This is a
+    preservation step, not generation: it never invents a body and never
+    changes one that the current emitter made mechanical.
+    """
+    cache = reviewed_bodies(previous)
+    if not cache:
+        return []
+    rows = []
+    for filename in STUB_FILES:
+        text = files.get(filename)
+        if not isinstance(text, str):
+            continue
+        labels = [f"{info['cls']}.{_stub_method(info)}"
+                  for _start, _end, info in find_stub_spans(text)]
+        for label in reversed(labels):
+            current = next(
+                (found for found in find_stub_spans(text)
+                 if f"{found[2]['cls']}.{_stub_method(found[2])}" == label),
+                None)
+            if current is None:
+                continue
+            _start, _end, info = current
+            cached = cache.get((filename, info["cls"], _stub_method(info)))
+            if cached is None:
+                continue
+            candidate = _spliced_reviewed(text, _start, _end, info, cached)
+            candidate, added = _add_imports(candidate, "\n".join(cached[1]))
+            try:
+                compile(candidate, filename, "exec")
+            except SyntaxError as error:
+                rows.append((label, "kept",
+                             f"the reviewed body no longer compiles ({error.msg})"))
+                continue
+            text = candidate
+            note = "reviewed body preserved"
+            if added:
+                note += "; added import " + ", ".join(added)
+            rows.append((label, "reused", note))
+        files[filename] = text
+    return rows
 
 
 def _split_signature(text):
@@ -4900,6 +5379,12 @@ def main(argv=None):
                              "argparse-owned options, adapter fields with no "
                              "CLI flag). Anything actionable is already a "
                              "probe blocker, which refuses generation.")
+    parser.add_argument("--reuse-reviewed-bodies", action="store_true",
+                        help="Keep bodies tagged `llm-written` from the "
+                             "existing generated/repositories.py and "
+                             "services.py when their method labels still "
+                             "match a stub; mechanical code is regenerated "
+                             "underneath them")
     parser.add_argument("--stub-context",
                         choices=("full", "minimal", "honest", "exact"),
                         default=DEFAULT_STUB_CONTEXT,
@@ -4930,7 +5415,11 @@ def main(argv=None):
 
     stats = {"source": args.out_dir, "implemented": 0, "stubs": 0,
              "stub_reasons": [], "prog": os.path.basename(args.out_dir.rstrip(os.sep))}
+    previous = (load_previous_generated(args.out_dir)
+                if args.reuse_reviewed_bodies else {})
     files = render_program(ctx, stats)
+    if args.reuse_reviewed_bodies:
+        stats["reused_bodies"] = reuse_reviewed_bodies(files, previous)
 
     kind, tech, note = gui_backend(ctx, args.gui_tech)
     if note:
@@ -4962,6 +5451,12 @@ def main(argv=None):
     coverage = stats["implemented"] / total if total else 1.0
     print(f"methods: {stats['implemented']} implemented, {stats['stubs']} stubs "
           f"({coverage:.0%} mechanical)")
+    reused = stats.get("reused_bodies") or []
+    if reused:
+        count = sum(1 for _label, status, _note in reused if status == "reused")
+        print(f"llm: reused {count} reviewed body(s) from the previous output")
+        for label, status, note in reused:
+            print(f"  llm {status}: {label} — {note}")
     rows = stats.get("llm_stubs") or []
     if rows:
         written = sum(1 for _label, status, _note in rows if status == "written")

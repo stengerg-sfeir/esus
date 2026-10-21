@@ -41,6 +41,10 @@ class BookRepository:
         unknown = [k for k in values if k not in ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']]
         if unknown:
             raise ValueError(f"cannot create Book from {unknown}")
+        for unique_field in ['isbn']:
+            value = values.get(unique_field)
+            if value is not None and self._store.select(self.ENTITY, [(unique_field, 'eq', value)]):
+                raise errors.BookAlreadyExistsError(f"Book with {unique_field}={value!r} already exists")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("author_id", "Author", "id", errors.AuthorNotFoundError)])
         return models.Book(**record)
 
@@ -201,6 +205,12 @@ class MemberRepository:
         unknown = [k for k in values if k not in ['id', 'name', 'email', 'membership_date', 'is_active']]
         if unknown:
             raise ValueError(f"cannot create Member from {unknown}")
+        if values.get('membership_date') is None:
+            values['membership_date'] = datetime.date.today()
+        for unique_field in ['email']:
+            value = values.get(unique_field)
+            if value is not None and self._store.select(self.ENTITY, [(unique_field, 'eq', value)]):
+                raise errors.MemberAlreadyExistsError(f"Member with {unique_field}={value!r} already exists")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Member(**record)
 
@@ -322,6 +332,8 @@ class LoanRepository:
         bound = datetime.date.today().isoformat()
         out = []
         for record in self._store.select(self.ENTITY, []):
+            if str(record.get('status') or '').lower() == 'returned':
+                continue
             key = str(record.get('due_date') or '')[:10]
             hit = key < str(bound)[:10]
             if hit:

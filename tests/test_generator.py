@@ -349,13 +349,14 @@ class GenerationTests(unittest.TestCase):
         sys.path.insert(0, self.generated)
         try:
             for name in ("store", "models", "errors", "repositories",
-                         "services", "cli"):
+                         "services", "schema", "cli"):
                 sys.modules.pop(name, None)
             import store
             import models
             import errors
             import repositories
             import services
+            import schema  # noqa: F401
             import cli
             return store, models, errors, repositories, services, cli
         finally:
@@ -363,7 +364,7 @@ class GenerationTests(unittest.TestCase):
 
     def test_all_files_are_written(self):
         for filename in ("__init__.py", "models.py", "errors.py", "store.py",
-                         "repositories.py", "services.py", "cli.py"):
+                         "schema.py", "repositories.py", "services.py", "cli.py"):
             self.assertTrue((Path(self.generated) / filename).is_file(), filename)
 
     def test_crud_round_trip_with_registered_errors(self):
@@ -843,15 +844,15 @@ class ServiceCompositionTests(unittest.TestCase):
         """`book list` gives `-a` to two options: the second keeps its long flag."""
         stats = {}
         lines = generator._emit_options("", "p", [
-            {"name": "-author", "short": "-a", "type": "bool", "required": False, "default": None},
-            {"name": "-author-only", "short": "-a", "type": "bool", "required": False, "default": None},
+            {"name": "--author", "short": "-a", "type": "bool", "required": False, "default": None},
+            {"name": "--author-only", "short": "-a", "type": "bool", "required": False, "default": None},
         ], stats)
         second = next(line for line in lines if "author-only" in line)
-        self.assertIn("'-author-only'", second)
+        self.assertIn("'--author-only'", second)
         self.assertNotIn("'-a',", second)
 
     def test_a_declared_option_no_field_reads_is_reported(self):
-        """`member list -active-only` parsed and did nothing: a finding, and
+        """`member list --active-only` parsed and did nothing: a finding, and
         a consumed sibling flag proves the check has no false positives."""
         from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
         adapters = [
@@ -865,7 +866,7 @@ class ServiceCompositionTests(unittest.TestCase):
         invocation = {"commands": [
             {"name": "member", "options": [], "subcommands": [
                 {"name": "list", "options": [
-                    {"name": "-active-only", "short": "-a", "type": "bool",
+                    {"name": "--active-only", "short": "-a", "type": "bool",
                      "required": False, "default": None}]},
                 {"name": "find", "options": [
                     {"name": "-name", "type": "str", "required": False,
@@ -891,10 +892,10 @@ class ServiceCompositionTests(unittest.TestCase):
         stats = {"prog": "member", "unmapped": []}
         text = generator.emit_cli(ctx, bindings, stats)
         # The surface keeps declaring the flag; the finding says it is dead.
-        self.assertIn("'-active-only'", text)
+        self.assertIn("'--active-only'", text)
         self.assertEqual(
             stats["dead_options"],
-            ["member list: -active-only — no adapter field reads it"])
+            ["member list: --active-only — no adapter field reads it"])
 
     def test_scoring_prefers_the_command_own_entity(self):
         """`budget add` reaches the budget creator, not `add_category`."""
@@ -981,12 +982,12 @@ class ServiceCompositionTests(unittest.TestCase):
 class CliChoiceTests(unittest.TestCase):
     """One leaf, several possible methods: flags pick, partial flags name gaps.
 
-    A recorded route (`member list -active-only` → `find_active_members`)
+    A recorded route (`member list --active-only` → `find_active_members`)
     wins when its flag is passed. A mechanical alternate (`budget list
-    -category -month`) must have every one of its flags, and a partial set
+    --category --month`) must have every one of its flags, and a partial set
     names the missing flag instead of quietly reading everything. A leaf
     whose own method takes arguments is nobody's fallback: `product remove
-    -id` may never redirect to the read that shares the flag.
+    --id` may never redirect to the read that shares the flag.
     """
 
     def emitted(self, ctx):
@@ -1009,11 +1010,13 @@ class CliChoiceTests(unittest.TestCase):
                 pass
 
         modules = {}
-        for name in ("models", "errors", "store", "repositories", "services"):
+        for name in ("models", "errors", "store", "repositories", "services",
+                     "schema"):
             modules[name] = types.ModuleType(name)
+        modules["schema"].SCHEMA = {}
         for name in models:
             setattr(modules["models"], name, type(name, (), {}))
-        modules["store"].Store = lambda path=None: NullStore()
+        modules["store"].Store = lambda path=None, schema=None: NullStore()
         for name, factory in repository_factories.items():
             setattr(modules["repositories"], name, factory)
         with mock.patch.dict(sys.modules, modules):
@@ -1031,7 +1034,7 @@ class CliChoiceTests(unittest.TestCase):
              "target_method": "read_all_members", "input_fields": []}]
         invocation = {"commands": [{"name": "member", "options": [], "subcommands": [
             {"name": "list", "options": [
-                {"name": "-active-only", "short": "-a", "type": "bool",
+                {"name": "--active-only", "short": "-a", "type": "bool",
                  "required": False, "default": None}]}]}]}
         return {
             "models": [{"name": "Member", "fields": [
@@ -1062,7 +1065,7 @@ class CliChoiceTests(unittest.TestCase):
                         line.index("'list_members'"))
         self.assertNotIn("dead_options", stats)
         self.assertEqual(stats["choice_routes"],
-                         ["member list: -active-only -> find_active_members"])
+                         ["member list: --active-only -> find_active_members"])
 
         class MemberRepository:
             def __init__(self, store):
@@ -1076,7 +1079,7 @@ class CliChoiceTests(unittest.TestCase):
 
         code, output = self.run_cli(text, {"MemberRepository": MemberRepository},
                                     ["--db", ":memory:", "member", "list",
-                                     "-active-only"])
+                                     "--active-only"])
         self.assertEqual(code, 0)
         self.assertIn("active-members", output)
         code, output = self.run_cli(text, {"MemberRepository": MemberRepository},
@@ -1088,10 +1091,10 @@ class CliChoiceTests(unittest.TestCase):
         """The surface is the documents': the flag keeps parsing, and the
         finding — not a guess — is what says nothing reads it."""
         text, stats = self.emitted(self.member_ctx([]))
-        self.assertIn("'-active-only'", text)
+        self.assertIn("'--active-only'", text)
         self.assertEqual(
             stats["dead_options"],
-            ["member list: -active-only — no adapter field reads it"])
+            ["member list: --active-only — no adapter field reads it"])
 
         class MemberRepository:
             def __init__(self, store):
@@ -1105,7 +1108,7 @@ class CliChoiceTests(unittest.TestCase):
 
         code, output = self.run_cli(text, {"MemberRepository": MemberRepository},
                                     ["--db", ":memory:", "member", "list",
-                                     "-active-only"])
+                                     "--active-only"])
         self.assertEqual(code, 0)
         self.assertIn("all-members", output)
 
@@ -1198,9 +1201,9 @@ class CliChoiceTests(unittest.TestCase):
                   "transform": "DIRECT", "required": True}]}]
         invocation = {"commands": [{"name": "budget", "options": [], "subcommands": [
             {"name": "list", "options": [
-                {"name": "-category", "short": "-c", "type": "int",
+                {"name": "--category", "short": "-c", "type": "int",
                  "required": False, "default": None},
-                {"name": "-month", "short": "-m", "type": "str",
+                {"name": "--month", "short": "-m", "type": "str",
                  "required": False, "default": None}]}]}]}
         return {
             "models": [{"name": "Budget", "fields": [
@@ -1233,7 +1236,7 @@ class CliChoiceTests(unittest.TestCase):
         self.assertNotIn("dead_options", stats)
         self.assertEqual(
             stats["choice_routes"],
-            ["budget list: -category -month -> read_budget_by_category_and_month"])
+            ["budget list: --category --month -> read_budget_by_category_and_month"])
 
         class BudgetRepository:
             def __init__(self, store):
@@ -1248,8 +1251,8 @@ class CliChoiceTests(unittest.TestCase):
 
         code, output = self.run_cli(
             text, {"BudgetRepository": BudgetRepository},
-            ["--db", ":memory:", "budget", "list", "-category", "1",
-             "-month", "2026-10"])
+            ["--db", ":memory:", "budget", "list", "--category", "1",
+             "--month", "2026-10"])
         self.assertEqual(code, 0)
         self.assertIn("filtered:1:2026-10", output)
         code, output = self.run_cli(text, {"BudgetRepository": BudgetRepository},
@@ -1258,9 +1261,9 @@ class CliChoiceTests(unittest.TestCase):
         self.assertIn("all-budgets", output)
         code, output = self.run_cli(text, {"BudgetRepository": BudgetRepository},
                                     ["--db", ":memory:", "budget", "list",
-                                     "-category", "1"])
+                                     "--category", "1"])
         self.assertEqual(code, 1)
-        self.assertIn("also needs -month", output)
+        self.assertIn("also needs --month", output)
 
     @staticmethod
     def product_ctx():
@@ -1279,7 +1282,7 @@ class CliChoiceTests(unittest.TestCase):
                   "transform": "DIRECT", "required": True}]}]
         invocation = {"commands": [{"name": "product", "options": [], "subcommands": [
             {"name": "remove", "options": [
-                {"name": "-id", "short": "-i", "type": "int",
+                {"name": "--id", "short": "-i", "type": "int",
                  "required": True, "default": None}]}]}]}
         return {
             "models": [{"name": "Product", "fields": [
@@ -1302,7 +1305,7 @@ class CliChoiceTests(unittest.TestCase):
         }
 
     def test_a_flag_never_redirects_a_write_to_a_read(self):
-        """`product remove -id` is a delete with a required argument — the
+        """`product remove --id` is a delete with a required argument — the
         read sharing the flag is not a filtered version of it."""
         text, _stats = self.emitted(self.product_ctx())
         line = next(l for l in text.splitlines() if "('product', 'remove')" in l)
@@ -1323,7 +1326,7 @@ class CliChoiceTests(unittest.TestCase):
 
         code, output = self.run_cli(text, {"ProductRepository": ProductRepository},
                                     ["--db", ":memory:", "product", "remove",
-                                     "-id", "7"])
+                                     "--id", "7"])
         self.assertEqual(code, 0)
         self.assertEqual(deleted, [7])
         self.assertNotIn("read:7", output)
@@ -3458,6 +3461,189 @@ class MappingEmissionTests(unittest.TestCase):
         kinds = {m["method"]: m["implemented"] for m in stats["methods"]}
         self.assertFalse(kinds["search_books_by_title_author_isbn"])
         self.assertTrue(kinds["read_one_book"])
+
+
+class SchemaAndClickTests(unittest.TestCase):
+    """The generated durable form and the click facade are real, not labels."""
+
+    @staticmethod
+    def schema_ctx():
+        return {
+            "models": [
+                {"name": "Author", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "name", "type": "string"}]},
+                {"name": "Book", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "title", "type": "string"},
+                    {"name": "isbn", "type": "string"},
+                    {"name": "available_copies", "type": "int"},
+                    {"name": "author_id", "type": "int",
+                     "foreign_key": {"target_entity": "Author",
+                                     "target_field": "id"}}]},
+                {"name": "Member", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "email", "type": "string"},
+                    {"name": "membership_date", "type": "date"},
+                    {"name": "is_active", "type": "boolean"}]}],
+            "entity_names": ["Author", "Book", "Member"],
+            "invariants": [
+                {"text": "Book.isbn must be unique across all Book entities"},
+                {"text": "Member.email must be unique across all Member entities"}],
+            "requirements": (
+                "available_copies (default 1)\n"
+                "is_active (default True)\n"),
+            "components": {"facade": {"technology": "click", "invocation": {
+                "commands": [{"name": "member", "subcommands": [
+                    {"name": "list", "options": [
+                        {"name": "-active-only", "short": "-a",
+                         "type": "bool", "required": False,
+                         "default": None}]}]}]}}},
+            "repositories": [{"entity": "Member",
+                              "interface_name": "MemberRepository",
+                              "methods": [{"name": "read_all_members",
+                                           "params": [],
+                                           "return_type": "List[Member]"},
+                                          {"name": "find_active_members",
+                                           "params": [],
+                                           "return_type": "List[Member]"}]}],
+            "services": [],
+            "adapters": [{"action_name": "list_members",
+                          "target_service": "MemberRepository",
+                          "target_method": "read_all_members",
+                          "input_fields": []}],
+            "routes": [{"kind": "route", "command": "member",
+                        "subcommand": "list", "flag": "active_only",
+                        "service": "MemberRepository",
+                        "method": "find_active_members",
+                        "decided_by": "user"}],
+        }
+
+    def test_init_file_is_valid_python(self):
+        text = generator.emit_init(self.schema_ctx(), {
+            "source": "library", "implemented": 3, "stubs": 1})
+        compile(text, "__init__.py", "exec")
+        self.assertIn("# Source documents:", text)
+
+    def test_schema_enforces_defaults_uniqueness_and_cascade(self):
+        ctx = self.schema_ctx()
+        namespace = {}
+        exec(generator.emit_schema(ctx), namespace)  # noqa: S102
+        schema = namespace["SCHEMA"]
+        book_fields = {field["name"]: field for field in schema["Book"]["fields"]}
+        self.assertFalse(book_fields["title"]["unique"])
+        self.assertTrue(book_fields["isbn"]["unique"])
+        self.assertEqual(book_fields["available_copies"]["default"], 1)
+        self.assertEqual(schema["Member"]["fields"][3]["default"], True)
+
+        store_module = {}
+        exec(compile(Path("kernel/codegen_store_template.py").read_text(),
+                     "store.py", "exec"), store_module)  # noqa: S102
+        store = store_module["Store"](":memory:", schema)
+        author = store.add("Author", "id", {"id": None, "name": "A"})
+        book = store.add("Book", "id", {
+            "id": None, "title": "T", "isbn": "I",
+            "available_copies": None, "author_id": author["id"]})
+        self.assertEqual(book["available_copies"], 1)
+        import datetime
+        member = store.add("Member", "id", {
+            "id": None, "email": "m@x",
+            "membership_date": datetime.date(2026, 1, 2),
+            "is_active": None})
+        self.assertEqual(member["is_active"], True)
+        self.assertEqual(member["membership_date"], datetime.date(2026, 1, 2))
+        self.assertEqual(
+            store._db.execute("PRAGMA foreign_keys").fetchone()[0], 1)
+        with self.assertRaises(Exception):
+            store.add("Book", "id", {
+                "id": None, "title": "T2", "isbn": "I",
+                "available_copies": 1, "author_id": author["id"]})
+        store.delete("Author", "id", author["id"])
+        self.assertEqual(store.all("Book"), [])
+
+    def test_click_backend_parses_the_requirements_spelling(self):
+        from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+        ctx = self.schema_ctx()
+        bindings, _ = codegen.bind_commands(
+            ctx["adapters"],
+            ctx["components"]["facade"]["invocation"], COMMAND_VERB_STEMS)
+        stats = {"prog": "library", "unmapped": []}
+        text = generator.emit_cli(ctx, bindings, stats)
+        self.assertIn("import click", text)
+        self.assertNotIn("import argparse", text)
+        self.assertIn("'--active-only'", text)
+
+        import types
+        from unittest import mock
+        from click.testing import CliRunner
+
+        class NullStore:
+            def close(self):
+                pass
+
+        class MemberRepository:
+            def __init__(self, store):
+                pass
+
+            def read_all_members(self):
+                return ["all-members"]
+
+            def find_active_members(self):
+                return ["active-members"]
+
+        modules = {name: types.ModuleType(name) for name in
+                   ("models", "errors", "store", "repositories",
+                    "services", "schema")}
+        for name in ("Author", "Book", "Member"):
+            setattr(modules["models"], name, type(name, (), {}))
+        modules["store"].Store = lambda path=None, schema=None: NullStore()
+        modules["repositories"].MemberRepository = MemberRepository
+        modules["schema"].SCHEMA = {}
+        with mock.patch.dict(sys.modules, modules):
+            namespace = {}
+            exec(compile(text, "cli.py", "exec"), namespace)  # noqa: S102
+            result = CliRunner().invoke(
+                namespace["cli"],
+                ["--db", ":memory:", "member", "list", "--active-only"])
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertIn("active-members", result.output)
+
+
+class ReviewedBodyReuseTests(unittest.TestCase):
+    def test_reviewed_body_is_kept_when_mechanical_code_changes(self):
+        previous = {"services.py": '''class S:
+    def find(self, query: str = None):
+        """Search. [llm-written by Qwen — review]"""
+        return self._repos['R'].find(query)
+''', "repositories.py": ""}
+        fresh = {"services.py": '''class S:
+    def find(self, query: str = None):
+        """Search. [search across fields]"""
+        raise NotImplementedError(
+            "search across fields")
+''', "repositories.py": ""}
+        rows = generator.reuse_reviewed_bodies(fresh, previous)
+        self.assertEqual(rows, [("S.find", "reused",
+                                 "reviewed body preserved")])
+        self.assertIn("[llm-written by Qwen — review]", fresh["services.py"])
+        self.assertIn("return self._repos['R'].find(query)", fresh["services.py"])
+        self.assertNotIn("NotImplementedError", fresh["services.py"])
+        compile(fresh["services.py"], "services.py", "exec")
+
+    def test_a_cached_body_is_not_spliced_where_no_stub_exists(self):
+        previous = {"services.py": '''class S:
+    def find(self, query: str = None):
+        """Search. [llm-written by Qwen — review]"""
+        return 1
+''', "repositories.py": ""}
+        fresh = {"services.py": '''class S:
+    def find(self, query: str = None):
+        """Search. [mechanical]"""
+        return 2
+''', "repositories.py": ""}
+        rows = generator.reuse_reviewed_bodies(fresh, previous)
+        self.assertEqual(rows, [])
+        self.assertIn("return 2", fresh["services.py"])
 
 
 if __name__ == "__main__":

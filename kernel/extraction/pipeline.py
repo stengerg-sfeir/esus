@@ -380,6 +380,7 @@ class Pipeline:
         # keeps the flat form it should drop.
         if isinstance(body, dict):
             repairs.repair_flat_command_duplicates(body, self.log)
+            repairs.repair_long_option_names(body, self.log)
         # The prompt orders every requirements command line onto the surface,
         # but the grammar cannot enforce presence — omission is always
         # representable. A surface missing a named command (or a named flag
@@ -411,6 +412,7 @@ class Pipeline:
                     retry, requirements, self.documents.get(DATA_MODELS), self.log
                 )
                 repairs.repair_flat_command_duplicates(retry, self.log)
+                repairs.repair_long_option_names(retry, self.log)
                 retry_misses = (_missing_commands(retry, requirements)
                                 + _missing_flags(retry, requirements))
             else:
