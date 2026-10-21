@@ -1713,7 +1713,7 @@ class StubFillTests(unittest.TestCase):
                 mock.patch.object(generator.runner, "generate_free",
                                   side_effect=answer):
             generator.fill_stubs(files, "fake.gguf", "req",
-                                 out=lambda _line: None)
+                                 out=lambda _line: None, context="full")
         prompt = captured[0]
         self.assertIn("Widget(widget_id: int, title: str)", prompt)
         self.assertIn('record.get("field")', prompt)
@@ -2168,6 +2168,18 @@ class StubFillTests(unittest.TestCase):
                            if "module (services.py):" in p)
             self.assertIn("models.py, exactly as defined", service)
 
+    def test_main_defaults_to_exact_stub_context(self):
+        import tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as directory:
+            out = write_out(Path(directory) / "shop", fixture())
+            with mock.patch.object(generator, "fill_stubs",
+                                   return_value=[]) as fill, \
+                    io.StringIO() as buffer, redirect_stdout(buffer):
+                self.assertEqual(
+                    generator.main([out, "--model", "fake.gguf"]), 0)
+            self.assertEqual(fill.call_args.kwargs["context"], "exact")
+
     def test_a_refused_body_is_repaired_once_and_lands(self):
         """The repair ask quotes the complaint; a corrected answer passes
         the same checks and lands like any other accepted body."""
@@ -2344,7 +2356,7 @@ class StubFillTests(unittest.TestCase):
         self.assertEqual(data[0]["first_finish_reason"], "stop")
         self.assertFalse(data[0]["first_truncated"])
         self.assertEqual(data[0]["tokens"], 3)
-        self.assertEqual(data[0]["context"], "full")
+        self.assertEqual(data[0]["context"], "exact")
 
 
 class BodyRefusalTests(unittest.TestCase):

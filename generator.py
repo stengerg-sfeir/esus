@@ -51,6 +51,9 @@ that still fails keeps the stub. Accepted docstrings are tagged
 `[llm-written by ... — review]` and the method still counts as a stub in
 the mechanical coverage, because nothing here verifies behavior — read the
 body, and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
+The default body ask (`--stub-context exact`) shows `models.py` as code and
+repeats the target signature and return dataclass; the other contexts
+remain available for experiments.
 """
 
 import argparse
@@ -97,6 +100,9 @@ GUARD_PATTERNS = frozenset({"BUDGET_OVERFLOW_GUARD", "QUOTA_CAPACITY_GUARD",
 # fixed seed): the same requirements yield the same file, modulo GPU arithmetic.
 FALLBACK_TEMPERATURE = 0.0
 FALLBACK_SEED = 20261012
+# The body ask defaults to the context that reproduces the reviewed library
+# bodies: models.py as code plus the target signature and return dataclass.
+DEFAULT_STUB_CONTEXT = "exact"
 
 # `method_slots.json` beside the documents: `{holder, method, pattern,
 # slots, decided_by, requirements_sha}` from the slot review.
@@ -3171,7 +3177,7 @@ def _clip_module(text, cls, budget):
 
 def stub_prompt(requirements, module_text, info, references=(), api=(),
                 budget=STUB_PROMPT_BUDGET, previous=None, complaints=(),
-                context="full", contract=()):
+                context=DEFAULT_STUB_CONTEXT, contract=()):
     """One ask: the emitted module is the API reference; fill one hole.
 
     Nothing is rewritten into a summary — the module shows the real store
@@ -4565,7 +4571,7 @@ def _answered(framing, llm, prompt, label):
 
 
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
-               context="full", contracts=None):
+               context=DEFAULT_STUB_CONTEXT, contracts=None):
     """Ask the model for the bodies the mechanical emitter refused.
 
     Best-effort by design: the mechanical set is already final and honest,
@@ -4896,16 +4902,16 @@ def main(argv=None):
                              "probe blocker, which refuses generation.")
     parser.add_argument("--stub-context",
                         choices=("full", "minimal", "honest", "exact"),
-                        default="full",
+                        default=DEFAULT_STUB_CONTEXT,
                         help="What a body ask shows besides the task rules, "
-                             "the requirements and the module text: `full` "
-                             "(default) adds the repository signatures and "
-                             "the API facts; `honest` adds them with the "
-                             "facts a live run proved wrong corrected; "
-                             "`exact` shows models.py as code and repeats "
+                             "the requirements and the module text: `exact` "
+                             "(default) shows models.py as code and repeats "
                              "the target's return dataclass above the ask; "
-                             "`minimal` omits the facts, to measure which "
-                             "the model actually needs")
+                             "`full` adds the repository signatures and the "
+                             "API facts; `honest` adds them with the facts a "
+                             "live run proved wrong corrected; `minimal` "
+                             "omits the facts, to measure which the model "
+                             "actually needs")
     args = parser.parse_args(argv)
 
     ok, message = gate(args.out_dir)
