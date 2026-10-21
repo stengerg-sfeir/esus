@@ -181,12 +181,15 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     """Probe, ask, re-probe: the attended tail of an extraction run.
 
     Runs the probe over `output_dir`; when ties need a human, runs the tie
-    review, surface duplicates get the surface review, field pairs the alias
-    review, pattern slots the slot review, and method behavior facts the
-    contract review. Structural blockers (missing commands, uncovered
-    fields, unknown model fields) are reported, never asked — no answer the
-    user can type fixes those; a rerun or a code fix does. Returns the
-    remaining blockers (a list — the loop judges them without re-probing).
+    review, pattern slots get the slot review, surface duplicates/flags the
+    surface review, field pairs the alias review, and method behavior facts
+    the contract review. Slots run before the surface review because a
+    parameterless filter (`find_active_members`) is only a routable surface
+    candidate once its slot answer says what it filters. Structural blockers
+    (missing commands, uncovered fields, unknown model fields) are reported,
+    never asked — no answer the user can type fixes those; a rerun or a code
+    fix does. Returns the remaining blockers (a list — the loop judges them
+    without re-probing).
     `*_runner` override the reviews (output_dir -> (asked, answered)) for
     tests.
     """
@@ -203,6 +206,15 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     if questions:
         out_fn(f"{questions} tie(s) need a human — starting the tie review")
         (tie_runner or review_ties.run_review)(str(output_dir))
+    # Slots first: a parameterless filter such as `find_active_members` is a
+    # stub until its slot answer says which field/value it filters, and a
+    # stub is not a routable surface candidate. Asking surface first turns
+    # `member list --active-only` into a false "drop only" question.
+    slot_questions, _ = review_slots.collect_slots(str(output_dir))
+    if slot_questions:
+        out_fn(f"{len(slot_questions)} pattern slot(s) need a human — "
+               f"starting the slot review")
+        (slot_runner or review_slots.run_review)(str(output_dir))
     duplicates, _ = review_surface.collect_duplicates(str(output_dir))
     # A declared flag that selects nothing is a surface question too
     # (`member list -active-only` parsed and printed every member). It is
@@ -218,11 +230,6 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     if pairs:
         out_fn(f"{len(pairs)} field mapping(s) need a human — starting the alias review")
         (alias_runner or review_aliases.run_review)(str(output_dir))
-    slot_questions, _ = review_slots.collect_slots(str(output_dir))
-    if slot_questions:
-        out_fn(f"{len(slot_questions)} pattern slot(s) need a human — "
-               f"starting the slot review")
-        (slot_runner or review_slots.run_review)(str(output_dir))
     contract_questions, _ = review_contracts.collect_contracts(str(output_dir))
     if contract_questions:
         out_fn(f"{len(contract_questions)} method contract(s) need a human — "

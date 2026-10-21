@@ -52,7 +52,8 @@ class ResolveRequirementsTests(unittest.TestCase):
 class ChatFlowTests(unittest.TestCase):
     def flow(self, directory, ties=0, pairs=(), blockers=(), tie_run=None,
              alias_run=None, contracts=(), contract_run=None,
-             duplicates=(), routes=(), surface_run=None):
+             duplicates=(), routes=(), slots=(), slot_run=None,
+             surface_run=None):
         from kernel.consistency.report import Finding
 
         lines = []
@@ -60,6 +61,7 @@ class ChatFlowTests(unittest.TestCase):
              mock.patch("probe_readiness.open_questions") as opened, \
              mock.patch("review_aliases.collect_questions") as collected, \
              mock.patch("review_contracts.collect_contracts") as contract_collected, \
+             mock.patch("review_slots.collect_slots") as slot_collected, \
              mock.patch("review_surface.collect_duplicates") as duplicate_collected, \
              mock.patch("review_surface.collect_routes") as route_collected:
             checked.return_value = (
@@ -67,12 +69,13 @@ class ChatFlowTests(unittest.TestCase):
             opened.return_value = ties
             collected.return_value = (list(pairs), {})
             contract_collected.return_value = (list(contracts), {})
+            slot_collected.return_value = (list(slots), {})
             duplicate_collected.return_value = (list(duplicates), {})
             route_collected.return_value = (list(routes), {})
             remaining = extract_arch.chat_flow(
                 directory, out_fn=lines.append,
                 tie_runner=tie_run, alias_runner=alias_run,
-                surface_runner=surface_run,
+                slot_runner=slot_run, surface_runner=surface_run,
                 contract_runner=contract_run)
         return remaining, lines
 
@@ -128,6 +131,30 @@ class ChatFlowTests(unittest.TestCase):
             self.assertEqual(remaining, [])
             self.assertTrue(any("surface node/flag(s) need a human" in line
                                 for line in lines))
+
+    def test_slots_run_before_surface_routes(self):
+        """A stub method becomes a route candidate only after its slot
+        answer; asking the surface review first offers a false drop-only."""
+        asked = []
+
+        def run_slots(path):
+            asked.append("slots")
+            return 1, 1
+
+        def run_surface(path):
+            asked.append("surface")
+            return 1, 1
+
+        with tempfile.TemporaryDirectory() as directory:
+            remaining, _ = self.flow(
+                directory,
+                slots=[{"holder": "MemberRepository",
+                        "method": "find_active_members"}],
+                routes=[{"command": "member", "subcommand": "list",
+                         "flag": "active_only"}],
+                slot_run=run_slots, surface_run=run_surface)
+            self.assertEqual(asked, ["slots", "surface"])
+            self.assertEqual(remaining, [])
 
     def test_contract_questions_run_the_contract_review(self):
         asked = []
