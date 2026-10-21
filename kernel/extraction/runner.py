@@ -29,6 +29,11 @@ except ImportError:
 GPU_LAYERS_ALL = -1
 GPU_LAYERS_NONE = 0
 
+# `--model server` is a backend selector, not a path: the GGUF and its
+# placement live in an already-running llama-server. Keeping the sentinel in
+# this module means extraction and the generator agree on what it means.
+SERVER_MODEL = "server"
+
 # Thread counts are a CPU-backend tuning knob: llama.cpp picks the physical core
 # count itself when they are omitted, which beats a fixed number on both a small
 # laptop and a large workstation. They are therefore set only off macOS, where
@@ -94,7 +99,24 @@ def threading_parameters():
 
 
 def load_model(model_path, context_size=8192, logits_all=False, quiet=False):
-    """Load the GGUF model with the settings every step shares."""
+    """Load the GGUF model with the settings every step shares.
+
+    `model_path == "server"` connects to a running llama-server instead of
+    loading a GGUF in this process. The server's `n_ctx` wins; the local
+    `context_size` is only a fallback for an old server without `/props`.
+    """
+    if model_path == SERVER_MODEL:
+        from kernel.extraction.server_backend import ServerModel
+
+        llm = ServerModel(context_size=context_size)
+        if not quiet:
+            print(
+                f"[model] llama-server {llm.url} ({llm.model_name}), "
+                f"n_ctx={llm.n_ctx()}",
+                file=sys.stderr,
+            )
+        return llm
+
     started = time.time()
     if quiet:
         # `verbose=False` silences the wrapper's own logs, but two things
@@ -136,13 +158,19 @@ def _construct(model_path, context_size, logits_all):
 class StepResult:
     """The outcome of one constrained generation."""
 
-    def __init__(self, label, text, tokens, seconds, finish_reason, budget=None):
+    def __init__(self, label, text, tokens, seconds, finish_reason, budget=None,
+                 decode_seconds=None, prompt_tokens=None):
         self.label = label
         self.text = text
         self.tokens = tokens
         self.seconds = seconds
         self.finish_reason = finish_reason
         self.budget = budget
+        # A server reports prefill and decode separately. The wall time stays
+        # in `seconds` (it is what the run total sums); these optional fields
+        # let `describe` show the decode rate the server's own timing reports.
+        self.decode_seconds = decode_seconds
+        self.prompt_tokens = prompt_tokens
 
     @property
     def truncated(self):
@@ -151,12 +179,18 @@ class StepResult:
 
     def describe(self):
         speed = self.tokens / self.seconds if self.seconds else 0.0
+        timing = f"({speed:.1f} tok/s"
+        if self.decode_seconds:
+            timing += f", {self.tokens / self.decode_seconds:.1f} decode"
+        if self.prompt_tokens:
+            timing += f", {self.prompt_tokens} prompt"
+        timing += ")"
         # The ceiling is named on a truncation, because the ceiling is the
         # diagnosis: it is what the retry has to raise.
         note = f" TRUNCATED at the {self.budget}-token ceiling" if self.truncated else ""
         return (
             f"[{self.label}] {self.tokens} tokens in {self.seconds:.1f}s "
-            f"({speed:.1f} tok/s){note}"
+            f"{timing}{note}"
         )
 
 
@@ -309,6 +343,15 @@ def _generate_impl(llm, prompt, grammar, label, temperature, max_new_tokens,
         # meaningful.
         tokens = token_count(llm, text)
 
+    timings = response.get("timings") or {}
+    predicted_ms = timings.get("predicted_ms")
+    decode_seconds = (predicted_ms / 1000.0
+                      if isinstance(predicted_ms, (int, float))
+                      and predicted_ms > 0 else None)
+    prompt_tokens = usage.get("prompt_tokens")
+    if not isinstance(prompt_tokens, int):
+        prompt_tokens = None
     return StepResult(
-        label, text, tokens, time.time() - started, finish_reason, budget
+        label, text, tokens, time.time() - started, finish_reason, budget,
+        decode_seconds=decode_seconds, prompt_tokens=prompt_tokens,
     )

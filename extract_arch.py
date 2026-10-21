@@ -16,6 +16,12 @@ Usage:
         < prompts/prompt_library_system.txt
     python3.12 extract_arch.py --model MODEL.gguf --output out/library \\
         --requirements prompts/prompt_library_system.txt --chat
+    python3.12 extract_arch.py --model server --output out/library \\
+        --requirements prompts/prompt_library_system.txt
+
+`--model server` uses an already-running llama-server instead of loading the
+GGUF here. Set LLAMA_SERVER_URL (default http://127.0.0.1:8080) to point at it;
+the server's context size and native grammar sampler are used.
 """
 
 import argparse
@@ -26,13 +32,20 @@ from pathlib import Path
 from kernel.extraction import pipeline as pipeline_module
 from kernel.extraction import runner, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
+from kernel.extraction.server_backend import ServerError
 from kernel.extraction.decisions import apply_decisions, load_decisions
 from review_surface import apply_surface_decisions, load_surface_decisions
 
 
 def build_parser():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--model", required=False, help="Path to the GGUF model")
+    parser.add_argument(
+        "--model",
+        required=False,
+        help="Path to the GGUF model, or `server` to use an already-running "
+             "llama-server at LLAMA_SERVER_URL (default "
+             "http://127.0.0.1:8080)",
+    )
     parser.add_argument(
         "--output",
         required=True,
@@ -49,7 +62,8 @@ def build_parser():
         "--context",
         type=int,
         default=8192,
-        help="Context size in tokens (default 8192)",
+        help="Context size in tokens when loading a GGUF (default 8192); "
+             "ignored with --model server, which uses the server's n_ctx",
     )
     parser.add_argument(
         "--check",
@@ -338,9 +352,14 @@ def run(args):
         if previous:
             log.lines[:0] = previous + ["[run] --- resumed ---"]
 
-    extractor = runner.load_model(args.model, context_size=args.context,
-                                    logits_all=False,
-                                    quiet=getattr(args, "quiet", False))
+    try:
+        extractor = runner.load_model(
+            args.model, context_size=args.context, logits_all=False,
+            quiet=getattr(args, "quiet", False),
+        )
+    except ServerError as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
 
     # Step F reads last-token logits from the extractor's own context, so the
     # GGUF is loaded once. The high-level `logprobs` API would need a second

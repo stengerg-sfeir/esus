@@ -84,6 +84,17 @@ python3 extract_arch.py \
 
 To include the interactive review loop, add `--chat`. The requirements must be passed with `--requirements` in that mode so standard input stays available for review answers.
 
+To use an already-running `llama-server` instead of loading the GGUF in the extractor, pass `--model server`:
+
+```bash
+llama-server -m /path/to/model.gguf -c 8192 -ngl 99 -fa on --port 8080
+LLAMA_SERVER_URL=http://127.0.0.1:8080 \
+  python3 extract_arch.py --model server --output out/my-app \
+    --requirements prompts/my-app.txt
+```
+
+`LLAMA_SERVER_URL` defaults to `http://127.0.0.1:8080`; the server's context size and native grammar sampler are used. `generator.py --model server` uses the same setting for body generation.
+
 You can inspect readiness separately:
 
 ```bash

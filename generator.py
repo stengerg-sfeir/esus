@@ -54,6 +54,9 @@ body, and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
 The default body ask (`--stub-context exact`) shows `models.py` as code and
 repeats the target signature and return dataclass; the other contexts
 remain available for experiments.
+
+`--model server` selects an already-running llama-server instead of a GGUF
+path, using the same `LLAMA_SERVER_URL` setting as `extract_arch.py`.
 """
 
 import argparse
@@ -75,6 +78,7 @@ from kernel.consistency.loader import load_documents, load_requirements  # noqa:
 from kernel.consistency.naming import normalize  # noqa: E402
 from kernel.consistency.report import Report  # noqa: E402
 from kernel.extraction import runner  # noqa: E402
+from kernel.extraction.server_backend import ServerError  # noqa: E402
 from kernel.extraction.contracts import (  # noqa: E402
     contract_for,
     load_method_contracts,
@@ -5379,7 +5383,11 @@ def generate_fallback(out_dir, model_path):
         return 1
     ctx = load_context(out_dir)
     prompt = fallback_prompt(requirements, ctx["errors"])
-    llm = runner.load_model(model_path, logits_all=False)
+    try:
+        llm = runner.load_model(model_path, logits_all=False)
+    except ServerError as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
     result = runner.generate_free(llm, prompt, "fallback",
                                   temperature=FALLBACK_TEMPERATURE,
                                   seed=FALLBACK_SEED)
@@ -5413,7 +5421,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("out_dir", help="Extraction output directory (e.g. out/expenses)")
     parser.add_argument("--model", default=None,
-                        help="GGUF model for the LLM passes: the degenerate "
+                        help="GGUF model for the LLM passes, or `server` to "
+                             "use an already-running llama-server at "
+                             "LLAMA_SERVER_URL (default "
+                             "http://127.0.0.1:8080): the degenerate "
                              "fallback (clean but empty documents) writes "
                              "generated/app.py from requirements.txt, and a "
                              "normal run fills every method body the "
