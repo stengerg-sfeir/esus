@@ -228,6 +228,7 @@ COMMAND_VERB_STEMS = {
     "renew": ("renew",),
     "detect": ("detect",),
     "assign": ("assign",),
+    "overdue": ("overdue",),
     "history": ("history",),
 }
 

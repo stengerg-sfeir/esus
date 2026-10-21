@@ -504,6 +504,104 @@ def repair_flat_command_duplicates(components, log):
     return components
 
 
+def repair_misread_flat_commands(components, log):
+    """Fix a top-level command misread as nested: `borrow member_id` with flag `--book-id`
+    should be flat `borrow` with flags `--member-id` `--book-id`.
+
+    The model misreads `<program> <verb> --flag1 --flag2` as command `<verb>`
+    with subcommand `<flag1>` carrying `<flag2>`. This repair detects a command
+    with exactly one subcommand whose name looks like a flag (ends with `_id`
+    or is a known flag name), has no subcommands of its own, and whose options
+    are the flags that belong on the parent. It promotes the subcommand's
+    options to the parent, renames the first flag from the subcommand name,
+    and drops the subcommand.
+
+    Also handles the case where the parent already has some data options
+    (e.g., `borrow` has `--book-id` on both parent and subcommand) — the
+    missing flag from the subcommand name is added, duplicates are removed,
+    and the subcommand is dropped.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict):
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict):
+        return components
+    commands = invocation.get("commands")
+    if not isinstance(commands, list):
+        return components
+
+    def flag_from_subcommand_name(name):
+        """Convert a misread subcommand name to the flag it represents."""
+        if not isinstance(name, str):
+            return None
+        n = name.strip().lower()
+        # member_id → --member-id, loan_id → --loan-id, book_id → --book-id
+        # member_history → --member-id (history is the verb, member is the entity)
+        if n == "member_history":
+            return "--member-id"
+        if n.endswith("_id"):
+            return f"--{n[:-3]}-id"
+        if n.endswith("_date"):
+            return f"--{n[:-5]}-date"
+        return None
+
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        subs = command.get("subcommands")
+        if not isinstance(subs, list) or len(subs) != 1:
+            continue
+        sub = subs[0]
+        if not isinstance(sub, dict):
+            continue
+        sub_name = sub.get("name")
+        flag_from_sub = flag_from_subcommand_name(sub_name)
+        if flag_from_sub is None:
+            continue
+        parent_opts = command.get("options") or []
+        sub_opts = sub.get("options") or []
+        if not sub_opts:
+            continue
+        # Collect existing parent data option names (excluding globals)
+        parent_data_names = {o.get("name") for o in parent_opts
+                             if isinstance(o, dict) and o.get("name")
+                             and o.get("name") not in ("--help", "--version", "-h", "-v")}
+        # Build the corrected options for the parent
+        promoted = []
+        # First flag comes from the subcommand name (if not already present)
+        if flag_from_sub not in parent_data_names:
+            promoted.append({
+                "name": flag_from_sub,
+                "short": None,
+                "type": "int",  # IDs are integers
+                "required": True,
+                "default": None
+            })
+        # Remaining flags come from the subcommand's options
+        for opt in sub_opts:
+            if not isinstance(opt, dict):
+                continue
+            opt_name = opt.get("name")
+            if opt_name and opt_name.startswith("--"):
+                # Avoid duplicating flags already on parent or from subcommand name
+                if opt_name not in parent_data_names and opt_name != flag_from_sub:
+                    promoted.append(opt)
+        if not promoted:
+            continue  # Nothing to add
+        if log is not None:
+            log.write(
+                f"[ok] step components: fixed misread flat command '{command.get('name')}' "
+                f"(had subcommand '{sub_name}') — promoted {len(promoted)} flag(s) to parent, "
+                f"dropped subcommand"
+            )
+        command["options"] = parent_opts + promoted
+        command["subcommands"] = []
+    return components
+
+
 def repair_primary_key_uniqueness(models, log):
     """Set `unique=true` on primary-key fields declaring `unique=false`.
 
