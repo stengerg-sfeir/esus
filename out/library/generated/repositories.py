@@ -79,6 +79,10 @@ class BookRepository:
                 patch[key] = value
         if book_id_or_isbn is not None and 'book_id_or_isbn' in ['id', 'title', 'isbn', 'published_year', 'available_copies', 'author_id']:
             patch['book_id_or_isbn'] = book_id_or_isbn
+        for unique_field in ['isbn']:
+            value = patch.get(unique_field)
+            if value is not None and any(row.get(self.PK) != found[0][self.PK] for row in self._store.select(self.ENTITY, [(unique_field, 'eq', value)])):
+                raise errors.BookAlreadyExistsError(f"Book with {unique_field}={value!r} already exists")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.BookNotFoundError)
         return models.Book(**record)
 
@@ -239,6 +243,10 @@ class MemberRepository:
                 patch[key] = value
         if member_id is not None and 'member_id' in ['id', 'name', 'email', 'membership_date', 'is_active']:
             patch['member_id'] = member_id
+        for unique_field in ['email']:
+            value = patch.get(unique_field)
+            if value is not None and any(row.get(self.PK) != found[0][self.PK] for row in self._store.select(self.ENTITY, [(unique_field, 'eq', value)])):
+                raise errors.MemberAlreadyExistsError(f"Member with {unique_field}={value!r} already exists")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.MemberNotFoundError)
         return models.Member(**record)
 

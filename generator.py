@@ -1034,6 +1034,17 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
     for raw, ident in scalars:
         lines.append(f"if {ident} is not None and {raw!r} in {field_names!r}:")
         lines.append(f"    patch[{raw!r}] = {ident}")
+    unique_fields = _unique_fields(ctx, entity)
+    if unique_fields:
+        unique_error = _unique_error(ctx, entity)
+        lines.append(f"for unique_field in {unique_fields!r}:")
+        lines.append("    value = patch.get(unique_field)")
+        lines.append(
+            "    if value is not None and any("
+            "row.get(self.PK) != found[0][self.PK] for row in "
+            "self._store.select(self.ENTITY, [(unique_field, 'eq', value)])):")
+        lines.append(f"        raise {unique_error}("
+                     f"f\"{entity} with {{unique_field}}={{value!r}} already exists\")")
     lines.append(f"record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error={err})")
     lines.append(_result_wrap(model_cls))
     return lines

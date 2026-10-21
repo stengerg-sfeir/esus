@@ -3493,6 +3493,9 @@ class SchemaAndClickTests(unittest.TestCase):
             "requirements": (
                 "available_copies (default 1)\n"
                 "is_active (default True)\n"),
+            "errors": [
+                {"name": "BookAlreadyExistsError", "base": "ValueError"},
+                {"name": "MemberAlreadyExistsError", "base": "ValueError"}],
             "components": {"facade": {"technology": "click", "invocation": {
                 "commands": [{"name": "member", "subcommands": [
                     {"name": "list", "options": [
@@ -3568,6 +3571,17 @@ class SchemaAndClickTests(unittest.TestCase):
             store.select("Book", [("isbn", "eq", "R")]), [])
         store.delete("Author", "id", author["id"])
         self.assertEqual(store.all("Book"), [])
+
+    def test_update_body_rejects_a_duplicate_unique_field(self):
+        body = generator._update_body(
+            self.schema_ctx(), {"name": "update_book"},
+            [("id", "id", "int")], "Book", "Book",
+            ["id", "title", "isbn", "available_copies", "author_id"],
+            "errors.BookNotFoundError")
+        text = "\n".join(body)
+        self.assertIn("for unique_field in ['isbn']", text)
+        self.assertIn("errors.BookAlreadyExistsError", text)
+        self.assertIn("row.get(self.PK) != found[0][self.PK]", text)
 
     def test_click_backend_parses_the_requirements_spelling(self):
         from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
