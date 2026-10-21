@@ -116,6 +116,46 @@ SURFACE_ROUTE_KIND = "route"
 # document access
 # --------------------------------------------------------------------------
 
+def _leaf_node(components, command, subcommand):
+    """The command or subcommand node named by a surface decision."""
+    invocation = ((components or {}).get("facade") or {}).get("invocation") or {}
+    node = next((c for c in invocation.get("commands") or []
+                 if isinstance(c, dict) and c.get("name") == command), None)
+    if subcommand is not None and isinstance(node, dict):
+        node = next((s for s in node.get("subcommands") or []
+                     if isinstance(s, dict) and s.get("name") == subcommand), None)
+    return node
+
+
+def _adapt_route_options(components, routes):
+    """Retype routed flags from the human route record.
+
+    `review_surface` also writes the type into components.json. This second
+    application makes a recorded route self-contained: if a rerun rebuilds a
+    boolean flag before the sidecar is replayed, the generator still emits
+    the value-taking parser the route needs.
+    """
+    for record in routes or []:
+        if not isinstance(record, dict):
+            continue
+        option_type = record.get("option_type")
+        flag = record.get("flag")
+        if not isinstance(option_type, str) or not isinstance(flag, str):
+            continue
+        leaf = _leaf_node(components, record.get("command"),
+                          record.get("subcommand"))
+        if not isinstance(leaf, dict):
+            continue
+        for option in leaf.get("options") or []:
+            if codegen.option_dest(option) != flag:
+                continue
+            if option.get("type") != option_type:
+                option["type"] = option_type
+                option["required"] = False
+                option["default"] = None
+            break
+
+
 def load_context(output_dir):
     """The generation context: every body plus the indexes the emitters need."""
     report = Report(os.path.basename(output_dir.rstrip(os.sep)))
@@ -188,6 +228,7 @@ def load_context(output_dir):
                 routes.append(record)
     except (OSError, ValueError):
         pass
+    _adapt_route_options(components, routes)
     return {
         "models": models,
         "errors": errors,
@@ -1952,23 +1993,53 @@ def _alternate_actions(ctx, base_action, dests, actions):
     return alternates
 
 
-def _route_action_key(actions, service, method):
+def _route_field(record, method):
+    """The adapter field that carries a routed flag into the method.
+
+    A parameterless route has none (the flag is a switch). A value route
+    names the method's single parameter and the transform its CLI type
+    needs; the record was checked against the signature by the review.
+    """
+    target = record.get("target_param")
+    if not isinstance(target, str) or not target:
+        return None
+    params = [p for p in (method or {}).get("params") or []
+              if isinstance(p, dict)]
+    if len(params) != 1:
+        return None
+    if normalize(params[0].get("name") or "") != normalize(target):
+        return None
+    return {"field_name": params[0].get("name"), "target_param": target,
+            "transform": record.get("transform") or "DIRECT",
+            "required": True}
+
+
+def _route_action_key(actions, service, method, field=None, dest=None):
     """An action key for a recorded route, synthesized when none exists.
 
-    A routed method usually has no adapter action (that is why the flag is
-    stranded); the virtual entry calls it with no arguments, which is what
-    makes it a route candidate in the first place.
+    A parameterless routed method usually has no adapter action (that is why
+    the flag is stranded); the virtual entry calls it with no arguments. A
+    value route always gets its own action: reusing an adapter that maps the
+    same method to different flags would send the value to the wrong dest.
     """
-    for name, spec in actions.items():
-        if (isinstance(spec, dict)
-                and spec.get("target_service") == service
-                and spec.get("target_method") == method):
-            return name
-    key = codegen.sanitize(method, "route")
+    if field is None:
+        for name, spec in actions.items():
+            if (isinstance(spec, dict)
+                    and spec.get("target_service") == service
+                    and spec.get("target_method") == method
+                    and not (spec.get("input_fields") or [])):
+                return name
+        key = codegen.sanitize(method, "route")
+        while key in actions:
+            key += "_route"
+        actions[key] = {"action_name": key, "target_service": service,
+                        "target_method": method, "input_fields": []}
+        return key
+    key = codegen.sanitize(f"{method}_{dest or field['field_name']}", "route")
     while key in actions:
         key += "_route"
     actions[key] = {"action_name": key, "target_service": service,
-                    "target_method": method, "input_fields": []}
+                    "target_method": method, "input_fields": [field]}
     return key
 
 
@@ -1994,9 +2065,19 @@ def _leaf_choices(ctx, where, destinations, base_bound, actions, usage):
             continue
         service = record.get("service")
         method = record.get("method")
-        if _service_method(ctx, service, method) is None:
+        method_spec = _service_method(ctx, service, method)
+        if method_spec is None:
             continue
-        key = _route_action_key(actions, service, method)
+        field = _route_field(record, method_spec)
+        if record.get("target_param") and field is None:
+            continue
+        if field is not None and kind_of[flag] != "value":
+            # The component was not retyped: a boolean switch cannot carry
+            # an author_id. Refuse rather than call the method with True.
+            continue
+        key = _route_action_key(actions, service, method, field, flag)
+        if field is not None:
+            usage.setdefault(key, []).append((field["field_name"], flag))
         choices.append((key, base_score,
                         ((flag, kind_of[flag], flag_of[flag]),)))
     used = [dest for dest, _flag, _kind in destinations]
@@ -2089,6 +2170,9 @@ def _leaf_scan(ctx, bindings, stats):
         for field, dest in pairs:
             if entry.get(field) is None:
                 entry[field] = dest
+    # Routes may have synthesized actions after the first target pass.
+    targets = codegen.action_targets(list(actions.values()), ctx["services"],
+                                     ctx["repositories"], ctx["entity_names"])
     return leaves, actions, argv, targets, assembled
 
 
@@ -2124,10 +2208,11 @@ def emit_cli(ctx, bindings, stats):
              "",
              "Transforms follow the adapter document: DIRECT passes through, ISO_DATE",
              "validates ISO format, DECIMAL_TO_CENTS converts money to integer cents,",
-             "CSV_LIST splits on commas, LOOKUP_ID coerces to int (existence is",
-             "enforced by the repository's foreign-key check on write, or by the",
-             "record lookup itself on read), BOOL_TO_ONE turns a selector such as",
-             "--available-only into the minimum count of one.",
+             "CSV_LIST splits on commas, INT_LIST converts a list to integers,",
+             "LOOKUP_ID coerces to int (existence is enforced by the repository's",
+             "foreign-key check on write, or by the record lookup itself on read),",
+             "BOOL_TO_ONE turns a selector such as --available-only into the",
+             "minimum count of one.",
              '"""',
              "",
              "import argparse",
@@ -2162,6 +2247,9 @@ def emit_cli(ctx, bindings, stats):
               "        for part in items:",
               "            split.extend(p.strip() for p in str(part).split(\",\") if p.strip())",
               "        return split",
+             '    if kind == "INT_LIST":',
+              "        items = value if isinstance(value, list) else [value]",
+              "        return [int(item) for item in items]",
              '    if kind == "LOOKUP_ID":',
              "        return int(value)",
              '    if kind == "ENUM_LOOKUP":',

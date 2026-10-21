@@ -129,6 +129,21 @@ class ReviewFlowTests(unittest.TestCase):
 
 
 class ApplyTests(unittest.TestCase):
+    def test_a_route_retypes_the_flag_on_reapply(self):
+        body = components([{"name": "book", "options": [], "subcommands": [
+            {"name": "list", "options": [
+                {"name": "--author", "short": "-a", "type": "bool",
+                 "required": False, "default": None}]}]}])
+        record = {"kind": "route", "command": "book", "subcommand": "list",
+                  "flag": "author", "service": "AuthorRepository",
+                  "method": "find_books_by_author",
+                  "target_param": "author_id", "option_type": "int",
+                  "transform": "DIRECT"}
+        out = apply_surface_decisions(body, [record], Log())
+        option = out["facade"]["invocation"]["commands"][0][
+            "subcommands"][0]["options"][0]
+        self.assertEqual(option["type"], "int")
+
     def test_predated_prompt_drops_the_record_with_a_log_line(self):
         body = components(expenses_like())
         log = Log()
@@ -230,7 +245,8 @@ class RouteCollectTests(unittest.TestCase):
     """A stranded flag offers parameterless reads, and only those; the
     recorded pick dispatches and never reopens while the prompt stands."""
 
-    def test_stranded_flag_offers_parameterless_reads(self):
+    def test_stranded_flag_offers_routable_reads(self):
+        """A switch can select a parameterless read or supply a value."""
         with tempfile.TemporaryDirectory() as directory:
             out = writes_stranded(directory)
             questions, _context = review_surface.collect_routes(out)
@@ -240,7 +256,12 @@ class RouteCollectTests(unittest.TestCase):
                 (question["command"], question["subcommand"],
                  question["flag"]), ("member", "list", "active_only"))
             self.assertEqual(question["candidates"],
-                             [("MemberRepository", "find_active_members")])
+                             [("MemberRepository", "find_active_members"),
+                              ("MemberRepository", "find_members_by_name")])
+            detail = question["candidate_details"][
+                "MemberRepository.find_members_by_name"]
+            self.assertEqual(detail["param"], "name")
+            self.assertEqual(detail["option_type"], "str")
 
     def test_a_recorded_route_closes_the_question(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -259,6 +280,33 @@ class RouteCollectTests(unittest.TestCase):
         record = {"kind": "route", "command": "member", "subcommand": "list",
                   "flag": "active_only", "service": "MemberRepository",
                   "method": "find_gone_members", "decided_by": "user"}
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_stranded(directory, [record])
+            questions, _context = review_surface.collect_routes(out)
+            self.assertEqual(len(questions), 1)
+
+    def test_choosing_a_value_route_retypes_the_flag(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_stranded(directory)
+            review_surface.run_review(out, input_fn=lambda _: "2",
+                                      out_fn=lambda _: None)
+            components = json.loads(
+                (Path(out) / "components.json").read_text())["components"]
+            options = components["facade"]["invocation"]["commands"][0][
+                "subcommands"][0]["options"]
+            self.assertEqual(options[0]["type"], "str")
+            record = json.loads(
+                (Path(out) / "surface_decisions.json").read_text())["decisions"][0]
+            self.assertEqual(record["target_param"], "name")
+            self.assertEqual(record["option_type"], "str")
+            self.assertEqual(record["transform"], "DIRECT")
+            self.assertEqual(review_surface.collect_routes(out)[0], [])
+
+    def test_a_route_with_a_vanished_parameter_reopens(self):
+        record = {"kind": "route", "command": "member", "subcommand": "list",
+                  "flag": "active_only", "service": "MemberRepository",
+                  "method": "find_members_by_name", "target_param": "gone",
+                  "option_type": "str", "decided_by": "user"}
         with tempfile.TemporaryDirectory() as directory:
             out = writes_stranded(directory, [record])
             questions, _context = review_surface.collect_routes(out)
@@ -301,6 +349,89 @@ def writes_dead_without_candidates(directory):
     (path / "requirements.txt").write_text(
         "Run `book list [--author]`.", encoding="utf-8")
     return str(path)
+
+
+def book_author_fixture():
+    """A book list whose documented author read lives on AuthorRepository."""
+    return {
+        "components": components([
+            {"name": "book", "options": [], "subcommands": [
+                {"name": "list", "options": [
+                    {"name": "-author", "short": "-a", "type": "bool",
+                     "required": False, "default": None}]}]}]),
+        "data_models": [
+            {"name": "Book", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "title", "type": "string"},
+                {"name": "author_id", "type": "int"}]},
+            {"name": "Author", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "name", "type": "string"}]}],
+        "interaction_adapters": [
+            {"action_name": "list_books",
+             "target_service": "BookRepository",
+             "target_method": "read_all_books", "input_fields": []}],
+        "persistence_ports": {
+            "repositories": [
+                {"entity": "Book", "interface_name": "BookRepository",
+                 "methods": [
+                     {"name": "read_all_books", "params": [],
+                      "return_type": "List[Book]"}]},
+                {"entity": "Author", "interface_name": "AuthorRepository",
+                 "methods": [
+                     {"name": "find_books_by_author",
+                      "params": [{"name": "author_id", "type": "int"}],
+                      "return_type": "List[Book]"}]}],
+            "entity_mappings": []},
+        "pattern_matches": [
+            {"source": "contract:BookRepository.read_all_books",
+             "pattern_id": "READ_ALL", "decision": "decided"},
+            {"source": "contract:AuthorRepository.find_books_by_author",
+             "pattern_id": "FILTER_BY_FIELD", "decision": "decided"}],
+        "service_contracts": [], "errors": [], "intentions": [],
+        "invariants": [],
+    }
+
+
+def writes_book_author(directory):
+    path = Path(directory)
+    for name, body in book_author_fixture().items():
+        (path / f"{name}.json").write_text(json.dumps({name: body}),
+                                           encoding="utf-8")
+    (path / "requirements.txt").write_text(
+        "Run `book list [--author]`.", encoding="utf-8")
+    return str(path)
+
+
+class ValueRouteTests(unittest.TestCase):
+    """A read on another service is proposed when one flag can carry it."""
+
+    def test_cross_service_read_is_offered_with_its_parameter(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_book_author(directory)
+            question = review_surface.collect_routes(out)[0][0]
+            self.assertEqual(question["candidates"],
+                             [("AuthorRepository", "find_books_by_author")])
+            detail = question["candidate_details"][
+                "AuthorRepository.find_books_by_author"]
+            self.assertEqual(detail["param"], "author_id")
+            self.assertEqual(detail["option_type"], "int")
+            self.assertEqual(detail["transform"], "DIRECT")
+
+    def test_choosing_it_retypes_the_book_author_flag(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = writes_book_author(directory)
+            review_surface.run_review(out, input_fn=lambda _: "1",
+                                      out_fn=lambda _: None)
+            components = json.loads(
+                (Path(out) / "components.json").read_text())["components"]
+            option = components["facade"]["invocation"]["commands"][0][
+                "subcommands"][0]["options"][0]
+            self.assertEqual(option["type"], "int")
+            record = json.loads(
+                (Path(out) / "surface_decisions.json").read_text())["decisions"][0]
+            self.assertEqual(record["target_param"], "author_id")
+            self.assertEqual(record["option_type"], "int")
 
 
 class DeadOptionWithoutRouteTests(unittest.TestCase):

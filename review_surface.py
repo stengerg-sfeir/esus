@@ -12,11 +12,14 @@ components immediately plus on every future run while the prompt stands.
 
 A declared flag can also parse and select nothing (`member list
 -active-only` printed every member, `book list --author` is ignored): its
-leaf binds a parameterless read, and the service's other parameterless
-reads are the finite route candidates when the flag is a selector. A dead
-option with no candidate is still asked; the deterministic answer there is
-`drop`, recorded as `kind: "drop-flag"` beside the route records and applied
-to the surface.
+leaf binds a parameterless read, and methods in the command's CRUD family
+are the finite route candidates. A candidate whose result fits the command
+and whose signature one flag can carry is proposed with its full
+signature; choosing it records the target parameter and retypes the flag
+(e.g. `--author` becomes an integer author id). A dead option with no
+candidate is still asked; the deterministic answer there is `drop`,
+recorded as `kind: "drop-flag"` beside the route records and applied to the
+surface.
 
 Usage:
     python review_surface.py out/expenses          # ask open questions
@@ -180,6 +183,127 @@ CRUD_FAMILIES = {
     "delete": "delete",
 }
 
+# A routed method may consume the flag itself. One flag supplies one
+# parameter, so only signatures with zero or one scalar parameter are
+# routable. The option is retyped to the parameter's type; nothing is
+# guessed for entities, decimals, or unknown spellings.
+ROUTE_PARAM_TYPES = {
+    "int": ("int", "DIRECT"), "integer": ("int", "DIRECT"),
+    "str": ("str", "DIRECT"), "string": ("str", "DIRECT"),
+    "text": ("str", "DIRECT"),
+    "float": ("float", "DIRECT"), "double": ("float", "DIRECT"),
+    "number": ("float", "DIRECT"),
+    "bool": ("bool", "DIRECT"), "boolean": ("bool", "DIRECT"),
+    "date": ("str", "ISO_DATE"), "datetime": ("str", "ISO_DATE"),
+}
+
+_LIST_PARAM_TYPES = {
+    "int": "INT_LIST", "integer": "INT_LIST",
+    "str": "DIRECT", "string": "DIRECT", "text": "DIRECT",
+}
+
+
+def _route_param_option(ctx, param):
+    """`{param, param_type, option_type, transform}` for a routable parameter.
+
+    The CLI can carry one value; a scalar maps directly, a date is parsed by
+    its transform, and a list becomes argparse's list. Entity-typed and
+    unknown parameters return None — silently converting those would be a
+    guess, not an adaptation.
+    """
+    ptype = param.get("type") if isinstance(param, dict) else None
+    if not isinstance(ptype, str) or not ptype.strip():
+        return None
+    text = ptype.strip()
+    if codegen.is_entity_type(text, ctx["entity_names"]):
+        return None
+    optional = re.fullmatch(r"(?i)optional\s*\[(.+)\]", text)
+    if optional:
+        return _route_param_option(ctx, {"type": optional.group(1).strip()})
+    listed = re.fullmatch(r"(?i)list\s*\[(.+)\]", text)
+    if listed:
+        item = listed.group(1).strip()
+        if codegen.is_entity_type(item, ctx["entity_names"]):
+            return None
+        lowered = item.lower()
+        transform = _LIST_PARAM_TYPES.get(lowered)
+        if transform is None:
+            return None
+        option_type = "list"
+    else:
+        union = re.fullmatch(r"(?i)union\s*\[(.+)\]", text)
+        if union:
+            parts = [part.strip() for part in union.group(1).split(",")]
+            if any(codegen.is_entity_type(part, ctx["entity_names"])
+                   for part in parts):
+                return None
+            kinds = {part.lower() for part in parts}
+            if kinds & {"str", "string", "text"}:
+                option_type, transform = "str", "DIRECT"
+            elif kinds <= {"int", "integer"}:
+                option_type, transform = "int", "DIRECT"
+            else:
+                return None
+        else:
+            option_type, transform = ROUTE_PARAM_TYPES.get(text.lower(),
+                                                           (None, None))
+    if option_type is None:
+        return None
+    return {"param": param.get("name"), "param_type": ptype,
+            "option_type": option_type, "transform": transform}
+
+
+def _route_candidate_detail(ctx, service, method_name):
+    """The routable signature of a candidate, or None when one flag cannot
+    carry it."""
+    method = generator._service_method(ctx, service, method_name)
+    if method is None:
+        return None
+    params = [p for p in method.get("params") or [] if isinstance(p, dict)]
+    if not params:
+        return {"param": None, "param_type": None, "option_type": None,
+                "transform": None, "signature": _method_signature(method)}
+    if len(params) != 1:
+        return None
+    option = _route_param_option(ctx, params[0])
+    if option is None:
+        return None
+    option["param"] = params[0].get("name")
+    option["param_type"] = params[0].get("type")
+    option["signature"] = _method_signature(method)
+    return option
+
+
+def _method_signature(method):
+    params = ", ".join(
+        f"{p.get('name')}: {p.get('type')}" for p in method.get("params") or []
+        if isinstance(p, dict))
+    return (f"{method.get('name')}({params}) -> "
+            f"{method.get('return_type') or 'None'}")
+
+
+def _return_entity(ctx, returns):
+    """The modeled entity named by a return type, or None."""
+    if not isinstance(returns, str):
+        return None
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    for entity in ctx["entity_names"]:
+        if isinstance(entity, str) and normalize(entity) in words:
+            return entity
+    return None
+
+
+def _service_entity(ctx, service):
+    """The entity of a repository/service reference, when it names one."""
+    wanted = normalize(service or "")
+    for repo in ctx["repositories"]:
+        names = {normalize(repo.get("interface_name") or ""),
+                 normalize(repo.get("entity") or "")}
+        if wanted in names:
+            return repo.get("entity")
+    return None
+
 
 def _command_family(verb):
     """The CRUD family a command's verb promises, or None when unknown."""
@@ -203,47 +327,110 @@ def _method_family(ctx, holder, method):
     return CRUD_FAMILIES.get(kind)
 
 
-def _route_candidates(ctx, service, base_method_name, command_verb=None):
-    """Parameterless methods on the leaf's service, in the command's family.
+def _route_candidates(ctx, service, base_method_name, command_verb=None,
+                      flag_kind=None):
+    """Methods in the command's family that one flag can actually carry.
 
-    `(service, method)` pairs, the base method excluded and stubs excluded —
-    routing a flag to a stub moves the stub, it does not fix it. A list
-    command is offered reads, an add command creates, a delete command
-    deletes; a method whose family cannot be classified is not offered.
+    The old rule demanded a parameterless method. A flag can also supply a
+    single parameter, so a read command may select `find_books_by_author(
+    author_id: int)` and retype `--author` to an integer. What still gates a
+    candidate:
+
+    - same CRUD family (`list` never selects a create or delete);
+    - the result displays like the command's base result (a list command
+      selects a list, a get selects one entity);
+    - the same modeled entity (a book command never selects authors);
+    - zero or one scalar/list parameter, and no entity/unknown parameter;
+    - a mechanical or fully-slotted body (`_usable`).
+
+    Reads may cross from the leaf's repository to a service returning the
+    same entity (`AuthorRepository.find_books_by_author`); writes stay on
+    the leaf's own service.
     """
     family = _command_family(command_verb)
     if family is None:
         return []
+    base_method = generator._service_method(ctx, service, base_method_name)
+    if base_method is None:
+        return []
+    base_shape = generator._return_shape(ctx, base_method.get("return_type"))
+    base_entity = (_return_entity(ctx, base_method.get("return_type"))
+                   or _service_entity(ctx, service))
     wanted = normalize(service or "")
     candidates = []
     pools = []
     for repo in ctx["repositories"]:
-        names = {normalize(repo.get("interface_name") or ""),
-                 normalize(repo.get("entity") or "")}
-        if wanted in names:
-            pools.append((repo.get("interface_name") or repo.get("entity"),
-                          repo.get("methods") or []))
+        holder = repo.get("interface_name") or repo.get("entity")
+        pools.append((holder, repo.get("methods") or []))
     for svc in ctx["services"]:
-        if normalize(svc.get("service_name") or "") == wanted:
-            pools.append((svc.get("service_name"), svc.get("methods") or []))
-    shapes = ("collection", "entity")
-    if family in ("delete", "update"):
-        shapes += ("scalar",)
+        pools.append((svc.get("service_name"), svc.get("methods") or []))
     for holder, methods in pools:
+        if not isinstance(holder, str):
+            continue
+        same_service = normalize(holder) == wanted
         for method in methods:
             if not isinstance(method, dict) or not method.get("name"):
                 continue
-            if method["name"] == base_method_name or method.get("params"):
+            if (same_service and method["name"] == base_method_name):
                 continue
             if _method_family(ctx, holder, method) != family:
                 continue
-            if generator._return_shape(ctx, method.get("return_type")) \
-                    not in shapes:
+            detail = _route_candidate_detail(ctx, holder, method["name"])
+            if detail is None:
+                continue
+            if detail["param"] is None and flag_kind != "truthy":
+                # A valued flag cannot be a switch: it would parse a value
+                # and then discard it.
+                continue
+            if detail["param"] is not None and flag_kind == "value" \
+                    and detail["option_type"] == "bool":
+                # Retyping a valued flag into a switch would make its current
+                # value syntax invalid; keep the two forms distinct.
+                continue
+            shape = generator._return_shape(ctx, method.get("return_type"))
+            if base_shape and shape != base_shape:
+                continue
+            entity = _return_entity(ctx, method.get("return_type"))
+            if base_entity and entity is not None and entity != base_entity:
+                continue
+            if family == "read" and not same_service \
+                    and (entity is None or base_entity is None):
+                continue
+            if family != "read" and not same_service:
                 continue
             if not _usable(ctx, holder, method):
                 continue
-            candidates.append((service, method["name"]))
+            candidates.append((holder, method["name"]))
     return sorted(set(candidates))
+
+
+def _route_record_valid(ctx, record):
+    """True while a recorded route still names a method and parameter.
+
+    A prompt stamp is not enough: the same prompt can re-extract a changed
+    signature. A route whose parameter vanished must reopen, not dispatch
+    into a stale call.
+    """
+    if not isinstance(record, dict):
+        return False
+    method = generator._service_method(ctx, record.get("service"),
+                                       record.get("method"))
+    if method is None:
+        return False
+    target = record.get("target_param")
+    if target is None:
+        return True
+    params = [p for p in method.get("params") or [] if isinstance(p, dict)]
+    if len(params) != 1:
+        return False
+    if normalize(params[0].get("name") or "") != normalize(target):
+        return False
+    detail = _route_candidate_detail(ctx, record.get("service"),
+                                     record.get("method"))
+    if detail is None:
+        return False
+    recorded_type = record.get("option_type")
+    return isinstance(recorded_type, str) and recorded_type == detail["option_type"]
 
 
 def collect_routes(output_dir):
@@ -251,13 +438,15 @@ def collect_routes(output_dir):
 
     A declared flag whose adapter fields never consume it parses and does
     nothing (`member list -active-only`, `book list --author`). Every such
-    option is a question: a truthy selector offers the leaf service's
-    parameterless reads as finite route candidates, and a flag with no
-    candidate — a bare boolean whose real method takes a value, or a valued
-    flag the adapter ignores — is still asked, with `drop` as its only
-    deterministic resolution. The human says which read a selector selects,
-    or removes the flag; the generator emits a route on every run while the
-    prompt stands.
+    option is a question: methods in the command's CRUD family that return
+    a compatible result and take zero or one flag-sized parameter are the
+    finite route candidates. A flag with no candidate — an unsupported
+    signature, a multi-parameter method, or a valued flag the adapter
+    ignores — is still asked, with `drop` as its only deterministic
+    resolution. The human says which method a selector selects, or removes
+    the flag; the generator emits a route on every run while the prompt
+    stands. A parameterized choice also retypes the flag and records the
+    target parameter, so the chosen method receives the value.
     """
     ctx = generator.load_context(output_dir)
     invocation = (ctx["components"].get("facade") or {}).get("invocation") or {}
@@ -270,8 +459,7 @@ def collect_routes(output_dir):
     current = requirements_sha(load_requirements(output_dir))
     decided = set()
     for record in ctx.get("routes") or []:
-        if generator._service_method(ctx, record.get("service"),
-                                     record.get("method")) is None:
+        if not _route_record_valid(ctx, record):
             continue
         decided.add((record.get("command"), record.get("subcommand"),
                      record.get("flag")))
@@ -300,16 +488,22 @@ def collect_routes(output_dir):
         for dest, flag, kind in leaf["dead"]:
             if (where[0], where[1], dest) in decided:
                 continue
-            # Every dead option is a question. A truthy selector on an
-            # unfiltered read can offer the service's parameterless reads;
-            # a valued flag, or a flag on a method that already takes
-            # arguments, is still reported (and can be dropped) even when
-            # no route fits it.
+            # Every dead option is a question. The family filter decides
+            # which methods can implement the verb; the signature filter
+            # decides which of those one flag can carry. A flag on a method
+            # that already takes arguments is still reported (and can be
+            # dropped), but it is not an unfiltered fallback to route.
             verb = where[1] or where[0]
             candidates = (_route_candidates(
-                ctx, service, base_method.get("name"), verb)
-                if kind == "truthy" and not base_method.get("params")
+                ctx, service, base_method.get("name"), verb, kind)
+                if not base_method.get("params")
                 else [])
+            details = {}
+            for candidate_service, candidate_method in candidates:
+                detail = _route_candidate_detail(
+                    ctx, candidate_service, candidate_method)
+                if detail is not None:
+                    details[f"{candidate_service}.{candidate_method}"] = detail
             questions.append({
                 "command": where[0],
                 "subcommand": where[1],
@@ -322,6 +516,7 @@ def collect_routes(output_dir):
                     p.get("name") for p in base_method.get("params") or []
                     if isinstance(p, dict) and p.get("name")],
                 "candidates": candidates,
+                "candidate_details": details,
             })
     context = {"prompt_sha": requirements_sha(load_requirements(output_dir))}
     return questions, context
@@ -341,18 +536,34 @@ def describe_route(index, total, question):
            if question.get("reads_params") else " (no arguments)")
         + " when the flag is passed.",
     ]
+    details = question.get("candidate_details") or {}
     if question["candidates"]:
-        lines.append("  candidate methods:")
+        lines.append("  candidate methods (one flag supplies one value):")
+        adapted = False
         for number, (service, method) in enumerate(question["candidates"], start=1):
-            lines.append(f"    {number}) {service}.{method}")
+            detail = details.get(f"{service}.{method}") or {}
+            signature = detail.get("signature") or method
+            lines.append(f"    {number}) {service}.{signature}")
+            if detail.get("param"):
+                adapted = True
+                lines.append(
+                    f"       retypes '{question['flag_name']}' to "
+                    f"{detail.get('option_type')} for "
+                    f"{detail.get('param')}")
         lines.append(
             "  The documents link the flag to none of them; only you can say "
             "which one it selects.")
+        if adapted:
+            lines.append(
+                "  Choosing a parameterized route changes the switch into a "
+                "value option; the method receives that value.")
     else:
         lines.append(
-            "  no parameterless read on that service can select it"
-            + (" (it is a valued flag)" if question.get("kind") != "truthy"
-               else "") + ".")
+            "  no method in this command's family has a signature one flag "
+            "can carry"
+            + (" (a valued flag needs a zero- or one-parameter method)"
+               if question.get("kind") != "truthy"
+               else " (zero or one scalar parameter)") + ".")
     lines.append(
         "  drop removes the flag from the surface; skip leaves it reported.")
     return lines
@@ -436,7 +647,11 @@ def apply_surface_decisions(components, records, log=None, requirements_text=Non
                         and record.get("keep") in (KEEP_PARENT, KEEP_SUB, KEEP_BOTH))
         is_drop = (record.get("kind") == DROP_FLAG_KIND
                    and isinstance(record.get("flag"), str))
-        if not (is_duplicate or is_drop):
+        is_route = (record.get("kind") == ROUTE_KIND
+                    and isinstance(record.get("flag"), str)
+                    and isinstance(record.get("service"), str)
+                    and isinstance(record.get("method"), str))
+        if not (is_duplicate or is_drop or is_route):
             continue
         stamped = record.get("requirements_sha")
         if (current is not None and isinstance(stamped, str)
@@ -481,6 +696,30 @@ def apply_surface_decisions(components, records, log=None, requirements_text=Non
                             f"[ok] step components: dropped flag "
                             f"'{record['flag']}' from '{where}' (human decision)"
                         )
+            continue
+        if record.get("kind") == ROUTE_KIND:
+            command, sub = record["command"], record.get("subcommand")
+            leaf = next((c for c in commands
+                         if isinstance(c, dict) and c.get("name") == command), None)
+            if sub is not None and isinstance(leaf, dict):
+                leaf = next((s for s in leaf.get("subcommands") or []
+                             if isinstance(s, dict) and s.get("name") == sub), None)
+            options = leaf.get("options") if isinstance(leaf, dict) else None
+            option = next((item for item in options or []
+                           if codegen.option_dest(item) == record["flag"]), None)
+            option_type = record.get("option_type")
+            if isinstance(option, dict) and option_type \
+                    and option.get("type") != option_type:
+                option["type"] = option_type
+                option["required"] = False
+                option["default"] = None
+                applied += 1
+                if log is not None:
+                    where = f"{command} {sub}" if sub else command
+                    log.write(
+                        f"[ok] step components: retyped flag '{record['flag']}' "
+                        f"to {option_type} for {record['service']}."
+                        f"{record['method']} (human decision) in '{where}'")
             continue
         command, sub, keep = record["command"], record["subcommand"], record["keep"]
         if keep == KEEP_BOTH:
@@ -566,6 +805,12 @@ def run_review(output_dir, input_fn=input, out_fn=print):
                     "method": method,
                     "decided_by": "user",
                 }
+                detail = (question.get("candidate_details") or {}).get(
+                    f"{service}.{method}") or {}
+                if detail.get("param"):
+                    record["target_param"] = detail["param"]
+                    record["option_type"] = detail["option_type"]
+                    record["transform"] = detail["transform"]
         if context["prompt_sha"] is not None:
             record["requirements_sha"] = context["prompt_sha"]
         records.append(record)

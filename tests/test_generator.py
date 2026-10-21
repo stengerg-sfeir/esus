@@ -1110,6 +1110,79 @@ class CliChoiceTests(unittest.TestCase):
         self.assertIn("all-members", output)
 
     @staticmethod
+    def author_ctx(routes):
+        adapters = [
+            {"action_name": "list_books", "target_service": "BookRepository",
+             "target_method": "read_all_books", "input_fields": []}]
+        invocation = {"commands": [{"name": "book", "options": [], "subcommands": [
+            {"name": "list", "options": [
+                {"name": "--author", "short": "-a", "type": "int",
+                 "required": False, "default": None}]}]}]}
+        return {
+            "models": [{"name": "Book", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "title", "type": "string"},
+                {"name": "author_id", "type": "int"}]}],
+            "errors": [], "services": [],
+            "repositories": [
+                {"entity": "Book", "interface_name": "BookRepository",
+                 "methods": [
+                     {"name": "read_all_books", "params": [],
+                      "return_type": "List[Book]"}]},
+                {"entity": "Author", "interface_name": "AuthorRepository",
+                 "methods": [
+                     {"name": "find_books_by_author",
+                      "params": [{"name": "author_id", "type": "int"}],
+                      "return_type": "List[Book]"}]}],
+            "mappings": {}, "match_index": {}, "adapters": adapters,
+            "entity_names": ["Book", "Author"],
+            "components": {"facade": {"invocation": invocation}},
+            "routes": routes,
+        }
+
+    def test_value_route_supplies_the_chosen_parameter(self):
+        route = {"kind": "route", "command": "book", "subcommand": "list",
+                 "flag": "author", "service": "AuthorRepository",
+                 "method": "find_books_by_author", "target_param": "author_id",
+                 "option_type": "int", "transform": "DIRECT",
+                 "decided_by": "user"}
+        text, stats = self.emitted(self.author_ctx([route]))
+        line = next(l for l in text.splitlines() if "('book', 'list')" in l)
+        self.assertLess(line.index("'find_books_by_author_author'"),
+                        line.index("'list_books'"))
+        self.assertIn("'author_id', ('author_id', 'DIRECT', True)",
+                      text)
+        self.assertNotIn("dead_options", stats)
+
+        class BookRepository:
+            def __init__(self, store):
+                pass
+
+            def read_all_books(self):
+                return ["all-books"]
+
+        class AuthorRepository:
+            def __init__(self, store):
+                pass
+
+            def find_books_by_author(self, author_id=None):
+                return [f"author:{author_id}"]
+
+        code, output = self.run_cli(
+            text, {"BookRepository": BookRepository,
+                   "AuthorRepository": AuthorRepository},
+            ["--db", ":memory:", "book", "list", "--author", "7"],
+            models=("Book", "Author"))
+        self.assertEqual(code, 0)
+        self.assertIn("author:7", output)
+        code, output = self.run_cli(
+            text, {"BookRepository": BookRepository,
+                   "AuthorRepository": AuthorRepository},
+            ["--db", ":memory:", "book", "list"], models=("Book", "Author"))
+        self.assertEqual(code, 0)
+        self.assertIn("all-books", output)
+
+    @staticmethod
     def budget_ctx():
         adapters = [
             {"action_name": "read_all_budgets",
