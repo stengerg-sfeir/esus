@@ -111,7 +111,7 @@ def load_model(model_path, context_size=8192, logits_all=False, quiet=False):
         llm = ServerModel(context_size=context_size)
         if not quiet:
             print(
-                f"[model] llama-server {llm.url} ({llm.model_name}), "
+                f"[server] llama-server {llm.url}: model={llm.model_name}, "
                 f"n_ctx={llm.n_ctx()}",
                 file=sys.stderr,
             )
