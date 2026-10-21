@@ -3,10 +3,11 @@ their adapter's service method, unbound ones fail with the reason.
 
 Transforms follow the adapter document: DIRECT passes through, ISO_DATE
 validates ISO format, DECIMAL_TO_CENTS converts money to integer cents,
-CSV_LIST splits on commas, LOOKUP_ID coerces to int (existence is
-enforced by the repository's foreign-key check on write, or by the
-record lookup itself on read), BOOL_TO_ONE turns a selector such as
---available-only into the minimum count of one.
+CSV_LIST splits on commas, INT_LIST converts a list to integers,
+LOOKUP_ID coerces to int (existence is enforced by the repository's
+foreign-key check on write, or by the record lookup itself on read),
+BOOL_TO_ONE turns a selector such as --available-only into the
+minimum count of one.
 """
 
 import argparse
@@ -41,6 +42,9 @@ def _transform(kind, value, field):
         for part in items:
             split.extend(p.strip() for p in str(part).split(",") if p.strip())
         return split
+    if kind == "INT_LIST":
+        items = value if isinstance(value, list) else [value]
+        return [int(item) for item in items]
     if kind == "LOOKUP_ID":
         return int(value)
     if kind == "ENUM_LOOKUP":
@@ -130,6 +134,16 @@ ADAPTERS = {
         ],
         'argv': {},
         'targets': {},
+        'assembled': [],
+    },
+    'find_books_by_author_author': {
+        'service': 'AuthorRepository',
+        'method': 'find_books_by_author',
+        'fields': [
+            ('author_id', ('author_id', 'DIRECT', True)),
+        ],
+        'argv': {'author_id': 'author'},
+        'targets': {'author_id': None},
         'assembled': [],
     },
     'get_book_loan_history': {
@@ -233,7 +247,7 @@ ADAPTERS = {
 
 BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
     ('book', 'add'): [('add_book', 5, ())],
-    ('book', 'list'): [('filter_books_by_available_copies', 5, (('available_only', 'truthy', '--available-only'),)), ('list_books', 5, ())],
+    ('book', 'list'): [('find_books_by_author_author', 5, (('author', 'value', '-author'),)), ('filter_books_by_available_copies', 5, (('available_only', 'truthy', '--available-only'),)), ('list_books', 5, ())],
     ('book', 'search'): [('search_books', 7, ())],
     ('borrow', None): [('borrow_book', 7, ())],
     ('member', 'add'): [('add_member', 5, ())],
@@ -306,7 +320,7 @@ def build_parser():
     p_book_add.add_argument('--copies', type=int, required=True, dest='copies')
     p_book_add.set_defaults(_binding=('book', 'add'))
     p_book_list = sub_book.add_parser('list')
-    p_book_list.add_argument('-author', '-a', action='store_true', dest='author')
+    p_book_list.add_argument('-author', '-a', type=int, required=False, dest='author')
     p_book_list.add_argument('--available-only', action='store_true', dest='available_only')
     p_book_list.set_defaults(_binding=('book', 'list'))
     p_book_search = sub_book.add_parser('search')
