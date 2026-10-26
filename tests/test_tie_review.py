@@ -16,7 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from kernel.extraction import decisions  # noqa: E402
-from review_ties import ask, collect_questions, run_review  # noqa: E402
+from review_ties import ask, collect_questions, describe_question, run_review  # noqa: E402
 
 
 class Log:
@@ -129,6 +129,30 @@ class AskTests(unittest.TestCase):
     def test_skip_and_garbage_answer_nothing(self):
         self.assertIsNone(ask(GUARD_TIE, lambda _: "skip"))
         self.assertIsNone(ask(GUARD_TIE, lambda _: "3"))
+
+
+class DescribeQuestionTests(unittest.TestCase):
+    def test_a_corrected_claim_explains_a_zero_confidence(self):
+        entry = dict(
+            FILTER_TIE,
+            confidence=0.0,
+            margin=0.0,
+            domain_margin=1.0,
+            claimed_pattern_id="COUNT_ACTIVE_BY_FK",
+            claimed_confidence=0.99999,
+            rejection=("COUNT_ACTIVE_BY_FK returns scalar, but this method "
+                       "returns collection (List[Loan])"),
+        )
+        text = "\n".join(describe_question(1, 1, entry))
+        self.assertIn("corrected from: COUNT_ACTIVE_BY_FK", text)
+        self.assertIn("COUNT_ACTIVE_BY_FK returns scalar", text)
+        self.assertIn("confidence is below 0.0001", text)
+        self.assertIn("domain margin: 1.0", text)
+
+    def test_an_uncorrected_entry_has_no_correction_lines(self):
+        text = "\n".join(describe_question(1, 1, dict(FILTER_TIE)))
+        self.assertNotIn("corrected from:", text)
+        self.assertNotIn("reason:", text)
 
 
 class ReviewFlowTests(unittest.TestCase):

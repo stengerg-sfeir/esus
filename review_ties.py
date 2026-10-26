@@ -50,6 +50,24 @@ def describe_question(index, total, entry):
         f"1) recorded:   {entry.get('pattern_id')} "
         f"(confidence {entry.get('confidence')})",
     ]
+    claimed = entry.get("claimed_pattern_id")
+    recorded = entry.get("pattern_id")
+    if isinstance(claimed, str) and claimed.strip() and claimed != recorded:
+        # A shape correction explains a confidence that otherwise looks wrong:
+        # the model's original answer was impossible for the return type, so
+        # the recorded pattern is the best *viable* one, not the model's first
+        # choice. Without this line, a tiny corrected probability prints as
+        # `confidence 0.0` and reads like a broken classifier.
+        claimed_confidence = entry.get("claimed_confidence")
+        suffix = (f" (confidence {claimed_confidence})"
+                  if claimed_confidence is not None else "")
+        lines.append(f"   corrected from: {claimed}{suffix}")
+        rejection = entry.get("rejection")
+        if isinstance(rejection, str) and rejection.strip():
+            lines.append(f"   reason: {rejection}")
+        if entry.get("confidence") == 0.0:
+            lines.append("   note: the recorded confidence is below 0.0001 "
+                         "and rounds to 0.0.")
     alternative = tie_rules.alternative_of(entry)
     if alternative is not None:
         lines.append(f"2) alternative: {alternative}")
