@@ -5,7 +5,7 @@ from the requirements are preserved on the dataclasses."""
 from dataclasses import dataclass
 from decimal import Decimal
 import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 
 
@@ -45,4 +45,4 @@ class Loan:
     loan_date: datetime.datetime = None
     due_date: datetime.datetime = None
     return_date: Optional[datetime.datetime] = None
-    status: str = None
+    status: Literal['active', 'returned', 'overdue'] = None

@@ -84,8 +84,10 @@ from kernel.extraction.contracts import (  # noqa: E402
     load_method_contracts,
 )
 from kernel.extraction.decisions import requirements_sha  # noqa: E402
+from kernel.store_contract import DEFAULT_STORE  # noqa: E402
 
 GENERATED_DIR = "generated"
+STORE_CONTRACT = DEFAULT_STORE
 
 # Patterns whose slots a human can answer (see review_slots.py): with every
 # required slot recorded, the emitters below write the body mechanically.
@@ -328,7 +330,7 @@ def method_error(ctx, method, entity):
 HEADER_IMPORTS = """from dataclasses import dataclass
 from decimal import Decimal
 import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 """
 
 
@@ -409,6 +411,13 @@ def emit_models(ctx):
             continue
         for name, field in fields:
             pytype = codegen.map_type(field.get("type"), ctx["entity_names"])
+            # A documented value set is part of the field's type. The
+            # invariant is the only place the vocabulary is written down,
+            # so read it there instead of leaving the field as a bare
+            # `str` that accepts any spelling.
+            values = _field_enum(ctx, model["name"], name)
+            if values:
+                pytype = "Literal[" + ", ".join(repr(v) for v in values) + "]"
             if field.get("nullable"):
                 pytype = f"Optional[{pytype}]"
             default = _field_default(ctx, field)
@@ -2917,7 +2926,7 @@ def render_program(ctx, stats):
         "schema.py": emit_schema(ctx),
     }
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                           "kernel", "codegen_store_template.py"),
+                           "kernel", STORE_CONTRACT.template),
               encoding="utf-8") as handle:
         files["store.py"] = handle.read()
     from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
@@ -3783,10 +3792,11 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  is always safe.",
         ]
     else:
+        operators = "`, `".join(STORE_CONTRACT.criteria_operators)
         call_rule = [
             "- Call only what the module shows: `self._store` methods used",
             "  in sibling bodies, `models.*`, `errors.*`, module helpers.",
-            "  `_store.select` criteria support only `eq`, `ge` and `le` —",
+            f"  `_store.select` criteria support only `{operators}` —",
             "  anything else (substring search, several fields) reads",
             "  `self._store.all(self.ENTITY)` and filters in Python.",
         ]
@@ -3817,7 +3827,8 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  independently: a record matching any one is a hit. Do not",
             "  put the fields in one `elif` chain — the later fields then",
             "  never run.",
-            "- A `search` matches text fields by case-insensitive substring",
+            "- A `search` matches text fields by "
+            f"{STORE_CONTRACT.text_search}",
             "  and compares ids/numbers exactly. `select(..., 'eq', ...)`",
             "  is an exact test, so read the records and filter text in",
             "  Python.",
@@ -4193,7 +4204,7 @@ def _api_reference(files, filename=""):
         lines.append("  return, in Python. A service has no `self._store`")
         lines.append("  and no `self.ENTITY`.")
     else:
-        lines.append("- `self._store` reads return plain records (dicts):")
+        lines.append(f"- `self._store` reads return {STORE_CONTRACT.read_shape}:")
         lines.append('  read them with `record.get("field")`; `self.ENTITY`')
         lines.append("  is this class's table.")
     entries = _model_fields(files.get("models.py") or "")
@@ -4204,11 +4215,13 @@ def _api_reference(files, filename=""):
         lines.append("  dataclasses: set the fields and pass the instance back —")
         lines.append("  there is no `copy(...)` with keyword updates:")
         lines += [f"  {entry}" for entry in entries]
-        lines.append('- Date fields hold ISO strings (`"2026-10-05"`):')
-        lines.append("  compare and slice them as strings; convert with")
-        lines.append("  `datetime.date.fromisoformat` /")
-        lines.append("  `datetime.datetime.fromisoformat` only for date")
-        lines.append("  arithmetic.")
+        lines.append(f"- The store {STORE_CONTRACT.date_read}.")
+        lines.append(f"  It {STORE_CONTRACT.date_write}. Compare a typed")
+        lines.append("  date field with `datetime.date.today()` or")
+        lines.append("  `datetime.datetime.now()` directly; store a")
+        lines.append("  date/datetime (or its `.isoformat()`) back.")
+        if filename != "services.py":
+            lines.append(f"- {STORE_CONTRACT.mutation}.")
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
@@ -4243,7 +4256,7 @@ def _honest_api_reference(files, filename=""):
             "  check after it is dead code.",
         ]
     else:
-        lines.append("- `self._store` reads return plain records (dicts):")
+        lines.append(f"- `self._store` reads return {STORE_CONTRACT.read_shape}:")
         lines.append('  read them with `record.get("field")`; `self.ENTITY`')
         lines.append("  is this class's table.")
     entries = _model_fields(files.get("models.py") or "")
@@ -4254,15 +4267,13 @@ def _honest_api_reference(files, filename=""):
         lines.append("  dataclasses: set the fields and pass the instance back —")
         lines.append("  there is no `copy(...)` with keyword updates:")
         lines += [f"  {entry}" for entry in entries]
-        lines.append("- The store normalizes `datetime.date`/`datetime.datetime`")
-        lines.append("  values to ISO text on write and restores them to")
-        lines.append("  `date`/`datetime` objects on read when the schema type is")
-        lines.append("  `date`/`datetime`. Compare a typed date field with")
-        lines.append("  `datetime.date.today()` or `datetime.datetime.now()`")
-        lines.append("  directly; store a date/datetime (or its `.isoformat()`)")
-        lines.append('  back. Never `strftime("%Y-%m-%d %H:%M:%S")`:')
-        lines.append("  space-separated text does not match the stored ISO")
-        lines.append("  values.")
+        lines.append(f"- The store {STORE_CONTRACT.date_read} and")
+        lines.append(f"  {STORE_CONTRACT.date_write}. Compare a typed date")
+        lines.append("  field with `datetime.date.today()` or")
+        lines.append("  `datetime.datetime.now()` directly; store a")
+        lines.append("  date/datetime (or its `.isoformat()`) back. Never")
+        lines.append('  `strftime("%Y-%m-%d %H:%M:%S")`: space-separated text does not match')
+        lines.append("  the stored ISO values.")
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
@@ -4320,7 +4331,7 @@ def _exact_api_reference(files, filename=""):
         ]
     else:
         lines += [
-            "- `self._store` reads return plain records (dicts):",
+            f"- `self._store` reads return {STORE_CONTRACT.read_shape}:",
             '  read them with `record.get("field")`; `self.ENTITY`',
             "  is this class's table.",
         ]
@@ -4333,13 +4344,13 @@ def _exact_api_reference(files, filename=""):
         lines.append("```")
         lines += [
             "- The dataclasses annotate dates as `datetime.date`/",
-            "  `datetime.datetime`, and the store restores values of those",
-            "  declared types to `date`/`datetime` objects on read. Compare",
-            "  a typed date field with `datetime.date.today()` or",
-            "  `datetime.datetime.now()` directly; store a date/datetime",
-            "  (or its `.isoformat()`) back. Never",
-            '  `strftime("%Y-%m-%d %H:%M:%S")`: space-separated text does',
-            "  not match the stored ISO values.",
+            "  `datetime.datetime`; the store",
+            f"  {STORE_CONTRACT.date_read}. It",
+            f"  {STORE_CONTRACT.date_write}. Compare a typed date field",
+            "  with `datetime.date.today()` or `datetime.datetime.now()`",
+            "  directly; store a date/datetime (or its `.isoformat()`)",
+            "  back. Never `strftime(\"%Y-%m-%d %H:%M:%S\")`:",
+            "  space-separated text does not match the stored ISO values.",
         ]
         if filename == "services.py":
             lines += [
@@ -4349,8 +4360,7 @@ def _exact_api_reference(files, filename=""):
             ]
         else:
             lines += [
-                "- Changing a record dict does not save it: write through",
-                "  `self._store.update(...)`.",
+                f"- {STORE_CONTRACT.mutation}.",
             ]
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:

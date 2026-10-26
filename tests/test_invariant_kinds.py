@@ -146,5 +146,20 @@ class ThePromptAsksForBothKinds(unittest.TestCase):
         self.assertIn('"text"', INVARIANTS_SYSTEM)
 
 
+class ThePromptDoesNotSeedAnInvertedRule(unittest.TestCase):
+    """An example is a shape, not a requirement.
+
+    The loan example was copied verbatim into a library extraction and
+    became a rule that contradicted the confirmed late-return contract.
+    """
+
+    def test_the_loan_return_example_is_gone(self):
+        self.assertNotIn("loan.return_date must be after loan.due_date",
+                         INVARIANTS_SYSTEM)
+
+    def test_the_prompt_says_examples_are_not_facts(self):
+        self.assertIn("shapes, not facts about this program", INVARIANTS_SYSTEM)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

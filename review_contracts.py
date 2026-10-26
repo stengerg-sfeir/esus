@@ -378,7 +378,7 @@ def _propose(ctx, holder, method, role, requirement):
         prompt = f"What condition should raise `{error}`?"
         if description:
             prompt += f" The error description says: {description}"
-        prompt += " (free text, or skip to leave it out)"
+        prompt += " (free text; type 'skip' to allow the operation with no check)"
         questions.append({
             "id": f"precondition:{error}", "kind": "text", "required": False,
             "prompt": prompt,

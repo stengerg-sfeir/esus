@@ -1751,7 +1751,9 @@ class StubFillTests(unittest.TestCase):
         # The shapes bare names hid: a live body stored a `datetime` the
         # store could not serialize, another called pydantic's `.copy`.
         self.assertIn("no `copy(...)` with keyword updates", prompt)
-        self.assertIn('- Date fields hold ISO strings (`"2026-10-05"`):',
+        self.assertIn("The store restores declared `date`/`datetime` fields",
+                      prompt)
+        self.assertIn("normalizes `datetime.date`/`datetime.datetime` values",
                       prompt)
         # The service prompt must not teach the store a service lacks: the
         # live `search_books` refusal copied exactly that example.
@@ -2450,6 +2452,83 @@ class StubFillTests(unittest.TestCase):
         self.assertFalse(data[0]["first_truncated"])
         self.assertEqual(data[0]["tokens"], 3)
         self.assertEqual(data[0]["context"], "exact")
+
+
+class StoreContractTests(unittest.TestCase):
+    """The ask names the contract, not the SQLite implementation.
+
+    A replacement store supplies its own facts and its own template; the
+    generator must not keep teaching `plain records` or SQLite's exact
+    criteria behind its back.
+    """
+
+    @staticmethod
+    def fake_contract():
+        from dataclasses import replace
+        return replace(
+            generator.STORE_CONTRACT,
+            name="objects",
+            read_shape="already-decoded objects",
+            criteria_operators=("eq", "contains"),
+            text_search="exact equality",
+            date_read="keeps declared date fields as ISO strings",
+            date_write="writes date values as ISO strings",
+            mutation="mutations are persisted immediately",
+        )
+
+    def test_exact_api_facts_come_from_the_contract(self):
+        from unittest import mock
+        files = {
+            "models.py": "class Widget:\n    title: str = None\n",
+            "errors.py": "",
+        }
+        with mock.patch.object(generator, "STORE_CONTRACT",
+                               self.fake_contract()):
+            text = "\n".join(
+                generator._exact_api_reference(files, "repositories.py"))
+        self.assertIn("already-decoded objects", text)
+        self.assertIn("keeps declared date fields as ISO strings", text)
+        self.assertIn("mutations are persisted immediately", text)
+        self.assertNotIn("plain records (dicts)", text)
+        self.assertNotIn("restores declared", text)
+
+    def test_stub_prompt_facts_come_from_the_contract(self):
+        from unittest import mock
+        info = {"cls": "WidgetRepository",
+                "def": "def find_widgets(self):",
+                "reason": "test", "file": "repositories.py"}
+        module = "class WidgetRepository:\n    pass\n"
+        with mock.patch.object(generator, "STORE_CONTRACT",
+                               self.fake_contract()):
+            prompt = generator.stub_prompt("requirements", module, info,
+                                           context="exact")
+        self.assertIn("`eq`, `contains`", prompt)
+        self.assertIn("exact equality", prompt)
+        self.assertNotIn("case-insensitive substring", prompt)
+
+    def test_render_program_copies_the_contract_template(self):
+        import tempfile
+        from dataclasses import replace
+        from unittest import mock
+        ctx = {
+            "models": [{"name": "Widget", "fields": [
+                {"name": "widget_id", "type": "int", "primary_key": True},
+                {"name": "title", "type": "string"}]}],
+            "errors": [], "entity_names": ["Widget"],
+            "services": [], "repositories": [], "mappings": {},
+            "match_index": {}, "adapters": [], "components": {},
+        }
+        stats = {"prog": "widgets", "source": "out/widgets",
+                 "unmapped": [], "implemented": 0, "stubs": 0,
+                 "stub_reasons": []}
+        with tempfile.TemporaryDirectory() as tmp:
+            template = Path(tmp) / "fake_store.py"
+            template.write_text("FAKE STORE\n", encoding="utf-8")
+            fake = replace(generator.STORE_CONTRACT,
+                           template=str(template))
+            with mock.patch.object(generator, "STORE_CONTRACT", fake):
+                files = generator.render_program(ctx, stats)
+        self.assertEqual(files["store.py"], "FAKE STORE\n")
 
 
 class BodyRefusalTests(unittest.TestCase):
@@ -3552,6 +3631,40 @@ class GuiBackendTests(unittest.TestCase):
         namespace["_invoke"](panel, repo, state, "delete")
         self.assertEqual(calls[-2], ("delete", {"widget_id": 1}))
         self.assertEqual(calls[-1], ("list", {}))
+
+
+class ModelEnumTests(unittest.TestCase):
+    """A documented value set is a type, not a convention.
+
+    The invariant is the only document that names the allowed values;
+    leaving the model field as `str` hid a mistyped status until a body
+    compared it at runtime.
+    """
+
+    @staticmethod
+    def ctx(invariants):
+        return {
+            "models": [{"name": "Loan", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "status", "type": "string"}]}],
+            "entity_names": ["Loan"],
+            "invariants": invariants,
+        }
+
+    def test_a_documented_value_set_becomes_a_literal(self):
+        text = generator.emit_models(self.ctx([{
+            "text": "Loan.status must be one of ['active', 'returned', 'overdue']",
+            "kind": "schema"}]))
+        self.assertIn(
+            "status: Literal['active', 'returned', 'overdue'] = None", text)
+        self.assertIn("from typing import Any, Dict, List, Literal, Optional",
+                      text)
+        compile(text, "models.py", "exec")
+
+    def test_no_documented_value_set_stays_a_string(self):
+        text = generator.emit_models(self.ctx([]))
+        self.assertIn("status: str = None", text)
+        self.assertNotIn("Literal[", text)
 
 
 class QualifyTests(unittest.TestCase):

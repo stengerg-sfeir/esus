@@ -122,6 +122,28 @@ class ContractProposalTests(unittest.TestCase):
         self.assertIn("stock is below the requested quantity",
                       question["prompt"])
         self.assertIn("InsufficientStockError", question["prompt"])
+        self.assertIn("allow the operation with no check", question["prompt"])
+
+    def test_skipping_an_open_error_records_no_check(self):
+        """Skipping is the explicit "allow" answer, not a lost question."""
+        ctx = dict(STOCK_CONTEXT)
+        ctx["errors"] = [{"name": "InsufficientStockError",
+                          "description": "Raised when stock is below the "
+                                         "requested quantity."}]
+        proposal = review_contracts._propose(
+            ctx, "InventoryService", self.method(), "service", "")
+        answers = {
+            "keep_preconditions": "keep",
+            "effect:0": "qty",
+            "keep_creates": "keep",
+            "precondition:InsufficientStockError": None,
+            "order": "create_first",
+        }
+        record = review_contracts._finalize(
+            proposal, answers, None, ctx)
+        self.assertNotIn(
+            "InsufficientStockError",
+            [item.get("error") for item in record["preconditions"]])
 
     def test_answers_become_a_generic_record(self):
         proposal = review_contracts._propose(
