@@ -91,7 +91,7 @@ class LibraryService:
         return self._repos['LoanRepository'].get_overdue_loans()
 
     def renew_membership(self, member_id: int = None) -> models.Member:
-        """Renews membership by toggling is_active status. [llm-written by server — review]"""
+        """Renews membership by setting is_active to True. [llm-written by server — review]"""
         member = self._repos['MemberRepository'].read_one_member(member_id=member_id)
         if member is None:
             raise errors.MemberNotFoundError(f"Member with id {member_id} not found")

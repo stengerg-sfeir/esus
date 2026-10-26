@@ -3570,14 +3570,32 @@ def reviewed_bodies(files):
 
 
 def _spliced_reviewed(text, start, end, info, cached):
-    """Replace one fresh stub with a reviewed body, keeping its original tag."""
+    """Replace one fresh stub with a reviewed body, keeping its original tag.
+
+    The docstring is generated from the current contract; the body is the
+    reviewed part. A description corrected after the review (a live
+    `renew_membership` still said "toggling" after the contract changed it
+    to set `True`) must reach the reused method, so the fresh stub's
+    docstring wins and only the `[llm-written ...]` tag is carried over.
+    """
     docstring, body = cached
-    lines = text.splitlines()
-    replacement = [docstring] if docstring else []
-    if not docstring and info.get("docstring"):
-        replacement.append(info["docstring"])
+    fresh = info.get("docstring")
+    if fresh:
+        indent = fresh[:len(fresh) - len(fresh.lstrip())]
+        current = fresh.strip()
+        current = re.sub(r'\s*\[[^\]]*\]"""\s*$', '"""', current)
+        current = current[:-3].rstrip()
+        match = re.search(r"\[llm-written by [^\]]*\]", docstring or "")
+        if match and "llm-written by" not in current:
+            current = f"{current} {match.group(0)}"
+        replacement = [f'{indent}{current}"""']
+    else:
+        replacement = [docstring] if docstring else []
+        if not replacement and info.get("docstring"):
+            replacement.append(info["docstring"])
     replacement.extend("        " + line if line.strip() else ""
                        for line in body)
+    lines = text.splitlines()
     candidate = "\n".join(lines[:start] + replacement + lines[end + 1:])
     if text.endswith("\n"):
         candidate += "\n"

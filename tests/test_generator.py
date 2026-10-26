@@ -3801,6 +3801,30 @@ class ReviewedBodyReuseTests(unittest.TestCase):
         self.assertNotIn("NotImplementedError", fresh["services.py"])
         compile(fresh["services.py"], "services.py", "exec")
 
+    def test_a_corrected_description_replaces_the_reviewed_docstring(self):
+        """The body is reviewed; the docstring is generated. A contract
+        correction after the review must reach the reused method."""
+        previous = {"services.py": '''class S:
+    def renew(self, member_id: int = None):
+        """Renews by toggling. [llm-written by Qwen — review]"""
+        member = self._repos['R'].read_one(member_id)
+        return member
+''', "repositories.py": ""}
+        fresh = {"services.py": '''class S:
+    def renew(self, member_id: int = None):
+        """Renews by setting active. [pattern STANDARD_CRUD]"""
+        raise NotImplementedError(
+            "renew: pattern STANDARD_CRUD")
+''', "repositories.py": ""}
+        rows = generator.reuse_reviewed_bodies(fresh, previous)
+        self.assertEqual(rows, [("S.renew", "reused",
+                                 "reviewed body preserved")])
+        self.assertIn(
+            '"""Renews by setting active. '
+            '[llm-written by Qwen — review]"""', fresh["services.py"])
+        self.assertNotIn("toggling", fresh["services.py"])
+        compile(fresh["services.py"], "services.py", "exec")
+
     def test_a_cached_body_is_not_spliced_where_no_stub_exists(self):
         previous = {"services.py": '''class S:
     def find(self, query: str = None):
