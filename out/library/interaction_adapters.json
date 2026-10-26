@@ -49,20 +49,6 @@
       "input_fields": []
     },
     {
-      "action_name": "list_books_by_author",
-      "target_service": "BookRepository",
-      "target_method": "filter_books_by_available_copies",
-      "input_fields": [
-        {
-          "field_name": "author_id",
-          "target_param": "min_available_copies",
-          "transform": "LOOKUP_ID",
-          "lookup_entity": "Author",
-          "required": true
-        }
-      ]
-    },
-    {
       "action_name": "search_books",
       "target_service": "LibraryService",
       "target_method": "search_books",
@@ -89,11 +75,18 @@
           "required": true
         },
         {
-          "field_name": "birth_year",
+          "field_name": "email",
           "target_param": "author",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
+        },
+        {
+          "field_name": "birth_year",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
         },
         {
           "field_name": "biography",

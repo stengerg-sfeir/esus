@@ -75,7 +75,7 @@
           "raise_when": "false"
         },
         {
-          "check": "loan.status == 'returned'",
+          "check": "loan.return_date > loan.due_date",
           "error": "InvalidReturnDateError",
           "raise_when": "true"
         }
@@ -104,7 +104,7 @@
           "target": "member.is_active",
           "op": "set",
           "write": "MemberRepository.update_member",
-          "value": "not is_active"
+          "value": true
         }
       ],
       "creates": [],

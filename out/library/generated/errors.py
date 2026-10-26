@@ -31,4 +31,4 @@ class InsufficientCopiesError(RuntimeError):
 
 
 class InvalidReturnDateError(RuntimeError):
-    """Raised when a book is returned before its due date."""
+    """Raised when a book is returned after its due date."""

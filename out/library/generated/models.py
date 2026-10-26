@@ -22,6 +22,7 @@ class Book:
 @dataclass
 class Author:
     id: int = None
+    email: str = None
     name: str = None
     birth_year: Optional[int] = None
     biography: Optional[str] = None

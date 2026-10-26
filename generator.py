@@ -3368,8 +3368,22 @@ _CODE_LINE = re.compile(
 
 
 def _is_stub_echo(text):
-    """The model repeated the stub instead of replacing its raise."""
-    return bool(re.match(r"^\s*def \w+", text)) or "NotImplementedError" in text
+    """The model repeated the stub instead of replacing its raise.
+
+    A stub echo contains `NotImplementedError` or a `def` line matching
+    the stub pattern (method name + `raise NotImplementedError`).
+    """
+    if "NotImplementedError" in text:
+        return True
+    # Check for def line followed by NotImplementedError in the same block
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if re.match(r"^\s*def \w+", line):
+            # Check if the next few lines contain NotImplementedError
+            block = "\n".join(lines[i:i+5])
+            if "NotImplementedError" in block:
+                return True
+    return False
 
 
 def _looks_like_code(text):
@@ -3785,19 +3799,23 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  independently: a record matching any one is a hit. Do not",
             "  put the fields in one `elif` chain — the later fields then",
             "  never run.",
+            "- A `search` matches text fields by case-insensitive substring",
+            "  and compares ids/numbers exactly. `select(..., 'eq', ...)`",
+            "  is an exact test, so read the records and filter text in",
+            "  Python.",
         ]
     lines += [
         "- If the requirements do not determine the behavior, reply with",
         '  `raise NotImplementedError("...")` and nothing else.',
     ]
     if complaints:
-        lines += [
+        repair_block = [
             "",
             "Your previous answer to this method was refused:",
         ]
-        lines += [f"  - {complaint}" for complaint in complaints]
+        repair_block += [f"  - {complaint}" for complaint in complaints]
         if previous:
-            lines += [
+            repair_block += [
                 "",
                 "The refused answer was:",
                 "```python",
@@ -3806,6 +3824,8 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
                 "Write the body again, fixing exactly what was refused and",
                 "keeping what was right.",
             ]
+    else:
+        repair_block = []
     if references:
         lines += ["", "Methods this module may lean on:"]
         lines += [f"  {signature}" for signature in references]
@@ -3819,6 +3839,11 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
               ]
     if contract:
         lines += [""] + list(contract)
+    # The correction is the last thing before the ask: a small model that
+    # saw the complaint at the top and then thousands of tokens of API and
+    # module text repeated the refused keyword twice in a live
+    # `return_book` repair. Recency is what makes it fix the named call.
+    lines += repair_block
     lines += [
               "",
               f"Now write the body of `{info['cls']}.{method}`, replacing",
@@ -3828,39 +3853,146 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
 
 
 def _clean_body(text):
-    """The model's answer as unindented body lines: fences and `def` gone.
+    """Extract the function body from a complete function definition, or
+    handle the legacy body-only format.
 
-    The answer keeps its own base indent (`keep_indent`) so a body written
-    in the shown module's style — the usual case — dedents to zero here
-    instead of leaving its first line shallower than the rest. The `def`
-    line and an echoed docstring are dropped; the filler writes both itself.
-    The stub ask ends with an open fence, so the answer is parsed as a
-    continuation (`open_fence`).
+    New format (preferred): model writes complete function with `def`.
+    Legacy format: model writes only body lines (no `def` line).
     """
-    lines = [line.rstrip() for line in
-             extract_code(text, keep_indent=True, open_fence=True).splitlines()]
-    while lines and not lines[0].strip():
-        lines.pop(0)
-    while lines and not lines[-1].strip():
-        lines.pop()
-    if lines and re.match(r"^\s*def \w+", lines[0]):
-        lines.pop(0)  # the whole method came back; only its body goes in
-    while lines and not lines[0].strip():
-        lines.pop(0)
-    if lines:
-        opener = re.match(r'^\s*[rubf]{0,2}("""|\'\'\')', lines[0])
-        if opener:  # the model echoed the docstring; the filler rewrites it
-            closing = opener.group(1)
-            tail = lines.pop(0)[opener.end():]
-            while closing not in tail and lines:
-                tail = lines.pop(0)
-    indents = [len(line) - len(line.lstrip(" ")) for line in lines
-               if line.strip()]
+    # Use keep_indent=True to preserve original indentation for legacy format
+    code = extract_code(text, keep_indent=True, open_fence=True)
+    if not code.strip():
+        return []
+    
+    # Try to parse as a complete function first
+    try:
+        tree = ast.parse(code)
+    except SyntaxError:
+        tree = None
+    
+    func = None
+    if tree:
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                func = node
+                break
+    
+    if func:
+        # New format: complete function with def line
+        code_lines = code.splitlines()
+        body_start = func.lineno
+        body_end = getattr(func, 'end_lineno', len(code_lines))
+        body_source = code_lines[body_start - 1:body_end]
+        if not body_source:
+            return []
+        body_lines = body_source[1:]  # skip def line
+        # Strip leading docstring if present (AST path)
+        while body_lines and re.match(r'^\s*("""|\'\'\')', body_lines[0].lstrip()):
+            opener = body_lines.pop(0)
+            # Single-line docstring?
+            if re.search(r'("""|\'\'\')', opener[opener.find('"""')+3:] if '"""' in opener else opener[opener.find("'''")+3:]):
+                continue
+            # Multi-line docstring: find closing triple quotes
+            while body_lines and not re.search(r'("""|\'\'\')', body_lines[0]):
+                body_lines.pop(0)
+            if body_lines:
+                body_lines.pop(0)  # remove closing line
+    else:
+        # Legacy format: body lines only (no def line), but may have
+        # a leading def line/docstring that AST couldn't parse (e.g. fences in middle).
+        body_lines = [line for line in code.splitlines() if line.strip() or True]
+        # Remove leading/trailing empty lines
+        while body_lines and not body_lines[0].strip():
+            body_lines.pop(0)
+        while body_lines and not body_lines[-1].strip():
+            body_lines.pop()
+        # Strip leading def line if present (model echoed the stub)
+        if body_lines and re.match(r'^\s*def\s+\w+\s*\(', body_lines[0]):
+            body_lines.pop(0)
+        # Strip leading docstring if present
+        while body_lines and re.match(r'^\s*("""|\'\'\')', body_lines[0].lstrip()):
+            opener = body_lines.pop(0)
+            # If the opener line also contains closing quotes, we're done
+            if re.search(r'("""|\'\'\')', opener[opener.find('"""')+3:] if '"""' in opener else opener[opener.find("'''")+3:]):
+                # Single-line docstring, already removed
+                continue
+            # Multi-line docstring: find closing triple quotes
+            while body_lines and not re.search(r'("""|\'\'\')', body_lines[0]):
+                body_lines.pop(0)
+            if body_lines:
+                body_lines.pop(0)  # remove closing line
+        # Remove deliberation after a lone closing fence (model reasoning after code)
+        # Find first lone ``` line and drop everything after it
+        for i, line in enumerate(body_lines):
+            if re.match(r'^\s*```', line.strip()):
+                body_lines = body_lines[:i]
+                break
+        # Remove fence lines
+        body_lines = [line for line in body_lines if not re.match(r'^\s*```', line)]
+    
+    if not body_lines:
+        return []
+    
+    # Dedent to minimum indent among body lines
+    indents = [len(line) - len(line.lstrip(" ")) for line in body_lines if line.strip()]
     if not indents:
         return []
-    trim = min(indents)
-    return [line[trim:] if line.strip() else "" for line in lines]
+    # Body-only answers sometimes put the first statement at column 0 (or
+    # one level shallower) while the rest of the body keeps the def's base
+    # indent. Trimming by the minimum column then leaves the first `if`
+    # body at the base, and the module does not compile. The outlier is
+    # the first line, not the base: add the missing base to the leading
+    # line(s) at that shallow column, dedent by the rest's base, and keep
+    # the result only when it parses. A correct body whose whole content
+    # is nested under its first line (e.g. a lone `for`) fails that parse
+    # and falls back to the minimum column unchanged.
+    #
+    # A live `search_books_by_title_author_isbn` answer was internally
+    # inconsistent instead: `return []` and the statements after it were
+    # all at the rest's base, so no single re-base made both the `if` body
+    # and the following statements correct. That answer parses after the
+    # fallback but leaves every later statement dead inside the `if`;
+    # `_body_complaints` refuses it as unreachable rather than accepting
+    # a body whose whole search only runs for an empty query.
+    def dedent_at(lines, trim):
+        cut_lines = []
+        for line in lines:
+            if not line.strip():
+                cut_lines.append("")
+                continue
+            indent = len(line) - len(line.lstrip(" "))
+            cut = trim if indent >= trim else 0
+            cut_lines.append(line[cut:])
+        return cut_lines
 
+    def compiles(lines):
+        source = "def _body():\n" + "\n".join(
+            ("    " + line) if line.strip() else "" for line in lines)
+        try:
+            compile(source, "<body>", "exec")
+        except SyntaxError:
+            return False
+        return True
+
+    trim = min(indents)
+    rest = indents[1:]
+    if rest and indents[0] < min(rest):
+        base = min(rest)
+        missing = base - indents[0]
+        shifted = list(body_lines)
+        for index, line in enumerate(body_lines):
+            if not line.strip():
+                continue
+            indent = len(line) - len(line.lstrip(" "))
+            if indent != indents[0]:
+                break
+            shifted[index] = " " * missing + line
+        candidate = dedent_at(shifted, base)
+        if compiles(candidate):
+            return candidate
+    result = dedent_at(body_lines, trim)
+    
+    return result
 
 def _answer_continued(text):
     """True when an answer keeps talking after its first code block.
@@ -4100,13 +4232,14 @@ def _honest_api_reference(files, filename=""):
         lines.append("  there is no `copy(...)` with keyword updates:")
         lines += [f"  {entry}" for entry in entries]
         lines.append("- The store normalizes `datetime.date`/`datetime.datetime`")
-        lines.append("  values to ISO strings on write, so values read back are")
-        lines.append('  ISO text (`"2026-10-05"`, `"2026-10-05T14:30:00"`).')
-        lines.append("  Compare them as strings; use `fromisoformat` for")
-        lines.append("  arithmetic and store a datetime (or its `.isoformat()`)")
+        lines.append("  values to ISO text on write and restores them to")
+        lines.append("  `date`/`datetime` objects on read when the schema type is")
+        lines.append("  `date`/`datetime`. Compare a typed date field with")
+        lines.append("  `datetime.date.today()` or `datetime.datetime.now()`")
+        lines.append("  directly; store a date/datetime (or its `.isoformat()`)")
         lines.append('  back. Never `strftime("%Y-%m-%d %H:%M:%S")`:')
         lines.append("  space-separated text does not match the stored ISO")
-        lines.append("  strings.")
+        lines.append("  values.")
     errors = sorted(_class_names(files.get("errors.py") or ""))
     if errors:
         lines.append(f"- errors.py defines only these: {', '.join(errors)}")
@@ -4177,13 +4310,13 @@ def _exact_api_reference(files, filename=""):
         lines.append("```")
         lines += [
             "- The dataclasses annotate dates as `datetime.date`/",
-            "  `datetime.datetime`, but the store normalizes them to ISO",
-            "  strings on write and hands them back as strings. Values you",
-            '  read are ISO text (`"2026-10-05"`, `"2026-10-05T14:30:00"`);',
-            "  compare them as strings, use `fromisoformat` for arithmetic,",
-            "  and store a datetime (or its `.isoformat()`) back. Never",
+            "  `datetime.datetime`, and the store restores values of those",
+            "  declared types to `date`/`datetime` objects on read. Compare",
+            "  a typed date field with `datetime.date.today()` or",
+            "  `datetime.datetime.now()` directly; store a date/datetime",
+            "  (or its `.isoformat()`) back. Never",
             '  `strftime("%Y-%m-%d %H:%M:%S")`: space-separated text does',
-            "  not match the stored ISO strings.",
+            "  not match the stored ISO values.",
         ]
         if filename == "services.py":
             lines += [
@@ -4232,8 +4365,12 @@ def _contract_lines(contract):
     """
     if not contract:
         return []
-    lines = ["The human-confirmed contract for this method:"]
+    lines = ["The human-confirmed contract for this method (where it",
+             "differs from the requirement, this contract wins):"]
     preconditions = contract.get("preconditions") or []
+    effects = contract.get("effects") or []
+    assigned = {item["target"] for item in effects
+                if item.get("op") == "set" and item.get("target")}
     if preconditions:
         lines.append("  preconditions:")
         for item in preconditions:
@@ -4246,6 +4383,23 @@ def _contract_lines(contract):
             else:
                 suffix = f"; otherwise raise `{error}`" if error else ""
                 lines.append(f"    - `{check}`{suffix}")
+            # A check that names a field this body sets is about the new
+            # value. A live return body tested `loan.return_date` while it
+            # was still None and assigned `now` afterwards, so the late
+            # return branch could never fire.
+            named = sorted(target for target in assigned if target in check)
+            if named:
+                if error and raise_when == "true":
+                    guard = f"if {check}: raise {error}(...)"
+                elif error and raise_when == "false":
+                    guard = f"if not ({check}): raise {error}(...)"
+                else:
+                    guard = ""
+                lines.append(
+                    "      (this body sets " + ", ".join(
+                        f"`{target}`" for target in named)
+                    + "; assign the new value first"
+                    + (f", then write `{guard}`)" if guard else ")"))
     creates = contract.get("creates") or []
     if creates:
         lines.append("  creates:")
@@ -4258,7 +4412,6 @@ def _contract_lines(contract):
                 lines.append(f"    - create through `{call}(...)`")
             elif class_name:
                 lines.append(f"    - create `models.{class_name}`")
-    effects = contract.get("effects") or []
     if effects:
         lines.append("  effects:")
         for item in effects:
@@ -4280,8 +4433,8 @@ def _contract_lines(contract):
         for item in forbid:
             message = f": {item['message']}" if item.get("message") else ""
             lines.append(
-                f"    - `{item['target']}` must not read `{item['reads']}`"
-                f"{message}")
+                f"    - the value assigned to `{item['target']}` must not "
+                f"read `{item['reads']}`{message}")
     if len(lines) == 1:
         return []
     return lines + [""]
@@ -4456,6 +4609,26 @@ def _body_complaints(body, info, module_text, references_text, files,
              | set(bound) | set(dir(builtins)))
     found = []
     text = "\n".join(body)
+    terminal = (ast.Return, ast.Raise, ast.Break, ast.Continue)
+    lines = source.splitlines()
+    for node in ast.walk(tree):
+        for attribute in ("body", "orelse", "finalbody"):
+            block = getattr(node, attribute, None)
+            if not isinstance(block, list):
+                continue
+            for position, statement in enumerate(block[:-1]):
+                if not isinstance(statement, terminal):
+                    continue
+                following = block[position + 1]
+                snippet = ""
+                if 0 < following.lineno <= len(lines):
+                    snippet = lines[following.lineno - 1].strip()[:60]
+                found.append(
+                    f"has code after `{type(statement).__name__.lower()}`"
+                    + (f" (`{snippet}`)" if snippet else "")
+                    + " that can never run; check the indentation of the "
+                    "lines after it")
+                break
     if re.search(r"\.(?:keys|values|items)\(\)\s*\[", text):
         found.append("indexes a dict view (`dict.keys()[i]` is not "
                      "subscriptable); wrap it in `list(...)` or iterate")
@@ -4786,6 +4959,118 @@ def _store_operator_complaints(tree):
     return found
 
 
+def _keyword_parameter(name, params, used):
+    """The declared parameter a wrong keyword most likely means.
+
+    A live service body wrote `read_one_book(book_id=loan.book_id)` and
+    `update_book(book_id=loan.book_id, book=book)` for signatures
+    `(book_id_or_isbn, book)`. The complaint can then quote the exact
+    positional call instead of only naming the mismatch, which is what
+    the small model followed on the single-parameter method.
+    """
+    for param in params:
+        if param == name and param not in used:
+            return param
+    prefixed = [param for param in params
+                if param not in used and param.startswith(name + "_")]
+    if len(prefixed) == 1:
+        return prefixed[0]
+    extended = [param for param in params
+                if param not in used and name.startswith(param + "_")]
+    if len(extended) == 1:
+        return extended[0]
+    name_tokens = set(name.split("_"))
+    shared = [param for param in params
+              if param not in used
+              and name_tokens & set(param.split("_"))]
+    return shared[0] if len(shared) == 1 else None
+
+
+def _positional_call(node, params):
+    """The same repository call with every keyword passed positionally.
+
+    `node` must have keywords only (no positional arguments) and every
+    keyword must map to one declared parameter. A call that already uses a
+    declared keyword is left alone; the caller decides whether it needs a
+    rewrite.
+    """
+    used = set()
+    values = {}
+    for keyword in node.keywords:
+        if keyword.arg is None:
+            return None
+        matched = _keyword_parameter(keyword.arg, params, used)
+        if matched is None:
+            return None
+        used.add(matched)
+        values[matched] = ast.unparse(keyword.value)
+    ordered = [values[param] for param in params if param in values]
+    return (f"{ast.unparse(node.func)}(" + ", ".join(ordered) + ")")
+
+
+def _normalise_repository_keywords(body, references_text):
+    """Pass a repository call's values positionally when its keywords are
+    unambiguous aliases of the declared parameters.
+
+    A live `borrow_book` answer wrote `read_one_book(book_id=book_id)` for
+    a signature `(book_id_or_isbn)` and repeated it on every repair ask,
+    even with the exact positional call quoted back: the local parameter
+    and the model field are both `book_id`, so the keyword looks right to
+    the model. The mapping is mechanical and unique, and passing the value
+    positionally is always safe. A call whose keywords map ambiguously is
+    left for `_keyword_call_complaints` to refuse.
+
+    Returns the possibly rewritten body and the `Class.method` labels whose
+    call was rewritten, so the run can say what it changed.
+    """
+    signatures = _signature_parameters(references_text)
+    if not signatures or not body:
+        return list(body), []
+    wrapped = "def _body():\n" + "\n".join(
+        ("    " + line) if line.strip() else "" for line in body)
+    try:
+        tree = ast.parse(wrapped)
+    except SyntaxError:
+        return list(body), []
+    edits, labels = [], []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        method = node.func
+        if not isinstance(method, ast.Attribute):
+            continue
+        repo = _repo_name(method.value)
+        if repo is None:
+            continue
+        params = signatures.get((repo, method.attr))
+        if params is None or not node.keywords or node.args:
+            continue
+        if all(keyword.arg in params for keyword in node.keywords):
+            continue
+        replacement = _positional_call(node, params)
+        if replacement is None:
+            continue
+        if node.lineno != node.end_lineno:
+            # A multi-line call may contain comments; rewriting it would
+            # discard them. Leave it to the complaint instead.
+            continue
+        edits.append((node, replacement))
+        labels.append(f"{repo}.{method.attr}")
+    rewritten = list(body)
+    for node, replacement in sorted(
+            edits, key=lambda item: (item[0].lineno, item[0].col_offset),
+            reverse=True):
+        index = node.lineno - 2
+        if not 0 <= index < len(rewritten):
+            continue
+        line = rewritten[index]
+        start, end = node.col_offset - 4, node.end_col_offset - 4
+        if start < 0 or end > len(line):
+            continue
+        rewritten[index] = line[:start] + replacement + line[end:]
+    return rewritten, labels
+
+
 def _keyword_call_complaints(tree, references_text):
     """Reject a repository keyword the repository signature does not define."""
     signatures = _signature_parameters(references_text)
@@ -4811,14 +5096,24 @@ def _keyword_call_complaints(tree, references_text):
                         else "one of " + ", ".join(
                             f"`{name}`" for name in params))
             suggestion = ""
-            if len(params) == 1 and len(node.keywords) == 1 \
-                    and not node.args:
-                suggestion = (
-                    f"; write `{ast.unparse(node.func)}("
-                    f"{ast.unparse(keyword.value)})`")
+            if not node.args:
+                used = set()
+                ordered = []
+                for item in node.keywords:
+                    matched = (None if item.arg is None
+                               else _keyword_parameter(item.arg, params, used))
+                    if matched is None:
+                        ordered = None
+                        break
+                    used.add(matched)
+                    ordered.append(ast.unparse(item.value))
+                if ordered:
+                    suggestion = (
+                        f"; write `{ast.unparse(node.func)}("
+                        + ", ".join(ordered) + ")`")
             found.append(
-                f"calls `{repo}.{method.attr}({keyword.arg}=...)`; the "
-                f"declared parameter is {declared}; pass the value "
+                f"passes keyword `{keyword.arg}` to `{repo}.{method.attr}`, "
+                f"whose declared parameter is {declared}; pass the value "
                 f"positionally or use the declared keyword{suggestion}")
             break
     return found
@@ -5218,9 +5513,13 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 if context == "exact" or method_contract else ())
             out(f"llm: {label} ...")
 
+            keyword_changes = []
+
             def attempt(raw):
                 """One raw answer as `(candidate, problems, body)`."""
-                body = _clean_body(raw)
+                nonlocal keyword_changes
+                body, keyword_changes = _normalise_repository_keywords(
+                    _clean_body(raw), files.get("repositories.py") or "")
                 refusal = _body_refusal(body, _module_names(text),
                                         store_names, model_names, error_names)
                 problems = [refusal] if refusal else _body_complaints(
@@ -5358,6 +5657,12 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 note = "; ".join(filter(None,
                                         [note,
                                          "added import " + ", ".join(added)]))
+            if keyword_changes:
+                note = "; ".join(filter(None, [
+                    note,
+                    "passed the arguments of "
+                    + ", ".join(sorted(set(keyword_changes)))
+                    + " positionally to match the declared parameter"]))
             rows.append((label, "written", note))
             entry = {"label": label, "status": "written", "note": note,
                      "answer": result.text}

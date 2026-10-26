@@ -13,14 +13,14 @@
         ],
         "options": [
           {
-            "name": "-help",
+            "name": "--help",
             "short": "-h",
             "type": "bool",
             "required": false,
             "default": null
           },
           {
-            "name": "-version",
+            "name": "--version",
             "short": "-v",
             "type": "bool",
             "required": false,
@@ -28,6 +28,76 @@
           }
         ],
         "commands": [
+          {
+            "name": "author",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": "-e",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--birth-year",
+                    "short": "-b",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--biography",
+                    "short": "-g",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": []
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "--query",
+                    "short": "-q",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
           {
             "name": "book",
             "options": [
@@ -51,7 +121,7 @@
                 "name": "add",
                 "options": [
                   {
-                    "name": "-title",
+                    "name": "--title",
                     "short": "-t",
                     "type": "str",
                     "required": true,
@@ -59,30 +129,30 @@
                   },
                   {
                     "name": "--isbn",
-                    "short": null,
+                    "short": "-i",
                     "type": "str",
                     "required": true,
                     "default": null
                   },
                   {
                     "name": "--author-id",
-                    "short": null,
+                    "short": "-a",
                     "type": "int",
                     "required": true,
                     "default": null
                   },
                   {
                     "name": "--published-year",
-                    "short": null,
+                    "short": "-y",
                     "type": "int",
                     "required": true,
                     "default": null
                   },
                   {
                     "name": "--copies",
-                    "short": null,
+                    "short": "-c",
                     "type": "int",
-                    "required": true,
+                    "required": false,
                     "default": null
                   }
                 ]
@@ -91,7 +161,7 @@
                 "name": "list",
                 "options": [
                   {
-                    "name": "-author",
+                    "name": "--author",
                     "short": "-a",
                     "type": "int",
                     "required": false,
@@ -99,7 +169,7 @@
                   },
                   {
                     "name": "--available-only",
-                    "short": null,
+                    "short": "-av",
                     "type": "bool",
                     "required": false,
                     "default": null
@@ -110,7 +180,7 @@
                 "name": "search",
                 "options": [
                   {
-                    "name": "-query",
+                    "name": "--query",
                     "short": "-q",
                     "type": "str",
                     "required": true,
@@ -143,14 +213,14 @@
                 "name": "add",
                 "options": [
                   {
-                    "name": "-name",
+                    "name": "--name",
                     "short": "-n",
                     "type": "str",
                     "required": true,
                     "default": null
                   },
                   {
-                    "name": "-email",
+                    "name": "--email",
                     "short": "-e",
                     "type": "str",
                     "required": true,
@@ -162,7 +232,7 @@
                 "name": "list",
                 "options": [
                   {
-                    "name": "-active-only",
+                    "name": "--active-only",
                     "short": "-a",
                     "type": "bool",
                     "required": false,
@@ -202,14 +272,14 @@
                 "default": null
               },
               {
-                "name": "--member-id",
+                "name": "--book-id",
                 "short": null,
                 "type": "int",
                 "required": true,
                 "default": null
               },
               {
-                "name": "--book-id",
+                "name": "--member-id",
                 "short": null,
                 "type": "int",
                 "required": true,
@@ -261,6 +331,13 @@
                 "type": "bool",
                 "required": false,
                 "default": null
+              },
+              {
+                "name": "--member-id",
+                "short": null,
+                "type": "int",
+                "required": true,
+                "default": null
               }
             ],
             "subcommands": []
@@ -270,7 +347,7 @@
     },
     "persistence": {
       "required": true,
-      "technology": "sqlite"
+      "technology": "sqlite3"
     },
     "external_access": [],
     "crud_services": [

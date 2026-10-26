@@ -1506,6 +1506,32 @@ class StubFillTests(unittest.TestCase):
                                   "    return 1\n"),
             ["return 1"])
 
+    def test_a_body_whose_first_line_lost_its_base_indent(self):
+        """A live body-only answer put the first statement at column 0
+        while the rest kept the def's 4-space base and 8-space nesting.
+        Trimming by the minimum column left the nested line at the base
+        and the body did not compile; the first line is the outlier."""
+        self.assertEqual(
+            generator._clean_body("if not query:\n"
+                                  "        return []\n"
+                                  "\n"
+                                  "    results = []\n"
+                                  "    return results\n"),
+            ["if not query:", "    return []", "", "results = []",
+             "return results"])
+        self.assertEqual(
+            generator._clean_body("member = find(member_id)\n"
+                                  "    if member is None:\n"
+                                  "        raise Missing()\n"
+                                  "    return member\n"),
+            ["member = find(member_id)", "if member is None:",
+             "    raise Missing()", "return member"])
+        # A body whose first line is the true base must keep its nesting:
+        # only a first line shallower than every later line is an outlier.
+        self.assertEqual(
+            generator._clean_body("    if value:\n        return value\n"),
+            ["if value:", "    return value"])
+
     def test_an_answer_that_keeps_talking_after_the_body_is_flagged(self):
         self.assertTrue(generator._answer_continued(
             "    return 1\n```\n\nWait — no.\n\n```python\n"
@@ -2022,7 +2048,7 @@ class StubFillTests(unittest.TestCase):
         text = "\n".join(generator._target_contract(
             info, files, "return_book(loan_id): sets return_date",
             contract=contract))
-        self.assertIn("The human-confirmed contract for this method:", text)
+        self.assertIn("The human-confirmed contract for this method", text)
         self.assertIn("`loan.return_date`", text)
         self.assertIn("to `now`", text)
         self.assertIn("`BookRepository.update_book(...)`", text)
@@ -2055,6 +2081,37 @@ class StubFillTests(unittest.TestCase):
             "raise `InvalidReturnDateError` when `loan.status == "
             "'returned'` is true", text)
         self.assertNotIn("otherwise raise `InvalidReturnDateError`", text)
+
+    def test_a_precondition_on_an_assigned_field_says_assign_first(self):
+        """A live return body tested `loan.return_date` while it was still
+        None and assigned `now` afterwards, so the late-return branch could
+        never fire. The contract must say the check uses the new value."""
+        info = {"cls": "LibraryService",
+                "def": ("def return_book(self, loan_id: int = None)"
+                        " -> models.Loan:"),
+                "file": "services.py"}
+        files = {"models.py":
+                 "from dataclasses import dataclass\n\n"
+                 "@dataclass\nclass Loan:\n    id: int = None\n"
+                 "    return_date: str = None\n"
+                 "    due_date: str = None\n"}
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.return_date > loan.due_date",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+            "effects": [{"target": "loan.return_date", "op": "set",
+                         "value": "now",
+                         "write": "LoanRepository.update_loan"}],
+        }
+        text = "\n".join(generator._target_contract(
+            info, files, contract=contract))
+        self.assertIn(
+            "this body sets `loan.return_date`; assign the new value "
+            "first, then write `if loan.return_date > loan.due_date: "
+            "raise InvalidReturnDateError(...)`", text)
 
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
@@ -2260,7 +2317,8 @@ class StubFillTests(unittest.TestCase):
                       finish_reason="stop", truncated=False),
             mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
                       finish_reason="stop", truncated=False),
-            mock.Mock(text='raise errors.AppError("invalid")\nreturn 0',
+            mock.Mock(text='if not True:\n    return 0\n'
+                           'raise errors.AppError("invalid")',
                       tokens=3, seconds=0.1, budget=3584,
                       finish_reason="stop", truncated=False),
         ]
@@ -2276,7 +2334,7 @@ class StubFillTests(unittest.TestCase):
                          ("WidgetService.custom_total", "written"))
         self.assertIn("confirmed contract requires", rows[1][2])
         first_custom = ask.call_args_list[1].args[1]
-        self.assertIn("The human-confirmed contract for this method:",
+        self.assertIn("The human-confirmed contract for this method",
                       first_custom)
         self.assertIn("the total is valid", first_custom)
         repair = ask.call_args_list[2].args[1]
@@ -2689,8 +2747,8 @@ class ContractComplaintTests(unittest.TestCase):
         ]
         self.assertEqual(
             self.complaints(body, info=info, references=references),
-            ["calls `BookRepository.read_one_book(book_id=...)`; the "
-             "declared parameter is `book_id_or_isbn`; pass the value "
+            ["passes keyword `book_id` to `BookRepository.read_one_book`, "
+             "whose declared parameter is `book_id_or_isbn`; pass the value "
              "positionally or use the declared keyword; write "
              "`self._repos['BookRepository'].read_one_book(book_id)`"])
 
@@ -2713,10 +2771,83 @@ class ContractComplaintTests(unittest.TestCase):
         ]
         self.assertEqual(
             self.complaints(body, info=info, references=references),
-            ["calls `BookRepository.read_one_book(book_id=...)`; the "
-             "declared parameter is `book_id_or_isbn`; pass the value "
+            ["passes keyword `book_id` to `BookRepository.read_one_book`, "
+             "whose declared parameter is `book_id_or_isbn`; pass the value "
              "positionally or use the declared keyword; write "
              "`self._repos['BookRepository'].read_one_book(book_id)`"])
+
+    def test_a_multi_keyword_call_gets_the_exact_positional_form(self):
+        info = {"cls": "BookService",
+                "def": "def fetch(self, book_id: int = None) "
+                       "-> models.Book:",
+                "file": "services.py"}
+        references = (
+            "BookRepository.update_book(self, book_id_or_isbn: "
+            "Union[str, int] = None, book: models.Book = None) "
+            "-> models.Book")
+        body = [
+            "book = models.Book()",
+            "self._repos['BookRepository'].update_book("
+            "book_id=book_id, book=book)",
+            "return book",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, references=references),
+            ["passes keyword `book_id` to `BookRepository.update_book`, "
+             "whose declared parameter is one of `book_id_or_isbn`, `book`; "
+             "pass the value positionally or use the declared keyword; "
+             "write `self._repos['BookRepository'].update_book("
+             "book_id, book)`"])
+
+    def test_an_unambiguous_keyword_is_passed_positionally(self):
+        references = (
+            "BookRepository.read_one_book(self, book_id_or_isbn: "
+            "Union[str, int] = None) -> models.Book | None")
+        body = ["book = self._repos['BookRepository'].read_one_book("
+                "book_id=book_id)", "return book"]
+        rewritten, labels = generator._normalise_repository_keywords(
+            body, references)
+        self.assertEqual(
+            rewritten,
+            ["book = self._repos['BookRepository'].read_one_book(book_id)",
+             "return book"])
+        self.assertEqual(labels, ["BookRepository.read_one_book"])
+
+    def test_a_multi_keyword_call_is_reordered_to_the_signature(self):
+        references = (
+            "BookRepository.update_book(self, book_id_or_isbn: "
+            "Union[str, int] = None, book: models.Book = None) "
+            "-> models.Book")
+        body = ["self._repos['BookRepository'].update_book("
+                "book_id=loan.book_id, book=book)", "return book"]
+        rewritten, labels = generator._normalise_repository_keywords(
+            body, references)
+        self.assertEqual(
+            rewritten,
+            ["self._repos['BookRepository'].update_book(loan.book_id, book)",
+             "return book"])
+        self.assertEqual(labels, ["BookRepository.update_book"])
+
+    def test_an_ambiguous_keyword_is_left_for_the_complaint(self):
+        references = (
+            "BookRepository.find(self, book_id: int = None, "
+            "member_id: int = None) -> None")
+        body = ["self._repos['BookRepository'].find(id=1)", "return None"]
+        rewritten, labels = generator._normalise_repository_keywords(
+            body, references)
+        self.assertEqual(rewritten, body)
+        self.assertEqual(labels, [])
+
+    def test_a_declared_keyword_is_not_rewritten(self):
+        references = (
+            "BookRepository.read_one_book(self, book_id_or_isbn: "
+            "Union[str, int] = None) -> models.Book | None")
+        body = ["book = self._repos['BookRepository'].read_one_book("
+                "book_id_or_isbn=book_id)", "return book"]
+        rewritten, labels = generator._normalise_repository_keywords(
+            body, references)
+        self.assertEqual(rewritten, body)
+        self.assertEqual(labels, [])
 
     def test_a_repository_keyword_matching_the_signature_is_clean(self):
         info = {"cls": "BookService",
@@ -3072,6 +3203,24 @@ class ContractComplaintTests(unittest.TestCase):
                              "           for name in ['Ada', 'Bob']}",
                              "return authors"]),
             [])
+
+    def test_code_after_a_return_is_a_complaint(self):
+        """The live ISBN search answer put its whole search inside the
+        `if not query:` block, after that block's `return []`. Python
+        parses it; the method still returns [] for every query, so the
+        complaint must refuse it and quote the misindented line."""
+        self.assertEqual(
+            self.complaints([
+                "if not query:",
+                "    return []",
+                "    results = []",
+                "    return results",
+            ], info={"cls": "BookRepository",
+                     "def": "def fetch(self, query: str = None) "
+                            "-> List[models.Book]:",
+                     "reason": "refused"}),
+            ["has code after `return` (`results = []`) that can never run; "
+             "check the indentation of the lines after it"])
 
 
 class GuiBackendTests(unittest.TestCase):

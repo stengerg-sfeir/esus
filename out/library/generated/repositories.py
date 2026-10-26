@@ -107,25 +107,25 @@ class BookRepository:
         return [models.Book(**r) for r in found]
 
     def search_books_by_title_author_isbn(self, query: str = None) -> List[models.Book]:
-        """Searches books by title, author, or ISBN. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
-        found = self._store.all(self.ENTITY)
+        """Searches books by title, author, or ISBN. [llm-written by server — review]"""
+        if not query:
+            return []
         results = []
-        for record in found:
-            title = record.get("title")
-            isbn = record.get("isbn")
-            author_id = record.get("author_id")
-            if query is None:
-                continue
+        all_books = self._store.all(self.ENTITY)
+        for book in all_books:
+            title = book.get('title')
+            isbn = book.get('isbn')
+            author_id = book.get('author_id')
             if title and query.lower() in title.lower():
-                results.append(models.Book(**record))
+                results.append(models.Book(**book))
             elif isbn and query.lower() in isbn.lower():
-                results.append(models.Book(**record))
+                results.append(models.Book(**book))
             elif author_id is not None:
-                # We need to check if the author's name matches, but we don't have it directly
-                # So we must fetch the author name from Author table
+                # We need to check author name, but we don't have it directly
+                # So we must fetch the author's name from Author table
                 author_record = self._store.get("Author", "id", author_id)
                 if author_record and query.lower() in author_record.get("name", "").lower():
-                    results.append(models.Book(**record))
+                    results.append(models.Book(**book))
         return results
 
 
@@ -139,7 +139,11 @@ class AuthorRepository:
 
     def create_author(self, author: models.Author = None) -> models.Author:
         """Creates a new author entry with the provided details. [crud:create: STANDARD_CRUD]"""
-        values = _record_values(author, ['id', 'name', 'birth_year', 'biography'])
+        values = _record_values(author, ['id', 'email', 'name', 'birth_year', 'biography'])
+        for unique_field in ['email']:
+            value = values.get(unique_field)
+            if value is not None and self._store.select(self.ENTITY, [(unique_field, 'eq', value)]):
+                raise ValueError(f"Author with {unique_field}={value!r} already exists")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Author(**record)
 
@@ -163,11 +167,15 @@ class AuthorRepository:
         if len(found) != 1:
             raise errors.AuthorNotFoundError(f"Author update matched {len(found)} records")
         patch = {}
-        for key, value in _record_values(author, ['id', 'name', 'birth_year', 'biography']).items():
+        for key, value in _record_values(author, ['id', 'email', 'name', 'birth_year', 'biography']).items():
             if value is not None:
                 patch[key] = value
-        if author_id is not None and 'author_id' in ['id', 'name', 'birth_year', 'biography']:
+        if author_id is not None and 'author_id' in ['id', 'email', 'name', 'birth_year', 'biography']:
             patch['author_id'] = author_id
+        for unique_field in ['email']:
+            value = patch.get(unique_field)
+            if value is not None and any(row.get(self.PK) != found[0][self.PK] for row in self._store.select(self.ENTITY, [(unique_field, 'eq', value)])):
+                raise ValueError(f"Author with {unique_field}={value!r} already exists")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.AuthorNotFoundError)
         return models.Author(**record)
 

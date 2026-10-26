@@ -31,42 +31,59 @@ class LibraryService:
 
 
     def borrow_book(self, member_id: int = None, book_id: int = None) -> models.Loan:
-        """Borrow a book by member and book IDs, checks availability, creates loan, and decrements copies. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
-        member = self._repos['MemberRepository'].read_one_member(member_id)
+        """Borrow a book by member and book IDs, checks availability, creates loan, and decrements copies. [llm-written by server — review]"""
+        member = self._repos['MemberRepository'].read_one_member(member_id=member_id)
         if member is None:
-            raise errors.MemberNotFoundError(member_id)
+            raise errors.MemberNotFoundError(f"Member with id {member_id} not found")
+
         book = self._repos['BookRepository'].read_one_book(book_id)
         if book is None:
-            raise errors.BookNotFoundError(book_id)
+            raise errors.BookNotFoundError(f"Book with id {book_id} not found")
+
         if book.available_copies <= 0:
-            raise errors.InsufficientCopiesError(book_id)
+            raise errors.InsufficientCopiesError(f"Book with id {book_id} has no available copies")
+
+        now = datetime.datetime.now()
+        due_date = now + datetime.timedelta(days=14)
+
         loan = models.Loan(
-            book_id=book.id,
-            member_id=member.id,
-            loan_date=datetime.datetime.now().isoformat(),
-            due_date=(datetime.datetime.now() + datetime.timedelta(days=14)).isoformat(),
-            status='active'
+            book_id=book_id,
+            member_id=member_id,
+            loan_date=now,
+            due_date=due_date,
+            status="active"
         )
-        created_loan = self._repos['LoanRepository'].create_loan(loan)
+
+        created_loan = self._repos['LoanRepository'].create_loan(loan=loan)
+
         book.available_copies -= 1
-        self._repos['BookRepository'].update_book(book_id, book)
+        updated_book = self._repos['BookRepository'].update_book(book_id, book)
+
         return created_loan
 
     def return_book(self, loan_id: int = None) -> models.Loan:
-        """Returns a book by loan ID, sets return_date, updates status, and increments copies. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
-        loan = self._repos['LoanRepository'].read_one_loan(loan_id)
+        """Returns a book by loan ID, sets return_date, updates status, and increments copies. [llm-written by server — review]"""
+        loan = self._repos['LoanRepository'].read_one_loan(loan_id=loan_id)
         if loan is None:
-            raise errors.LoanNotFoundError(loan_id)
-        if loan.status == 'returned':
-            raise errors.InvalidReturnDateError(loan_id)
-        loan.return_date = datetime.datetime.now().isoformat()
-        loan.status = 'returned'
-        updated_loan = self._repos['LoanRepository'].update_loan(loan_id, loan)
+            raise errors.LoanNotFoundError(f"Loan with id {loan_id} not found")
+
+        now = datetime.datetime.now()
+
+        if now > loan.due_date:
+            raise errors.InvalidReturnDateError(f"Return date cannot be after due date for loan {loan_id}")
+
+        loan.return_date = now
+        loan.status = "returned"
+
+        updated_loan = self._repos['LoanRepository'].update_loan(loan_id=loan_id, loan=loan)
+
         book = self._repos['BookRepository'].read_one_book(loan.book_id)
         if book is None:
-            raise errors.BookNotFoundError(loan.book_id)
+            raise errors.BookNotFoundError(f"Book with id {loan.book_id} not found")
+
         book.available_copies += 1
-        self._repos['BookRepository'].update_book(loan.book_id, book)
+        updated_book = self._repos['BookRepository'].update_book(loan.book_id, book)
+
         return updated_loan
 
     def get_overdue_loans(self) -> List[models.Loan]:
@@ -74,44 +91,43 @@ class LibraryService:
         return self._repos['LoanRepository'].get_overdue_loans()
 
     def renew_membership(self, member_id: int = None) -> models.Member:
-        """Renews membership by toggling is_active status. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
-        member = self._repos['MemberRepository'].read_one_member(member_id)
+        """Renews membership by toggling is_active status. [llm-written by server — review]"""
+        member = self._repos['MemberRepository'].read_one_member(member_id=member_id)
         if member is None:
-            raise errors.MemberNotFoundError(member_id)
-        member.is_active = not member.is_active
-        updated_member = self._repos['MemberRepository'].update_member(member_id, member)
+            raise errors.MemberNotFoundError(f"Member with id {member_id} not found")
+        member.is_active = True
+        updated_member = self._repos['MemberRepository'].update_member(member_id=member_id, member=member)
         return updated_member
 
     def search_books(self, query: str = None) -> List[models.Book]:
-        """Searches books by title, author, or ISBN. [llm-written by Qwen3-4B-Instruct-2507-Q4_K_M.gguf — review]"""
-        results = []
-        if query is None:
-            return results
+        """Searches books by title, author, or ISBN. [llm-written by server — review]"""
+        if not query:
+            return []
 
-        books = self._repos['BookRepository'].search_books_by_title_author_isbn(query)
+        results = []
+        books = self._repos['BookRepository'].search_books_by_title_author_isbn(query=query)
         results.extend(books)
 
-        # Search by author: find books where author name matches the query
+        # Search by author: find books where author name matches the query (case-insensitive substring)
+        author_query = query.lower()
         authors = self._repos['AuthorRepository'].read_all_authors()
-        author_names = {author.id: author.name for author in authors}
+        author_ids = {author.id: author.name.lower() for author in authors}
 
         for book in self._repos['BookRepository'].read_all_books():
-            author_name = author_names.get(book.author_id)
-            if author_name and query.lower() in author_name.lower():
+            if book.author_id is not None and author_ids.get(book.author_id, "").lower().find(author_query) != -1:
                 results.append(book)
 
-        # Search by ISBN
+        # Search by ISBN (case-insensitive substring)
         for book in self._repos['BookRepository'].read_all_books():
-            if query.lower() in book.isbn.lower():
+            if book.isbn and query.lower() in book.isbn.lower():
                 results.append(book)
 
-        # Remove duplicates by checking if book is already in results
+        # Remove duplicates by checking book id
         unique_results = []
-        seen = set()
+        seen_ids = set()
         for book in results:
-            book_key = (book.title, book.isbn, book.author_id)
-            if book_key not in seen:
-                seen.add(book_key)
+            if book.id is not None and book.id not in seen_ids:
+                seen_ids.add(book.id)
                 unique_results.append(book)
 
         return unique_results
