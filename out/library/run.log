@@ -1,39 +1,34 @@
 [run] requirements: 1965 characters
 [run] temperature=0.0 seed=20261012
-[intentions] 99 tokens in 4.5s (21.8 tok/s)
-[data_models] 1281 tokens in 40.0s (32.1 tok/s)
-[errors] 467 tokens in 17.6s (26.6 tok/s)
-[invariants] 409 tokens in 16.8s (24.4 tok/s)
+[intentions] 100 tokens in 3.1s (31.8 tok/s, 48.6 decode, 545 prompt)
+[data_models] 1282 tokens in 27.8s (46.1 tok/s, 46.3 decode, 1071 prompt)
+[errors] 468 tokens in 10.0s (46.9 tok/s, 47.4 decode, 999 prompt)
+[invariants] 410 tokens in 8.8s (46.5 tok/s, 47.0 decode, 1294 prompt)
 [ok] step components: 9 command line(s) enumerated
-[components] 2310 tokens in 78.1s (29.6 tok/s)
+[components] 2311 tokens in 53.8s (43.0 tok/s, 43.1 decode, 1690 prompt)
 [ok] step components: removed 19 exactly repeated name(s)
 [ok] step components: added 'member history' the requirements name
 [ok] step components: '--member-id' matches subcommand 'member-id' of borrow  — flag not added
 [ok] step components: borrow  lacked '--book-id' the requirements pass — added as int (typed from 5 models agreeing on int)
 [ok] step components: '--loan-id' matches subcommand 'loan-id' of return  — flag not added
 [ok] step components: member history lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
-[!] step components omits 1 surface item(s) the requirements name — retrying once
-[components] 3584 tokens in 123.3s (29.1 tok/s) TRUNCATED at the 3584-token ceiling
-[!] components: JSON error: Unterminated string starting at: line 699 column 34 (char 20729)
-[!] step components hit the 3584-token ceiling — its document may be incomplete, retrying with a 6462-token ceiling — retrying once
-[components] 3686 tokens in 127.4s (28.9 tok/s)
-[ok] step components: removed 59 exactly repeated name(s)
-[ok] step components: command 'borrow' had 1 placeholder subcommand(s) meaning no subcommand — dropped
-[ok] step components: command 'return' had 1 placeholder subcommand(s) meaning no subcommand — dropped
-[ok] step components: command 'overdue' had 1 placeholder subcommand(s) meaning no subcommand — dropped
-[ok] step components: command 'member_history' had 1 placeholder subcommand(s) meaning no subcommand — dropped
-[ok] step components: added 'member history' the requirements name
-[ok] step components: book add lacked '--isbn' the requirements pass — added as str (typed from Book.isbn)
-[ok] step components: book add lacked '--author-id' the requirements pass — added as int (typed from 4 models agreeing on int)
-[ok] step components: book add lacked '--published-year' the requirements pass — added as int (typed from Book.published_year)
-[ok] step components: book add lacked '--copies' the requirements pass — added as int (typed from Book.available_copies)
-[ok] step components: borrow  lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
-[ok] step components: borrow  lacked '--book-id' the requirements pass — added as int (typed from 5 models agreeing on int)
-[ok] step components: return  lacked '--loan-id' the requirements pass — added as int (typed from 4 models agreeing on int)
-[ok] step components: member history lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
-[ok] step components: dropped flat 'member_history' duplicating 'member history' — kept the form carrying the subcommand
-[ok] step components retry healed 1->0 surface item(s)
-[service_contracts] 2420 tokens in 86.4s (28.0 tok/s)
+[ok] step components: fixed misread flat command 'borrow' (had subcommand 'member_id') — promoted 1 flag(s) to parent, dropped subcommand
+[ok] step components: fixed misread flat command 'return' (had subcommand 'loan_id') — promoted 1 flag(s) to parent, dropped subcommand
+[ok] step components: fixed misread flat command 'overdue' (had subcommand 'member_history') — promoted 1 flag(s) to parent, dropped subcommand
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-published-year' to '--published-year'
+[ok] step components: normalized option '-copies' to '--copies'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-available-only' to '--available-only'
+[ok] step components: normalized option '-query' to '--query'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-active-only' to '--active-only'
+[service_contracts] 2421 tokens in 54.4s (44.5 tok/s, 44.7 decode, 1531 prompt)
 [ok] step errors: no method raises 'InvalidLoanStatusError' and it is a validation shape the requirements never name — dropped
 [ok] step errors: no method raises 'MalformedCSVError' and it is a validation shape the requirements never name — dropped
 [ok] step errors: no method raises 'InvalidInputError' and it is a validation shape the requirements never name — dropped
@@ -58,32 +53,33 @@
   [19/39] contract:MemberRepository.create_member -> STANDARD_CRUD (0.68)
   [20/39] contract:MemberRepository.read_one_member -> STANDARD_CRUD (0.82)
   [21/39] contract:MemberRepository.read_all_members -> READ_ALL (0.82)
-  [22/39] contract:MemberRepository.update_member -> STANDARD_CRUD (0.85)
+  [22/39] contract:MemberRepository.update_member -> STANDARD_CRUD (0.86)
   [23/39] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.89)
-  [24/39] contract:MemberRepository.find_active_members -> READ_ALL (0.81)
+  [24/39] contract:MemberRepository.find_active_members -> READ_ALL (0.80)
   [25/39] contract:MemberRepository.find_inactive_members -> FILTER_BY_FIELD (0.81)
-  [26/39] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.76)
-  [27/39] contract:LoanRepository.read_one_loan -> STANDARD_CRUD (0.80)
+  [26/39] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.77)
+  [27/39] contract:LoanRepository.read_one_loan -> STANDARD_CRUD (0.81)
   [28/39] contract:LoanRepository.read_all_loans -> READ_ALL (0.86)
   [29/39] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.85)
   [30/39] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.85)
   [31/39] contract:LoanRepository.get_active_loans -> READ_ALL (0.79)
   [32/39] contract:LoanRepository.get_overdue_loans -> THRESHOLD_SCAN (0.69)
-  [33/39] contract:LoanRepository.get_member_loan_history -> FILTER_BY_FIELD (0.74)
+  [33/39] contract:LoanRepository.get_member_loan_history -> FILTER_BY_FIELD (0.73)
   [34/39] contract:LoanRepository.get_book_loan_history -> FILTER_BY_FIELD (0.76)
   [35/39] contract:LibraryService.borrow_book -> STANDARD_CRUD (0.44)  <- undecided (domain): REPO_QUERY at 0.39
-  [36/39] contract:LibraryService.return_book -> STANDARD_CRUD (0.62)
+  [36/39] contract:LibraryService.return_book -> STANDARD_CRUD (0.63)
   [37/39] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.43)
   [38/39] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.69)
   [39/39] contract:LibraryService.search_books -> FILTER_BY_FIELD (0.95)
 [ok] step patterns: 39 item(s) — 19 standard CRUD, 20 pattern(s), 0 gap(s)
-[interaction_adapters] 1403 tokens in 46.1s (30.4 tok/s)
+[interaction_adapters] 1404 tokens in 30.9s (45.5 tok/s, 45.6 decode, 1285 prompt)
 [ok] step adapters: add_member.email went to 'member' while the method declares 'email' — redirected to 'email'
 [!] step adapters has 2 unreachable field(s) — retrying once
-[interaction_adapters] 769 tokens in 26.0s (29.6 tok/s)
+[interaction_adapters] 770 tokens in 16.8s (45.7 tok/s, 46.1 decode, 1334 prompt)
 [ok] step adapters: add_book.copies was 'DECIMAL_TO_CENTS' but its name describes no such value — replaced with DIRECT
 [!] step interaction_adapters still omits 2 unreachable field(s) (retry: 4) — kept first attempt; the probe will report it
-[persistence_ports] 1981 tokens in 68.6s (28.9 tok/s)
+[ok] step adapters: book list selector '--available-only' has no action — wired to BookRepository.filter_books_by_available_copies as BOOL_TO_ONE
+[persistence_ports] 1982 tokens in 43.7s (45.4 tok/s, 45.5 decode, 1129 prompt)
 [ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
 [write] out/library/intentions.json
 [write] out/library/data_models.json
@@ -95,4 +91,4 @@
 [write] out/library/interaction_adapters.json
 [write] out/library/persistence_ports.json
 [write] out/library/requirements.txt
-[run] 11 steps, 18409 generated tokens in 634.7s
+[run] 9 steps, 11148 generated tokens in 249.3s

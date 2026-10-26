@@ -1,0 +1,27 @@
+{
+  "decisions": [
+    {
+      "kind": "route",
+      "command": "book",
+      "subcommand": "list",
+      "flag": "author",
+      "service": "AuthorRepository",
+      "method": "find_books_by_author",
+      "decided_by": "user",
+      "target_param": "author_id",
+      "option_type": "int",
+      "transform": "DIRECT",
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    },
+    {
+      "kind": "route",
+      "command": "member",
+      "subcommand": "list",
+      "flag": "active_only",
+      "service": "MemberRepository",
+      "method": "find_active_members",
+      "decided_by": "user",
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    }
+  ]
+}

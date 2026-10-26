@@ -1,0 +1,123 @@
+{
+  "method_contracts": [
+    {
+      "holder": "LibraryService",
+      "method": "borrow_book",
+      "decided_by": "user",
+      "effects": [
+        {
+          "target": "book.available_copies",
+          "op": "decrement",
+          "by": "1",
+          "write": "BookRepository.update_book"
+        }
+      ],
+      "creates": [
+        {
+          "class": "Loan",
+          "call": "LoanRepository.create_loan"
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "member exists",
+          "error": "MemberNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "book exists",
+          "error": "BookNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "book.available_copies > 0",
+          "error": "InsufficientCopiesError",
+          "raise_when": "false"
+        }
+      ],
+      "order": [
+        "preconditions",
+        "LoanRepository.create_loan",
+        "BookRepository.update_book"
+      ],
+      "forbid": [],
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    },
+    {
+      "holder": "LibraryService",
+      "method": "return_book",
+      "decided_by": "user",
+      "effects": [
+        {
+          "target": "loan.return_date",
+          "op": "set",
+          "write": "LoanRepository.update_loan",
+          "value": "now"
+        },
+        {
+          "target": "loan.status",
+          "op": "set",
+          "write": "LoanRepository.update_loan",
+          "value": "returned"
+        },
+        {
+          "target": "book.available_copies",
+          "op": "increment",
+          "by": "1",
+          "write": "BookRepository.update_book"
+        }
+      ],
+      "creates": [],
+      "preconditions": [
+        {
+          "check": "loan exists",
+          "error": "LoanNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "loan.return_date < loan.due_date",
+          "error": "InvalidReturnDateError",
+          "raise_when": "true"
+        }
+      ],
+      "order": [],
+      "forbid": [
+        {
+          "target": "loan.return_date",
+          "reads": "loan.loan_date",
+          "message": "`loan.return_date` is set to now, not another date field"
+        },
+        {
+          "target": "loan.return_date",
+          "reads": "loan.due_date",
+          "message": "`loan.return_date` is set to now, not another date field"
+        }
+      ],
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    },
+    {
+      "holder": "LibraryService",
+      "method": "renew_membership",
+      "decided_by": "user",
+      "effects": [
+        {
+          "target": "member.is_active",
+          "op": "set",
+          "write": "MemberRepository.update_member",
+          "value": true
+        }
+      ],
+      "creates": [],
+      "preconditions": [
+        {
+          "check": "member exists",
+          "error": "MemberNotFoundError",
+          "raise_when": "false"
+        }
+      ],
+      "order": [],
+      "forbid": [],
+      "requirements_sha": "16afdd9536a07371b4d4b1dbc5cd3f1895ab4cc07b7d63c9033fbb1861aebb6c"
+    }
+  ]
+}

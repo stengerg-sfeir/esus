@@ -1,0 +1,125 @@
+[run] requirements: 1965 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 100 tokens in 2.6s (38.2 tok/s, 48.2 decode, 545 prompt)
+[data_models] 1282 tokens in 28.1s (45.7 tok/s, 45.9 decode, 1071 prompt)
+[errors] 468 tokens in 10.1s (46.3 tok/s, 46.7 decode, 999 prompt)
+[invariants] 410 tokens in 9.0s (45.6 tok/s, 46.1 decode, 1294 prompt)
+[ok] step components: 9 command line(s) enumerated
+[components] 2311 tokens in 54.6s (42.3 tok/s, 42.5 decode, 1690 prompt)
+[ok] step components: removed 19 exactly repeated name(s)
+[ok] step components: added 'member history' the requirements name
+[ok] step components: '--member-id' matches subcommand 'member-id' of borrow  — flag not added
+[ok] step components: borrow  lacked '--book-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: '--loan-id' matches subcommand 'loan-id' of return  — flag not added
+[ok] step components: member history lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-published-year' to '--published-year'
+[ok] step components: normalized option '-copies' to '--copies'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-available-only' to '--available-only'
+[ok] step components: normalized option '-query' to '--query'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-active-only' to '--active-only'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-loan-id' to '--loan-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[!] step components omits 1 surface item(s) the requirements name — retrying once
+[components] 3584 tokens in 85.4s (41.9 tok/s, 42.1 decode, 1666 prompt) TRUNCATED at the 3584-token ceiling
+[!] components: JSON error: Unterminated string starting at: line 699 column 34 (char 20729)
+[!] step components hit the 3584-token ceiling — its document may be incomplete, retrying with a 6462-token ceiling — retrying once
+[components] 1423 tokens in 32.6s (43.6 tok/s, 43.8 decode, 1666 prompt)
+[ok] step components: removed 19 exactly repeated name(s)
+[ok] step components: added 'book list' the requirements name
+[ok] step components: added 'book search' the requirements name
+[ok] step components: added command 'member' the requirements name
+[ok] step components: added 'member add' the requirements name
+[ok] step components: added 'member list' the requirements name
+[ok] step components: added command 'borrow' the requirements name
+[ok] step components: added command 'return' the requirements name
+[ok] step components: added command 'overdue' the requirements name
+[ok] step components: added 'member history' the requirements name
+[ok] step components: book list lacked optional '--available-only' the requirements pass — added as bool (typed from boolean flag name)
+[ok] step components: member add lacked '--name' the requirements pass — added as str (typed from 2 models agreeing on str)
+[ok] step components: member add lacked '--email' the requirements pass — added as str (typed from Member.email)
+[ok] step components: member list lacked optional '--active-only' the requirements pass — added as bool (typed from boolean flag name)
+[ok] step components: borrow  lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: borrow  lacked '--book-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: return  lacked '--loan-id' the requirements pass — added as int (typed from 4 models agreeing on int)
+[ok] step components: member history lacked '--member-id' the requirements pass — added as int (typed from 5 models agreeing on int)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-published-year' to '--published-year'
+[ok] step components: normalized option '-copies' to '--copies'
+[!] step components still omits 1 surface item(s) (retry: 1) — kept first attempt; the probe will report it
+[service_contracts] 2421 tokens in 54.9s (44.1 tok/s, 44.2 decode, 1531 prompt)
+[ok] step errors: no method raises 'InvalidLoanStatusError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'MalformedCSVError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidInputError' and it is a validation shape the requirements never name — dropped
+  [1/39] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [2/39] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [3/39] invariant -> STATE_TRANSITION_GUARD (0.85)
+  [4/39] invariant -> STATE_TRANSITION_GUARD (0.37)
+  [5/39] invariant -> BUDGET_OVERFLOW_GUARD (0.56)
+  [6/39] contract:BookRepository.create_book -> STANDARD_CRUD (0.69)
+  [7/39] contract:BookRepository.read_one_book -> STANDARD_CRUD (0.74)
+  [8/39] contract:BookRepository.read_all_books -> READ_ALL (0.86)
+  [9/39] contract:BookRepository.update_book -> STANDARD_CRUD (0.70)
+  [10/39] contract:BookRepository.delete_book -> STANDARD_CRUD (0.55)
+  [11/39] contract:BookRepository.filter_books_by_available_copies -> FILTER_BY_FIELD (0.36)
+  [12/39] contract:BookRepository.search_books_by_title_author_isbn -> FILTER_BY_FIELD (0.89)
+  [13/39] contract:AuthorRepository.create_author -> STANDARD_CRUD (0.76)
+  [14/39] contract:AuthorRepository.read_one_author -> STANDARD_CRUD (0.80)
+  [15/39] contract:AuthorRepository.read_all_authors -> READ_ALL (0.84)
+  [16/39] contract:AuthorRepository.update_author -> STANDARD_CRUD (0.85)
+  [17/39] contract:AuthorRepository.delete_author -> STANDARD_CRUD (0.86)
+  [18/39] contract:AuthorRepository.find_books_by_author -> FILTER_BY_FIELD (0.86)
+  [19/39] contract:MemberRepository.create_member -> STANDARD_CRUD (0.68)
+  [20/39] contract:MemberRepository.read_one_member -> STANDARD_CRUD (0.82)
+  [21/39] contract:MemberRepository.read_all_members -> READ_ALL (0.82)
+  [22/39] contract:MemberRepository.update_member -> STANDARD_CRUD (0.86)
+  [23/39] contract:MemberRepository.delete_member -> STANDARD_CRUD (0.89)
+  [24/39] contract:MemberRepository.find_active_members -> READ_ALL (0.80)
+  [25/39] contract:MemberRepository.find_inactive_members -> FILTER_BY_FIELD (0.81)
+  [26/39] contract:LoanRepository.create_loan -> STANDARD_CRUD (0.77)
+  [27/39] contract:LoanRepository.read_one_loan -> STANDARD_CRUD (0.81)
+  [28/39] contract:LoanRepository.read_all_loans -> READ_ALL (0.86)
+  [29/39] contract:LoanRepository.update_loan -> STANDARD_CRUD (0.85)
+  [30/39] contract:LoanRepository.delete_loan -> STANDARD_CRUD (0.85)
+  [31/39] contract:LoanRepository.get_active_loans -> READ_ALL (0.79)
+  [32/39] contract:LoanRepository.get_overdue_loans -> THRESHOLD_SCAN (0.69)
+  [33/39] contract:LoanRepository.get_member_loan_history -> FILTER_BY_FIELD (0.73)
+  [34/39] contract:LoanRepository.get_book_loan_history -> FILTER_BY_FIELD (0.76)
+  [35/39] contract:LibraryService.borrow_book -> STANDARD_CRUD (0.44)  <- undecided (domain): REPO_QUERY at 0.39
+  [36/39] contract:LibraryService.return_book -> STANDARD_CRUD (0.63)
+  [37/39] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (0.43)
+  [38/39] contract:LibraryService.renew_membership -> STANDARD_CRUD (0.69)
+  [39/39] contract:LibraryService.search_books -> FILTER_BY_FIELD (0.95)
+[ok] step patterns: 39 item(s) — 19 standard CRUD, 20 pattern(s), 0 gap(s)
+[interaction_adapters] 1404 tokens in 32.3s (43.5 tok/s, 43.6 decode, 1285 prompt)
+[ok] step adapters: add_member.email went to 'member' while the method declares 'email' — redirected to 'email'
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 770 tokens in 17.5s (43.9 tok/s, 44.3 decode, 1334 prompt)
+[ok] step adapters: add_book.copies was 'DECIMAL_TO_CENTS' but its name describes no such value — replaced with DIRECT
+[!] step interaction_adapters still omits 2 unreachable field(s) (retry: 4) — kept first attempt; the probe will report it
+[ok] step adapters: book list selector '--available-only' has no action — wired to BookRepository.filter_books_by_available_copies as BOOL_TO_ONE
+[persistence_ports] 1982 tokens in 44.1s (45.0 tok/s, 45.2 decode, 1129 prompt)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/library/intentions.json
+[write] out/library/data_models.json
+[write] out/library/errors.json
+[write] out/library/invariants.json
+[write] out/library/components.json
+[write] out/library/service_contracts.json
+[write] out/library/pattern_matches.json
+[write] out/library/interaction_adapters.json
+[write] out/library/persistence_ports.json
+[write] out/library/requirements.txt
+[run] 11 steps, 16155 generated tokens in 371.2s
