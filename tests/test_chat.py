@@ -49,6 +49,63 @@ class ResolveRequirementsTests(unittest.TestCase):
                 extract_arch.resolve_requirements(self.args(requirements="/nope.txt")))
 
 
+class ChatModeDefaultTests(unittest.TestCase):
+    """The terminal decides whether asking is possible; an explicit flag wins."""
+
+    @staticmethod
+    def args(chat=None):
+        return type("Args", (), {"chat": chat})()
+
+    @staticmethod
+    def stdin(tty):
+        return type("Stdin", (), {"isatty": lambda self: tty})()
+
+    def test_a_terminal_defaults_to_chat(self):
+        chat, interactive = extract_arch.resolve_chat_mode(
+            self.args(), self.stdin(True))
+        self.assertTrue(chat)
+        self.assertTrue(interactive)
+
+    def test_a_pipe_defaults_to_no_chat(self):
+        chat, interactive = extract_arch.resolve_chat_mode(
+            self.args(), self.stdin(False))
+        self.assertFalse(chat)
+        self.assertFalse(interactive)
+
+    def test_explicit_chat_wins_on_a_pipe(self):
+        chat, _interactive = extract_arch.resolve_chat_mode(
+            self.args(True), self.stdin(False))
+        self.assertTrue(chat)
+
+    def test_explicit_no_chat_wins_on_a_terminal(self):
+        chat, _interactive = extract_arch.resolve_chat_mode(
+            self.args(False), self.stdin(True))
+        self.assertFalse(chat)
+
+    def test_an_internal_resume_round_never_chats(self):
+        args = type("Args", (), {"chat": None, "resume_round": True})()
+        chat, interactive = extract_arch.resolve_chat_mode(
+            args, self.stdin(True))
+        self.assertFalse(chat)
+        self.assertTrue(interactive)
+
+    def test_parser_defaults_to_none_and_accepts_both_flags(self):
+        base = ["--model", "m.gguf", "--output", "out/x"]
+        parser = extract_arch.build_parser()
+        self.assertIsNone(parser.parse_args(base).chat)
+        self.assertTrue(parser.parse_args(base + ["--chat"]).chat)
+        self.assertFalse(parser.parse_args(base + ["--no-chat"]).chat)
+
+    def test_non_tty_warning_names_the_unreviewed_reviews(self):
+        text = extract_arch.unreviewed_warning(False, None)
+        self.assertIn("no human review", text)
+        self.assertIn("method contracts", text)
+        self.assertIn("may be incomplete or wrong", text)
+
+    def test_explicit_chat_on_a_pipe_warns_about_eof(self):
+        self.assertIn("EOF", extract_arch.noninteractive_chat_warning())
+
+
 class ChatFlowTests(unittest.TestCase):
     def flow(self, directory, ties=0, pairs=(), blockers=(), tie_run=None,
              alias_run=None, contracts=(), contract_run=None,

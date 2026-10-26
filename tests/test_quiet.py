@@ -143,6 +143,22 @@ class QuietLogTests(unittest.TestCase):
             extract_arch.resume_in_subprocess(args, "out/shop", "components")
         self.assertNotIn("--quiet", seen["cmd"])
 
+    def test_resume_disables_nested_chat(self):
+        """A child that defaulted to chat on a terminal would nest the loop."""
+        import subprocess
+
+        seen = {}
+
+        def fake_run(cmd, **kwargs):
+            seen["cmd"] = cmd
+            return subprocess.CompletedProcess(cmd, 0)
+
+        args = type("Args", (), {"model": "m.gguf", "context": 8192})()
+        with mock.patch("subprocess.run", side_effect=fake_run):
+            extract_arch.resume_in_subprocess(args, "out/shop", "components")
+        self.assertIn("--resume-round", seen["cmd"])
+        self.assertNotIn("--no-chat", seen["cmd"])
+
 
 class StepProgressTests(unittest.TestCase):
     """Each step announces what it produced: `components: 9 command(s)`.

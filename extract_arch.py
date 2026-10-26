@@ -7,17 +7,21 @@ step is handed the names its predecessors produced — in its prompt as an
 authoritative list, and in its GBNF grammar as the only strings it can
 write — so the documents agree by construction rather than by repair.
 
-With --chat, the run continues after writing: the probe judges the output,
-and the tie and alias reviews ask about whatever needs a human, right here —
-one entry point for the attended pipeline.
+With a terminal on stdin, the run continues after writing: the probe
+judges the output, and the tie, slot, surface, alias and contract reviews
+ask about whatever needs a human, right here — one entry point for the
+attended pipeline. With piped stdin (no terminal) it stops after writing
+and warns that no human review ran: the documents may be mechanically
+generatable while the generated code is still incomplete or wrong. Pass
+`--chat`/`--no-chat` to override the default.
 
 Usage:
     python3.12 extract_arch.py --model MODEL.gguf --output out/library \\
-        < prompts/prompt_library_system.txt
+        --requirements prompts/prompt_library_system.txt
     python3.12 extract_arch.py --model MODEL.gguf --output out/library \\
         --requirements prompts/prompt_library_system.txt --chat
     python3.12 extract_arch.py --model server --output out/library \\
-        --requirements prompts/prompt_library_system.txt
+        --requirements prompts/prompt_library_system.txt --no-chat
 
 `--model server` uses an already-running llama-server instead of loading the
 GGUF here. Set LLAMA_SERVER_URL (default http://127.0.0.1:8080) to point at it;
@@ -74,15 +78,32 @@ def build_parser():
         "--requirements",
         default=None,
         metavar="PATH",
-        help="Read requirements from PATH instead of stdin (required for "
-             "--chat, so stdin stays free for answers)",
+        help="Read requirements from PATH instead of stdin (needed for chat, "
+             "so stdin stays free for answers)",
     )
-    parser.add_argument(
+    chat_group = parser.add_mutually_exclusive_group()
+    chat_group.add_argument(
         "--chat",
+        dest="chat",
         action="store_true",
+        default=None,
         help="After writing, loop: probe, review what needs a human, resume "
              "the earliest step that can heal the rest — keeping a strictly "
-             "better state or rolling back — until clean, stuck, or 3 rounds",
+             "better state or rolling back — until clean, stuck, or 3 rounds. "
+             "The default when stdin is a terminal.",
+    )
+    chat_group.add_argument(
+        "--no-chat",
+        dest="chat",
+        action="store_false",
+        help="Write the documents without human review. This is the default "
+             "when stdin is not a terminal; the run warns that the output is "
+             "unreviewed.",
+    )
+    parser.add_argument(
+        "--resume-round",
+        action="store_true",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--quiet",
@@ -129,6 +150,57 @@ def resolve_requirements(args):
         print("error: no requirements were provided on stdin", file=sys.stderr)
         return None
     return text
+
+
+def resolve_chat_mode(args, stdin=None):
+    """`(chat, interactive)`; chat defaults to whether stdin is a terminal.
+
+    An explicit --chat or --no-chat always wins. `None` means neither was
+    given. A non-terminal chat run is still allowed for scripted answers,
+    but the caller must report the output as unreviewed.
+    """
+    stdin = stdin if stdin is not None else sys.stdin
+    try:
+        interactive = bool(stdin.isatty())
+    except (AttributeError, ValueError):
+        interactive = False
+    if getattr(args, "resume_round", False):
+        # An internal resume child never reviews or prints a verdict; the
+        # parent chat loop owns both.
+        return False, interactive
+    explicit = getattr(args, "chat", None)
+    return (interactive if explicit is None else bool(explicit)), interactive
+
+
+def unreviewed_warning(interactive, explicit_chat):
+    """The warning for a run that will not ask a human anything.
+
+    A clean probe means the generator can run, not that its output is
+    correct: method behavior, late/duplicate policy and ambiguous surface
+    wording are exactly what the reviews settle.
+    """
+    if explicit_chat is False:
+        reason = "--no-chat was given"
+    elif not interactive:
+        reason = "stdin is not a terminal"
+    else:
+        reason = "chat review is off"
+    return (
+        f"warning: {reason}; no human review will run (ties, pattern slots, "
+        "surface duplicates/flags, field aliases, method contracts). "
+        "A clean probe only means the generator can run; the generated code "
+        "may be incomplete or wrong. Run from a terminal with "
+        "--requirements PATH for the default chat review."
+    )
+
+
+def noninteractive_chat_warning():
+    """The warning for an explicit --chat whose answers may hit EOF."""
+    return (
+        "warning: --chat is on but stdin is not a terminal; questions read "
+        "from stdin can hit EOF and be skipped. The final summary will mark "
+        "the output unreviewed."
+    )
 
 
 # The pipeline plan a --quiet run prints up front: step name and what it
@@ -310,10 +382,18 @@ def run(args):
         print("error: --model is required unless --repair is used", file=sys.stderr)
         return 2
     start = args.from_step
-    if args.chat and args.requirements is None and start is None:
+    chat, interactive = resolve_chat_mode(args)
+    internal_resume = bool(getattr(args, "resume_round", False))
+    if not chat and not internal_resume:
+        print(unreviewed_warning(interactive, getattr(args, "chat", None)),
+              file=sys.stderr)
+    elif not interactive and not internal_resume:
+        print(noninteractive_chat_warning(), file=sys.stderr)
+    if chat and args.requirements is None and start is None:
         # Questions arrive over stdin: a piped requirements text would leave
-        # every question at EOF, silently skipping the whole point of --chat.
-        print("error: --chat needs --requirements PATH (stdin stays free for answers)",
+        # every question at EOF, silently skipping the whole point of chat.
+        print("error: chat needs --requirements PATH (stdin stays free for "
+              "answers); pass --no-chat to extract unreviewed",
               file=sys.stderr)
         return 2
     if start is None:
@@ -431,13 +511,16 @@ def run(args):
         status = check_output(output_dir, quiet=getattr(args, "quiet", False))
     else:
         status = 0
-    if args.chat:
+    if chat:
         remaining = chat_loop(
             output_dir,
             lambda start: resume_in_subprocess(args, output_dir, start),
             out_fn=print,
+            reviewed=interactive,
         )
         return 1 if remaining or status else 0
+    if not internal_resume:
+        report_verdict(output_dir, out_fn=print, reviewed=False)
     return status
 
 
@@ -484,14 +567,19 @@ def resume_in_subprocess(args, output_dir, start):
     with pressure errors (`Failed to load model`) that look like missing
     files. The child inherits stdio, so its run.log lines stream live, and
     anything it leaves behind dies with it — the loop's snapshot decides
-    what survives, never a half-written directory.
+    what survives, never a half-written directory. `--resume-round` is
+    always passed: the parent owns the review loop, and a child that
+    defaulted to chat on a terminal would nest a second loop inside the
+    resume; the flag also suppresses the child's unreviewed warning and
+    verdict, which would be false for a round the parent will judge.
     """
     import subprocess
 
     script = Path(__file__).resolve().parent / "extract_arch.py"
     cmd = [sys.executable, str(script),
            "--model", args.model, "--output", str(output_dir),
-           "--context", str(args.context), "--from-step", start]
+           "--context", str(args.context), "--from-step", start,
+           "--resume-round"]
     if getattr(args, "quiet", False):
         cmd.append("--quiet")
     completed = subprocess.run(cmd)
@@ -527,13 +615,15 @@ def restore_snapshot(snapshot, output_dir):
     shutil.copytree(snapshot, output_dir)
 
 
-def report_verdict(output_dir, out_fn=print):
+def report_verdict(output_dir, out_fn=print, reviewed=True):
     """One explicit tail: GENERATABLE yes/no, with the reasons, or the blocker list.
 
     The pipeline log narrates repairs and retries; this is the only line that
     answers the question the run was for. Blockers (with rules) come from the
     probe; open ties come from the probe's question list. Both print even when
-    empty, so `GENERATABLE: YES` is never the absence of a message.
+    empty, so `GENERATABLE: YES` is never the absence of a message. A
+    non-chat run passes `reviewed=False`: the mechanical verdict stays, but
+    the summary says the output was never reviewed by a human.
     Returns the blocker count.
     """
     import probe_readiness
@@ -542,9 +632,16 @@ def report_verdict(output_dir, out_fn=print):
     blockers, _, _ = probe_readiness.check_prompt(name, str(output_dir))
     questions = probe_readiness.open_questions(str(output_dir))
     out_fn("==== SUMMARY ====")
+    out_fn("review: human review ran (chat)" if reviewed
+           else "review: none — the documents are unreviewed")
     out_fn(f"blockers: {len(blockers)}, open tie(s): {questions}")
     if not blockers and not questions:
-        out_fn("GENERATABLE: YES — `generator.py` can run on this output")
+        if reviewed:
+            out_fn("GENERATABLE: YES — `generator.py` can run on this output")
+        else:
+            out_fn("GENERATABLE: YES (UNREVIEWED) — `generator.py` can run, "
+                   "but no human review ran; the generated code may be "
+                   "incomplete or wrong")
     else:
         out_fn("GENERATABLE: NO — `generator.py` will refuse this output")
         for finding in blockers:
@@ -557,7 +654,7 @@ def report_verdict(output_dir, out_fn=print):
 
 def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
               tie_runner=None, alias_runner=None, surface_runner=None,
-              slot_runner=None):
+              slot_runner=None, reviewed=True):
     """Probe, review, resume — until clean, stuck, or out of rounds.
 
     `rerun(start)` performs one model round from `start` (raising on crash).
@@ -576,13 +673,13 @@ def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
                              surface_runner=surface_runner,
                              slot_runner=slot_runner)
         if not blockers:
-            report_verdict(output_dir, out_fn=out_fn)
+            report_verdict(output_dir, out_fn=out_fn, reviewed=reviewed)
             return 0
         step = resume_step_for(blockers)
         if step is None:
             out_fn("chat: remaining blockers need more than a rerun "
                    "(see rules above) — stopping")
-            report_verdict(output_dir, out_fn=out_fn)
+            report_verdict(output_dir, out_fn=out_fn, reviewed=reviewed)
             return len(blockers)
         snapshot = snapshot_output(output_dir)
         before = len(blockers)
@@ -592,7 +689,7 @@ def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
             restore_snapshot(snapshot, output_dir)
             out_fn(f"chat: resume crashed twice ({error}) — rolled back to {before} blocker(s); "
                    f"pre-round state kept at {snapshot}")
-            report_verdict(output_dir, out_fn=out_fn)
+            report_verdict(output_dir, out_fn=out_fn, reviewed=reviewed)
             return before
         after, _, _ = probe_readiness.check_prompt(name, str(output_dir))
         current = after
@@ -603,10 +700,10 @@ def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
         restore_snapshot(snapshot, output_dir)
         out_fn(f"chat: round did not improve ({before}->{len(after)}) — "
                f"rolled back, keeping {before} blocker(s); pre-round state kept at {snapshot}")
-        report_verdict(output_dir, out_fn=out_fn)
+        report_verdict(output_dir, out_fn=out_fn, reviewed=reviewed)
         return before
     out_fn(f"chat: {max_rounds} rounds done — stopping")
-    report_verdict(output_dir, out_fn=out_fn)
+    report_verdict(output_dir, out_fn=out_fn, reviewed=reviewed)
     return len(current) if current is not None else 0
 
 

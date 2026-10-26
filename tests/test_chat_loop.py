@@ -267,5 +267,32 @@ class ResumeSubprocessTests(unittest.TestCase):
                     self.args(), "out/shop", "components")
 
 
+class VerdictTests(unittest.TestCase):
+    """A clean probe is not a review; the tail must say which one it had."""
+
+    @staticmethod
+    def verdict(reviewed):
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch("probe_readiness.check_prompt",
+                           return_value=([], [], None)), \
+                mock.patch("probe_readiness.open_questions", return_value=0):
+            lines = []
+            extract_arch.report_verdict(
+                directory, out_fn=lines.append, reviewed=reviewed)
+        return "\n".join(lines)
+
+    def test_unreviewed_verdict_says_the_code_may_be_wrong(self):
+        text = self.verdict(False)
+        self.assertIn("review: none", text)
+        self.assertIn("GENERATABLE: YES (UNREVIEWED)", text)
+        self.assertIn("may be incomplete or wrong", text)
+
+    def test_reviewed_verdict_keeps_the_plain_yes(self):
+        text = self.verdict(True)
+        self.assertIn("review: human review ran", text)
+        self.assertIn("GENERATABLE: YES —", text)
+        self.assertNotIn("(UNREVIEWED)", text)
+
+
 if __name__ == "__main__":
     unittest.main()
