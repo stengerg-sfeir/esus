@@ -46,7 +46,7 @@ answer is accepted only when its module still compiles, it names only
 `self.<name>`, store methods, `models.*` classes and `errors.*` classes the
 sibling modules define, and it breaks none of the API facts the prompt
 states (model fields, declared parameters, the method's return type). A
-refused answer gets one repair ask carrying the exact complaint; a body
+refused answer gets up to two repair asks carrying the exact complaint; a body
 that still fails keeps the stub. Accepted docstrings are tagged
 `[llm-written by ... — review]` and the method still counts as a stub in
 the mechanical coverage, because nothing here verifies behavior — read the
@@ -3857,6 +3857,11 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
               ]
     if contract:
         lines += [""] + list(contract)
+    annotation = _return_annotation(info)
+    if annotation and annotation not in ("None", "NoneType"):
+        lines += ["",
+                  f"The method is declared `-> {annotation}`; end the body",
+                  "by returning its value."]
     # The correction is the last thing before the ask: a small model that
     # saw the complaint at the top and then thousands of tokens of API and
     # module text repeated the refused keyword twice in a live
@@ -4374,12 +4379,44 @@ def _requirements_line(requirements, method):
     return ""
 
 
+def _ordered_assigned_fields(check, assigned):
+    """The fields in `check` that a body sets and compares by order.
+
+    Only `a > b`, `a < b`, `a >= b`, `a <= b` mean "compare the value this
+    body is about to assign". An existence check such as
+    `loan.return_date is not None` tests the old value (already returned),
+    so it stays among the early preconditions.
+    """
+    try:
+        expression = ast.parse(check, mode="eval").body
+    except SyntaxError:
+        return []
+    if not isinstance(expression, ast.Compare):
+        return []
+    if not any(isinstance(op, (ast.Gt, ast.Lt, ast.GtE, ast.LtE))
+               for op in expression.ops):
+        return []
+    found = []
+    for node in ast.walk(expression):
+        if isinstance(node, ast.Attribute):
+            name = ast.unparse(node)
+            if name in assigned:
+                found.append(name)
+    return sorted(set(found))
+
+
 def _contract_lines(contract):
     """The human's method contract as prompt lines.
 
     The generator knows the schema, never the domain: every name below comes
     from the record. A library return and a stock consumption render through
     the same function.
+
+    A check that compares a field the body sets is about the new value, so
+    it is rendered after the sets and before the save: a small model shown
+    it among the preconditions tested the old value (still None) and the
+    branch could never fire. Existence checks such as `return_date is not
+    None` stay early; they are about the old value.
     """
     if not contract:
         return []
@@ -4389,9 +4426,16 @@ def _contract_lines(contract):
     effects = contract.get("effects") or []
     assigned = {item["target"] for item in effects
                 if item.get("op") == "set" and item.get("target")}
-    if preconditions:
+    early, late = [], []
+    for item in preconditions:
+        named = _ordered_assigned_fields(item.get("check") or "", assigned)
+        if named:
+            late.append((item, named))
+        else:
+            early.append(item)
+    if early:
         lines.append("  preconditions:")
-        for item in preconditions:
+        for item in early:
             check = item["check"]
             error = item.get("error")
             raise_when = item.get("raise_when")
@@ -4401,23 +4445,6 @@ def _contract_lines(contract):
             else:
                 suffix = f"; otherwise raise `{error}`" if error else ""
                 lines.append(f"    - `{check}`{suffix}")
-            # A check that names a field this body sets is about the new
-            # value. A live return body tested `loan.return_date` while it
-            # was still None and assigned `now` afterwards, so the late
-            # return branch could never fire.
-            named = sorted(target for target in assigned if target in check)
-            if named:
-                if error and raise_when == "true":
-                    guard = f"if {check}: raise {error}(...)"
-                elif error and raise_when == "false":
-                    guard = f"if not ({check}): raise {error}(...)"
-                else:
-                    guard = ""
-                lines.append(
-                    "      (this body sets " + ", ".join(
-                        f"`{target}`" for target in named)
-                    + "; assign the new value first"
-                    + (f", then write `{guard}`)" if guard else ")"))
     creates = contract.get("creates") or []
     if creates:
         lines.append("  creates:")
@@ -4430,18 +4457,61 @@ def _contract_lines(contract):
                 lines.append(f"    - create through `{call}(...)`")
             elif class_name:
                 lines.append(f"    - create `models.{class_name}`")
+    def effect_line(item):
+        target, op = item["target"], item["op"]
+        detail = ""
+        if op == "set":
+            detail = f" to `{item['value']}`" if "value" in item else ""
+        elif "by" in item:
+            detail = f" by `{item['by']}`"
+        return f"    - {op} `{target}`{detail}"
+
+    def late_line(item):
+        check = item.get("check") or ""
+        error = item.get("error")
+        raise_when = item.get("raise_when")
+        if error and raise_when in ("true", "false"):
+            guard = (f"if {check}: raise {error}(...)"
+                     if raise_when == "true"
+                     else f"if not ({check}): raise {error}(...)")
+            return f"    - then, before saving, write `{guard}`"
+        return f"    - then, before saving, check `{check}`"
+
+    rendered_late = set()
     if effects:
         lines.append("  effects:")
-        for item in effects:
-            target, op = item["target"], item["op"]
-            detail = ""
-            if op == "set":
-                detail = (f" to `{item['value']}`" if "value" in item else "")
-            elif "by" in item:
-                detail = f" by `{item['by']}`"
+        index = 0
+        while index < len(effects):
+            item = effects[index]
             write = item.get("write")
-            suffix = f"; save it with `{write}(...)`" if write else ""
-            lines.append(f"    - {op} `{target}`{detail}{suffix}")
+            group = [item]
+            cursor = index + 1
+            if write:
+                while cursor < len(effects) \
+                        and effects[cursor].get("write") == write:
+                    group.append(effects[cursor])
+                    cursor += 1
+            for member in group:
+                lines.append(effect_line(member))
+            group_targets = {member.get("target") for member in group
+                             if member.get("target")}
+            for late_item, named in late:
+                if id(late_item) in rendered_late:
+                    continue
+                if any(target in group_targets for target in named):
+                    lines.append(late_line(late_item))
+                    rendered_late.add(id(late_item))
+            if write:
+                owners = []
+                for member in group:
+                    prefix = (member.get("target") or "").split(".")[0]
+                    if prefix and prefix not in owners:
+                        owners.append(prefix)
+                noun = (" and ".join(f"`{owner}`" for owner in owners)
+                        if owners else "record")
+                lines.append(
+                    f"    - save the changed {noun} with `{write}(...)`")
+            index = cursor
     order = contract.get("order") or []
     if order:
         lines.append("  order: " + " -> ".join(f"`{step}`" for step in order))
@@ -4453,6 +4523,10 @@ def _contract_lines(contract):
             lines.append(
                 f"    - the value assigned to `{item['target']}` must not "
                 f"read `{item['reads']}`{message}")
+    for late_item, _named in late:
+        if id(late_item) not in rendered_late:
+            lines.append(late_line(late_item))
+            rendered_late.add(id(late_item))
     if len(lines) == 1:
         return []
     return lines + [""]
@@ -5184,6 +5258,11 @@ def _guard_expression(node):
 
 def _raise_guards(tree, error):
     """The conditions under which a body directly raises `error`."""
+    return [guard for guard, _line in _raise_guard_positions(tree, error)]
+
+
+def _raise_guard_positions(tree, error):
+    """`(condition, raise_line)` for every direct raise of `error`."""
     guards = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.If):
@@ -5191,13 +5270,78 @@ def _raise_guards(tree, error):
         for statement in node.body:
             if isinstance(statement, ast.Raise) \
                     and _raised_name(statement) == error:
-                guards.append(_guard_expression(node.test))
+                guards.append((_guard_expression(node.test),
+                               statement.lineno))
         for statement in node.orelse:
             if isinstance(statement, ast.Raise) \
                     and _raised_name(statement) == error:
-                guards.append(_guard_expression(
-                    _negated_expression(node.test)))
+                guards.append((_negated_expression(node.test),
+                               statement.lineno))
     return guards
+
+
+def _assigned_values(tree, target):
+    """The expressions a body assigns to `target`, in source order."""
+    values = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        elif isinstance(node, ast.AnnAssign):
+            targets = [node.target]
+        else:
+            continue
+        if node.value is None:
+            continue
+        value = ast.unparse(node.value)
+        for item in targets:
+            if ast.unparse(item) == target:
+                values.append(value)
+    return values
+
+
+def _with_assignment(node, target, value):
+    """A copy of `node` with the assigned field replaced by its value."""
+    class Replace(ast.NodeTransformer):
+        def visit_Attribute(self, item):
+            if ast.unparse(item) == target:
+                return ast.parse(value, mode="eval").body
+            return self.generic_visit(item)
+    return Replace().visit(ast.parse(ast.unparse(node), mode="eval").body)
+
+
+def _precondition_match(precondition, tree):
+    """The parts of a parseable precondition, or None.
+
+    Returns `(error, check, expected, opposite, target, assigned)`: the
+    exception name, the contract expression, the guard that satisfies it,
+    the inverted guard, the field being compared (when it is an ordering
+    comparison), and the values the body assigns to that field.
+    """
+    error = _last_name(precondition.get("error") or "")
+    raise_when = precondition.get("raise_when")
+    check = _expression(precondition.get("check") or "")
+    if not error or check is None or raise_when not in ("true", "false"):
+        return None
+    expected = check if raise_when == "true" \
+        else _negated_expression(check)
+    opposite = _negated_expression(check) if raise_when == "true" else check
+    target = None
+    if isinstance(check, ast.Compare) and len(check.ops) == 1 \
+            and isinstance(check.ops[0], (ast.Gt, ast.Lt, ast.GtE, ast.LtE)):
+        target = ast.unparse(check.left)
+    assigned = _assigned_values(tree, target) if target else []
+    return error, check, expected, opposite, target, assigned
+
+
+def _guard_satisfies(guard, expected, target, assigned):
+    """True when `guard` is the contract condition, allowing the assigned
+    temporary (`now > due` for `field = now; field > due`)."""
+    if _same_expression(guard, expected):
+        return True
+    if target is None:
+        return False
+    return any(_same_expression(guard, _with_assignment(expected, target, value))
+               for value in assigned)
 
 
 def _raise_when_complaints(tree, precondition):
@@ -5210,25 +5354,78 @@ def _raise_when_complaints(tree, precondition):
     a body can raise the right error at the wrong time while passing every
     name-and-call check.
     """
-    error = _last_name(precondition.get("error") or "")
-    raise_when = precondition.get("raise_when")
-    check = _expression(precondition.get("check") or "")
-    if not error or check is None or raise_when not in ("true", "false"):
+    match = _precondition_match(precondition, tree)
+    if match is None:
         return []
+    error, check, expected, opposite, target, assigned = match
     guards = _raise_guards(tree, error)
     if not guards:
         return []
-    expected = check if raise_when == "true" \
-        else _negated_expression(check)
-    opposite = _negated_expression(check) if raise_when == "true" else check
-    if any(_same_expression(guard, expected) for guard in guards):
+    if any(_guard_satisfies(guard, expected, target, assigned)
+           for guard in guards):
         return []
     if any(_same_expression(guard, opposite) for guard in guards):
         return [
             f"raises `{error}` when `{precondition['check']}` is "
-            f"{'false' if raise_when == 'true' else 'true'}; the confirmed "
-            f"contract raises it when the condition is {raise_when}"]
-    return []
+            f"{'false' if precondition['raise_when'] == 'true' else 'true'}; "
+            f"the confirmed contract raises it when the condition is "
+            f"{precondition['raise_when']}"]
+    return [
+        f"raises `{error}` but not when `{precondition['check']}` is "
+        f"{precondition['raise_when']}; the confirmed contract requires "
+        "that branch"]
+
+
+def _precondition_order_complaints(tree, contract):
+    """Reject a check that runs after the write its value depends on.
+
+    A live return body put the late-return check after `update_loan(...)`,
+    so a refused return still saved the loan and incremented the copies.
+    A precondition is checked before the write, even when it compares a
+    value the body is about to assign.
+    """
+    assigned_targets = {effect.get("target") for effect in
+                        (contract.get("effects") or [])
+                        if effect.get("op") == "set" and effect.get("target")}
+    writes = {}
+    for effect in contract.get("effects") or []:
+        if effect.get("write") and effect.get("target"):
+            writes.setdefault(effect["target"], set()).add(
+                _last_name(effect["write"]))
+    found = []
+    for precondition in contract.get("preconditions") or []:
+        match = _precondition_match(precondition, tree)
+        if match is None:
+            continue
+        error, _check, expected, _opposite, target, assigned = match
+        if target is None or target not in assigned_targets:
+            continue
+        guard_lines = [
+            line for guard, line in _raise_guard_positions(tree, error)
+            if _guard_satisfies(guard, expected, target, assigned)]
+        if not guard_lines:
+            continue
+        names = writes.get(target) or set()
+        if not names:
+            continue
+        call_lines = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            if isinstance(node.func, ast.Attribute):
+                name = node.func.attr
+            elif isinstance(node.func, ast.Name):
+                name = node.func.id
+            else:
+                continue
+            if name in names:
+                call_lines.append(node.lineno)
+        if call_lines and min(guard_lines) > min(call_lines):
+            found.append(
+                f"checks `{precondition['check']}` after calling "
+                f"`{sorted(names)[0]}(...)`; a precondition must be checked "
+                "before the write")
+    return found
 
 
 def _contract_complaints(tree, contract):
@@ -5316,6 +5513,8 @@ def _contract_complaints(tree, contract):
                 f"to raise `{error}`, but the body never raises it")
         if error and precondition.get("raise_when") in ("true", "false"):
             found.extend(_raise_when_complaints(tree, precondition))
+
+    found.extend(_precondition_order_complaints(tree, contract))
 
     for rule in contract.get("forbid") or []:
         target, reads = rule.get("target") or "", rule.get("reads") or ""
@@ -5424,10 +5623,10 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     only touches `self.<name>`, `self._store.<name>`, `models.<name>` and
     `errors.<name>` names the sibling modules actually define, and breaks
     none of the API facts the prompt states (`_body_complaints`); a body
-    that fails either gets one repair ask quoting the complaints back. It
-    gains any import it uses, is spliced by re-finding the stub in the
-    current text (an import added for a lower body moves every stub above
-    it), and is tagged in its docstring as LLM-written — nothing here
+    that fails either gets up to two repair asks quoting the complaints
+    back. It gains any import it uses, is spliced by re-finding the stub
+    in the current text (an import added for a lower body moves every stub
+    above it), and is tagged in its docstring as LLM-written — nothing here
     verifies behavior, and only reading the body (and running it) can.
 
     The ask is a free conversation, so it goes through the model's chat
@@ -5606,14 +5805,15 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 # model that repeats a body with two independent mistakes
                 # (two wrong repository keywords) can still correct one
                 # when the repair names only that one. A single complaint
-                # keeps the old one-repair behavior.
-                max_repairs = 2 if len(initial_problems) > 1 else 1
+                # gets a second ask only when the first repair introduces a
+                # different complaint (a late check moved after the write);
+                # repeating the same complaint ends the loop.
+                max_repairs = 2
                 repairs = 0
                 kept_note = None
                 while problems and repairs < max_repairs:
                     repairs += 1
-                    ask = ("one repair ask" if max_repairs == 1
-                           else f"repair ask {repairs}")
+                    ask = f"repair ask {repairs}"
                     out(f"llm: {label} refused ({problems[0]}) — {ask}")
                     pending = (problems[:1] if len(problems) > 1
                                else problems)
@@ -5641,6 +5841,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                     candidate, second, body = attempt(result.text)
                     if second:
                         problems = second
+                        if set(second) == set(pending):
+                            break
                     else:
                         problems = []
                 if problems:

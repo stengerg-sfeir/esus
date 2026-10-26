@@ -75,6 +75,11 @@
           "raise_when": "false"
         },
         {
+          "check": "loan.status == 'returned'",
+          "error": "InvalidReturnDateError",
+          "raise_when": "true"
+        },
+        {
           "check": "loan.return_date > loan.due_date",
           "error": "InvalidReturnDateError",
           "raise_when": "true"

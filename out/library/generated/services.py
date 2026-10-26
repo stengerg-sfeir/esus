@@ -66,24 +66,18 @@ class LibraryService:
         loan = self._repos['LoanRepository'].read_one_loan(loan_id=loan_id)
         if loan is None:
             raise errors.LoanNotFoundError(f"Loan with id {loan_id} not found")
-
-        now = datetime.datetime.now()
-
-        if now > loan.due_date:
-            raise errors.InvalidReturnDateError(f"Return date cannot be after due date for loan {loan_id}")
-
-        loan.return_date = now
-        loan.status = "returned"
-
+        if loan.status == 'returned':
+            raise errors.InvalidReturnDateError(f"Loan with id {loan_id} is already returned")
+        loan.return_date = datetime.datetime.now()
+        loan.status = 'returned'
+        if loan.return_date > loan.due_date:
+            raise errors.InvalidReturnDateError(f"Return date {loan.return_date} is after due date {loan.due_date}")
         updated_loan = self._repos['LoanRepository'].update_loan(loan_id=loan_id, loan=loan)
-
         book = self._repos['BookRepository'].read_one_book(loan.book_id)
         if book is None:
             raise errors.BookNotFoundError(f"Book with id {loan.book_id} not found")
-
         book.available_copies += 1
         updated_book = self._repos['BookRepository'].update_book(loan.book_id, book)
-
         return updated_loan
 
     def get_overdue_loans(self) -> List[models.Loan]:

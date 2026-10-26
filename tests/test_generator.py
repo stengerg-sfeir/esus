@@ -2109,9 +2109,41 @@ class StubFillTests(unittest.TestCase):
         text = "\n".join(generator._target_contract(
             info, files, contract=contract))
         self.assertIn(
-            "this body sets `loan.return_date`; assign the new value "
-            "first, then write `if loan.return_date > loan.due_date: "
+            "then, before saving, write "
+            "`if loan.return_date > loan.due_date: "
             "raise InvalidReturnDateError(...)`", text)
+        self.assertIn("save the changed `loan` with "
+                      "`LoanRepository.update_loan(...)`", text)
+
+    def test_an_existence_check_on_an_assigned_field_gets_no_hint(self):
+        """`loan.return_date is not None` tests the old value: the loan is
+        already returned. It must not tell the body to assign first."""
+        info = {"cls": "LibraryService",
+                "def": ("def return_book(self, loan_id: int = None)"
+                        " -> models.Loan:"),
+                "file": "services.py"}
+        files = {"models.py":
+                 "from dataclasses import dataclass\n\n"
+                 "@dataclass\nclass Loan:\n    id: int = None\n"
+                 "    return_date: str = None\n"}
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.return_date is not None",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+            "effects": [{"target": "loan.return_date", "op": "set",
+                         "value": "now",
+                         "write": "LoanRepository.update_loan"}],
+        }
+        text = "\n".join(generator._target_contract(
+            info, files, contract=contract))
+        self.assertIn(
+            "raise `InvalidReturnDateError` when `loan.return_date is "
+            "not None` is true", text)
+        self.assertNotIn("assign the new value first", text)
+        self.assertNotIn("checks after the effects", text)
 
     def test_main_model_flag_fills_the_fixture_stubs(self):
         import tempfile
@@ -2728,6 +2760,134 @@ class ContractComplaintTests(unittest.TestCase):
              "'returned'` is false; the confirmed contract raises it when "
              "the condition is true"])
         body[1] = "if loan.status == 'returned':"
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract), [])
+
+    def test_a_guard_on_the_value_assigned_to_the_field_is_accepted(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    due_date: datetime = None\n"
+                  "    return_date: datetime = None\n")
+        module = ("import models\n"
+                  "import errors\n"
+                  "\n"
+                  "class LoanRepository:\n"
+                  "    def read_one_loan(self, loan_id: int = None) "
+                  "-> models.Loan | None:\n"
+                  "        return None\n"
+                  "    def update_loan(self, loan_id, loan):\n"
+                  "        return loan\n")
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.return_date > loan.due_date",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+        }
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "new_date = loan.due_date",
+            "loan.return_date = new_date",
+            "if new_date > loan.due_date:",
+            "    raise errors.InvalidReturnDateError('late')",
+            "self._repos['LoanRepository'].update_loan(loan_id, loan)",
+            "return loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract), [])
+
+    def test_a_contradictory_guard_does_not_satisfy_the_contract(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    due_date: datetime = None\n"
+                  "    return_date: datetime = None\n")
+        module = ("import models\n"
+                  "import errors\n"
+                  "\n"
+                  "class LoanRepository:\n"
+                  "    def read_one_loan(self, loan_id: int = None) "
+                  "-> models.Loan | None:\n"
+                  "        return None\n")
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.return_date > loan.due_date",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+        }
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "if loan.return_date is None and "
+            "loan.return_date > loan.due_date:",
+            "    raise errors.InvalidReturnDateError('late')",
+            "return loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract),
+            ["raises `InvalidReturnDateError` but not when "
+             "`loan.return_date > loan.due_date` is true; the confirmed "
+             "contract requires that branch"])
+
+    def test_a_check_after_the_write_is_a_complaint(self):
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "file": "services.py"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    due_date: datetime = None\n"
+                  "    return_date: datetime = None\n")
+        module = ("import models\n"
+                  "import errors\n"
+                  "import datetime\n"
+                  "\n"
+                  "class LoanRepository:\n"
+                  "    def read_one_loan(self, loan_id: int = None) "
+                  "-> models.Loan | None:\n"
+                  "        return None\n"
+                  "    def update_loan(self, loan_id, loan):\n"
+                  "        return loan\n")
+        contract = {
+            "holder": "LibraryService", "method": "return_book",
+            "preconditions": [{
+                "check": "loan.return_date > loan.due_date",
+                "error": "InvalidReturnDateError",
+                "raise_when": "true",
+            }],
+            "effects": [{"target": "loan.return_date", "op": "set",
+                         "value": "now",
+                         "write": "LoanRepository.update_loan"}],
+        }
+        body = [
+            "loan = self._repos['LoanRepository'].read_one_loan(loan_id)",
+            "loan.return_date = datetime.datetime.now()",
+            "self._repos['LoanRepository'].update_loan(loan_id, loan)",
+            "if loan.return_date > loan.due_date:",
+            "    raise errors.InvalidReturnDateError('late')",
+            "return loan",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract),
+            ["checks `loan.return_date > loan.due_date` after calling "
+             "`update_loan(...)`; a precondition must be checked before "
+             "the write"])
+        del body[2]  # move the write below the guard
+        body.insert(4, "self._repos['LoanRepository'].update_loan("
+                       "loan_id, loan)")
         self.assertEqual(
             self.complaints(body, info=info, module=module, models=models,
                             contract=contract), [])
