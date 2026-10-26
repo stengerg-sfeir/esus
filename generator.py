@@ -1704,6 +1704,15 @@ def _slot_pattern(ctx, holder, method):
     if not isinstance(entry, dict):
         return None, {}
     kind, payload = tie_rules.effective_directive(entry)
+    if (kind == "rule" and payload == "signature-pagination"
+            and not method.get("params") and _collection_return(method)):
+        # The rule only decides pagination versus a plain filter. With no
+        # parameter at all there is still no field to filter on, so the
+        # method is a stub, not a filter: offer the synthetic criterion
+        # question instead of leaving it silently unusable. Without this,
+        # a rule-resolved `find_active_members` never gets asked, and the
+        # surface review can only offer the inverse `find_inactive_members`.
+        kind, payload = "pattern", "FILTER_BY_FIELD"
     if kind == "pattern" and payload in ("READ_ALL", "FILTER_BY_FIELD",
                                          "FILTER_WITH_PAGINATION"):
         strategy, _ = codegen.plan_method(method, entry, ctx["entity_names"])

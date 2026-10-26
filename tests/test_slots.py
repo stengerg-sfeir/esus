@@ -542,6 +542,41 @@ class CriterionTests(unittest.TestCase):
         self.assertIsNone(generator._slot_pattern(
             ctx, "WidgetRepository", read_all)[0])
 
+    def test_a_rule_resolved_parameterless_filter_still_asks(self):
+        """`signature-pagination` must not hide the missing criterion.
+
+        The rule only decides pagination vs. a plain filter. With no
+        parameter, the plan is still a stub; without the synthetic question
+        `find_active_members` would never become usable, and the surface
+        review could only offer the inverse `find_inactive_members`.
+        """
+        ctx = criterion_ctx()
+        ctx["match_index"]["contract:WidgetRepository.find_flagged_widgets"] = {
+            "pattern_id": "FILTER_BY_FIELD",
+            "runner_up_pattern_id": "FILTER_WITH_PAGINATION",
+            "decision": "undecided",
+            "undecided_stage": "pattern",
+        }
+        flagged = ctx["repositories"][0]["methods"][0]
+        self.assertEqual(generator._slot_pattern(
+            ctx, "WidgetRepository", flagged)[0], "FILTER_CRITERION")
+
+    def test_a_rule_resolved_parameterized_filter_is_not_asked(self):
+        """With a parameter, `signature-pagination` is already mechanical."""
+        ctx = criterion_ctx()
+        method = {"name": "find_widgets_by_status",
+                  "params": [{"name": "status", "type": "str"}],
+                  "return_type": "List[Widget]", "description": "status"}
+        ctx["repositories"][0]["methods"].append(method)
+        ctx["match_index"]["contract:WidgetRepository.find_widgets_by_status"] = {
+            "pattern_id": "FILTER_BY_FIELD",
+            "runner_up_pattern_id": "FILTER_WITH_PAGINATION",
+            "decision": "undecided",
+            "undecided_stage": "pattern",
+        }
+        self.assertIsNone(generator._slot_pattern(
+            ctx, "WidgetRepository", method)[0])
+
     def test_field_enum_reads_only_the_documented_line(self):
         ctx = criterion_ctx()
         self.assertEqual(generator._field_enum(ctx, "Widget", "status"),
