@@ -14,6 +14,7 @@ flowchart LR
     D --> E[Human review for uncertain choices]
     E --> F[Python code generator]
     F --> G[Generated application and visible stubs]
+    G --> H[Acceptance test against a real database]
 ```
 
 The human review stage is used with `--chat`. Without it, the extraction and checks can be run separately, and the generator still refuses output with blockers or unanswered ties.
@@ -45,27 +46,36 @@ If a step produces invalid JSON or hits its output limit, the extractor can retr
 
 The consistency checker looks for problems such as malformed JSON, unknown names, mismatched fields or keys, missing interface methods, and disagreements between the declared command line and the requirements it can inspect.
 
-The readiness probe adds the generator's practical needs. It checks that commands have methods behind them, required input fields can be supplied, and the method patterns are usable. It reports blockers separately from lower-confidence or other residual risks.
+The readiness probe adds the generator's practical needs. It checks that commands have methods behind them, that every required option has exactly one effective adapter mapping and agrees with the type of the parameter it feeds, that required input fields can be supplied, that every required model field can be set by its repository's `create`, that an ID filter has a real relation field behind it, that recorded method contracts neither write a primary key nor contradict themselves, and that no human question is still open. It reports blockers separately from lower-confidence or other residual risks. A residual risk (a close pattern choice, a low-confidence match, a method no pattern covers) describes how a method was generated; it is not a defect by itself.
 
 These checks answer “do the documents fit together well enough for this generator?” They do not prove that every requirement was captured or that the program's business behavior is correct.
 
 ### 4. Resolve uncertain choices
 
-With `--chat`, the tool runs the readiness probe and can ask a person to resolve close method-pattern choices, duplicate interface entries, field-to-input mappings, and missing implementation details for supported method patterns. It then resumes the relevant extraction step when that can help. It keeps a rerun only when the blocker count improves; otherwise it restores the previous documents.
+With `--chat`, the tool runs the readiness probe and asks a person about what no deterministic repair may decide. The reviews run in this order, and each answer is saved beside the documents (stamped with the hash of the requirements, so an answer from an older prompt is dropped and asked again):
 
-Some blockers cannot be answered in a review question. They need a clearer requirement or a change to the code.
+1. **Ties** (`review_ties.py`): close method-pattern choices.
+2. **Slots** (`review_slots.py`): the missing details of a supported pattern, such as which field a filter reads.
+3. **Surface** (`review_surface.py`): a subcommand that duplicates a top-level command (`borrow book` beside `borrow`), a subcommand that repeats its own parent's flags (`return loan` beside `return`), and a flag that parses but selects nothing. Deleting a node or a flag is never done unasked.
+4. **Aliases** (`review_aliases.py`): which model field an action's input feeds.
+5. **Contracts** (`review_contracts.py`): what a method that changes data must do. It proposes effects (a field set, incremented or decremented), the record a method creates, preconditions implied by declared errors, a related model's field a search must read, and a value the returned records carry without being saved (an overdue status derived on read). The person confirms or drops each proposal and answers what the text cannot settle: the amount, the value, the order, and the condition behind an error. A condition is a Python expression that is pasted into the generated code, so it may only use names that exist in that method (a service reaches data through `self._repos[...]`, a repository through `self._store`); `skip` allows the operation with no check.
+
+The loop then resumes the relevant extraction step when that can help. It keeps a rerun only when the blocker count improves; otherwise it restores the previous documents.
+
+A question that does not fit (a flag the answer would delete although the requirements require it, a condition the prompt does not define) can be skipped; `skip` leaves it open and the probe keeps reporting it. Some blockers cannot be answered in a review question. They need a clearer requirement or a change to the code.
 
 ### 5. Generate Python code
 
 `generator.py` first checks readiness. If blockers or unanswered ties remain, it refuses to generate the application.
 
-For accepted architecture documents, the generator creates a `generated/` directory with Python modules for models, errors, storage, repositories, services, and the command-line interface. It generates straightforward data operations and supported patterns mechanically. It also reports how many method bodies were implemented and how many remain stubs.
+For accepted architecture documents, the generator creates a `generated/` directory with Python modules for models, errors, storage, repositories, services, and the command-line interface. It generates straightforward data operations and supported patterns mechanically: reads, filters, creates, updates, deletes, a read of one record by its key, and a service method that only delegates to a repository. A service method that changes several records is wrapped in one store transaction when its confirmed contract has more than one write. It reports how many method bodies were implemented and how many remain stubs.
 
-Unsupported or underspecified business behavior is left as an explicit `NotImplementedError` stub with a reason in the docstring. This makes unfinished work visible rather than silently guessing an implementation. Some supported patterns can be completed after a person supplies the required details.
+What the emitter cannot write safely is first left as an explicit `NotImplementedError` stub with a reason in the docstring. With `--model` (a GGUF file, or `server` for a running `llama-server`), the model then writes those bodies one at a time. A body is accepted only if it passes the checks described in [What ESUS checks](checks-coverage-and-gaps.md); a refused body gets up to two repair asks that quote the complaint, and if it is still refused the stub stays. An accepted body is tagged `[llm-written ... review]` in its docstring and is **provisional**: the checks cover structure and the confirmed contract, not behavior. Without `--model`, or when a body is refused, the stub remains visible rather than silently guessing an implementation.
 
-There are two current scope limits in the code generator:
+Scope limits in the current code generator:
 
-- generated command-line programs use Python's standard-library `argparse`, even if the architecture names another CLI library;
+- the command-line program uses `click` when the architecture declares `click`, and Python's standard-library `argparse` otherwise;
+- a no-value flag that was not given is not passed to the method, so the method's own default applies;
 - generated GUIs are generic `pyimgui` CRUD screens. Other GUI technologies and bespoke screen behavior are not currently generated.
 
 If the architecture is clean but empty, `generator.py --model MODEL.gguf` uses a separate language-model fallback to write a single `app.py` directly from the requirements. That path does not use the detailed architecture-to-code generation path, so its result needs especially careful review.
@@ -87,13 +97,17 @@ To include the interactive review loop, add `--chat`. The requirements must be p
 To use an already-running `llama-server` instead of loading the GGUF in the extractor, pass `--model server`:
 
 ```bash
-llama-server -m /path/to/model.gguf -c 8192 -ngl 99 -fa on --port 8080
+llama-server -m /path/to/model.gguf -c 16384 -ngl 99 -fa on --port 8080 --cache-ram 512 -np 1
 LLAMA_SERVER_URL=http://127.0.0.1:8080 \
   python3 extract_arch.py --model server --output out/my-app \
     --requirements prompts/my-app.txt
 ```
 
 `LLAMA_SERVER_URL` defaults to `http://127.0.0.1:8080`; the server's context size and native grammar sampler are used. `generator.py --model server` uses the same setting for body generation.
+
+`--cache-ram 512 -np 1` keeps the server's memory small: its prompt cache defaults to 8 GB, which on a 16 GB machine can take most of the memory. The context size shapes how many tokens a body may use, so keep it the same between runs you want to compare.
+
+A run is reproducible. With the same code, requirements, model, server flags and context size, two complete runs produce byte-identical documents, model answers and generated modules, including after the server is stopped and restarted. The one thing that differs is the output directory's name, which becomes the generated program's name. Any change to a prompt, a pattern catalogue, a check's message or a neighbouring method body changes the output, because the model sees the module text when it writes a body.
 
 You can inspect readiness separately:
 
@@ -107,13 +121,30 @@ When the documents are ready, generate the Python files:
 python3 generator.py out/my-app
 ```
 
-The generated files are written under `out/my-app/generated/`. Read the generator's summary and inspect any reported stubs before treating the application as complete.
+To let the model write the bodies the emitter refuses, add `--model server`:
+
+```bash
+LLAMA_SERVER_URL=http://127.0.0.1:8080 \
+  python3 generator.py out/my-app --model server --stub-context exact --verbose
+```
+
+The generated files are written under `out/my-app/generated/`, and the raw model answers, refusals and verdicts are kept in `out/my-app/llm_stub_answers.json`. Read the generator's summary and inspect any reported stubs before treating the application as complete.
+
+### Verifying the generated program
+
+A clean readiness check does not run the program. `tests/e2e_library_acceptance.py` does, for the library prompt:
+
+```bash
+python3 tests/e2e_library_acceptance.py out/my-app
+```
+
+It runs the generated CLI in fresh processes against a temporary SQLite database, calls the methods the CLI does not reach through the package's own wiring, and never edits a generated module. It checks the behavior the prompt defines: constraints, search, borrow and return, the due date, derived overdue status, rollback on a failed write, cascade, and the absence of commands the prompt does not list. It is written for that prompt; another prompt needs its own acceptance fixture.
 
 ## A practical review of the design
 
 The strongest design choice is the use of intermediate documents. They make the model's interpretation inspectable, let the checks point to specific mismatches, and give the generator a defined input. Chaining names between steps is also more reliable than asking several independent model calls to invent the same names consistently.
 
-The main limitation is the boundary between structural consistency and correctness. The checks can catch many disagreements, but they cannot judge every business rule or prove that the original description was understood. Generated code is also intentionally partial when a method needs behavior the generator cannot implement safely. A successful readiness check means the generator's known requirements are met; it is not a substitute for reviewing and running the generated application against real examples.
+The main limitation is the boundary between structural consistency and correctness. The checks can catch many disagreements, but they cannot judge every business rule or prove that the original description was understood. Generated code is also intentionally partial when a method needs behavior the generator cannot implement safely. A successful readiness check means the generator's known requirements are met; it is not a substitute for reviewing and running the generated application against real examples, which is what the acceptance test does for the library prompt. Model-written bodies stay provisional: they pass structural and contract checks, and only running them shows whether they behave.
 
 For a Sfeir.dev article, a concise way to describe the approach is: **use the model to produce small, reviewable architecture decisions; use ordinary code to connect and validate those decisions; generate only what can be implemented mechanically; and keep uncertainty visible for a person to resolve.**
 
@@ -123,5 +154,10 @@ For a Sfeir.dev article, a concise way to describe the approach is: **use the mo
 - `kernel/extraction/` contains the prompts, grammars, model runner, and extraction pipeline.
 - `kernel/consistency/` contains checks over the saved architecture documents.
 - `probe_readiness.py` decides whether the documents are ready for code generation.
-- `review_*.py` contains the interactive human-review steps.
-- `generator.py` writes the generated Python application.
+- `review_*.py` contains the interactive human-review steps (ties, slots, surface, aliases, contracts).
+- `kernel/extraction/contracts.py` defines the confirmed method-contract record (effects, creates, preconditions, reads, derives).
+- `kernel/repo_patterns/` and `kernel/service_patterns/` hold the pattern catalogues the classifier chooses from.
+- `generator.py` writes the generated Python application and checks the model's bodies; `kernel/codegen.py` plans each method.
+- `kernel/codegen_store_template.py` and `kernel/store_contract.py` define the store every generated program uses and what a body may assume about it.
+- `tests/e2e_library_acceptance.py` runs the generated library program against a real database.
+- `doc/open-points.md` lists the known open work.
