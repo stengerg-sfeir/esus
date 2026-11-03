@@ -84,28 +84,38 @@ def _synonym_text(text):
     return lowered
 
 
-def _match_field(noun, fields):
+def _match_field(noun, fields, entity_hint=None):
     """The model field a noun phrase names, or None.
 
     The longest field whose normalized name appears in the phrase wins, so
     "is_active status" reaches `is_active` rather than the shorter `status`
-    (which belongs to another model). A field name that contains the phrase
+    (which belongs to another model). An entity named in the phrase scopes the
+    search to that model, and boolean fields can match their predicate word
+    ("active status" -> `is_active`). A field name that contains the phrase
     also matches ("copies" -> `available_copies`).
     """
     phrase = normalize(_synonym_text(noun))
     if not phrase:
         return None
     best = None
-    for class_name, field_name, field_type, field in fields:
+    candidates = [row for row in fields
+                  if not entity_hint or row[0] == entity_hint]
+    for class_name, field_name, field_type, field in candidates:
         field_norm = normalize(field_name)
         if not field_norm:
             continue
-        if field_norm in phrase:
-            score = len(field_norm)
-        elif len(phrase) >= 4 and phrase in field_norm:
-            score = len(phrase)
-        else:
+        aliases = [field_norm]
+        if field_type in BOOL_TYPES:
+            for prefix in ("is", "has", "can", "was", "were", "should"):
+                if field_norm.startswith(prefix) and len(field_norm) > len(prefix) + 1:
+                    aliases.append(field_norm[len(prefix):])
+                    break
+        scores = [len(alias) for alias in aliases if alias in phrase]
+        scores += [len(phrase) for alias in aliases
+                   if len(phrase) >= 4 and phrase in alias]
+        if not scores:
             continue
+        score = max(scores)
         if best is None or score > best[0]:
             best = (score, class_name, field_name, field_type, field)
     if best is None:
@@ -147,6 +157,12 @@ def _repo_call(ctx, entity, prefix):
     for method in methods:
         if method["name"].startswith(prefix):
             return f"{repo['interface_name']}.{method['name']}"
+    # A repository owns one entity, so its plain `create`/`update` is the
+    # call; without this a contract lost its create and its save, and the
+    # method was not wrapped in a transaction.
+    for method in methods:
+        if method["name"] == prefix.rstrip("_"):
+            return f"{repo['interface_name']}.{method['name']}"
     return None
 
 
@@ -165,19 +181,38 @@ def _create_call(ctx, entity, role):
 def _invariant_values(ctx, entity, field):
     """The documented vocabulary for a field, from an invariant, or []."""
     pattern = re.compile(
-        rf"\b{re.escape(entity)}\.{re.escape(field)}\s+must\s+be\s+one\s+of\s+"
-        r"(\[[^\]]+\])", re.I)
+        rf"\b{re.escape(entity)}\.{re.escape(field)}\s+must\s+be\s+one\s+of\b",
+        re.I)
     for invariant in ctx.get("invariants") or []:
         text = invariant.get("text") if isinstance(invariant, dict) else ""
         match = pattern.search(text or "")
         if not match:
             continue
-        try:
-            values = ast.literal_eval(match.group(1))
-        except (ValueError, SyntaxError):
-            continue
-        if isinstance(values, (list, tuple)):
-            return [str(value) for value in values]
+        tail = text[match.end():].strip().rstrip(".")
+        list_match = re.match(r"(\[[^\]]+\])", tail)
+        if list_match:
+            try:
+                values = ast.literal_eval(list_match.group(1))
+            except (ValueError, SyntaxError):
+                values = []
+            if isinstance(values, (list, tuple)):
+                return [str(value) for value in values]
+
+        # Invariants are also commonly written as prose, for example
+        # `Loan.status must be one of 'active', 'returned', 'overdue'`.
+        # Extract the stated values instead of requiring Python-list syntax.
+        quoted = re.findall(r"(['\"])(.*?)\1", tail)
+        if quoted:
+            return [value for _quote, value in quoted]
+
+        # Accept a plainly enumerated vocabulary too (`one of active, returned
+        # or overdue`), while avoiding arbitrary trailing prose.
+        bare = re.sub(r"^the following\s*:?\s*", "", tail, flags=re.I)
+        candidates = re.split(r",\s*|\s+(?:or|and)\s+", bare)
+        candidates = [item.strip(" `'“”\t") for item in candidates]
+        if candidates and all(re.fullmatch(r"[\w.-]+", item)
+                              for item in candidates):
+            return candidates
     return []
 
 
@@ -215,6 +250,33 @@ def _value_choices(ctx, entity, field_name):
     return choices
 
 
+def _effect_params(field_name, params, op):
+    """Return parameters whose names can plausibly supply this field value."""
+    field_norm = normalize(field_name)
+    field_terms = set(re.findall(r"[a-z0-9]+", str(field_name).lower()))
+    generic_terms = {"date", "time", "value", "new", "old", "current",
+                     "previous", "updated", "created"}
+    meaningful_terms = field_terms - generic_terms
+    quantity_terms = {"copies", "count", "qty", "quantity", "stock"}
+    amount_terms = quantity_terms | {"amount", "delta"}
+    quantity_field = bool(field_terms & quantity_terms)
+    relevant = []
+    for name in params:
+        param_norm = normalize(name)
+        param_terms = set(re.findall(r"[a-z0-9]+", str(name).lower()))
+        matches_name = bool(
+            param_norm and field_norm
+            and (param_norm == field_norm or field_norm in param_norm
+                 or (len(param_norm) >= 4 and param_norm in field_norm)))
+        matches_term = bool(meaningful_terms & param_terms)
+        matches_amount = (op in ("increment", "decrement")
+                          and quantity_field
+                          and bool(param_terms & amount_terms))
+        if matches_name or matches_term or matches_amount:
+            relevant.append(name)
+    return relevant
+
+
 def _effect_questions(ctx, index, effect, params):
     target = effect["target"]
     variable, field_name = target.split(".", 1)
@@ -226,11 +288,13 @@ def _effect_questions(ctx, index, effect, params):
         prompt = (f"By how much should `{target}` "
                   f"{effect['op']}?")
         choices = [("1", "1")]
-        choices += [(name, name) for name in params]
+        choices += [(name, name) for name in _effect_params(
+            field_name, params, effect["op"])]
     else:
         prompt = f"What value should `{target}` be set to?"
         choices = _value_choices(ctx, entity, field_name)
-        choices += [(name, name) for name in params]
+        choices += [(name, name) for name in _effect_params(
+            field_name, params, effect["op"])]
     # Deduplicate while preserving order.
     seen, unique = set(), []
     for label, value in choices:
@@ -260,13 +324,82 @@ def _error_description(ctx, error):
     return ""
 
 
-def _obvious_preconditions(ctx, raises, fields, method):
+def _invalid_error_has_input(ctx, error, method, effects):
+    """Whether an ``Invalid<Field>Error`` can inspect a value this method has.
+
+    A method that only accepts `member_id` and `book_id` cannot receive an
+    invalid loan status to validate. A scalar parameter, a typed model
+    parameter, or an explicit effect on the named field can supply the value;
+    without one, asking for a validation condition would invent an input the
+    method does not have. Unknown error concepts remain open for human review.
+    """
+    match = re.match(r"(?i)^Invalid(.+?)Error$", str(error).rsplit(".", 1)[-1])
+    if not match:
+        return True
+    concept = normalize(match.group(1))
+    if not concept:
+        return True
+
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict)]
+    param_names = [normalize(param.get("name") or "") for param in params]
+    if any(name and (name in concept or concept in name)
+           for name in param_names):
+        return True
+
+    matching_fields = [
+        (class_name, field_name)
+        for class_name, field_name, _field_type, _field in _fields(ctx)
+        if normalize(field_name) and normalize(field_name) in concept
+    ]
+    # When the error names an entity, use that entity to avoid treating a
+    # same-named field on another model as its validation target.
+    entity_matches = [
+        row for row in matching_fields
+        if normalize(row[0]) in concept
+    ]
+    if entity_matches:
+        matching_fields = entity_matches
+    if not matching_fields:
+        # The error concept has no modeled field to trace; preserve the
+        # question because the method may validate an unmodeled input such as
+        # a query string or file format.
+        return True
+
+    for class_name, field_name in matching_fields:
+        field_norm = normalize(field_name)
+        if field_norm in param_names:
+            return True
+        class_norm = normalize(class_name)
+        # An ID parameter lets the method inspect that existing entity's
+        # state, even though the validated field is not itself an argument.
+        if class_norm and f"{class_norm}id" in param_names:
+            return True
+        for param in params:
+            param_type = normalize(param.get("type") or "")
+            if class_norm and class_norm in param_type:
+                return True
+        for effect in effects or []:
+            if not isinstance(effect, dict):
+                continue
+            target = str(effect.get("target") or "")
+            if "." not in target:
+                continue
+            target_entity, target_field = target.rsplit(".", 1)
+            if (normalize(target_field) == field_norm
+                    and normalize(target_entity) == class_norm):
+                return True
+    return False
+
+
+def _obvious_preconditions(ctx, raises, fields, method, effects=None):
     """Preconditions the declared errors imply, plus the open ones.
 
     `NotFound` means the named entity exists; `InsufficientCopies` means the
     copies field is positive; `InvalidStockQty` means a `qty` parameter is
-    positive. Everything else is an open human question because its name
-    does not settle the condition.
+    positive. Other errors stay open unless an invalid-value error names a
+    field this method cannot receive, inspect by entity ID, or explicitly
+    change.
     """
     obvious, open_errors = [], []
     params = set(_params(method))
@@ -295,8 +428,90 @@ def _obvious_preconditions(ctx, raises, fields, method):
             obvious.append({"check": "qty > 0", "error": name,
                             "raise_when": "false"})
             continue
+        if (name.lower().startswith("invalid")
+                and not _invalid_error_has_input(ctx, name, method, effects)):
+            # Do not ask for a validation condition on an invalid value this
+            # method cannot receive or explicitly change. It can still
+            # propagate the lower-level error if another method raises it.
+            continue
         open_errors.append(name)
     return obvious, open_errors
+
+
+def _related_reads(ctx, holder, text):
+    """Fields of a related model that a repository method's own words name.
+
+    A search described as matching "author name" must read the related
+    `Author`'s `name`; comparing the query with the `author_id` key matches
+    nothing a person typed. The relation comes from the foreign keys of the
+    holder's own model, and the field only from the text: an entity named
+    without one of its fields ("author") proposes nothing, because there is
+    no way to tell which field was meant.
+    """
+    repo = next((item for item in ctx.get("repositories") or []
+                 if item.get("interface_name") == holder), None)
+    if not repo:
+        return []
+    models = {model.get("name"): model for model in ctx.get("models") or []
+              if isinstance(model, dict)}
+    own = models.get(repo.get("entity"))
+    if not own:
+        return []
+    lowered = str(text).lower()
+    found, seen = [], set()
+    for fk_field in own.get("fields") or []:
+        link = fk_field.get("foreign_key") if isinstance(fk_field, dict) else None
+        target = link.get("target_entity") if isinstance(link, dict) else None
+        related = models.get(target)
+        if not related or target == repo.get("entity"):
+            continue
+        for field in related.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name") \
+                    or field.get("primary_key"):
+                continue
+            words = r"[\s_-]+".join(
+                re.escape(word) for word in field["name"].lower().split("_"))
+            if not re.search(
+                    rf"\b{re.escape(str(target).lower())}(?:'s|s)?[\s_-]+"
+                    rf"{words}\b", lowered):
+                continue
+            key = (target, field["name"])
+            if key in seen:
+                continue
+            seen.add(key)
+            item = {"entity": target, "field": field["name"],
+                    "via": f"{repo.get('entity')}.{fk_field['name']}"}
+            related_repo = _repo_for(ctx, target)
+            if related_repo and related_repo.get("interface_name"):
+                item["repository"] = related_repo["interface_name"]
+            found.append(item)
+    return found
+
+
+def _derived_values(ctx, method, text):
+    """Declared values of the returned entity's fields that the text names.
+
+    A read described as returning "overdue" loans reports `Loan.status` as
+    `overdue` while the stored value stays `active`. The values come from
+    the model's own vocabulary (`_invariant_values`); the entity comes from
+    the declared return type; the text only picks which value is meant. The
+    human decides whether the records must carry it, so a filter that merely
+    mentions a value ("active members") is dropped at the question.
+    """
+    returned = str(method.get("return_type") or "")
+    entity = next((name for name in ctx.get("entity_names") or []
+                   if re.search(rf"\b{re.escape(name)}\b", returned)), None)
+    if not entity:
+        return []
+    found = []
+    for class_name, field_name, _type, field in _fields(ctx):
+        if class_name != entity or field.get("primary_key"):
+            continue
+        for value in _invariant_values(ctx, entity, field_name):
+            if re.search(rf"\b{re.escape(str(value))}\b", text, re.I):
+                found.append({"target": f"{entity.lower()}.{field_name}",
+                              "value": value})
+    return found
 
 
 def _propose(ctx, holder, method, role, requirement):
@@ -331,9 +546,16 @@ def _propose(ctx, holder, method, role, requirement):
             noun = match.group(1).strip().strip(".")
             if op in ("increment", "decrement"):
                 noun = re.split(r"\bby\b", noun, maxsplit=1)[0].strip()
-            found = _match_field(noun, fields)
+            found = _match_field(noun, fields, _match_class(noun, ctx))
             if found:
                 entity, field_name = found[0], found[1]
+                # Repository update IDs identify the row to load; they are
+                # never mutable effects. Model the same rule generically for
+                # any field explicitly marked as a primary key, including
+                # fixtures whose key is not named ``id``.
+                field = found[3]
+                if field.get("primary_key") or normalize(field_name) == "id":
+                    continue
                 add_effect(entity, field_name, op,
                            _write_call(ctx, entity, role))
                 break
@@ -349,11 +571,13 @@ def _propose(ctx, holder, method, role, requirement):
                     seen_creates.add(key)
                     creates.append({"class": entity, "call": call} if call
                                    else {"class": entity})
-    if not effects and not creates:
+    reads = _related_reads(ctx, holder, text) if role == "repository" else []
+    derives = [] if effects or creates else _derived_values(ctx, method, text)
+    if not effects and not creates and not reads and not derives:
         return None
 
     preconditions, open_errors = _obvious_preconditions(
-        ctx, method.get("raises") or [], fields, method)
+        ctx, method.get("raises") or [], fields, method, effects)
     questions = []
     if preconditions:
         questions.append({
@@ -373,12 +597,33 @@ def _propose(ctx, holder, method, role, requirement):
             "choices": [("keep", "keep"), ("drop", "drop")],
             "apply": "keep_creates",
         })
+    if reads:
+        shown = ", ".join(f"`{item['entity']}.{item['field']}`"
+                          for item in reads)
+        questions.append({
+            "id": "keep_reads", "kind": "choice", "required": True,
+            "prompt": f"The description names {shown} (a related model); "
+                      "must the body read it?",
+            "choices": [("keep", "keep"), ("drop", "drop")],
+            "apply": "keep_reads",
+        })
+    if derives:
+        shown = ", ".join(f"`{item['target']}` = {item['value']!r}"
+                          for item in derives)
+        questions.append({
+            "id": "keep_derives", "kind": "choice", "required": True,
+            "prompt": f"The description names {shown}; must the returned "
+                      "records carry it (derived, never saved)?",
+            "choices": [("keep", "keep"), ("drop", "drop")],
+            "apply": "keep_derives",
+        })
     for error in open_errors:
         description = _error_description(ctx, error)
-        prompt = f"What condition should raise `{error}`?"
+        prompt = f"What Python condition should raise `{error}`?"
         if description:
             prompt += f" The error description says: {description}"
-        prompt += " (free text; type 'skip' to allow the operation with no check)"
+        prompt += (" (enter a Python boolean expression, not prose; "
+                   "type 'skip' to allow the operation with no check)")
         questions.append({
             "id": f"precondition:{error}", "kind": "text", "required": False,
             "prompt": prompt,
@@ -402,7 +647,8 @@ def _propose(ctx, holder, method, role, requirement):
         "holder": holder, "method": method.get("name") or "?",
         "role": role, "entity": method.get("entity"),
         "description": description, "requirement": requirement,
-        "effects": effects, "creates": creates,
+        "effects": effects, "creates": creates, "reads": reads,
+        "derives": derives,
         "preconditions": preconditions, "order": [], "forbid": [],
         "open_preconditions": open_errors,
         "questions": questions,
@@ -482,6 +728,15 @@ def describe_proposal(index, total, proposal, questions=True):
         for create in proposal["creates"]:
             call = f" via {create['call']}" if create.get("call") else ""
             lines.append(f"    - {create.get('class')}{call}")
+    if proposal.get("derives"):
+        lines.append("  proposed derived values (never saved):")
+        for item in proposal["derives"]:
+            lines.append(f"    - {item['target']} = {item['value']!r}")
+    if proposal.get("reads"):
+        lines.append("  proposed reads:")
+        for item in proposal["reads"]:
+            lines.append(f"    - {item['entity']}.{item['field']} "
+                         f"(related through {item['via']})")
     if proposal["preconditions"]:
         lines.append("  preconditions from declared errors:")
         for item in proposal["preconditions"]:
@@ -528,13 +783,22 @@ def ask_proposal(proposal, input_fn=input, out_fn=print):
             answer = _ask_choice(question["prompt"], question["choices"],
                                  input_fn)
         else:
-            out_fn(question["prompt"])
-            try:
-                answer = input_fn("> ").strip()
-            except (EOFError, KeyboardInterrupt):
-                answer = ""
-            if answer.lower() in ("", "skip", "s"):
-                answer = None
+            while True:
+                out_fn(question["prompt"])
+                try:
+                    answer = input_fn("> ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    answer = ""
+                if answer.lower() in ("", "skip", "s"):
+                    answer = None
+                    break
+                if question.get("apply") == "precondition":
+                    try:
+                        ast.parse(answer, mode="eval")
+                    except SyntaxError:
+                        out_fn("Enter a valid Python expression, or type 'skip'.")
+                        continue
+                break
         if answer is None and question.get("required", True):
             return None
         answers[question["id"]] = answer
@@ -558,6 +822,12 @@ def _finalize(proposal, answers, prompt_sha, ctx):
     if answers.get("keep_creates", "keep") != "drop":
         creates = [dict(create) for create in proposal["creates"]
                    if create.get("call")]
+    derives = []
+    if answers.get("keep_derives", "keep") != "drop":
+        derives = [dict(item) for item in proposal.get("derives") or []]
+    reads = []
+    if answers.get("keep_reads", "keep") != "drop":
+        reads = [dict(item) for item in proposal.get("reads") or []]
     preconditions = []
     if answers.get("keep_preconditions", "keep") != "drop":
         preconditions = [dict(item) for item in proposal["preconditions"]]
@@ -600,6 +870,8 @@ def _finalize(proposal, answers, prompt_sha, ctx):
         "decided_by": "user",
         "effects": effects,
         "creates": creates,
+        "reads": reads,
+        "derives": derives,
         "preconditions": preconditions,
         "order": order,
         "forbid": forbid,

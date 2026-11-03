@@ -110,6 +110,20 @@ class ContractProposalTests(unittest.TestCase):
         for word in ("book", "copies", "return_date", "due_date", "loan"):
             self.assertNotIn(word, text)
 
+    def test_repository_update_proposal_never_mutates_the_primary_key(self):
+        ctx = dict(STOCK_CONTEXT)
+        method = {
+            "name": "update_stock",
+            "description": "Updates the stock record by id and changes stock_qty.",
+            "params": [{"name": "stock_id", "type": "int"},
+                       {"name": "stock_qty", "type": "int"}],
+            "raises": [],
+        }
+        proposal = review_contracts._propose(
+            ctx, "StockRepository", method, "repository", "")
+        self.assertEqual([item["target"] for item in proposal["effects"]],
+                         ["stock.stock_qty"])
+
     def test_an_open_error_question_shows_its_documented_description(self):
         ctx = dict(STOCK_CONTEXT)
         ctx["errors"] = [{"name": "InsufficientStockError",

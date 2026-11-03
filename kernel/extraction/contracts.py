@@ -19,6 +19,10 @@ the prompt and the body checks. The vocabulary is domain-neutral:
                   true or when it is false
     order         the required order of the preconditions/create/write steps
     forbid        a field assignment that must not read another field
+    reads         a field of a related model the body must read (a search that
+                  matches the related record's name, not its key)
+    derives       a field value the returned records carry in memory only
+                  (a loan read as overdue while its stored status is active)
 
 A record carries the same `requirements_sha` stamp as the slot and surface
 decisions. A record from before a requirement change is dropped and its
@@ -183,4 +187,29 @@ def normalize_contract(raw):
         forbid.append(item)
     if forbid:
         record["forbid"] = forbid
+
+    reads = []
+    for read in raw.get("reads") or []:
+        if not (isinstance(read, dict)
+                and isinstance(read.get("entity"), str) and read["entity"]
+                and isinstance(read.get("field"), str) and read["field"]):
+            continue
+        item = {"entity": read["entity"], "field": read["field"]}
+        for key in ("repository", "via"):
+            if isinstance(read.get(key), str) and read[key]:
+                item[key] = read[key]
+        reads.append(item)
+    if reads:
+        record["reads"] = reads
+
+    derives = []
+    for derive in raw.get("derives") or []:
+        if not (isinstance(derive, dict)
+                and isinstance(derive.get("target"), str) and derive["target"]
+                and isinstance(derive.get("value"), (str, int, float))
+                and not isinstance(derive.get("value"), bool)):
+            continue
+        derives.append({"target": derive["target"], "value": derive["value"]})
+    if derives:
+        record["derives"] = derives
     return record

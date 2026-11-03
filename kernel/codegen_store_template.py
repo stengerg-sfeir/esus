@@ -328,7 +328,10 @@ class Store:
         prepared = [(field, operator, _iso(value))
                     for field, operator, value in criteria]
         for record in self._space(entity).values():
-            if all(_holds(record.get(field), operator, value)
+            # Schema mode restores date columns to `datetime.date`; the
+            # criteria were normalised to ISO text above, so the stored
+            # value takes the same path (ISO text sorts chronologically).
+            if all(_holds(_iso(record.get(field)), operator, value)
                    for field, operator, value in prepared):
                 matches.append(dict(record))
         return matches
@@ -416,6 +419,10 @@ def _holds(actual, operator, expected):
         return actual is not None and actual >= expected
     if operator == "le":
         return actual is not None and actual <= expected
+    if operator == "gt":
+        return actual is not None and actual > expected
+    if operator == "lt":
+        return actual is not None and actual < expected
     raise ValueError(f"unknown operator {operator!r}")
 
 

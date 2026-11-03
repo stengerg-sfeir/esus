@@ -75,6 +75,12 @@ def map_type(spelling, entity_names=()):
         return MODEL_TYPES[lowered]
     if lowered in ("none", "null", "void", "nonetype"):
         return "None"
+    optional = re.fullmatch(r"(?i)optional\[(.+)\]", text)
+    if optional:
+        return f"Optional[{map_type(optional.group(1), entity_names)}]"
+    if "|" in text:
+        return " | ".join(
+            map_type(part.strip(), entity_names) for part in text.split("|"))
     known = {normalize(name) for name in entity_names}
     bare = normalize(text.split("[", 1)[0].split("|", 1)[0])
     if text[:1].isupper() or "[" in text or "|" in text or "optional" in lowered:
@@ -191,6 +197,13 @@ def plan_method(method, entry, entity_names=()):
                 # with no status argument emitted a body returning every
                 # record, silently dropping the constraint the name states.
                 return ("stub", f"pattern {payload}: filter with no parameters filters nothing")
+            if payload == "READ_ONE_BY_ID":
+                # One record by its key: scalar parameters and an entity
+                # return are the whole claim, whatever the method is called.
+                if _shape_crud(method, entity_names) == "read_one":
+                    return ("crud:read_one", payload)
+                return ("stub", "pattern READ_ONE_BY_ID: needs scalar key "
+                                "parameters and an entity return")
             if payload in MECHANICAL_PATTERNS and crud is not None:
                 return (f"crud:{crud}", payload)
             if payload in ("FILTER_BY_FIELD", "FILTER_WITH_PAGINATION"):
@@ -419,7 +432,10 @@ def bind_commands(adapters, invocation, verb_stems):
     Entity affinity outranks verb spelling: `budget add` must reach the
     budget creator, not `add_category`, even though the latter spells the verb
     literally — implementing another entity's command is the failure this
-    scoring exists to prevent.
+    scoring exists to prevent. A group may also have a real parent action:
+    `return --loan-id` can coexist with a generated `return loan` child, so a
+    recognized verb command with its own options gets a parent binding as well
+    as the child bindings.
     """
     bindings = {}
     unmapped = []
@@ -436,6 +452,15 @@ def bind_commands(adapters, invocation, verb_stems):
         if not subs:
             bindings[(command["name"], None)] = _best_adapter(
                 adapters, verb_stems, command["name"], None, unmapped)
+            continue
+        # The components document can represent both a group and options on
+        # that group. If its name is itself a known action verb, preserve that
+        # leaf instead of making the parent inaccessible just because it also
+        # has subcommands. Noun groups such as `member` and `book` stay groups.
+        parent_verb = command["name"].strip().lower()
+        if command.get("options") and parent_verb in verb_stems:
+            bindings[(command["name"], None)] = _best_adapter(
+                adapters, verb_stems, command["name"], None, unmapped)
         for sub in subs:
             bindings[(command["name"], sub["name"])] = _best_adapter(
                 adapters, verb_stems, command["name"], sub["name"], unmapped)
@@ -443,7 +468,19 @@ def bind_commands(adapters, invocation, verb_stems):
 
 
 def _best_adapter(adapters, verb_stems, command, sub, unmapped):
-    verb = (sub or command or "").lower()
+    command_verb = (command or "").strip().lower()
+    sub_verb = (sub or "").strip().lower()
+    # Prefer the leaf token when it is a recognized verb (`member history`,
+    # `book list`). If the leaf is an unrecognized noun beneath a verb parent
+    # (`return loan`), use the parent verb; matching the noun as a substring
+    # would otherwise bind it to an unrelated method such as
+    # `get_member_loan_history`.
+    if sub_verb in verb_stems:
+        verb = sub_verb
+    elif command_verb in verb_stems:
+        verb = command_verb
+    else:
+        verb = sub_verb or command_verb
     stems = verb_stems.get(verb, (verb,))
     scored = []
     for adapter in adapters:

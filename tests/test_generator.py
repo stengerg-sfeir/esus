@@ -626,6 +626,10 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(codegen.map_type("str"), "str")
         self.assertEqual(codegen.map_type("bool"), "bool")
         self.assertEqual(codegen.map_type("dict"), "Dict[str, Any]")
+        self.assertEqual(codegen.map_type("datetime | None"),
+                         "datetime.datetime | None")
+        self.assertEqual(codegen.map_type("Optional[datetime]"),
+                         "Optional[datetime.datetime]")
 
     def test_filter_pattern_without_filter_name_plans_by_shape(self):
         """`read_expenses_by_category` matches no name prefix, yet describes
@@ -910,6 +914,41 @@ class ServiceCompositionTests(unittest.TestCase):
                                     "subcommands": [{"name": "add", "options": []}]}]}
         bindings, unmapped = codegen.bind_commands(adapters, invocation, COMMAND_VERB_STEMS)
         self.assertEqual(bindings[("budget", "add")][0], "create_budget")
+        self.assertEqual(unmapped, [])
+
+    def test_a_noun_child_under_a_verb_parent_uses_the_parent_verb(self):
+        """`return loan` reaches return_book, not get_member_loan_history.
+
+        The child token `loan` is a noun, so matching it as a verb would bind
+        the command to the history read. A real verb parent also keeps its own
+        leaf beside the generated child (`return --loan-id`).
+        """
+        from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+        adapters = [
+            {"action_name": "libraryreturn", "target_service": "LibraryService",
+             "target_method": "return_book", "input_fields": []},
+            {"action_name": "librarymemberhistory",
+             "target_service": "LibraryService",
+             "target_method": "get_member_loan_history", "input_fields": []},
+        ]
+        invocation = {"commands": [
+            {"name": "return",
+             "options": [{"name": "--loan-id", "type": "int",
+                          "required": True, "default": None}],
+             "subcommands": [{"name": "loan", "options": [
+                 {"name": "--loan-id", "short": "-l", "type": "int",
+                  "required": True, "default": None}]}]},
+            {"name": "member", "options": [], "subcommands": [
+                {"name": "history", "options": [
+                    {"name": "--member-id", "short": "-m", "type": "int",
+                     "required": True, "default": None}]}]},
+        ]}
+        bindings, unmapped = codegen.bind_commands(
+            adapters, invocation, COMMAND_VERB_STEMS)
+        self.assertEqual(bindings[("return", "loan")][0], "libraryreturn")
+        self.assertEqual(bindings[("return", None)][0], "libraryreturn")
+        self.assertEqual(bindings[("member", "history")][0],
+                         "librarymemberhistory")
         self.assertEqual(unmapped, [])
 
     def test_field_binding_folds_abbreviations_and_date_aliases(self):
@@ -2169,9 +2208,9 @@ class StubFillTests(unittest.TestCase):
                     io.StringIO() as buffer, redirect_stdout(buffer):
                 self.assertEqual(generator.main([out, "--model", "fake.gguf"]), 0)
                 printed = buffer.getvalue()
-            self.assertIn("llm written: ProductRepository.export_products",
+            self.assertIn("llm provisional: ProductRepository.export_products",
                           printed)
-            self.assertIn("llm written: ShopService.price_report", printed)
+            self.assertIn("llm provisional: ShopService.price_report", printed)
             self.assertNotIn("still refused", printed)
             self.assertNotIn("one repair ask", printed)
             text = (Path(out) / "generated" / "repositories.py").read_text()
@@ -2632,6 +2671,134 @@ class ContractComplaintTests(unittest.TestCase):
              "an update_* method; a dataclass is a copy, so the change is "
              "lost"])
 
+    def test_a_repository_key_selects_that_repositorys_return_type(self):
+        """`read_one` means Loan on LoanRepository, though Book has it too."""
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) -> None:",
+                "reason": "refused"}
+        module = (
+            "import models\n"
+            "\n"
+            "class BookRepository:\n"
+            "    def read_one(self, book_id: int = None)"
+            " -> models.Book | None:\n"
+            "        return None\n"
+            "\n"
+            "class LoanRepository:\n"
+            "    def read_one(self, loan_id: int = None)"
+            " -> models.Loan | None:\n"
+            "        return None\n"
+        )
+        models = ("class Book:\n"
+                  "    id: int = 0\n"
+                  "    title: str = ''\n"
+                  "class Loan:\n"
+                  "    id: int = 0\n"
+                  "    return_date: object = None\n")
+        body = ["loan = self._repos['LoanRepository'].read_one(loan_id)",
+                "return loan.return_date"]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models),
+            [])
+
+    def test_a_date_field_assigned_integer_arithmetic_is_a_complaint(self):
+        info = {"cls": "LoanRepository",
+                "def": "def fetch(self, loan_id: int = None) "
+                       "-> models.Loan:",
+                "reason": "refused"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    due_date: datetime.date = None\n")
+        body = ["loan = models.Loan(due_date=loan_id + 10)",
+                "return loan"]
+        self.assertEqual(
+            self.complaints(body, info=info, models=models),
+            ["sets `due_date` from an arithmetic expression that is not a "
+             "date; use a date/datetime or `datetime.timedelta`"])
+
+    def test_a_timedelta_date_is_accepted(self):
+        info = {"cls": "LoanRepository",
+                "def": "def fetch(self) -> models.Loan:",
+                "reason": "refused"}
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    due_date: datetime.date = None\n")
+        body = ["loan = models.Loan(",
+                "    due_date=datetime.date.today()"
+                " + datetime.timedelta(days=14))",
+                "return loan"]
+        self.assertEqual(
+            self.complaints(body, info=info, models=models), [])
+
+    def test_a_reasoning_comment_that_admits_a_bug_is_refused(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self) -> List[models.Book]:",
+                "reason": "refused"}
+        self.assertIn(
+            "contains an unresolved reasoning comment; resolve the note "
+            "in code or remove it before accepting the body",
+            self.complaints(["# This is incorrect: this call returns one book",
+                             "return []"], info=info))
+
+    def test_mutable_models_cannot_be_deduplicated_with_set(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self) -> List[models.Book]:",
+                "reason": "refused"}
+        module = self.module + (
+            "\n    def read_all_books(self) -> List[models.Book]:\n"
+            "        return []\n")
+        body = ["books = self.read_all_books()", "return list(set(books))"]
+        self.assertIn(
+            "uses set() to deduplicate mutable `Book` models; use a stable "
+            "key such as the model ID and return the model objects",
+            self.complaints(body, info=info, module=module))
+
+    def test_a_single_model_cannot_satisfy_a_collection_return(self):
+        info = {"cls": "BookRepository",
+                "def": "def fetch(self) -> List[models.Book]:",
+                "reason": "refused"}
+        self.assertIn(
+            "returns one `Book` from a method declared `-> "
+            "List[models.Book]`; the return annotation requires a collection",
+            self.complaints(["return models.Book()"], info=info))
+
+    def test_repository_update_keywords_are_writes(self):
+        """A service saves through `update(...)`, not an attribute assignment."""
+        info = {"cls": "LibraryService",
+                "def": "def return_book(self, loan_id: int = None) -> None:",
+                "reason": "refused"}
+        module = (
+            "import models\n"
+            "\n"
+            "class LoanRepository:\n"
+            "    def read_one(self, loan_id: int = None)"
+            " -> models.Loan | None:\n"
+            "        return None\n"
+            "\n"
+            "    def update(self, loan_id: int = None,"
+            " return_date: object = None, status: str = None) -> None:\n"
+            "        return None\n"
+        )
+        models = ("class Loan:\n"
+                  "    id: int = 0\n"
+                  "    return_date: object = None\n"
+                  "    status: str = ''\n")
+        contract = {"effects": [
+            {"target": "loan.return_date", "op": "set", "value": "now"},
+            {"target": "loan.status", "op": "set", "value": "returned"},
+        ]}
+        body = [
+            "loan = self._repos['LoanRepository'].read_one(loan_id)",
+            "self._repos['LoanRepository'].update(",
+            "    loan_id=loan_id, return_date=datetime.date.today(),",
+            "    status='returned')",
+            "return None",
+        ]
+        self.assertEqual(
+            self.complaints(body, info=info, module=module, models=models,
+                            contract=contract),
+            [])
+
     def test_a_changed_repository_read_must_be_updated(self):
         info = {"cls": "BookRepository",
                 "def": "def fetch(self, book_id: int = None) "
@@ -2699,7 +2866,7 @@ class ContractComplaintTests(unittest.TestCase):
                 "models.Loan())",
                 "else:",
                 "    raise errors.BookNotFoundError(book_id)",
-                "return models.Book()"]
+                "return [models.Book()]"]
         self.assertEqual(self.complaints(body, info=info), [])
 
     def test_an_update_before_the_create_is_a_complaint(self):
@@ -3386,7 +3553,7 @@ class ContractComplaintTests(unittest.TestCase):
                 "return rows",
             ]),
             ["calls `self._store.select` with operator `like`; the store "
-             "supports only `eq`, `ge`, `le`"])
+             "supports only `eq`, `ge`, `le`, `gt`, `lt`"])
 
     def test_a_name_read_before_its_assignment_is_a_complaint(self):
         self.assertEqual(

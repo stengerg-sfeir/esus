@@ -460,6 +460,21 @@ class CollectTests(unittest.TestCase):
         self.assertIsNone(slots_module._slot_options(
             ctx, repo, method, "THRESHOLD_SCAN"))
 
+    def test_overdue_does_not_offer_return_date_as_the_threshold(self):
+        """Overdue is due_date < today plus an implicit null-return guard."""
+        import review_slots as slots_module
+        ctx = {"models": [{"name": "Loan", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "due_date", "type": "date"},
+                    {"name": "return_date", "type": "date"}]}],
+               "entity_names": ["Loan"]}
+        repo = {"entity": "Loan"}
+        method = {"name": "find_overdue_loans", "params": []}
+        options = dict(slots_module._slot_options(
+            ctx, repo, method, "THRESHOLD_SCAN"))
+        self.assertIn("due_date", options["comparison_field"])
+        self.assertNotIn("return_date", options["comparison_field"])
+
 
 WIDGET_MODEL = {"name": "Widget", "fields": [
     {"name": "id", "type": "int", "primary_key": True},
@@ -716,6 +731,19 @@ class EmitterTests(unittest.TestCase):
         today = datetime.date.today().isoformat()
         rows = repo.get_stale_expenses(today)
         self.assertEqual([r["amount_cents"] for r in rows], [1])
+
+    def test_overdue_threshold_also_requires_no_return_date(self):
+        """The slot carries the date comparison; the null-return guard is
+        emitted too, or a late-but-returned record would still be overdue."""
+        lines = generator._repo_threshold_body(
+            "Loan", None,
+            {"due_date": "date", "return_date": "date", "status": "str"},
+            {"name": "find_overdue_loans"}, "find_overdue_loans",
+            {"comparison_field": "due_date", "operator": "<",
+             "threshold": "today"})
+        text = "\n".join(lines)
+        self.assertIn("if record.get('return_date') is not None:", text)
+        self.assertIn("key < str(bound)", text)
 
     def test_malformed_slots_stay_stubs(self):
         ctx = ctx_with({"get_monthly_expense_total": {

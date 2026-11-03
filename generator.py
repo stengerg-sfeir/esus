@@ -49,8 +49,9 @@ states (model fields, declared parameters, the method's return type). A
 refused answer gets up to two repair asks carrying the exact complaint; a body
 that still fails keeps the stub. Accepted docstrings are tagged
 `[llm-written by ... — review]` and the method still counts as a stub in
-the mechanical coverage, because nothing here verifies behavior — read the
-body, and the run leaves every raw answer in `<out>/llm_stub_answers.json`.
+the mechanical coverage. These bodies are provisional: syntax, API and
+contract checks do not establish runtime behavior. The run leaves every raw
+answer in `<out>/llm_stub_answers.json` for inspection.
 The default body ask (`--stub-context exact`) shows `models.py` as code and
 repeats the target signature and return dataclass; the other contexts
 remain available for experiments.
@@ -62,11 +63,13 @@ path, using the same `LLAMA_SERVER_URL` setting as `extract_arch.py`.
 import argparse
 import ast
 import builtins
+import io
 import json
 import os
 import pprint
 import re
 import sys
+import tokenize
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -566,6 +569,38 @@ def _rename_target(ctx, method, param_names, returns):
     return None
 
 
+def _read_one_target(ctx, method, param_names, returns):
+    """`(repo_class, repo_method)` that already reads one record by key.
+
+    A service `read_book_by_id(book_id) -> Book | None` is the repository's
+    `read_one(book_id)` under another name; the verbs differ in shape
+    (`read_one` has no noun), so `_rename_target` cannot pair them. Same
+    normalized parameters and return type, and a mechanical read-one target:
+    delegating into a guard or a stub would move the refusal, not implement
+    the method.
+    """
+    for repo in ctx["repositories"]:
+        holder = repo.get("interface_name") or repo.get("entity")
+        cls = codegen.sanitize(holder, "Repository")
+        for candidate in repo.get("methods") or []:
+            if not isinstance(candidate, dict) or not candidate.get("name"):
+                continue
+            strategy, _ = codegen.plan_method(
+                candidate, _match_entry(ctx, holder, candidate["name"]),
+                ctx["entity_names"])
+            if strategy != "crud:read_one":
+                continue
+            candidate_params = sorted(
+                normalize(p.get("name") or "")
+                for p in candidate.get("params") or [] if isinstance(p, dict))
+            if candidate_params != sorted(param_names):
+                continue
+            if normalize(_return_of(candidate, ctx["entity_names"])) != returns:
+                continue
+            return (cls, candidate)
+    return None
+
+
 def _realized_delegate(ctx, service_name, method, params, returns, delegate):
     """Same-name delegation past a non-mechanical service plan — when safe.
 
@@ -1022,6 +1057,14 @@ def _select_body(params, entity, model_cls, field_names, table="self.ENTITY"):
     return lines
 
 
+def _names_primary_key(ctx, entity, field_names, param):
+    """True when `param` resolves to the entity's primary-key field."""
+    primary = {name for name, field in fields_of(ctx, entity)
+               if field.get("primary_key")}
+    matched = codegen.match_param(field_names, param)
+    return bool(matched) and matched[0] in primary
+
+
 def _update_body(ctx, method, params, entity, model_cls, field_names, err):
     entity_param, scalars = _entity_params(params, ctx["entity_names"])
     if not scalars:
@@ -1035,7 +1078,13 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
         lines += ["if len(found) != 1:",
                   f"    raise {err}(f\"{entity} update matched {{len(found)}} records\")"]
     else:
-        lines = _criteria_block(scalars, field_names)
+        # The parameters that name the record's key identify it; every other
+        # one is the change. Looking the record up by the new values too made
+        # `update(book_id=1, available_copies=0)` search for a book that
+        # already has zero copies and refuse the last borrow.
+        keys = [(raw, ident) for raw, ident in scalars
+                if _names_primary_key(ctx, entity, field_names, raw)]
+        lines = _criteria_block(keys or scalars, field_names)
         lines += ["found = self._store.select(self.ENTITY, criteria)",
                   "if len(found) != 1:",
                   f"    raise {err}(f\"{entity} update matched {{len(found)}} records\")"]
@@ -1110,6 +1159,10 @@ def emit_services(ctx, repo_index, stats):
              "        return actual is not None and actual >= expected",
              '    if operator == "le":',
              "        return actual is not None and actual <= expected",
+             '    if operator == "gt":',
+             "        return actual is not None and actual > expected",
+             '    if operator == "lt":',
+             "        return actual is not None and actual < expected",
              '    raise ValueError(f"unknown operator {operator!r}")',
              ""]
     port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
@@ -1148,6 +1201,11 @@ def emit_services(ctx, repo_index, stats):
                     ctx, method,
                     [normalize(raw) for raw, _, _ in params],
                     normalize(returns))
+                if renamed is None and strategy == "crud:read_one":
+                    renamed = _read_one_target(
+                        ctx, method,
+                        [normalize(raw) for raw, _, _ in params],
+                        normalize(returns))
                 if renamed is not None:
                     target_cls, target_method = renamed
                     tname = codegen.sanitize(target_method["name"], "method")
@@ -2016,6 +2074,15 @@ def _repo_threshold_body(entity, model_cls, field_types, method, fname, slots):
     if "overdue" in normalize(fname) and "status" in field_types:
         lines.append("    if str(record.get('status') or '').lower() == 'returned':")
         lines.append("        continue")
+    return_field = next((name for name in field_types
+                         if normalize(name) == "returndate"), None)
+    if "overdue" in normalize(fname) and return_field is not None:
+        # "Overdue" means two predicates: the due date has passed *and* the
+        # loan has not been returned. THRESHOLD_SCAN names only the date
+        # comparison, so the null-return half is emitted here; without it a
+        # returned-but-late record would be reported as still overdue.
+        lines.append(f"    if record.get({return_field!r}) is not None:")
+        lines.append("        continue")
     if dated:
         lines.append(f"    key = str(record.get({field!r}) or '')[:10]")
         lines.append(f"    hit = key {symbol} str(bound)[:10]")
@@ -2347,7 +2414,15 @@ def _leaf_scan(ctx, bindings, stats):
         cname = command["name"]
         subs = [s for s in (command.get("subcommands") or [])
                 if isinstance(s, dict) and s.get("name")]
-        for sname in ([None] if not subs else [s["name"] for s in subs]):
+        if not subs:
+            leaf_names = [None]
+        else:
+            # A recognized action group may also expose its own leaf (for
+            # example `return --loan-id`) beside nested commands. The binding
+            # phase adds that parent key only when the group has an action.
+            leaf_names = ([None] if bindings.get((cname, None)) is not None else [])
+            leaf_names.extend(s["name"] for s in subs)
+        for sname in leaf_names:
             plans = _option_plans(codegen.leaf_options(invocation, cname, sname),
                                   stats)
             destinations = [(plan["dest"], plan["flags"][0],
@@ -2416,7 +2491,12 @@ def _click_commands(invocation, leaves):
             leaf = leaf_index.get((cname, sname)) or {}
             children[sname] = {"binding": (cname, sname),
                                "plans": leaf.get("plans") or []}
-        tree[cname] = {"subcommands": children}
+        group = {"subcommands": children}
+        parent = leaf_index.get((cname, None))
+        if parent is not None:
+            group["binding"] = (cname, None)
+            group["plans"] = parent.get("plans") or []
+        tree[cname] = group
     return tree
 
 
@@ -2448,7 +2528,16 @@ def _click_cli_tail(leaves, invocation, stats):
              "",
              "def _make_command(name, spec):",
              "    if 'subcommands' in spec:",
-             "        group = click.Group(name)",
+             "        params = [_make_option(dict(plan, required=False))",
+             "                  for plan in spec.get('plans', [])]",
+             "        callback = None",
+             "        if 'binding' in spec:",
+             "            def callback(ctx, **kwargs):",
+             "                if ctx.invoked_subcommand is None:",
+             "                    return _dispatch(spec['binding'], kwargs, ctx.obj)",
+             "            callback = click.pass_context(callback)",
+             "        group = click.Group(name, params=params, callback=callback,",
+             "                            invoke_without_command=('binding' in spec))",
              "        for child_name, child in spec['subcommands'].items():",
              "            group.add_command(_make_command(child_name, child))",
              "        return group",
@@ -2473,11 +2562,15 @@ def _click_cli_tail(leaves, invocation, stats):
              "        if field_name in assembled:",
              "            continue  # built from its sibling fields, not from argv",
              "        dest = argv.get(field_name)",
-             "        if dest is None or present.get(_normalize(dest)) is None:",
-             "            if required:",
+             "        given = present.get(_normalize(dest)) if dest is not None else None",
+             "        # An absent no-value flag parses as False: it was not given, so the",
+             "        # method's own default applies (`member list` without --active-only",
+             "        # lists everyone, not the inactive).",
+             "        if given is None or given is False:",
+             "            if required and given is None:",
              "                raise ValueError(f\"missing required field {field_name!r} for {action!r}\")",
              "            continue",
-             "        value = _transform(kind, present[_normalize(dest)], field_name)",
+             "        value = _transform(kind, given, field_name)",
              "        if targets.get(target_param) is not None:",
              "            grouped.setdefault(target_param, {})[field_name] = value",
              "        else:",
@@ -2783,6 +2876,15 @@ def emit_cli(ctx, bindings, stats):
             lines.append("    p_" + cvar + ".set_defaults(_binding=" + repr((cname, None)) + ")")
         else:
             lines.append(f"    p_{cvar} = sub.add_parser({cname!r})")
+            parent_leaf = leaf_index.get((cname, None))
+            if parent_leaf is not None:
+                # Parent options must be optional while parsing a child path;
+                # the adapter completeness check enforces them only when the
+                # parent action itself runs.
+                for plan in parent_leaf.get("plans", []):
+                    group_plan = dict(plan, required=False)
+                    lines.append(_render_plan("    ", f"p_{cvar}", group_plan))
+                lines.append("    p_" + cvar + ".set_defaults(_parent_binding=" + repr((cname, None)) + ")")
             lines.append(f"    sub_{cvar} = p_{cvar}.add_subparsers(dest='subcommand')")
             for item in subs:
                 sname = item["name"]
@@ -2808,11 +2910,15 @@ def emit_cli(ctx, bindings, stats):
               "        if field_name in assembled:",
               "            continue  # built from its sibling fields, not from argv",
               "        dest = argv.get(field_name)",
-              "        if dest is None or present.get(_normalize(dest)) is None:",
-              "            if required:",
+              "        given = present.get(_normalize(dest)) if dest is not None else None",
+              "        # An absent no-value flag parses as False: it was not given, so the",
+              "        # method's own default applies (`member list` without --active-only",
+              "        # lists everyone, not the inactive).",
+              "        if given is None or given is False:",
+              "            if required and given is None:",
               "                raise ValueError(f\"missing required field {field_name!r} for {action!r}\")",
               "            continue",
-              "        value = _transform(kind, present[_normalize(dest)], field_name)",
+              "        value = _transform(kind, given, field_name)",
               "        if targets.get(target_param) is not None:",
               "            grouped.setdefault(target_param, {})[field_name] = value",
               "        else:",
@@ -2855,7 +2961,8 @@ def emit_cli(ctx, bindings, stats):
               "",
               "def dispatch(parser, args, deps):",
               "    \"\"\"Run one parsed command against shared dependencies.\"\"\"",
-              "    binding = getattr(args, '_binding', None)",
+              "    binding = (getattr(args, '_binding', None)",
+              "               or getattr(args, '_parent_binding', None))",
               "    if binding is None:",
               "        parser.print_usage()",
               "        return 2",
@@ -2864,7 +2971,8 @@ def emit_cli(ctx, bindings, stats):
               "        print(f\"no adapter bound for {' '.join(binding)} — not implemented\")",
               "        return 1",
               "    values = {key: value for key, value in vars(args).items()",
-              "              if key not in ('command', 'subcommand', '_binding', 'db')}",
+              "              if key not in ('command', 'subcommand', '_binding',",
+              "                             '_parent_binding', 'db')}",
               "    choice, present = _choose(bound, values)",
               "    trouble = _incomplete(choice, bound, present)",
               "    if trouble:",
@@ -4459,8 +4567,12 @@ def _contract_lines(contract):
             error = item.get("error")
             raise_when = item.get("raise_when")
             if error and raise_when in ("true", "false"):
+                guard = (f"if {check}: raise {error}(...)"
+                         if raise_when == "true"
+                         else f"if not ({check}): raise {error}(...)")
                 lines.append(
-                    f"    - raise `{error}` when `{check}` is {raise_when}")
+                    f"    - raise `{error}` when `{check}` is {raise_when}; "
+                    f"write exactly `{guard}`")
             else:
                 suffix = f"; otherwise raise `{error}`" if error else ""
                 lines.append(f"    - `{check}`{suffix}")
@@ -4531,6 +4643,24 @@ def _contract_lines(contract):
                 lines.append(
                     f"    - save the changed {noun} with `{write}(...)`")
             index = cursor
+    reads = contract.get("reads") or []
+    if reads:
+        lines.append("  reads:")
+        for item in reads:
+            via = f" (related through `{item['via']}`)" if item.get("via") \
+                else ""
+            lines.append(
+                f"    - read `{item['entity']}.{item['field']}` from the "
+                f"`{item['entity']}` records{via}; matching against the "
+                f"foreign key alone is wrong")
+    derives = contract.get("derives") or []
+    if derives:
+        lines.append("  derived values (in memory only):")
+        for item in derives:
+            lines.append(
+                f"    - every returned record carries `{item['target']}` = "
+                f"{item['value']!r}: set it on the returned objects and do "
+                "not save it (no `update` call)")
     order = contract.get("order") or []
     if order:
         lines.append("  order: " + " -> ".join(f"`{step}`" for step in order))
@@ -4640,6 +4770,53 @@ def _field_map(text):
     return mapping
 
 
+def _call_owner(node, current_cls=None):
+    """The class whose method `node` calls, when the receiver names one.
+
+    Service bodies call `self._repos['LoanRepository'].read_one(...)`; the
+    repository key is the owner. A plain `self.read_one(...)` belongs to the
+    module's own class. When neither is available the caller falls back to a
+    method-name lookup.
+    """
+    if (isinstance(node, ast.Subscript)
+            and isinstance(node.value, ast.Attribute)
+            and node.value.attr == "_repos"):
+        index = node.slice
+        if isinstance(index, ast.Constant) and isinstance(index.value, str):
+            return index.value
+    if isinstance(node, ast.Name) and node.id == "self":
+        return current_cls
+    return None
+
+
+def _method_returns(*texts):
+    """`({(owner, method): annotation}, {method: annotation})` from source.
+
+    Repository interfaces share method names (`read_one` exists on every
+    repository), so a bare name cannot say whether `read_one` returns a Book,
+    a Member or a Loan. The owner/method key is exact; the name key is only the
+    fallback for source that has no class context.
+    """
+    by_owner, by_name = {}, {}
+    for text in texts:
+        if not text:
+            continue
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+            for item in node.body:
+                if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    continue
+                annotation = ast.unparse(item.returns) if item.returns else ""
+                by_owner[(node.name, item.name)] = annotation
+                by_name.setdefault(item.name, annotation)
+    return by_owner, by_name
+
+
 def _target_names(target):
     """The plain names a comprehension target binds (`for k, v in ...`)."""
     if isinstance(target, ast.Name):
@@ -4653,7 +4830,7 @@ def _target_names(target):
 
 
 def _body_complaints(body, info, module_text, references_text, files,
-                     requirement="", contract=None):
+                     requirement="", contract=None, judge=None):
     """The contract violations the refusal regexes cannot see.
 
     The prompt's API section is a contract: it lists each model's fields,
@@ -4720,6 +4897,24 @@ def _body_complaints(body, info, module_text, references_text, files,
              | set(bound) | set(dir(builtins)))
     found = []
     text = "\n".join(body)
+    unresolved_comment = re.compile(
+        r"\b(?:TODO|FIXME|XXX)\b"
+        r"|\b(?:this|that|the call|the result|the expression)\s+"
+        r"(?:is|was)\s+(?:incorrect|wrong|invalid)\b"
+        r"|\b(?:wrong|incorrect)\s+(?:field|method|call|value|result)\b"
+        r"|\b(?:should be fixed|needs? to be fixed|must be corrected)\b",
+        re.I)
+    try:
+        comments = [token.string for token in tokenize.generate_tokens(
+            io.StringIO(source).readline) if token.type == tokenize.COMMENT]
+    except (IndentationError, tokenize.TokenError):
+        comments = []  # the parser above already reports malformed bodies
+    for comment in comments:
+        if unresolved_comment.search(comment):
+            found.append(
+                "contains an unresolved reasoning comment; resolve the note "
+                "in code or remove it before accepting the body")
+            break
     terminal = (ast.Return, ast.Raise, ast.Break, ast.Continue)
     lines = source.splitlines()
     for node in ast.walk(tree):
@@ -4754,12 +4949,9 @@ def _body_complaints(body, info, module_text, references_text, files,
     for parent in ast.walk(tree):
         for child in ast.iter_child_nodes(parent):
             parents[child] = parent
-    returns = {}
-    for source_text in (module_text, references_text or ""):
-        for match in re.finditer(r"def (\w+)\([^)]*\)\s*->\s*([^:]+):",
-                                 source_text):
-            returns.setdefault(match.group(1), match.group(2))
-    typed, read_names = {}, set()
+    owner_returns, returns = _method_returns(
+        module_text, references_text or "")
+    typed, sequence_typed, read_names = {}, {}, set()
     for node in ast.walk(tree):
         if not (isinstance(node, ast.Assign) and len(node.targets) == 1
                 and isinstance(node.targets[0], ast.Name)
@@ -4768,17 +4960,162 @@ def _body_complaints(body, info, module_text, references_text, files,
         name = node.targets[0].id
         func = node.value.func
         cls = None
+        sequence_cls = None
         if (isinstance(func, ast.Attribute)
                 and isinstance(func.value, ast.Name)
                 and func.value.id == "models"
                 and func.attr in fields):
             cls = func.attr
-        elif isinstance(func, ast.Attribute) and func.attr in returns:
-            cls = _direct_model(returns[func.attr])
-            if cls and not func.attr.startswith(("create_", "update_")):
+        elif isinstance(func, ast.Attribute):
+            owner = _call_owner(func.value, info.get("cls"))
+            annotation = owner_returns.get((owner, func.attr)) if owner else None
+            if annotation is None:
+                annotation = returns.get(func.attr)
+            cls = _direct_model(annotation or "")
+            sequence_cls = (
+                _first_model(annotation or "")
+                if re.search(r"\b(?:List|list|Set|set|Tuple|tuple|Iterable|"
+                             r"Iterator|Sequence)\s*\[", annotation or "")
+                else None)
+            if cls and not (func.attr in ("create", "update")
+                            or func.attr.startswith(("create_", "update_"))):
                 read_names.add(name)
         if cls:
             typed[name] = cls
+        elif sequence_cls:
+            sequence_typed[name] = sequence_cls
+
+    def expression_model(expression):
+        """The model class carried by an object or iterable expression."""
+        if isinstance(expression, ast.Name):
+            return typed.get(expression.id) or sequence_typed.get(expression.id)
+        if isinstance(expression, (ast.ListComp, ast.SetComp,
+                                   ast.GeneratorExp)):
+            return expression_model(expression.elt)
+        if isinstance(expression, ast.Call):
+            func = expression.func
+            if (isinstance(func, ast.Attribute)
+                    and isinstance(func.value, ast.Name)
+                    and func.value.id == "models"
+                    and func.attr in fields):
+                return func.attr
+            if isinstance(func, ast.Attribute):
+                owner = _call_owner(func.value, info.get("cls"))
+                annotation = owner_returns.get((owner, func.attr)) if owner else None
+                if annotation is None:
+                    annotation = returns.get(func.attr)
+                return _first_model(annotation or "")
+        return None
+
+    # Retain the element model for local list/set/generator comprehensions so
+    # ``set(matches)`` is checked just like ``set(book for book in books)``.
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, (ast.ListComp, ast.SetComp,
+                                            ast.GeneratorExp))):
+            continue
+        model = expression_model(node.value.elt)
+        if model:
+            sequence_typed[node.targets[0].id] = model
+
+    # A list filled with `.append(models.X(...))` carries X too: the live
+    # search body built `results` that way and deduplicated it with
+    # `dict.fromkeys(results)`, which hashes every model.
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "append"
+                and isinstance(node.func.value, ast.Name) and node.args):
+            model = expression_model(node.args[0])
+            if model:
+                sequence_typed.setdefault(node.func.value.id, model)
+
+    def comprehension_model(comprehension, member):
+        """The model a comprehension member carries: a loop variable takes
+        the element model of what it iterates."""
+        if isinstance(member, ast.Name):
+            for generator_ in comprehension.generators:
+                if isinstance(generator_.target, ast.Name) \
+                        and generator_.target.id == member.id:
+                    return expression_model(generator_.iter)
+        return expression_model(member)
+
+    advice = ("; use a stable key such as the model ID and return the model "
+              "objects")
+    for node in ast.walk(tree):
+        label = None
+        if isinstance(node, ast.Call) and node.args:
+            func = node.func
+            if isinstance(func, ast.Name) and func.id in ("set", "frozenset"):
+                label = f"{func.id}()"
+            elif (isinstance(func, ast.Attribute) and func.attr == "fromkeys"
+                    and isinstance(func.value, ast.Name)
+                    and func.value.id in ("dict", "OrderedDict")):
+                label = f"{func.value.id}.fromkeys()"
+            if label:
+                model = expression_model(node.args[0])
+                if model:
+                    found.append(
+                        f"uses {label} to deduplicate mutable `{model}` "
+                        f"models" + advice)
+        elif isinstance(node, (ast.SetComp, ast.DictComp)):
+            member = node.elt if isinstance(node, ast.SetComp) else node.key
+            model = comprehension_model(node, member)
+            if model:
+                found.append(
+                    (f"builds a set of mutable `{model}` models"
+                     if isinstance(node, ast.SetComp)
+                     else f"keys a dict by mutable `{model}` models")
+                    + advice)
+    declared_annotation = _return_annotation(info)
+    declared_model = _declared_return(info)
+    declared_collection = bool(re.search(
+        r"\b(?:List|list|Set|set|Tuple|tuple|Iterable|Iterator|Sequence)\s*\[",
+        declared_annotation))
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Return) or node.value is None:
+            continue
+        value = node.value
+        if declared_collection and isinstance(value, ast.Name) \
+                and value.id in typed:
+            found.append(
+                f"returns one `{typed[value.id]}` from a method declared "
+                f"`-> {declared_annotation}`; the return annotation requires "
+                "a collection")
+        elif declared_collection and isinstance(value, ast.Call):
+            func = value.func
+            annotation = None
+            if (isinstance(func, ast.Attribute)
+                    and isinstance(func.value, ast.Name)
+                    and func.value.id == "models"
+                    and func.attr in fields):
+                annotation = f"models.{func.attr}"
+            elif isinstance(func, ast.Attribute):
+                owner = _call_owner(func.value, info.get("cls"))
+                annotation = owner_returns.get((owner, func.attr)) if owner else None
+                if annotation is None:
+                    annotation = returns.get(func.attr)
+            if annotation and _direct_model(annotation):
+                found.append(
+                    f"returns one `{_direct_model(annotation)}` from a method "
+                    f"declared `-> {declared_annotation}`; the return "
+                    "annotation requires a collection")
+        elif (not declared_collection and declared_model
+              and isinstance(value, (ast.List, ast.Tuple, ast.Set,
+                                     ast.ListComp, ast.SetComp,
+                                     ast.GeneratorExp))):
+            found.append(
+                f"returns a collection from a method declared `-> "
+                f"{declared_annotation}`; the return annotation requires "
+                f"one `{declared_model}` or None")
+        elif (not declared_collection and declared_model
+              and isinstance(value, ast.Name)
+              and value.id in sequence_typed):
+            found.append(
+                f"returns a collection of `{sequence_typed[value.id]}` from a "
+                f"method declared `-> {declared_annotation}`; the return "
+                f"annotation requires one `{declared_model}` or None")
     seen = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Attribute) \
@@ -4790,6 +5127,7 @@ def _body_complaints(body, info, module_text, references_text, files,
                 found.append(
                     f"`{node.value.id}.{node.attr}`: {cls} has no field "
                     f"`{node.attr}` (fields: {', '.join(fields[cls])})")
+    found.extend(_date_assignment_complaints(tree))
     mutations = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
@@ -4807,7 +5145,8 @@ def _body_complaints(body, info, module_text, references_text, files,
     for node in ast.walk(tree):
         if not (isinstance(node, ast.Call)
                 and isinstance(node.func, ast.Attribute)
-                and node.func.attr.startswith("update_")):
+                and (node.func.attr == "update"
+                     or node.func.attr.startswith("update_"))):
             continue
         for arg in list(node.args) + [kw.value for kw in node.keywords]:
             for inner in ast.walk(arg):
@@ -4822,7 +5161,8 @@ def _body_complaints(body, info, module_text, references_text, files,
     writes = [node for node in ast.walk(tree)
               if (isinstance(node, ast.Call)
                   and isinstance(node.func, ast.Attribute)
-                  and node.func.attr.startswith("create_")
+                  and (node.func.attr == "create"
+                       or node.func.attr.startswith("create_"))
                   and not _in_nested_function(node, parents))]
     raises = [node for node in ast.walk(tree)
               if isinstance(node, ast.Raise)
@@ -4902,7 +5242,13 @@ def _body_complaints(body, info, module_text, references_text, files,
                     continue
                 func = assign.value.func
                 method = func.attr if isinstance(func, ast.Attribute) else ""
-                actual = _first_model(returns.get(method, ""))
+                owner = (_call_owner(func.value, info.get("cls"))
+                         if isinstance(func, ast.Attribute) else None)
+                annotation = (owner_returns.get((owner, method))
+                              if owner else None)
+                if annotation is None:
+                    annotation = returns.get(method, "")
+                actual = _first_model(annotation)
                 if actual and actual != declared:
                     key = (name, method, actual)
                     if key not in reported:
@@ -4912,7 +5258,8 @@ def _body_complaints(body, info, module_text, references_text, files,
                             f"(a {actual}) but the method is declared "
                             f"`-> models.{declared}`")
                     break
-    found.extend(_contract_complaints(tree, contract))
+    found.extend(_contract_complaints(
+        tree, contract, judge, "\n".join(body)))
     found += _keyword_call_complaints(tree, references_text)
     found += _store_operator_complaints(tree)
     return found
@@ -4950,13 +5297,56 @@ def _assignment(node):
     return [], None
 
 
+def _date_assignment_complaints(tree):
+    """Reject an integer expression stored as a date.
+
+    `due_date=book.published_year + 10` compiles and then fails at the first
+    `.isoformat()`; a date field accepts a date, a datetime, an ISO string or
+    `None`, and arithmetic only makes sense with `datetime.timedelta`.
+    """
+    found = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        for keyword in node.keywords:
+            name = keyword.arg or ""
+            if not (name.endswith(("_date", "_time"))
+                    or name in ("date", "time")):
+                continue
+            value = keyword.value
+            if isinstance(value, ast.Constant) and value.value is None:
+                continue
+            bad = (isinstance(value, ast.Constant)
+                   and isinstance(value.value, (int, float)))
+            if isinstance(value, ast.BinOp):
+                timedelta = any(
+                    isinstance(inner, ast.Attribute)
+                    and inner.attr == "timedelta"
+                    for inner in ast.walk(value))
+                bad = bad or not timedelta
+            if bad:
+                found.append(
+                    f"sets `{name}` from an arithmetic expression that is not "
+                    "a date; use a date/datetime or `datetime.timedelta`")
+    return found
+
+
 def _field_writes(tree, field):
-    """Every assignment whose target writes `field`, with its right-hand side."""
+    """Every write of `field`, with the expression assigned or passed.
+
+    A service saves through the repository API, so `update(return_date=...)`
+    is a write exactly as `loan.return_date = ...` is; both shapes carry the
+    value the contract checks need to see.
+    """
     writes = []
     for node in ast.walk(tree):
         targets, value = _assignment(node)
         if any(field in _target_names_of(target) for target in targets):
             writes.append((node, value))
+        if isinstance(node, ast.Call):
+            for keyword in node.keywords:
+                if keyword.arg == field:
+                    writes.append((node, keyword.value))
     return writes
 
 
@@ -5036,10 +5426,23 @@ def _repo_name(node):
     return None
 
 
+# Spellings a body reaches for when it means a supported operator.
+_OPERATOR_SYNONYMS = {"is": "eq", "==": "eq", "=": "eq", "equals": "eq",
+                      "<": "lt", ">": "gt", "<=": "le", ">=": "ge"}
+
+
 def _store_operator_complaints(tree):
-    """Reject a `select` operator the store does not implement."""
-    supported = {"eq", "ge", "le"}
-    found = []
+    """Reject a `select` operator the store does not implement.
+
+    Criteria reach `select` as a literal list or through a name the body
+    fills first (`criteria.append(('return_date', 'is', None))`); both are
+    read, because a live body used the unsupported `is` that way and the
+    store raised `unknown operator` at run time.
+    """
+    supported = set(STORE_CONTRACT.criteria_operators)
+    allowed = ", ".join(f"`{name}`" for name in
+                        STORE_CONTRACT.criteria_operators)
+    items, names = [], set()
     for node in ast.walk(tree):
         if not (isinstance(node, ast.Call)
                 and isinstance(node.func, ast.Attribute)
@@ -5053,20 +5456,51 @@ def _store_operator_complaints(tree):
         if len(node.args) < 2:
             continue
         criteria = node.args[1]
-        if not isinstance(criteria, (ast.List, ast.Tuple)):
+        if isinstance(criteria, (ast.List, ast.Tuple)):
+            items.extend(criteria.elts)
+        elif isinstance(criteria, ast.Name):
+            names.add(criteria.id)
+    if names:
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                    and isinstance(node.targets[0], ast.Name) \
+                    and node.targets[0].id in names \
+                    and isinstance(node.value, (ast.List, ast.Tuple)):
+                items.extend(node.value.elts)
+            elif isinstance(node, ast.AugAssign) \
+                    and isinstance(node.target, ast.Name) \
+                    and node.target.id in names \
+                    and isinstance(node.value, (ast.List, ast.Tuple)):
+                items.extend(node.value.elts)
+            elif isinstance(node, ast.Call) \
+                    and isinstance(node.func, ast.Attribute) \
+                    and isinstance(node.func.value, ast.Name) \
+                    and node.func.value.id in names and node.args:
+                if node.func.attr in ("append", "insert"):
+                    items.append(node.args[-1])
+                elif node.func.attr == "extend" \
+                        and isinstance(node.args[0], (ast.List, ast.Tuple)):
+                    items.extend(node.args[0].elts)
+    found = []
+    for item in items:
+        if not (isinstance(item, (ast.Tuple, ast.List))
+                and len(item.elts) >= 2):
             continue
-        for item in criteria.elts:
-            if not (isinstance(item, (ast.Tuple, ast.List))
-                    and len(item.elts) >= 2):
-                continue
-            operator = item.elts[1]
-            if isinstance(operator, ast.Constant) \
-                    and isinstance(operator.value, str) \
-                    and operator.value not in supported:
-                found.append(
-                    f"calls `self._store.select` with operator "
-                    f"`{operator.value}`; the store supports only `eq`, "
-                    "`ge`, `le`")
+        operator = item.elts[1]
+        if isinstance(operator, ast.Constant) \
+                and isinstance(operator.value, str) \
+                and operator.value not in supported:
+            message = (f"calls `self._store.select` with operator "
+                       f"`{operator.value}`; the store supports only "
+                       f"{allowed}")
+            if operator.value in _OPERATOR_SYNONYMS:
+                message += (f"; write `{_OPERATOR_SYNONYMS[operator.value]}` "
+                            "(a null test is `eq` with `None`)"
+                            if _OPERATOR_SYNONYMS[operator.value] == "eq"
+                            else f"; write "
+                                 f"`{_OPERATOR_SYNONYMS[operator.value]}`")
+            if message not in found:
+                found.append(message)
     return found
 
 
@@ -5203,7 +5637,8 @@ def _keyword_call_complaints(tree, references_text):
         for keyword in node.keywords:
             if keyword.arg is None or keyword.arg in params:
                 continue
-            declared = (f"`{params[0]}`" if len(params) == 1
+            declared = ("none: it takes no parameters" if not params
+                        else f"`{params[0]}`" if len(params) == 1
                         else "one of " + ", ".join(
                             f"`{name}`" for name in params))
             suggestion = ""
@@ -5363,7 +5798,7 @@ def _guard_satisfies(guard, expected, target, assigned):
                for value in assigned)
 
 
-def _raise_when_complaints(tree, precondition):
+def _raise_when_complaints(tree, precondition, judge=None, body_text=""):
     """Check a comparison's polarity, when the contract states its trigger.
 
     `raise_when` says whether the named error fires when the condition is
@@ -5389,10 +5824,20 @@ def _raise_when_complaints(tree, precondition):
             f"{'false' if precondition['raise_when'] == 'true' else 'true'}; "
             f"the confirmed contract raises it when the condition is "
             f"{precondition['raise_when']}"]
+    # A guard that is not the contract's text may still mean the same thing
+    # (a loop for `any(...)`, a local for a repeated read). The structural
+    # comparison cannot tell; the judge, when there is one, reads the whole
+    # body against the confirmed condition. Anything but a clear yes refuses.
+    reason = None
+    if judge is not None:
+        equivalent, reason = judge(precondition, body_text)
+        if equivalent:
+            return []
     return [
         f"raises `{error}` but not when `{precondition['check']}` is "
         f"{precondition['raise_when']}; the confirmed contract requires "
-        "that branch"]
+        "that branch"
+        + (f" (equivalence check: {reason})" if reason else "")]
 
 
 def _precondition_order_complaints(tree, contract):
@@ -5447,7 +5892,7 @@ def _precondition_order_complaints(tree, contract):
     return found
 
 
-def _contract_complaints(tree, contract):
+def _contract_complaints(tree, contract, judge=None, body_text=""):
     """Check the human-confirmed method contract, using only its vocabulary.
 
     Every target, call, error and field below comes from the record. This
@@ -5479,8 +5924,7 @@ def _contract_complaints(tree, contract):
                         and isinstance(node.op, wanted):
                     matched = True
                     break
-                if isinstance(node, ast.Assign) \
-                        and isinstance(value, ast.BinOp) \
+                if isinstance(value, ast.BinOp) \
                         and isinstance(value.op, wanted) \
                         and (_mentions_field(value.left, field)
                              or _mentions_field(value.right, field)):
@@ -5498,7 +5942,7 @@ def _contract_complaints(tree, contract):
                     f"`{effect['write']}(...)`, but the body never calls "
                     f"`{write}`")
         if effect.get("op") == "set" and str(effect.get("value", "")).lower() \
-                == "now" and "now" not in calls:
+                == "now" and not ({"now", "today", "utcnow"} & calls):
             found.append(
                 f"the confirmed contract sets `{target}` to `now`, but the "
                 "body never reads the current time")
@@ -5523,6 +5967,20 @@ def _contract_complaints(tree, contract):
                 f"the confirmed contract creates `{create.get('class') or 'a record'}` "
                 f"through `{call}(...)`, but the body never calls "
                 f"`{_last_name(call)}`")
+        elif call:
+            # One confirmed create is one record: a second call stores a
+            # duplicate (a live body created the member twice, and the
+            # unique email refused the second at the first `member add`).
+            times = sum(1 for node in ast.walk(tree)
+                        if isinstance(node, ast.Call)
+                        and isinstance(node.func, ast.Attribute)
+                        and node.func.attr == _last_name(call))
+            if times > 1:
+                found.append(
+                    f"the confirmed contract creates one "
+                    f"`{create.get('class') or 'record'}` through "
+                    f"`{call}(...)`, but the body calls `{_last_name(call)}` "
+                    f"{times} times")
 
     for precondition in contract.get("preconditions") or []:
         error = precondition.get("error")
@@ -5531,9 +5989,50 @@ def _contract_complaints(tree, contract):
                 f"the confirmed contract requires `{precondition.get('check')}` "
                 f"to raise `{error}`, but the body never raises it")
         if error and precondition.get("raise_when") in ("true", "false"):
-            found.extend(_raise_when_complaints(tree, precondition))
+            found.extend(_raise_when_complaints(
+                tree, precondition, judge, body_text))
 
     found.extend(_precondition_order_complaints(tree, contract))
+
+    constants = {node.value for node in ast.walk(tree)
+                 if isinstance(node, ast.Constant)
+                 and isinstance(node.value, str)}
+    attributes = {node.attr for node in ast.walk(tree)
+                  if isinstance(node, ast.Attribute)}
+    for read in contract.get("reads") or []:
+        entity, field = read.get("entity") or "", read.get("field") or ""
+        # The related model is reached through its repository's key
+        # (`self._repos['AuthorRepository']`) or by naming it to the store
+        # (`self._store.select("Author", ...)`); both are string constants.
+        reached = {entity, read.get("repository")} - {None, ""}
+        if not reached & constants:
+            found.append(
+                f"the confirmed contract reads `{entity}.{field}`, but the "
+                f"body never reads `{entity}`")
+        elif field not in attributes and field not in constants:
+            found.append(
+                f"the confirmed contract reads `{entity}.{field}`, but the "
+                f"body never uses its `{field}`")
+
+    keywords = {keyword.arg for node in ast.walk(tree)
+                if isinstance(node, ast.Call) for keyword in node.keywords
+                if keyword.arg}
+    for derive in contract.get("derives") or []:
+        target, value = derive.get("target") or "", derive.get("value")
+        field = _last_name(target)
+        # The value is carried by an assignment, a keyword (`replace(...,
+        # status='overdue')`) or a mapping key; the literal must appear too.
+        if not (str(value) in constants
+                and (field in attributes or field in constants
+                     or field in keywords)):
+            found.append(
+                f"the confirmed contract derives `{target}` = {value!r} on "
+                "the returned records, but the body never sets it")
+        saves = sorted(name for name in calls if name.startswith("update"))
+        if saves:
+            found.append(
+                f"the confirmed contract derives `{target}` in memory only, "
+                f"but the body calls `{saves[0]}`, which saves it")
 
     for rule in contract.get("forbid") or []:
         target, reads = rule.get("target") or "", rule.get("reads") or ""
@@ -5632,6 +6131,37 @@ def _answered(framing, llm, prompt, label):
     return result
 
 
+def _equivalence_prompt(precondition, body_text):
+    """The ask that compares one confirmed condition with a written body."""
+    error = precondition.get("error")
+    check = precondition.get("check")
+    when = precondition.get("raise_when")
+    return (
+        "You compare a human-confirmed rule with a Python method body.\n\n"
+        f"Rule: the method must raise `{error}` when this condition is "
+        f"{when}:\n    {check}\n\n"
+        "Method body (earlier lines may define the variables a guard uses; "
+        "follow them):\n```python\n" + body_text + "\n```\n\n"
+        f"Question: does the body raise `{error}` in exactly the situations "
+        "where the rule says it must, no more and no fewer? Ignore the "
+        "message text and any other checks. Answer NO if the body raises it "
+        "under a stricter, a looser or a different condition, or if you are "
+        "not sure.\n"
+        "Reply with exactly two lines:\n"
+        "VERDICT: YES or VERDICT: NO\n"
+        "REASON: one short sentence")
+
+
+def _parse_equivalence(text):
+    """`(equivalent, reason)` from a judge reply; anything unclear is no."""
+    verdict = re.search(r"VERDICT:\s*(YES|NO)\b", text or "", re.IGNORECASE)
+    reason = re.search(r"REASON:\s*(.+)", text or "", re.IGNORECASE)
+    why = reason.group(1).strip() if reason else ""
+    if verdict is None:
+        return False, "the judge gave no clear verdict"
+    return verdict.group(1).upper() == "YES", why
+
+
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                context=DEFAULT_STUB_CONTEXT, contracts=None):
     """Ask the model for the bodies the mechanical emitter refused.
@@ -5707,6 +6237,39 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
         f"by body ({framing_name})")
     rows, dumped = [], []
+    judgements, judged = {}, {}
+
+    def judge_for(label):
+        """The equivalence judge for one method's body, with its record."""
+        def judge(precondition, body_text):
+            key = (precondition.get("error"), precondition.get("check"),
+                   precondition.get("raise_when"), body_text)
+            if key not in judged:
+                try:
+                    reply = framing(
+                        llm, _equivalence_prompt(precondition, body_text),
+                        f"equivalence:{label}",
+                        temperature=FALLBACK_TEMPERATURE,
+                        seed=FALLBACK_SEED, max_new_tokens=160)
+                    if reply.truncated:
+                        verdict = (False, "the judge answer was cut off")
+                    else:
+                        verdict = _parse_equivalence(reply.text)
+                    raw = reply.text
+                except Exception as error:  # a failed judge refuses
+                    verdict, raw = (False, f"the judge failed ({error})"), None
+                judged[key] = verdict
+                judgements.setdefault(label, []).append({
+                    "error": precondition.get("error"),
+                    "condition": precondition.get("check"),
+                    "raise_when": precondition.get("raise_when"),
+                    "equivalent": verdict[0], "reason": verdict[1],
+                    "raw": raw})
+                out(f"llm: {label} equivalence of `{precondition.get('check')}`"
+                    f" -> {'YES' if verdict[0] else 'NO'} ({verdict[1]})")
+            return judged[key]
+        return judge
+
     for filename, spans in targets:
         text = files[filename]
         references = ()
@@ -5760,7 +6323,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                                         store_names, model_names, error_names)
                 problems = [refusal] if refusal else _body_complaints(
                     body, info, text, files.get("repositories.py") or "",
-                    files, requirement=requirement, contract=method_contract)
+                    files, requirement=requirement, contract=method_contract,
+                    judge=judge_for(label))
                 if _answer_continued(raw):
                     problems.insert(
                         0, "the answer continued after the body with "
@@ -5911,6 +6475,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
         files[filename] = text
     for entry in dumped:
         entry["context"] = context
+        if entry.get("label") in judgements:
+            entry["equivalence_judgements"] = judgements[entry["label"]]
     if dump_path and dumped:
         with open(dump_path, "w", encoding="utf-8") as handle:
             json.dump(dumped, handle, indent=2, ensure_ascii=False)
@@ -5972,8 +6538,8 @@ def main(argv=None):
                              "fallback (clean but empty documents) writes "
                              "generated/app.py from requirements.txt, and a "
                              "normal run fills every method body the "
-                             "mechanical emitter refused (bodies are tagged "
-                             "`llm-written`; read them before trusting them)")
+                             "mechanical emitter refused (bodies are "
+                             "provisional until behavior is verified)")
     parser.add_argument("--gui-tech", default=None,
                         help="Override the declared GUI technology (default: "
                              "the components facade declaration)")
@@ -6063,11 +6629,12 @@ def main(argv=None):
     rows = stats.get("llm_stubs") or []
     if rows:
         written = sum(1 for _label, status, _note in rows if status == "written")
-        print(f"llm: {written} of {len(rows)} refused stub(s) written by "
-              f"{os.path.basename(args.model)} — read the tagged bodies "
-              f"before trusting them")
+        print(f"llm: {written} of {len(rows)} refused stub(s) written "
+              f"provisionally by {os.path.basename(args.model)} — "
+              "behavior is not verified by syntax or contract checks")
         for label, status, note in rows:
-            word = "llm written" if status == "written" else "llm kept stub"
+            word = ("llm provisional" if status == "written"
+                    else "llm kept stub")
             print(f"  {word}: {label}{' — ' + note if note else ''}")
     if stats.get("gui_panels") is not None:
         print(f"  gui pyimgui panels: {stats['gui_panels'] or 'none'}")

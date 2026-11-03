@@ -345,12 +345,18 @@ def repair_existing(output_dir):
     models = documents.get(pipeline_module.DATA_MODELS)
     adapters = documents.get(pipeline_module.INTERACTION_ADAPTERS)
     services = documents.get(pipeline_module.SERVICE_CONTRACTS)
+    if isinstance(models, list):
+        repairs.repair_primary_key_uniqueness(models, log)
+        repairs.repair_primary_key_foreign_keys(models, log)
     if isinstance(components, dict):
         repairs.repair_missing_surface(components, requirements, models, log)
         repairs.repair_placeholder_subcommands(components, log)
         repairs.repair_flat_command_duplicates(components, log)
+    ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
+    if isinstance(ports, dict):
+        repairs.repair_create_missing_fields(ports, models, log)
     if isinstance(adapters, list):
-        repairs.repair_adapter_transforms(adapters, log)
+        repairs.repair_adapter_transforms(adapters, log, services)
         repairs.repair_adapter_targets(adapters, services, log)
         repairs.repair_adapter_field_names(adapters, services, models, log)
         repairs.repair_missing_adapter_flags(
@@ -654,7 +660,7 @@ def report_verdict(output_dir, out_fn=print, reviewed=True):
 
 def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
               tie_runner=None, alias_runner=None, surface_runner=None,
-              slot_runner=None, reviewed=True):
+              slot_runner=None, contract_runner=None, reviewed=True):
     """Probe, review, resume — until clean, stuck, or out of rounds.
 
     `rerun(start)` performs one model round from `start` (raising on crash).
@@ -668,10 +674,15 @@ def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
     name = os.path.basename(str(output_dir).rstrip(os.sep))
     current = None
     for _ in range(max(1, max_rounds)):
-        blockers = chat_flow(output_dir, out_fn=out_fn,
-                             tie_runner=tie_runner, alias_runner=alias_runner,
-                             surface_runner=surface_runner,
-                             slot_runner=slot_runner)
+        flow_kwargs = {
+            "tie_runner": tie_runner,
+            "alias_runner": alias_runner,
+            "surface_runner": surface_runner,
+            "slot_runner": slot_runner,
+        }
+        if contract_runner is not None:
+            flow_kwargs["contract_runner"] = contract_runner
+        blockers = chat_flow(output_dir, out_fn=out_fn, **flow_kwargs)
         if not blockers:
             report_verdict(output_dir, out_fn=out_fn, reviewed=reviewed)
             return 0

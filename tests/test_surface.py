@@ -467,6 +467,55 @@ class DeadOptionWithoutRouteTests(unittest.TestCase):
             self.assertEqual(records[0]["flag"], "author")
             self.assertEqual(review_surface.collect_routes(out)[0], [])
 
+    def test_a_missing_foreign_key_is_shown_as_an_upstream_gap_not_a_drop(self):
+        body = {
+            "components": components([
+                {"name": "book", "options": [], "subcommands": [
+                    {"name": "add", "options": [
+                        {"name": "--author-id", "type": "int",
+                         "required": True, "default": None}]}]}]),
+            "data_models": [
+                {"name": "Book", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "title", "type": "str"}]},
+                {"name": "Author", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "name", "type": "str"}]}],
+            "interaction_adapters": [{
+                "action_name": "librarybookadd",
+                "target_service": "BookRepository", "target_method": "create",
+                "input_fields": [{"field_name": "title", "target_param": "title",
+                                  "transform": "DIRECT", "required": True}]}],
+            "persistence_ports": {"repositories": [{
+                "entity": "Book", "interface_name": "BookRepository",
+                "methods": [{"name": "create", "params": [
+                    {"name": "title", "type": "str"}],
+                    "return_type": "Book"}]}], "entity_mappings": []},
+            "service_contracts": [], "pattern_matches": [], "errors": [],
+            "intentions": [], "invariants": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)
+            for name, value in body.items():
+                (path / f"{name}.json").write_text(
+                    json.dumps({name: value}), encoding="utf-8")
+            (path / "requirements.txt").write_text(
+                "Run `library book add --author-id`.", encoding="utf-8")
+            out = str(path)
+            questions, _context = review_surface.collect_routes(out)
+            self.assertEqual(len(questions), 1)
+            self.assertEqual(questions[0]["kind"], "upstream-gap")
+            shown = "\n".join(review_surface.describe_route(1, 1,
+                                                              questions[0]))
+            self.assertIn("Repair the model, repository signature, and adapter", shown)
+            self.assertNotIn("drop removes the flag", shown)
+            lines = []
+            self.assertEqual(review_surface.run_review(
+                out, input_fn=lambda _prompt: self.fail("must not ask to drop"),
+                out_fn=lines.append), (0, 0))
+            self.assertTrue(any("UPSTREAM GAP" in line for line in lines))
+            self.assertFalse((path / "surface_decisions.json").exists())
+
 
 def writes_family_fixture(directory, verb):
     """One command whose service offers creates, reads and deletes."""

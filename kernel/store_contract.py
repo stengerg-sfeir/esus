@@ -30,7 +30,7 @@ SQLITE_STORE = StoreContract(
     name="sqlite",
     template="codegen_store_template.py",
     read_shape="plain records (dicts)",
-    criteria_operators=("eq", "ge", "le"),
+    criteria_operators=("eq", "ge", "le", "gt", "lt"),
     text_search="case-insensitive substring",
     date_read=("restores declared `date`/`datetime` fields to "
                "`datetime.date`/`datetime.datetime` objects on read"),

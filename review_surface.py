@@ -21,6 +21,11 @@ candidate is still asked; the deterministic answer there is `drop`,
 recorded as `kind: "drop-flag"` beside the route records and applied to the
 surface.
 
+A subcommand can also repeat its own parent (`return loan --loan-id` beside
+`return --loan-id`): the model read the verb and its noun as two commands.
+When both take exactly the same flags and no requirements line names the
+pair, it is asked as a redundant subcommand; dropping it keeps the parent.
+
 Usage:
     python review_surface.py out/expenses          # ask open questions
     python review_surface.py out/expenses --list   # show open questions only
@@ -51,6 +56,8 @@ SURFACE_DECISIONS_NAME = generator.SURFACE_DECISIONS_NAME
 SURFACE_DECISIONS_KEY = generator.SURFACE_DECISIONS_KEY
 ROUTE_KIND = generator.SURFACE_ROUTE_KIND
 DROP_FLAG_KIND = "drop-flag"
+
+REDUNDANT_KIND = "redundant-sub"
 
 KEEP_PARENT = "parent"
 KEEP_SUB = "sub"
@@ -132,8 +139,43 @@ def collect_duplicates(output_dir):
                     if isinstance(s, dict) and isinstance(s.get("name"), str)],
                 "evidence": _evidence(requirements, command["name"], sub["name"]),
             })
+    for command in commands:
+        if not isinstance(command, dict) or not isinstance(command.get("name"), str):
+            continue
+        parent_flags = _flag_dests(command.get("options"))
+        if not parent_flags:
+            continue
+        for sub in command.get("subcommands") or []:
+            if not isinstance(sub, dict) or not isinstance(sub.get("name"), str):
+                continue
+            pair = (command["name"], sub["name"])
+            if pair in decided or _flag_dests(sub.get("options")) != parent_flags:
+                continue
+            if any((q["command"], q["subcommand"]) == pair for q in questions):
+                continue  # already asked as a duplicate of a top-level command
+            if _evidence(requirements, command["name"], sub["name"]):
+                continue  # the requirements name the pair: it is requested
+            questions.append({
+                "kind": "redundant",
+                "command": command["name"],
+                "subcommand": sub["name"],
+                "leaf_flags": [
+                    o.get("name") for o in (sub.get("options") or [])
+                    if isinstance(o, dict) and o.get("name")],
+                "parent_flags": [
+                    o.get("name") for o in (command.get("options") or [])
+                    if isinstance(o, dict) and o.get("name")],
+                "evidence": [],
+            })
     context = {"prompt_sha": requirements_sha(requirements)}
     return questions, context
+
+
+def _flag_dests(options):
+    """The destinations of a node's declared flags, as a set."""
+    return {dest for dest in (codegen.option_dest(option)
+                              for option in options or []
+                              if isinstance(option, dict)) if dest}
 
 
 def _evidence(requirements, command, subcommand):
@@ -317,6 +359,55 @@ def _service_entity(ctx, service):
                  normalize(repo.get("entity") or "")}
         if wanted in names:
             return repo.get("entity")
+    return None
+
+
+def _upstream_field_gap(ctx, action, dest):
+    """Explain why an ID flag is stranded by a missing model/adapter field.
+
+    A field-shaped flag such as ``--author-id`` is evidence of a broken
+    extraction when the command creates a Book and Author is a declared
+    entity. It must not be offered for deletion as if the requirement were
+    optional. The architecture needs the relation and its adapter mapping
+    first.
+    """
+    if not isinstance(dest, str) or not normalize(dest).endswith("id"):
+        return None
+    adapter = next((item for item in ctx.get("adapters") or []
+                    if isinstance(item, dict)
+                    and item.get("action_name") == action), None)
+    if not adapter:
+        return None
+    entity = _service_entity(ctx, adapter.get("target_service"))
+    if not entity:
+        return None
+    model = next((item for item in ctx.get("models") or []
+                  if isinstance(item, dict)
+                  and normalize(item.get("name")) == normalize(entity)), None)
+    if not model:
+        return None
+    fields = [field for field in model.get("fields") or []
+              if isinstance(field, dict) and field.get("name")]
+    exact = next((field for field in fields
+                  if normalize(field.get("name")) == normalize(dest)), None)
+    if exact is not None:
+        foreign_key = exact.get("foreign_key")
+        if not isinstance(foreign_key, dict):
+            return (f"'{dest}' matches {entity}.{exact['name']}, but that field "
+                    "is not declared as a foreign key")
+        if not any(normalize(field.get("field_name")) == normalize(dest)
+                   or normalize(field.get("target_param")) == normalize(dest)
+                   for field in adapter.get("input_fields") or []
+                   if isinstance(field, dict)):
+            return (f"{entity}.{exact['name']} is modeled, but the adapter "
+                    "does not pass it to the create/update method")
+        return None
+    related_prefix = re.sub(r"_?id$", "", str(dest), flags=re.I)
+    related = next((name for name in ctx.get("entity_names") or []
+                    if normalize(name) == normalize(related_prefix)), None)
+    if related and normalize(related) != normalize(entity):
+        return (f"'{dest}' names a {related} relationship for {entity}, but "
+                f"{entity}.{dest} is missing from data_models")
     return None
 
 
@@ -507,6 +598,15 @@ def collect_routes(output_dir):
         for dest, flag, kind in leaf["dead"]:
             if (where[0], where[1], dest) in decided:
                 continue
+            upstream_gap = _upstream_field_gap(ctx, base_action, dest)
+            if upstream_gap:
+                questions.append({
+                    "kind": "upstream-gap",
+                    "command": where[0], "subcommand": where[1],
+                    "flag": dest, "flag_name": flag,
+                    "upstream_gap": upstream_gap,
+                })
+                continue
             # Every dead option is a question. The family filter decides
             # which methods can implement the verb; the signature filter
             # decides which of those one flag can carry. A flag on a method
@@ -543,6 +643,18 @@ def collect_routes(output_dir):
 
 def describe_route(index, total, question):
     """The dead option, the unfiltered read it rides on, the candidates."""
+    if question.get("kind") == "upstream-gap":
+        leaf = question["command"]
+        if question.get("subcommand"):
+            leaf += f" {question['subcommand']}"
+        return [
+            f"--- architecture gap {index}/{total} ---",
+            f"UPSTREAM GAP: '{leaf} {question['flag_name']}' matches a "
+            "model relationship that the extracted model or adapter omits.",
+            f"  {question['upstream_gap']}.",
+            "  Do not drop this flag as a surface decision. Repair the model, "
+            "repository signature, and adapter mapping, then rerun readiness.",
+        ]
     leaf = question["command"]
     if question["subcommand"]:
         leaf += f" {question['subcommand']}"
@@ -608,8 +720,29 @@ def ask_route(question, input_fn=input):
     return None
 
 
+def describe_redundant(index, total, question):
+    """The subcommand, its parent, and the one flag set they share."""
+    command, sub = question["command"], question["subcommand"]
+    return [
+        f"--- question {index}/{total} ---",
+        f"REDUNDANT SUBCOMMAND: subcommand '{command} {sub}' repeats the "
+        f"flags of its parent '{command}'.",
+        f"  '{command}' flags: "
+        + (", ".join(f"'{f}'" for f in question["parent_flags"]) or "none") + ".",
+        f"  '{command} {sub}' flags: "
+        + (", ".join(f"'{f}'" for f in question["leaf_flags"]) or "none") + ".",
+        f"  no requirements line names `{command} {sub}`.",
+        "  1) keep both (no change)",
+        f"  2) keep '{command}' — drop the subcommand '{sub}'",
+        "  Deleting is the one thing no deterministic repair may do unasked;",
+        "  the probe keeps reporting whatever remains afterwards.",
+    ]
+
+
 def describe_question(index, total, question):
     """Both nodes, their flags, and what each answer removes."""
+    if question.get("kind") == "redundant":
+        return describe_redundant(index, total, question)
     lines = [
         f"--- question {index}/{total} ---",
         f"DUPLICATE NODE: subcommand '{question['command']} {question['subcommand']}' "
@@ -635,15 +768,17 @@ def describe_question(index, total, question):
 
 def ask(question, input_fn=input):
     """Pose one duplicate; return 'both', 'parent', 'sub', or None."""
+    redundant = question.get("kind") == "redundant"
     try:
-        answer = input_fn("choose 1, 2, 3, or skip: ").strip().lower()
+        answer = input_fn("choose 1, 2, or skip: " if redundant
+                          else "choose 1, 2, 3, or skip: ").strip().lower()
     except (EOFError, KeyboardInterrupt):
         return None
     if answer in ("1", "both", "keep both"):
         return KEEP_BOTH
     if answer in ("2", "parent", "top"):
         return KEEP_PARENT
-    if answer in ("3", "sub", "subcommand"):
+    if answer in ("3", "sub", "subcommand") and not redundant:
         return KEEP_SUB
     return None
 
@@ -756,9 +891,12 @@ def apply_surface_decisions(components, records, log=None, requirements_text=Non
                     if not (isinstance(s, dict) and s.get("name") == sub)]
                 applied += 1
                 if log is not None:
+                    why = ("repeating its parent's flags"
+                           if record.get("kind") == REDUNDANT_KIND
+                           else f"duplicating top-level '{sub}'")
                     log.write(
                         f"[ok] step components: dropped subcommand '{command} {sub}' "
-                        f"duplicating top-level '{sub}' (human decision)")
+                        f"{why} (human decision)")
         else:
             if any(isinstance(c, dict) and c.get("name") == sub for c in commands):
                 invocation["commands"] = [
@@ -782,6 +920,14 @@ def run_review(output_dir, input_fn=input, out_fn=print):
     if not questions:
         out_fn("no duplicated surface nodes or dead options — nothing to decide")
         return 0, 0
+    actionable = sum(1 for kind, question in questions
+                     if kind == "duplicate"
+                     or question.get("kind") != "upstream-gap")
+    if actionable == 0:
+        for number, question in enumerate(routes, start=1):
+            for line in describe_route(number, len(routes), question):
+                out_fn(line)
+        return 0, 0
     records = load_surface_decisions(output_dir)
     answered = 0
     for number, (kind, question) in enumerate(questions, start=1):
@@ -798,9 +944,13 @@ def run_review(output_dir, input_fn=input, out_fn=print):
                 "keep": keep,
                 "decided_by": "user",
             }
+            if question.get("kind") == "redundant":
+                record["kind"] = REDUNDANT_KIND
         else:
             for line in describe_route(number, len(questions), question):
                 out_fn(line)
+            if question.get("kind") == "upstream-gap":
+                continue
             picked = ask_route(question, input_fn)
             if picked is None:
                 out_fn("skipped — left open")
@@ -847,7 +997,11 @@ def run_review(output_dir, input_fn=input, out_fn=print):
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
-    out_fn(f"answered {answered} of {len(questions)}; decisions in {SURFACE_DECISIONS_NAME}")
+    if actionable != len(questions):
+        out_fn(f"answered {answered} of {actionable} review question(s); "
+               f"{len(questions) - actionable} upstream gap(s) remain visible")
+    else:
+        out_fn(f"answered {answered} of {actionable}; decisions in {SURFACE_DECISIONS_NAME}")
     return len(questions), answered
 
 

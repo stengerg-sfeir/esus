@@ -210,13 +210,13 @@ ADAPTERS_SYSTEM = (
     "declares a parameter whose name is the input field's own name, map the field to THAT "
     "parameter: a field named 'category_id' goes to a parameter named 'category_id', never into "
     "an entity object beside it, because the method has already said where the value goes. "
-    "Transforms: 'DIRECT', 'LOOKUP_ID', 'DECIMAL_TO_CENTS', 'ISO_DATE', 'CSV_LIST', 'ENUM_LOOKUP'. "
+    "Transforms: 'DIRECT', 'LOOKUP_ID', 'DECIMAL_TO_CENTS', 'ISO_DATE', 'CSV_LIST', 'ENUM_LOOKUP', 'BOOL_TO_ONE'. "
     "Choose the transform that matches the field's own name and type: 'DECIMAL_TO_CENTS' is for a "
     "money amount ('price', 'cost', 'amount', 'total', 'budget', 'limit'), never for a count, a "
     "quantity, a boolean or a description; 'CSV_LIST' is for a field that holds several values "
     "separated by commas, never for a single name, a description or a flag; 'ISO_DATE' is for a "
     "date or timestamp; 'LOOKUP_ID' is for a foreign-key identifier that must be resolved to an "
-    "entity. Set 'lookup_entity' "
+    "entity. Use 'BOOL_TO_ONE' only when a boolean presence flag supplies one for an integer threshold. Set 'lookup_entity' "
     "to an entity name when the transform is 'LOOKUP_ID', and to null for every other transform. "
     'Output strictly in English as JSON: {"interaction_adapters": [{"action_name": "...", '
     '"target_service": "...", "target_method": "...", "input_fields": [{"field_name": "...", '

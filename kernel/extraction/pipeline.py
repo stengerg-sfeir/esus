@@ -291,6 +291,7 @@ class Pipeline:
         # so the check below judges the repaired models.
         if isinstance(body, list):
             repairs.repair_primary_key_uniqueness(body, self.log)
+            repairs.repair_primary_key_foreign_keys(body, self.log)
             self.documents[DATA_MODELS] = body
         return body
 
@@ -459,6 +460,10 @@ class Pipeline:
         # method that returns `dict[str, object]` where the entity is known is a
         # defect no generation can repair without overriding the contract.
         if isinstance(body, list):
+            # A sibling class that landed inside this service's method list is
+            # not a callable; remove it before return types or patterns see it.
+            body = repairs.repair_nested_declarations(
+                body, self.log, document=SERVICE_CONTRACTS)
             self.documents[SERVICE_CONTRACTS] = return_types.repair_contract_returns(
                 body, self._entities(), self.log
             )
@@ -635,7 +640,8 @@ class Pipeline:
         # to cents, a single name read as a list — is not expressible in the
         # grammar (transform is an enum, the name is free text), so it is
         # removed here, reusing the checker's own predicate (§9.28).
-        repairs.repair_adapter_transforms(adapters, self.log)
+        repairs.repair_adapter_transforms(
+            adapters, self.log, self.documents.get(SERVICE_CONTRACTS))
         # A field mapped past a parameter of its own name — `category_id`
         # into `data` while the method declares `category_id` — is the same
         # class of defect: the field's name and the method's parameter list
@@ -681,12 +687,23 @@ class Pipeline:
         unified = interfaces.unify_repository_interfaces(
             body, self.documents.get(SERVICE_CONTRACTS), self.log
         )
+        # H can repeat the same nesting defect, and a repository H declares
+        # alone is not overwritten by E; clean it before pattern matching.
+        if isinstance(unified, dict):
+            repairs.repair_nested_declarations(
+                unified.get("repositories"), self.log,
+                document=PERSISTENCE_PORTS)
         # Repaired after unification so the figure logged is what the document
         # actually ends up with, and so a repository only step H declares is
         # covered too.
         self.documents[PERSISTENCE_PORTS] = return_types.repair_port_returns(
             unified, self._entities(), self.log
         )
+        # A create that describes a required field its parameters omit can
+        # never succeed at the store; the description is the evidence.
+        repairs.repair_create_missing_fields(
+            self.documents[PERSISTENCE_PORTS], self.documents.get(DATA_MODELS),
+            self.log)
         # Step H owns the same minimum as step E: a repository per listed entity
         # with a method for every required operation. A miss is logged, not
         # retried — the document is already unified with E's method sets, so a

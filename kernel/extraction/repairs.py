@@ -40,6 +40,52 @@ from kernel.consistency.naming import normalize
 from kernel.codegen import bind_field, is_entity_type, option_dest
 
 
+def repair_nested_declarations(holders, log, document="document"):
+    """Drop class declarations the model nested inside another holder's methods.
+
+    A service document is a list of services and a persistence document a list
+    of repositories; a method named like a sibling holder, with no parameters
+    and no return type, is a declaration that landed one level too deep. The
+    grammar permits it because method names are free text — library's
+    `BookRepository` ended up with `AuthorRepository`, `MemberRepository`,
+    `LoanRepository` and `LibraryService` as "methods", which then became
+    zero-argument stubs and LLM targets of their own. A real method is never
+    named after a sibling class, so dropping the entry cannot lose a callable.
+    """
+    if not isinstance(holders, list):
+        return holders
+    declared = set()
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        name = holder.get("service_name") or holder.get("interface_name")
+        if isinstance(name, str) and name.strip():
+            declared.add(normalize(name))
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        methods = holder.get("methods")
+        if not isinstance(methods, list):
+            continue
+        owner = (holder.get("service_name")
+                 or holder.get("interface_name") or "?")
+        kept = []
+        for method in methods:
+            name = method.get("name") if isinstance(method, dict) else None
+            if (isinstance(name, str) and normalize(name) in declared
+                    and name.endswith(("Repository", "Service"))
+                    and not method.get("params")
+                    and method.get("return_type") in (None, "", "None")):
+                if log is not None:
+                    log.write(
+                        f"[ok] step {document}: dropped nested declaration "
+                        f"'{name}' from {owner}.methods")
+                continue
+            kept.append(method)
+        holder["methods"] = kept
+    return holders
+
+
 def repair_errors(errors, services, log):
     """Remove the two error-registry contradictions; return `(errors, services)`.
 
@@ -335,15 +381,40 @@ def repair_adapter_targets(adapters, services, log):
                 declared.setdefault(normalize(name), name)
         if not declared:
             continue
+        seen_targets = set()
+        kept = []
         for field_entry in adapter.get("input_fields") or []:
             if not isinstance(field_entry, dict):
+                kept.append(field_entry)
                 continue
             field_name = field_entry.get("field_name")
             target_param = field_entry.get("target_param")
             if not isinstance(field_name, str) or not isinstance(target_param, str):
+                kept.append(field_entry)
                 continue
-            if normalize(field_name) in declared and normalize(field_name) != normalize(target_param):
-                honest = declared[normalize(field_name)]
+            wanted_field = normalize(field_name)
+            wanted_target = normalize(target_param)
+            if wanted_target not in declared:
+                if wanted_field in declared:
+                    honest = declared[wanted_field]
+                    if log is not None:
+                        log.write(
+                            f"[ok] step adapters: {action}.{field_name} targets "
+                            f"undeclared '{target_param}' while the method "
+                            f"declares '{honest}' — redirected"
+                        )
+                    field_entry["target_param"] = honest
+                    wanted_target = normalize(honest)
+                else:
+                    if log is not None:
+                        log.write(
+                            f"[ok] step adapters: {action}.{field_name} targets "
+                            f"'{target_param}', which the method does not "
+                            f"declare — dropped"
+                        )
+                    continue
+            if wanted_field in declared and wanted_field != wanted_target:
+                honest = declared[wanted_field]
                 if log is not None:
                     log.write(
                         f"[ok] step adapters: {action}.{field_name} went to "
@@ -351,7 +422,36 @@ def repair_adapter_targets(adapters, services, log):
                         f"redirected to '{honest}'"
                     )
                 field_entry["target_param"] = honest
+                wanted_target = normalize(honest)
+            # A scalar parameter takes one value. A second field aimed at it is
+            # a duplicate binding (library sent both isbn and author_id to
+            # `isbn`); aggregate parameters such as `data` intentionally collect
+            # several fields, so they are exempt.
+            ptype = _param_type(method, field_entry.get("target_param"))
+            if (ptype and _is_scalar_type(ptype)
+                    and wanted_target in seen_targets
+                    and wanted_field != wanted_target):
+                if log is not None:
+                    log.write(
+                        f"[ok] step adapters: {action}.{field_name} duplicates "
+                        f"the scalar parameter '{field_entry.get('target_param')}' "
+                        f"already filled — dropped"
+                    )
+                continue
+            seen_targets.add(wanted_target)
+            kept.append(field_entry)
+        adapter["input_fields"] = kept
     return adapters
+
+
+def _is_scalar_type(ptype):
+    """True for a parameter type that holds one value, not a record/list."""
+    text = str(ptype or "").strip().lower()
+    if any(token in text for token in ("list", "dict", "set", "tuple")):
+        return False
+    return any(token in text for token in (
+        "int", "str", "bool", "float", "decimal", "date", "time", "object",
+        "any", "string", "text", "integer", "number"))
 
 
 def _service_method_index(services):
@@ -629,38 +729,169 @@ def repair_primary_key_uniqueness(models, log):
     return models
 
 
+def repair_primary_key_foreign_keys(models, log):
+    """Move a foreign key attached to a primary key into its own FK field.
+
+    A surrogate primary key (`id`) identifies the entity itself; attaching a
+    foreign key to it (e.g. `Book.id -> Author.id`) conflates the entity's key
+    with a relationship. The foreign key belongs on its own column (`author_id`),
+    leaving `id` as an independent auto-increment key.
+    """
+    if not isinstance(models, list):
+        return models
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        entity = model.get("name") or ""
+        fields = model.get("fields")
+        if not isinstance(fields, list):
+            continue
+        new_fields = []
+        for field in fields:
+            if not isinstance(field, dict):
+                continue
+            fk = field.get("foreign_key")
+            if field.get("primary_key") and isinstance(fk, dict):
+                target_entity = fk.get("target_entity")
+                if target_entity and normalize(target_entity) != normalize(entity):
+                    field["foreign_key"] = None
+                    fk_col = f"{target_entity.lower()}_id"
+                    if not any(normalize(f.get("name")) == normalize(fk_col)
+                               for f in fields if isinstance(f, dict)):
+                        new_fields.append({
+                            "name": fk_col,
+                            "type": "int",
+                            "primary_key": False,
+                            "nullable": False,
+                            "unique": False,
+                            "foreign_key": {
+                                "target_entity": target_entity,
+                                "target_field": fk.get("target_field") or "id",
+                                "relationship": "many_to_one",
+                            },
+                            "status": "explicit",
+                        })
+                        if log is not None:
+                            log.write(
+                                f"[ok] step data_models: {entity}.{field.get('name')} was a primary "
+                                f"key carrying an FK to {target_entity} — moved to {entity}.{fk_col}"
+                            )
+        fields.extend(new_fields)
+    return models
+
+
+# --- a create whose description names a field its parameters omit -----------------
+
+_PORT_TYPES = {"string": "str", "text": "str", "integer": "int",
+               "boolean": "bool"}
+
+
+def repair_create_missing_fields(ports, models, log):
+    """Add the required field a create describes but does not take.
+
+    `LoanRepository.create` described itself as taking `due_date` and
+    `status` and listed neither as a parameter; the table declares both
+    NOT NULL, so every create failed at the store. The method's own
+    description is the evidence: a required, non-key model field it names
+    is added as a parameter, typed from the model. A field the description
+    does not name is left alone — nothing is invented, and the probe
+    reports any required field no create can still reach.
+    """
+    repositories = ports.get("repositories") if isinstance(ports, dict) else None
+    if not isinstance(repositories, list) or not isinstance(models, list):
+        return ports
+    for repository in repositories:
+        if not isinstance(repository, dict):
+            continue
+        model = next((m for m in models if isinstance(m, dict)
+                      and m.get("name") == repository.get("entity")), None)
+        if model is None:
+            continue
+        for method in repository.get("methods") or []:
+            if not isinstance(method, dict) or method.get("name") != "create":
+                continue
+            params = method.get("params")
+            if not isinstance(params, list):
+                continue
+            if any(is_entity_type(p.get("type"), [m.get("name") for m in models
+                                                  if isinstance(m, dict)])
+                   for p in params if isinstance(p, dict)):
+                continue
+            taken = {normalize(p.get("name")) for p in params
+                     if isinstance(p, dict)}
+            description = str(method.get("description") or "").lower()
+            for field in model.get("fields") or []:
+                if not isinstance(field, dict) or not field.get("name"):
+                    continue
+                name = field["name"]
+                if (field.get("primary_key") or field.get("nullable")
+                        or normalize(name) in taken):
+                    continue
+                spelled = "(?:" + "|".join(
+                    re.escape(form) for form in (name.lower(),
+                                                 name.lower().replace("_", " "))
+                ) + ")"
+                if not re.search(r"\b" + spelled + r"\b", description):
+                    continue
+                declared = str(field.get("type") or "").strip()
+                params.append({
+                    "name": name,
+                    "type": _PORT_TYPES.get(declared.lower(), declared)})
+                taken.add(normalize(name))
+                if log is not None:
+                    log.write(
+                        f"[ok] step persistence: "
+                        f"{repository.get('interface_name') or repository.get('entity')}"
+                        f".create describes '{name}' but takes no such "
+                        f"parameter — added as {params[-1]['type']}")
+    return ports
+
+
 # --- a transform that does not fit the field's name -------------------------------
 
-def repair_adapter_transforms(adapters, log):
-    """Replace a transform whose kind contradicts the field's name with DIRECT.
+def repair_adapter_transforms(adapters, log, services=None):
+    """Replace a transform whose kind contradicts the field or target type.
 
-    A transform states how a value's representation changes; the field's name is
-    the only evidence of what kind of value it is. When the two disagree — a
-    count converted to cents, a single name read as a list, a description parsed
-    as a date — the transform is wrong for the field, and `DIRECT` is the honest
-    replacement: copy the value unchanged. The hint sets and the comparison come
-    from the checker, so the repair and `mismatched_transform` share one
-    definition of "fits".
+    A transform states how a value's representation changes; the field's name
+    and the target parameter's type are the evidence of what kind of value it
+    is. When they disagree — a year parsed as a date, an ISBN looked up as an
+    integer id, a count converted to cents — the transform is wrong, and
+    `DIRECT` is the honest replacement: copy the value unchanged. The hint sets
+    and the comparison come from the checker, so the repair and
+    `mismatched_transform` share one definition of "fits".
     """
     if not isinstance(adapters, list):
         return adapters
+    index = _service_method_index(services)
     for adapter in adapters:
         if not isinstance(adapter, dict):
             continue
         action = adapter.get("action_name")
+        method = _resolve_adapter_method(adapter, index)
         for field_entry in adapter.get("input_fields") or []:
             if not isinstance(field_entry, dict):
                 continue
-            replacement = _fitter_transform(field_entry)
+            if (field_entry.get("transform") == "DIRECT"
+                    and field_entry.get("lookup_entity") is not None):
+                # A lookup entity is the record LOOKUP_ID resolves; DIRECT
+                # copies the value unchanged and has nothing to resolve.
+                field_entry["lookup_entity"] = None
+                if log is not None:
+                    log.write(
+                        f"[ok] step adapters: {action}.{field_entry.get('field_name')} "
+                        f"kept a lookup entity with DIRECT — cleared")
+            replacement = _fitter_transform(field_entry, method)
             if replacement is None:
                 continue
             field_name = field_entry.get("field_name")
             if log is not None:
                 log.write(
                     f"[ok] step adapters: {action}.{field_name} was '{field_entry.get('transform')}' "
-                    f"but its name describes no such value — replaced with DIRECT"
+                    f"but its name or target type describes no such value — replaced with DIRECT"
                 )
             field_entry["transform"] = replacement
+            if replacement == "DIRECT":
+                field_entry["lookup_entity"] = None
     return adapters
 
 
@@ -672,8 +903,8 @@ _TRANSFORM_HINTS = (
 )
 
 
-def _fitter_transform(field_entry):
-    """`DIRECT` when the field's transform contradicts its name, else None."""
+def _fitter_transform(field_entry, method=None):
+    """`DIRECT` when the transform contradicts the field or target type."""
     transform = field_entry.get("transform")
     field_name = field_entry.get("field_name")
     if not isinstance(field_name, str):
@@ -682,6 +913,39 @@ def _fitter_transform(field_entry):
     for claimed, hints in _TRANSFORM_HINTS:
         if transform == claimed and not checks_adapters._mentions(lowered, hints):
             return "DIRECT"
+    ptype = _param_type(method, field_entry.get("target_param"))
+    if not ptype:
+        return None
+    kind = str(ptype).strip().lower()
+    if transform == "ISO_DATE" and not any(
+            token in kind for token in
+            ("date", "time", "str", "string", "text", "object")):
+        return "DIRECT"
+    if transform == "LOOKUP_ID" and not any(
+            token in kind for token in
+            ("int", "integer", "float", "decimal")):
+        return "DIRECT"
+    if transform == "DECIMAL_TO_CENTS" and not any(
+            token in kind for token in
+            ("int", "integer", "float", "decimal")):
+        return "DIRECT"
+    if transform == "BOOL_TO_ONE" and kind in ("bool", "boolean"):
+        # A presence flag onto a boolean parameter is the value itself;
+        # BOOL_TO_ONE only supplies a count for an integer threshold.
+        return "DIRECT"
+    return None
+
+
+def _param_type(method, name):
+    """The declared type of a method parameter, or None."""
+    if not isinstance(method, dict) or not isinstance(name, str):
+        return None
+    wanted = normalize(name)
+    for param in method.get("params") or []:
+        if (isinstance(param, dict)
+                and isinstance(param.get("name"), str)
+                and normalize(param["name"]) == wanted):
+            return param.get("type")
     return None
 
 

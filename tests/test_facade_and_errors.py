@@ -14,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from kernel.consistency.checks_components import _check_facade  # noqa: E402
 from kernel.consistency.checks_errors import check_errors, check_raises  # noqa: E402
+from kernel.consistency.checks_adapters import TRANSFORMS  # noqa: E402
 from kernel.consistency.report import Report  # noqa: E402
 from kernel.extraction import grammar_check, grammar_open  # noqa: E402
 
@@ -85,6 +86,14 @@ class FacadeTests(unittest.TestCase):
         report = Report("t")
         _check_facade(facade(technology="undefined", invocation=None), report)
         self.assertIn("invalid_value", rules(report))
+
+
+class BooleanAdapterTransformTests(unittest.TestCase):
+    def test_boolean_presence_flags_can_supply_an_integer_threshold(self):
+        """The extractor grammar and checker must agree on BOOL_TO_ONE."""
+        grammar = grammar_open.adapters()
+        self.assertIn("tf-bool-to-one", grammar)
+        self.assertIn("BOOL_TO_ONE", TRANSFORMS)
 
 
 def surface(**parts):

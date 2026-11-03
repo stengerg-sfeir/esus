@@ -78,5 +78,15 @@
     "required_params": [],
     "sql_template": "SELECT * FROM {table_name}",
     "python_signature": "def {method_name}(self) -> list[{entity_name}]:"
+  },
+  {
+    "pattern_id": "READ_ONE_BY_ID",
+    "layer": "repository",
+    "returns": ["entity"],
+    "description": "Retrieves exactly one record of one entity by its own primary key id and returns that record, or None (or a not-found error) when no row has that id. The one argument is the entity's own id, e.g. read_book_by_id(book_id), get_member(member_id), get_loan_by_id(loan_id). If the method takes a foreign key, status, date, search text or no argument at all it is not this pattern; if it returns a list it is FILTER_BY_FIELD or READ_ALL.",
+    "match_keywords": ["by id", "by its id", "by its unique id", "by primary key", "single record", "one record", "get by id", "read one", "retrieve one", "returns none if not found"],
+    "required_params": ["pk_field"],
+    "sql_template": "SELECT * FROM {table_name} WHERE {pk_field} = ?",
+    "python_signature": "def {method_name}(self, {pk_field}: int) -> {entity_name} | None:"
   }
 ]

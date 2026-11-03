@@ -31,6 +31,40 @@ def contract(name, raises):
     return {"service_name": "S", "methods": [{"name": name, "raises": list(raises)}]}
 
 
+class NestedDeclarationTests(unittest.TestCase):
+    def test_a_sibling_class_nested_as_a_method_is_dropped(self):
+        services = [
+            {"service_name": "BookRepository", "methods": [
+                {"name": "read_all", "params": [],
+                 "return_type": "list[Book]"},
+                {"name": "AuthorRepository",
+                 "description": "Repository for managing authors.",
+                 "params": [], "return_type": None, "raises": []},
+            ]},
+            {"service_name": "AuthorRepository", "methods": [
+                {"name": "read_all", "params": [],
+                 "return_type": "list[Author]"},
+            ]},
+        ]
+        log = Log()
+        repaired = repairs.repair_nested_declarations(services, log)
+        self.assertEqual([m["name"] for m in repaired[0]["methods"]],
+                         ["read_all"])
+        self.assertIn("dropped nested declaration 'AuthorRepository'",
+                      log.joined())
+        self.assertEqual(len(repaired[1]["methods"]), 1)
+
+    def test_a_method_that_reads_a_sibling_contract_is_kept(self):
+        services = [{"service_name": "BookRepository", "methods": [
+            {"name": "read_all", "params": [], "return_type": "list[Book]"},
+            {"name": "find_author_repository", "params": [],
+             "return_type": "AuthorRepository"},
+        ]}]
+        repaired = repairs.repair_nested_declarations(services, Log())
+        self.assertEqual([m["name"] for m in repaired[0]["methods"]],
+                         ["read_all", "find_author_repository"])
+
+
 class DuplicateErrorSubjectTests(unittest.TestCase):
     def test_two_names_for_one_missing_record_leave_one(self):
         errors = [{"name": "ProductNotFoundError"}, {"name": "MissingProductError"}]
@@ -113,6 +147,71 @@ class MismatchedTransformTests(unittest.TestCase):
         adapters = [self.adapter("anything", "DIRECT")]
         repairs.repair_adapter_transforms(adapters, Log())
         self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
+
+    def services(self):
+        return [{"service_name": "BookRepository", "methods": [
+            {"name": "create", "params": [
+                {"name": "published_year", "type": "int"},
+                {"name": "isbn", "type": "str"},
+            ]},
+        ]}]
+
+    def test_a_year_parsed_as_a_date_becomes_direct(self):
+        adapters = [{
+            "action_name": "add_book",
+            "target_service": "BookRepository",
+            "target_method": "create",
+            "input_fields": [{
+                "field_name": "published_year",
+                "target_param": "published_year",
+                "transform": "ISO_DATE"}],
+        }]
+        repairs.repair_adapter_transforms(adapters, Log(), self.services())
+        self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
+
+    def test_an_isbn_looked_up_as_an_id_becomes_direct(self):
+        adapters = [{
+            "action_name": "add_book",
+            "target_service": "BookRepository",
+            "target_method": "create",
+            "input_fields": [{
+                "field_name": "isbn",
+                "target_param": "isbn",
+                "transform": "LOOKUP_ID"}],
+        }]
+        repairs.repair_adapter_transforms(adapters, Log(), self.services())
+        self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
+
+    def filter_services(self, param_type):
+        return [{"service_name": "BookService", "methods": [
+            {"name": "read_all_books", "params": [
+                {"name": "available_only", "type": param_type},
+            ]},
+        ]}]
+
+    def filter_adapter(self):
+        return [{
+            "action_name": "list_books",
+            "target_service": "BookService",
+            "target_method": "read_all_books",
+            "input_fields": [{
+                "field_name": "available_only",
+                "target_param": "available_only",
+                "transform": "BOOL_TO_ONE"}],
+        }]
+
+    def test_a_presence_flag_onto_a_bool_parameter_becomes_direct(self):
+        adapters = self.filter_adapter()
+        repairs.repair_adapter_transforms(
+            adapters, Log(), self.filter_services("bool"))
+        self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
+
+    def test_a_presence_flag_onto_an_int_threshold_keeps_bool_to_one(self):
+        adapters = self.filter_adapter()
+        repairs.repair_adapter_transforms(
+            adapters, Log(), self.filter_services("int"))
+        self.assertEqual(
+            adapters[0]["input_fields"][0]["transform"], "BOOL_TO_ONE")
 
 
 class UnraisedErrorTests(unittest.TestCase):
@@ -257,6 +356,28 @@ class MisplacedTargetTests(unittest.TestCase):
         repairs.repair_adapter_targets(adapters, self.services(), log)
         self.assertEqual(adapters[0]["input_fields"][0]["target_param"], "data")
         self.assertEqual(log.lines, [])
+
+    def test_a_second_field_bound_to_one_scalar_is_dropped(self):
+        services = [{"service_name": "BookRepository", "methods": [{
+            "name": "create",
+            "params": [{"name": "isbn", "type": "str"},
+                       {"name": "published_year", "type": "int"}],
+        }]}]
+        adapters = [{
+            "action_name": "add_book",
+            "target_service": "BookRepository",
+            "target_method": "create",
+            "input_fields": [
+                {"field_name": "isbn", "target_param": "isbn"},
+                {"field_name": "author_id", "target_param": "isbn"},
+            ],
+        }]
+        log = Log()
+        repairs.repair_adapter_targets(adapters, services, log)
+        self.assertEqual(
+            [f["field_name"] for f in adapters[0]["input_fields"]],
+            ["isbn"])
+        self.assertIn("duplicates the scalar parameter", log.joined())
 
 
 class PlaceholderSubcommandTests(unittest.TestCase):

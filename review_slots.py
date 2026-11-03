@@ -202,6 +202,13 @@ def _slot_options(ctx, repo, method, pattern):
     if pattern == "THRESHOLD_SCAN":
         pooled = [(n, t) for n, t, _ in fields
                   if t in NUMERIC_TYPES or t in DATE_TYPES or n in dates]
+        if "overdue" in normalize(method.get("name") or ""):
+            # An overdue scan is `due_date < today AND return_date is null`.
+            # The threshold slot can only carry the date comparison — the
+            # generator emits the null-return guard itself — so offering
+            # `return_date` as the compared field would be a dead end.
+            pooled = [(name, ftype) for name, ftype in pooled
+                      if normalize(name) != "returndate"]
         if not pooled:
             return None
         scalar_params = [p for p in params if not _param_is_entity(ctx, method, p)]

@@ -64,6 +64,7 @@ TRANSFORMS = (
     ("iso-date", "ISO_DATE", NULL),
     ("csv", "CSV_LIST", NULL),
     ("enum", "ENUM_LOOKUP", NULL),
+    ("bool-to-one", "BOOL_TO_ONE", NULL),
 )
 
 

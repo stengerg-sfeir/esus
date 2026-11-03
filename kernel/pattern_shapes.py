@@ -168,6 +168,17 @@ def returns_records(pattern_id):
     return COLLECTION in _declared_shapes_cached().get(pattern_id, frozenset())
 
 
+def returns_one_record(pattern_id):
+    """True when `pattern_id` is declared to return a single record.
+
+    The twin of `returns_records` for a read that finds one row by its key:
+    a method returning one entity may be corrected into such a pattern, since
+    both sit in the same return family. Booleans, scalars and mappings stay
+    out, for the reason `returns_records` gives.
+    """
+    return ENTITY in _declared_shapes_cached().get(pattern_id, frozenset())
+
+
 def rejection_reason(pattern_id, return_type):
     """Why `pattern_id` cannot be right for a method returning `return_type`.
 

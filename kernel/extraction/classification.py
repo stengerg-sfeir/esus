@@ -16,7 +16,11 @@ describe, and is never a finding.
 
 from kernel.classifier.hierarchical_classifier import classify_requirement_2step, load_catalog
 from kernel.pattern_catalog import GAP_PATTERN_IDS, NO_PATTERN_IN_DOMAIN, STANDARD_CRUD
-from kernel.pattern_shapes import rejection_reason, returns_records
+from kernel.pattern_shapes import (
+    rejection_reason,
+    returns_one_record,
+    returns_records,
+)
 
 # Step C's tag for an invariant that states a behaviour, and so may map onto a
 # kernel pattern. Its counterpart, `SCHEMA_KIND`, restates a field declaration
@@ -293,7 +297,10 @@ def _attribute(result, return_type):
         # `EXISTS_BY_UNIQUE_COMPOSITE`, also boolean and therefore shape-valid
         # and plainly wrong. A candidate from another return family is a guess,
         # and a guess is what the gap exists to avoid.
-        if rejection_reason(candidate, return_type) is None and returns_records(candidate):
+        # A read of one record by its key is the same kind of defect for a
+        # method that returns one entity, so such a candidate is admitted too.
+        if rejection_reason(candidate, return_type) is None and (
+                returns_records(candidate) or returns_one_record(candidate)):
             return candidate, claimed, rejection
     return NO_PATTERN_IN_DOMAIN, claimed, rejection
 
