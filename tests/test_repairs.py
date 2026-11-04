@@ -169,6 +169,23 @@ class MismatchedTransformTests(unittest.TestCase):
         repairs.repair_adapter_transforms(adapters, Log(), self.services())
         self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
 
+    def test_a_month_label_parsed_as_a_date_becomes_direct(self):
+        services = [{"service_name": "BudgetRepository", "methods": [
+            {"name": "read_budget", "params": [
+                {"name": "month", "type": "str"}]},
+        ]}]
+        adapters = [{
+            "action_name": "read_budget",
+            "target_service": "BudgetRepository",
+            "target_method": "read_budget",
+            "input_fields": [{
+                "field_name": "month",
+                "target_param": "month",
+                "transform": "ISO_DATE"}],
+        }]
+        repairs.repair_adapter_transforms(adapters, Log(), services)
+        self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
+
     def test_an_isbn_looked_up_as_an_id_becomes_direct(self):
         adapters = [{
             "action_name": "add_book",
@@ -493,6 +510,46 @@ class FlatCommandDuplicateTests(unittest.TestCase):
             [c["name"] for c in body["facade"]["invocation"]["commands"]],
             ["member", "member_history"],
         )
+
+
+class PeriodFieldTypeTests(unittest.TestCase):
+    """`month (str like "2024-01")` is a text period, not a date."""
+
+    def models(self, field_type="date"):
+        return [{"name": "Budget", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "category_id", "type": "int"},
+            {"name": "month", "type": field_type},
+        ]}]
+
+    def test_a_text_month_becomes_a_string(self):
+        models = self.models()
+        log = Log()
+        repairs.repair_period_field_types(
+            models, 'Budget model - category_id, month (str like "2024-01")',
+            log)
+        self.assertEqual(models[0]["fields"][2]["type"], "string")
+        self.assertIn("month", log.joined())
+
+    def test_an_invariant_can_declare_the_string_form(self):
+        models = self.models()
+        repairs.repair_period_field_types(
+            models, "", Log(),
+            [{"text": "Budget.month must be a string in the format 'YYYY-MM'"}])
+        self.assertEqual(models[0]["fields"][2]["type"], "string")
+
+    def test_a_date_field_without_a_text_declaration_is_untouched(self):
+        models = self.models()
+        repairs.repair_period_field_types(
+            models, "Expense model - expense_date (str, ISO date)", Log())
+        self.assertEqual(models[0]["fields"][2]["type"], "date")
+
+    def test_a_non_period_date_field_is_never_rewritten(self):
+        models = [{"name": "Expense", "fields": [
+            {"name": "expense_date", "type": "date"}]}]
+        repairs.repair_period_field_types(
+            models, 'expense_date (str, ISO date)', Log())
+        self.assertEqual(models[0]["fields"][0]["type"], "date")
 
 
 class PrimaryKeyUniquenessTests(unittest.TestCase):

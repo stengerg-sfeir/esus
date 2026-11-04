@@ -40,6 +40,8 @@ The extractor asks the model for one kind of information at a time. It records t
 
 Each step can use names produced by earlier steps. For example, a service method can refer to an entity from the data model. The extractor uses JSON grammars to restrict the structure of its answers and, in many steps, the names it can choose. This reduces mismatches between documents, but it cannot guarantee that the model interpreted the requirements correctly.
 
+When the requirements nest commands more than two words deep (for example `expense category add`), a subcommand name can be a path. The prompt then shows the model each command line already filed, and a deterministic repair rebuilds the command tree from the requirement lines, because the small model tends to flatten it. The generated CLI nests command groups to match. Prompts with shallow command lines are not affected.
+
 If a step produces invalid JSON or hits its output limit, the extractor can retry it. The run log records generation, retries, and repairs. A run can also resume from a selected step using the saved documents.
 
 ### 3. Check the documents
@@ -79,6 +81,49 @@ Scope limits in the current code generator:
 - generated GUIs are generic `pyimgui` CRUD screens. Other GUI technologies and bespoke screen behavior are not currently generated.
 
 If the architecture is clean but empty, `generator.py --model MODEL.gguf` uses a separate language-model fallback to write a single `app.py` directly from the requirements. That path does not use the detailed architecture-to-code generation path, so its result needs especially careful review.
+
+## One command: `main.py`
+
+```bash
+python3 main.py prompts/prompt_library_system.txt
+```
+
+`main.py` runs the whole pipeline on one prompt file: it extracts the architecture, checks readiness, and, if the documents are ready, generates the program. It hides the two scripts' messages and shows only the major steps, each with an ok or KO status, and a rolling spinner while one runs:
+
+```text
+ESUS  prompt_hello_world.txt  ->  out/hello_world
+[ ok ] Check inputs                0s  model: llama-server http://127.0.0.1:8080
+[ ok ] Extract architecture        4s  5 steps, 176 tokens
+[ ok ] Readiness                   0s  0 blockers (unreviewed: no human review ran)
+[ ok ] Generate code               1s  app.py written directly from the requirements (the architecture was empty); review it carefully
+Done in 5s
+  program: out/hello_world/generated
+  logs:    out/hello_world/logs  (+ out/hello_world/run.log)
+```
+
+A prompt whose extraction leaves open questions stops at readiness. Both outputs here are real runs; this one is `prompts/prompt_expenses.txt`:
+
+```text
+ESUS  prompt_expenses.txt  ->  out/expenses
+[ ok ] Check inputs                0s  model: llama-server http://127.0.0.1:8080
+[ ok ] Extract architecture    6m 13s  9 steps, 12,994 tokens
+[ KO ] Readiness                   0s  4 blocker(s), 0 open tie(s)
+         [ignored_cli_option] interaction_adapters: expense report: --year — no adapter field reads it; the option parses but is not consumed by an effective action
+         [open_human_review] 1 unanswered method contracts; run the attended review before generation
+         [open_human_review] 1 unanswered pattern slots; run the attended review before generation
+         [open_human_review] 1 unanswered surface questions; run the attended review before generation
+         full log: out/expenses/logs/extract.log
+         to answer the open questions, run again with --review
+```
+
+Everything the scripts print is saved in the output folder: `logs/extract.log`, `logs/generate.log`, `logs/summary.txt`, and the extractor's own `run.log`. The output folder defaults to `out/<prompt name>` without the `prompt_` prefix; an existing folder is re-extracted in place and keeps its recorded review answers. On a failure the step shows KO with the reason and the log to read, and the exit code says where it stopped (1 extraction or readiness, 2 generation, 3 bad inputs, 130 interrupted).
+
+- By default the extraction is **unreviewed**, because the review asks questions and a hidden run cannot answer them. The readiness line says so. When the verdict is `GENERATABLE: NO` (the extractor itself exits 0 in that case, so `main.py` reads the verdict from its summary), run again with `--review`.
+- `--review` runs the extraction attached to the terminal, shows its output instead of the spinner, and lets you answer the questions described in step 4.
+- `--verbose` shows every message instead of the spinner.
+- `--model` is `server` by default (a running `llama-server`, checked first; `--server-url` or `$LLAMA_SERVER_URL` points elsewhere) or the path of a GGUF file.
+
+`main.py` does not run an acceptance test; see "Verifying the generated program" below.
 
 ## Running the main steps
 
@@ -138,7 +183,7 @@ A clean readiness check does not run the program. `tests/e2e_library_acceptance.
 python3 tests/e2e_library_acceptance.py out/my-app
 ```
 
-It runs the generated CLI in fresh processes against a temporary SQLite database, calls the methods the CLI does not reach through the package's own wiring, and never edits a generated module. It checks the behavior the prompt defines: constraints, search, borrow and return, the due date, derived overdue status, rollback on a failed write, cascade, and the absence of commands the prompt does not list. It is written for that prompt; another prompt needs its own acceptance fixture.
+It runs the generated CLI in fresh processes against a temporary SQLite database, calls the methods the CLI does not reach through the package's own wiring, and never edits a generated module. It checks the behavior the prompt defines: constraints, search, borrow and return, the due date, derived overdue status, rollback on a failed write, cascade, and the absence of commands the prompt does not list. It is written for that prompt; another prompt needs its own acceptance fixture. `tests/e2e_expenses_acceptance.py` does the same for the expenses prompt; on the current output it passes 3 of 13 checks (see [Open points](open-points.md), point 10).
 
 ## A practical review of the design
 
@@ -150,6 +195,7 @@ For a Sfeir.dev article, a concise way to describe the approach is: **use the mo
 
 ## Where to look in the project
 
+- `main.py` runs extraction, readiness and generation on one prompt, quietly, and keeps the logs.
 - `extract_arch.py` runs extraction, optional review, and resume logic.
 - `kernel/extraction/` contains the prompts, grammars, model runner, and extraction pipeline.
 - `kernel/consistency/` contains checks over the saved architecture documents.

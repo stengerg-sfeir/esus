@@ -28,6 +28,7 @@ from kernel.extraction.grammar import (
     MAX_SERVICES,
     OPTION_NAME_RULE,
     OPTION_TYPE_RULE,
+    PATH_NAME_RULE,
     grammar,
     json_literal,
     json_list,
@@ -167,7 +168,7 @@ def data_models():
     )
 
 
-def components():
+def components(paths=False):
     """Step D: facade, persistence choice, external access and CRUD services."""
     return grammar(
         [
@@ -183,7 +184,7 @@ def components():
                     ]
                 ),
             ),
-            *facade_rules(),
+            *facade_rules(paths),
             rule(
                 "persistence-obj",
                 json_object([("required", "boolean"), ("technology", "string")]),
@@ -200,7 +201,7 @@ def components():
     )
 
 
-def facade_rules():
+def facade_rules(paths=False):
     """The facade object and the CLI surface it describes.
 
     `invocation` records what the program *accepts* — its positionals, options
@@ -218,6 +219,11 @@ def facade_rules():
     `commands` nests exactly one level, which covers both shapes the prompts
     describe: a flat CLI leaves `commands` empty and uses `options`, a
     hierarchical one names its commands and their `subcommands`.
+
+    A prompt that nests groups (`expense category add`) passes `paths=True`: a
+    subcommand's name may then be a path of up to three words
+    (`"category add"`). The rule is added only then, so every other prompt's
+    grammar is the text it always was.
     """
     return (
         rule(
@@ -308,8 +314,10 @@ def facade_rules():
         ),
         rule(
             "cli-subcommand",
-            json_object([("name", "identifier"), ("options", "cli-option-list")]),
+            json_object([("name", "cli-path" if paths else "identifier"),
+                         ("options", "cli-option-list")]),
         ),
+        *((PATH_NAME_RULE,) if paths else ()),
         GLOBAL_OPTION_NAME_RULE,
         OPTION_NAME_RULE,
         OPTION_TYPE_RULE,

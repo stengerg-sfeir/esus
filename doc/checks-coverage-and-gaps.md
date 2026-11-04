@@ -28,7 +28,7 @@ Some checks use names as clues. For example, the CRUD check recognizes method-na
 
 ### 3. Whether selected command-line details appear in both places
 
-ESUS saves the requirements with the extracted design. The checks compare some explicit command examples with the extracted command-line definition. They can look for missing commands or subcommands, and for flags in backticked command examples. Another check tries to match commands to service methods by their names.
+ESUS saves the requirements with the extracted design. The checks compare some explicit command examples with the extracted command-line definition. They can look for missing commands or subcommands, and for flags in backticked command examples. When command lines nest more than two words, the checks match the longest command path and report a missing path line as a missing command. Another check tries to match commands to service methods by their names.
 
 This is a real comparison with the request, but the checks recognize particular command and flag formats. If a requirement is written in another form or only described in prose, it can be skipped. The checker does not read every sentence and check that its full meaning appears in the design.
 
@@ -87,7 +87,7 @@ But those checks do not prove that the generated program rejects a second produc
 - **A full link from every sentence to the design.** The current command-line checks cover a narrow, recognizable part of the request; there is no general check that every requirement has a matching design item.
 - **Broad checks of meaning.** Intentions and most free-text rules can be checked for basic content and duplicates, but the checker cannot judge their complete meaning. It may miss implied behavior, edge cases, or a rule described in different words.
 - **A guarantee from internal agreement.** The model can leave a requirement out of several documents in a consistent way. Those documents may agree with each other while still missing the user's intent.
-- **Behavior tests for each request.** Readiness checks inspect the extracted design. A separate acceptance test is needed to run the generated program and check the requested behavior, including errors and edge cases. One exists for the library prompt; a new prompt needs its own, and a passing run covers only the paths it exercises (most, not all, statements in the model-written bodies run).
+- **Behavior tests for each request.** Readiness checks inspect the extracted design. A separate acceptance test is needed to run the generated program and check the requested behavior, including errors and edge cases. One exists for the library prompt and one for the expenses prompt (which currently fails most of its checks); a new prompt needs its own, and a passing run covers only the paths it exercises (most, not all, statements in the model-written bodies run).
 - **Requirements the checks do not look at.** For the library prompt these are the instruction to use type hints throughout (the fixed store and CLI templates do not provide them) and the quality of the architecture's separation of concerns. Error messages are not asserted unless a prompt names them.
 
 The known open work is listed in [Open points](open-points.md).

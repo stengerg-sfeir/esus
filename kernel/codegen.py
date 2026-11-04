@@ -467,7 +467,48 @@ def bind_commands(adapters, invocation, verb_stems):
     return bindings, unmapped
 
 
+def _best_path_adapter(adapters, verb_stems, command, sub, unmapped):
+    """The adapter for a path subcommand (`category add` under `expense`).
+
+    The verb is the last word that is a known verb, and the other words name
+    the thing the line acts on: `category` in `category add`, `monthly` in
+    `report monthly`. The command's own name is not the thing here (`expense`
+    would make `add_expense` outscore `create_category` for `expense category
+    add`), so a path is scored by its nouns, and by the command only when the
+    path has none.
+    """
+    words = sub.strip().lower().split()
+    verb = next((word for word in reversed(words) if word in verb_stems), None)
+    nouns = [word for word in words if word != verb] or [(command or "").strip().lower()]
+    stems = verb_stems.get(verb, (verb,)) if verb else None
+    scored = []
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = normalize(adapter.get("target_method") or "")
+        action = normalize(adapter.get("action_name") or "")
+        if stems and not any(stem in method for stem in stems):
+            continue
+        blob = (normalize(adapter.get("target_service") or "") + "|"
+                + method + "|" + action)
+        score = 0
+        if any(normalize(noun) in blob for noun in nouns):
+            score += 4
+        if verb and verb in method:
+            score += 2
+        if verb and verb in action:
+            score += 1
+        scored.append((score, adapter.get("action_name"), adapter))
+    if not scored:
+        unmapped.append(f"{command} {sub}")
+        return None
+    scored.sort(key=lambda item: (-item[0], item[1] or ""))
+    return (scored[0][1], scored[0][0])
+
+
 def _best_adapter(adapters, verb_stems, command, sub, unmapped):
+    if sub and " " in sub.strip():
+        return _best_path_adapter(adapters, verb_stems, command, sub, unmapped)
     command_verb = (command or "").strip().lower()
     sub_verb = (sub or "").strip().lower()
     # Prefer the leaf token when it is a recognized verb (`member history`,

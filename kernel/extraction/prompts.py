@@ -330,12 +330,45 @@ def command_lines_block(spans):
     if not spans:
         return None
     listed = "\n".join(f"{number}. `{span}`" for number, span in enumerate(spans, start=1))
-    return (
+    block = (
         "Each of the following command lines must appear in the surface. "
         "Go through them one by one: a line `<thing> <verb> --flag` becomes "
         "command `<thing>` with subcommand `<verb>` carrying those flags, and "
         "a line `<program> <verb> --flag` becomes a top-level command `<verb>` "
         "carrying its own flags:\n" + listed
+    )
+    from kernel.extraction import command_lines
+
+    if command_lines.uses_paths(spans):
+        return _filed_block(spans)
+    return block
+
+
+def _filed_block(spans):
+    """The command lines of a prompt that nests groups, each already filed.
+
+    A small model asked to work out the nesting from a rule flattens it
+    (`category` becomes a command of its own), but it transcribes well, so
+    each line is shown with the command, the subcommand path and the flags it
+    becomes. Used only for such a prompt; every other prompt's block is the
+    text it always was.
+    """
+    from kernel.extraction import command_lines
+
+    filed = []
+    for number, (span, (command, path, flags)) in enumerate(
+            zip(spans, command_lines.path_attribution(spans)), start=1):
+        flag_text = " ".join(f"{'--' + name if required else '[--' + name + ']'}"
+                             for name, required in flags) or "no flags"
+        target = (f"command `{command}`, subcommand `{path}`" if path
+                  else f"command `{command}`")
+        filed.append(f"{number}. `{span}` -> {target} ({flag_text})")
+    return (
+        "Each of the following command lines must appear in the surface, filed "
+        "exactly as shown: the command, then ONE subcommand whose name is the "
+        "path written after it (words separated by a single space, such as "
+        "`category add`), carrying exactly those flags. Never turn a word of "
+        "the path into a command of its own.\n" + "\n".join(filed)
     )
 
 

@@ -348,6 +348,8 @@ def repair_existing(output_dir):
     if isinstance(models, list):
         repairs.repair_primary_key_uniqueness(models, log)
         repairs.repair_primary_key_foreign_keys(models, log)
+        repairs.repair_period_field_types(
+            models, requirements, log, documents.get(pipeline_module.INVARIANTS))
     if isinstance(components, dict):
         repairs.repair_missing_surface(components, requirements, models, log)
         repairs.repair_placeholder_subcommands(components, log)

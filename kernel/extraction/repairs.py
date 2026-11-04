@@ -729,6 +729,74 @@ def repair_primary_key_uniqueness(models, log):
     return models
 
 
+def repair_period_field_types(models, requirements, log, invariants=None):
+    """A `month`/`year` field the requirements call a string is not a date.
+
+    `"2024-01"` is a period label, not a point in time: `date.fromisoformat`
+    rejects it, and a generated CLI that validates the flag as an ISO date
+    cannot run `budget add --month 2024-01`. The model reads the word "month"
+    as a date even when the requirements write `month (str like "2024-01")`
+    or an invariant says `Budget.month must be a string in the format
+    'YYYY-MM'`. Only the two period names are corrected, and only when the
+    document states the string form; every other date field is left alone.
+    """
+    if not isinstance(models, list):
+        return models
+    text = requirements or ""
+    fixed = 0
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        entity = model.get("name") or ""
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict):
+                continue
+            name = field.get("name")
+            if not isinstance(name, str) or normalize(name) not in ("month", "year"):
+                continue
+            declared = str(field.get("type") or "").strip().lower()
+            if declared not in ("date", "datetime", "timestamp"):
+                continue
+            if not _period_is_declared_text(name, entity, text, invariant_lines):
+                continue
+            field["type"] = "string"
+            fixed += 1
+            if log is not None:
+                log.write(
+                    f"[ok] step data_models: {entity}.{name} is a period label "
+                    f"declared as text — type date changed to string")
+    return models
+
+
+def _period_is_declared_text(name, entity, requirements, invariants):
+    """Whether the documents spell this period field as text or `YYYY-MM`."""
+    patterns = (
+        r"\b" + re.escape(name) + r"\s*\(([^)]*)\)",
+        r"\b" + re.escape(entity) + r"\." + re.escape(name) + r"\b([^\n.;]*)",
+    )
+    for pattern in patterns:
+        for match in re.finditer(pattern, requirements, re.IGNORECASE):
+            detail = match.group(1).lower()
+            if re.search(r"\bstr(?:ing)?\b", detail) or "yyyy-mm" in detail:
+                return True
+    wanted = normalize(entity)
+    for match in re.finditer(
+            r"\b" + re.escape(entity) + r"\s*\.\s*" + re.escape(name)
+            + r"\b([^\n;]*)", invariants, re.IGNORECASE):
+        detail = match.group(1).lower()
+        if re.search(r"\bstr(?:ing)?\b", detail) or "yyyy-mm" in detail:
+            return True
+    for sentence in re.split(r"[.;\n]", invariants):
+        if wanted and wanted not in normalize(sentence):
+            continue
+        if normalize(name) not in normalize(sentence):
+            continue
+        if re.search(r"\bstr(?:ing)?\b", sentence, re.IGNORECASE) \
+                or "yyyy-mm" in sentence.lower():
+            return True
+    return False
+
+
 def repair_primary_key_foreign_keys(models, log):
     """Move a foreign key attached to a primary key into its own FK field.
 
@@ -910,6 +978,12 @@ def _fitter_transform(field_entry, method=None):
     if not isinstance(field_name, str):
         return None
     lowered = field_name.strip().lower()
+    # `2024-01` is a month label, not an ISO date. The model routinely tags a
+    # `month`/`year` flag ISO_DATE because the field name carries a date hint,
+    # and the generated validator then rejects the only value the prompt
+    # allows (`Invalid isoformat string: '2024-01'`).
+    if transform == "ISO_DATE" and normalize(field_name) in ("month", "year"):
+        return "DIRECT"
     for claimed, hints in _TRANSFORM_HINTS:
         if transform == claimed and not checks_adapters._mentions(lowered, hints):
             return "DIRECT"
@@ -999,6 +1073,114 @@ def repair_long_option_names(components, log=None):
             visit(child)
 
     visit(invocation)
+    return components
+
+
+def repair_nested_paths(components, requirements, log):
+    """File a nesting prompt's lines as path leaves and fold the flat form away.
+
+    A prompt that nests command groups (`expense category add --name`) names
+    its subcommands by a path (`category add` under `expense`). A small model
+    asked for that surface flattens it: `category` becomes a command of its own
+    and `report monthly`/`report yearly` merge into one `report`. The lines are
+    authoritative and the model is good at typing flags, so each line becomes
+    the leaf it names, takes the flags the model already typed on its flat
+    leaves (matched as flags are matched everywhere, by name or unique
+    containment: a `--yearly` stands for `--year`), and the flat nodes the paths
+    supersede are folded away. Nothing is invented: the paths come from the
+    requirements and the option types from the model's own output; a flag with
+    no donor is left for `repair_missing_flags`. Every step is logged, and a
+    prompt that does not nest is not touched.
+    """
+    from kernel.extraction import command_lines
+
+    if not isinstance(components, dict) or not requirements:
+        return components
+    spans = command_lines.extract_command_lines(requirements)
+    if not command_lines.uses_paths(spans):
+        return components
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    if not isinstance(invocation, dict) or not isinstance(invocation.get("commands"), list):
+        return components
+    attributed = command_lines.path_attribution(spans)
+    paths = [(command, path, flags) for command, path, flags in attributed
+             if path and " " in path]
+
+    def leaf_options(leaf):
+        return [o for o in (leaf or {}).get("options") or [] if isinstance(o, dict)]
+
+    def flat(command, sub):
+        return _find_leaf(invocation, command, sub)
+
+    # 1. each path becomes a leaf, typed from the model's own flat leaves
+    for command, path, flags in paths:
+        first, *rest = path.split()
+        donors = [flat(first, rest[0]) if rest else None,   # `category` / `add`
+                  flat(command, first),                      # `report` under `expense`
+                  flat(first, None)]
+        entry = _ensure_command(invocation, command, log)
+        if entry is None:
+            continue
+        _ensure_subcommand(entry, command, path, log)
+        leaf = _find_leaf(invocation, command, path)
+        if leaf is None:
+            continue
+        for flag, required in flags:
+            if _leaf_has_flag(leaf, flag):
+                continue
+            for donor in filter(None, donors):
+                match = next((o for o in leaf_options(donor)
+                              if bind_field([option_dest(o)], flag) is not None), None)
+                if match is None:
+                    continue
+                leaf.setdefault("options", []).append({
+                    "name": f"--{flag}", "short": None,
+                    "type": match.get("type"), "required": required,
+                    "default": match.get("default")})
+                if log is not None:
+                    log.write(
+                        f"[ok] step components: '{command} {path}' lacked '--{flag}' "
+                        f"the requirements pass — added as {match.get('type')} "
+                        f"(typed like the model's own '{match.get('name')}')")
+                break
+
+    # 2. fold away the flat nodes the paths supersede
+    line_commands = {command for command, _path, _flags in attributed}
+    bare = {(command, path) for command, path, _flags in attributed if path}
+    commands = invocation["commands"]
+    for command, path, _flags in paths:
+        first, *rest = path.split()
+        # a top-level `category` whose `add` is now `expense` / `category add`
+        if first not in line_commands and rest:
+            holder = next((c for c in commands if isinstance(c, dict)
+                           and c.get("name") == first), None)
+            if holder is not None:
+                subs = holder.get("subcommands") or []
+                kept = [x for x in subs if not (isinstance(x, dict)
+                        and x.get("name") == rest[0])]
+                if len(kept) != len(subs):
+                    holder["subcommands"] = kept
+                    if log is not None:
+                        log.write(f"[ok] step components: folded flat '{first} {rest[0]}' "
+                                  f"into '{command} {path}' (the requirements nest it)")
+                if not kept and not holder.get("options"):
+                    commands.remove(holder)
+                    if log is not None:
+                        log.write(f"[ok] step components: dropped the emptied flat "
+                                  f"command '{first}'")
+        # a leaf `report` beside `report monthly` and `report yearly`
+        owner = next((c for c in commands if isinstance(c, dict)
+                      and c.get("name") == command), None)
+        if owner is not None and (command, first) not in bare:
+            subs = owner.get("subcommands") or []
+            kept = [x for x in subs if not (isinstance(x, dict)
+                    and x.get("name") == first)]
+            if len(kept) != len(subs):
+                owner["subcommands"] = kept
+                if log is not None:
+                    log.write(f"[ok] step components: folded flat '{command} {first}' "
+                              f"into its paths such as '{command} {path}'")
     return components
 
 

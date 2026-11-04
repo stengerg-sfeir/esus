@@ -28,11 +28,15 @@ TRANSFORM_BRANCH = "transform-branch"
 LOOKUP_TRANSFORM = "LOOKUP_ID"
 
 
-def components(vocabulary):
-    """Step D, with crud_services.entity closed to the entities of step B."""
+def components(vocabulary, paths=False):
+    """Step D, with crud_services.entity closed to the entities of step B.
+
+    `paths` lets a subcommand's name be a path of words, for a prompt that
+    nests command groups; it is False everywhere else.
+    """
     entity_names = vocabulary.entity_names
     if not entity_names:
-        return grammar_open.components()
+        return grammar_open.components(paths)
 
     return grammar(
         [
@@ -48,7 +52,7 @@ def components(vocabulary):
                     ]
                 ),
             ),
-            *grammar_open.facade_rules(),
+            *grammar_open.facade_rules(paths),
             rule(
                 "persistence-obj",
                 json_object([("required", "boolean"), ("technology", "string")]),

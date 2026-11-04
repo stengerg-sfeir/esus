@@ -54,6 +54,14 @@ GENERIC_TYPE_RULE = (
 # `string`, because a type may be `Optional[Member]` or `datetime.date`.
 IDENTIFIER_RULE = r'identifier ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* "\""'
 
+# A subcommand name that is a path of one to three words ("category add"). Only
+# the grammar of a prompt that nests command groups includes it (see
+# `grammar_open.facade_rules`); `identifier` stays the name rule everywhere else.
+PATH_NAME_RULE = (
+    r'cli-path ::= "\"" [a-zA-Z_] [a-zA-Z0-9_]* '
+    r'( " " [a-zA-Z_] [a-zA-Z0-9_]* )? ( " " [a-zA-Z_] [a-zA-Z0-9_]* )? "\""'
+)
+
 # A command-line option is written with its dashes ("--output", "-o"), which
 # `identifier` cannot express because it must start with a letter. One leading
 # dash followed by an alphanumeric keeps "-", "--" and "- " unrepresentable, so

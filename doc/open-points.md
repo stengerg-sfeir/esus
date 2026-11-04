@@ -35,10 +35,48 @@ Open work that is known, measured where possible, and not yet done. Each entry s
 
 **Depends on** point 3: a body written from today's `return_loan` contract would drop the status.
 
-## 6. Acceptance tests exist only for the library prompt
+## 6. Acceptance tests exist for the library and expenses prompts only
 
-**Open.** `tests/e2e_library_acceptance.py` is written by hand for the library prompt: its commands, fixture data, generated class and method names, and error markers all come from that prompt and its extraction. The `expenses`, `inventory` and `hello` outputs have no acceptance test, so for them a clean readiness check is the only evidence, and it does not run the generated program.
+**Open.** `tests/e2e_library_acceptance.py` (passes 17) and `tests/e2e_expenses_acceptance.py` (passes 3 of 13, see point 10) are written by hand for their prompts: its commands, fixture data, generated class and method names, and error markers all come from that prompt and its extraction. The `inventory` and `hello` outputs have no acceptance test, so for them a clean readiness check is the only evidence, and it does not run the generated program.
 
 **What is reusable.** The scaffolding (running the generated CLI in fresh processes, inspecting SQLite, never editing a generated module), the sensitivity check (running a test against a deliberately broken copy of the generated package), and the line tracer that measures which model-written lines a test executes.
 
 **Next step.** Either write an acceptance test for each prompt that ships with the project, reusing that scaffolding, or build a generic harness that derives scenarios from the requirements. The second ties each requirement sentence to a design item and a test, as `doc/checks-coverage-and-gaps.md` describes. It is the larger piece of work, and nothing of it exists yet.
+
+## 7. Speed
+
+**Open.** A complete library run takes about 17 minutes: extraction is decode-bound (about 10 min) and generation is prompt-bound (about 7.5 min). The measurements, the ideas ranked by expected gain, and what not to do are in [`doc/speed.md`](speed.md). Nothing is implemented.
+
+**Next step.** Reorder the body prompt so the shared part comes first and measure how much of it the server reuses; then cache model calls by prompt.
+
+## 8. `main.py` stops at the review questions
+
+**Open.** By default `main.py` extracts unreviewed, and a prompt that leaves open questions stops at readiness with KO (for example `prompts/prompt_expenses.txt`: 4 blockers, three of them `open_human_review`). `--review` answers them, but it replaces the spinner with the extractor's raw output.
+
+**Next step.** Keep the spinner and show only the question when one is asked, then hide the output again.
+
+## 9. Nested command paths (expenses): done for two-word and three-word paths
+
+**Mostly addressed.** `prompts/prompt_expenses.txt` nests three levels (`expense category add`, `expense report monthly --month`, `expense recurring detect`). The surface model stays (command, subcommand), but a subcommand name may now be a path such as `category add`; the generated CLI nests click groups (or chained argparse sub-parsers) from it.
+
+**How it works.**
+- `uses_paths(spans)` in `kernel/extraction/command_lines.py` turns path mode on only when at least two command lines share a program word and some line has three or more words after it. The library and inventory prompts never trigger it, so their behavior is unchanged (checked offline by hashing attribution, prompt block, components grammar, generated `cli.py` and readiness against a pristine worktree, and by the unit tests).
+- In path mode the prompt shows the model each command line already filed (`command expense, subcommand category add`), the grammar accepts a path name, and `repair_nested_paths` (`kernel/extraction/repairs.py`) rebuilds the tree from the requirement lines deterministically, because the 4B model flattens the nesting and invents flags. It reuses the model's own typed flat-leaf flags.
+- The consistency checks resolve the longest path, report a missing path line as `missing_command`, and use the first word on every line as the program name. The binder scores adapters by the path's nouns.
+- Tests: `tests/test_surface_paths.py`.
+
+**Still open.** Paths are limited to three words. A true N-level model was not built.
+
+## 10. The expenses program does not pass its acceptance test
+
+**Open.** `tests/e2e_expenses_acceptance.py` (13 checks, written from the prompt) passes 3 of 13 on a fully reviewed run. Defects found:
+- **Month values** (`YYYY-MM`) are parsed as ISO dates, so `budget add`, `budget list` and `expense report monthly` fail with `Invalid isoformat string`.
+- **Date filters** reach the repository as strings (`'>=' not supported between 'date' and 'str'`), so `expense list --from-date` and `expense export` fail.
+- **`add_expense` stays a stub.** The prompt says to check the budget after the insert; the generator's write-order rule refuses a raise after create. The prompt and the rule contradict each other.
+- **`category update`** ignores `--name`.
+- **No table-level `UNIQUE(category_id, month)`** on the budget table.
+- **`recurring detect`** marks nothing.
+- **Missing repository method** `find_expenses_by_category`.
+- `--budget` is stored as cents, but the conversion is ambiguous in the prompt; type hints are still not provided everywhere (point 2).
+
+**Next step.** Fix the month and date conversions first (they block most checks), gated so the library output stays byte-identical, then rerun the acceptance test and the library regression.

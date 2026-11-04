@@ -64,7 +64,8 @@ def check_surface_coverage(components, requirements, report):
     program = _program_name(requirements)
 
     checkable = _check_command_pairs(commands, requirements, program, report)
-    return checkable + _check_top_level_commands(commands, requirements, report)
+    return (checkable + _check_top_level_commands(commands, requirements, report)
+            + _check_path_lines(commands, requirements, report))
 
 
 def _check_command_pairs(commands, requirements, program, report):
@@ -77,9 +78,24 @@ def _check_command_pairs(commands, requirements, program, report):
     # two exclusions the rule reported `library` (the program) and `report` (a
     # subcommand of `expense`) as missing commands.
     known_subcommands = {sub for subs in commands.values() for sub in subs}
+    paired = _path_pairs(commands)
 
     checkable = 0
     for noun, verbs in sorted(verbs_by_noun.items()):
+        if noun not in commands and noun in paired:
+            # A noun the surface holds as a word of a path (`category` in
+            # `expense` / `category add`): its verbs are the words that follow.
+            checkable += 1
+            for verb in sorted(verbs):
+                if verb in paired[noun] or verb in GLOBAL_FLAGS:
+                    continue
+                report.warning(
+                    "missing_command",
+                    f"components.facade.invocation: the requirements name '{noun} {verb}' but "
+                    f"no subcommand path declares '{noun} {verb}' (it declares: "
+                    f"{', '.join(sorted(paired[noun]))})",
+                )
+            continue
         if noun in commands:
             checkable += 1
             for verb in sorted(verbs):
@@ -123,6 +139,54 @@ def _check_command_pairs(commands, requirements, program, report):
             f"(it declares: {', '.join(sorted(commands)) or 'none'})",
         )
     return checkable
+
+
+def _check_path_lines(commands, requirements, report):
+    """Report a nested line whose path the surface does not declare.
+
+    Only for a prompt that nests command groups (`expense category add`): its
+    lines name a command and a path, and a surface that filed `category` as a
+    command of its own (flattened) or merged `monthly` and `yearly` into one
+    `report` does not match them. Without this the flattening is silent. A
+    prompt that never nests is not looked at, so library and inventory are
+    judged exactly as before.
+    """
+    from kernel.extraction import command_lines
+
+    spans = command_lines.extract_command_lines(requirements)
+    if not command_lines.uses_paths(spans):
+        return 0
+    checkable = 0
+    for command, path, _flags in command_lines.path_attribution(spans):
+        if path is None or " " not in path:
+            continue
+        checkable += 1
+        if path in commands.get(command, ()):
+            continue
+        declared = ", ".join(sorted(commands.get(command, ()))) or "none"
+        report.warning(
+            "missing_command",
+            f"components.facade.invocation: the requirements name '{command} {path}' "
+            f"but the command '{command}' declares no '{path}' subcommand "
+            f"(it declares: {declared})",
+        )
+    return checkable
+
+
+def _path_pairs(commands):
+    """`{word: {next words}}` for every multi-word subcommand path.
+
+    `expense` / `category add` makes `category` a noun with the verb `add`;
+    `report monthly` makes `report` a noun with `monthly`. Empty for a surface
+    whose subcommands are all single words.
+    """
+    pairs = {}
+    for subs in commands.values():
+        for sub in subs:
+            words = sub.split()
+            for first, second in zip(words, words[1:]):
+                pairs.setdefault(first, set()).add(second)
+    return pairs
 
 
 def _check_top_level_commands(commands, requirements, report):
@@ -174,6 +238,13 @@ def _program_name(requirements):
     not a command, and on library's single-word lines (`library borrow --x`) it
     is the noun the pair rule sees.
     """
+    from kernel.extraction import command_lines
+
+    spans = command_lines.extract_command_lines(requirements)
+    if command_lines.uses_paths(spans):
+        # In a prompt that nests command groups the most common first word is a
+        # group (`expense`), not the program: only a word on every line is.
+        return command_lines.program_word(spans)
     starts = COMMAND_START.findall(requirements)
     if not starts:
         return None
@@ -267,7 +338,7 @@ def check_command_backing(components, services, report):
     checked = 0
     for command, verb in _command_verbs(invocation):
         checked += 1
-        stems = COMMAND_VERB_STEMS.get(verb, (verb,))
+        stems = _path_stems(verb)
         if _served_by_stems(stems, methods):
             continue
         report.note(
@@ -316,6 +387,22 @@ def _command_verbs(invocation):
                 yield name.strip(), sub.strip().lower()
         else:
             yield name.strip(), name.strip().lower()
+
+
+def _path_stems(verb):
+    """The method-name stems a command verb may be served by.
+
+    A path (`category add`, `report monthly`) is served by its last word when
+    that is a known verb, and otherwise by any of its words; a one-word verb is
+    looked up as it always was.
+    """
+    words = verb.split()
+    if len(words) <= 1:
+        return COMMAND_VERB_STEMS.get(verb, (verb,))
+    if words[-1] in COMMAND_VERB_STEMS:
+        return COMMAND_VERB_STEMS[words[-1]]
+    return tuple(stem for word in words
+                 for stem in COMMAND_VERB_STEMS.get(word, (word,)))
 
 
 def _served_by_stems(stems, methods):
@@ -436,9 +523,15 @@ def _resolve_tokens(tokens, commands):
         rest = tokens[1:]
         if not rest or rest[0].startswith("-") or rest[0].startswith("["):
             return word, None
-        candidate = rest[0].strip("[](),.;:")
-        if SPAN_WORD.fullmatch(candidate) and candidate in commands[word]:
-            return word, candidate
+        path = _path_of(rest)
+        # A subcommand may be a path of words (`category add` under `expense`):
+        # the longest leading run of words that names one wins. A plain name is
+        # the one-word case, so a command without paths resolves as it did.
+        for length in range(len(path), 0, -1):
+            candidate = " ".join(path[:length])
+            if all(SPAN_WORD.fullmatch(w) for w in path[:length]) \
+                    and candidate in commands[word]:
+                return word, candidate
         # A declared command followed by an unknown word (`expense frobnicate
         # --x`): guessing a leaf would manufacture findings, so skip it.
         return None
@@ -448,6 +541,16 @@ def _resolve_tokens(tokens, commands):
         # `report`, a subcommand of `expense`): judge the owning leaf.
         return owners[0], word
     return None
+
+
+def _path_of(tokens):
+    """The words before the first flag, brackets and punctuation stripped."""
+    words = []
+    for token in tokens:
+        if token.startswith("-") or token.startswith("["):
+            break
+        words.append(token.strip("[](),.;:"))
+    return words
 
 
 def _flags_in(span):

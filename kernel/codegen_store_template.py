@@ -102,6 +102,11 @@ class Store:
                             + "(" + self._quote(foreign.get("target_field") or "id")
                             + ") ON DELETE CASCADE")
                 columns.append(name + " " + declaration)
+            for group in spec.get("unique_together") or []:
+                members = [self._quote(name) for name in group
+                           if isinstance(name, str) and name]
+                if len(members) >= 2:
+                    columns.append("UNIQUE (" + ", ".join(members) + ")")
             self._db.execute(
                 "CREATE TABLE IF NOT EXISTS "
                 + self._quote(entity) + " (" + ", ".join(columns) + ")")

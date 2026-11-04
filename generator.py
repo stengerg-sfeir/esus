@@ -663,6 +663,8 @@ def _service_filter_plan(ctx, method, params):
     field_names = [name for name, _ in fields_of(ctx, entity)] if model else []
     if not field_names:
         return None
+    field_types = {name: (field.get("type") or "")
+                   for name, field in fields_of(ctx, entity)}
     for raw, _, ptype in params:
         if codegen.is_entity_type(ptype, ctx["entity_names"]):
             return None
@@ -681,7 +683,7 @@ def _service_filter_plan(ctx, method, params):
             if strategy == "crud:read_all":
                 return (codegen.sanitize(holder, "Repository"),
                         codegen.sanitize(candidate["name"], "method"),
-                        entity, field_names)
+                        entity, field_names, field_types)
     return None
 
 
@@ -918,9 +920,13 @@ def _unique_fields(ctx, entity):
     mark a descriptive field (`Book.title`) unique while the requirements
     only make `isbn` unique. When the invariants name unique fields for the
     entity, they win; otherwise the model's `unique` flags are the fallback.
+    A field in a composite key (`UNIQUE(category_id, month)`) is not unique
+    on its own, so it is removed from the per-field list; the table-level
+    constraint lives in `_unique_groups`.
     """
     fields = [name for name, field in fields_of(ctx, entity)
               if not field.get("primary_key")]
+    grouped = {name for group in _unique_groups(ctx, entity) for name in group}
     invariant_fields = set()
     wanted = normalize(entity)
     for invariant in ctx.get("invariants") or []:
@@ -933,7 +939,61 @@ def _unique_fields(ctx, entity):
     if invariant_fields:
         return [name for name in fields if name in invariant_fields]
     return [name for name, field in fields_of(ctx, entity)
-            if field.get("unique") and not field.get("primary_key")]
+            if field.get("unique") and not field.get("primary_key")
+            and name not in grouped]
+
+
+def _unique_groups(ctx, entity):
+    """The composite unique keys the documents give an entity.
+
+    A budget is unique per category and month, not by month alone. The
+    extraction records that fact either as `UNIQUE(category_id, month)` in
+    the requirements or as an invariant ("a unique combination of ..."), and
+    the model's per-field `unique` flag cannot express the difference. Only
+    groups whose every member is a field of this entity count.
+    """
+    names = {normalize(name): name for name, _field in fields_of(ctx, entity)}
+    if not names:
+        return []
+    groups = []
+
+    def add(tokens):
+        resolved = []
+        for token in tokens:
+            field = names.get(normalize(token))
+            if field is None:
+                return
+            if field not in resolved:
+                resolved.append(field)
+        if len(resolved) >= 2 and tuple(resolved) not in groups:
+            groups.append(tuple(resolved))
+
+    texts = []
+    wanted = normalize(entity)
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if isinstance(text, str) and "unique" in text.lower():
+            texts.append(text)
+    texts.append(ctx.get("requirements") or "")
+    for text in texts:
+        for match in re.finditer(r"UNIQUE\s*\(([^)]*)\)", text, re.IGNORECASE):
+            add(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", match.group(1)))
+        for match in re.finditer(
+                r"unique\s+constraint\s+(?:on|over|for)\s*\(([^)]*)\)",
+                text, re.IGNORECASE):
+            add(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", match.group(1)))
+        for pattern in (
+                r"unique\s+combination\s+of\s+([^.;\n]+)",
+                r"unique(?:\s+together)?\s+(?:on|over|for)\s+([^.;\n]+)",
+                r"([A-Za-z_][A-Za-z0-9_]*(?:\s*(?:,|and)\s*[A-Za-z_][A-Za-z0-9_]*)+)"
+                r"\s+must\s+be\s+unique\s+together"):
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                clause = match.group(1)
+                if pattern.startswith("([A-Za-z_]") and wanted \
+                        and wanted not in normalize(text):
+                    continue
+                add(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", clause))
+    return groups
 
 
 def _unique_error(ctx, entity):
@@ -1136,8 +1196,41 @@ def _delete_body(params, entity, field_names, err):
 # services (delegate on exact same-name repo methods, else stub)
 # --------------------------------------------------------------------------
 
+def _service_filter_uses_dates(ctx, port_names):
+    """Whether any filter-composition body compares a date-typed field.
+
+    The service twin of `_holds` compares raw values; a dataclass read
+    carries `datetime.date`, while a CLI argument is ISO text, so a date
+    criterion would raise `TypeError`. The module gets a small normaliser
+    only when such a body exists, which keeps programs without date filters
+    byte-identical.
+    """
+    for service in ctx["services"]:
+        if normalize(service.get("service_name")) in port_names:
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            _declaration, params = _signature(method, ctx["entity_names"])
+            plan = _service_filter_plan(ctx, method, params)
+            if plan is None:
+                continue
+            field_names, field_types = plan[3], plan[4]
+            for raw, _ident, _ptype in params:
+                matched = codegen.match_param(field_names, raw)
+                if matched and _is_date_type(field_types.get(matched[0])):
+                    return True
+    return False
+
+
+def _is_date_type(declared):
+    return str(declared or "").strip().lower() in ("date", "datetime", "timestamp")
+
+
 def emit_services(ctx, repo_index, stats):
     """Service classes: same-name delegation or documented stubs."""
+    port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
+    date_filters = _service_filter_uses_dates(ctx, port_names)
     lines = ['"""Services. A method with the same name as a repository method delegates',
              "to it; anything else raises NotImplementedError with its work order.",
              '"""',
@@ -1165,7 +1258,12 @@ def emit_services(ctx, repo_index, stats):
              "        return actual is not None and actual < expected",
              '    raise ValueError(f"unknown operator {operator!r}")',
              ""]
-    port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
+    if date_filters:
+        lines += ["",
+                  "def _filter_value(value):",
+                  '    """Dates compare as ISO text, the form the store keeps."""',
+                  '    return value.isoformat() if hasattr(value, "isoformat") else value',
+                  ""]
     emitted = set()
     for service in ctx["services"]:
         name = service.get("service_name")
@@ -1220,11 +1318,12 @@ def emit_services(ctx, repo_index, stats):
                 if strategy in ("crud:filter", "crud:read_all"):
                     composed = _service_filter_plan(ctx, method, params)
                     if composed is not None:
-                        repo_cls, read_all, entity, field_names = composed
+                        repo_cls, read_all, entity, field_names, field_types = composed
                         try:
                             body = _service_filter_body(
                                 fname, declaration, returns, method, repo_cls,
-                                read_all, entity, field_names, params, detail)
+                                read_all, entity, field_names, field_types,
+                                params, detail)
                         except _Unmappable as stuck:
                             body = None
                             detail = (f"parameter {stuck.param!r} maps to "
@@ -1321,13 +1420,16 @@ def _record(stats, holder, method, strategy, implemented, how):
 
 
 def _service_filter_body(fname, declaration, returns, method, repo_cls,
-                         read_all, entity, field_names, params, detail):
+                         read_all, entity, field_names, field_types, params,
+                         detail):
     """A service filter over the entity's read-all, with kernel criteria.
 
     The criteria are the kernel's own field matching (`match_param`),
     resolved at generation time — the body filters exactly as the
     repository would, and a parameter no field satisfies refuses
     (`_Unmappable`) instead of emitting a body that raises when called.
+    A date criterion compares the dataclass's date with a CLI string, so
+    both sides go through `_filter_value`, the module's ISO normaliser.
     """
     lines = [
         "",
@@ -1337,10 +1439,13 @@ def _service_filter_body(fname, declaration, returns, method, repo_cls,
         f"        records = self._repos[{repo_cls!r}].{read_all}()",
         "        criteria = []",
     ]
+    date_criteria = False
     for raw, ident, _ in params:
         matched = codegen.match_param(field_names, raw)
         if matched is None:
             raise _Unmappable(raw)
+        if _is_date_type(field_types.get(matched[0])):
+            date_criteria = True
         lines.append(f"        if {ident} is not None:")
         lines.append(f"            criteria.append(({matched[0]!r}, "
                      f"{matched[1]!r}, {ident}))")
@@ -1348,8 +1453,19 @@ def _service_filter_body(fname, declaration, returns, method, repo_cls,
         "        out = []",
         "        for record in records:",
         "            row = record if isinstance(record, dict) else vars(record)",
-        "            if all(_holds(row.get(field), operator, value)",
-        "                   for field, operator, value in criteria):",
+    ]
+    if date_criteria:
+        lines += [
+            "            if all(_holds(_filter_value(row.get(field)), operator,",
+            "                          _filter_value(value))",
+            "                   for field, operator, value in criteria):",
+        ]
+    else:
+        lines += [
+            "            if all(_holds(row.get(field), operator, value)",
+            "                   for field, operator, value in criteria):",
+        ]
+    lines += [
         "                out.append(record)",
         "        return out",
     ]
@@ -2489,8 +2605,18 @@ def _click_commands(invocation, leaves):
         for sub in subs:
             sname = sub["name"]
             leaf = leaf_index.get((cname, sname)) or {}
-            children[sname] = {"binding": (cname, sname),
-                               "plans": leaf.get("plans") or []}
+            node = {"binding": (cname, sname), "plans": leaf.get("plans") or []}
+            words = sname.split()
+            if len(words) <= 1:
+                children[sname] = node
+                continue
+            # A path (`category add`) becomes nested groups: `category` holds
+            # `add`. The binding keeps the whole path, so dispatch still finds
+            # the leaf by (command, path).
+            holder = children
+            for word in words[:-1]:
+                holder = holder.setdefault(word, {}).setdefault("subcommands", {})
+            holder.setdefault(words[-1], {}).update(node)
         group = {"subcommands": children}
         parent = leaf_index.get((cname, None))
         if parent is not None:
@@ -2886,10 +3012,25 @@ def emit_cli(ctx, bindings, stats):
                     lines.append(_render_plan("    ", f"p_{cvar}", group_plan))
                 lines.append("    p_" + cvar + ".set_defaults(_parent_binding=" + repr((cname, None)) + ")")
             lines.append(f"    sub_{cvar} = p_{cvar}.add_subparsers(dest='subcommand')")
+            groups = {(): f"sub_{cvar}"}
             for item in subs:
                 sname = item["name"]
                 svar = codegen.sanitize(sname, "sub")
-                lines.append(f"    p_{cvar}_{svar} = sub_{cvar}.add_parser({sname!r})")
+                words = sname.split()
+                holder = ()
+                # A path (`category add`) is a chain of parsers: `category`
+                # holds `add`. Each level stores its chosen name in the same
+                # `subcommand` slot, which dispatch already ignores.
+                for word in words[:-1] if len(words) > 1 else []:
+                    key = holder + (word,)
+                    if key not in groups:
+                        gvar = codegen.sanitize("_".join(key), "grp")
+                        lines.append(f"    p_{cvar}_{gvar} = {groups[holder]}.add_parser({word!r})")
+                        lines.append(f"    sub_{cvar}_{gvar} = p_{cvar}_{gvar}.add_subparsers(dest='subcommand')")
+                        groups[key] = f"sub_{cvar}_{gvar}"
+                    holder = key
+                leaf_name = words[-1] if len(words) > 1 else sname
+                lines.append(f"    p_{cvar}_{svar} = {groups[holder]}.add_parser({leaf_name!r})")
                 for plan in (leaf_index.get((cname, sname)) or {}).get("plans", []):
                     lines.append(_render_plan("    ", f"p_{cvar}_{svar}", plan))
                 lines.append("    p_" + cvar + "_" + svar + ".set_defaults(_binding=" + repr((cname, sname)) + ")")
@@ -3025,6 +3166,9 @@ def emit_schema(ctx):
                 "default": _field_default(ctx, field),
             })
         schema[entity] = {"primary_key": primary_key, "fields": entries}
+        groups = _unique_groups(ctx, entity)
+        if groups:
+            schema[entity]["unique_together"] = [list(group) for group in groups]
     return "SCHEMA = " + pprint.pformat(schema, width=110,
                                        sort_dicts=False) + "\n"
 
@@ -4172,6 +4316,26 @@ def _answer_continued(text):
     return any(line.strip() for line in lines[close + 1:])
 
 
+def _permits_post_write_raise(requirement, contract, raised_name):
+    """A requirement that says \"after insertion\" wants the row kept.
+
+    The generic create-before-raise rule protects the usual case: a refused
+    operation must not have stored its record. When the requirement itself
+    asks for the check after the insert (a budget check that must include the
+    new expense), the stored record is the intended outcome, so a raise the
+    contract did not declare as a precondition may follow the create.
+    """
+    if not re.search(
+            r"\bafter\s+(?:the\s+)?(?:insert(?:ion)?|creat(?:e|ion)|"
+            r"sav(?:e|ing)|add(?:ing)?)\b",
+            requirement or "", re.IGNORECASE):
+        return False
+    errors = {_last_name(item.get("error"))
+              for item in (contract or {}).get("preconditions") or []
+              if isinstance(item, dict) and item.get("error")}
+    return raised_name not in errors
+
+
 def _last_code_block(text):
     """The final fenced block in a deliberating answer, or None.
 
@@ -5175,6 +5339,9 @@ def _body_complaints(body, info, module_text, references_text, files,
             if raised.lineno <= write.lineno:
                 continue
             if _block_chain(raised, parents)[:len(chain)] != chain:
+                continue
+            if _permits_post_write_raise(requirement, contract,
+                                         _raised_name(raised)):
                 continue
             found.append(
                 f"`{write.func.attr}(...)` runs before `raise "

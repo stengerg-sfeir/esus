@@ -329,11 +329,17 @@ class Pipeline:
         """
         vocab = vocabulary.Vocabulary(entities=self._entities())
         block = prompts.entity_block(vocab) if vocab.entity_names else None
-        self._generate(
+        body = self._generate(
             INVARIANTS,
             prompts.invariants(requirements, block),
             grammar_open.invariant_list(INVARIANTS),
         )
+        models = self.documents.get(DATA_MODELS)
+        if isinstance(models, list):
+            repairs.repair_period_field_types(
+                models, requirements, self.log,
+                body if isinstance(body, list) else None)
+            self.documents[DATA_MODELS] = models
 
     def _step_components(self, requirements):
         """Step D: crud_services is closed to the entities of step B."""
@@ -341,12 +347,15 @@ class Pipeline:
         if not vocab.entity_names:
             self.log.write("[!] step components: no entities from step B — crud_services unconstrained")
         block = prompts.components_block(vocab)
-        grammar = grammar_builders.components(vocab)
         # The command lines the requirements state, enumerated: discovery is
         # what fails, so the step is handed each line to cover rather than
         # asked to find them. An empty list (prose-only prompts) falls back
         # to discovery, and says so in the log.
         spans = command_lines.extract_command_lines(requirements)
+        # A prompt that nests command groups may name a subcommand by a path
+        # ("category add"); every other prompt keeps the grammar it always had.
+        grammar = grammar_builders.components(
+            vocab, paths=command_lines.uses_paths(spans))
         lines_block = prompts.command_lines_block(spans)
         if lines_block is None:
             self.log.write("[!] step components: no command lines extracted — "
@@ -364,6 +373,9 @@ class Pipeline:
         # before the coverage check, so the check judges the real surface.
         if isinstance(body, dict):
             repairs.repair_placeholder_subcommands(body, self.log)
+            # A prompt that nests command groups gets its path leaves built
+            # from its own lines (no-op for every other prompt).
+            repairs.repair_nested_paths(body, requirements, self.log)
         # A required flag the requirements pass and the leaf does not declare
         # is added here when the data model types it — the name comes from the
         # requirements' own command line, the type from the model field, so the
@@ -408,6 +420,7 @@ class Pipeline:
             )
             if isinstance(retry, dict):
                 repairs.repair_placeholder_subcommands(retry, self.log)
+                repairs.repair_nested_paths(retry, requirements, self.log)
                 repairs.repair_missing_surface(
                     retry, requirements, self.documents.get(DATA_MODELS), self.log
                 )
