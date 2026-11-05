@@ -136,3 +136,13 @@ the MLX shared run had 20 readiness blockers (baseline 24) and the llama.cpp
 shared run had 18 (baseline 4). It is therefore **off by default** until a
 reviewed shared-context run passes the same end-to-end acceptance suite. The
 flag is the experiment; do not treat it as a free cache on the current prompts.
+
+Blocker counts count report lines, not independent defects, and every run above
+is **unreviewed**. The llama.cpp baseline's 4 were three open review questions
+plus one wrong adapter field; the shared run's 18 were three review questions,
+six wrong adapter fields, and nine CLI options left unconsumed. The 18 is a
+worse extraction, not a slower or broken llama.cpp engine, and neither count is
+an acceptance score: the reviewed `out/expenses_correct` is the 13/13 reference.
+The MLX baseline's 24 and shared run's 20 have the same character — a few root
+causes repeated per field or option — and the MLX outputs are also from a
+different 4-bit quantisation than the Q4_K_M GGUF.
