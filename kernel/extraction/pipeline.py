@@ -749,6 +749,17 @@ class Pipeline:
         )
 
     @staticmethod
+    def _group_option_specs(spans, group):
+        if not spans:
+            return {}
+        attributed = command_lines.path_attribution(spans)
+        specs = {}
+        for command, path, flags in attributed:
+            if command == group:
+                specs[path] = [name for name, _required in flags]
+        return specs
+
+    @staticmethod
     def _group_subcommands(spans, group):
         if not spans:
             return None
@@ -809,6 +820,7 @@ class Pipeline:
                 grammar_components.command_group(
                     paths=paths,
                     subcommands=self._group_subcommands(spans, name),
+                    option_specs=self._group_option_specs(spans, name),
                 ),
             )
             if not isinstance(group, dict):

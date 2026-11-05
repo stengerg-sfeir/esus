@@ -12,11 +12,13 @@ from __future__ import annotations
 from kernel.extraction import grammar_open
 from kernel.extraction.grammar import (
     MAX_CLI_COMMANDS,
+    MAX_CLI_OPTIONS,
     grammar,
     json_list,
     json_literal,
     json_object,
     rule,
+    string_choice,
 )
 from kernel.extraction.grammar_builders import distinct_entity_list
 
@@ -84,37 +86,90 @@ def plan(vocabulary, paths=False):
     return grammar(rules)
 
 
-def command_group(paths=False, subcommands=None):
+def command_group(paths=False, subcommands=None, option_specs=None):
     """The subtree of one already-chosen top-level command.
 
     When the requirements name this group's subcommands, pass them in: the
-    grammar then makes a different subcommand name unrepresentable.  Prose-only
-    prompts pass None and let the model choose.
+    grammar then makes a different subcommand name unrepresentable.  When they
+    also name its flags, `option_specs` closes each leaf's option names as well;
+    a model cannot replace `--amount` with `--amt` and leave the required flag
+    missing.  Prose-only prompts pass None and let the model choose.
     """
+    option_specs = option_specs or {}
     flat_subcommands = json_list("cli-subcommand", 0, 0)
-    group_rule = "group-command-nested" if subcommands else         "( group-command-nested | group-command-flat )"
-    return grammar(
-        [
-            rule("root", json_object([("command_group", "group-command")])),
-            rule("group-command", group_rule),
+    rules = [
+        rule("root", json_object([("command_group", "group-command")])),
+    ]
+
+    def option_rules(prefix, flags):
+        names = [f"--{flag}" for flag in flags]
+        if not names:
+            return [rule(f"{prefix}-list", json_list(f"{prefix}-option", 0, 0))]
+        return [
+            rule(f"{prefix}-list", json_list(f"{prefix}-option", 0, len(names))),
+            rule(
+                f"{prefix}-option",
+                json_object([
+                    ("name", string_choice(names)),
+                    ("short", f"( {NULL} | option-name )"),
+                    ("type", "option-type"),
+                    ("required", "boolean"),
+                    ("default", f"( {NULL} | string )"),
+                ]),
+            ),
+        ]
+
+    if subcommands:
+        rules.extend([
+            rule("group-command", "group-command-nested"),
             rule(
                 "group-command-nested",
-                json_object(
-                    [
-                        ("options", "cli-global-option-list"),
-                        ("subcommands", "cli-subcommand-list-nonempty"),
-                    ]
-                ),
+                json_object([
+                    ("options", "cli-global-option-list"),
+                    ("subcommands", "group-subcommand-list"),
+                ]),
+            ),
+            rule("group-subcommand-list", fixed_sequence("group-subcommand", len(subcommands))),
+        ])
+        for index, path in enumerate(subcommands):
+            flags = option_specs.get(path, ())
+            rules.extend(option_rules(f"group-options-{index}", flags))
+            rules.append(
+                rule(
+                    f"group-subcommand-{index}",
+                    json_object([
+                        ("name", json_literal(path)),
+                        ("options", f"group-options-{index}-list"),
+                    ]),
+                )
+            )
+    else:
+        flags = option_specs.get(None, ())
+        rules.extend(option_rules("group-options-flat", flags))
+        rules.extend([
+            rule("group-command", "( group-command-nested | group-command-flat )"),
+            rule(
+                "group-command-nested",
+                json_object([
+                    ("options", "cli-global-option-list"),
+                    ("subcommands", "cli-subcommand-list-nonempty"),
+                ]),
             ),
             rule(
                 "group-command-flat",
-                json_object(
-                    [
-                        ("options", "cli-option-list"),
-                        ("subcommands", flat_subcommands),
-                    ]
-                ),
+                json_object([
+                    ("options", "group-options-flat-list"),
+                    ("subcommands", flat_subcommands),
+                ]),
             ),
-            *grammar_open.facade_rules(paths, subcommands=subcommands),
-        ]
-    )
+        ])
+    rules.extend(grammar_open.facade_rules(paths, subcommands=subcommands))
+    return grammar(rules)
+
+
+def fixed_sequence(prefix, count):
+    parts = ['"[" ws', f"{prefix}-0"]
+    for index in range(1, count):
+        parts.append(f'ws "," ws {prefix}-{index}')
+    parts.append('ws "]"')
+    return " ".join(parts)
