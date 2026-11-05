@@ -70,3 +70,39 @@ The cache is bounded so it does not compete with the rest of a 16 GB machine. Th
 
 - Does it change the output? Any change to a prompt, a catalogue, a check's message or the numerics changes the generated code once. Rerun the acceptance test, and keep `out/library_correct` as the reference for comparison.
 - Does it hold on other machines? Timings and floating-point behaviour depend on the hardware and the llama.cpp build.
+
+## MLX backend (measured 2026-11-05)
+
+The MLX backend is selected with `--model mlx` and runs in a Python 3.12
+virtualenv (`.venv-mlx`); MLX has no wheel for the system Python 3.14. The model
+is the 4-bit MLX conversion
+`mlx-community/Qwen3-4B-Instruct-2507-4bit`, not the Q4_K_M GGUF used by
+llama.cpp. GBNF is translated to Lark and enforced by llguidance's MLX bitmask
+kernel; see [doc/mlx.md](mlx.md).
+
+Measurement conditions: quiet M1 Pro 16 GB, no llama-server running, one MLX
+process, same prompt and temperature 0.
+
+| Phase | llama.cpp 0.9.0 | MLX 4-bit |
+| --- | ---: | ---: |
+| Expenses extraction, wall | 397.4 s | **372.1 s** |
+| Extraction model time | 385.1 s | **296.9 s** |
+| Extraction generated tokens | 13,837 | 12,597 |
+| Expenses generation, wall | **107.9 s warm** | 135.0 s |
+| Expenses generation, decode | ~50 s | 50.0 s |
+| Generation prompt tokens | 51.9k / 38.7k cached | 54.0k / **29.2k cached** |
+| Expenses acceptance | **13/13** | **11/13** |
+
+Extraction is about **6% faster wall-clock** and about **23% faster in model
+time**. The remaining extraction time is the classifier, which does one full
+forward pass per candidate set on MLX; the llama.cpp server reuses its KV prefix
+there. Raw extraction deliberately does not use the MLX KV cache because that
+changed the generated documents and made runs slower and more variable.
+
+Body generation is **slower** than a warm llama-server: MLX prefill is slower
+and the 4-bit MLX weights do not reproduce the llama.cpp Q4_K_M output. The
+common expenses acceptance score is **11/13** (the recurring-expense check and
+one service check fail), so MLX should currently be treated as a speed experiment
+rather than a replacement for the llama.cpp path. Its generation run with KV
+cache disabled took 223.4 s; the 135.0 s figure is with the shared body-prompt
+prefix cached.

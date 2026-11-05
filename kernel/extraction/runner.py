@@ -8,23 +8,31 @@ and it reads `finish_reason` so a truncated step is reported rather than saved
 as if it were complete.
 """
 
+import contextlib
+import os
 import sys
 import time
 
-from llama_cpp import Llama, LlamaGrammar
+try:  # importing runner must also work in an MLX-only Python environment
+    from llama_cpp import Llama, LlamaGrammar
 
-try:  # the fd-level redirect the wrapper itself uses for backend init
-    from llama_cpp._utils import suppress_stdout_stderr
-except ImportError:  # pragma: no cover - very old bindings lack the helper
-    import contextlib
+    try:  # the fd-level redirect the wrapper itself uses for backend init
+        from llama_cpp._utils import suppress_stdout_stderr
+    except ImportError:  # pragma: no cover - very old bindings lack the helper
+        def suppress_stdout_stderr(disable=True):
+            return contextlib.nullcontext()
+
+    try:  # llama-cpp-python < 0.2.x has no GPU offload probe
+        from llama_cpp import llama_supports_gpu_offload
+    except ImportError:
+        llama_supports_gpu_offload = None
+except ImportError:  # pragma: no cover - the MLX backend does not need it
+    Llama = None
+    LlamaGrammar = None
+    llama_supports_gpu_offload = None
 
     def suppress_stdout_stderr(disable=True):
         return contextlib.nullcontext()
-
-try:  # llama-cpp-python < 0.2.x has no GPU offload probe
-    from llama_cpp import llama_supports_gpu_offload
-except ImportError:
-    llama_supports_gpu_offload = None
 
 GPU_LAYERS_ALL = -1
 GPU_LAYERS_NONE = 0
@@ -33,6 +41,9 @@ GPU_LAYERS_NONE = 0
 # placement live in an already-running llama-server. Keeping the sentinel in
 # this module means extraction and the generator agree on what it means.
 SERVER_MODEL = "server"
+# `--model mlx` selects the in-process Apple Silicon backend. The model id or
+# local MLX directory comes from MLX_MODEL, with a 4-bit Qwen3 default.
+MLX_MODEL = "mlx"
 
 # Thread counts are a CPU-backend tuning knob: llama.cpp picks the physical core
 # count itself when they are omitted, which beats a fixed number on both a small
@@ -99,12 +110,26 @@ def threading_parameters():
 
 
 def load_model(model_path, context_size=8192, logits_all=False, quiet=False):
-    """Load the GGUF model with the settings every step shares.
+    """Load the model with the settings every step shares.
 
     `model_path == "server"` connects to a running llama-server instead of
-    loading a GGUF in this process. The server's `n_ctx` wins; the local
-    `context_size` is only a fallback for an old server without `/props`.
+    loading a model in this process. `model_path == "mlx"` loads an Apple
+    Silicon MLX model from `MLX_MODEL` (or the 4-bit Qwen3 default). For a
+    server, the server's `n_ctx` wins; the local `context_size` is only a
+    fallback for an old server without `/props`.
     """
+    if model_path == MLX_MODEL:
+        from kernel.extraction.mlx_backend import MLXModel
+
+        llm = MLXModel(model_path=os.environ.get("MLX_MODEL"),
+                       context_size=context_size)
+        if not quiet:
+            print(
+                f"[mlx] {llm.model_path}, n_ctx={llm.n_ctx()}",
+                file=sys.stderr,
+            )
+        return llm
+
     if model_path == SERVER_MODEL:
         from kernel.extraction.server_backend import ServerModel
 
@@ -247,7 +272,15 @@ def generate(llm, prompt, grammar_text, label, temperature=0.0, max_new_tokens=N
     what makes the output machine-readable at all — not a vocabulary guard on
     top of otherwise-good JSON. There is deliberately no switch to turn it off.
     """
-    grammar = LlamaGrammar.from_string(grammar_text)
+    grammar = grammar_text
+    if not (getattr(llm, "is_mlx", False)
+            or getattr(llm, "is_server", False)):
+        if LlamaGrammar is None:
+            raise RuntimeError(
+                "this model has no grammar sampler; use --model server or "
+                "--model mlx, or install llama-cpp-python"
+            )
+        grammar = LlamaGrammar.from_string(grammar_text)
     return _generate_impl(llm, prompt, grammar, label, temperature,
                           max_new_tokens, seed)
 

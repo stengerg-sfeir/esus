@@ -45,9 +45,10 @@ def _next_token_logprobs(llm, prompt: str, top_n: int = TOP_LOGPROBS) -> dict:
     suffix; a full reset would throw away that prefix and make the classifier
     much slower.
     """
-    if getattr(llm, "is_server", False):
+    if getattr(llm, "is_server", False) or getattr(llm, "is_mlx", False):
         # The server owns the context and exposes the same distribution
-        # through its native /completion endpoint.
+        # through its native /completion endpoint. MLX exposes a direct
+        # forward-pass helper for the same purpose.
         return llm.next_token_logprobs(prompt, top_n)
 
     tokens = llm.tokenize(prompt.encode("utf-8"), add_bos=True, special=True)
