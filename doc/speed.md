@@ -1,6 +1,6 @@
 # Where ESUS spends its time, and how to make it faster
 
-This page records a measurement of one complete run and the ideas it suggests. Nothing here has been implemented. Figures marked *measured* come from the server's own timings; figures marked *estimate* are guesses to be checked before anyone relies on them.
+This page records a measurement of one complete run and the ideas it suggests. The prompt reordering and the server launch script are implemented; the remaining ideas are not. Figures marked *measured* come from the server's own timings; figures marked *estimate* are guesses to be checked before anyone relies on them.
 
 ## What was measured
 
@@ -15,8 +15,22 @@ Other measured facts:
 
 - Extraction is a chain: each step needs the documents of the earlier ones, so its model calls cannot run side by side. Thirteen generation calls produce the documents (`service_contracts` and `persistence_ports` are the largest, 2,400 to 3,100 tokens each, about 70 to 88 s each). About 84 further calls classify methods into patterns.
 - The review loop reran five of those calls (components to persistence) in a second round, about 230 s, 39% of the extraction. A run without the review loop (`main.py` by default) took 6m 13s on the expenses prompt.
-- Only 2 of the 24 model-written bodies needed a repair ask, so repairs are not where the generation time goes.
+- Repair asks were rare in the older reference run (2 of the 24 model-written bodies), but the current timing run saw 5 and 75.7 s of first attempts; see [Per-answer timing record](#per-answer-timing-record).
 - Runs are deterministic: the same code, model, server flags and context give byte-identical documents, model answers and generated modules (three runs, two after cold server restarts). That makes caching by prompt safe, and it means any change that alters a prompt changes the output once.
+
+## Per-answer timing record
+
+`<out>/llm_stub_answers.json` now records, beside every body answer, `seconds` (wall), `decode_seconds`, `prompt_tokens` and `cached_tokens`; a repaired body also has `first_*` for its first attempt. The `prompt_tokens` figure is the total context offered, so `prompt_tokens - cached_tokens` is the new prefill the server actually processed.
+
+The first measurements with the 2 GiB/no-spec server:
+
+- **Expenses:** 11 bodies plus 2 repair asks, 111.3 s wall. 51.9k prompt tokens offered, 38.7k served from cache (75%); 51.2 s decoding.
+- **Library:** 24 bodies, 303.2 s wall. 154.1k prompt tokens offered, 110.8k from cache (72%); 68.6 s decoding. The other ~224 s is prompt processing and per-request overhead.
+- **Library repairs are now material:** 5 of 24 bodies needed one, their first attempts cost 75.7 s, and those bodies total 98.9 s of the 303 s pass. Reducing those repair asks is a measured target.
+
+With the current launch script (no explicit `--cache-ram`), the expenses prompt took **124.3 s cold** and **108.1 s warm**, both passing 13 of 13 checks. That is about 3 s faster than the earlier 2 GiB warm run; the difference is small enough to be close to normal timing variation.
+
+`scripts/dump_body_prompts.py <out>` reconstructs the exact body prompts by replaying the body sequence without a model, pairs them with the raw answers from `llm_stub_answers.json`, and writes `<out>/llm_stub_prompts.md` and `.json`. It reports whether the replayed module text matches the generated files. `scripts/dump_extraction_prompts.py <out>` writes the per-step extraction prompts and archived document answers to `<out>/extraction_prompts.md` and `.json`; it marks retries and review reruns, and says where a later deterministic repair makes the archive differ from the historical request.
 
 ## The two phases need different fixes
 
@@ -26,11 +40,25 @@ Other measured facts:
 
 ## Ideas, in the order I would try them
 
-1. **Put the shared part of the body prompt first.** The method's own name appears near the top of the rules, so successive prompts share almost no prefix and the server cannot reuse its cache. With the method-specific part last, the long shared part is processed once and reused. *Estimate:* prompt processing falls by about 4 times, generation to 2 to 3 minutes. First measure how much of the prefix is actually reused (the server log reports it). The module text also changes as bodies are written into it; bodies are written from the bottom of the file upwards, which should keep the top stable, but that is unchecked. This changes every body prompt, so the output changes once, and acceptance must be rerun.
-2. **Cache every model call by its prompt.** Key a stored answer by the model, the server settings, the prompt text and the sampling parameters. An unchanged rerun then takes seconds, and a rerun after a change recomputes only the calls whose prompt changed. It is safe because the same input gives the same output. It does nothing for a first run, but it is what removes the 8 to 15 minute wait from every fix-and-retry loop.
-3. **Speculative decoding for extraction.** `llama-server -md` takes a small draft model; output that follows a JSON grammar is very predictable. *Estimate:* 1.5 to 2 times faster decoding. It needs a small model of the same family (the 0.6B model in the models folder is a reranker and does not qualify), about 0.5 GB more memory, and a test that it works with the grammar sampler. Output may differ slightly from today's because of numerics.
+1. **Put the shared part of the body prompt first.** **Implemented and measured.** `stub_prompt` now puts the method-specific rules, method name, contract and repair block after the shared rules, references, API, requirements and module text. On the expenses prompt the real body prompts are about 3.8k tokens: before the change a prompt reused only 88 cached tokens and spent about 9.4 s on prefill; after it, the next body reused about 3.6k tokens and spent about 0.42 s. A full regeneration of the expenses output dropped from about 4 minutes to about 2 minutes and still passes 13 of 13 acceptance checks. A from-scratch library generation with the same prompt order took 5m48s for the whole generation pass and passed 17 of 17 checks, against the earlier measured generation phase of about 7.5 minutes. The output changed once, and both acceptance tests were rerun.
+2. **Cache every model call by its prompt.** Not implemented. Key a stored answer by the model, the server settings, the prompt text and the sampling parameters. An unchanged rerun then takes seconds, and a rerun after a change recomputes only the calls whose prompt changed. It is safe because the same input gives the same output. It does nothing for a first run, but it is what removes the 8 to 15 minute wait from every fix-and-retry loop.
+3. **Speculative decoding for extraction.** **Implemented and measured; no gain on this machine.** The draft model loads and works with the grammar sampler (draft acceptance was mostly 72–95% on the extraction steps), but running the 0.6B model beside the 4B model costs more than the accepted tokens save on this memory-bandwidth-bound M1 Pro. One extraction run took 409.5 s of generation against 397.5 s without a draft; a full body-generation pass took 156.8 s against 125.9 s without one. The launch script therefore defaults to `SPEC=0`. It is left as an opt-in experiment; a different draft model, quant or `--spec-draft-n-max` may change the result. The Qwen3-Reranker-0.6B in the models folder is a scoring model and does not qualify.
 4. **Run generation requests in parallel (`-np 2` to `4`).** Decoding on this GPU is limited by memory bandwidth, so serving several sequences at once raises the total rate. It suits generation only, since extraction steps depend on each other. Each slot needs its own context (three slots of 8,000 tokens is about 3.5 GB of cache at full precision), and the body prompts would have to be built from the same base text so that the result does not depend on which request finishes first.
 5. **Smaller prompt blocks.** Showing only the target class's methods instead of the whole module cuts prompt processing, but the `exact` context was tuned for the small model, so this risks the quality of the bodies.
+
+## Server launch
+
+Use `scripts/start_llama_server.sh`. Its defaults are the measured model, one slot, 16,384 context, six threads, flash attention, 1024-token batch/ubatch and context shifting. It does **not** set `--cache-ram`; llama-server's own default is left untouched. Speculative decoding is opt-in because it measured slower on this machine:
+
+```bash
+./scripts/start_llama_server.sh                 # no draft
+SPEC=1 ./scripts/start_llama_server.sh          # speculative decoding
+DRAFT=/path/to/Qwen3-0.6B-Q4_K_M.gguf SPEC=1 ./scripts/start_llama_server.sh
+```
+
+The draft model is in `~/Documents/models` as `Qwen3-0.6B-Q4_K_M.gguf`. The Qwen3-Reranker-0.6B there is a scoring model and cannot draft.
+
+The cache is bounded so it does not compete with the rest of a 16 GB machine. The model itself is about 2.3 GB and a 16k KV cache adds roughly 1–2 GB; the prompt cache is only reused prefix state.
 
 ## What I would not do
 

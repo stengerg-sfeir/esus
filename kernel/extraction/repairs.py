@@ -743,6 +743,9 @@ def repair_period_field_types(models, requirements, log, invariants=None):
     if not isinstance(models, list):
         return models
     text = requirements or ""
+    invariants_text = " ".join(
+        item.get("text") or "" for item in (invariants or [])
+        if isinstance(item, dict))
     fixed = 0
     for model in models:
         if not isinstance(model, dict):
@@ -757,7 +760,7 @@ def repair_period_field_types(models, requirements, log, invariants=None):
             declared = str(field.get("type") or "").strip().lower()
             if declared not in ("date", "datetime", "timestamp"):
                 continue
-            if not _period_is_declared_text(name, entity, text, invariant_lines):
+            if not _period_is_declared_text(name, entity, text, invariants_text):
                 continue
             field["type"] = "string"
             fixed += 1

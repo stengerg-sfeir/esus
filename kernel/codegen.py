@@ -158,6 +158,34 @@ def is_entity_type(text, entity_names):
     return any(normalize(token) in known for token in tokens)
 
 
+MAPPING_TARGET = "__mapping__:"
+
+
+def mapping_entity(target):
+    """The entity a mapping target names, or None for a scalar target."""
+    if isinstance(target, str) and target.startswith(MAPPING_TARGET):
+        return target[len(MAPPING_TARGET):] or None
+    return None
+
+
+def is_mapping_target(target):
+    return isinstance(target, str) and target.startswith(MAPPING_TARGET)
+
+
+def is_mapping_type(text):
+    """True when a parameter type spells a dict/mapping of values.
+
+    An update method may take `data: dict[str, any]`: the adapter's fields
+    name the keys of that mapping, not parameters of the method. The CLI
+    groups them into one dict and the repository merges it into its patch.
+    """
+    if not isinstance(text, str):
+        return False
+    lowered = text.strip().lower()
+    return (lowered.startswith(("dict", "mapping", "map["))
+            or "dict[" in lowered or "mapping[" in lowered)
+
+
 def classify_crud(method_name):
     """The mechanical CRUD kind of a method name, or None when ambiguous."""
     name = normalize(method_name or "")
@@ -228,7 +256,12 @@ def plan_method(method, entry, entity_names=()):
             # refusing AGGREGATE for an entity return still reads as the
             # unique lookup its parameters describe (UNIQUE scopes read
             # exactly the read_one body). List returns stay refused — a
-            # collection claim dismissed is not a filter earned.
+            # collection claim dismissed is not a filter earned. An
+            # `update` name is stronger than a shape guess: a gap on
+            # `BudgetRepository.update(category_id, month, new_limit)`
+            # must not emit a read that searches for the new limit.
+            if classify_crud(name) == "update":
+                return ("crud:update", _gap_reason(entry, payload))
             if _shape_crud(method, entity_names) == "read_one":
                 return ("crud:read_one",
                         f"{_gap_reason(entry, payload)}; read-one by parameter shape")
@@ -596,6 +629,12 @@ def action_targets(adapters, services, repositories, entity_names):
                     if normalize(name) in tokens:
                         model_cls = sanitize(name, "Model")
                         break
+            elif is_mapping_type(ptype):
+                owner = adapter.get("target_service") or ""
+                entity = next((name for name in entity_names
+                               if normalize(owner).startswith(normalize(name))),
+                              None)
+                model_cls = MAPPING_TARGET + (entity or "")
             if isinstance(target, str):
                 mapping[target] = model_cls
         targets[adapter.get("action_name")] = mapping
@@ -713,7 +752,12 @@ def unknown_model_fields(adapters, services, repositories, models):
         for target_param, model_cls in spec.items():
             if model_cls is None:
                 continue
-            known = fields_of.get(normalize(model_cls), set())
+            known_entity = mapping_entity(model_cls) or model_cls
+            known = fields_of.get(normalize(known_entity), set())
+            if is_mapping_target(model_cls) and not mapping_entity(model_cls):
+                # A mapping with no entity name cannot be resolved against a
+                # model; its field names are the adapter's business.
+                continue
             for field in adapter.get("input_fields") or []:
                 if not isinstance(field, dict) or not field.get("field_name"):
                     continue
@@ -722,5 +766,5 @@ def unknown_model_fields(adapters, services, repositories, models):
                 if is_assembly_field(adapter, field["field_name"], spec):
                     continue
                 if normalize(field["field_name"]) not in known:
-                    unknown.append((action, field["field_name"], model_cls))
+                    unknown.append((action, field["field_name"], known_entity))
     return unknown

@@ -88,7 +88,7 @@ class _Handler(BaseHTTPRequestHandler):
                 }],
                 "usage": {"prompt_tokens": 9, "completion_tokens": 2,
                           "total_tokens": 11},
-                "timings": {"predicted_ms": 50.0},
+                "timings": {"predicted_ms": 50.0, "cache_n": 7},
             })
         else:
             self._send({"error": "not found"}, 404)
@@ -146,9 +146,13 @@ class ServerBackendTests(unittest.TestCase):
         self.assertEqual(result.text, "return 0")
         self.assertEqual(result.finish_reason, "stop")
         self.assertEqual(result.tokens, 2)
+        self.assertEqual(result.prompt_tokens, 9)
+        self.assertEqual(result.cached_tokens, 7)
         path, payload = _Handler.requests[-1]
         self.assertEqual(path, "/v1/chat/completions")
         self.assertEqual(payload["seed"], 3)
+        self.assertTrue(payload["cache_prompt"])
+        self.assertEqual(payload["id_slot"], 0)
 
     def test_classifier_uses_server_top_logprobs(self):
         model = ServerModel(url=self.url)

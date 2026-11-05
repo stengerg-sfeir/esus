@@ -37,17 +37,19 @@ Open work that is known, measured where possible, and not yet done. Each entry s
 
 ## 6. Acceptance tests exist for the library and expenses prompts only
 
-**Open.** `tests/e2e_library_acceptance.py` (passes 17) and `tests/e2e_expenses_acceptance.py` (passes 3 of 13, see point 10) are written by hand for their prompts: its commands, fixture data, generated class and method names, and error markers all come from that prompt and its extraction. The `inventory` and `hello` outputs have no acceptance test, so for them a clean readiness check is the only evidence, and it does not run the generated program.
+**Open.** `tests/e2e_library_acceptance.py` (passes 17) and `tests/e2e_expenses_acceptance.py` (passes 13 of 13) are written by hand for their prompts: its commands, fixture data, generated class and method names, and error markers all come from that prompt and its extraction. The `inventory` and `hello` outputs have no acceptance test, so for them a clean readiness check is the only evidence, and it does not run the generated program.
 
 **What is reusable.** The scaffolding (running the generated CLI in fresh processes, inspecting SQLite, never editing a generated module), the sensitivity check (running a test against a deliberately broken copy of the generated package), and the line tracer that measures which model-written lines a test executes.
 
 **Next step.** Either write an acceptance test for each prompt that ships with the project, reusing that scaffolding, or build a generic harness that derives scenarios from the requirements. The second ties each requirement sentence to a design item and a test, as `doc/checks-coverage-and-gaps.md` describes. It is the larger piece of work, and nothing of it exists yet.
 
-## 7. Speed
+## 7. Speed (body prompt reordering implemented)
 
-**Open.** A complete library run takes about 17 minutes: extraction is decode-bound (about 10 min) and generation is prompt-bound (about 7.5 min). The measurements, the ideas ranked by expected gain, and what not to do are in [`doc/speed.md`](speed.md). Nothing is implemented.
+**Partly addressed.** A complete library run takes about 17 minutes: extraction is decode-bound (about 10 min) and generation was prompt-bound (about 7.5 min, now about 5 min with the reordered prompt). The measurements, the ideas ranked by expected gain, and what not to do are in [`doc/speed.md`](speed.md).
 
-**Next step.** Reorder the body prompt so the shared part comes first and measure how much of it the server reuses; then cache model calls by prompt.
+The body prompt now puts the shared rules, references, API, requirements and module text before the method-specific block. On the expenses prompt a regeneration fell from about 4 minutes to about 2 minutes, and the next body reuses about 3.6k of its 3.8k prompt tokens. `scripts/start_llama_server.sh` leaves `--cache-ram` unset (llama-server's default applies). Speculative decoding with the Qwen3-0.6B draft was measured and is slower on this 16 GB M1 Pro (extraction 409.5 s vs 397.5 s; body generation 156.8 s vs 125.9 s), so it is opt-in with `SPEC=1`. Every body answer now records its wall, prompt, cached-prompt and decode time in `llm_stub_answers.json`.
+
+**Next step.** Cache model answers by prompt so unchanged reruns take seconds; use the new per-body timings to cut the five library repair asks, then re-try speculative decoding only with a different draft model or tuning.
 
 ## 8. `main.py` stops at the review questions
 
@@ -66,17 +68,3 @@ Open work that is known, measured where possible, and not yet done. Each entry s
 - Tests: `tests/test_surface_paths.py`.
 
 **Still open.** Paths are limited to three words. A true N-level model was not built.
-
-## 10. The expenses program does not pass its acceptance test
-
-**Open.** `tests/e2e_expenses_acceptance.py` (13 checks, written from the prompt) passes 3 of 13 on a fully reviewed run. Defects found:
-- **Month values** (`YYYY-MM`) are parsed as ISO dates, so `budget add`, `budget list` and `expense report monthly` fail with `Invalid isoformat string`.
-- **Date filters** reach the repository as strings (`'>=' not supported between 'date' and 'str'`), so `expense list --from-date` and `expense export` fail.
-- **`add_expense` stays a stub.** The prompt says to check the budget after the insert; the generator's write-order rule refuses a raise after create. The prompt and the rule contradict each other.
-- **`category update`** ignores `--name`.
-- **No table-level `UNIQUE(category_id, month)`** on the budget table.
-- **`recurring detect`** marks nothing.
-- **Missing repository method** `find_expenses_by_category`.
-- `--budget` is stored as cents, but the conversion is ambiguous in the prompt; type hints are still not provided everywhere (point 2).
-
-**Next step.** Fix the month and date conversions first (they block most checks), gated so the library output stays byte-identical, then rerun the acceptance test and the library regression.

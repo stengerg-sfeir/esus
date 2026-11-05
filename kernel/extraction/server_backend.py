@@ -196,6 +196,8 @@ class ServerModel:
             "max_tokens": int(max_tokens),
             "temperature": temperature,
             "stream": False,
+            "cache_prompt": True,
+            "id_slot": 0,
         }
         if seed is not None:
             payload["seed"] = int(seed)

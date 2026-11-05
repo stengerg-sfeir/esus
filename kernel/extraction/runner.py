@@ -159,7 +159,7 @@ class StepResult:
     """The outcome of one constrained generation."""
 
     def __init__(self, label, text, tokens, seconds, finish_reason, budget=None,
-                 decode_seconds=None, prompt_tokens=None):
+                 decode_seconds=None, prompt_tokens=None, cached_tokens=None):
         self.label = label
         self.text = text
         self.tokens = tokens
@@ -171,6 +171,7 @@ class StepResult:
         # let `describe` show the decode rate the server's own timing reports.
         self.decode_seconds = decode_seconds
         self.prompt_tokens = prompt_tokens
+        self.cached_tokens = cached_tokens
 
     @property
     def truncated(self):
@@ -351,7 +352,10 @@ def _generate_impl(llm, prompt, grammar, label, temperature, max_new_tokens,
     prompt_tokens = usage.get("prompt_tokens")
     if not isinstance(prompt_tokens, int):
         prompt_tokens = None
+    cached = timings.get("cache_n")
+    cached_tokens = cached if isinstance(cached, int) else None
     return StepResult(
         label, text, tokens, time.time() - started, finish_reason, budget,
         decode_seconds=decode_seconds, prompt_tokens=prompt_tokens,
+        cached_tokens=cached_tokens,
     )

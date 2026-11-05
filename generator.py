@@ -51,7 +51,8 @@ that still fails keeps the stub. Accepted docstrings are tagged
 `[llm-written by ... — review]` and the method still counts as a stub in
 the mechanical coverage. These bodies are provisional: syntax, API and
 contract checks do not establish runtime behavior. The run leaves every raw
-answer in `<out>/llm_stub_answers.json` for inspection.
+answer and its per-answer timing (wall, prompt, cached prompt and decode
+seconds) in `<out>/llm_stub_answers.json` for inspection.
 The default body ask (`--stub-context exact`) shows `models.py` as code and
 repeats the target signature and return dataclass; the other contexts
 remain available for experiments.
@@ -841,6 +842,23 @@ def _query_entity(ctx, method, entity):
     return target
 
 
+def _read_one_names_entity_error(ctx, method, entity):
+    """Whether a lookup's declared failure actually belongs to this entity.
+
+    `BudgetRepository.read_one` carried `CategoryNotFoundError` because a
+    budget has a category foreign key, but a missing budget is not a missing
+    category. With no budget-specific not-found class, the lookup returns
+    None; the caller decides (an add_expense with no budget simply has no
+    limit).
+    """
+    if _registered_error(ctx, entity):
+        return True
+    wanted = normalize(entity or "")
+    return any(wanted and wanted in normalize(name)
+               for name in method.get("raises") or []
+               if isinstance(name, str))
+
+
 def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal, table="self.ENTITY"):
     """The statement list of one repository method."""
     kind = strategy[5:] if strategy.startswith("crud:") else None
@@ -848,7 +866,8 @@ def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_n
     if kind == "create":
         return _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal)
     if kind == "read_one":
-        return _read_one_body(params, entity, model_cls, field_names, pk, err)
+        lookup_err = err if _read_one_names_entity_error(ctx, method, entity) else None
+        return _read_one_body(params, entity, model_cls, field_names, pk, lookup_err)
     if kind in ("read_all", "filter"):
         return _select_body(params, entity, model_cls, field_names, table=table)
     if kind == "update":
@@ -1027,6 +1046,27 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
     for field_name, expression in _create_defaults(ctx, entity).items():
         lines.append(f"if values.get({field_name!r}) is None:")
         lines.append(f"    values[{field_name!r}] = {expression}")
+    for field_name, field in fields_of(ctx, entity):
+        if _field_default(ctx, field) is not None:
+            continue
+        values_enum = _field_vocabulary(ctx, entity, field_name)
+        if not values_enum or field.get("nullable") or field.get("primary_key"):
+            continue
+        lines.append(f"if values.get({field_name!r}) is None:")
+        lines.append(f"    values[{field_name!r}] = {values_enum[0]!r}")
+        lines.append(f"if values.get({field_name!r}) not in {values_enum!r}:")
+        lines.append(
+            f"    raise ValueError(f\"{entity}.{field_name} must be one of "
+            f"{values_enum!r}\")")
+    for field_name, field in fields_of(ctx, entity):
+        if _field_default(ctx, field) is not None:
+            continue
+        declared = str(field.get("type") or "").strip().lower()
+        if declared not in ("bool", "boolean") \
+                or field.get("nullable") or field.get("primary_key"):
+            continue
+        lines.append(f"if values.get({field_name!r}) is None:")
+        lines.append(f"    values[{field_name!r}] = False")
     unique_fields = _unique_fields(ctx, entity)
     if unique_fields:
         unique_error = _unique_error(ctx, entity)
@@ -1037,7 +1077,16 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
         lines.append(f"        raise {unique_error}("
                      f"f\"{entity} with {{unique_field}}={{value!r}} already exists\")")
     lines.append(f"record = self._store.add(self.ENTITY, self.PK, values, check_fk={fk_literal})")
-    lines.append(_result_wrap(model_cls))
+    declared = str(method.get("return_type") or "").strip().lower()
+    if re.search(r"\b(?:int|integer|bool|boolean)\b", declared):
+        # A port may declare `create(...) -> int`: returning the dataclass
+        # there makes the service's `read_one(id=created)` look up an object
+        # as the key. The store already knows the new primary key.
+        lines.append("return record[self.PK]")
+    elif declared in ("none", "nonetype") or declared.startswith("none"):
+        lines.append("return None")
+    else:
+        lines.append(_result_wrap(model_cls))
     return lines
 
 
@@ -1087,22 +1136,35 @@ def _read_one_body(params, entity, model_cls, field_names, pk, err):
         raw, ident = params[0][0], params[0][1]
         matched = codegen.match_param(field_names, raw)
         if matched is not None and list(matched) == [pk, "eq"]:
-            lines = [f"record = self._store.get(self.ENTITY, self.PK, {ident}, error={err})"]
+            if err is None:
+                lines = [f"found = self._store.select(self.ENTITY, "
+                         f"[(self.PK, 'eq', {ident})])",
+                         "if not found:",
+                         "    return None",
+                         "record = found[0]"]
+            else:
+                lines = [f"record = self._store.get(self.ENTITY, self.PK, {ident}, error={err})"]
             lines.append(_result_wrap(model_cls))
             return lines
         alternatives = codegen.match_alternatives(field_names, raw)
         if alternatives is not None:
             lines = _alternative_scan(ident, alternatives)
-            lines += ["if len(found) != 1:",
-                      f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
-                      "record = found[0]"]
+            if err is None:
+                lines += ["if not found:", "    return None", "record = found[0]"]
+            else:
+                lines += ["if len(found) != 1:",
+                          f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
+                          "record = found[0]"]
             lines.append(_result_wrap(model_cls))
             return lines
     lines = _criteria_block(params, field_names)
-    lines += ["found = self._store.select(self.ENTITY, criteria)",
-              "if len(found) != 1:",
-              f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
-              "record = found[0]"]
+    lines += ["found = self._store.select(self.ENTITY, criteria)"]
+    if err is None:
+        lines += ["if not found:", "    return None", "record = found[0]"]
+    else:
+        lines += ["if len(found) != 1:",
+                  f"    raise {err}(f\"{entity} lookup matched {{len(found)}} records\")",
+                  "record = found[0]"]
     lines.append(_result_wrap(model_cls))
     return lines
 
@@ -1133,6 +1195,8 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
     alternatives = None
     if len(scalars) == 1:
         alternatives = codegen.match_alternatives(field_names, scalars[0][0])
+    mapping_names = {raw for raw, _ident, ptype in params
+                     if codegen.is_mapping_type(ptype)}
     if alternatives is not None:
         lines = _alternative_scan(scalars[0][1], alternatives)
         lines += ["if len(found) != 1:",
@@ -1141,19 +1205,36 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
         # The parameters that name the record's key identify it; every other
         # one is the change. Looking the record up by the new values too made
         # `update(book_id=1, available_copies=0)` search for a book that
-        # already has zero copies and refuse the last borrow.
+        # already has zero copies and refuse the last borrow. A composite
+        # unique key (`category_id`, `month`) identifies a record even though
+        # neither field is the primary key; using the new amount as a lookup
+        # criterion found no record.
+        composite = [name for group in _unique_groups(ctx, entity)
+                     for name in group]
         keys = [(raw, ident) for raw, ident in scalars
-                if _names_primary_key(ctx, entity, field_names, raw)]
-        lines = _criteria_block(keys or scalars, field_names)
+                if _names_primary_key(ctx, entity, field_names, raw)
+                or (composite and codegen.match_param(composite, raw))]
+        criteria_params = keys or [(raw, ident) for raw, ident in scalars
+                                   if raw not in mapping_names]
+        lines = _criteria_block(criteria_params, field_names)
         lines += ["found = self._store.select(self.ENTITY, criteria)",
                   "if len(found) != 1:",
                   f"    raise {err}(f\"{entity} update matched {{len(found)}} records\")"]
     lines += ["patch = {}"]
+    for raw, ident, ptype in params:
+        if not codegen.is_mapping_type(ptype):
+            continue
+        lines.append(f"if {ident} is not None:")
+        lines.append(f"    for key, value in {ident}.items():")
+        lines.append(f"        if value is not None and key in {field_names!r}:")
+        lines.append("            patch[key] = value")
     if entity_param is not None:
         lines.append(f"for key, value in _record_values({entity_param[1]}, {field_names!r}).items():")
         lines.append("    if value is not None:")
         lines.append("        patch[key] = value")
     for raw, ident in scalars:
+        if raw in mapping_names:
+            continue
         lines.append(f"if {ident} is not None and {raw!r} in {field_names!r}:")
         lines.append(f"    patch[{raw!r}] = {ident}")
     unique_fields = _unique_fields(ctx, entity)
@@ -1832,6 +1913,30 @@ def _field_enum(ctx, entity, field_name):
     return []
 
 
+def _field_vocabulary(ctx, entity, field_name):
+    """A field's documented `must be one of` values, with or without brackets.
+
+    Invariants write `Loan.status must be one of 'active', 'returned'` and
+    `Expense.payment_method must be one of 'cash', 'card', 'transfer'`; a
+    create body can default a missing non-null value to the first and refuse
+    a spelling outside the set. The bracket form is accepted too.
+    """
+    wanted = f"{entity}.{field_name}"
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if not isinstance(text, str):
+            continue
+        match = re.search(
+            rf"\b{re.escape(wanted)}\b[^.]*?must be one of\s*(.+?)(?:\.\s|\.$|$)",
+            text, re.IGNORECASE)
+        if not match:
+            continue
+        values = re.findall(r"['\"]([^'\"]+)['\"]", match.group(1))
+        if values:
+            return values
+    return []
+
+
 def _criterion_values(ctx, entity, field_name):
     """Literal candidates for an equality criterion on a model field, or [].
 
@@ -2033,18 +2138,28 @@ def _repo_criterion_body(ctx, entity, model_cls, field_types, method, fname,
 
 
 def _repo_budget_check_body(ctx, entity, method, fname, slots):
-    """True while spending stays within the budget limit, else False.
+    """True when the named budget question is true, else False.
 
     Reads the matching budget record (scope comes from the method's own
     parameters, mapped by name onto budget fields), totals the spending
-    entity's scoped records, and compares. No budget record means no limit:
-    True, stated in the code. Only `bool` returns are emitted — a status
-    vocabulary would be invented — and every parameter must scope something,
-    or the check is not this shape.
+    entity's scoped records, and compares. The name decides the polarity:
+    `check_budget_exceeded` is True when spending is over the limit and
+    False when there is no budget; `check_budget_status` is the opposite,
+    True while spending stays within the limit. No budget record means no
+    limit to exceed, so the exceeded form is False and the within form is
+    True. Only `bool` returns are emitted — a status vocabulary would be
+    invented — and every parameter must scope something, or the check is
+    not this shape.
     """
     returns = normalize(method.get("return_type") or "")
     if returns not in ("bool", "boolean"):
         return None
+    name = normalize(fname or "")
+    exceeded = any(word in name for word in ("exceed", "overflow", "overbudget"))
+    no_budget = "False" if exceeded else "True"
+    verdict = (f"spent > limit if limit is not None else False"
+               if exceeded else
+               f"spent <= limit if limit is not None else True")
     spend_entity = slots.get("spend_entity")
     spend_fields = [name for name, _ in fields_of(ctx, spend_entity)]
     if not spend_fields:
@@ -2089,13 +2204,13 @@ def _repo_budget_check_body(ctx, entity, method, fname, slots):
     ] + scope_lines + [
         f"]",
         f"if not match:",
-        f"    return True  # no budget record: no limit to exceed",
+        f"    return {no_budget}  # no budget record: no limit to exceed",
         f"limit = match[0].get({slots['limit_field']!r})",
         f"spent = 0",
         f"for record in self._store.select({spend_entity!r}, []):",
     ] + spend_lines + [
         f"    spent += record.get({target!r}) or 0",
-        f"return spent <= limit if limit is not None else True",
+        f"return {verdict}",
     ]
     if month_idents:
         guard = [f"if not ({' or '.join(month_idents)}):",
@@ -2695,16 +2810,23 @@ def _click_cli_tail(leaves, invocation, stats):
              "        if given is None or given is False:",
              "            if required and given is None:",
              "                raise ValueError(f\"missing required field {field_name!r} for {action!r}\")",
-             "            continue",
+             "            if given is None and spec.get('creates') and str(field_name).endswith('date') and str(field_name) not in ('due_date', 'return_date', 'start_date', 'end_date', 'birth_date'):",
+             "                given = datetime.date.today()",
+             "            else:",
+             "                continue",
              "        value = _transform(kind, given, field_name)",
-             "        if targets.get(target_param) is not None:",
+             "        if targets.get(target_param) and targets[target_param].startswith('__mapping__:'):",
+             "            grouped.setdefault(target_param, {})[field_name] = value",
+             "        elif targets.get(target_param) is not None:",
              "            grouped.setdefault(target_param, {})[field_name] = value",
              "        else:",
              "            grouped[target_param] = value",
              "    call_kwargs = {}",
              "    for target_param, value in grouped.items():",
              "        model_name = targets.get(target_param)",
-             "        if model_name is not None and isinstance(value, dict):",
+             "        if model_name and model_name.startswith('__mapping__:'):",
+             "            call_kwargs[_sanitize(target_param)] = value",
+             "        elif model_name is not None and isinstance(value, dict):",
              "            call_kwargs[_sanitize(target_param)] = getattr(models, model_name)(**value)",
              "        else:",
              "            call_kwargs[_sanitize(target_param)] = value",
@@ -2846,8 +2968,7 @@ def emit_cli(ctx, bindings, stats):
              '    if kind == "DIRECT" or value is None:',
              "        return value",
              '    if kind == "ISO_DATE":',
-             "        datetime.date.fromisoformat(str(value))",
-             "        return value",
+             "        return datetime.date.fromisoformat(str(value))",
              '    if kind == "DECIMAL_TO_CENTS":',
              "        return int(round(float(value) * 100))",
              '    if kind == "CSV_LIST":',
@@ -2899,6 +3020,9 @@ def emit_cli(ctx, bindings, stats):
         lines.append(f"        'argv': {argv.get(name, {})!r},")
         lines.append(f"        'targets': {targets.get(name, {})!r},")
         lines.append(f"        'assembled': {assembled.get(name, [])!r},")
+        creates = str(adapter.get("target_method") or "").lower().startswith(
+            ("add", "create"))
+        lines.append(f"        'creates': {creates!r},")
         lines.append("    },")
         for field in adapter.get("input_fields") or []:
             if not isinstance(field, dict) or not field.get("field_name"):
@@ -3058,16 +3182,23 @@ def emit_cli(ctx, bindings, stats):
               "        if given is None or given is False:",
               "            if required and given is None:",
               "                raise ValueError(f\"missing required field {field_name!r} for {action!r}\")",
-              "            continue",
+              "            if given is None and spec.get('creates') and str(field_name).endswith('date') and str(field_name) not in ('due_date', 'return_date', 'start_date', 'end_date', 'birth_date'):",
+              "                given = datetime.date.today()",
+              "            else:",
+              "                continue",
               "        value = _transform(kind, given, field_name)",
-              "        if targets.get(target_param) is not None:",
+              "        if targets.get(target_param) and targets[target_param].startswith('__mapping__:'):",
+              "            grouped.setdefault(target_param, {})[field_name] = value",
+              "        elif targets.get(target_param) is not None:",
               "            grouped.setdefault(target_param, {})[field_name] = value",
               "        else:",
               "            grouped[target_param] = value",
               "    call_kwargs = {}",
               "    for target_param, value in grouped.items():",
               "        model_name = targets.get(target_param)",
-              "        if model_name is not None and isinstance(value, dict):",
+              "        if model_name and model_name.startswith('__mapping__:'):",
+              "            call_kwargs[_sanitize(target_param)] = value",
+              "        elif model_name is not None and isinstance(value, dict):",
               "            call_kwargs[_sanitize(target_param)] = getattr(models, model_name)(**value)",
               "        else:",
               "            call_kwargs[_sanitize(target_param)] = value",
@@ -4051,6 +4182,9 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  list; a keyword can use a different noun than the entity",
             "  id. When a method takes one value, passing it positionally",
             "  is always safe.",
+            "- A repository `create` whose signature says `-> int` returns",
+            "  the new id, not a record; read it back with `read_one` before",
+            "  using its fields.",
         ]
     else:
         operators = "`, `".join(STORE_CONTRACT.criteria_operators)
@@ -4070,20 +4204,92 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         "- Reply with ONLY the replacement for the raise statement: the",
         "  body's lines, indented with 8 spaces. No `def` line, no",
         "  docstring, no markdown fences, no explanation.",
+    ]
+    # The method-specific part goes after the shared prefix. llama-server
+    # reuses the longest matching prompt prefix; a method name near the top
+    # (as it used to be) makes every request diverge after ~88 tokens.
+    tail = [
         f"- The method is `{info['cls']}.{method}`; the emitter refused it"
         " with:",
         f"  {info['reason']}",
     ]
     lines += call_rule
-    if any(line.strip() == "creates:" for line in contract):
+    if info.get("file") == "services.py":
         lines += [
+            "- A repository update that lists individual fields takes them",
+            "  as named keywords (`update(id=..., is_recurring=True)`); only",
+            "  a method that declares a `data` parameter takes a dict.",
+            "- Changing a dataclass in memory does not save it: call the",
+            "  repository's update method for every record you mark.",
+        ]
+    requirement_line = _requirements_line(requirements, method)
+    if re.search(
+            r"\bafter\s+(?:the\s+)?(?:insert(?:ion)?|creat(?:e|ion)|"
+            r"sav(?:e|ing)|add(?:ing)?)\b",
+            requirement_line or "", re.IGNORECASE):
+        tail += [
+            "- The requirement says the check runs AFTER the insert: call",
+            "  the create first, then perform the check. When the check",
+            "  raises, the created record stays saved — that is intended.",
+        ]
+    signature = info.get("def") or ""
+    if re.search(r"\bmonth\b", signature):
+        tail += [
+            "- A `month` value is a `YYYY-MM` label, not an ISO date.",
+            "  A range covering that month starts at `<month>-01`; its end",
+            "  is the last day of that calendar month (`<month>-31` for a",
+            "  31-day month), never a bare `31-01`.",
+        ]
+    if re.search(r"recurr", method, re.IGNORECASE) \
+            or "recurr" in (requirement_line or "").lower():
+        tail += [
+            "- Recurring means the same amount and category appear in",
+            "  different months. Group the expense records themselves by",
+            "  (amount, category), not by month; collect the distinct",
+            "  `YYYY-MM` prefixes from the group. Two or more distinct",
+            "  months make every record in that group recurring: set each",
+            "  record's flag and call `update(id=record.id,",
+            "  is_recurring=True)` for that record. Do not update a",
+            "  different loop's leftover variable. Compare prefixes as a",
+            "  set — no month arithmetic, and never parse `YYYY-MM` with",
+            "  `datetime.date.fromisoformat`.",
+        ]
+    if re.search(r"spend(?:ing)?|total|aggregate|\bsum\b", method, re.IGNORECASE):
+        tail += [
+            "- This method aggregates: return the total, or the keyed",
+            "  totals its return type declares — never one entry per input",
+            "  record.",
+        ]
+    if any(line.strip() == "creates:" for line in contract):
+        tail += [
+            "- A non-null model field still needs a value on create. When",
+            "  an optional flag is omitted, use the requirement's stated",
+            "  default; with none stated, use today for a date and the",
+            "  first documented value of an enumerated field.",
+        ]
+    if any(line.strip() == "creates:" for line in contract):
+        tail += [
             "- If the body both creates a record and changes an existing",
             "  one, create the record first; a failed create must not leave",
             "  the change behind.",
         ]
+    reference_text = (module_text or "") + "\n" + "\n".join(references or ())
+    if info.get("file") == "services.py" \
+            and any(line.strip() == "creates:" for line in contract) \
+            and re.search(r"loan|borrow", method, re.IGNORECASE) \
+            and "due_date" in reference_text \
+            and re.search(r"\bdue\b[^.\n]*\b(?:calendar\s+)?days?\b",
+                          requirements or "", re.IGNORECASE):
+        tail += [
+            "- The requirements state a due date. Compute it from the",
+            "  record's start date and the stated number of days (for",
+            "  example, `start + datetime.timedelta(days=14)`), and pass",
+            "  both dates to the create call; do not leave a non-null date",
+            "  field None.",
+        ]
     if context in ("honest", "exact") \
             and re.search(r"search|filter|find", method, re.I):
-        lines += [
+        tail += [
             "- A search or filter over several fields tests each field",
             "  independently: a record matching any one is a hit. Do not",
             "  put the fields in one `elif` chain — the later fields then",
@@ -4134,6 +4340,7 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         lines += ["",
                   f"The method is declared `-> {annotation}`; end the body",
                   "by returning its value."]
+    lines += ["", "Method-specific rules:"] + tail
     # The correction is the last thing before the ask: a small model that
     # saw the complaint at the top and then thousands of tokens of API and
     # module text repeated the refused keyword twice in a live
@@ -4333,7 +4540,18 @@ def _permits_post_write_raise(requirement, contract, raised_name):
     errors = {_last_name(item.get("error"))
               for item in (contract or {}).get("preconditions") or []
               if isinstance(item, dict) and item.get("error")}
-    return raised_name not in errors
+    if raised_name in errors:
+        return False
+    # Only the error the clause is about may follow the write. The clause
+    # names it in words (`budget exceeded`, `expense not found`); a plain
+    # `ValueError` from input validation does not share a word and stays a
+    # normal pre-write refusal.
+    line_tokens = {token for token in re.findall(r"[a-z]{4,}",
+                                                  (requirement or "").lower())}
+    spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", raised_name or "")
+    error_tokens = {token for token in re.findall(r"[a-z]{4,}",
+                                                   spaced.lower())}
+    return bool(line_tokens & (error_tokens - {"error", "exception"}))
 
 
 def _last_code_block(text):
@@ -4665,7 +4883,8 @@ def _requirements_line(requirements, method):
     confirmed method contract rather than from this line.
     """
     for line in (requirements or "").splitlines():
-        if method and re.search(rf"\b{re.escape(method)}\s*\(", line):
+        if method and re.search(
+                rf"\b{re.escape(method)}\b\s*(?:\(|:)", line):
             return line.strip()
     return ""
 
@@ -5322,6 +5541,28 @@ def _body_complaints(body, info, module_text, references_text, files,
                 f"`{name}.{mutations[name]}` is changed, but `{name}` is "
                 "never passed to an update_* method; a dataclass is a copy, "
                 "so the change is lost")
+    if info.get("file") == "services.py" \
+            and not (contract or {}).get("derives"):
+        untyped_mutations = []
+        for node in ast.walk(tree):
+            targets = node.targets if isinstance(node, ast.Assign) \
+                else [node.target] if isinstance(node, ast.AugAssign) else []
+            for target in targets:
+                if (isinstance(target, ast.Attribute)
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id != "self"):
+                    untyped_mutations.append(
+                        f"{target.value.id}.{target.attr}")
+        update_calls = [
+            node for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and (node.func.attr == "update"
+                 or node.func.attr.startswith("update_"))]
+        if untyped_mutations and not update_calls:
+            found.append(
+                f"changes `{untyped_mutations[0]}` in memory but never calls "
+                "a repository update; a dataclass change is not saved")
     writes = [node for node in ast.walk(tree)
               if (isinstance(node, ast.Call)
                   and isinstance(node.func, ast.Attribute)
@@ -5336,6 +5577,16 @@ def _body_complaints(body, info, module_text, references_text, files,
         if not chain:
             continue
         for raised in raises:
+            if raised.lineno < write.lineno \
+                    and _permits_post_write_raise(requirement, contract,
+                                                  _raised_name(raised)) \
+                    and _block_chain(raised, parents)[:len(chain)] == chain:
+                found.append(
+                    f"the requirement says the check runs after the insert, "
+                    f"but `raise {_raised_name(raised)}(...)` runs before "
+                    f"`{write.func.attr}(...)`; create the record first, then "
+                    "check — the stored record is the intended outcome")
+                continue
             if raised.lineno <= write.lineno:
                 continue
             if _block_chain(raised, parents)[:len(chain)] != chain:
@@ -5428,6 +5679,9 @@ def _body_complaints(body, info, module_text, references_text, files,
     found.extend(_contract_complaints(
         tree, contract, judge, "\n".join(body)))
     found += _keyword_call_complaints(tree, references_text)
+    found += _positional_dict_complaints(tree, references_text)
+    found += _scalar_return_complaints(tree, references_text)
+    found += _repository_call_complaints(tree, references_text)
     found += _store_operator_complaints(tree)
     return found
 
@@ -5829,6 +6083,132 @@ def _keyword_call_complaints(tree, references_text):
                 f"whose declared parameter is {declared}; pass the value "
                 f"positionally or use the declared keyword{suggestion}")
             break
+    return found
+
+
+def _positional_dict_complaints(tree, references_text):
+    """Reject a field dict passed into a scalar repository parameter.
+
+    `ExpenseRepository.update(id, dict)` has no `data` parameter: a live
+    recurring body passed `{'is_recurring': True}` into `amount_cents`, so
+    the flag was never saved. Only a method that declares a mapping
+    (`update(id, data)`) takes a dict.
+    """
+    signatures = _signature_parameters(references_text)
+    if not signatures:
+        return []
+    mapping_names = {"data", "updates", "values", "patch", "fields"}
+    found = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        method = node.func
+        if not isinstance(method, ast.Attribute):
+            continue
+        repo = _repo_name(method.value)
+        if repo is None:
+            continue
+        params = signatures.get((repo, method.attr))
+        if params is None:
+            continue
+        for index, argument in enumerate(node.args):
+            if not isinstance(argument, ast.Dict):
+                continue
+            if index < len(params) and params[index] in mapping_names:
+                continue
+            target = params[index] if index < len(params) else "an extra parameter"
+            found.append(
+                f"passes a dict positionally to `{repo}.{method.attr}(...)`, "
+                f"where parameter {index + 1} is `{target}`; pass the field "
+                "as a keyword (`is_recurring=True`) instead")
+            break
+    return found
+
+
+def _scalar_return_complaints(tree, references_text):
+    """Reject a scalar repository result treated as a record.
+
+    `ExpenseRepository.create(...) -> int` returns the new id. A body that
+    assigns it to `expense` and reads `expense.expense_date` crashes; the
+    record must be read back first.
+    """
+    returns = {}
+    for line in _method_signatures(references_text):
+        match = re.match(
+            r"^(\w+)\.(\w+)\(.*\)\s*->\s*(.+?)\s*$", line)
+        if match:
+            returns[(match.group(1), match.group(2))] = match.group(3)
+    if not returns:
+        return []
+    scalar = re.compile(
+        r"^(?:int|bool|float|str|None|NoneType)"
+        r"(?:\s*\|\s*(?:None|NoneType))?$")
+    assigned = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        value = node.value
+        if not (isinstance(target, ast.Name) and isinstance(value, ast.Call)):
+            continue
+        func = value.func
+        if not isinstance(func, ast.Attribute):
+            continue
+        repo = _repo_name(func.value)
+        if repo is None:
+            continue
+        declared = returns.get((repo, func.attr))
+        if declared and scalar.match(declared):
+            assigned[target.id] = f"{repo}.{func.attr}"
+    found = []
+    for name, call in assigned.items():
+        for node in ast.walk(tree):
+            if (isinstance(node, ast.Attribute)
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id == name):
+                found.append(
+                    f"assigns `{name} = {call}(...)`, which returns "
+                    "a scalar (the new id), then reads "
+                    f"`{name}.{node.attr}` as if it were a record; read it "
+                    "back with `read_one` first")
+                break
+    return found
+
+
+def _repository_call_complaints(tree, references_text):
+    """Reject a method called on a repository that does not define it.
+
+    A service body guessed `ExpenseRepository.find_expenses_by_category`
+    while the method is declared on `CategoryRepository`; the call reads
+    fine and fails only when reached. The module's own repository
+    signatures are the only authority.
+    """
+    signatures = _signature_parameters(references_text)
+    if not signatures:
+        return []
+    owners = {}
+    for repo, method in signatures:
+        owners.setdefault(method, set()).add(repo)
+    found = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        method = node.func
+        if not isinstance(method, ast.Attribute):
+            continue
+        repo = _repo_name(method.value)
+        if repo is None or (repo, method.attr) in signatures:
+            continue
+        elsewhere = sorted(owners.get(method.attr, set()) - {repo})
+        if elsewhere:
+            found.append(
+                f"calls `{repo}.{method.attr}(...)`, but {repo} does not "
+                f"define `{method.attr}`; it is declared on "
+                + " or ".join(f"`{name}`" for name in elsewhere))
+        else:
+            found.append(
+                f"calls `{repo}.{method.attr}(...)`, but no repository "
+                "declares that method")
     return found
 
 
@@ -6267,8 +6647,19 @@ def _spliced_candidate(text, start, end, info, body, model_name):
 
 def _attempt_fields(result):
     """The generation facts recorded beside every raw answer in the dump."""
-    return {"finish_reason": result.finish_reason, "tokens": result.tokens,
-            "budget": result.budget, "truncated": result.truncated}
+    def number(value):
+        return value if isinstance(value, (int, float)) else None
+
+    return {
+        "finish_reason": result.finish_reason,
+        "tokens": result.tokens,
+        "budget": result.budget,
+        "truncated": result.truncated,
+        "seconds": number(result.seconds),
+        "decode_seconds": number(getattr(result, "decode_seconds", None)),
+        "prompt_tokens": number(getattr(result, "prompt_tokens", None)),
+        "cached_tokens": number(getattr(result, "cached_tokens", None)),
+    }
 
 
 def _first_fields(result):
@@ -6368,8 +6759,9 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     Returns `[(label, status, note)]`, one row per refused stub, `status`
     `written` or `kept`. With `dump_path`, every raw answer lands there as
     JSON — both attempts when a repair was asked, with `finish_reason`,
-    `tokens`, `budget` and `truncated` beside each, so the refusal and the
-    correction can be read instead of guessed at.
+    `tokens`, `budget`, `truncated`, `seconds`, `decode_seconds`,
+    `prompt_tokens` and `cached_tokens` beside each, so the refusal, the
+    correction and where the time went can be read instead of guessed at.
     """
     targets = [(name, find_stub_spans(files[name])) for name in STUB_FILES
                if isinstance(files.get(name), str)]

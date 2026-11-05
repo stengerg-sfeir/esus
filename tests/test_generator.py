@@ -2461,13 +2461,19 @@ class StubFillTests(unittest.TestCase):
             dump = Path(directory) / "llm_stub_answers.json"
             replies = [
                 mock.Mock(text="return None", tokens=3, seconds=0.1,
-                          budget=3584, finish_reason="stop", truncated=False),
+                          budget=3584, finish_reason="stop", truncated=False,
+                          prompt_tokens=100, decode_seconds=0.05,
+                          cached_tokens=80),
                 mock.Mock(text="handle = open(file_path, \"w\")\n"
                                "handle.close()\nreturn None",
                           tokens=3, seconds=0.1, budget=3584,
-                          finish_reason="stop", truncated=False),
+                          finish_reason="stop", truncated=False,
+                          prompt_tokens=100, decode_seconds=0.05,
+                          cached_tokens=80),
                 mock.Mock(text="return 0", tokens=3, seconds=0.1, budget=3584,
-                          finish_reason="stop", truncated=False),
+                          finish_reason="stop", truncated=False,
+                          prompt_tokens=100, decode_seconds=0.05,
+                          cached_tokens=80),
             ]
             with mock.patch.object(generator.runner, "load_model",
                                    return_value=object()), \
@@ -2490,6 +2496,12 @@ class StubFillTests(unittest.TestCase):
         self.assertEqual(data[0]["first_finish_reason"], "stop")
         self.assertFalse(data[0]["first_truncated"])
         self.assertEqual(data[0]["tokens"], 3)
+        self.assertEqual(data[0]["seconds"], 0.1)
+        self.assertEqual(data[0]["first_seconds"], 0.1)
+        self.assertEqual(data[0]["prompt_tokens"], 100)
+        self.assertEqual(data[0]["first_prompt_tokens"], 100)
+        self.assertEqual(data[0]["cached_tokens"], 80)
+        self.assertEqual(data[0]["decode_seconds"], 0.05)
         self.assertEqual(data[0]["context"], "exact")
 
 

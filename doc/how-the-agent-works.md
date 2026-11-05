@@ -142,7 +142,7 @@ To include the interactive review loop, add `--chat`. The requirements must be p
 To use an already-running `llama-server` instead of loading the GGUF in the extractor, pass `--model server`:
 
 ```bash
-llama-server -m /path/to/model.gguf -c 16384 -ngl 99 -fa on --port 8080 --cache-ram 512 -np 1
+llama-server -m /path/to/model.gguf -c 16384 -ngl 99 -fa on --port 8080 -np 1
 LLAMA_SERVER_URL=http://127.0.0.1:8080 \
   python3 extract_arch.py --model server --output out/my-app \
     --requirements prompts/my-app.txt
@@ -150,7 +150,7 @@ LLAMA_SERVER_URL=http://127.0.0.1:8080 \
 
 `LLAMA_SERVER_URL` defaults to `http://127.0.0.1:8080`; the server's context size and native grammar sampler are used. `generator.py --model server` uses the same setting for body generation.
 
-`--cache-ram 512 -np 1` keeps the server's memory small: its prompt cache defaults to 8 GB, which on a 16 GB machine can take most of the memory. The context size shapes how many tokens a body may use, so keep it the same between runs you want to compare.
+The launch script does not set `--cache-ram`; llama-server's prompt-cache default applies. The context size shapes how many tokens a body may use, so keep it the same between runs you want to compare.
 
 A run is reproducible. With the same code, requirements, model, server flags and context size, two complete runs produce byte-identical documents, model answers and generated modules, including after the server is stopped and restarted. The one thing that differs is the output directory's name, which becomes the generated program's name. Any change to a prompt, a pattern catalogue, a check's message or a neighbouring method body changes the output, because the model sees the module text when it writes a body.
 
@@ -183,7 +183,7 @@ A clean readiness check does not run the program. `tests/e2e_library_acceptance.
 python3 tests/e2e_library_acceptance.py out/my-app
 ```
 
-It runs the generated CLI in fresh processes against a temporary SQLite database, calls the methods the CLI does not reach through the package's own wiring, and never edits a generated module. It checks the behavior the prompt defines: constraints, search, borrow and return, the due date, derived overdue status, rollback on a failed write, cascade, and the absence of commands the prompt does not list. It is written for that prompt; another prompt needs its own acceptance fixture. `tests/e2e_expenses_acceptance.py` does the same for the expenses prompt; on the current output it passes 3 of 13 checks (see [Open points](open-points.md), point 10).
+It runs the generated CLI in fresh processes against a temporary SQLite database, calls the methods the CLI does not reach through the package's own wiring, and never edits a generated module. It checks the behavior the prompt defines: constraints, search, borrow and return, the due date, derived overdue status, rollback on a failed write, cascade, and the absence of commands the prompt does not list. It is written for that prompt; another prompt needs its own acceptance fixture. `tests/e2e_expenses_acceptance.py` does the same for the expenses prompt; on the current output it passes 13 of 13 checks.
 
 ## A practical review of the design
 
