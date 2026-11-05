@@ -23,6 +23,7 @@ from kernel.extraction import (
     grammar_open,
     grammar_persistence,
     interfaces,
+    mappings,
     prompts,
     repairs,
     repository_contracts,
@@ -709,13 +710,25 @@ class Pipeline:
         if not vocab.entity_names and not vocab.crud_entities:
             self.log.write("[!] step persistence: no entities to persist — step skipped")
             return
+        entries = grammar_persistence.persisted_entities(vocab)
         body = self._generate(
             PERSISTENCE_PORTS,
-            prompts.persistence_ports(requirements, prompts.requirements_block(vocab)),
-            grammar_persistence.persistence_ports(vocab),
+            prompts.repository_methods(
+                requirements, prompts.requirements_block(vocab)),
+            grammar_persistence.repository_methods(vocab),
         )
         if body is None:
             return
+        # Mappings are a function of the data model.  Add them mechanically;
+        # the model only supplied the custom repository methods above.
+        if isinstance(body, dict):
+            body = {
+                **body,
+                "entity_mappings": mappings.entity_mappings(
+                    self.documents.get(DATA_MODELS),
+                    [entity for entity, _key in entries],
+                ),
+            }
         # Custom aggregates are discovered by H, but adapters and code
         # generation read E.  Merge H's extra methods into the mechanical E
         # repository before unification makes E the final method set.

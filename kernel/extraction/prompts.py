@@ -261,6 +261,30 @@ PERSISTENCE_SYSTEM = (
 )
 
 
+REPOSITORY_METHODS_SYSTEM = (
+    "You are a software architect. Repository interfaces and their standard CRUD methods "
+    "— create, read_one, read_all, update, delete — are generated mechanically from the "
+    "data model. Produce only the CUSTOM query and aggregate methods the requirements "
+    "describe for the listed repositories. The repository list and the entity names are "
+    "fixed: emit one entry for each listed entity, in the order given. An empty methods "
+    "list is correct when an entity has no custom method. Do not emit CRUD methods, do not "
+    "invent a repository, do not repeat a method, and never use an entity name as a method "
+    "name. Give each custom method a real description and return type. Declare the "
+    "parameters the method's own name requires: a method that reads one record by a key, "
+    "a name, an email or a date needs that key. Emit an empty params list [] only for a "
+    "method that genuinely takes no argument. Never emit a placeholder name or type such "
+    "as 'none', 'None', 'void', 'NoneType' or ':'. "
+    'Output strictly in English as JSON: {"persistence_ports": {"repositories": ['
+    '{"entity": "...", "interface_name": "...", "methods": [{"name": "...", '
+    '"description": "...", "params": [{"name": "...", "type": "..."}], '
+    '"return_type": "..."}]}]}}.'
+)
+
+
+def repository_methods(requirements, names):
+    return _prompt(REPOSITORY_METHODS_SYSTEM, requirements, names)
+
+
 def intentions(requirements):
     return _prompt(INTENTIONS_SYSTEM, requirements)
 
