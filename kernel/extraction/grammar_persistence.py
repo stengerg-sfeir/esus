@@ -77,7 +77,7 @@ def persistence_ports(vocabulary):
             *repository_rules,
             *mapping_rules,
             rule("index-list", json_list("identifier", 0, MAX_INDEXES)),
-            *grammar_open.method_rules(),
+            *grammar_open.method_rules(minimum=0),
         ]
     )
 

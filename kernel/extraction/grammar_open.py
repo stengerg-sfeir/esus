@@ -69,13 +69,14 @@ TRANSFORMS = (
 )
 
 
-def method_rules(extra=()):
+def method_rules(extra=(), minimum=1):
     """The method block shared by service contracts and repositories.
 
     `extra` appends further key/value pairs to the method object, which is how a
     **contract** method carries `raises` while a repository method does not: the
     service declares the behaviour, so the service is where the failure it may
-    produce is named.
+    produce is named.  ``minimum`` is 0 for the custom-method pass, where a
+    repository with no custom aggregate is a valid, useful answer.
     """
     pairs = [
         ("name", "identifier"),
@@ -85,7 +86,7 @@ def method_rules(extra=()):
     ]
     pairs.extend(extra)
     return (
-        rule("method-list", json_list("method", 1, MAX_METHODS)),
+        rule("method-list", json_list("method", minimum, MAX_METHODS)),
         rule("method", json_object(pairs)),
         rule("param-list", json_list("param")),
         rule("param", json_object([("name", "identifier"), ("type", "string")])),

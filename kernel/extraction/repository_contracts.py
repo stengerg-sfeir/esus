@@ -82,6 +82,10 @@ def _shell(entity, fields, operations, errors):
         {"name": field["name"], "type": _type_name(field)}
         for field in writable
     ]
+    field_params = [
+        {"name": field["name"], "type": _type_name(field)}
+        for field in writable
+    ]
     not_found = _not_found_error(errors, entity)
     lookup_raises = [not_found] if not_found else []
     methods = []
@@ -98,20 +102,19 @@ def _shell(entity, fields, operations, errors):
             ))
         elif operation == "read_all":
             methods.append(_method(
-                "read_all", f"Lists every {entity}.",
-                [], f"list[{entity}]",
+                "read_all", f"Lists every {entity}; optional fields narrow the result.",
+                field_params, f"list[{entity}]",
             ))
         elif operation == "update":
             methods.append(_method(
                 "update", f"Updates an existing {entity}.",
-                [{"name": primary_key, "type": "int"},
-                 {"name": "data", "type": "dict[str, any]"}],
+                [{"name": primary_key, "type": "int"}, *field_params],
                 entity, lookup_raises,
             ))
         elif operation == "delete":
             methods.append(_method(
                 "delete", f"Deletes an existing {entity}.",
-                [{"name": primary_key, "type": "int"}],
+                [{"name": primary_key, "type": "int"}, *field_params],
                 "None", lookup_raises,
             ))
     return {"service_name": f"{entity}Repository", "methods": methods}

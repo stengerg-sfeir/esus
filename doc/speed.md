@@ -164,3 +164,29 @@ On the shared-context llama.cpp expenses test this took the readiness count from
 failures were fixed.  The remaining 12 are review questions plus filter/field
 mappings, not missing repositories.  The baseline layout still produces its
 previous **4 blockers**.
+
+### Custom repository methods, without regenerating CRUD
+
+Step H now emits only the **custom** repository queries and aggregates.  The
+standard CRUD methods come from `repository_contracts.py`; step H contributes
+one repository entry per fixed entity with an empty method list when there is
+nothing custom to add.  Its grammar allows an empty method list for exactly
+this case.
+
+Measured on expenses, with the same model and temperature:
+
+| Extraction | Before this pass | Custom-method pass |
+| --- | ---: | ---: |
+| Baseline layout, wall | 397.4 s | **373.7 s** |
+| Baseline layout, generated tokens | 13,837 | **12,710** |
+| Baseline layout, blockers | 4 | **4** |
+| Shared layout, wall | 307.5 s | **246.9 s** |
+| Shared layout, generated tokens | 10,315 | **9,166** |
+| Shared layout, blockers | 20 | **2** |
+
+The shared run now has only review items and one tie left, not missing
+repositories or adapter targets.  The baseline layout keeps its previous four
+blockers; the speed and token reduction come mostly from not regenerating the
+standard repository method set.  The mechanical method signatures also include
+the entity fields, so the adapters can map options such as `--month` and
+`--amount` instead of leaving them unconsumed.
