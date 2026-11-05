@@ -96,8 +96,8 @@ process, same prompt and temperature 0.
 Extraction is about **6% faster wall-clock** and about **23% faster in model
 time**. The remaining extraction time is the classifier, which does one full
 forward pass per candidate set on MLX; the llama.cpp server reuses its KV prefix
-there. Raw extraction deliberately does not use the MLX KV cache because that
-changed the generated documents and made runs slower and more variable.
+there. Raw extraction uses the MLX KV cache only in the opt-in shared-context
+mode described below; the original prompt layout has no useful common prefix.
 
 Body generation is **slower** than a warm llama-server: MLX prefill is slower
 and the 4-bit MLX weights do not reproduce the llama.cpp Q4_K_M output. The
@@ -106,3 +106,33 @@ one service check fail), so MLX should currently be treated as a speed experimen
 rather than a replacement for the llama.cpp path. Its generation run with KV
 cache disabled took 223.4 s; the 135.0 s figure is with the shared body-prompt
 prefix cached.
+
+### Shared extraction prefix (opt-in)
+
+`ESUS_SHARED_CONTEXT=1` moves the requirements into a fixed first system turn
+and puts the step-specific instruction in the user turn. Every extraction prompt
+then begins with the same **3,225-character** requirements prefix, so both
+backends can reuse it:
+
+```bash
+ESUS_SHARED_CONTEXT=1 .venv-mlx/bin/python main.py prompts/prompt_expenses.txt \
+    --model mlx -o out/expenses_mlx_shared
+ESUS_SHARED_CONTEXT=1 python3 main.py prompts/prompt_expenses.txt \
+    --model server -o out/expenses_llama_shared
+```
+
+Measured on the expenses prompt, same model and temperature:
+
+| Extraction | Baseline | Shared prefix | Change |
+| --- | ---: | ---: | ---: |
+| MLX wall | 372.1 s | **307.5 s** | **-17%** |
+| MLX model time | 296.9 s | **229.6 s** | **-23%** |
+| MLX generated tokens | 12,597 | 10,315 | fewer retries |
+| llama.cpp wall | 397.4 s | **326.8 s** | **-18%** |
+| llama.cpp generated tokens | 13,837 | 11,913 | fewer retries |
+
+The speed gain is real, but the prompt change also changes the documents:
+the MLX shared run had 20 readiness blockers (baseline 24) and the llama.cpp
+shared run had 18 (baseline 4). It is therefore **off by default** until a
+reviewed shared-context run passes the same end-to-end acceptance suite. The
+flag is the experiment; do not treat it as a free cache on the current prompts.

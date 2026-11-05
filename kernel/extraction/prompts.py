@@ -5,10 +5,23 @@ The block is produced from the previous step's output by
 grammar, so the prompt and the grammar always agree about which names exist.
 """
 
+import os
+
 NAMES_HEADING = (
     "Authoritative names produced by the previous extraction step. "
     "Use only these names, copied character for character. "
     "Do not invent, abbreviate, rename or translate any of them."
+)
+
+# Putting the complete requirements in a fixed first system turn gives every
+# extraction prompt the same long prefix. The backend can then reuse its KV
+# cache for that prefix instead of re-prefilling 3.3k characters at every step.
+# It is opt-in until it has passed the same acceptance runs as the old layout.
+SHARED_CONTEXT = os.environ.get("ESUS_SHARED_CONTEXT") == "1"
+SHARED_CONTEXT_SYSTEM = (
+    "You are a software architect. The complete requirements are in this "
+    "message. Use only facts stated here; the next message names the "
+    "extraction task and the JSON shape to return."
 )
 
 # Shown to step B, the only step nothing constrains — see `intentions_block`.
@@ -429,6 +442,13 @@ def _prompt(system, requirements, names=None, extra=None):
     names_section = f"\n\n{names}\n" if names else "\n"
     if extra:
         names_section += f"\n{extra}\n"
+    if SHARED_CONTEXT:
+        return (
+            f"<|im_start|>system\n{SHARED_CONTEXT_SYSTEM}\n"
+            f"{requirements}<|im_end|>\n"
+            f"<|im_start|>user\n{system}{names_section}<|im_end|>\n"
+            "<|im_start|>assistant\n"
+        )
     return (
         f"<|im_start|>system\n{system}{names_section}<|im_end|>\n"
         f"<|im_start|>user\n{requirements}<|im_end|>\n<|im_start|>assistant\n"

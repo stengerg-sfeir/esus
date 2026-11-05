@@ -60,6 +60,13 @@ The grammar text, prompt, temperature and seed are unchanged from the
 llama.cpp/server path. The translation is validated by
 `tests/test_mlx_backend.py` for every open extraction grammar.
 
+## Shared extraction prefix
+
+`ESUS_SHARED_CONTEXT=1` optionally moves the requirements into a fixed first
+system turn so every extraction prompt shares a long prefix. The backends can
+then reuse that prefix: on expenses it measured 17-18% faster extraction, but it
+changes the documents and is not the default. See [speed.md](speed.md).
+
 ## Notes
 
 - The backend is in `kernel/extraction/mlx_backend.py`; only `runner.load_model`

@@ -322,7 +322,8 @@ class MLXModel:
                  seed=None, **kwargs):
         prompt_ids = self.tokenize(prompt, add_bos=True)
         text, finish_reason, predicted, started, ended, decode_seconds = self._sample(
-            prompt_ids, max_tokens, temperature, grammar, seed, use_cache=False
+            prompt_ids, max_tokens, temperature, grammar, seed,
+            use_cache=os.environ.get("ESUS_SHARED_CONTEXT") == "1",
         )
         prompt_tokens = len(prompt_ids)
         self.last_timings = {
