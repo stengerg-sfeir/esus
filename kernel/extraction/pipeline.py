@@ -8,6 +8,7 @@ rather than silent.
 """
 
 import json
+import os
 import re
 import sys
 
@@ -20,6 +21,7 @@ from kernel.extraction import (
     dedupe,
     grammar_builders,
     grammar_check,
+    grammar_components,
     grammar_open,
     grammar_persistence,
     interfaces,
@@ -54,6 +56,7 @@ ERRORS = "errors"
 INVARIANTS = "invariants"
 COMPONENTS = "components"
 SERVICE_CONTRACTS = "service_contracts"
+COMPONENTS_SPLIT = os.environ.get("ESUS_COMPONENTS_SPLIT") == "1"
 PATTERN_MATCHES = "pattern_matches"
 INTERACTION_ADAPTERS = "interaction_adapters"
 PERSISTENCE_PORTS = "persistence_ports"
@@ -366,11 +369,18 @@ class Pipeline:
                            "deriving the surface from prose")
         else:
             self.log.write(f"[ok] step components: {len(spans)} command line(s) enumerated")
-        body = self._generate(
-            COMPONENTS,
-            prompts.components(requirements, block, lines_block),
-            grammar,
-        )
+        if COMPONENTS_SPLIT:
+            body = self._generate_components_split(
+                requirements, block, lines_block,
+                spans=spans,
+                paths=command_lines.uses_paths(spans),
+            )
+        else:
+            body = self._generate(
+                COMPONENTS,
+                prompts.components(requirements, block, lines_block),
+                grammar,
+            )
         # A bare command line (`` `library overdue` ``) comes back with a
         # subcommand named `none` stating there is none. The grammar leaves
         # subcommand names free text, so the placeholder is removed here —
@@ -405,7 +415,15 @@ class Pipeline:
         # retried once with the miss itself appended to the requirements,
         # exactly as named.
         missing = _missing_commands(body, requirements) + _missing_flags(body, requirements)
-        if missing:
+        if missing and COMPONENTS_SPLIT:
+            # The split path has already asked every group separately.  A
+            # full-surface retry here would recreate the very unbounded
+            # generation the split exists to avoid.
+            self.log.write(
+                f"[!] step components still omits {len(missing)} surface item(s); "
+                f"split mode keeps the merged result"
+            )
+        elif missing:
             self.log.write(
                 f"[!] step components omits {len(missing)} surface item(s) the requirements "
                 f"name — retrying once"
@@ -695,6 +713,120 @@ class Pipeline:
             adapters, self.documents.get(SERVICE_CONTRACTS),
             self.documents.get(DATA_MODELS), self.log
         )
+
+    @staticmethod
+    def _group_block(spans, group):
+        """The exact command lines belonging to one top-level group.
+
+        Prose-only prompts have no such lines; the model then chooses the
+        subtree.  When the requirements do name command lines, passing all of
+        them to every group is how Bonsai turned a group into a second copy of
+        the whole surface.
+        """
+        if not spans:
+            return None
+        attributed = command_lines.path_attribution(spans)
+        lines = []
+        for span, (command, path, flags) in zip(spans, attributed):
+            if command != group:
+                continue
+            flag_text = " ".join(
+                ("--" + flag if required else "[--" + flag + "]")
+                for flag, required in flags
+            )
+            target = (
+                f"subcommand `{path}`" if path
+                else "this command's own options; no subcommand"
+            )
+            lines.append(f"- `{span}` -> {target}; flags: {flag_text or 'none'}")
+        if not lines:
+            return None
+        return (
+            f"Required lines for the top-level command `{group}`. "
+            "Do not create a subcommand named after the top-level command. "
+            "Use exactly these subcommands and flags; do not add unrelated "
+            "subcommands:\n" + "\n".join(lines)
+        )
+
+    @staticmethod
+    def _group_subcommands(spans, group):
+        if not spans:
+            return None
+        attributed = command_lines.path_attribution(spans)
+        return [path for command, path, _flags in attributed
+                if command == group and path]
+
+    def _generate_components_split(self, requirements, block, lines_block,
+                                   spans=(), paths=False):
+        """Generate the surface plan, then one subtree per top-level command."""
+        plan = self._generate(
+            COMPONENTS,
+            prompts.component_plan(requirements, block, lines_block),
+            grammar_components.plan(self._vocabulary(), paths=paths),
+        )
+        if not isinstance(plan, dict):
+            return None
+        facade = plan.get("facade")
+        invocation = facade.get("invocation") if isinstance(facade, dict) else None
+        if not isinstance(invocation, dict):
+            # A CLI technology with no invocation is contradictory.  When the
+            # requirements give explicit command lines, seed the plan from them
+            # rather than accepting an empty surface from the model.
+            technology = facade.get("technology") if isinstance(facade, dict) else None
+            if technology in {"click", "argparse", "sys.argv"} and spans:
+                commands = []
+                for command, _path, _flags in command_lines.path_attribution(spans):
+                    if command not in commands:
+                        commands.append(command)
+                if commands:
+                    invocation = {
+                        "positional": [],
+                        "options": [],
+                        "commands": [{"name": name} for name in commands],
+                    }
+                    facade["invocation"] = invocation
+                    self.log.write(
+                        f"[ok] step components: repaired empty invocation with "
+                        f"{len(commands)} planned command group(s)"
+                    )
+            if not isinstance(invocation, dict):
+                return plan
+        commands = invocation.get("commands")
+        if not isinstance(commands, list) or not commands:
+            return plan
+
+        merged = []
+        for entry in commands:
+            name = entry.get("name") if isinstance(entry, dict) else entry
+            if not isinstance(name, str) or not name.strip():
+                continue
+            group = self._generate(
+                "command_group",
+                prompts.component_group(
+                    requirements, name, block,
+                    self._group_block(spans, name),
+                ),
+                grammar_components.command_group(
+                    paths=paths,
+                    subcommands=self._group_subcommands(spans, name),
+                ),
+            )
+            if not isinstance(group, dict):
+                self.log.write(
+                    f"[!] step components: group '{name}' produced no usable subtree"
+                )
+                continue
+            merged.append({
+                "name": name,
+                "options": group.get("options") or [],
+                "subcommands": group.get("subcommands") or [],
+            })
+        invocation["commands"] = merged
+        self.documents[COMPONENTS] = plan
+        return plan
+
+    def _vocabulary(self):
+        return vocabulary.Vocabulary(entities=self._entities())
 
     def _step_persistence(self, requirements):
         """Step H: repositories and mappings are fixed by steps B and D."""

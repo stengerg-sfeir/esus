@@ -327,6 +327,45 @@ def invariants(requirements, names=None):
     return _prompt(INVARIANTS_SYSTEM, requirements, names)
 
 
+COMPONENT_PLAN_SYSTEM = (
+    "You are a software architect. Return only the CLI surface PLAN for this "
+    "program. The full command subtrees are generated separately; do not emit "
+    "them here. "
+    "The plan has these fields: "
+    "facade.type is cli, api or gui; facade.technology matches that surface. "
+    "facade.invocation is null ONLY when the program accepts no arguments at "
+    "all. Otherwise it is an object with positional arguments, global options, "
+    "and a commands list. Each command in that list has only its name; do not "
+    "emit command-specific options or subcommands in this plan. "
+    "If the requirements name CLI commands, invocation must not be null and the "
+    "command names must be present. A command with subcommands carries no "
+    "command-specific options here. "
+    "persistence says whether storage is required and its technology. "
+    "external_access lists only named cloud services. "
+    "crud_services lists each stored entity at most once, copied from the "
+    "authoritative entity list, with a subset of create, read_one, read_all, "
+    "update and delete. "
+    "Do not invent an entity or a database. "
+    'Output strictly in English as JSON. Use null for invocation only when '
+    'there are no arguments; otherwise use an object with positional, options '
+    'and commands. The commands are objects containing only a name. Include '
+    'persistence, external_access and crud_services.'
+)
+
+
+def component_plan(requirements, names, extra=None):
+    return _prompt(COMPONENT_PLAN_SYSTEM, requirements, names, extra)
+
+
+def component_group(requirements, group, names, extra=None):
+    text = (
+        f"Top-level command: `{group}`.\n"
+        "Use the requirements and authoritative names below. "
+        "Fill only this command's subtree."
+    )
+    return _prompt(text, requirements, names, extra)
+
+
 def components(requirements, names, extra=None):
     return _prompt(COMPONENTS_SYSTEM, requirements, names, extra)
 

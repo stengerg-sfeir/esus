@@ -33,6 +33,7 @@ from kernel.extraction.grammar import (
     json_literal,
     json_list,
     json_object,
+    string_choice,
     json_object_tail,
     rule,
 )
@@ -202,7 +203,7 @@ def components(paths=False):
     )
 
 
-def facade_rules(paths=False):
+def facade_rules(paths=False, subcommands=None):
     """The facade object and the CLI surface it describes.
 
     `invocation` records what the program *accepts* — its positionals, options
@@ -315,8 +316,12 @@ def facade_rules(paths=False):
         ),
         rule(
             "cli-subcommand",
-            json_object([("name", "cli-path" if paths else "identifier"),
-                         ("options", "cli-option-list")]),
+            json_object([
+                ("name", string_choice(subcommands)
+                 if subcommands else
+                 ("cli-path" if paths else "identifier")),
+                ("options", "cli-option-list"),
+            ]),
         ),
         *((PATH_NAME_RULE,) if paths else ()),
         GLOBAL_OPTION_NAME_RULE,
