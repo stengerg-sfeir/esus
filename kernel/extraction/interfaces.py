@@ -92,3 +92,45 @@ def _matching_service(repository, declared):
     if not isinstance(repository, dict):
         return None
     return declared.get(normalize(repository.get("interface_name")))
+
+
+def merge_repository_methods(services, ports, log=None):
+    """Add methods only step H discovered to the matching step-E repository.
+
+    Mechanical repository shells give E the required CRUD methods, but custom
+    aggregates are still discovered by step H.  E is written first, so H cannot
+    hand them forward before execution; this merge keeps them in the service
+    contract that code generation reads.  Existing E methods win on a name
+    collision.
+    """
+    repositories = ports.get("repositories") if isinstance(ports, dict) else None
+    if not isinstance(services, list) or not isinstance(repositories, list):
+        return services
+    declared = _declared_interfaces(services)
+    added = 0
+    for repository in repositories:
+        if not isinstance(repository, dict):
+            continue
+        service = declared.get(normalize(repository.get("interface_name")))
+        if service is None:
+            continue
+        methods = service.setdefault("methods", [])
+        names = {
+            method.get("name")
+            for method in methods
+            if isinstance(method, dict) and method.get("name")
+        }
+        for method in repository.get("methods") or ():
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            if method["name"] in names:
+                continue
+            methods.append(method)
+            names.add(method["name"])
+            added += 1
+    if log is not None and added:
+        log.write(
+            f"[ok] step persistence: merged {added} custom repository method(s) "
+            f"into service_contracts"
+        )
+    return services

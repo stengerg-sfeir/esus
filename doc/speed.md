@@ -146,3 +146,21 @@ an acceptance score: the reviewed `out/expenses_correct` is the 13/13 reference.
 The MLX baseline's 24 and shared run's 20 have the same character — a few root
 causes repeated per field or option — and the MLX outputs are also from a
 different 4-bit quantisation than the Q4_K_M GGUF.
+
+### Mechanical repository completion
+
+The service-contract step no longer has to be trusted to emit every derived
+repository.  `kernel/extraction/repository_contracts.py` adds one
+`{Entity}Repository` shell for every CRUD entity that step E omitted, with the
+required `create`, `read_one`, `read_all`, `update` and `delete` methods.  A
+repository the model *did* emit keeps its methods, including custom aggregates.
+
+Step H now runs before pattern matching and adapters, and
+`interfaces.merge_repository_methods` copies any custom methods H discovers back
+into the matching service contract before those steps see it.
+
+On the shared-context llama.cpp expenses test this took the readiness count from
+**18 to 12 blockers**: the two missing repositories and their derived adapter
+failures were fixed.  The remaining 12 are review questions plus filter/field
+mappings, not missing repositories.  The baseline layout still produces its
+previous **4 blockers**.

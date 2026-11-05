@@ -52,14 +52,14 @@ class ResumeTests(unittest.TestCase):
         called, _ = self.recorded_run(None, {})
         self.assertEqual(called, ["intentions", "data_models", "errors",
                                   "invariants", "components", "service_contracts",
-                                  "errors_repair", "patterns", "adapters",
-                                  "persistence"])
+                                  "errors_repair", "persistence", "patterns",
+                                  "adapters"])
 
     def test_resuming_skips_earlier_steps(self):
         called, documents = self.recorded_run(
             "components", {"data_models": [{"name": "X"}]})
         self.assertEqual(called, ["components", "service_contracts", "errors_repair",
-                                  "patterns", "adapters", "persistence"])
+                                  "persistence", "patterns", "adapters"])
         self.assertEqual(documents["data_models"], [{"name": "X"}])
 
     def test_an_unknown_step_fails_loudly(self):

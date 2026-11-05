@@ -248,8 +248,8 @@ class StepProgressTests(unittest.TestCase):
         self.assertEqual([name for name, _ in seen],
                          ["intentions", "data_models", "errors", "invariants",
                           "components", "service_contracts", "errors_repair",
-                          "pattern_matches", "interaction_adapters",
-                          "persistence_ports"])
+                          "persistence_ports", "pattern_matches",
+                          "interaction_adapters"])
         self.assertEqual(seen[0], ("intentions", "1 phrase(s)"))
 
     def test_parse_diagnostics_go_through_the_log(self):

@@ -25,6 +25,7 @@ from kernel.extraction import (
     interfaces,
     prompts,
     repairs,
+    repository_contracts,
     return_types,
     runner,
     vocabulary,
@@ -152,9 +153,11 @@ class Pipeline:
             (COMPONENTS, lambda: self._step_components(requirements)),
             (SERVICE_CONTRACTS, lambda: self._step_contracts(requirements)),
             ("errors_repair", self._repair_errors),
+            # Persistence runs before pattern matching and adapters so its
+            # custom repository methods are part of the contract they see.
+            (PERSISTENCE_PORTS, lambda: self._step_persistence(requirements)),
             (PATTERN_MATCHES, self._step_patterns),
             (INTERACTION_ADAPTERS, lambda: self._step_adapters(requirements)),
-            (PERSISTENCE_PORTS, lambda: self._step_persistence(requirements)),
         ]
         index = 0
         if start is not None:
@@ -462,12 +465,24 @@ class Pipeline:
         # E owns the repositories it declares, so it must be told which
         # operations each entity needs — otherwise it writes "standard CRUD"
         # from an adjective rather than from the list, and every delete is lost.
+        # The completion below adds any repository E omits; service contracts
+        # are still the authoritative list for the later adapter step.
         block = prompts.requirements_block(vocab)
         grammar = grammar_open.service_contracts()
         body = self._generate(
             SERVICE_CONTRACTS,
             prompts.service_contracts(requirements, block),
             grammar,
+        )
+        # Repositories are derived facts, not a judgement the open grammar can
+        # safely leave out.  Fill every required repository and required CRUD
+        # method mechanically, keeping any custom methods the model supplied.
+        body = repository_contracts.complete(
+            body,
+            self.documents.get(DATA_MODELS),
+            vocab.crud_operations,
+            self.documents.get(ERRORS),
+            self.log,
         )
         # A signature is a specification the generated body must honour, so a
         # method that returns `dict[str, object]` where the entity is known is a
@@ -501,6 +516,13 @@ class Pipeline:
                 SERVICE_CONTRACTS,
                 prompts.service_contracts(_with_miss_note(requirements, missing), block),
                 grammar,
+            )
+            retry = repository_contracts.complete(
+                retry,
+                self.documents.get(DATA_MODELS),
+                vocab.crud_operations,
+                self.documents.get(ERRORS),
+                self.log,
             )
             if isinstance(retry, list):
                 retry = return_types.repair_contract_returns(
@@ -694,6 +716,12 @@ class Pipeline:
         )
         if body is None:
             return
+        # Custom aggregates are discovered by H, but adapters and code
+        # generation read E.  Merge H's extra methods into the mechanical E
+        # repository before unification makes E the final method set.
+        self.documents[SERVICE_CONTRACTS] = interfaces.merge_repository_methods(
+            self.documents.get(SERVICE_CONTRACTS), body, self.log
+        )
         # A repository step E already declared is the same class, so its method
         # set is E's; H keeps the mapping it alone produces. Without this the two
         # documents described one interface two ways in all five domain prompts.
