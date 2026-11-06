@@ -37,7 +37,7 @@ from kernel.consistency import checks_adapters, checks_errors, checks_models
 from kernel.consistency import checks_surface as surface_checks
 from kernel.consistency.methods import PLACEHOLDER_VALUES, param_names
 from kernel.consistency.naming import normalize
-from kernel.codegen import bind_field, is_entity_type, option_dest
+from kernel.codegen import bind_field, is_entity_type, is_mapping_type, option_dest
 
 
 def repair_nested_declarations(holders, log, document="document"):
@@ -1738,13 +1738,22 @@ def _rename_to_model_field(adapter, field_entry, ptypes, model_fields):
     target = field_entry.get("target_param")
     if not isinstance(field_name, str) or not isinstance(target, str):
         return None
-    entity = _entity_of(ptypes.get(normalize(target)), model_fields)
+    ptype = ptypes.get(normalize(target))
+    entity = _entity_of(ptype, model_fields)
+    if entity is None and is_mapping_type(ptype):
+        # `update(id, data: dict[str, any])` carries the entity only in the
+        # service name (`CategoryRepository`), not in the mapping's type.
+        owner = normalize(adapter.get("target_service") or "")
+        matches = [name for name in model_fields if owner.startswith(name)]
+        if len(matches) == 1:
+            entity = matches[0]
     if entity is None:
         return None
     fields = model_fields[entity]
     if normalize(field_name) in {normalize(name) for name in fields}:
         return None
-    if field_entry.get("transform") not in RENAMEABLE_TRANSFORMS:
+    transform = field_entry.get("transform")
+    if transform not in RENAMEABLE_TRANSFORMS and transform != "DIRECT":
         return None
     # Forward containment only: the flag abbreviates the model field
     # (`amount` in `amount_cents`). The reverse (`id` in `author_id`) matches
@@ -1755,6 +1764,17 @@ def _rename_to_model_field(adapter, field_entry, ptypes, model_fields):
                   if normalize(field_name) in normalize(name)]
     if len(candidates) != 1:
         return None
+    if transform == "DIRECT":
+        # DIRECT carries no unit evidence. A qualifier that changes the
+        # concept (`budget` -> `monthly_budget`) is still grounded by the
+        # field's own name; a unit or identity suffix (`amount` ->
+        # `amount_cents`, `author` -> `author_id`) is not, because the flag's
+        # value may use the other unit.
+        extra = normalize(candidates[0]).replace(normalize(field_name), "")
+        if any(marker in extra for marker in (
+                "cent", "id", "date", "time", "price", "amount", "cost",
+                "quantity", "count")):
+            return None
     if any(isinstance(other, dict) and other is not field_entry
            and normalize(other.get("field_name")) == normalize(candidates[0])
            for other in adapter.get("input_fields") or []):

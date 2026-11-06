@@ -63,6 +63,7 @@ ERRORS_SYSTEM = (
     'Output strictly in English as JSON: {"errors": [{"name": "...", "base": "LookupError", '
     '"description": "..."}]}.'
 )
+
 INVARIANTS_SYSTEM = (
     "Identify the business and data invariants explicitly stated or directly implied by the "
     "requirements. Each invariant must be a single, unique, concrete statement. Do not repeat, "
@@ -102,6 +103,27 @@ INVARIANTS_SYSTEM = (
     'Output strictly in English as JSON: {"invariants": [{"text": "...", "kind": "schema"}, '
     '{"text": "...", "kind": "rule"}]}.'
 )
+
+INVARIANTS_RULES_SYSTEM = (
+    "Identify only the business rules the requirements state. Do not list field "
+    "types, nullability, uniqueness, primary keys, foreign keys, defaults, "
+    "allowed values, numeric bounds, CLI commands, repository methods or service "
+    "method capabilities; those are generated mechanically from the other "
+    "documents. A rule must relate two different fields, bound an aggregate or "
+    "total, or state an operation's effect or failure. Return at most 10 distinct "
+    "rules. Do not repeat or paraphrase the same statement. Do not invent any "
+    "not grounded in the requirements. The data model listed above is "
+    "authoritative: do not state a rule about an entity or field it does not "
+    "define. Every invariant has kind 'rule'. The examples below are shapes, not "
+    "facts about this program. "
+    'Output strictly in English as JSON: {"invariants": [{"text": "...", '
+    '"kind": "rule"}]}.'
+)
+
+
+def invariant_rules(requirements, names=None):
+    return _prompt(INVARIANTS_RULES_SYSTEM, requirements, names)
+
 DATA_MODELS_SYSTEM = (
     "Extract the data model. The FIRST field of every entity must be its primary key: set "
     "'primary_key' to true for it and false for every other field, set its 'unique' to true "

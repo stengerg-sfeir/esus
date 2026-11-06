@@ -14,7 +14,9 @@ report: their count and their texts say which pattern the vocabulary is missing.
 describe, and is never a finding.
 """
 
+from kernel import codegen
 from kernel.classifier.hierarchical_classifier import classify_requirement_2step, load_catalog
+from kernel.consistency.naming import normalize
 from kernel.pattern_catalog import GAP_PATTERN_IDS, NO_PATTERN_IN_DOMAIN, STANDARD_CRUD
 from kernel.pattern_shapes import (
     rejection_reason,
@@ -60,6 +62,79 @@ STAGE_DOMAIN = "domain"
 STAGE_PATTERN = "pattern"
 
 
+def _entity_names(documents):
+    names = []
+    for entity in _dict_list(documents.get("data_models")):
+        name = entity.get("name")
+        if isinstance(name, str) and name.strip():
+            names.append(name)
+    return names
+
+
+def _repository_methods(documents):
+    """`contract:Service.method` -> `(service, method)` for repositories only."""
+    found = {}
+    for contract in _dict_list(documents.get("service_contracts")):
+        service = contract.get("service_name") or ""
+        if not normalize(service).endswith("repository"):
+            continue
+        for method in _dict_list(contract.get("methods")):
+            name = method.get("name")
+            if isinstance(name, str) and name.strip():
+                found[f"contract:{service}.{name}"] = (service, method)
+    return found
+
+
+def _deterministic_result(source, documents):
+    """A model-free classification for an unambiguous repository method.
+
+    Ordinary repository CRUD has one mechanical answer, and asking the
+    logprobs classifier for it spends a prompt without changing what the
+    generator does. Only the cases where the name and the declared return
+    shape agree are answered here: an aggregate or a guard still reaches the
+    model, because their names do not determine the pattern.
+    """
+    repository = _repository_methods(documents).get(source)
+    if repository is None:
+        return None
+    _service, method = repository
+    strategy, _detail = codegen.plan_method(
+        method, None, _entity_names(documents))
+    if not strategy.startswith("crud:"):
+        return None
+    kind = strategy[len("crud:"):]
+    params = [p for p in (method.get("params") or []) if isinstance(p, dict)]
+    return_type = method.get("return_type")
+
+    if kind == "read_all" and params:
+        # `list_books(status=...)` is a filter, not a whole-table read; the
+        # name alone cannot distinguish the two.
+        return None
+    if kind in ("read_all", "read_one", "filter"):
+        pattern = {
+            "read_all": "READ_ALL",
+            "read_one": "READ_ONE_BY_ID",
+            "filter": "FILTER_BY_FIELD",
+        }[kind]
+        if rejection_reason(pattern, return_type) is not None:
+            return None
+        domain = "REPO_QUERY"
+        probabilities = {pattern: 1.0}
+    else:
+        pattern = STANDARD_CRUD
+        domain = STANDARD_CRUD
+        probabilities = {}
+
+    return {
+        "target_text": "",
+        "domain": domain,
+        "pattern_id": pattern,
+        "confidence": 1.0,
+        "step1_probabilities": {domain: 1.0},
+        "step2_probabilities": probabilities,
+    }
+
+
 def classify_documents(classifier, documents, log):
     """Classify every invariant and contract method; return every match."""
     catalog = load_catalog()
@@ -76,7 +151,12 @@ def classify_documents(classifier, documents, log):
     signatures = _method_signatures(documents)
 
     for index, (source, text) in enumerate(items, start=1):
-        result = classify_requirement_2step(classifier, text, catalog)
+        deterministic = _deterministic_result(source, documents)
+        if deterministic is not None:
+            result = deterministic
+            result["target_text"] = text
+        else:
+            result = classify_requirement_2step(classifier, text, catalog)
         claimed = result["pattern_id"]
         return_type = signatures.get(source)
         # The classifier's own total describes the pattern it *claimed*, and that
@@ -112,8 +192,11 @@ def classify_documents(classifier, documents, log):
             # gap — an answer — but recorded because the model was wrong and the
             # record should say so rather than quietly agreeing with itself.
             marker = f"  <- corrected: {rejection} (was {claimed})"
-        elif pattern_id == STANDARD_CRUD:
-            standard_crud += 1
+        else:
+            if pattern_id == STANDARD_CRUD:
+                standard_crud += 1
+            if deterministic is not None:
+                marker = "  <- deterministic (repository CRUD)"
 
         # The runner-up is recorded because the winner alone cannot say whether an
         # answer was decided or guessed. A 0.70 that beat a 0.69 and a 0.70 that

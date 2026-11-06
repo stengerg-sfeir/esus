@@ -32,6 +32,7 @@ from kernel.extraction import (
     repository_contracts,
     return_types,
     runner,
+    schema_invariants,
     vocabulary,
 )
 
@@ -59,6 +60,7 @@ COMPONENTS = "components"
 SERVICE_CONTRACTS = "service_contracts"
 COMPONENTS_SPLIT = os.environ.get("ESUS_COMPONENTS_SPLIT") == "1"
 PARALLEL = os.environ.get("ESUS_PARALLEL") == "1"
+MECHANICAL_SCHEMA = os.environ.get("ESUS_MECHANICAL_SCHEMA") == "1"
 PATTERN_MATCHES = "pattern_matches"
 INTERACTION_ADAPTERS = "interaction_adapters"
 PERSISTENCE_PORTS = "persistence_ports"
@@ -417,11 +419,30 @@ class Pipeline:
         """
         vocab = vocabulary.Vocabulary(entities=self._entities())
         block = prompts.entity_block(vocab) if vocab.entity_names else None
-        body = self._generate(
-            INVARIANTS,
-            prompts.invariants(requirements, block),
-            grammar_open.invariant_list(INVARIANTS),
-        )
+        if MECHANICAL_SCHEMA:
+            body = self._generate(
+                INVARIANTS,
+                prompts.invariant_rules(requirements, block),
+                grammar_open.invariant_list(INVARIANTS),
+            )
+            rules = [item for item in body if isinstance(item, dict)
+                     and item.get("kind") == "rule"] if isinstance(body, list) else []
+            body = schema_invariants.merge_invariants(
+                schema_invariants.schema_invariants(self.documents, requirements),
+                rules,
+            )
+            self.documents[INVARIANTS] = body
+            self.log.write(
+                f"[ok] step invariants: {len(body)} invariant(s) — "
+                f"{len(body) - len(rules)} schema generated mechanically, "
+                f"{len(rules)} rule(s) from the model"
+            )
+        else:
+            body = self._generate(
+                INVARIANTS,
+                prompts.invariants(requirements, block),
+                grammar_open.invariant_list(INVARIANTS),
+            )
         models = self.documents.get(DATA_MODELS)
         if isinstance(models, list):
             repairs.repair_period_field_types(

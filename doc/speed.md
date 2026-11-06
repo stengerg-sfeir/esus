@@ -46,10 +46,13 @@ With the current launch script (no explicit `--cache-ram`), the expenses prompt 
 4. **Run independent extraction steps in parallel (`-np 2`).** **Implemented and measured; slower on this machine.** See [Parallel extraction](#parallel-extraction-opt-in-measured-slower). Overlapping requests divides decode bandwidth instead of adding it, and the largest adapter step becomes slower when it shares the GPU with pattern classification.
 5. **Run generation requests in parallel (`-np 2` to `4`).** Not implemented. Decoding on this GPU is limited by memory bandwidth, so serving several sequences at once may raise aggregate throughput, but body prompts also share a long prefix that a single slot reuses across requests. Each parallel slot needs its own context and cache, and the body prompts would have to be built from the same base text so the result does not depend on which request finishes first.
 6. **Smaller prompt blocks.** Showing only the target class's methods instead of the whole module cuts prompt processing, but the `exact` context was tuned for the small model, so this risks the quality of the bodies.
+7. **Generate schema invariants mechanically.** **Implemented as `ESUS_MECHANICAL_SCHEMA=1`; measured small gain.** Step C now asks for business rules only and derives field type, nullability, uniqueness, key, foreign-key, default and numeric-bound facts from `data_models.json`. On expenses the invariant step fell from 611 to 424 generated tokens (15.3 s to 12.6 s) and kept the same 2 blockers; the extra schema entries are skipped by pattern classification. It is opt-in because the document text changes.
+8. **Answer ordinary repository CRUD without the classifier.** **Implemented.** A repository method whose name and return shape already agree (`create`, `read_one`, `read_all`, `filter`) is classified by `codegen.plan_method` instead of a two-stage logprobs call. Replaying the expenses classification took 11.8 s for every item and 8.7 s with the deterministic answers, a 3.1 s saving; aggregates, guards and every service method still reach the model.
+9. **Rename an entity-targeted adapter field to its model field.** **Implemented.** A DIRECT field now follows the same unique-containment rule as money and lookup fields, but only when the qualifier is not a unit or identity marker (`budget` -> `monthly_budget` is renamed; `amount` -> `amount_cents` is not). On expenses this removed the 258-token adapter retry and one blocker, taking readiness from 4 blockers to 2.
 
 ## Server launch
 
-Use `scripts/start_llama_server.sh`. Its defaults are the measured model, one slot, 16,384 context, six threads, flash attention, 1024-token batch/ubatch and context shifting. It does **not** set `--cache-ram`; llama-server's own default is left untouched. Speculative decoding is opt-in because it measured slower on this machine:
+Use `scripts/start_llama_server.sh`. Its defaults are the measured model, one slot, 16,384 context, six threads, flash attention, 1024-token batch/ubatch and context shifting. `CACHE_RAM` (MiB, default 4096, `0` = llama.cpp's unlimited default) and `KV_UNIFIED` (`on`/`off`, default `on`) are available for experiments; both measured slower on this machine at 16k/32k. Speculative decoding is opt-in because it measured slower:
 
 ```bash
 ./scripts/start_llama_server.sh                 # no draft
@@ -193,6 +196,29 @@ The split path is not faster for Qwen: the plan call plus two group calls cost
 about the same as the single components call.  It is useful because it bounds
 each call's output and makes the explicit command surface predictable.
 
+
+
+### Mechanical extraction passes (measured 2026-11-06)
+
+The deterministic passes above were measured together on expenses, Qwen3-4B
+Q4_K_M, split components, 1 slot, 16k context:
+
+| Extraction | Wall | Generated tokens | Blockers |
+| --- | ---: | ---: | ---: |
+| Deterministic CRUD classification + adapter rename | 239.5 s | 9,152 | 2 |
+| Plus mechanical schema invariants | **232.5 s** | **8,965** | 2 |
+
+The schema pass changed only the invariant step (611 -> 424 tokens, 15.3 ->
+12.6 s); the rest of the wall difference is run-to-run variation. The adapter
+rename removed a 258-token retry and the `expensecategoryupdate` unknown-field
+blocker. `ESUS_MECHANICAL_SCHEMA=1` remains opt-in until a reviewed run passes
+acceptance; the classification and adapter repairs are on by default because
+they do not change a prompt.
+
+A mechanical not-found error pass was tried and removed: the shorter error
+registry changed the service-contract call enough to truncate and retry it
+(3,584 + 3,757 tokens), taking the run from 2 to 7 blockers. That is not a safe
+trade for the roughly 100 tokens it saved.
 
 ### Parallel extraction (opt-in, measured slower)
 

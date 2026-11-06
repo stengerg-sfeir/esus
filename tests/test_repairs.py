@@ -769,13 +769,51 @@ class AdapterFieldRenameTests(unittest.TestCase):
         repairs.repair_adapter_field_names(adapters, services, models, Log())
         self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "category_id")
 
-    def test_a_direct_field_is_never_renamed(self):
-        """`copies` into available_copies needs a human: counts are not cents."""
+    def test_a_direct_field_is_never_renamed_across_units(self):
+        """`amount` into amount_cents needs a human: counts are not cents."""
         adapters = self.adapters([("amount", "DIRECT")])
         log = Log()
         repairs.repair_adapter_field_names(adapters, self.SERVICES, self.MODELS, log)
         self.assertEqual(adapters[0]["input_fields"][0]["field_name"], "amount")
         self.assertEqual(log.lines, [])
+
+    def test_a_direct_qualifier_is_renamed_to_the_one_model_field(self):
+        """`budget` into `monthly_budget` is the same value under one name."""
+        models = [{"name": "Category", "fields": [
+            {"name": "monthly_budget", "type": "int"}]}]
+        services = [{"service_name": "CategoryRepository", "methods": [
+            {"name": "update", "params": [{"name": "data", "type": "Category"}]}]}]
+        adapters = [{"action_name": "category_update",
+                     "target_service": "CategoryRepository",
+                     "target_method": "update",
+                     "input_fields": [
+                         {"field_name": "budget", "target_param": "data",
+                          "transform": "DIRECT", "lookup_entity": None,
+                          "required": False}]}]
+        log = Log()
+        repairs.repair_adapter_field_names(adapters, services, models, log)
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"],
+                         "monthly_budget")
+        self.assertEqual(len(log.lines), 1)
+
+    def test_a_direct_qualifier_through_a_mapping_uses_the_service_entity(self):
+        """`data: dict` names its entity only in CategoryRepository."""
+        models = [{"name": "Category", "fields": [
+            {"name": "monthly_budget", "type": "int"}]}]
+        services = [{"service_name": "CategoryRepository", "methods": [
+            {"name": "update", "params": [
+                {"name": "id", "type": "int"},
+                {"name": "data", "type": "dict[str, any]"}]}]}]
+        adapters = [{"action_name": "category_update",
+                     "target_service": "CategoryRepository",
+                     "target_method": "update",
+                     "input_fields": [
+                         {"field_name": "budget", "target_param": "data",
+                          "transform": "DIRECT", "lookup_entity": None,
+                          "required": False}]}]
+        repairs.repair_adapter_field_names(adapters, services, models, Log())
+        self.assertEqual(adapters[0]["input_fields"][0]["field_name"],
+                         "monthly_budget")
 
     def test_an_ambiguous_spelling_is_left_alone(self):
         models = [{"name": "E", "fields": [
