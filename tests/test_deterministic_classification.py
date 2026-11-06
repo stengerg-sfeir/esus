@@ -45,6 +45,9 @@ def _documents():
                  "params": [{"name": "book_id", "type": "int"}],
                  "return_type": "Book"},
                 {"name": "get_monthly_total", "params": [], "return_type": "int"},
+                {"name": "read_all_filtered",
+                 "params": [{"name": "status", "type": "str"}],
+                 "return_type": "List[Book]"},
             ],
         }],
     }
@@ -88,6 +91,10 @@ class DeterministicClassificationTests(unittest.TestCase):
         self.assertEqual(
             by_source["contract:BookRepository.read_book_by_id"]["pattern_id"],
             "READ_ONE_BY_ID",
+        )
+        self.assertEqual(
+            by_source["contract:BookRepository.read_all_filtered"]["pattern_id"],
+            "FILTER_BY_FIELD",
         )
         self.assertEqual(
             by_source["contract:BookRepository.get_monthly_total"]["pattern_id"],

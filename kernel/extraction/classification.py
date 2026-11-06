@@ -108,8 +108,8 @@ def _deterministic_result(source, documents):
 
     if kind == "read_all" and params:
         # `list_books(status=...)` is a filter, not a whole-table read; the
-        # name alone cannot distinguish the two.
-        return None
+        # name alone cannot distinguish the two. The parameter list does.
+        kind = "filter"
     if kind in ("read_all", "read_one", "filter"):
         pattern = {
             "read_all": "READ_ALL",
