@@ -214,16 +214,24 @@ tokens per slot, temperature 0:
 
 | Extraction | Wall | Generated tokens | Blockers |
 | --- | ---: | ---: | ---: |
-| Sequential (slot 0) | **260.8 s** | 9,410 | 4 |
-| Parallel (two slots) | 268.1 s | 9,410 | 4 |
+| Sequential (1 slot, 16k ctx) | **278.6 s** | 9,792 | 4 |
+| Sequential (2 slots, 16k/ctx) | 279.0 s | 9,792 | 4 |
+| Parallel (2 slots, 16k/ctx) | 301.8 s | 9,792 | 4 |
+| Sequential (2 slots, 32k/ctx, `--cache-ram 4096 --kv-unified`) | 298.3 s | 9,792 | 4 |
+| Parallel (2 slots, 32k/ctx, `--cache-ram 4096 --kv-unified`) | 343.2 s | 9,792 | 4 |
 
 The extraction documents had the same decisions and the same 4 blockers. The
 only document difference was the classifier's confidence values in
 `pattern_matches.json`; the pattern choices were unchanged. Per-request decode
-fell to about 23–35 tok/s while two requests shared the GPU, against 39–42 tok/s
-sequential, and the adapter step grew from 54.6 s to 76.4 s when it overlapped
+fell to about 17–35 tok/s while two requests shared the GPU, against 34–42 tok/s
+sequential, and the adapter step grew from 55.8 s to 68–78 s when it overlapped
 pattern classification. The split command groups also took longer together
-(70.0 s) than one after the other (45.1 s).
+(68–76 s) than one after the other (49 s).
+
+Additional experiments with `--cache-ram 4096` and `--kv-unified` made both
+sequential and parallel slower (298 s vs 279 s sequential; 343 s vs 302 s
+parallel), likely because unified KV cache adds coordination overhead and the
+memory-bandwidth limit is already saturated.
 
 This machine is memory-bandwidth-bound, so adding concurrent sequences buys no
 wall-clock time. The option is therefore **off by default** and should not be

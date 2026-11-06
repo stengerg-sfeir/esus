@@ -10,11 +10,9 @@
 #   SLOTS       parallel slots     default: 1
 #   PORT        server port        default: 8080
 #   SPEC        1 = draft-simple   default: 0; use 1 only to experiment
+#   CACHE_RAM   system RAM for KV cache (MiB)  default: 4096 (0 = off)
+#   KV_UNIFIED  on/off             default: on
 #   LLAMA_SERVER_BIN               default: llama-server from PATH
-#
-# The script does not set --cache-ram: llama-server's own default is left
-# untouched. The model itself needs about 2.3 GB and a 16k context about
-# 1-2 GB more.
 #
 # Speculative decoding needs a draft model with the same tokenizer/vocabulary
 # as the target. Qwen3-0.6B is the matching small model for Qwen3-4B. The
@@ -32,6 +30,8 @@ CTX="${CTX:-16384}"
 SLOTS="${SLOTS:-1}"
 PORT="${PORT:-8080}"
 SPEC="${SPEC:-0}"
+CACHE_RAM="${CACHE_RAM:-4096}"
+KV_UNIFIED="${KV_UNIFIED:-on}"
 BIN="${LLAMA_SERVER_BIN:-$(command -v llama-server || true)}"
 
 if [[ -z "$BIN" ]]; then
@@ -57,6 +57,16 @@ args=(
     --context-shift
 )
 
+# KV cache RAM limit (MiB); 0 means unlimited (llama.cpp default)
+if [[ -n "$CACHE_RAM" && "$CACHE_RAM" != "0" ]]; then
+    args+=(--cache-ram "$CACHE_RAM")
+fi
+
+# Unified KV cache across slots (saves VRAM/RAM when SLOTS > 1)
+if [[ "$KV_UNIFIED" == "on" ]]; then
+    args+=(--kv-unified)
+fi
+
 if [[ "$SPEC" == "1" ]]; then
     if [[ ! -f "$DRAFT" ]]; then
         cat >&2 <<EOF
@@ -64,7 +74,7 @@ Draft model not found: $DRAFT
 
 Download a Qwen3-0.6B GGUF and point DRAFT at it, for example:
 
-  huggingface-cli download NANI-Nithin/Qwen3-0.6B-GGUF \\
+  huggingface-cli download NANI-Nithin/Qwen3-0.6B-GGUF \
       Qwen3-0.6B-Q4_K_M.gguf --local-dir "$HOME/Documents/models"
 
 Then run this script again. To start without speculative decoding:
@@ -81,7 +91,7 @@ EOF
 fi
 
 echo "llama-server: model=$MODEL" >&2
-echo "  context=$CTX, slots=$SLOTS, port=$PORT, speculative=$SPEC" >&2
+echo "  context=$CTX, slots=$SLOTS, port=$PORT, speculative=$SPEC, cache_ram=${CACHE_RAM}MiB, kv_unified=$KV_UNIFIED" >&2
 [[ "$SPEC" == "1" ]] && echo "  draft=$DRAFT" >&2
 
 exec "$BIN" "${args[@]}"
