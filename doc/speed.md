@@ -214,3 +214,48 @@ The shared wall is within run-to-run variation and was slightly worse in this
 sample; the token reduction is consistent.  The baseline layout saved about
 9 s and 40 persistence tokens.  Blocker counts stayed at 4 for the baseline and
 2 for the shared run.
+
+### Split component surface (opt-in)
+
+`ESUS_COMPONENTS_SPLIT=1` first generates the top-level command plan, then one
+call per group.  When the requirements contain explicit command lines, the
+group grammar now closes both the subcommand names **and the option names** to
+those lines.  This removed a real failure: Qwen had abbreviated
+`--amount` as `--amt`, the missing-flag repair then added `--amount`, and the
+adapter consumed only the canonical flag.  Closing the option names made the
+abbreviation unrepresentable.
+
+Measured on expenses with the shared prefix and Qwen3-4B Q4_K_M:
+
+| Extraction | Wall | Generated | Blockers |
+| --- | ---: | ---: | ---: |
+| Split, before option closure | 249.3 s | 9,022 | 6 (three unconsumed flags) |
+| Split, after option closure | 250.5 s | 9,018 | **2 (review only)** |
+
+The split path is not faster for Qwen: the plan call plus two group calls cost
+about the same as the single components call.  It is useful because it bounds
+each call's output and makes the explicit command surface predictable.
+
+### Ternary-Bonsai and the Prism fork
+
+The earlier Bonsai baseline failure was **not** a Prism failure.  The monolithic
+components call returned truncated JSON at 3,584 tokens; the retry escalated to
+the full context and never closed its JSON.  The same pathology reproduced with
+the upstream llama.cpp server.  With the split components path and the closed
+option names, both servers complete extraction.
+
+Comparison on expenses, shared context, split components, temperature 0, same
+seed:
+
+| Server | Extraction wall | Model time | Generated | Blockers |
+| --- | ---: | ---: | ---: | ---: |
+| Upstream llama.cpp (Bonsai Q2_0) | 217.4 s | 194.3 s | 7,537 | 3 |
+| Prism fork (Bonsai Q2_0) | **173.5 s** | **151.9 s** | 7,537 | 3 |
+
+The JSON extraction documents were byte-identical between the two servers;
+only timing and the review-pattern log differed.  Prism decoded at about
+55–59 tok/s against 43–45 tok/s upstream.  Both runs had the same three
+blockers: one unconsumed `budget list --month`, one unanswered method contract
+and one unanswered surface question.  They are Bonsai quality limits, not a
+fork difference, and neither run has been scored on the common expenses
+evaluator yet.
