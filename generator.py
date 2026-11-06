@@ -719,7 +719,7 @@ def emit_repositories(ctx, stats):
              "is specified by its pattern, not invented here.",
              '"""',
              "",
-             "from typing import Any, Dict, List, Optional, Union",
+             "from typing import Any, Dict, List, Optional, Tuple, Union",
              "",
              "import datetime",
              "",
@@ -1316,9 +1316,10 @@ def emit_services(ctx, repo_index, stats):
              "to it; anything else raises NotImplementedError with its work order.",
              '"""',
              "",
-             "from typing import Any, Dict, List, Optional, Union",
+             "from typing import Any, Dict, List, Optional, Tuple, Union",
              "",
              "import calendar",
+             "import datetime",
              "",
              "import models",
              "import errors",
@@ -1339,6 +1340,13 @@ def emit_services(ctx, repo_index, stats):
              "        return actual is not None and actual < expected",
              '    raise ValueError(f"unknown operator {operator!r}")',
              ""]
+    lines += ["",
+              "def _as_date(value):",
+              '    """Accept an ISO string or a date object; return a date or None."""',
+              "    if value is None or isinstance(value, datetime.date):",
+              "        return value",
+              "    return datetime.date.fromisoformat(str(value))",
+              ""]
     if date_filters:
         lines += ["",
                   "def _filter_value(value):",
@@ -4178,10 +4186,15 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  `errors.*`, module helpers. A service body has no",
             "  `self._store` and no `self.ENTITY`: read through the",
             "  repositories and filter what they return in Python.",
+            "- Standard CRUD is on the repositories, not on this service.",
+            "  Do not call a service method that is absent from the module;",
+            "  use `self._repos['...']` for create/read/update/delete.",
             "- Copy repository parameter names exactly from the method",
             "  list; a keyword can use a different noun than the entity",
             "  id. When a method takes one value, passing it positionally",
-            "  is always safe.",
+            "  is always safe. Never invent `__ge`, `__le` or other",
+            "  query suffixes: `read_all` takes only the named fields;",
+            "  filter a date or range in Python after reading.",
             "- A repository `create` whose signature says `-> int` returns",
             "  the new id, not a record; read it back with `read_one` before",
             "  using its fields.",
@@ -4254,11 +4267,21 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  set — no month arithmetic, and never parse `YYYY-MM` with",
             "  `datetime.date.fromisoformat`.",
         ]
+    if re.search(r"year|annual", method, re.IGNORECASE):
+        tail += [
+            "- A yearly summary keys monthly totals by `YYYY-MM` labels",
+            "  (for example `2024-01`), not by bare month numbers.",
+        ]
     if re.search(r"spend(?:ing)?|total|aggregate|\bsum\b", method, re.IGNORECASE):
         tail += [
             "- This method aggregates: return the total, or the keyed",
             "  totals its return type declares — never one entry per input",
             "  record.",
+            "- For a date-range aggregate, call `read_all()` with no",
+            "  keyword filters and filter the returned records in Python:",
+            "  compare `str(record.expense_date)[:10]` with ISO start/end.",
+            "  Never pass `expense_date__ge` or `expense_date__le`; those",
+            "  parameter names do not exist.",
         ]
     if any(line.strip() == "creates:" for line in contract):
         tail += [
@@ -4266,6 +4289,10 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  an optional flag is omitted, use the requirement's stated",
             "  default; with none stated, use today for a date and the",
             "  first documented value of an enumerated field.",
+            "- Preconditions run before the create. If a precondition reads",
+            "  a parent record, do that read and raise its error before",
+            "  calling create; never store the record first and validate",
+            "  afterwards.",
         ]
     if any(line.strip() == "creates:" for line in contract):
         tail += [
@@ -4335,6 +4362,15 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
               ]
     if contract:
         lines += [""] + list(contract)
+    if info.get("file") == "services.py" and re.search(
+            r"date|month|year", " ".join(info.get("params") or []) + " " + signature,
+            re.IGNORECASE):
+        tail += [
+            "- A date or month parameter may already arrive as a",
+            "  `datetime.date`; the CLI validates ISO text and converts it.",
+            "  Use the value directly. Only parse it when it is still a",
+            "  string; never call `fromisoformat` on a date object.",
+        ]
     annotation = _return_annotation(info)
     if annotation and annotation not in ("None", "NoneType"):
         lines += ["",
@@ -4523,6 +4559,14 @@ def _answer_continued(text):
     return any(line.strip() for line in lines[close + 1:])
 
 
+def _raised_by_repository(files, raised_name):
+    """True when a generated repository create can raise this error itself."""
+    if not raised_name or not files:
+        return False
+    repositories = files.get("repositories.py") or ""
+    return raised_name in repositories
+
+
 def _permits_post_write_raise(requirement, contract, raised_name):
     """A requirement that says \"after insertion\" wants the row kept.
 
@@ -4546,12 +4590,26 @@ def _permits_post_write_raise(requirement, contract, raised_name):
     # names it in words (`budget exceeded`, `expense not found`); a plain
     # `ValueError` from input validation does not share a word and stays a
     # normal pre-write refusal.
-    line_tokens = {token for token in re.findall(r"[a-z]{4,}",
-                                                  (requirement or "").lower())}
     spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", raised_name or "")
     error_tokens = {token for token in re.findall(r"[a-z]{4,}",
                                                    spaced.lower())}
-    return bool(line_tokens & (error_tokens - {"error", "exception"}))
+    error_tokens -= {"error", "exception"}
+    if not error_tokens:
+        return False
+    # Read the clause around the after-insert phrase, not the whole
+    # requirement. `add_expense` says the *budget* check runs after the insert
+    # and also says the *category* must exist before it; the category error is
+    # a pre-write refusal even though both words occur in the same requirement.
+    for match in re.finditer(
+            r"\bafter\s+(?:the\s+)?(?:insert(?:ion)?|creat(?:e|ion)|"
+            r"sav(?:e|ing)|add(?:ing)?)\b",
+            requirement or "", re.IGNORECASE):
+        start = max(0, match.start() - 120)
+        end = min(len(requirement), match.end() + 120)
+        clause = requirement[start:end].lower()
+        if error_tokens & set(re.findall(r"[a-z]{4,}", clause)):
+            return True
+    return False
 
 
 def _last_code_block(text):
@@ -5580,6 +5638,7 @@ def _body_complaints(body, info, module_text, references_text, files,
             if raised.lineno < write.lineno \
                     and _permits_post_write_raise(requirement, contract,
                                                   _raised_name(raised)) \
+                    and not _raised_by_repository(files, _raised_name(raised)) \
                     and _block_chain(raised, parents)[:len(chain)] == chain:
                 found.append(
                     f"the requirement says the check runs after the insert, "
@@ -5592,7 +5651,8 @@ def _body_complaints(body, info, module_text, references_text, files,
             if _block_chain(raised, parents)[:len(chain)] != chain:
                 continue
             if _permits_post_write_raise(requirement, contract,
-                                         _raised_name(raised)):
+                                         _raised_name(raised)) \
+                    or _raised_by_repository(files, _raised_name(raised)):
                 continue
             found.append(
                 f"`{write.func.attr}(...)` runs before `raise "
@@ -7044,6 +7104,21 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     return rows
 
 
+def repair_service_dates(files):
+    """Make generated service date parsing accept dates and ISO strings."""
+    text = files.get("services.py")
+    if not isinstance(text, str):
+        return files
+    marker = "__ESUS_AS_DATE_IMPL__"
+    text = text.replace(
+        "return datetime.date.fromisoformat(str(value))",
+        f"return {marker}(str(value))")
+    text = text.replace("datetime.date.fromisoformat(", "_as_date(")
+    text = text.replace(f"{marker}(", "datetime.date.fromisoformat(")
+    files["services.py"] = text
+    return files
+
+
 def generate_fallback(out_dir, model_path):
     """Write `generated/app.py` from the requirements; return the exit code."""
     requirements = load_requirements(out_dir)
@@ -7159,6 +7234,7 @@ def main(argv=None):
             files, args.model, load_requirements(args.out_dir),
             dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
             context=args.stub_context, contracts=ctx.get("contracts"))
+    repair_service_dates(files)
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)
