@@ -120,6 +120,11 @@ DEFAULT_STUB_CONTEXT = "exact"
 METHOD_SLOTS_NAME = "method_slots.json"
 METHOD_SLOTS_KEY = "slots"
 
+# `method_plans.json` beside the documents (written by extract_arch.py):
+# extraction-side decisions that a body is mechanically emittable.
+METHOD_PLANS_NAME = "method_plans.json"
+METHOD_PLANS_KEY = "plans"
+
 # `surface_decisions.json` beside the documents (written by
 # review_surface.py): duplicate-node keeps, and `kind: "route"` records
 # binding a declared CLI flag to the method it selects. Route records are
@@ -245,6 +250,25 @@ def load_context(output_dir):
                 routes.append(record)
     except (OSError, ValueError):
         pass
+    method_plans = {}
+    dropped_plans = 0
+    try:
+        with open(os.path.join(output_dir, METHOD_PLANS_NAME),
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+        stamped = payload.get("requirements_sha")
+        if current is None or not isinstance(stamped, str) or stamped == current:
+            for record in payload.get(METHOD_PLANS_KEY) or []:
+                if not isinstance(record, dict):
+                    continue
+                holder = record.get("holder")
+                method = record.get("method")
+                if isinstance(holder, str) and isinstance(method, str):
+                    method_plans[(holder, method)] = record
+        else:
+            dropped_plans = len(payload.get(METHOD_PLANS_KEY) or [])
+    except (OSError, ValueError):
+        pass
     _adapt_route_options(components, routes)
     return {
         "models": models,
@@ -261,6 +285,8 @@ def load_context(output_dir):
         "dropped_slots": dropped,
         "contracts": contracts,
         "dropped_contracts": dropped_contracts,
+        "method_plans": method_plans,
+        "dropped_plans": dropped_plans,
         "routes": routes,
         "dropped_routes": dropped_routes,
         "requirements": requirements_text,
@@ -1308,6 +1334,67 @@ def _is_date_type(declared):
     return str(declared or "").strip().lower() in ("date", "datetime", "timestamp")
 
 
+def _service_aggregate_body(ctx, service_name, method, plan):
+    """A service-level aggregate from an extraction-side plan."""
+    entity = plan.get("entity")
+    slots = plan.get("slots") or {}
+    repo = next((item for item in ctx["repositories"]
+                 if item.get("entity") == entity), None)
+    if repo is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity,
+                               "Repository")
+    read_all = next((item for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    if read_all is None:
+        return None
+    target = slots.get("target_field")
+    date_field = slots.get("date_field")
+    fk_field = slots.get("fk_field")
+    if not target or not date_field:
+        return None
+    params = [p.get("name") for p in method.get("params") or []
+              if isinstance(p, dict) and p.get("name")]
+    fk_param = fk_field if fk_field in params else None
+    start = next((p for p in params if "start" in p.lower()
+                  or p.lower().startswith("from")), None)
+    end = next((p for p in params if "end" in p.lower()
+                or p.lower().startswith("to")), None)
+    lines = [
+        f"records = self._repos[{repo_cls!r}].{codegen.sanitize(read_all['name'], 'method')}()",
+        "total = 0",
+        "by_key = {}",
+        "for record in records:",
+    ]
+    indent = "    "
+    if fk_param:
+        lines += [f"{indent}if {fk_param} is not None and "
+                  f"record.{fk_field} != {fk_param}:",
+                  f"{indent}    continue"]
+    if start:
+        lines += [f"{indent}when = str(record.{date_field} or '')[:10]",
+                  f"{indent}if {start} is not None and when < str({start})[:10]:",
+                  f"{indent}    continue"]
+    if end:
+        lines += [f"{indent}when = str(record.{date_field} or '')[:10]",
+                  f"{indent}if {end} is not None and when > str({end})[:10]:",
+                  f"{indent}    continue"]
+    lines += [f"{indent}value = record.{target} or 0",
+              f"{indent}total += value",
+              f"{indent}key = record.{fk_field}" if fk_field else f"{indent}key = None",
+              f"{indent}by_key[key] = by_key.get(key, 0) + value"]
+    returns = normalize(method.get("return_type") or "")
+    if "dict" in returns or "mapping" in returns:
+        lines.append("return {'total_spending': total, 'category_spending': by_key}")
+    elif "list" in returns:
+        return None
+    else:
+        lines.append("return total")
+    return lines
+
+
 def emit_services(ctx, repo_index, stats):
     """Service classes: same-name delegation or documented stubs."""
     port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
@@ -1373,6 +1460,19 @@ def emit_services(ctx, repo_index, stats):
             fname = codegen.sanitize(method["name"], "method")
             declaration, params = _signature(method, ctx["entity_names"])
             returns = _return_of(method, ctx["entity_names"])
+            plan = (ctx.get("method_plans") or {}).get((name, method["name"]))
+            if plan and plan.get("strategy") == "mechanical" \
+                    and str(plan.get("pattern") or "").startswith("AGGREGATE"):
+                body = _service_aggregate_body(ctx, name, method, plan)
+                if body is not None:
+                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                              f'        """{_docstring(method.get("description"))} '
+                              f'[{plan.get("pattern")} via extraction plan]"""']
+                    lines.extend("        " + line if line else "" for line in body)
+                    stats["implemented"] += 1
+                    _record(stats, name, method["name"], "mechanical", True,
+                            f"plan:{plan.get('pattern')}")
+                    continue
             delegate = _service_delegate(ctx, method, repo_index)
             if delegate is not None and strategy.startswith("crud:"):
                 target_cls, _ = delegate
@@ -4271,6 +4371,9 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         tail += [
             "- A yearly summary keys monthly totals by `YYYY-MM` labels",
             "  (for example `2024-01`), not by bare month numbers.",
+            "- `top_spending_categories` must be JSON-serialisable: use a",
+            "  list of [category_id, amount] pairs or string-keyed dict,",
+            "  never tuple keys.",
         ]
     if re.search(r"spend(?:ing)?|total|aggregate|\bsum\b", method, re.IGNORECASE):
         tail += [

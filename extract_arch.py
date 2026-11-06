@@ -33,6 +33,7 @@ import os
 import sys
 from pathlib import Path
 
+from kernel.extraction import generation_plans
 from kernel.extraction import pipeline as pipeline_module
 from kernel.extraction import runner, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
@@ -502,6 +503,17 @@ def run(args):
             requirements_text=requirements,
         )
 
+    plan_path, plan = generation_plans.write(output_dir, documents, requirements)
+    log.write(f"[write] {plan_path}")
+    if plan.get("plans"):
+        log.write(
+            f"[ok] method plans: {len(plan['plans'])} mechanical candidate(s)"
+        )
+    if plan.get("questions"):
+        log.write(
+            f"[!] method plans: {len(plan['questions'])} ambiguous question(s) "
+            "— human review required"
+        )
     for path in writer.write_documents(output_dir, documents):
         log.write(f"[write] {path}")
     # The requirements accompany the documents so the checker can later compare
