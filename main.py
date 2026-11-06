@@ -36,9 +36,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_SERVER = "http://127.0.0.1:8080"
-DEFAULT_MLX = os.environ.get(
-    "MLX_MODEL", "mlx-community/Qwen3-4B-Instruct-2507-4bit"
-)
 
 EXTRACT_STEPS = ("intentions", "data_models", "errors", "invariants",
                  "components", "service_contracts", "pattern_matches",
@@ -307,13 +304,6 @@ def check_inputs(prompt, model, server_url):
         return False, f"prompt file not found: {prompt}"
     if not prompt.read_text("utf-8").strip():
         return False, f"prompt file is empty: {prompt}"
-    if model == "mlx":
-        try:
-            import mlx_lm  # noqa: F401
-        except ImportError:
-            return False, ("mlx-lm is not installed; run this pipeline with "
-                           "the MLX virtualenv (see requirements-mlx.txt)")
-        return True, f"model: MLX {DEFAULT_MLX}"
     if model == "server":
         try:
             with urllib.request.urlopen(server_url + "/health", timeout=3) as reply:
@@ -471,9 +461,8 @@ def parse_args(argv=None):
     parser.add_argument("prompt", help="requirements file, e.g. prompts/prompt_hello_world.txt")
     parser.add_argument("-o", "--output", help="output folder (default: out/<prompt name>)")
     parser.add_argument("--model", default="server",
-                        help="`server` (a running llama-server, the default), "
-                             "`mlx` (in-process Apple Silicon backend), or "
-                             "the path of a GGUF model")
+                        help="`server` (a running llama-server, the default) "
+                             "or the path of a GGUF model")
     parser.add_argument("--server-url", help="llama-server URL (default: "
                         f"$LLAMA_SERVER_URL or {DEFAULT_SERVER})")
     parser.add_argument("--review", action="store_true",

@@ -7,6 +7,7 @@ renaming step in between.
 
 import json
 import sys
+import threading
 from pathlib import Path
 
 RUN_LOG_NAME = "run.log"
@@ -47,11 +48,16 @@ class RunLog:
         self.path = Path(path) if path else None
         self.lines = []
         self.quiet = quiet
+        # Parallel extraction writes from more than one step at a time. The
+        # lock keeps each line whole; it does not promise an order, because the
+        # order in which concurrent model calls finish is not deterministic.
+        self._lock = threading.Lock()
 
     def write(self, message):
-        self.lines.append(message)
-        if not self.quiet:
-            print(message, file=sys.stderr)
+        with self._lock:
+            self.lines.append(message)
+            if not self.quiet:
+                print(message, file=sys.stderr)
 
     def flush(self):
         if self.path is None:

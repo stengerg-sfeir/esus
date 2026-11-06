@@ -59,13 +59,18 @@ class ServerModel:
 
     is_server = True
 
-    def __init__(self, url=None, context_size=8192, timeout=None):
+    def __init__(self, url=None, context_size=8192, timeout=None,
+                 parallel=False):
         self.url = (url or os.environ.get("LLAMA_SERVER_URL")
                     or DEFAULT_SERVER_URL).strip().rstrip("/")
         self.api_key = os.environ.get("LLAMA_SERVER_API_KEY")
         self.timeout = float(timeout or os.environ.get("LLAMA_SERVER_TIMEOUT")
                              or DEFAULT_TIMEOUT)
         self.last_timings = {}
+        # Sequential runs keep every request on slot 0 so the prefix cache
+        # and the documents stay reproducible. Parallel extraction omits the
+        # slot and lets the server assign free slots.
+        self.parallel = bool(parallel)
         self._props = self._get("/props")
         settings = self._props.get("default_generation_settings") or {}
         n_ctx = settings.get("n_ctx")
@@ -74,6 +79,12 @@ class ServerModel:
         self.model_name = (self._props.get("model_alias")
                            or self._props.get("model_path")
                            or "server")
+        # `total_slots` is how many requests the server can work on at once.
+        # It is informational: the extractor still sends one request per call,
+        # and the server owns the queue.
+        slots = self._props.get("total_slots")
+        self.total_slots = int(slots) if isinstance(slots, (int, float)) \
+            and slots > 0 else 1
         self.chat_format = "llama-server"
 
     # -- transport -----------------------------------------------------
@@ -151,8 +162,9 @@ class ServerModel:
             "n_predict": int(max_tokens),
             "temperature": temperature,
             "cache_prompt": True,
-            "id_slot": 0,
         }
+        if not self.parallel:
+            payload["id_slot"] = 0
         if grammar is not None:
             payload["grammar"] = _grammar_text(grammar)
         if seed is not None:
@@ -197,8 +209,9 @@ class ServerModel:
             "temperature": temperature,
             "stream": False,
             "cache_prompt": True,
-            "id_slot": 0,
         }
+        if not self.parallel:
+            payload["id_slot"] = 0
         if seed is not None:
             payload["seed"] = int(seed)
         response = self._post("/v1/chat/completions", payload)
@@ -221,17 +234,16 @@ class ServerModel:
         token plus `completion_probabilities[0].top_logprobs`; the classifier
         consumes the latter exactly like the local last-logits helper.
         """
-        response = self._post(
-            "/completion",
-            {
-                "prompt": prompt,
-                "n_predict": 1,
-                "temperature": 0.0,
-                "n_probs": int(top_n),
-                "cache_prompt": True,
-                "id_slot": 0,
-            },
-        )
+        payload = {
+            "prompt": prompt,
+            "n_predict": 1,
+            "temperature": 0.0,
+            "n_probs": int(top_n),
+            "cache_prompt": True,
+        }
+        if not self.parallel:
+            payload["id_slot"] = 0
+        response = self._post("/completion", payload)
         probabilities = response.get("completion_probabilities") or []
         top = (probabilities[0].get("top_logprobs")
                if probabilities and isinstance(probabilities[0], dict) else None)

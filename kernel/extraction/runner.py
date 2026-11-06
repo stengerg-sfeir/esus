@@ -9,11 +9,10 @@ as if it were complete.
 """
 
 import contextlib
-import os
 import sys
 import time
 
-try:  # importing runner must also work in an MLX-only Python environment
+try:
     from llama_cpp import Llama, LlamaGrammar
 
     try:  # the fd-level redirect the wrapper itself uses for backend init
@@ -26,7 +25,7 @@ try:  # importing runner must also work in an MLX-only Python environment
         from llama_cpp import llama_supports_gpu_offload
     except ImportError:
         llama_supports_gpu_offload = None
-except ImportError:  # pragma: no cover - the MLX backend does not need it
+except ImportError:  # pragma: no cover - the server backend does not need it
     Llama = None
     LlamaGrammar = None
     llama_supports_gpu_offload = None
@@ -41,9 +40,6 @@ GPU_LAYERS_NONE = 0
 # placement live in an already-running llama-server. Keeping the sentinel in
 # this module means extraction and the generator agree on what it means.
 SERVER_MODEL = "server"
-# `--model mlx` selects the in-process Apple Silicon backend. The model id or
-# local MLX directory comes from MLX_MODEL, with a 4-bit Qwen3 default.
-MLX_MODEL = "mlx"
 
 # Thread counts are a CPU-backend tuning knob: llama.cpp picks the physical core
 # count itself when they are omitted, which beats a fixed number on both a small
@@ -109,31 +105,19 @@ def threading_parameters():
     return {"n_threads": CPU_THREADS, "n_threads_batch": CPU_THREADS}
 
 
-def load_model(model_path, context_size=8192, logits_all=False, quiet=False):
+def load_model(model_path, context_size=8192, logits_all=False, quiet=False,
+               parallel=False):
     """Load the model with the settings every step shares.
 
     `model_path == "server"` connects to a running llama-server instead of
-    loading a model in this process. `model_path == "mlx"` loads an Apple
-    Silicon MLX model from `MLX_MODEL` (or the 4-bit Qwen3 default). For a
-    server, the server's `n_ctx` wins; the local `context_size` is only a
-    fallback for an old server without `/props`.
+    loading a model in this process. For a server, the server's `n_ctx` wins;
+    the local `context_size` is only a fallback for an old server without
+    `/props`.
     """
-    if model_path == MLX_MODEL:
-        from kernel.extraction.mlx_backend import MLXModel
-
-        llm = MLXModel(model_path=os.environ.get("MLX_MODEL"),
-                       context_size=context_size)
-        if not quiet:
-            print(
-                f"[mlx] {llm.model_path}, n_ctx={llm.n_ctx()}",
-                file=sys.stderr,
-            )
-        return llm
-
     if model_path == SERVER_MODEL:
         from kernel.extraction.server_backend import ServerModel
 
-        llm = ServerModel(context_size=context_size)
+        llm = ServerModel(context_size=context_size, parallel=parallel)
         if not quiet:
             print(
                 f"[server] llama-server {llm.url}: model={llm.model_name}, "
@@ -273,12 +257,11 @@ def generate(llm, prompt, grammar_text, label, temperature=0.0, max_new_tokens=N
     top of otherwise-good JSON. There is deliberately no switch to turn it off.
     """
     grammar = grammar_text
-    if not (getattr(llm, "is_mlx", False)
-            or getattr(llm, "is_server", False)):
+    if not getattr(llm, "is_server", False):
         if LlamaGrammar is None:
             raise RuntimeError(
-                "this model has no grammar sampler; use --model server or "
-                "--model mlx, or install llama-cpp-python"
+                "this model has no grammar sampler; use --model server "
+                "or install llama-cpp-python"
             )
         grammar = LlamaGrammar.from_string(grammar_text)
     return _generate_impl(llm, prompt, grammar, label, temperature,

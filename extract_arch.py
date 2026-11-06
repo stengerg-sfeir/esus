@@ -22,15 +22,10 @@ Usage:
         --requirements prompts/prompt_library_system.txt --chat
     python3.12 extract_arch.py --model server --output out/library \\
         --requirements prompts/prompt_library_system.txt --no-chat
-    python3.12 extract_arch.py --model mlx --output out/library \\
-        --requirements prompts/prompt_library_system.txt --no-chat
 
 `--model server` uses an already-running llama-server instead of loading the
 GGUF here. Set LLAMA_SERVER_URL (default http://127.0.0.1:8080) to point at it;
 the server's context size and native grammar sampler are used.
-`--model mlx` loads `MLX_MODEL` (a Hugging Face id or local MLX directory) in
-process on Apple Silicon; GBNF is translated to Lark and enforced with
-llguidance because MLX has no native GBNF sampler.
 """
 
 import argparse
@@ -42,7 +37,6 @@ from kernel.extraction import pipeline as pipeline_module
 from kernel.extraction import runner, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
 from kernel.extraction.server_backend import ServerError
-from kernel.extraction.mlx_backend import MLXError
 from kernel.extraction.decisions import apply_decisions, load_decisions
 from review_surface import apply_surface_decisions, load_surface_decisions
 
@@ -52,10 +46,9 @@ def build_parser():
     parser.add_argument(
         "--model",
         required=False,
-        help="Path to the GGUF model, `server` to use an already-running "
+        help="Path to the GGUF model, or `server` to use an already-running "
              "llama-server at LLAMA_SERVER_URL (default "
-             "http://127.0.0.1:8080), or `mlx` for the in-process Apple "
-             "Silicon backend",
+             "http://127.0.0.1:8080)",
     )
     parser.add_argument(
         "--output",
@@ -73,7 +66,7 @@ def build_parser():
         "--context",
         type=int,
         default=8192,
-        help="Context size in tokens when loading a GGUF or the MLX model "
+        help="Context size in tokens when loading a GGUF model "
              "(default 8192); ignored with --model server, which uses the "
              "server's n_ctx",
     )
@@ -459,8 +452,9 @@ def run(args):
         extractor = runner.load_model(
             args.model, context_size=args.context, logits_all=False,
             quiet=getattr(args, "quiet", False),
+            parallel=(pipeline_module.PARALLEL and start is None),
         )
-    except (ServerError, MLXError) as error:
+    except ServerError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
 

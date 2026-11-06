@@ -1,6 +1,6 @@
 # Where ESUS spends its time, and how to make it faster
 
-This page records a measurement of one complete run and the ideas it suggests. The prompt reordering and the server launch script are implemented; the remaining ideas are not. Figures marked *measured* come from the server's own timings; figures marked *estimate* are guesses to be checked before anyone relies on them.
+This page records measurements and the ideas they suggest. Some ideas are implemented and measured; each section says which. Figures marked *measured* come from the server's own timings or a wall-clock run; figures marked *estimate* are guesses to be checked before anyone relies on them.
 
 ## What was measured
 
@@ -13,7 +13,7 @@ One clean run of the library prompt (`prompts/prompt_library_system.txt`), on an
 
 Other measured facts:
 
-- Extraction is a chain: each step needs the documents of the earlier ones, so its model calls cannot run side by side. Thirteen generation calls produce the documents (`service_contracts` and `persistence_ports` are the largest, 2,400 to 3,100 tokens each, about 70 to 88 s each). About 84 further calls classify methods into patterns.
+- Extraction is mostly a chain: each step needs the documents of the earlier ones. A few independent branches can overlap, but on this machine that measured slower (see [Parallel extraction](#parallel-extraction-opt-in-measured-slower)). Thirteen generation calls produce the documents (`service_contracts` and `persistence_ports` are the largest, 2,400 to 3,100 tokens each, about 70 to 88 s each). About 84 further calls classify methods into patterns.
 - The review loop reran five of those calls (components to persistence) in a second round, about 230 s, 39% of the extraction. A run without the review loop (`main.py` by default) took 6m 13s on the expenses prompt.
 - Repair asks were rare in the older reference run (2 of the 24 model-written bodies), but the current timing run saw 5 and 75.7 s of first attempts; see [Per-answer timing record](#per-answer-timing-record).
 - Runs are deterministic: the same code, model, server flags and context give byte-identical documents, model answers and generated modules (three runs, two after cold server restarts). That makes caching by prompt safe, and it means any change that alters a prompt changes the output once.
@@ -43,8 +43,9 @@ With the current launch script (no explicit `--cache-ram`), the expenses prompt 
 1. **Put the shared part of the body prompt first.** **Implemented and measured.** `stub_prompt` now puts the method-specific rules, method name, contract and repair block after the shared rules, references, API, requirements and module text. On the expenses prompt the real body prompts are about 3.8k tokens: before the change a prompt reused only 88 cached tokens and spent about 9.4 s on prefill; after it, the next body reused about 3.6k tokens and spent about 0.42 s. A full regeneration of the expenses output dropped from about 4 minutes to about 2 minutes and still passes 13 of 13 acceptance checks. A from-scratch library generation with the same prompt order took 5m48s for the whole generation pass and passed 17 of 17 checks, against the earlier measured generation phase of about 7.5 minutes. The output changed once, and both acceptance tests were rerun.
 2. **Cache every model call by its prompt.** Not implemented. Key a stored answer by the model, the server settings, the prompt text and the sampling parameters. An unchanged rerun then takes seconds, and a rerun after a change recomputes only the calls whose prompt changed. It is safe because the same input gives the same output. It does nothing for a first run, but it is what removes the 8 to 15 minute wait from every fix-and-retry loop.
 3. **Speculative decoding for extraction.** **Implemented and measured; no gain on this machine.** The draft model loads and works with the grammar sampler (draft acceptance was mostly 72–95% on the extraction steps), but running the 0.6B model beside the 4B model costs more than the accepted tokens save on this memory-bandwidth-bound M1 Pro. One extraction run took 409.5 s of generation against 397.5 s without a draft; a full body-generation pass took 156.8 s against 125.9 s without one. The launch script therefore defaults to `SPEC=0`. It is left as an opt-in experiment; a different draft model, quant or `--spec-draft-n-max` may change the result. The Qwen3-Reranker-0.6B in the models folder is a scoring model and does not qualify.
-4. **Run generation requests in parallel (`-np 2` to `4`).** Decoding on this GPU is limited by memory bandwidth, so serving several sequences at once raises the total rate. It suits generation only, since extraction steps depend on each other. Each slot needs its own context (three slots of 8,000 tokens is about 3.5 GB of cache at full precision), and the body prompts would have to be built from the same base text so that the result does not depend on which request finishes first.
-5. **Smaller prompt blocks.** Showing only the target class's methods instead of the whole module cuts prompt processing, but the `exact` context was tuned for the small model, so this risks the quality of the bodies.
+4. **Run independent extraction steps in parallel (`-np 2`).** **Implemented and measured; slower on this machine.** See [Parallel extraction](#parallel-extraction-opt-in-measured-slower). Overlapping requests divides decode bandwidth instead of adding it, and the largest adapter step becomes slower when it shares the GPU with pattern classification.
+5. **Run generation requests in parallel (`-np 2` to `4`).** Not implemented. Decoding on this GPU is limited by memory bandwidth, so serving several sequences at once may raise aggregate throughput, but body prompts also share a long prefix that a single slot reuses across requests. Each parallel slot needs its own context and cache, and the body prompts would have to be built from the same base text so the result does not depend on which request finishes first.
+6. **Smaller prompt blocks.** Showing only the target class's methods instead of the whole module cuts prompt processing, but the `exact` context was tuned for the small model, so this risks the quality of the bodies.
 
 ## Server launch
 
@@ -71,52 +72,14 @@ The cache is bounded so it does not compete with the rest of a 16 GB machine. Th
 - Does it change the output? Any change to a prompt, a catalogue, a check's message or the numerics changes the generated code once. Rerun the acceptance test, and keep `out/library_correct` as the reference for comparison.
 - Does it hold on other machines? Timings and floating-point behaviour depend on the hardware and the llama.cpp build.
 
-## MLX backend (measured 2026-11-05)
-
-The MLX backend is selected with `--model mlx` and runs in a Python 3.12
-virtualenv (`.venv-mlx`); MLX has no wheel for the system Python 3.14. The model
-is the 4-bit MLX conversion
-`mlx-community/Qwen3-4B-Instruct-2507-4bit`, not the Q4_K_M GGUF used by
-llama.cpp. GBNF is translated to Lark and enforced by llguidance's MLX bitmask
-kernel; see [doc/mlx.md](mlx.md).
-
-Measurement conditions: quiet M1 Pro 16 GB, no llama-server running, one MLX
-process, same prompt and temperature 0.
-
-| Phase | llama.cpp 0.9.0 | MLX 4-bit |
-| --- | ---: | ---: |
-| Expenses extraction, wall | 397.4 s | **372.1 s** |
-| Extraction model time | 385.1 s | **296.9 s** |
-| Extraction generated tokens | 13,837 | 12,597 |
-| Expenses generation, wall | **107.9 s warm** | 135.0 s |
-| Expenses generation, decode | ~50 s | 50.0 s |
-| Generation prompt tokens | 51.9k / 38.7k cached | 54.0k / **29.2k cached** |
-| Expenses acceptance | **13/13** | **11/13** |
-
-Extraction is about **6% faster wall-clock** and about **23% faster in model
-time**. The remaining extraction time is the classifier, which does one full
-forward pass per candidate set on MLX; the llama.cpp server reuses its KV prefix
-there. Raw extraction uses the MLX KV cache only in the opt-in shared-context
-mode described below; the original prompt layout has no useful common prefix.
-
-Body generation is **slower** than a warm llama-server: MLX prefill is slower
-and the 4-bit MLX weights do not reproduce the llama.cpp Q4_K_M output. The
-common expenses acceptance score is **11/13** (the recurring-expense check and
-one service check fail), so MLX should currently be treated as a speed experiment
-rather than a replacement for the llama.cpp path. Its generation run with KV
-cache disabled took 223.4 s; the 135.0 s figure is with the shared body-prompt
-prefix cached.
-
 ### Shared extraction prefix (opt-in)
 
 `ESUS_SHARED_CONTEXT=1` moves the requirements into a fixed first system turn
 and puts the step-specific instruction in the user turn. Every extraction prompt
-then begins with the same **3,225-character** requirements prefix, so both
-backends can reuse it:
+then begins with the same **3,225-character** requirements prefix, so the
+server can reuse it:
 
 ```bash
-ESUS_SHARED_CONTEXT=1 .venv-mlx/bin/python main.py prompts/prompt_expenses.txt \
-    --model mlx -o out/expenses_mlx_shared
 ESUS_SHARED_CONTEXT=1 python3 main.py prompts/prompt_expenses.txt \
     --model server -o out/expenses_llama_shared
 ```
@@ -125,27 +88,21 @@ Measured on the expenses prompt, same model and temperature:
 
 | Extraction | Baseline | Shared prefix | Change |
 | --- | ---: | ---: | ---: |
-| MLX wall | 372.1 s | **307.5 s** | **-17%** |
-| MLX model time | 296.9 s | **229.6 s** | **-23%** |
-| MLX generated tokens | 12,597 | 10,315 | fewer retries |
 | llama.cpp wall | 397.4 s | **326.8 s** | **-18%** |
 | llama.cpp generated tokens | 13,837 | 11,913 | fewer retries |
 
 The speed gain is real, but the prompt change also changes the documents:
-the MLX shared run had 20 readiness blockers (baseline 24) and the llama.cpp
-shared run had 18 (baseline 4). It is therefore **off by default** until a
-reviewed shared-context run passes the same end-to-end acceptance suite. The
-flag is the experiment; do not treat it as a free cache on the current prompts.
+the shared run had 18 readiness blockers (baseline 4). It is therefore **off by
+default** until a reviewed shared-context run passes the same end-to-end
+acceptance suite. The flag is the experiment; do not treat it as a free cache on
+the current prompts.
 
 Blocker counts count report lines, not independent defects, and every run above
-is **unreviewed**. The llama.cpp baseline's 4 were three open review questions
-plus one wrong adapter field; the shared run's 18 were three review questions,
-six wrong adapter fields, and nine CLI options left unconsumed. The 18 is a
-worse extraction, not a slower or broken llama.cpp engine, and neither count is
-an acceptance score: the reviewed `out/expenses_correct` is the 13/13 reference.
-The MLX baseline's 24 and shared run's 20 have the same character — a few root
-causes repeated per field or option — and the MLX outputs are also from a
-different 4-bit quantisation than the Q4_K_M GGUF.
+is **unreviewed**. The baseline's 4 were three open review questions plus one
+wrong adapter field; the shared run's 18 were three review questions, six wrong
+adapter fields, and nine CLI options left unconsumed. The 18 is a worse
+extraction, not a slower or broken llama.cpp engine, and neither count is an
+acceptance score: the reviewed `out/expenses_correct` is the 13/13 reference.
 
 ### Mechanical repository completion
 
@@ -236,26 +193,40 @@ The split path is not faster for Qwen: the plan call plus two group calls cost
 about the same as the single components call.  It is useful because it bounds
 each call's output and makes the explicit command surface predictable.
 
-### Ternary-Bonsai and the Prism fork
 
-The earlier Bonsai baseline failure was **not** a Prism failure.  The monolithic
-components call returned truncated JSON at 3,584 tokens; the retry escalated to
-the full context and never closed its JSON.  The same pathology reproduced with
-the upstream llama.cpp server.  With the split components path and the closed
-option names, both servers complete extraction.
+### Parallel extraction (opt-in, measured slower)
 
-Comparison on expenses, shared context, split components, temperature 0, same
-seed:
+`ESUS_PARALLEL=1` overlaps the independent extraction branches: errors and
+invariants after step B, the two split command groups, and pattern matching and
+adapters at the end. It is extraction-only; the generator still loads its
+backend with a pinned slot so body caching is unchanged. The server must have
+more than one slot and enough context for both:
 
-| Server | Extraction wall | Model time | Generated | Blockers |
-| --- | ---: | ---: | ---: | ---: |
-| Upstream llama.cpp (Bonsai Q2_0) | 217.4 s | 194.3 s | 7,537 | 3 |
-| Prism fork (Bonsai Q2_0) | **173.5 s** | **151.9 s** | 7,537 | 3 |
+```bash
+CTX=32768 SLOTS=2 ./scripts/start_llama_server.sh
+ESUS_COMPONENTS_SPLIT=1 ESUS_PARALLEL=1 python3.12 extract_arch.py \
+    --model server --output out/expenses_parallel \
+    --requirements prompts/prompt_expenses.txt --no-chat --quiet
+```
 
-The JSON extraction documents were byte-identical between the two servers;
-only timing and the review-pattern log differed.  Prism decoded at about
-55–59 tok/s against 43–45 tok/s upstream.  Both runs had the same three
-blockers: one unconsumed `budget list --month`, one unanswered method contract
-and one unanswered surface question.  They are Bonsai quality limits, not a
-fork difference, and neither run has been scored on the common expenses
-evaluator yet.
+Measured on the expenses prompt, Qwen3-4B Q4_K_M, split components, 16,384
+tokens per slot, temperature 0:
+
+| Extraction | Wall | Generated tokens | Blockers |
+| --- | ---: | ---: | ---: |
+| Sequential (slot 0) | **260.8 s** | 9,410 | 4 |
+| Parallel (two slots) | 268.1 s | 9,410 | 4 |
+
+The extraction documents had the same decisions and the same 4 blockers. The
+only document difference was the classifier's confidence values in
+`pattern_matches.json`; the pattern choices were unchanged. Per-request decode
+fell to about 23–35 tok/s while two requests shared the GPU, against 39–42 tok/s
+sequential, and the adapter step grew from 54.6 s to 76.4 s when it overlapped
+pattern classification. The split command groups also took longer together
+(70.0 s) than one after the other (45.1 s).
+
+This machine is memory-bandwidth-bound, so adding concurrent sequences buys no
+wall-clock time. The option is therefore **off by default** and should not be
+used for production runs. A machine with more memory bandwidth, or a workload
+whose critical path is mostly prompt prefill, could behave differently; measure
+before relying on it.

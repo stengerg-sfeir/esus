@@ -83,7 +83,6 @@ from kernel.consistency.naming import normalize  # noqa: E402
 from kernel.consistency.report import Report  # noqa: E402
 from kernel.extraction import runner  # noqa: E402
 from kernel.extraction.server_backend import ServerError  # noqa: E402
-from kernel.extraction.mlx_backend import MLXError  # noqa: E402
 from kernel.extraction.contracts import (  # noqa: E402
     contract_for,
     load_method_contracts,
@@ -7055,7 +7054,7 @@ def generate_fallback(out_dir, model_path):
     prompt = fallback_prompt(requirements, ctx["errors"])
     try:
         llm = runner.load_model(model_path, logits_all=False)
-    except (ServerError, MLXError) as error:
+    except ServerError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
     result = runner.generate_free(llm, prompt, "fallback",
@@ -7091,11 +7090,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("out_dir", help="Extraction output directory (e.g. out/expenses)")
     parser.add_argument("--model", default=None,
-                        help="GGUF model for the LLM passes, `server` to "
+                        help="GGUF model for the LLM passes, or `server` to "
                              "use an already-running llama-server at "
                              "LLAMA_SERVER_URL (default "
-                             "http://127.0.0.1:8080), or `mlx` for the "
-                             "in-process Apple Silicon backend: the degenerate "
+                             "http://127.0.0.1:8080): the degenerate "
                              "fallback (clean but empty documents) writes "
                              "generated/app.py from requirements.txt, and a "
                              "normal run fills every method body the "

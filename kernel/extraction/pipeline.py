@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from kernel.consistency.checks_crud import check_crud_coverage
 from kernel.consistency.checks_surface import check_flag_coverage, check_surface_coverage
@@ -57,6 +58,7 @@ INVARIANTS = "invariants"
 COMPONENTS = "components"
 SERVICE_CONTRACTS = "service_contracts"
 COMPONENTS_SPLIT = os.environ.get("ESUS_COMPONENTS_SPLIT") == "1"
+PARALLEL = os.environ.get("ESUS_PARALLEL") == "1"
 PATTERN_MATCHES = "pattern_matches"
 INTERACTION_ADAPTERS = "interaction_adapters"
 PERSISTENCE_PORTS = "persistence_ports"
@@ -144,11 +146,43 @@ class Pipeline:
         self.log = log
         self.documents = {}
         self.results = []
+        # Parallel extraction is opt-in and only safe for the HTTP backend:
+        # one `llama_cpp.Llama` context is not a thread-safe object. A server
+        # with one slot still accepts concurrent requests, but queues them;
+        # the run log says so instead of pretending there was a speed-up.
+        self.parallel = (PARALLEL
+                         and getattr(llm, "is_server", False)
+                         and getattr(llm, "parallel", True))
+        slots = getattr(llm, "total_slots", 1)
+        self.parallel_workers = max(1, int(slots)) if self.parallel else 1
+        # `run` sets this false when resuming: a resumed run is deliberately
+        # one step at a time against archived documents, even if the server
+        # can accept concurrent requests.
+        self.parallel_run = False
 
     def run(self, requirements, start=None):
         # Kept so the post-contract error repair can consult the requirements — the
         # only authority on whether a declared-but-unraised error belongs.
         self.requirements = requirements
+        self.parallel_run = self.parallel and start is None
+        if PARALLEL and not self.parallel and self.log is not None:
+            if getattr(self.llm, "is_server", False):
+                self.log.write(
+                    "[!] ESUS_PARALLEL=1 is ignored for this run because the "
+                    "server backend was loaded sequentially"
+                )
+            else:
+                self.log.write(
+                    "[!] ESUS_PARALLEL=1 needs --model server; running "
+                    "sequentially because a local llama.cpp context is "
+                    "single-threaded"
+                )
+        elif self.parallel and self.parallel_workers < 2 and self.log is not None:
+            self.log.write(
+                "[!] ESUS_PARALLEL=1 but llama-server has one slot; requests "
+                "will queue — start it with SLOTS=2 (and twice the context) "
+                "to get overlap"
+            )
         steps = [
             (INTENTIONS, lambda: self._step_intentions(requirements)),
             (DATA_MODELS, lambda: self._step_data_models(requirements)),
@@ -171,14 +205,60 @@ class Pipeline:
             # Documents already in `self.documents` are the context the
             # remaining steps chain from.
             index = [name for name, _ in steps].index(start)
-        for name, step in steps[index:]:
-            step()
-            if self.progress_fn is not None:
-                self.progress_fn(name, describe_step(name, self.documents))
+        if self.parallel_run:
+            self._run_parallel(steps)
+        else:
+            for name, step in steps[index:]:
+                step()
+                if self.progress_fn is not None:
+                    self.progress_fn(name, describe_step(name, self.documents))
         return self.documents
 
+    def _run_parallel(self, steps):
+        """Run the independent steps two at a time, keeping the rest chained.
+
+        The dependencies are the point: A and B are chained because B reads
+        A's phrases; errors and invariants both read B and write different
+        documents; components needs the repaired B; contracts needs the
+        components/errors; persistence needs the components; and pattern
+        matching and adapters are the last two independent consumers.
+
+        The only shared writer is `RunLog`, which is line-locked. Each step
+        writes its own document key, so no document is raced. The step order
+        is fixed for the progress lines; the model-call log lines can appear in
+        completion order, which is the honest record of a parallel run.
+        """
+        by_name = dict(steps)
+
+        def run_one(name):
+            by_name[name]()
+
+        def report(names):
+            if self.progress_fn is not None:
+                for name in names:
+                    self.progress_fn(name, describe_step(name, self.documents))
+
+        def sequence(names):
+            for name in names:
+                run_one(name)
+                report([name])
+
+        def together(names):
+            workers = min(self.parallel_workers, len(names))
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                futures = [pool.submit(run_one, name) for name in names]
+                for future in futures:
+                    future.result()
+            report(names)
+
+        sequence([INTENTIONS, DATA_MODELS])
+        together([ERRORS, INVARIANTS])
+        sequence([COMPONENTS, SERVICE_CONTRACTS, "errors_repair",
+                  PERSISTENCE_PORTS])
+        together([PATTERN_MATCHES, INTERACTION_ADAPTERS])
+
     def _generate(self, key, prompt, grammar_text, temperature=TEMPERATURE,
-                  retry_temperature=RETRY_TEMPERATURE):
+                  retry_temperature=RETRY_TEMPERATURE, store=True):
         """Validate the grammar, generate, and store the document under `key`.
 
         One unusable document used to cost the whole run: library's missing
@@ -252,7 +332,8 @@ class Pipeline:
         if removed:
             self.log.write(f"[ok] step {key}: removed {removed} exactly repeated name(s)")
 
-        self.documents[key] = body
+        if store:
+            self.documents[key] = body
         return body
 
     def _entities(self):
@@ -720,8 +801,8 @@ class Pipeline:
 
         Prose-only prompts have no such lines; the model then chooses the
         subtree.  When the requirements do name command lines, passing all of
-        them to every group is how Bonsai turned a group into a second copy of
-        the whole surface.
+        them to every group makes a group repeat the whole surface instead of
+        filling only its own subtree.
         """
         if not spans:
             return None
@@ -806,12 +887,20 @@ class Pipeline:
         if not isinstance(commands, list) or not commands:
             return plan
 
-        merged = []
+        # Each top-level command group is independent once the plan exists.
+        # `_generate(store=False)` keeps the per-group answers out of the
+        # document map: only the merged plan is the components document. A
+        # single-slot server will queue these requests, so the caller can turn
+        # the option off again without changing the result.
+        pending = []
         for entry in commands:
             name = entry.get("name") if isinstance(entry, dict) else entry
             if not isinstance(name, str) or not name.strip():
                 continue
-            group = self._generate(
+            pending.append(name)
+
+        def generate_group(name):
+            return self._generate(
                 "command_group",
                 prompts.component_group(
                     requirements, name, block,
@@ -822,7 +911,21 @@ class Pipeline:
                     subcommands=self._group_subcommands(spans, name),
                     option_specs=self._group_option_specs(spans, name),
                 ),
+                # Concurrent groups must not race on one document key. In the
+                # sequential path keep the historical intermediate file.
+                store=not self.parallel_run,
             )
+
+        if self.parallel_run and self.parallel_workers > 1 and len(pending) > 1:
+            with ThreadPoolExecutor(
+                max_workers=min(self.parallel_workers, len(pending))
+            ) as pool:
+                groups = list(pool.map(generate_group, pending))
+        else:
+            groups = [generate_group(name) for name in pending]
+
+        merged = []
+        for name, group in zip(pending, groups):
             if not isinstance(group, dict):
                 self.log.write(
                     f"[!] step components: group '{name}' produced no usable subtree"

@@ -42,6 +42,7 @@ class _Handler(BaseHTTPRequestHandler):
                 "default_generation_settings": {"n_ctx": 4096},
                 "model_alias": "test-model.gguf",
                 "model_path": "/models/test-model.gguf",
+                "total_slots": 2,
             })
         else:
             self._send({"error": "not found"}, 404)
@@ -136,6 +137,7 @@ class ServerBackendTests(unittest.TestCase):
         self.assertEqual(payload["grammar"], 'root ::= "Z"')
         self.assertEqual(payload["n_predict"], 16)
         self.assertEqual(payload["seed"], 7)
+        self.assertEqual(payload["id_slot"], 0)
 
     def test_chat_completion_uses_the_openai_endpoint(self):
         model = ServerModel(url=self.url)
@@ -167,6 +169,16 @@ class ServerBackendTests(unittest.TestCase):
         path, payload = _Handler.requests[-1]
         self.assertEqual(path, "/completion")
         self.assertEqual(payload["n_probs"], 15)
+        self.assertEqual(payload["id_slot"], 0)
+
+    def test_parallel_backend_omits_the_slot_and_reports_its_slot_count(self):
+        model = ServerModel(url=self.url, parallel=True)
+        self.assertEqual(model.total_slots, 2)
+        runner.generate(model, "prompt", 'root ::= "Z"', "doc",
+                        temperature=0.0, max_new_tokens=12, seed=7)
+        path, payload = _Handler.requests[-1]
+        self.assertEqual(path, "/completion")
+        self.assertNotIn("id_slot", payload)
 
     def test_load_model_server_uses_the_environment_url(self):
         with mock.patch.dict(os.environ, {"LLAMA_SERVER_URL": self.url}):

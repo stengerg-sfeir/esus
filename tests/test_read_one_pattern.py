@@ -155,7 +155,12 @@ class EmissionTests(unittest.TestCase):
             "store", ROOT / "kernel" / "codegen_store_template.py")
         store = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(store)
-        modules = {"models": types.ModuleType("models"),
+        models = types.ModuleType("models")
+        # The emitted services name the entity in their return annotations
+        # (`-> models.Book | None`), so the replacement module needs the class
+        # the fixture declared, even though no test body constructs one.
+        models.Book = type("Book", (), {})
+        modules = {"models": models,
                    "errors": types.ModuleType("errors"), "store": store}
         with mock.patch.dict(sys.modules, modules):
             namespace = dict(modules)
