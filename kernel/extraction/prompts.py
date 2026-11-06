@@ -238,6 +238,41 @@ CONTRACTS_SYSTEM = (
     '[{"name": "...", "description": "...", "params": [{"name": "...", "type": "..."}], '
     '"return_type": "..."}]}]}.'
 )
+
+CONTRACTS_CUSTOM_SYSTEM = (
+    "Extract only the CUSTOM business service methods the requirements imply: "
+    "validation guards, state transitions, aggregates, reports, searches, "
+    "exports and other capability methods with parameters and return types. "
+    "Standard CRUD service methods are generated mechanically from the data "
+    "model and must NOT be emitted here: do not write create, read, update, "
+    "delete, list or get-by-id wrappers for an entity, and do not emit a "
+    "service whose only methods would be those standard wrappers. Repository "
+    "interfaces and their custom aggregates are also completed outside this "
+    "step; emit only the custom domain methods that carry business behaviour. "
+    "Name each service exactly as the authoritative list does. Declare each "
+    "method once, and give every method the parameters the requirements imply. "
+    "A state change the requirements describe needs the method that performs the "
+    "transition, named for it: 'confirming an order reserves stock' needs a "
+    "'confirm_order', and 'cancelling a confirmed order releases the reserved "
+    "stock' needs a 'cancel_order'. A generic status setter is not a substitute. "
+    "Never emit a placeholder such as 'none', 'None', 'void', 'NoneType' or ':' "
+    "as a parameter name or type. Where the requirements describe a failure a "
+    "method can produce, name it in that method's 'raises' list, copied exactly "
+    "from the registered error types listed below; use an empty list for a "
+    "method that raises none. Never name an error that is not registered, and "
+    "never invent one here. A create method cannot fail to find the record it "
+    "creates. If the authoritative list is empty, or the requirements describe "
+    'no domain entities at all, emit {"service_contracts": []}. '
+    'Output strictly in English as JSON: {"service_contracts": ['
+    '{"service_name": "...", "methods": [{"name": "...", '
+    '"description": "...", "params": [{"name": "...", "type": "..."}], '
+    '"return_type": "..."}]}]}.'
+)
+
+
+def service_contracts_custom(requirements, names):
+    return _prompt(CONTRACTS_CUSTOM_SYSTEM, requirements, names)
+
 ADAPTERS_SYSTEM = (
     "Extract abstract interaction adapters mapping external input actions onto the domain service "
     "methods listed above. target_service and target_method MUST be copied exactly from that list, "
@@ -501,8 +536,8 @@ def combined_block(vocabulary):
     return f"{NAMES_HEADING}\n" + "\n".join(sections)
 
 
-def requirements_block(vocabulary):
-    """The entities step B produced and the operations step D requires.
+def requirements_block(vocabulary, operations=True):
+    """The entities step B produced and, optionally, the required operations.
 
     Steps E and H both own method sets — E for the repositories it declares, H
     for the rest — and neither was ever told which operations an entity is
@@ -513,7 +548,7 @@ def requirements_block(vocabulary):
     sections = []
     if vocabulary.entity_block():
         sections.append(f"Entities:\n{vocabulary.entity_block()}")
-    if vocabulary.operations_block():
+    if operations and vocabulary.operations_block():
         sections.append(f"Required operations:\n{vocabulary.operations_block()}")
     if vocabulary.errors_block():
         sections.append(f"Registered error types:\n{vocabulary.errors_block()}")

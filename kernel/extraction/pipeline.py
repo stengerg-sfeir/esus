@@ -33,6 +33,7 @@ from kernel.extraction import (
     return_types,
     runner,
     schema_invariants,
+    service_contracts,
     vocabulary,
 )
 
@@ -61,6 +62,7 @@ SERVICE_CONTRACTS = "service_contracts"
 COMPONENTS_SPLIT = os.environ.get("ESUS_COMPONENTS_SPLIT") == "1"
 PARALLEL = os.environ.get("ESUS_PARALLEL") == "1"
 MECHANICAL_SCHEMA = os.environ.get("ESUS_MECHANICAL_SCHEMA") == "1"
+MECHANICAL_SERVICES = os.environ.get("ESUS_MECHANICAL_SERVICES") == "1"
 PATTERN_MATCHES = "pattern_matches"
 INTERACTION_ADAPTERS = "interaction_adapters"
 PERSISTENCE_PORTS = "persistence_ports"
@@ -590,11 +592,28 @@ class Pipeline:
         # are still the authoritative list for the later adapter step.
         block = prompts.requirements_block(vocab)
         grammar = grammar_open.service_contracts()
-        body = self._generate(
-            SERVICE_CONTRACTS,
-            prompts.service_contracts(requirements, block),
-            grammar,
-        )
+        if MECHANICAL_SERVICES:
+            body = self._generate(
+                SERVICE_CONTRACTS,
+                prompts.service_contracts_custom(
+                    requirements,
+                    prompts.requirements_block(vocab, operations=False),
+                ),
+                grammar,
+            )
+            body = service_contracts.complete(
+                body,
+                self.documents.get(DATA_MODELS),
+                vocab.crud_operations,
+                self.documents.get(ERRORS),
+                self.log,
+            )
+        else:
+            body = self._generate(
+                SERVICE_CONTRACTS,
+                prompts.service_contracts(requirements, block),
+                grammar,
+            )
         # Repositories are derived facts, not a judgement the open grammar can
         # safely leave out.  Fill every required repository and required CRUD
         # method mechanically, keeping any custom methods the model supplied.
@@ -635,9 +654,22 @@ class Pipeline:
             first = self.documents.get(SERVICE_CONTRACTS)
             retry = self._generate(
                 SERVICE_CONTRACTS,
-                prompts.service_contracts(_with_miss_note(requirements, missing), block),
+                prompts.service_contracts_custom(
+                    _with_miss_note(requirements, missing),
+                    prompts.requirements_block(vocab, operations=False))
+                if MECHANICAL_SERVICES else
+                prompts.service_contracts(
+                    _with_miss_note(requirements, missing), block),
                 grammar,
             )
+            if MECHANICAL_SERVICES:
+                retry = service_contracts.complete(
+                    retry,
+                    self.documents.get(DATA_MODELS),
+                    vocab.crud_operations,
+                    self.documents.get(ERRORS),
+                    self.log,
+                )
             retry = repository_contracts.complete(
                 retry,
                 self.documents.get(DATA_MODELS),

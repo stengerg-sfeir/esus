@@ -49,6 +49,7 @@ With the current launch script (no explicit `--cache-ram`), the expenses prompt 
 7. **Generate schema invariants mechanically.** **Implemented as `ESUS_MECHANICAL_SCHEMA=1`; measured small gain.** Step C now asks for business rules only and derives field type, nullability, uniqueness, key, foreign-key, default and numeric-bound facts from `data_models.json`. On expenses the invariant step fell from 611 to 424 generated tokens (15.3 s to 12.6 s) and kept the same 2 blockers; the extra schema entries are skipped by pattern classification. It is opt-in because the document text changes.
 8. **Answer ordinary repository CRUD without the classifier.** **Implemented.** A repository method whose name and return shape already agree (`create`, `read_one`, `read_all`, `filter`) is classified by `codegen.plan_method` instead of a two-stage logprobs call. Replaying the expenses classification took 11.8 s for every item and 8.7 s with the deterministic answers, a 3.1 s saving; aggregates, guards and every service method still reach the model.
 9. **Rename an entity-targeted adapter field to its model field.** **Implemented.** A DIRECT field now follows the same unique-containment rule as money and lookup fields, but only when the qualifier is not a unit or identity marker (`budget` -> `monthly_budget` is renamed; `amount` -> `amount_cents` is not). On expenses this removed the 258-token adapter retry and one blocker, taking readiness from 4 blockers to 2.
+10. **Generate standard service CRUD mechanically.** **Implemented as `ESUS_MECHANICAL_SERVICES=1`; measured on expenses.** The model emits only custom guards, transitions, aggregates, reports and capability methods; standard `create_/read_/read_all_/update_/delete_` wrappers are added from the data model. Existing methods are kept and checked by CRUD role, so a custom `add_expense` covers create. On expenses the contract call fell from 2,251 to 1,078 tokens (about 59 s to 26 s), total extraction from 9,152 to 8,274 tokens, and 239.5 s to 211.5 s with the same 2 blockers (plus one review tie). A missing entity service is deliberately **not** invented: adapters may target its repository instead, which the generator already supports.
 
 ## Server launch
 
@@ -207,6 +208,8 @@ Q4_K_M, split components, 1 slot, 16k context:
 | --- | ---: | ---: | ---: |
 | Deterministic CRUD classification + adapter rename | 239.5 s | 9,152 | 2 |
 | Plus mechanical schema invariants | **232.5 s** | **8,965** | 2 |
+| Plus mechanical service CRUD only (`ESUS_MECHANICAL_SERVICES=1`) | 211.5 s | 8,274 | 2, one review tie |
+| Plus both mechanical schema and service CRUD | **209.1 s** | **8,087** | 2, one review tie |
 
 The schema pass changed only the invariant step (611 -> 424 tokens, 15.3 ->
 12.6 s); the rest of the wall difference is run-to-run variation. The adapter
@@ -214,6 +217,13 @@ rename removed a 258-token retry and the `expensecategoryupdate` unknown-field
 blocker. `ESUS_MECHANICAL_SCHEMA=1` remains opt-in until a reviewed run passes
 acceptance; the classification and adapter repairs are on by default because
 they do not change a prompt.
+
+The service-CRUD pass reduced the contract call from 2,251 to 1,078 tokens
+(about 59 s to 27 s) and total extraction from 9,152 to 8,274 tokens. It only
+completes services the model already named: inventing `CategoryService` and
+`BudgetService` made the adapter mapping worse, so a missing service is left to
+the repository contract. `ESUS_MECHANICAL_SERVICES=1` is therefore opt-in, and
+the combined schema + service run has one extra review tie.
 
 A mechanical not-found error pass was tried and removed: the shorter error
 registry changed the service-contract call enough to truncate and retry it
