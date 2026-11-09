@@ -502,6 +502,9 @@ class Pipeline:
             repairs.repair_missing_surface(
                 body, requirements, self.documents.get(DATA_MODELS), self.log
             )
+            repairs.repair_option_defaults(
+                body, self.documents.get(DATA_MODELS), self.log,
+                requirements)
         # A flat `a_b` duplicating a declared `a b` pair goes last: the pair
         # itself may have been added by the surface repair just above (the
         # retry body lacked `member history` while keeping a flat
@@ -510,6 +513,8 @@ class Pipeline:
         if isinstance(body, dict):
             repairs.repair_flat_command_duplicates(body, self.log)
             repairs.repair_misread_flat_commands(body, self.log)
+            repairs.repair_program_word_subcommands(
+                body, requirements, self.log)
             repairs.repair_long_option_names(body, self.log)
         # The prompt orders every requirements command line onto the surface,
         # but the grammar cannot enforce presence — omission is always
@@ -550,8 +555,13 @@ class Pipeline:
                 repairs.repair_missing_surface(
                     retry, requirements, self.documents.get(DATA_MODELS), self.log
                 )
+                repairs.repair_option_defaults(
+                    retry, self.documents.get(DATA_MODELS), self.log,
+                    requirements)
                 repairs.repair_flat_command_duplicates(retry, self.log)
                 repairs.repair_misread_flat_commands(retry, self.log)
+                repairs.repair_program_word_subcommands(
+                    retry, requirements, self.log)
                 repairs.repair_long_option_names(retry, self.log)
                 retry_misses = (_missing_commands(retry, requirements)
                                 + _missing_flags(retry, requirements))
@@ -990,6 +1000,16 @@ class Pipeline:
                 "subcommands": group.get("subcommands") or [],
             })
         invocation["commands"] = merged
+        # Each group was generated independently, so the same subcommand or
+        # option can occur twice after merging.  The single-call path gets the
+        # same pass in `_generate`; the split path must apply it to the merged
+        # plan, not to the separate group answers.
+        plan, removed = dedupe.deduplicate(COMPONENTS, plan)
+        if removed:
+            self.log.write(
+                f"[ok] step components: removed {removed} exactly repeated "
+                "name(s) from the merged split surface"
+            )
         self.documents[COMPONENTS] = plan
         return plan
 

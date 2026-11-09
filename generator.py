@@ -70,6 +70,7 @@ import os
 import pprint
 import re
 import sys
+import textwrap
 import tokenize
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -761,6 +762,30 @@ def emit_repositories(ctx, stats):
              "    if isinstance(data, dict):",
              "        return {name: data.get(name) for name in field_names}",
              "    return {name: getattr(data, name, None) for name in field_names}",
+             "",
+             "",
+             "def _model_list(records, model_cls):",
+             '    """Model objects from records, deduplicated by stable id."""',
+             "    out = []",
+             "    seen = set()",
+             "    if records is None:",
+             "        records = []",
+             "    elif isinstance(records, dict) or isinstance(records, (str, bytes)) \\",
+             "            or not hasattr(records, '__iter__'):",
+             "        records = [records]",
+             "    for record in records:",
+             "        if isinstance(record, dict):",
+             "            key = record.get('id')",
+             "            item = model_cls(**record)",
+             "        else:",
+             "            key = getattr(record, 'id', None)",
+             "            item = record",
+             "        if key is not None:",
+             "            if key in seen:",
+             "                continue",
+             "            seen.add(key)",
+             "        out.append(item)",
+             "    return out",
              ""]
     for repo in ctx["repositories"]:
         entity = repo.get("entity")
@@ -808,6 +833,17 @@ def emit_repositories(ctx, stats):
                     _record(stats, holder, method["name"], strategy, True,
                             f"slots:{pattern}")
                     continue
+            named_filter = _repo_named_filter_body(ctx, entity, model_cls,
+                                                   method)
+            if named_filter is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          f'[FILTER_BY_NAMED_FIELD: {method["name"]}]"""']
+                lines.extend("        " + line if line else "" for line in named_filter)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "named field filter")
+                continue
             lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:"]
             query_fields, query_model, query_table = field_names, model_cls, "self.ENTITY"
             target = _query_entity(ctx, method, entity)
@@ -958,6 +994,60 @@ def _create_defaults(ctx, entity):
     return defaults
 
 
+def _numeric_bounds(ctx, entity):
+    """`[(field, operator, literal)]` the invariants state for entity fields.
+
+    The schema step records `Book.available_copies must be non-negative` (or
+    `>= 0`), and the library prompt's negative-copy rule depends on it. The
+    bound is read from those records, never inferred from a field name; a
+    create/update emitter that writes the value without the check lets a
+    negative count through even though every generated layer agrees it is
+    invalid.
+    """
+    model = model_of(ctx, entity)
+    if model is None:
+        return []
+    fields = [field for field in model.get("fields") or []
+              if isinstance(field, dict) and field.get("name")]
+    named = {field["name"]: field for field in fields}
+    found = []
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if not isinstance(text, str):
+            continue
+        for clause in re.split(r"[.;\n]", text):
+            for name, field in named.items():
+                if name not in clause:
+                    continue
+                declared = str(field.get("type") or "").strip().lower()
+                if declared not in ("int", "integer", "float", "decimal",
+                                    "number", "real"):
+                    continue
+                bound = None
+                if re.search(r"\bnon-?negative\b", clause, re.I) \
+                        or re.search(r"\bnot\s+be\s+negative\b", clause, re.I):
+                    bound = (">=", "0")
+                elif re.search(r"\bpositive\b", clause, re.I):
+                    bound = (">", "0")
+                else:
+                    match = re.search(r"(>=|>)\s*(-?\d+(?:\.\d+)?)",
+                                      clause)
+                    if match:
+                        bound = (match.group(1), match.group(2))
+                if bound is not None and (name,) + bound not in found:
+                    found.append((name,) + bound)
+    return found
+
+
+def _bound_error(ctx, kind):
+    """The registered error for a negative/positive numeric bound, if any."""
+    for error in ctx.get("errors") or []:
+        name = error.get("name") if isinstance(error, dict) else None
+        if isinstance(name, str) and "negative" in normalize(name):
+            return f"errors.{codegen.sanitize(name)}"
+    return "ValueError"
+
+
 def _unique_fields(ctx, entity):
     """Non-key fields the schema makes unique.
 
@@ -1093,6 +1183,14 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
             continue
         lines.append(f"if values.get({field_name!r}) is None:")
         lines.append(f"    values[{field_name!r}] = False")
+    for field_name, operator, literal in _numeric_bounds(ctx, entity):
+        comparison = "value < 0" if operator == ">=" else "value <= 0"
+        lines.append(f"value = values.get({field_name!r})")
+        lines.append(f"if value is not None and {comparison}:")
+        lines.append(
+            f"    raise {_bound_error(ctx, operator)}("
+            f"f\"{entity}.{field_name} must be {operator} {literal}, "
+            "got {value!r}\")")
     unique_fields = _unique_fields(ctx, entity)
     if unique_fields:
         unique_error = _unique_error(ctx, entity)
@@ -1263,6 +1361,14 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
             continue
         lines.append(f"if {ident} is not None and {raw!r} in {field_names!r}:")
         lines.append(f"    patch[{raw!r}] = {ident}")
+    for field_name, operator, literal in _numeric_bounds(ctx, entity):
+        comparison = "value < 0" if operator == ">=" else "value <= 0"
+        lines.append(f"value = patch.get({field_name!r})")
+        lines.append(f"if value is not None and {comparison}:")
+        lines.append(
+            f"    raise {_bound_error(ctx, operator)}("
+            f"f\"{entity}.{field_name} must be {operator} {literal}, "
+            "got {value!r}\")")
     unique_fields = _unique_fields(ctx, entity)
     if unique_fields:
         unique_error = _unique_error(ctx, entity)
@@ -2064,7 +2170,12 @@ def _criterion_values(ctx, entity, field_name):
         if ftype in ("boolean", "bool"):
             return ["True", "False"]
         if ftype in ("str", "string", "text"):
-            return _field_enum(ctx, entity, field.get("name") or field_name)
+            # Invariants write both `must be one of ['a', 'b']` and the
+            # bracket-less `must be one of 'a', 'b'`; the review needs the
+            # value set either way.  The bracket-only reader missed the
+            # library's `Loan.status` vocabulary and left `find_active_loans`
+            # unasked.
+            return _field_vocabulary(ctx, entity, field.get("name") or field_name)
         return []
     return []
 
@@ -2198,6 +2309,52 @@ def _slot_date_role(method):
     return None
 
 
+def _repo_named_filter_body(ctx, entity, model_cls, method):
+    """A repository `filter_by_<field>` with no reviewed field argument.
+
+    `BookRepository.filter_by_available_copies` is named by the prompt, but
+    its optional boolean is not a model field, so the generic filter planner
+    refuses it. The method name itself names the field (the model is the
+    authority that `available_copies` exists); the body keeps that field's
+    positive condition even when the optional flag is omitted, because the
+    acceptance contract calls the finder with no argument after a zero-copy
+    book exists. The CLI's `book list` path uses `read_all`, not this method.
+    """
+    name = normalize(method.get("name") or "")
+    if not name.startswith("filterby"):
+        return None
+    field = next((field_name for field_name, _field in fields_of(ctx, entity)
+                  if normalize(field_name) and normalize(field_name) in name),
+                 None)
+    if field is None:
+        return None
+    field_type = dict((name, (field.get("type") or ""))
+                      for name, field in fields_of(ctx, entity)).get(field, "")
+    declared = str(field_type).strip().lower()
+    if declared in ("bool", "boolean"):
+        criterion = f"({field!r}, 'eq', True)"
+    elif declared in ("int", "integer", "float", "decimal", "number", "real"):
+        criterion = f"({field!r}, 'ge', 1)"
+    else:
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) > 1:
+        return None
+    lines = []
+    if params:
+        ident = codegen.sanitize(params[0]["name"], "param")
+        lines.append(f"criteria = [{criterion}] if {ident} is not False else []")
+    else:
+        lines.append(f"criteria = [{criterion}]")
+    lines.append("found = self._store.select(self.ENTITY, criteria)")
+    if model_cls is None:
+        lines.append("return [dict(record) for record in found]")
+    else:
+        lines.append(f"return [{model_cls}(**record) for record in found]")
+    return lines
+
+
 def _repo_slot_body(ctx, entity, model_cls, field_types, method, pattern, slots):
     """An aggregate, threshold, or budget-check body from answered slots."""
     fname = method.get("name") if isinstance(method.get("name"), str) else "?"
@@ -2233,7 +2390,7 @@ def _repo_criterion_body(ctx, entity, model_cls, field_types, method, fname,
             return None
         literal = value
     else:
-        if value not in _field_enum(ctx, entity, field):
+        if value not in _field_vocabulary(ctx, entity, field):
             return None
         literal = repr(value)
     lines = [f"criteria = [({field!r}, 'eq', {literal})]",
@@ -6137,6 +6294,93 @@ def _positional_call(node, params):
     return (f"{ast.unparse(node.func)}(" + ", ".join(ordered) + ")")
 
 
+def _qualify_error_names(body, error_names):
+    """Write a known error class as `errors.Name` when the model left it bare.
+
+    The generated service modules import `errors`; a body that raises
+    `MemberNotFoundError` instead of `errors.MemberNotFoundError` compiles but
+    fails the module-name check, and a small model repeats it on repair asks.
+    Qualifying the class is mechanical: only names declared in `errors.py`
+    are touched, and an already qualified `errors.Name` is left alone.
+    """
+    if not body or not error_names:
+        return list(body)
+    pattern = re.compile(
+        r"(?<![\w.])(" + "|".join(re.escape(name)
+                                  for name in sorted(error_names, key=len,
+                                                     reverse=True))
+        + r")\b")
+    return [pattern.sub(r"errors.\1", line) for line in body]
+
+
+def _normalise_repository_returns(body, info, filename):
+    """Honour a repository's declared list return with model objects.
+
+    A live library search body appended raw store dictionaries and then
+    called `dict.fromkeys(results)`, which raises `TypeError: unhashable
+    type: 'dict'` before the method can return. Another filter returned the
+    store's dictionaries directly for its no-argument branch. The declared
+    return is `list[models.X]`, so the mechanical repair wraps every return
+    in `_model_list`, which converts dictionaries and deduplicates by id.
+    Only repository list returns are touched; service bodies keep their own
+    contract and are not second-guessed here.
+    """
+    if filename != "repositories.py" or not body:
+        return list(body)
+    annotation = _return_annotation(info)
+    model_name = _declared_return(info)
+    if not model_name or not re.search(
+            r"\b(?:list|List|Sequence|Iterable|Set|set|Tuple|tuple)\s*\[",
+            annotation):
+        return list(body)
+    source = textwrap.dedent("\n".join(body))
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return list(body)
+
+    class Rewrite(ast.NodeTransformer):
+        def visit_Call(self, node):
+            node = self.generic_visit(node)
+            func = node.func
+            if (isinstance(func, ast.Attribute)
+                    and func.attr == "fromkeys"
+                    and isinstance(func.value, ast.Name)
+                    and func.value.id in ("dict", "OrderedDict")
+                    and node.args):
+                # The result is normalized and deduplicated by `_model_list`;
+                # evaluating `dict.fromkeys` first is what raises on a dict.
+                return node.args[0]
+            return node
+
+        def visit_Return(self, node):
+            node = self.generic_visit(node)
+            value = node.value
+            if value is None or (isinstance(value, ast.Constant)
+                                 and value.value is None):
+                return node
+            if (isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id == "_model_list"):
+                return node
+            replacement = ast.Call(
+                func=ast.Name(id="_model_list", ctx=ast.Load()),
+                args=[value, ast.Attribute(
+                    value=ast.Name(id="models", ctx=ast.Load()),
+                    attr=model_name, ctx=ast.Load())],
+                keywords=[])
+            return ast.Return(value=replacement)
+
+    try:
+        rewritten = ast.fix_missing_locations(Rewrite().visit(tree))
+        text = ast.unparse(rewritten)
+        compile("def _body():\n" + textwrap.indent(text, "    "),
+                "repositories.py", "exec")
+    except (SyntaxError, ValueError):
+        return list(body)
+    return text.splitlines()
+
+
 def _normalise_repository_keywords(body, references_text):
     """Pass a repository call's values positionally when its keywords are
     unambiguous aliases of the declared parameters.
@@ -7039,8 +7283,10 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
             def attempt(raw):
                 """One raw answer as `(candidate, problems, body)`."""
                 nonlocal keyword_changes
+                body = _qualify_error_names(_clean_body(raw), error_names)
+                body = _normalise_repository_returns(body, info, filename)
                 body, keyword_changes = _normalise_repository_keywords(
-                    _clean_body(raw), files.get("repositories.py") or "")
+                    body, files.get("repositories.py") or "")
                 refusal = _body_refusal(body, _module_names(text),
                                         store_names, model_names, error_names)
                 problems = [refusal] if refusal else _body_complaints(

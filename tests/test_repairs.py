@@ -1164,5 +1164,75 @@ class LongOptionSpellingTests(unittest.TestCase):
         self.assertEqual(json.dumps(body, sort_keys=True), before)
 
 
+class OptionDefaultTests(unittest.TestCase):
+    """A split command group must still read a default stated in prose."""
+
+    def test_the_optional_flag_gets_the_one_word_default(self):
+        body = {"facade": {"invocation": {"commands": [
+            {"name": "book", "options": [], "subcommands": [
+                {"name": "add", "options": [
+                    {"name": "--copies", "type": "int",
+                     "required": True, "default": None},
+                ]}]}]}}}
+        requirements = (
+            "library book add --title --isbn --author-id --published-year "
+            "--copies\n"
+            "- `--copies` is optional and defaults to one.\n"
+        )
+        log = Log()
+        repairs.repair_option_defaults(body, [], log, requirements)
+        option = body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"][0]
+        self.assertFalse(option["required"])
+        self.assertEqual(option["default"], "1")
+        self.assertIn("'--copies' is optional", log.joined())
+
+    def test_a_default_before_another_flag_does_not_make_that_flag_optional(self):
+        body = {"facade": {"invocation": {"commands": [
+            {"name": "member", "options": [], "subcommands": [
+                {"name": "add", "options": [
+                    {"name": "--name", "type": "str",
+                     "required": True, "default": None},
+                    {"name": "--email", "type": "str",
+                     "required": True, "default": None},
+                ]}]}]}}}
+        requirements = (
+            "- `Member.membership_date` defaults to today's date when a "
+            "member is created, so `library member add --name --email` is "
+            "sufficient.\n"
+        )
+        repairs.repair_option_defaults(body, [], Log(), requirements)
+        options = body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"]
+        self.assertEqual([(option["required"], option["default"])
+                          for option in options],
+                         [(True, None), (True, None)])
+
+
+class ProgramWordSubcommandTests(unittest.TestCase):
+    def test_a_program_word_is_folded_into_the_flat_command(self):
+        body = {"facade": {"invocation": {"commands": [
+            {"name": "overdue", "options": [], "subcommands": [
+                {"name": "library", "options": [
+                    {"name": "--overdue", "type": "bool"}]}]}]}}}
+        log = Log()
+        repairs.repair_program_word_subcommands(
+            body, "- `library overdue`\n", log)
+        command = body["facade"]["invocation"]["commands"][0]
+        self.assertEqual(command["subcommands"], [])
+        self.assertEqual([option["name"] for option in command["options"]],
+                         ["--overdue"])
+        self.assertIn("folded accidental subcommand 'overdue library'",
+                      log.joined())
+
+    def test_a_genuine_nested_path_is_left_alone(self):
+        body = {"facade": {"invocation": {"commands": [
+            {"name": "expense", "options": [], "subcommands": [
+                {"name": "category", "options": [], "subcommands": [
+                    {"name": "add", "options": []}]}]}]}}}
+        before = json.dumps(body, sort_keys=True)
+        repairs.repair_program_word_subcommands(
+            body, "expense category add --name\n", Log())
+        self.assertEqual(json.dumps(body, sort_keys=True), before)
+
+
 if __name__ == "__main__":
     unittest.main()

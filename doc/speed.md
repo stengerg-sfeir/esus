@@ -274,3 +274,33 @@ wall-clock time. The option is therefore **off by default** and should not be
 used for production runs. A machine with more memory bandwidth, or a workload
 whose critical path is mostly prompt prefill, could behave differently; measure
 before relying on it.
+
+
+### Same extraction conditions, two prompts (measured 2026-11-09)
+
+Both prompts were extracted with the same opt-in flags:
+
+```bash
+ESUS_COMPONENTS_SPLIT=1 ESUS_MECHANICAL_SCHEMA=1 ESUS_MECHANICAL_SERVICES=1 \
+  python3.12 extract_arch.py --model server --no-chat --output OUT \
+    --requirements PROMPT
+```
+
+| Prompt | Extraction | Generated tokens | Review blockers | Generation |
+| --- | ---: | ---: | ---: | --- |
+| Expenses | 217.9 s | 8,087 | 0 | 24 mechanical / 9 LLM bodies; 13/13 acceptance |
+| Library | 188.6 s | 7,154 | 0 | 28 mechanical / 6 LLM bodies; 17/17 acceptance |
+
+The library run started at 4 blockers and exposed three split-path defects
+rather than model-facing prompt problems: the merged command groups repeated a
+subcommand and an option, a flat `library overdue` line came back as `overdue
+library --overdue`, and a split group wrote `--copies` as required although
+the requirements prose says it defaults to one. The repairs are deterministic
+(deduplicate the merged surface, fold a program-word subcommand, and read an
+optional/default flag from the requirements or model) and the expenses surface
+is unchanged by them. On the generation side, repository list returns are now
+normalized to model objects and deduplicated by id, and bare error classes are
+qualified as `errors.Name`; this removed the library's unhashable-dict search
+failure and two refused service bodies. Library generation reached 28
+mechanical bodies and 6 provisional LLM bodies, down from 24 and 8 under the
+previous conditions.

@@ -1040,6 +1040,159 @@ OPTION_TYPES_BY_MODEL = {
 }
 
 
+def repair_option_defaults(components, models, log=None, requirements=""):
+    """Make a flag optional when the requirements or model give it a default.
+
+    The requirements block writes ``--copies`` without brackets, but the
+    prose says it defaults to one. The data model may carry that default; when
+    it does not, the same sentence is the record. A split component group saw
+    only its own command line and wrote the flag as required. A flag bound to
+    a documented default is optional and uses it, exactly as the create
+    emitter does.
+    """
+    if not isinstance(components, dict) or not isinstance(models, list):
+        return components
+    field_defaults = []
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            if field.get("default") is None or field.get("primary_key"):
+                continue
+            field_defaults.append((field["name"], field["default"]))
+
+    def prose_default(flag):
+        """`(optional, default)` the requirements sentence states for flag."""
+        if not isinstance(requirements, str) or not flag:
+            return False, None
+        for sentence in re.split(r"(?<=[.;])\s+|\n", requirements):
+            if not re.search(rf"(?<!\w){re.escape(flag)}(?!\w)", sentence):
+                continue
+            # Only what follows the flag can describe that flag: the member
+            # sentence "membership_date defaults to today ... add --name
+            # --email is sufficient" must not make --name default to today.
+            tail = sentence.split(flag, 1)[1]
+            optional = bool(re.search(r"\boptional\b", tail, re.I))
+            match = re.search(
+                r"\bdefaults?\s+to\s+([A-Za-z0-9_.-]+)", tail, re.I)
+            value = match.group(1).rstrip(".,;:") if match else None
+            if value is not None:
+                words = {"one": "1", "two": "2", "three": "3", "zero": "0",
+                         "true": "True", "false": "False"}
+                value = words.get(value.lower(), value)
+            if optional or value is not None:
+                return True, value
+        return False, None
+
+    invocation = (components.get("facade") or {}).get("invocation") or {}
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return components
+
+    def visit(node):
+        for option in node.get("options") or []:
+            if not isinstance(option, dict) or not option.get("name"):
+                continue
+            if option.get("default") is not None:
+                continue
+            dest = option_dest(option)
+            matches = [default for name, default in field_defaults
+                       if bind_field([dest], name) is not None]
+            optional, default = prose_default(option["name"])
+            if len(matches) == 1:
+                optional, default = True, matches[0]
+            elif not optional:
+                continue
+            if default is None:
+                continue
+            option["required"] = False
+            option["default"] = default
+            if log is not None:
+                log.write(
+                    f"[ok] step components: '{option['name']}' is optional "
+                    f"with default {default!r} (requirements/model default)")
+        for child in node.get("subcommands") or []:
+            visit(child)
+
+    for command in commands:
+        if isinstance(command, dict):
+            visit(command)
+    return components
+
+
+def repair_program_word_subcommands(components, requirements, log=None):
+    """Fold a flat command misread as `<command> <program> --flag`.
+
+    A model reading a flat requirements line such as ``library overdue`` can
+    turn it into top-level ``overdue`` with a subcommand named after the
+    program word (``overdue library --overdue``).  The program word is not a
+    command path; it is the executable.  When the requirements have
+    ``<program> <command>`` and no line names ``<program> <command>
+    <program>``, promote the subcommand's options to the command and remove
+    the bogus subcommand.  This is deterministic: the words and flags come
+    from the requirements surface, not from domain inference.
+    """
+    from kernel.extraction import command_lines
+
+    if not isinstance(components, dict) or not requirements:
+        return components
+    spans = command_lines.extract_command_lines(requirements)
+    if not spans:
+        return components
+    parts = [span.split() for span in spans if isinstance(span, str)]
+    programs = {words[0].lower() for words in parts if words}
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return components
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        name = command.get("name")
+        subs = command.get("subcommands")
+        if (not isinstance(name, str) or not isinstance(subs, list)
+                or len(subs) != 1):
+            continue
+        sub = subs[0]
+        if not isinstance(sub, dict):
+            continue
+        sub_name = sub.get("name")
+        if not isinstance(sub_name, str) or sub_name.lower() not in programs:
+            continue
+        # The flat line must exist, and no path may explicitly nest the
+        # program word under this command.
+        flat = any(len(words) >= 2
+                   and words[0].lower() == sub_name.lower()
+                   and words[1].lower() == name.lower()
+                   for words in parts)
+        nested = any(len(words) >= 3
+                     and words[0].lower() == sub_name.lower()
+                     and words[1].lower() == name.lower()
+                     and words[2].lower() == sub_name.lower()
+                     for words in parts)
+        if not flat or nested:
+            continue
+        existing = {option.get("name") for option in command.get("options") or []
+                    if isinstance(option, dict)}
+        for option in sub.get("options") or []:
+            if not isinstance(option, dict) or not option.get("name"):
+                continue
+            if option.get("name") not in existing:
+                command.setdefault("options", []).append(option)
+                existing.add(option.get("name"))
+        command["subcommands"] = []
+        if log is not None:
+            log.write(
+                f"[ok] step components: folded accidental subcommand "
+                f"'{name} {sub_name}' into flat '{name}' (the program word "
+                "is not a command path)"
+            )
+    return components
+
+
 def repair_long_option_names(components, log=None):
     """Normalize a multi-character single-dash option to `--name`.
 

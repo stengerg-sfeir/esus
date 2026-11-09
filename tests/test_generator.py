@@ -4293,5 +4293,70 @@ class ReviewedBodyReuseTests(unittest.TestCase):
         self.assertIn("return 2", fresh["services.py"])
 
 
+class RepositoryReturnNormalisationTests(unittest.TestCase):
+    def test_a_list_return_becomes_models_and_drops_fromkeys(self):
+        info = {"def": "def search_books(self, query: str = None) "
+                       "-> list[models.Book]:"}
+        body = [
+            "results = [{'id': 1, 'title': 'A'}, {'id': 1, 'title': 'A'}]",
+            "return list(dict.fromkeys(results))",
+        ]
+        rewritten = generator._normalise_repository_returns(
+            body, info, "repositories.py")
+        text = "\n".join(rewritten)
+        self.assertIn("_model_list(list(results), models.Book)", text)
+        self.assertNotIn("dict.fromkeys", text)
+        namespace = {"models": type("Models", (), {
+            "Book": type("Book", (), {
+                "__init__": lambda self, **values: self.__dict__.update(values)
+            })})}
+        def model_list(records, cls):
+            seen, out = set(), []
+            for record in records:
+                key = record.get("id") if isinstance(record, dict) else None
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(cls(**record) if isinstance(record, dict) else record)
+            return out
+        namespace["_model_list"] = model_list
+        exec("def _body():\n" + "\n".join(
+            "    " + line for line in rewritten), namespace)
+        self.assertEqual([book.id for book in namespace["_body"]()], [1])
+
+    def test_a_service_list_return_is_not_rewritten(self):
+        info = {"def": "def search_books(self, query: str = None) "
+                       "-> list[models.Book]:"}
+        body = ["return self._repos['BookRepository'].search(query)"]
+        self.assertEqual(
+            generator._normalise_repository_returns(
+                body, info, "services.py"),
+            body)
+
+
+class NumericBoundTests(unittest.TestCase):
+    def test_a_non_negative_invariant_is_read_for_the_named_field(self):
+        ctx = {
+            "models": [{"name": "Book", "fields": [
+                {"name": "available_copies", "type": "int"}]}],
+            "errors": [{"name": "NegativeAvailableCopiesError"}],
+            "invariants": [{"text": "Book.available_copies must be "
+                                    "non-negative."}],
+        }
+        self.assertEqual(generator._numeric_bounds(ctx, "Book"),
+                         [("available_copies", ">=", "0")])
+        self.assertEqual(generator._bound_error(ctx, ">="),
+                         "errors.NegativeAvailableCopiesError")
+
+    def test_a_prose_field_not_named_in_the_invariant_is_not_guessed(self):
+        ctx = {
+            "models": [{"name": "Book", "fields": [
+                {"name": "available_copies", "type": "int"}]}],
+            "errors": [],
+            "invariants": [{"text": "Copies must not be negative."}],
+        }
+        self.assertEqual(generator._numeric_bounds(ctx, "Book"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

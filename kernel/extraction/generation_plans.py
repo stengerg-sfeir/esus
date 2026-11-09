@@ -199,6 +199,7 @@ def write(output_dir, documents, requirements=""):
     if sha is not None:
         payload["requirements_sha"] = sha
     path = os.path.join(output_dir, METHOD_PLANS_NAME)
+    os.makedirs(output_dir, exist_ok=True)
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(payload, handle, indent=2, ensure_ascii=False)
         handle.write("\n")
