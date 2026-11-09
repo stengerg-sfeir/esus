@@ -592,6 +592,30 @@ class CriterionTests(unittest.TestCase):
         self.assertIsNone(generator._slot_pattern(
             ctx, "WidgetRepository", method)[0])
 
+
+
+    def test_a_plain_grand_total_without_a_date_gets_a_review(self):
+        ctx = {
+            "models": [{"name": "Location", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "capacity", "type": "int"}]}],
+            "entity_names": ["Location"],
+            "repositories": [{
+                "entity": "Location", "interface_name": "LocationRepository",
+                "methods": [{
+                    "name": "get_total_capacity", "params": [],
+                    "return_type": "int",
+                    "description": "sum of capacities"}]}],
+            "match_index": {
+                "contract:LocationRepository.get_total_capacity": {
+                    "pattern_id": "AGGREGATE_BY_FK_AND_DATE",
+                    "decision": "decided"}},
+            "slots": {},
+        }
+        method = ctx["repositories"][0]["methods"][0]
+        self.assertEqual(generator._slot_pattern(
+            ctx, "LocationRepository", method)[0], "AGGREGATE_BY_FK")
+
     def test_field_enum_reads_only_the_documented_line(self):
         ctx = criterion_ctx()
         self.assertEqual(generator._field_enum(ctx, "Widget", "status"),
