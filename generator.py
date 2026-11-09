@@ -2807,6 +2807,25 @@ def _slot_pattern(ctx, holder, method):
         if (strategy == "stub" and not method.get("params")
                 and _collection_return(method)):
             payload = "FILTER_CRITERION"
+    if (kind == "pattern" and payload == "AGGREGATE_BY_FK_AND_DATE"):
+        # A total over all rows has no date slice when the entity and the
+        # signature expose no date at all; the date pattern then offers no
+        # review question.  Fall back to the same aggregate without the date
+        # role, which is exactly the operation the contract describes.
+        entity = next((item.get("entity") for item in ctx.get("repositories") or []
+                       if item.get("interface_name") == holder), None)
+        has_date = any(_is_date_type(field.get("type"))
+                       for _name, field in fields_of(ctx, entity))
+        has_date_param = any(_is_date_type(param.get("type"))
+                             for param in method.get("params") or []
+                             if isinstance(param, dict))
+        if (not has_date and not has_date_param
+                and normalize(method.get("name") or "").startswith(
+                    ("gettotal", "total", "sum"))):
+            # A plain grand total has no date slice; other date-shaped
+            # aggregates (counts grouped by a field, utilization rates) are
+            # not this operation and stay with the normal planner.
+            payload = "AGGREGATE_BY_FK"
     if kind != "pattern" or payload not in SLOT_PATTERNS:
         return None, {}
     record = ctx.get("slots", {}).get((holder, method.get("name")))
