@@ -316,7 +316,7 @@ on the local Qwen3-4B server, 16k context, not a best-of-N.
 | `hello_world` | 7.7 s | 1.5 s | direct `app.py` fallback | 1/1 |
 | `cli_tool` | 25.0 s | 13.9 s | direct `app.py` fallback | 1/1 |
 | `inventory` | 155.9 s | 62.9 s | 2 entities, 2 repositories, 1 service; 13 mechanical / 9 LLM bodies | 7/7 |
-| `gui` | 183.8 s | 127.3 s | 2 entities, 2 repositories, `gui.py` panels for Wine and StorageLocation; 15 / 13 | 8/8 |
+| `gui` | 183.8 s | 127.3 s | 2 entities, 2 repositories, `gui.py` panels for Wine and StorageLocation; 16 mechanical / 12 LLM bodies | 8/8 |
 | `60` | 509.2 s | 224.2 s | 6 entities, 6 repositories, 13 services; 41 mechanical / 21 LLM bodies | 9/9 |
 
 The fallback prompts have no domain documents (no models, services or
