@@ -231,7 +231,8 @@ class DegenerateFallbackTests(unittest.TestCase):
             self.assertFalse(generator.is_degenerate(ctx), key)
         ctx = self.empty_ctx()
         ctx["components"] = {"facade": {"invocation": {"commands": [{"name": "x"}]}}}
-        self.assertFalse(generator.is_degenerate(ctx), "commands")
+        self.assertTrue(generator.is_degenerate(ctx),
+                        "a command with no domain has no mechanical body")
 
     def test_prompt_carries_requirements_and_errors(self):
         prompt = generator.fallback_prompt(

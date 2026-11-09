@@ -123,10 +123,10 @@ class ExtractionTests(unittest.TestCase):
             "expense recurring detect",
         ])
 
-    def test_a_flagless_three_word_line_stays_out_when_nothing_nests(self):
+    def test_a_flagless_three_word_line_whose_command_is_known_is_kept(self):
         text = "Run `product add --sku` and `product report low-stock`."
         self.assertEqual(command_lines.extract_command_lines(text),
-                         ["product add --sku"])
+                         ["product add --sku", "product report low-stock"])
 
     def test_a_three_word_span_of_an_unknown_command_stays_out(self):
         text = self.NESTING + " Also `some unrelated phrase`."

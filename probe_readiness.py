@@ -241,6 +241,8 @@ def relation_filter_findings(path):
     ports = documents.get("persistence_ports") or {}
     entities = {normalize(item.get("name")): item.get("name")
                 for item in models if isinstance(item, dict) and item.get("name")}
+    model_by_name = {normalize(item.get("name")): item for item in models
+                     if isinstance(item, dict) and item.get("name")}
     findings = []
     for repo in (ports.get("repositories") or []) if isinstance(ports, dict) else []:
         if not isinstance(repo, dict):
@@ -269,13 +271,18 @@ def relation_filter_findings(path):
                 if not related or normalize(related) == normalize(entity_name):
                     continue
                 fk_name = f"{match.group(1)}_id"
+                related_model = model_by_name.get(normalize(related)) or {}
+                related_pk = next(
+                    (field.get("name") for field in related_model.get("fields") or []
+                     if isinstance(field, dict) and field.get("primary_key")
+                     and field.get("name")), "id")
                 fk = next((field for field in fields
                            if normalize(field.get("name")) == normalize(fk_name)
                            and isinstance(field.get("foreign_key"), dict)
                            and normalize(field["foreign_key"].get("target_entity"))
                            == normalize(related)
                            and normalize(field["foreign_key"].get("target_field"))
-                           == "id"), None)
+                           == normalize(related_pk)), None)
                 if fk is None:
                     findings.append(Finding(
                         "warning", "missing_relation_filter",

@@ -382,6 +382,8 @@ class Pipeline:
         # was never read anywhere, so it is noise, not modeling — fixed here
         # so the check below judges the repaired models.
         if isinstance(body, list):
+            repairs.repair_primary_key_shapes(body, self.log)
+            repairs.repair_foreign_key_types(body, self.log)
             repairs.repair_primary_key_uniqueness(body, self.log)
             repairs.repair_primary_key_foreign_keys(body, self.log)
             self.documents[DATA_MODELS] = body
@@ -516,6 +518,7 @@ class Pipeline:
             repairs.repair_program_word_subcommands(
                 body, requirements, self.log)
             repairs.repair_long_option_names(body, self.log)
+            repairs.repair_supported_gui_tech(body, self.log)
         # The prompt orders every requirements command line onto the surface,
         # but the grammar cannot enforce presence — omission is always
         # representable. A surface missing a named command (or a named flag
@@ -563,6 +566,7 @@ class Pipeline:
                 repairs.repair_program_word_subcommands(
                     retry, requirements, self.log)
                 repairs.repair_long_option_names(retry, self.log)
+                repairs.repair_supported_gui_tech(retry, self.log)
                 retry_misses = (_missing_commands(retry, requirements)
                                 + _missing_flags(retry, requirements))
             else:
@@ -759,6 +763,13 @@ class Pipeline:
         service method, so with no services there is nothing to map onto and an
         empty list is the correct answer rather than an invention.
         """
+        repairs.repair_flat_prose_surface(
+            self.documents.get(COMPONENTS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS),
+            requirements,
+            self.log,
+        )
         vocab = vocabulary.Vocabulary(entities=self._entities(), services=self._services())
         if not vocab.services:
             self.log.write("[ok] step adapters: step E produced no services — no adapters")
@@ -826,6 +837,14 @@ class Pipeline:
             self.documents.get(INTERACTION_ADAPTERS),
             self.documents.get(SERVICE_CONTRACTS),
             self.documents.get(DATA_MODELS),
+            self.log,
+        )
+        repairs.repair_surface_from_adapters(
+            self.documents.get(COMPONENTS),
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.documents.get(DATA_MODELS),
+            self.documents.get(SERVICE_CONTRACTS),
+            requirements,
             self.log,
         )
 

@@ -56,7 +56,7 @@ class ExtractTests(unittest.TestCase):
             text = (here / "prompts" / f"{name}.txt").read_text(encoding="utf-8")
             counts[name] = len(command_lines.extract_command_lines(text))
         self.assertEqual(counts, {"prompt_library_system": 15,
-                                  "prompt_inventory": 9,
+                                  "prompt_inventory": 11,
                                   # 12 plus the two flagless lines a nesting prompt
                                   # names (`expense category list`, `expense
                                   # recurring detect`), enumerated since stage A.

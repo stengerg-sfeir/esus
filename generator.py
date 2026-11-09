@@ -935,7 +935,7 @@ def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_n
     if kind == "update":
         return _update_body(ctx, method, params, entity, model_cls, field_names, err)
     if kind == "delete":
-        return _delete_body(params, entity, field_names, err)
+        return _delete_body(params, entity, field_names, err, ctx)
     name = method.get("name") if isinstance(method.get("name"), str) else "?"
     return ["raise NotImplementedError(",
             f'    "{entity}.{name}: {strategy}: {detail}")']
@@ -1017,7 +1017,7 @@ def _numeric_bounds(ctx, entity):
             continue
         for clause in re.split(r"[.;\n]", text):
             for name, field in named.items():
-                if name not in clause:
+                if normalize(name) not in normalize(clause):
                     continue
                 declared = str(field.get("type") or "").strip().lower()
                 if declared not in ("int", "integer", "float", "decimal",
@@ -1025,7 +1025,8 @@ def _numeric_bounds(ctx, entity):
                     continue
                 bound = None
                 if re.search(r"\bnon-?negative\b", clause, re.I) \
-                        or re.search(r"\bnot\s+be\s+negative\b", clause, re.I):
+                        or re.search(r"\bnot\s+be\s+negative\b", clause, re.I) \
+                        or re.search(r"\b(?:below|under)\s+zero\b", clause, re.I):
                     bound = (">=", "0")
                 elif re.search(r"\bpositive\b", clause, re.I):
                     bound = (">", "0")
@@ -1039,6 +1040,69 @@ def _numeric_bounds(ctx, entity):
     return found
 
 
+def _field_relations(ctx, entity):
+    """`[(left, operator, right)]` comparisons the invariants state.
+
+    A prompt can state a cross-field rule such as "the selling price must be
+    strictly greater than its cost price".  The two field names are words in
+    the sentence ("selling price", "cost price"), not necessarily their
+    underscored spellings, so match normalized tokens and read the comparison
+    operator from the same clause.
+    """
+    model = model_of(ctx, entity)
+    if model is None:
+        return []
+    fields = [field for field in model.get("fields") or []
+              if isinstance(field, dict) and field.get("name")]
+    numeric = [field for field in fields
+               if str(field.get("type") or "").strip().lower()
+               in ("int", "integer", "float", "decimal", "number", "real")]
+    found = []
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if not isinstance(text, str):
+            continue
+        for clause in re.split(r"[.;\n]", text):
+            flat = normalize(clause)
+            mentioned = [field for field in numeric
+                         if normalize(field["name"]) in flat]
+            if len(mentioned) < 2:
+                continue
+            mentioned.sort(key=lambda field: flat.find(normalize(field["name"])))
+            operator = None
+            if re.search(r"\b(?:strictly\s+)?greater\s+than\b", clause, re.I):
+                operator = ">"
+            elif re.search(r"\b(?:at\s+least|no\s+less\s+than)\b",
+                           clause, re.I):
+                operator = ">="
+            elif re.search(r"\b(?:strictly\s+)?less\s+than\b", clause, re.I):
+                operator = "<"
+            if operator is None:
+                match = re.search(r"(>=|>|<=|<)", clause)
+                operator = match.group(1) if match else None
+            if operator is None:
+                continue
+            # The first mentioned field is the left side for the common
+            # sentence order ("selling price ... cost price"); reversed
+            # wording is handled by the comparison at runtime either way.
+            left, right = mentioned[0]["name"], mentioned[1]["name"]
+            if (left, operator, right) not in found:
+                found.append((left, operator, right))
+    return found
+
+
+def _relation_error(ctx, left, right):
+    """The registered error for a cross-field price/ordering rule."""
+    for error in ctx.get("errors") or []:
+        name = error.get("name") if isinstance(error, dict) else None
+        if not isinstance(name, str):
+            continue
+        flat = normalize(name)
+        if "price" in flat or "pricing" in flat or "margin" in flat:
+            return f"errors.{codegen.sanitize(name)}"
+    return "ValueError"
+
+
 def _bound_error(ctx, kind):
     """The registered error for a negative/positive numeric bound, if any."""
     for error in ctx.get("errors") or []:
@@ -1046,6 +1110,86 @@ def _bound_error(ctx, kind):
         if isinstance(name, str) and "negative" in normalize(name):
             return f"errors.{codegen.sanitize(name)}"
     return "ValueError"
+
+
+def _capacity_relation(ctx, entity):
+    """`(fk_field, quantity_field, target, capacity_field, error)` or None.
+
+    A prompt can say that the bottles assigned to a location cannot exceed
+    its capacity.  The fact is a relationship between a numeric quantity on
+    the source entity, an FK to the target, and a numeric capacity on the
+    target; all three names come from the model.  Only a capacity invariant
+    enables the check.
+    """
+    texts = [item.get("text") for item in ctx.get("invariants") or []
+             if isinstance(item, dict) and isinstance(item.get("text"), str)]
+    if not any("capacity" in text.lower() and "exceed" in text.lower()
+               for text in texts):
+        return None
+    fields = fields_of(ctx, entity)
+    source_quantity = next(
+        (name for name, field in fields
+         if str(field.get("type") or "").lower() in
+         ("int", "integer", "float", "decimal", "number", "real")
+         and any(word in normalize(name) for word in ("stock", "quantity"))),
+        None)
+    if source_quantity is None:
+        return None
+    for fk_name, field in fields:
+        foreign = field.get("foreign_key")
+        if not isinstance(foreign, dict):
+            continue
+        target = foreign.get("target_entity")
+        target_model = model_of(ctx, target)
+        if target_model is None:
+            continue
+        capacity = next(
+            (name for name, item in fields_of(ctx, target)
+             if str(item.get("type") or "").lower() in
+             ("int", "integer", "float", "decimal", "number", "real")
+             and "capacity" in normalize(name)), None)
+        if capacity is None:
+            continue
+        error = next((f"errors.{codegen.sanitize(item['name'])}"
+                      for item in ctx.get("errors") or []
+                      if isinstance(item, dict) and isinstance(item.get("name"), str)
+                      and "capacity" in normalize(item["name"])),
+                     "ValueError")
+        return fk_name, source_quantity, target, capacity, error
+    return None
+
+
+def _in_use_relation(ctx, entity):
+    """`(source, fk_field)` when an invariant forbids deleting an in-use row."""
+    texts = [item.get("text") for item in ctx.get("invariants") or []
+             if isinstance(item, dict) and isinstance(item.get("text"), str)]
+    if not any(re.search(r"\bremov(?:e|al|ing)\b", text, re.I)
+               and re.search(r"\b(?:assigned|in\s+use|currently)\b", text, re.I)
+               for text in texts):
+        return None
+    for model in ctx.get("models") or []:
+        source = model.get("name")
+        if not isinstance(source, str):
+            continue
+        for field in model.get("fields") or []:
+            foreign = field.get("foreign_key") if isinstance(field, dict) else None
+            if (isinstance(foreign, dict)
+                    and normalize(foreign.get("target_entity")) == normalize(entity)
+                    and field.get("name")):
+                return source, field["name"]
+    return None
+
+
+def _delete_in_use_guard(ctx, entity):
+    relation = _in_use_relation(ctx, entity)
+    if relation is None:
+        return []
+    source, fk_field = relation
+    return [
+        f"for record in found:",
+        f"    if self._store.select({source!r}, [({fk_field!r}, 'eq', record[self.PK])]):",
+        f"        raise ValueError(f\"{entity} is still assigned to {source} records\")",
+    ]
 
 
 def _unique_fields(ctx, entity):
@@ -1138,8 +1282,9 @@ def _unique_error(ctx, entity):
         if not isinstance(name, str):
             continue
         flat = normalize(name)
-        if wanted and wanted in flat and ("alreadyexists" in flat
-                                          or flat.endswith("existserror")):
+        if wanted and wanted in flat and (
+                "alreadyexists" in flat or flat.endswith("existserror")
+                or "duplicate" in flat):
             return f"errors.{codegen.sanitize(name)}"
     return "ValueError"
 
@@ -1191,6 +1336,31 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
             f"    raise {_bound_error(ctx, operator)}("
             f"f\"{entity}.{field_name} must be {operator} {literal}, "
             "got {value!r}\")")
+    for left, operator, right in _field_relations(ctx, entity):
+        test = operator
+        lines.append(f"value = values.get({left!r})")
+        lines.append(f"other = values.get({right!r})")
+        lines.append(
+            f"if value is not None and other is not None and "
+            f"not (value {test} other):")
+        lines.append(
+            f"    raise {_relation_error(ctx, left, right)}("
+            f"f\"{entity}.{left} must be {operator} {right}, "
+            "got {value!r} vs {other!r}\")")
+    capacity = _capacity_relation(ctx, entity)
+    if capacity is not None:
+        fk, quantity, target, capacity_field, error = capacity
+        target_pk = primary_key_of(ctx, target)
+        lines += [
+            f"location_id = values.get({fk!r})",
+            f"quantity = values.get({quantity!r}) or 0",
+            "if location_id is not None:",
+            f"    location = self._store.get({target!r}, {target_pk!r}, location_id)",
+            f"    used = sum(row.get({quantity!r}) or 0 for row in "
+            f"self._store.select(self.ENTITY, [({fk!r}, 'eq', location_id)]))",
+            f"    if used + quantity > location.get({capacity_field!r}, 0):",
+            f"        raise {error}(f\"{target} capacity exceeded for {{location_id}}\")",
+        ]
     unique_fields = _unique_fields(ctx, entity)
     if unique_fields:
         unique_error = _unique_error(ctx, entity)
@@ -1369,6 +1539,31 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
             f"    raise {_bound_error(ctx, operator)}("
             f"f\"{entity}.{field_name} must be {operator} {literal}, "
             "got {value!r}\")")
+    for left, operator, right in _field_relations(ctx, entity):
+        lines.append(f"value = patch.get({left!r}, found[0].get({left!r}))")
+        lines.append(f"other = patch.get({right!r}, found[0].get({right!r}))")
+        lines.append(
+            f"if value is not None and other is not None and "
+            f"not (value {operator} other):")
+        lines.append(
+            f"    raise {_relation_error(ctx, left, right)}("
+            f"f\"{entity}.{left} must be {operator} {right}, "
+            "got {value!r} vs {other!r}\")")
+    capacity = _capacity_relation(ctx, entity)
+    if capacity is not None:
+        fk, quantity, target, capacity_field, error = capacity
+        target_pk = primary_key_of(ctx, target)
+        lines += [
+            f"location_id = patch.get({fk!r}, found[0].get({fk!r}))",
+            f"quantity = patch.get({quantity!r}, found[0].get({quantity!r})) or 0",
+            "if location_id is not None:",
+            f"    location = self._store.get({target!r}, {target_pk!r}, location_id)",
+            f"    used = sum(row.get({quantity!r}) or 0 for row in "
+            f"self._store.select(self.ENTITY, [({fk!r}, 'eq', location_id)]) "
+            f"if row.get(self.PK) != found[0][self.PK])",
+            f"    if used + quantity > location.get({capacity_field!r}, 0):",
+            f"        raise {error}(f\"{target} capacity exceeded for {{location_id}}\")",
+        ]
     unique_fields = _unique_fields(ctx, entity)
     if unique_fields:
         unique_error = _unique_error(ctx, entity)
@@ -1385,7 +1580,7 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
     return lines
 
 
-def _delete_body(params, entity, field_names, err):
+def _delete_body(params, entity, field_names, err, ctx=None):
     if not params:
         return ["raise ValueError(",
                 f"    \"{entity}: delete needs key parameters\")"]
@@ -1398,10 +1593,13 @@ def _delete_body(params, entity, field_names, err):
         lines = _criteria_block(params, field_names)
         lines += ["found = self._store.select(self.ENTITY, criteria)"]
     lines += ["if not found:",
-              f"    raise {err}(f\"{entity} delete matched no records\")",
-              "for record in found:",
-              "    self._store.delete(self.ENTITY, self.PK, record[self.PK])",
-              "return None"]
+              f"    raise {err}(f\"{entity} delete matched no records\")"]
+    if ctx is not None:
+        lines += _delete_in_use_guard(ctx, entity)
+    lines += [
+        "for record in found:",
+        "    self._store.delete(self.ENTITY, self.PK, record[self.PK])",
+        "return None"]
     return lines
 
 
@@ -1579,6 +1777,40 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "mechanical", True,
                             f"plan:{plan.get('pattern')}")
                     continue
+            related_body = _service_related_filter_body(ctx, method, params)
+            if related_body is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[filters through one relation]"""']
+                lines.extend("        " + line if line else ""
+                             for line in related_body)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "related filter")
+                continue
+            line_body = _line_item_transition_body(ctx, method, params)
+            if line_body is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[line-item stock transition]"""']
+                lines.extend("        " + line if line else ""
+                             for line in line_body)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "line-item transition")
+                continue
+            assign_body = _service_assign_body(
+                ctx, name, method, params, returns)
+            if assign_body is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[assigns a record to its related entity]"""']
+                lines.extend("        " + line if line else ""
+                             for line in assign_body)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "assign relation")
+                continue
             delegate = _service_delegate(ctx, method, repo_index)
             if delegate is not None and strategy.startswith("crud:"):
                 target_cls, _ = delegate
@@ -1712,6 +1944,335 @@ def _record(stats, holder, method, strategy, implemented, how):
         "holder": holder, "method": method, "strategy": strategy,
         "implemented": implemented, "how": how,
     })
+
+
+def _service_related_filter_body(ctx, method, params):
+    """Filter a list through one intermediate relation (Invoice -> Order -> Customer).
+
+    A service method such as `search_invoices_by_customer(customer_id)` has no
+    direct FK from Invoice to Customer; the path is one hop through Order.
+    The model graph is the authority, so this emits a read-all plus an id set
+    instead of inventing a field or delegating to a wrong repository.
+    """
+    name = normalize(method.get("name") or "")
+    if not name.startswith(("search", "find", "list", "get")):
+        return None
+    returns = method.get("return_type")
+    if not isinstance(returns, str):
+        return None
+    target = next((entity for entity in ctx["entity_names"]
+                   if normalize(entity) in normalize(returns)), None)
+    if target is None or len(params) != 1:
+        return None
+    raw = params[0][0] if isinstance(params[0], tuple) else params[0].get("name")
+    if not isinstance(raw, str) or not raw.endswith("_id"):
+        return None
+    related = next((entity for entity in ctx["entity_names"]
+                    if normalize(entity) == normalize(raw[:-3])), None)
+    if related is None or normalize(target) == normalize(related):
+        return None
+    target_model = model_of(ctx, target)
+    if target_model is None:
+        return None
+    target_fks = [field for field in target_model.get("fields") or []
+                  if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict)]
+    if any(normalize(field["foreign_key"].get("target_entity")) == normalize(related)
+           for field in target_fks):
+        return None  # the normal filter planner handles a direct FK
+    for field in target_fks:
+        middle = field["foreign_key"].get("target_entity")
+        middle_model = model_of(ctx, middle)
+        if middle_model is None:
+            continue
+        middle_related = next(
+            (item["name"] for item in middle_model.get("fields") or []
+             if isinstance(item, dict) and isinstance(item.get("foreign_key"), dict)
+             and normalize(item["foreign_key"].get("target_entity")) == normalize(related)),
+            None)
+        if middle_related is None:
+            continue
+        target_repo = next((item for item in ctx["repositories"]
+                            if normalize(item.get("entity")) == normalize(target)), None)
+        middle_repo = next((item for item in ctx["repositories"]
+                            if normalize(item.get("entity")) == normalize(middle)), None)
+        if target_repo is None or middle_repo is None:
+            continue
+        t_cls = target_repo.get("interface_name") or f"{target}Repository"
+        m_cls = middle_repo.get("interface_name") or f"{middle}Repository"
+        t_read = next((item["name"] for item in target_repo.get("methods") or []
+                       if isinstance(item, dict) and normalize(item.get("name") or "") == "readall"), None)
+        m_read = next((item["name"] for item in middle_repo.get("methods") or []
+                       if isinstance(item, dict) and normalize(item.get("name") or "") == "readall"), None)
+        if not t_read or not m_read:
+            continue
+        param = codegen.sanitize(raw, "param")
+        return [
+            f"middle = [row for row in self._repos[{m_cls!r}].{codegen.sanitize(m_read, 'method')}() if row.{codegen.sanitize(middle_related, 'attr')} == {param}]",
+            "middle_ids = {row." + codegen.sanitize(primary_key_of(ctx, middle), 'attr') + " for row in middle}",
+            f"return [row for row in self._repos[{t_cls!r}].{codegen.sanitize(t_read, 'method')}() if row.{codegen.sanitize(field['name'], 'attr')} in middle_ids]",
+        ]
+    return None
+
+
+def _error_containing(ctx, *words):
+    """A registered error whose normalised name contains every word."""
+    for item in ctx.get("errors") or []:
+        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
+            continue
+        flat = normalize(item["name"])
+        if all(word in flat for word in words):
+            return f"errors.{codegen.sanitize(item['name'])}"
+    return "ValueError"
+
+
+def _line_item_transition_body(ctx, method, params):
+    """Mechanical confirm/cancel/ship for an aggregate with line items.
+
+    The e-commerce prompt's order lifecycle is a line-item stock transition:
+    a line model has FKs to the aggregate and a product plus a quantity; the
+    product has stock and price; confirming creates one invoice total.  All
+    names come from the models and repositories, so a different aggregate
+    with the same shape (a cart, a shipment) gets the same body.  Methods
+    without that shape return None and stay with the normal planner.
+    """
+    name = normalize(method.get("name") or "")
+    if not name.startswith(("confirm", "cancel", "ship")):
+        return None
+    if len(params) != 1:
+        return None
+    aggregate = next((item for item in ctx["entity_names"]
+                      if normalize(item) in name), None)
+    if aggregate is None:
+        return None
+    target = None
+    quantity = product = None
+    for model in ctx.get("models") or []:
+        fks = [field for field in model.get("fields") or []
+               if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict)]
+        targets = {normalize(field["foreign_key"].get("target_entity")): field
+                   for field in fks}
+        if normalize(aggregate) not in targets:
+            continue
+        other = [field for field in fks
+                 if normalize(field["foreign_key"].get("target_entity"))
+                 not in (normalize(aggregate),)]
+        if len(other) != 1:
+            continue
+        product = other[0]["foreign_key"].get("target_entity")
+        qty = next((field["name"] for field in model.get("fields") or []
+                    if isinstance(field, dict)
+                    and str(field.get("type") or "").lower() in
+                    ("int", "integer", "float", "decimal", "number", "real")
+                    and any(word in normalize(field.get("name") or "")
+                            for word in ("quantity", "qty"))), None)
+        if qty:
+            target = model.get("name")
+            quantity = qty
+            break
+    if target is None or product is None or quantity is None:
+        return None
+    product_model = model_of(ctx, product)
+    aggregate_model = model_of(ctx, aggregate)
+    invoice_model = next((model.get("name") for model in ctx.get("models") or []
+                          if isinstance(model, dict)
+                          and normalize(model.get("name")) != normalize(target)
+                          and any(isinstance(field.get("foreign_key"), dict)
+                                  and normalize(field["foreign_key"].get("target_entity"))
+                                  == normalize(aggregate)
+                                  for field in model.get("fields") or []
+                                  if isinstance(field, dict))
+                          and any(isinstance(field, dict)
+                                  and str(field.get("type") or "").lower() in
+                                  ("int", "integer", "float", "decimal",
+                                   "number", "real")
+                                  and any(word in normalize(field.get("name") or "")
+                                          for word in ("total", "amount"))
+                                  for field in model.get("fields") or [])), None)
+    if product_model is None or aggregate_model is None or invoice_model is None:
+        return None
+    stock_field = next((field["name"] for field in product_model.get("fields") or []
+                        if isinstance(field, dict)
+                        and str(field.get("type") or "").lower() in
+                        ("int", "integer", "float", "decimal", "number", "real")
+                        and any(word in normalize(field.get("name") or "")
+                                for word in ("stock", "quantity"))), None)
+    price_field = next((field["name"] for field in product_model.get("fields") or []
+                        if isinstance(field, dict)
+                        and str(field.get("type") or "").lower() in
+                        ("int", "integer", "float", "decimal", "number", "real")
+                        and "price" in normalize(field.get("name") or "")), None)
+    if stock_field is None or price_field is None:
+        return None
+
+    def repo(entity):
+        return next((item for item in ctx["repositories"]
+                     if normalize(item.get("entity")) == normalize(entity)), None)
+    aggregate_repo = repo(aggregate)
+    line_repo = repo(target)
+    product_repo = repo(product)
+    invoice_repo = repo(invoice_model)
+    if not all((aggregate_repo, line_repo, product_repo, invoice_repo)):
+        return None
+    agg_cls = aggregate_repo.get("interface_name") or f"{aggregate}Repository"
+    line_cls = line_repo.get("interface_name") or f"{target}Repository"
+    prod_cls = product_repo.get("interface_name") or f"{product}Repository"
+    inv_cls = invoice_repo.get("interface_name") or f"{invoice_model}Repository"
+    read_agg = next((m["name"] for m in aggregate_repo.get("methods") or []
+                     if isinstance(m, dict) and normalize(m.get("name") or "") == "readone"), None)
+    update_agg = next((m["name"] for m in aggregate_repo.get("methods") or []
+                       if isinstance(m, dict) and normalize(m.get("name") or "") == "update"), None)
+    read_prod = next((m["name"] for m in product_repo.get("methods") or []
+                      if isinstance(m, dict) and normalize(m.get("name") or "") == "readone"), None)
+    update_prod = next((m["name"] for m in product_repo.get("methods") or []
+                        if isinstance(m, dict) and normalize(m.get("name") or "") == "update"), None)
+    create_inv = next((m["name"] for m in invoice_repo.get("methods") or []
+                       if isinstance(m, dict) and normalize(m.get("name") or "") == "create"), None)
+    read_lines = next((m["name"] for m in line_repo.get("methods") or []
+                       if isinstance(m, dict)
+                       and "readone" not in normalize(m.get("name") or "")
+                       and "update" not in normalize(m.get("name") or "")
+                       and "delete" not in normalize(m.get("name") or "")
+                       and "create" not in normalize(m.get("name") or "")
+                       and target.lower()[:5] in normalize(m.get("name") or "")), None)
+    if not all((read_agg, update_agg, read_prod, update_prod, create_inv, read_lines)):
+        return None
+    agg_param = params[0][1] if isinstance(params[0], tuple) else params[0].get("name")
+    not_found = next((f"errors.{codegen.sanitize(item['name'])}"
+                      for item in ctx.get("errors") or []
+                      if isinstance(item, dict) and isinstance(item.get("name"), str)
+                      and normalize(aggregate) in normalize(item["name"])
+                      and "notfound" in normalize(item["name"])), "LookupError")
+    line_id = primary_key_of(ctx, target)
+    product_id = primary_key_of(ctx, product)
+    agg_id = primary_key_of(ctx, aggregate)
+    invalid_status = _error_containing(ctx, "invalid", "status")
+    insufficient = _error_containing(ctx, "insufficient")
+    cannot_cancel = _error_containing(ctx, "cancel")
+    cannot_ship = _error_containing(ctx, "ship")
+    lines = [
+        f"record = self._repos[{agg_cls!r}].{codegen.sanitize(read_agg, 'method')}({codegen.sanitize(agg_param, 'param')})",
+        "if record is None:",
+        f"    raise {not_found}('{aggregate} not found')",
+    ]
+    if name.startswith("confirm"):
+        lines += [
+            f"if record.{codegen.sanitize('status', 'attr')} != 'pending':",
+            f"    raise {invalid_status}('{aggregate} is not pending')",
+            f"items = self._repos[{line_cls!r}].{codegen.sanitize(read_lines, 'method')}({codegen.sanitize(agg_param, 'param')})",
+            "total = 0",
+            "for item in items:",
+            f"    product = self._repos[{prod_cls!r}].{codegen.sanitize(read_prod, 'method')}(item.{codegen.sanitize(product_id, 'attr')})",
+            "    if product is None:",
+            f"        raise errors.{codegen.sanitize(product)}NotFoundError('{product} not found')",
+            f"    if product.{codegen.sanitize(stock_field, 'attr')} < item.{codegen.sanitize(quantity, 'attr')}:",
+            f"        raise {insufficient}('insufficient stock')",
+            f"    product.{codegen.sanitize(stock_field, 'attr')} -= item.{codegen.sanitize(quantity, 'attr')}",
+            f"    self._repos[{prod_cls!r}].{codegen.sanitize(update_prod, 'method')}(product.{codegen.sanitize(product_id, 'attr')}, {codegen.sanitize(stock_field, 'kw')}=product.{codegen.sanitize(stock_field, 'attr')})",
+            f"    total += product.{codegen.sanitize(price_field, 'attr')} * item.{codegen.sanitize(quantity, 'attr')}",
+            f"self._repos[{inv_cls!r}].{codegen.sanitize(create_inv, 'method')}({codegen.sanitize(aggregate[:-1].lower() if aggregate.endswith('s') else aggregate.lower(), 'kw')}_id={codegen.sanitize(agg_param, 'param')}, total_amount=total, generated_at=datetime.datetime.now())",
+            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, status='confirmed')",
+        ]
+    elif name.startswith("cancel"):
+        lines += [
+            f"if record.{codegen.sanitize('status', 'attr')} != 'confirmed':",
+            f"    raise {cannot_cancel}('not confirmed')",
+            f"items = self._repos[{line_cls!r}].{codegen.sanitize(read_lines, 'method')}({codegen.sanitize(agg_param, 'param')})",
+            "for item in items:",
+            f"    product = self._repos[{prod_cls!r}].{codegen.sanitize(read_prod, 'method')}(item.{codegen.sanitize(product_id, 'attr')})",
+            f"    if product is not None:",
+            f"        product.{codegen.sanitize(stock_field, 'attr')} += item.{codegen.sanitize(quantity, 'attr')}",
+            f"        self._repos[{prod_cls!r}].{codegen.sanitize(update_prod, 'method')}(product.{codegen.sanitize(product_id, 'attr')}, {codegen.sanitize(stock_field, 'kw')}=product.{codegen.sanitize(stock_field, 'attr')})",
+            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, status='cancelled')",
+        ]
+    else:
+        lines += [
+            "if record.status != 'confirmed':",
+            f"    raise {cannot_ship}('not confirmed')",
+            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, status='shipped')",
+        ]
+    return lines
+
+
+def _service_assign_body(ctx, service_name, method, params, returns):
+    """A `assign_<entity>_to_<target>` service method that moves a record.
+
+    The GUI prompt's wine-to-storage-location operation is a foreign-key move
+    with no domain-specific arithmetic.  The source repository supplies the
+    read and update; the target id is the second parameter.  Repository update
+    guards (capacity) still run underneath.
+    """
+    name = normalize(method.get("name") or "")
+    if not name.startswith("assign"):
+        return None
+    if len(params) < 2:
+        return None
+    raw_params = [item[0] if isinstance(item, tuple) else item.get("name")
+                  for item in params if item]
+    source = target = None
+    for raw in raw_params:
+        if not isinstance(raw, str):
+            continue
+        token = normalize(raw[:-3] if raw.endswith("_id") else raw)
+        entity = next((item for item in ctx["entity_names"]
+                       if normalize(item) == token
+                       or token in normalize(item)), None)
+        if entity is not None and source is None:
+            source = entity
+        elif entity is not None and target is None and entity != source:
+            target = entity
+    if source is None or target is None:
+        return None
+    source_model = model_of(ctx, source)
+    if source_model is None:
+        return None
+    fk = next((field_name for field_name, field in fields_of(ctx, source)
+               if isinstance(field.get("foreign_key"), dict)
+               and normalize(field["foreign_key"].get("target_entity"))
+               == normalize(target)), None)
+    if fk is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(source)), None)
+    if repo is None:
+        return None
+    repo_cls = repo.get("interface_name") or f"{source}Repository"
+    read = next((m["name"] for m in repo.get("methods") or []
+                 if isinstance(m, dict)
+                 and normalize(m.get("name") or "").startswith("readone")), None)
+    update = next((m["name"] for m in repo.get("methods") or []
+                   if isinstance(m, dict)
+                   and normalize(m.get("name") or "") == "update"), None)
+    if read is None or update is None:
+        return None
+    source_param = next(raw for raw in raw_params
+                        if isinstance(raw, str)
+                        and normalize(source) in normalize(raw))
+    target_param = next(raw for raw in raw_params
+                        if isinstance(raw, str)
+                        and normalize(target).replace("storagelocation", "location")
+                        in normalize(raw))
+    not_found = next((f"errors.{codegen.sanitize(item['name'])}"
+                      for item in ctx.get("errors") or []
+                      if isinstance(item, dict) and isinstance(item.get("name"), str)
+                      and normalize(source) in normalize(item["name"])
+                      and "notfound" in normalize(item["name"])), None)
+    pk = primary_key_of(ctx, source)
+    lines = [
+        f"record = self._repos[{repo_cls!r}].{codegen.sanitize(read, 'method')}"
+        f"({codegen.sanitize(source_param, 'param')})",
+        "if record is None:",
+        f"    raise {not_found or 'LookupError'}(f\"{source} not found\")",
+        f"record.{codegen.sanitize(fk, 'attr')} = {codegen.sanitize(target_param, 'param')}",
+        f"self._repos[{repo_cls!r}].{codegen.sanitize(update, 'method')}"
+        f"(record.{codegen.sanitize(pk, 'attr')}, "
+        f"{codegen.sanitize(fk, 'kw')}={codegen.sanitize(target_param, 'param')})",
+    ]
+    declared = str(method.get("return_type") or "").strip().lower()
+    if "bool" in declared:
+        lines.append("return True")
+    elif "none" not in declared:
+        lines.append("return record")
+    return lines
 
 
 def _service_filter_body(fname, declaration, returns, method, repo_cls,
@@ -3264,6 +3825,9 @@ def emit_cli(ctx, bindings, stats):
              "    if dataclasses.is_dataclass(result):",
              "        print(json.dumps(dataclasses.asdict(result), default=str))",
              "        return",
+             "    if isinstance(result, (dict, tuple)):",
+             "        print(json.dumps(result, default=str))",
+             "        return",
              "    print(result)",
              "",
              "",
@@ -3615,17 +4179,17 @@ def gate(output_dir):
 
 
 def is_degenerate(ctx):
-    """True when the documents are clean but empty: nothing to be faithful to.
+    """True when the documents carry no domain for the mechanical emitter.
 
-    A program with no models, services, repositories, adapters or commands
-    (hello, cli_tool) has no architecture — the mechanical emitters would
-    write an empty shell. The requirements alone describe the whole tiny
-    program, so the generator may write it from them directly (LLM fallback)
-    instead. Any single model, service or command disables the fallback.
+    A program with no models, services, repositories or adapters has no
+    architecture — the mechanical emitters would write an empty shell.  A
+    command table alone is not architecture either: the command has no
+    service method to call, so the generator can only emit an UNBOUND shell.
+    The requirements describe the whole tiny program, so the direct `app.py`
+    fallback is the honest path.  Any real domain content disables it.
     """
-    commands = ((ctx["components"].get("facade") or {}).get("invocation") or {}).get("commands") or []
     return not (ctx["models"] or ctx["services"] or ctx["repositories"]
-                or ctx["adapters"] or commands)
+                or ctx["adapters"])
 
 
 # --------------------------------------------------------------------------

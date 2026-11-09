@@ -304,3 +304,29 @@ qualified as `errors.Name`; this removed the library's unhashable-dict search
 failure and two refused service bodies. Library generation reached 28
 mechanical bodies and 6 provisional LLM bodies, down from 24 and 8 under the
 previous conditions.
+
+### Other prompts, same conditions (measured 2026-11-09)
+
+The same three flags were used for the remaining prompts. Each now has a
+behavior acceptance test: `tests/e2e_<name>_acceptance.py`. Timing is one run
+on the local Qwen3-4B server, 16k context, not a best-of-N.
+
+| Prompt | Extraction | Generation | Generated surface | Acceptance |
+| --- | ---: | ---: | --- | --- |
+| `hello_world` | 7.7 s | 1.5 s | direct `app.py` fallback | 1/1 |
+| `cli_tool` | 25.0 s | 13.9 s | direct `app.py` fallback | 1/1 |
+| `inventory` | 155.9 s | 62.9 s | 2 entities, 2 repositories, 1 service; 13 mechanical / 9 LLM bodies | 7/7 |
+| `gui` | 183.8 s | 127.3 s | 2 entities, 2 repositories, `gui.py` panels for Wine and StorageLocation; 15 / 13 | 8/8 |
+| `60` | 621.9 s | 224.3 s | 6 entities, 6 repositories, 12 services; 39 mechanical / 21 LLM bodies | 9/9 |
+
+The fallback prompts have no domain documents (no models, services or
+adapters); the command table alone is not architecture, so the generator now
+writes `generated/app.py` from the requirements instead of an UNBOUND shell.
+The GUI's extractor selected `tkinter`, for which no emitter exists; the
+declaration is normalized to the supported `pyimgui` backend, while the
+panels and CRUD wiring still come from the documents. The inventory prompt
+exposed three-word flagless paths (`product report low-stock`); they are now
+included when their command word is already known. The 60 prompt needed
+reviewed contracts for its order lifecycle and the split surface repairs
+(subcommand deduplication, program-word folding and adapter-backed grouping)
+before it reached an acceptance run.

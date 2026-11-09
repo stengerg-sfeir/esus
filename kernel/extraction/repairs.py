@@ -702,6 +702,122 @@ def repair_misread_flat_commands(components, log):
     return components
 
 
+def repair_primary_key_shapes(models, log):
+    """Normalize a placeholder/non-integer primary key to the store's `id`.
+
+    `primary_key` is a shape word, not a model field name; the GUI prompt says
+    "unique identifier" and the extractor wrote a string field literally named
+    `primary_key`.  The generated schema then made it a TEXT primary key and
+    the store's auto-increment insert looked up an integer rowid, so every
+    create failed with KeyError.  The store only supports an integer
+    auto-incremented surrogate key; when the key field is placeholder-named or
+    non-integer, rename it to `id` and retarget every foreign key that named
+    the placeholder.  Field names are data, never inferred from prose.
+    """
+    if not isinstance(models, list):
+        return models
+    placeholders = {"primarykey", "pk", "identifier", "key"}
+    renames = []
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        fields = [field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")]
+        pks = [field for field in fields if field.get("primary_key")]
+        if not pks:
+            # The prompt's "unique identifier" is the surrogate key the store
+            # already supplies; without one, every model create has no key.
+            if not any(normalize(field["name"]) == "id" for field in fields):
+                fields.insert(0, {"name": "id", "type": "int",
+                                  "primary_key": True, "nullable": False,
+                                  "unique": True, "foreign_key": None,
+                                  "status": "explicit"})
+                model["fields"] = fields
+                if log is not None:
+                    log.write(f"[ok] step data_models: {model.get('name')} had "
+                              "no primary key — added integer id")
+            continue
+        for field in pks:
+            declared = str(field.get("type") or "").strip().lower()
+            if normalize(field["name"]) in placeholders \
+                    or declared not in ("int", "integer"):
+                old = field["name"]
+                if normalize(old) != "id":
+                    field["name"] = "id"
+                    renames.append((normalize(model.get("name")), normalize(old),
+                                    "id"))
+                field["type"] = "int"
+                field["primary_key"] = True
+                field["unique"] = True
+                field["nullable"] = False
+                field["foreign_key"] = None
+                if log is not None:
+                    log.write(
+                        f"[ok] step data_models: {model.get('name')}.{old} "
+                        "became the integer primary key id")
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict):
+                continue
+            foreign = field.get("foreign_key")
+            if not isinstance(foreign, dict):
+                continue
+            target = normalize(foreign.get("target_entity") or "")
+            target_field = normalize(foreign.get("target_field") or "")
+            for entity, old, new in renames:
+                if target == entity and target_field == old:
+                    foreign["target_field"] = new
+    return models
+
+
+def repair_foreign_key_types(models, log=None):
+    """Make a foreign-key field's scalar type agree with its target key.
+
+    A GUI extraction described the storage-location field as `string` while
+    the target's new primary key is an integer.  The store compares the FK to
+    the target key directly, so `'1'` never equals `1` and the assignment
+    reads back as a stale string.  The target model is the authority for the
+    key type; only the contradicted source field changes.
+    """
+    if not isinstance(models, list):
+        return models
+    by_name = {normalize(model.get("name")): model for model in models
+               if isinstance(model, dict) and model.get("name")}
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            foreign = field.get("foreign_key")
+            if not isinstance(foreign, dict):
+                continue
+            target_model = by_name.get(normalize(foreign.get("target_entity")))
+            if target_model is None:
+                continue
+            target_field = next(
+                (item for item in target_model.get("fields") or []
+                 if isinstance(item, dict)
+                 and normalize(item.get("name"))
+                 == normalize(foreign.get("target_field") or "id")),
+                None)
+            if target_field is None:
+                continue
+            target_type = str(target_field.get("type") or "").strip().lower()
+            source_type = str(field.get("type") or "").strip().lower()
+            if target_type in ("int", "integer") \
+                    and source_type not in ("int", "integer"):
+                field["type"] = "int"
+                if log is not None:
+                    log.write(
+                        f"[ok] step data_models: {model.get('name')}."
+                        f"{field['name']} retyped to int for its "
+                        f"{foreign.get('target_entity')} key")
+    return models
+
+
 def repair_primary_key_uniqueness(models, log):
     """Set `unique=true` on primary-key fields declaring `unique=false`.
 
@@ -1119,6 +1235,320 @@ def repair_option_defaults(components, models, log=None, requirements=""):
     for command in commands:
         if isinstance(command, dict):
             visit(command)
+    return components
+
+
+def repair_flat_prose_surface(components, services, models, requirements, log=None):
+    """Derive a backed CLI surface from services when prose names no command.
+
+    A prose-only prompt (no backticked command lines) leaves the components
+    splitter with action names such as ``add_customer``.  Asked for one group,
+    the model tends to repeat every action as a subcommand of every group, so
+    the merged surface becomes a Cartesian product no service can back.  When
+    the requirements name no command lines, the service contract is the
+    authority for the operations: group its methods by model noun and verb
+    (``create_customer`` -> ``customer add``), and give each leaf that
+    method's parameters as flags.  Explicit command lines never take this path.
+    """
+    from kernel.extraction import command_lines
+
+    if not isinstance(components, dict) or not isinstance(services, list):
+        return components
+    if command_lines.extract_command_lines(requirements or ""):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict) or (facade.get("type") or "").lower() != "cli":
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict) or not isinstance(invocation.get("commands"), list):
+        return components
+
+    entities = [model.get("name") for model in models or []
+                if isinstance(model, dict) and isinstance(model.get("name"), str)]
+    if not entities:
+        return components
+
+    methods = []
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        for method in service.get("methods") or []:
+            if isinstance(method, dict) and isinstance(method.get("name"), str):
+                methods.append(method)
+    if not methods:
+        return components
+
+    type_names = {
+        "int": "int", "integer": "int", "bool": "bool", "boolean": "bool",
+        "float": "float", "double": "float", "decimal": "float",
+        "money": "float", "str": "str", "string": "str", "text": "str",
+        "datetime": "str", "date": "str", "list": "str", "dict": "str",
+    }
+    verbs = {
+        "create": "add", "add": "add", "read_all": "list", "list": "list",
+        "read_one": "get", "get": "get", "find": "find", "search": "search",
+        "update": "update", "delete": "delete", "remove": "delete",
+        "confirm": "confirm", "cancel": "cancel", "ship": "ship",
+        "export": "export", "report": "report", "summary": "report",
+        "stock": "stock", "restock": "restock",
+    }
+
+    def entity_for(name):
+        flat = normalize(name)
+        found = []
+        for entity in entities:
+            token = normalize(entity)
+            index = flat.find(token)
+            if index >= 0:
+                found.append((index, -len(token), entity))
+        return min(found)[2] if found else None
+
+    def verb_for(name):
+        tokens = [token for token in re.split(r"[^a-z0-9]+", name.lower())
+                  if token]
+        for token in tokens:
+            if token in verbs:
+                return verbs[token]
+        return None
+
+    def options_for(method, verb):
+        params = [param for param in method.get("params") or []
+                  if isinstance(param, dict) and param.get("name")]
+        optional = verb in ("search", "find", "list", "get", "update")
+        options = []
+        for index, param in enumerate(params):
+            raw = param["name"]
+            declared = str(param.get("type") or "").strip().lower()
+            required = (not optional and index == 0) or (
+                not optional and verb in ("add", "delete", "confirm",
+                                          "cancel", "ship", "restock",
+                                          "export", "report"))
+            options.append({
+                "name": "--" + raw.replace("_", "-"),
+                "short": None,
+                "type": type_names.get(declared, "str"),
+                "required": required,
+                "default": None,
+            })
+        return options
+
+    groups = {}
+    order = []
+    for method in methods:
+        name = method["name"]
+        entity = entity_for(name)
+        verb = verb_for(name)
+        if entity is None or verb is None or verb in ("find", "get"):
+            # Repository `find_*`/`get_*` variants are implementation filters,
+            # not necessarily distinct user commands; `search`/`list` carry
+            # the prompt-facing lookup when one exists.  Keeping a `get` leaf
+            # with no options made the CLI bind it to a method that requires
+            # an id.
+            continue
+        key = normalize(entity)
+        if key not in groups:
+            groups[key] = {"name": entity, "options": [], "subcommands": []}
+            order.append(key)
+        group = groups[key]
+        if any(sub.get("name") == verb for sub in group["subcommands"]):
+            continue
+        group["subcommands"].append({
+            "name": verb,
+            "options": options_for(method, verb),
+        })
+    repaired = [groups[key] for key in order if groups[key]["subcommands"]]
+    if not repaired:
+        return components
+    invocation["commands"] = repaired
+    # Keep only the adapter that the surface actually exposes.  A second
+    # adapter for the same noun/verb (find by status versus find by customer
+    # and status) would otherwise demand a flag no kept command can supply.
+    adapters[:] = [
+        adapter for adapter in adapters
+        if isinstance(adapter, dict)
+        and adapter.get("action_name") in selected_actions
+    ]
+    if log is not None:
+        log.write(
+            f"[ok] step adapters: derived {len(repaired)} command group(s) "
+            f"from {len(methods)} service method(s)")
+    return components
+
+def repair_supported_gui_tech(components, log=None):
+    """Use a GUI backend the generator can actually emit.
+
+    The requirements name a GUI but not a toolkit; the extractor can write
+    `tkinter` or another plausible word while `generator.py` has one concrete
+    backend (`pyimgui`).  An unsupported word would otherwise drop `gui.py`
+    entirely, leaving the prompt's central surface missing.  Normalizing the
+    declaration is a capability choice, not a domain decision: the panels,
+    fields and CRUD wiring still come from the documents.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict) or (facade.get("type") or "").lower() != "gui":
+        return components
+    supported = {"pyimgui"}
+    tech = str(facade.get("technology") or "").strip().lower()
+    if tech in supported:
+        return components
+    facade["technology"] = "pyimgui"
+    if log is not None:
+        log.write(
+            f"[ok] step components: GUI technology {tech or '(none)'!r} has no "
+            "emitter — using the supported pyimgui backend for the same panels")
+    return components
+
+
+def repair_surface_from_adapters(components, adapters, models, services, requirements, log=None):
+    """Rebuild a prose-derived CLI surface from the adapters that actually run.
+
+    After the adapter step, every action has a concrete service method and a
+    field list.  Using the service list directly can name a leaf whose adapter
+    was never emitted (``product delete`` beside ``delete_order``) or whose
+    flag target belongs to a different method.  This pass groups the adapters
+    by model noun and verb and takes the flags from each adapter's own input
+    fields, so every leaf has a call behind it.  Explicit command lines are
+    never rewritten.
+    """
+    from kernel.extraction import command_lines
+
+    if not isinstance(components, dict) or not isinstance(adapters, list):
+        return components
+    if command_lines.extract_command_lines(requirements or ""):
+        return components
+    facade = components.get("facade")
+    if not isinstance(facade, dict) or (facade.get("type") or "").lower() != "cli":
+        return components
+    invocation = facade.get("invocation")
+    if not isinstance(invocation, dict) or not isinstance(invocation.get("commands"), list):
+        return components
+    entities = [model.get("name") for model in models or []
+                if isinstance(model, dict) and isinstance(model.get("name"), str)]
+    if not entities or not adapters:
+        return components
+
+    method_params = {}
+    for service in services or []:
+        if not isinstance(service, dict):
+            continue
+        for method in service.get("methods") or []:
+            if isinstance(method, dict) and method.get("name"):
+                method_params[(normalize(service.get("service_name")),
+                               normalize(method["name"]))] = {
+                    normalize(param.get("name")): param.get("type")
+                    for param in method.get("params") or []
+                    if isinstance(param, dict) and param.get("name")}
+    types = {}
+    for model in models or []:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if isinstance(field, dict) and field.get("name"):
+                declared = str(field.get("type") or "").strip().lower()
+                types[field["name"]] = {
+                    "int": "int", "integer": "int", "bool": "bool",
+                    "boolean": "bool", "float": "float", "double": "float",
+                    "decimal": "float", "money": "float", "str": "str",
+                    "string": "str", "text": "str", "datetime": "str",
+                    "date": "str", "list": "str", "dict": "str",
+                }.get(declared, "str")
+
+    verbs = {
+        "create": "add", "add": "add", "read_all": "list", "list": "list",
+        "read_one": "get", "get": "get", "find": "find", "search": "search",
+        "update": "update", "delete": "delete", "remove": "delete",
+        "confirm": "confirm", "cancel": "cancel", "ship": "ship",
+        "export": "export", "report": "report", "summary": "report",
+        "stock": "stock", "restock": "restock",
+    }
+
+    def entity_for(name):
+        flat = normalize(name)
+        found = []
+        for entity in entities:
+            token = normalize(entity)
+            index = flat.find(token)
+            if index >= 0:
+                found.append((index, -len(token), entity))
+        return min(found)[2] if found else None
+
+    def verb_for(name):
+        for token in re.split(r"[^a-z0-9]+", name.lower()):
+            if token in verbs:
+                return verbs[token]
+        return None
+
+    groups = {}
+    order = []
+    selected_actions = set()
+    for adapter in adapters:
+        if not isinstance(adapter, dict) or not adapter.get("target_method"):
+            continue
+        method = adapter["target_method"]
+        entity = entity_for(adapter.get("action_name") or method) \
+            or entity_for(method)
+        verb = verb_for(adapter.get("action_name") or method) \
+            or verb_for(method)
+        if entity is None or verb is None or verb in ("find", "get"):
+            # Repository `find_*`/`get_*` variants are implementation filters,
+            # not necessarily distinct user commands; `search`/`list` carry
+            # the prompt-facing lookup when one exists.  Keeping a `get` leaf
+            # with no options made the CLI bind it to a method that requires
+            # an id.
+            continue
+        key = normalize(entity)
+        if key not in groups:
+            groups[key] = {"name": entity, "options": [], "subcommands": []}
+            order.append(key)
+        group = groups[key]
+        if any(sub.get("name") == verb for sub in group["subcommands"]):
+            continue
+        selected_actions.add(adapter.get("action_name"))
+        options = []
+        seen_options = set()
+        for item in adapter.get("input_fields") or []:
+            if not isinstance(item, dict) or not item.get("field_name"):
+                continue
+            field = item["field_name"]
+            if field in seen_options:
+                continue
+            seen_options.add(field)
+            target_type = method_params.get(
+                (normalize(adapter.get("target_service")),
+                 normalize(adapter.get("target_method"))), {}).get(
+                     normalize(item.get("target_param") or field))
+            declared = str(target_type or types.get(field, "str")).strip().lower()
+            options.append({
+                "name": "--" + field.replace("_", "-"),
+                "short": None,
+                "type": {"int": "int", "integer": "int",
+                         "bool": "bool", "boolean": "bool",
+                         "float": "float", "double": "float",
+                         "decimal": "float", "money": "float",
+                         "str": "str", "string": "str", "text": "str",
+                         "datetime": "str", "date": "str"}.get(declared, "str"),
+                "required": bool(item.get("required")),
+                "default": None,
+            })
+        group["subcommands"].append({"name": verb, "options": options})
+    repaired = [groups[key] for key in order if groups[key]["subcommands"]]
+    if not repaired:
+        return components
+    invocation["commands"] = repaired
+    # Keep only the adapter that the surface actually exposes.  A second
+    # adapter for the same noun/verb (find by status versus find by customer
+    # and status) would otherwise demand a flag no kept command can supply.
+    adapters[:] = [
+        adapter for adapter in adapters
+        if isinstance(adapter, dict)
+        and adapter.get("action_name") in selected_actions
+    ]
+    if log is not None:
+        log.write(
+            f"[ok] step adapters: rebuilt prose-derived surface from "
+            f"{len(adapters)} adapter(s)")
     return components
 
 

@@ -32,6 +32,8 @@ def extract_command_lines(requirements):
     a junk line that slips in costs little (the model judges it, and the
     unbacked-command probe gates what it invents).
     """
+    from kernel.consistency import checks_surface as surface_checks
+
     if not isinstance(requirements, str) or not requirements:
         return []
     lines = []
@@ -41,6 +43,23 @@ def extract_command_lines(requirements):
             continue
         if _is_command_line(text):
             lines.append(text)
+    # A flagless three-word line (`product report low-stock`) is a command
+    # path, but the base rule intentionally leaves it to the model when the
+    # rest of the prompt has no paths.  When its first word is already a
+    # command named by another line, it is not ambiguous: include it so the
+    # path builder can put it on the surface.  Adding it may be what makes
+    # `uses_paths` true, so re-run the flagless-path pass after the first add.
+    if not uses_paths(lines):
+        known = {words[0] for words in _word_lists(lines) if words}
+        for span in re.findall(r"`([^`]*)`", requirements):
+            text = span.strip()
+            words = text.split()
+            if (len(words) == 3
+                    and all(surface_checks.SPAN_WORD.fullmatch(word)
+                            for word in words)
+                    and words[0] in known
+                    and text not in lines):
+                lines.append(text)
     if uses_paths(lines):
         lines = _with_flagless_paths(requirements, lines)
     return lines
