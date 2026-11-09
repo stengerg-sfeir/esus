@@ -126,6 +126,13 @@ METHOD_SLOTS_KEY = "slots"
 METHOD_PLANS_NAME = "method_plans.json"
 METHOD_PLANS_KEY = "plans"
 
+# `method_programs.json` beside the documents: reviewed, declarative service
+# bodies (read/query/check/for_each/update/create/assign actions).  The
+# emitter interprets only these generic operations; it contains no domain
+# noun, status value or entity name.
+METHOD_PROGRAMS_NAME = "method_programs.json"
+METHOD_PROGRAMS_KEY = "programs"
+
 # `surface_decisions.json` beside the documents (written by
 # review_surface.py): duplicate-node keeps, and `kind: "route"` records
 # binding a declared CLI flag to the method it selects. Route records are
@@ -251,6 +258,25 @@ def load_context(output_dir):
                 routes.append(record)
     except (OSError, ValueError):
         pass
+    programs = {}
+    dropped_programs = 0
+    try:
+        with open(os.path.join(output_dir, METHOD_PROGRAMS_NAME),
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+        stamped = payload.get("requirements_sha")
+        if current is None or not isinstance(stamped, str) or stamped == current:
+            for record in payload.get(METHOD_PROGRAMS_KEY) or []:
+                if not isinstance(record, dict):
+                    continue
+                holder = record.get("holder")
+                method = record.get("method")
+                if isinstance(holder, str) and isinstance(method, str):
+                    programs[(holder, method)] = record
+        else:
+            dropped_programs = len(payload.get(METHOD_PROGRAMS_KEY) or [])
+    except (OSError, ValueError):
+        pass
     method_plans = {}
     dropped_plans = 0
     try:
@@ -288,6 +314,8 @@ def load_context(output_dir):
         "dropped_contracts": dropped_contracts,
         "method_plans": method_plans,
         "dropped_plans": dropped_plans,
+        "programs": programs,
+        "dropped_programs": dropped_programs,
         "routes": routes,
         "dropped_routes": dropped_routes,
         "requirements": requirements_text,
@@ -985,7 +1013,7 @@ def _create_defaults(ctx, entity):
             continue
         declared = str(field.get("type") or "").strip().lower()
         if name not in ("membership_date", "joined_date", "created_date",
-                        "created_at", "registration_date"):
+                        "created_at", "generated_at", "registration_date"):
             continue
         if declared in ("datetime", "timestamp"):
             defaults[name] = "datetime.datetime.now()"
@@ -1764,6 +1792,20 @@ def emit_services(ctx, repo_index, stats):
             fname = codegen.sanitize(method["name"], "method")
             declaration, params = _signature(method, ctx["entity_names"])
             returns = _return_of(method, ctx["entity_names"])
+            program = (ctx.get("programs") or {}).get(
+                (name, method["name"]))
+            if isinstance(program, dict):
+                program_body = _program_body(ctx, program)
+                if program_body is not None:
+                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                              f'        """{_docstring(method.get("description"))} '
+                              '[reviewed program]"""']
+                    lines.extend("        " + line if line else ""
+                                 for line in program_body)
+                    stats["implemented"] += 1
+                    _record(stats, name, method["name"], strategy, True,
+                            "reviewed program")
+                    continue
             plan = (ctx.get("method_plans") or {}).get((name, method["name"]))
             if plan and plan.get("strategy") == "mechanical" \
                     and str(plan.get("pattern") or "").startswith("AGGREGATE"):
@@ -1787,17 +1829,6 @@ def emit_services(ctx, repo_index, stats):
                 stats["implemented"] += 1
                 _record(stats, name, method["name"], strategy, True,
                         "related filter")
-                continue
-            line_body = _line_item_transition_body(ctx, method, params)
-            if line_body is not None:
-                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
-                          f'        """{_docstring(method.get("description"))} '
-                          '[line-item stock transition]"""']
-                lines.extend("        " + line if line else ""
-                             for line in line_body)
-                stats["implemented"] += 1
-                _record(stats, name, method["name"], strategy, True,
-                        "line-item transition")
                 continue
             assign_body = _service_assign_body(
                 ctx, name, method, params, returns)
@@ -1946,6 +1977,167 @@ def _record(stats, holder, method, strategy, implemented, how):
     })
 
 
+def _program_expr(value):
+    """A reviewed program expression, validated as a Python expression."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        ast.parse(value, mode="eval")
+    except SyntaxError:
+        return None
+    return value
+
+
+def _program_error(ctx, name):
+    """`errors.Name` for a registered error, or `ValueError`."""
+    if not isinstance(name, str) or not name:
+        return "ValueError"
+    registered = {item.get("name") for item in ctx.get("errors") or []
+                  if isinstance(item, dict)}
+    if name in registered:
+        return f"errors.{codegen.sanitize(name)}"
+    return "ValueError"
+
+
+def _program_call(repo, method, args):
+    rendered = ", ".join(_program_expr(arg) or "None" for arg in args or [])
+    return f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}({rendered})"
+
+
+def _program_steps(ctx, steps, indent=0):
+    """Lines for a reviewed declarative service program, or None."""
+    pad = " " * indent
+    lines = []
+    for step in steps or []:
+        if not isinstance(step, dict):
+            return None
+        op = str(step.get("op") or "").strip().lower()
+        repo = step.get("repo")
+        method = step.get("method")
+        if op in ("read", "query", "call", "create", "update"):
+            if not isinstance(repo, str) or not isinstance(method, str):
+                return None
+        if op == "read":
+            target = step.get("as")
+            expr = _program_expr(step.get("expr")) if step.get("expr") else None
+            args = [_program_expr(arg) for arg in step.get("args") or []]
+            if any(arg is None for arg in args) or not isinstance(target, str):
+                return None
+            call = _program_call(repo, method, args)
+            if expr:
+                call = f"{expr} if {expr} is not None else {call}"
+            lines.append(f"{pad}{target} = {call}")
+            error = step.get("error")
+            if error:
+                message = step.get("message") or f"{target} not found"
+                lines.append(f"{pad}if {target} is None:")
+                lines.append(f"{pad}    raise {_program_error(ctx, error)}({message!r})")
+            continue
+        if op == "query":
+            target = step.get("as")
+            args = [_program_expr(arg) for arg in step.get("args") or []]
+            if any(arg is None for arg in args) or not isinstance(target, str):
+                return None
+            lines.append(f"{pad}{target} = {_program_call(repo, method, args)}")
+            continue
+        if op == "check":
+            condition = _program_expr(step.get("condition"))
+            if condition is None:
+                return None
+            error = _program_error(ctx, step.get("error"))
+            message = step.get("message") or condition
+            lines.append(f"{pad}if {condition}:")
+            lines.append(f"{pad}    raise {error}({message!r})")
+            continue
+        if op == "assign":
+            name = step.get("name")
+            expr = _program_expr(step.get("expr"))
+            if not isinstance(name, str) or expr is None:
+                return None
+            lines.append(f"{pad}{name} = {expr}")
+            continue
+        if op == "add":
+            name = step.get("name")
+            expr = _program_expr(step.get("expr"))
+            if not isinstance(name, str) or expr is None:
+                return None
+            lines.append(f"{pad}{name} += {expr}")
+            continue
+        if op == "for_each":
+            collection = _program_expr(step.get("collection"))
+            name = step.get("as")
+            if collection is None or not isinstance(name, str):
+                return None
+            nested = _program_steps(ctx, step.get("steps") or [], indent + 4)
+            if nested is None:
+                return None
+            lines.append(f"{pad}for {name} in {collection}:")
+            lines.extend(nested or [f"{pad}    pass"])
+            continue
+        if op == "update":
+            args = [_program_expr(arg) for arg in step.get("args") or []]
+            fields = step.get("fields") or {}
+            if any(arg is None for arg in args) or not isinstance(fields, dict):
+                return None
+            rendered_fields = []
+            for key, value in fields.items():
+                expr = _program_expr(value)
+                if expr is None:
+                    return None
+                rendered_fields.append(f"{codegen.sanitize(key, 'kw')}={expr}")
+            lines.append(
+                f"{pad}{_program_call(repo, method, args)}" if not rendered_fields
+                else f"{pad}self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+                     f"({', '.join([*(_program_expr(arg) for arg in args or []), *rendered_fields])})")
+            continue
+        if op == "create":
+            fields = step.get("fields") or {}
+            if not isinstance(fields, dict):
+                return None
+            rendered = []
+            for key, value in fields.items():
+                expr = _program_expr(value)
+                if expr is None:
+                    return None
+                rendered.append(f"{codegen.sanitize(key, 'kw')}={expr}")
+            lines.append(
+                f"{pad}self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+                f"({', '.join(rendered)})")
+            continue
+        if op == "call":
+            args = [_program_expr(arg) for arg in step.get("args") or []]
+            if any(arg is None for arg in args):
+                return None
+            lines.append(f"{pad}{_program_call(repo, method, args)}")
+            continue
+        if op == "return":
+            expr = _program_expr(step.get("expr"))
+            lines.append(f"{pad}return {expr if expr is not None else 'None'}")
+            continue
+        if op == "raise":
+            error = _program_error(ctx, step.get("error"))
+            message = step.get("message") or "refused"
+            lines.append(f"{pad}raise {error}({message!r})")
+            continue
+        return None
+    return lines
+
+
+def _program_body(ctx, program):
+    """A body from one reviewed declarative program, with no domain nouns."""
+    lines = _program_steps(ctx, program.get("steps") or [])
+    if lines is None:
+        return None
+    # Validate the expressions and generated body as one unit.
+    source = "def _body():\n" + "\n".join(
+        "    " + line if line.strip() else "" for line in lines)
+    try:
+        compile(source, "service_program", "exec")
+    except SyntaxError:
+        return None
+    return lines
+
+
 def _service_related_filter_body(ctx, method, params):
     """Filter a list through one intermediate relation (Invoice -> Order -> Customer).
 
@@ -2012,232 +2204,6 @@ def _service_related_filter_body(ctx, method, params):
             f"return [row for row in self._repos[{t_cls!r}].{codegen.sanitize(t_read, 'method')}() if row.{codegen.sanitize(field['name'], 'attr')} in middle_ids]",
         ]
     return None
-
-
-def _error_containing(ctx, *words):
-    """A registered error whose normalised name contains every word."""
-    for item in ctx.get("errors") or []:
-        if not isinstance(item, dict) or not isinstance(item.get("name"), str):
-            continue
-        flat = normalize(item["name"])
-        if all(word in flat for word in words):
-            return f"errors.{codegen.sanitize(item['name'])}"
-    return "ValueError"
-
-
-def _line_item_transition_body(ctx, method, params):
-    """Mechanical confirm/cancel/ship for an aggregate with line items.
-
-    The e-commerce prompt's order lifecycle is a line-item stock transition:
-    a line model has FKs to the aggregate and a product plus a quantity; the
-    product has stock and price; confirming creates one invoice total.  All
-    names come from the models and repositories, so a different aggregate
-    with the same shape (a cart, a shipment) gets the same body.  Methods
-    without that shape return None and stay with the normal planner.
-    """
-    name = normalize(method.get("name") or "")
-    if not name.startswith(("confirm", "cancel", "ship")):
-        return None
-    if len(params) != 1:
-        return None
-    aggregate = next((item for item in ctx["entity_names"]
-                      if normalize(item) in name), None)
-    if aggregate is None:
-        return None
-    target = None
-    quantity = product = None
-    for model in ctx.get("models") or []:
-        fks = [field for field in model.get("fields") or []
-               if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict)]
-        targets = {normalize(field["foreign_key"].get("target_entity")): field
-                   for field in fks}
-        if normalize(aggregate) not in targets:
-            continue
-        other = [field for field in fks
-                 if normalize(field["foreign_key"].get("target_entity"))
-                 not in (normalize(aggregate),)]
-        if len(other) != 1:
-            continue
-        product = other[0]["foreign_key"].get("target_entity")
-        qty = next((field["name"] for field in model.get("fields") or []
-                    if isinstance(field, dict)
-                    and str(field.get("type") or "").lower() in
-                    ("int", "integer", "float", "decimal", "number", "real")
-                    and any(word in normalize(field.get("name") or "")
-                            for word in ("quantity", "qty"))), None)
-        if qty:
-            target = model.get("name")
-            quantity = qty
-            break
-    if target is None or product is None or quantity is None:
-        return None
-    product_model = model_of(ctx, product)
-    aggregate_model = model_of(ctx, aggregate)
-    invoice_model = next((model.get("name") for model in ctx.get("models") or []
-                          if isinstance(model, dict)
-                          and normalize(model.get("name")) != normalize(target)
-                          and any(isinstance(field.get("foreign_key"), dict)
-                                  and normalize(field["foreign_key"].get("target_entity"))
-                                  == normalize(aggregate)
-                                  for field in model.get("fields") or []
-                                  if isinstance(field, dict))
-                          and any(isinstance(field, dict)
-                                  and str(field.get("type") or "").lower() in
-                                  ("int", "integer", "float", "decimal",
-                                   "number", "real")
-                                  and any(word in normalize(field.get("name") or "")
-                                          for word in ("total", "amount"))
-                                  for field in model.get("fields") or [])), None)
-    if product_model is None or aggregate_model is None or invoice_model is None:
-        return None
-    status_field = None
-    status_values = []
-    for field_name, _field in fields_of(ctx, aggregate):
-        values = _field_vocabulary(ctx, aggregate, field_name)
-        if values:
-            status_field, status_values = field_name, values
-            break
-    if status_field is None or not status_values:
-        return None
-
-    def status_value(word):
-        return next((value for value in status_values
-                     if word in normalize(value)), None)
-
-    confirmed_value = status_value("confirm")
-    cancelled_value = status_value("cancel")
-    shipped_value = status_value("ship")
-    initial_value = status_value("pending") or next(
-        (value for value in status_values
-         if value not in (confirmed_value, cancelled_value, shipped_value)),
-        None)
-    target_value = (confirmed_value if name.startswith("confirm")
-                    else cancelled_value if name.startswith("cancel")
-                    else shipped_value)
-    if target_value is None or (name.startswith(("cancel", "ship"))
-                                and confirmed_value is None):
-        return None
-    if name.startswith("confirm") and initial_value is None:
-        return None
-    stock_field = next((field["name"] for field in product_model.get("fields") or []
-                        if isinstance(field, dict)
-                        and str(field.get("type") or "").lower() in
-                        ("int", "integer", "float", "decimal", "number", "real")
-                        and any(word in normalize(field.get("name") or "")
-                                for word in ("stock", "quantity"))), None)
-    price_field = next((field["name"] for field in product_model.get("fields") or []
-                        if isinstance(field, dict)
-                        and str(field.get("type") or "").lower() in
-                        ("int", "integer", "float", "decimal", "number", "real")
-                        and "price" in normalize(field.get("name") or "")), None)
-    if stock_field is None or price_field is None:
-        return None
-    amount_field = next((field["name"] for field in model_of(ctx, invoice_model).get("fields") or []
-                         if isinstance(field, dict)
-                         and str(field.get("type") or "").lower() in
-                         ("int", "integer", "float", "decimal", "number", "real")
-                         and any(word in normalize(field.get("name") or "")
-                                 for word in ("total", "amount"))), None)
-    invoice_link = next((field["name"] for field in model_of(ctx, invoice_model).get("fields") or []
-                         if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict)
-                         and normalize(field["foreign_key"].get("target_entity"))
-                         == normalize(aggregate)), None)
-    invoice_date = next((field["name"] for field in model_of(ctx, invoice_model).get("fields") or []
-                         if isinstance(field, dict)
-                         and str(field.get("type") or "").lower() in
-                         ("date", "datetime", "timestamp")), None)
-    if amount_field is None or invoice_link is None:
-        return None
-
-    def repo(entity):
-        return next((item for item in ctx["repositories"]
-                     if normalize(item.get("entity")) == normalize(entity)), None)
-    aggregate_repo = repo(aggregate)
-    line_repo = repo(target)
-    product_repo = repo(product)
-    invoice_repo = repo(invoice_model)
-    if not all((aggregate_repo, line_repo, product_repo, invoice_repo)):
-        return None
-    agg_cls = aggregate_repo.get("interface_name") or f"{aggregate}Repository"
-    line_cls = line_repo.get("interface_name") or f"{target}Repository"
-    prod_cls = product_repo.get("interface_name") or f"{product}Repository"
-    inv_cls = invoice_repo.get("interface_name") or f"{invoice_model}Repository"
-    read_agg = next((m["name"] for m in aggregate_repo.get("methods") or []
-                     if isinstance(m, dict) and normalize(m.get("name") or "") == "readone"), None)
-    update_agg = next((m["name"] for m in aggregate_repo.get("methods") or []
-                       if isinstance(m, dict) and normalize(m.get("name") or "") == "update"), None)
-    read_prod = next((m["name"] for m in product_repo.get("methods") or []
-                      if isinstance(m, dict) and normalize(m.get("name") or "") == "readone"), None)
-    update_prod = next((m["name"] for m in product_repo.get("methods") or []
-                        if isinstance(m, dict) and normalize(m.get("name") or "") == "update"), None)
-    create_inv = next((m["name"] for m in invoice_repo.get("methods") or []
-                       if isinstance(m, dict) and normalize(m.get("name") or "") == "create"), None)
-    read_lines = next((m["name"] for m in line_repo.get("methods") or []
-                       if isinstance(m, dict)
-                       and "readone" not in normalize(m.get("name") or "")
-                       and "update" not in normalize(m.get("name") or "")
-                       and "delete" not in normalize(m.get("name") or "")
-                       and "create" not in normalize(m.get("name") or "")
-                       and target.lower()[:5] in normalize(m.get("name") or "")), None)
-    if not all((read_agg, update_agg, read_prod, update_prod, create_inv, read_lines)):
-        return None
-    agg_param = params[0][1] if isinstance(params[0], tuple) else params[0].get("name")
-    not_found = next((f"errors.{codegen.sanitize(item['name'])}"
-                      for item in ctx.get("errors") or []
-                      if isinstance(item, dict) and isinstance(item.get("name"), str)
-                      and normalize(aggregate) in normalize(item["name"])
-                      and "notfound" in normalize(item["name"])), "LookupError")
-    line_id = primary_key_of(ctx, target)
-    product_id = primary_key_of(ctx, product)
-    agg_id = primary_key_of(ctx, aggregate)
-    invalid_status = _error_containing(ctx, "invalid", "status")
-    insufficient = _error_containing(ctx, "insufficient")
-    cannot_cancel = _error_containing(ctx, "cancel")
-    cannot_ship = _error_containing(ctx, "ship")
-    product_error = _error_containing(ctx, normalize(product), "notfound")
-    lines = [
-        f"record = self._repos[{agg_cls!r}].{codegen.sanitize(read_agg, 'method')}({codegen.sanitize(agg_param, 'param')})",
-        "if record is None:",
-        f"    raise {not_found}('{aggregate} not found')",
-    ]
-    if name.startswith("confirm"):
-        lines += [
-            f"if record.{codegen.sanitize(status_field, 'attr')} != {initial_value!r}:",
-            f"    raise {invalid_status}('{aggregate} is not {initial_value}')",
-            f"items = self._repos[{line_cls!r}].{codegen.sanitize(read_lines, 'method')}({codegen.sanitize(agg_param, 'param')})",
-            "total = 0",
-            "for item in items:",
-            f"    product = self._repos[{prod_cls!r}].{codegen.sanitize(read_prod, 'method')}(item.{codegen.sanitize(product_id, 'attr')})",
-            "    if product is None:",
-            f"        raise {product_error}('{product} not found')",
-            f"    if product.{codegen.sanitize(stock_field, 'attr')} < item.{codegen.sanitize(quantity, 'attr')}:",
-            f"        raise {insufficient}('insufficient {stock_field}')",
-            f"    product.{codegen.sanitize(stock_field, 'attr')} -= item.{codegen.sanitize(quantity, 'attr')}",
-            f"    self._repos[{prod_cls!r}].{codegen.sanitize(update_prod, 'method')}(product.{codegen.sanitize(product_id, 'attr')}, {codegen.sanitize(stock_field, 'kw')}=product.{codegen.sanitize(stock_field, 'attr')})",
-            f"    total += product.{codegen.sanitize(price_field, 'attr')} * item.{codegen.sanitize(quantity, 'attr')}",
-            f"self._repos[{inv_cls!r}].{codegen.sanitize(create_inv, 'method')}({codegen.sanitize(invoice_link, 'kw')}={codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(amount_field, 'kw')}=total"
-            + (f", {codegen.sanitize(invoice_date, 'kw')}=datetime.datetime.now()" if invoice_date else "") + ")",
-            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(status_field, 'kw')}={confirmed_value!r})",
-        ]
-    elif name.startswith("cancel"):
-        lines += [
-            f"if record.{codegen.sanitize(status_field, 'attr')} != {confirmed_value!r}:",
-            f"    raise {cannot_cancel}('not {confirmed_value}')",
-            f"items = self._repos[{line_cls!r}].{codegen.sanitize(read_lines, 'method')}({codegen.sanitize(agg_param, 'param')})",
-            "for item in items:",
-            f"    product = self._repos[{prod_cls!r}].{codegen.sanitize(read_prod, 'method')}(item.{codegen.sanitize(product_id, 'attr')})",
-            f"    if product is not None:",
-            f"        product.{codegen.sanitize(stock_field, 'attr')} += item.{codegen.sanitize(quantity, 'attr')}",
-            f"        self._repos[{prod_cls!r}].{codegen.sanitize(update_prod, 'method')}(product.{codegen.sanitize(product_id, 'attr')}, {codegen.sanitize(stock_field, 'kw')}=product.{codegen.sanitize(stock_field, 'attr')})",
-            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(status_field, 'kw')}={cancelled_value!r})",
-        ]
-    else:
-        lines += [
-            f"if record.{codegen.sanitize(status_field, 'attr')} != {confirmed_value!r}:",
-            f"    raise {cannot_ship}('not {confirmed_value}')",
-            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(status_field, 'kw')}={shipped_value!r})",
-        ]
-    return lines
 
 
 def _service_assign_body(ctx, service_name, method, params, returns):
@@ -5082,6 +5048,20 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "- A repository `create` whose signature says `-> int` returns",
             "  the new id, not a record; read it back with `read_one` before",
             "  using its fields.",
+            "- A related collection is not an attribute of a dataclass.",
+            "  When the contract changes records related through a foreign",
+            "  key, read them with the repository finder listed below, then",
+            "  update each record through its own repository. Never write",
+            "  `record.<plural>` or invent a collection attribute.",
+            "- Use an exception class that appears in `errors.*` exactly;",
+            "  do not invent a synonym. If the contract names no error for",
+            "  a condition, use the closest registered name or ValueError.",
+            "- Every non-optional parameter of a referenced create/update",
+            "  method must be supplied. Compute an amount from the related",
+            "  records when the created record has one, and use",
+            "  `datetime.datetime.now()` for a current date/time field.",
+            "- A status/state precondition in the contract is checked before",
+            "  any write, and raises the exact named error.",
         ]
     else:
         operators = "`, `".join(STORE_CONTRACT.criteria_operators)

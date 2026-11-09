@@ -4359,5 +4359,37 @@ class NumericBoundTests(unittest.TestCase):
         self.assertEqual(generator._numeric_bounds(ctx, "Book"), [])
 
 
+
+
+class ServiceProgramTests(unittest.TestCase):
+    def test_a_reviewed_program_emits_generic_steps(self):
+        ctx = {"errors": [{"name": "ItemNotFoundError"}]}
+        program = {"steps": [
+            {"op": "read", "repo": "ItemRepository", "method": "read_one",
+             "args": ["item_id"], "as": "item",
+             "error": "ItemNotFoundError"},
+            {"op": "check", "condition": "item.status != 'open'",
+             "error": "ItemNotFoundError"},
+            {"op": "for_each", "collection": "[item]", "as": "row",
+             "steps": [{"op": "add", "name": "total",
+                        "expr": "row.amount"}]},
+            {"op": "update", "repo": "ItemRepository", "method": "update",
+             "args": ["item.item_id"], "fields": {"status": "'closed'"}},
+        ]}
+        lines = generator._program_body(ctx, program)
+        text = "\n".join(lines)
+        self.assertIn("item = self._repos['ItemRepository'].read_one(item_id)", text)
+        self.assertIn("for row in [item]:", text)
+        self.assertIn("total += row.amount", text)
+        self.assertIn("status='closed'", text)
+
+    def test_a_program_with_an_invalid_expression_is_refused(self):
+        ctx = {"errors": []}
+        program = {"steps": [
+            {"op": "check", "condition": "item.status ==", "error": "ValueError"}
+        ]}
+        self.assertIsNone(generator._program_body(ctx, program))
+
+
 if __name__ == "__main__":
     unittest.main()

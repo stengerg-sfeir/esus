@@ -317,7 +317,7 @@ on the local Qwen3-4B server, 16k context, not a best-of-N.
 | `cli_tool` | 25.0 s | 13.9 s | direct `app.py` fallback | 1/1 |
 | `inventory` | 155.9 s | 62.9 s | 2 entities, 2 repositories, 1 service; 13 mechanical / 9 LLM bodies | 7/7 |
 | `gui` | 183.8 s | 127.3 s | 2 entities, 2 repositories, `gui.py` panels for Wine and StorageLocation; 15 / 13 | 8/8 |
-| `60` | 509.2 s | 192.3 s | 6 entities, 6 repositories, 13 services; 41 mechanical / 21 LLM bodies | 9/9 |
+| `60` | 509.2 s | 224.2 s | 6 entities, 6 repositories, 13 services; 41 mechanical / 21 LLM bodies | 9/9 |
 
 The fallback prompts have no domain documents (no models, services or
 adapters); the command table alone is not architecture, so the generator now
@@ -329,6 +329,10 @@ exposed three-word flagless paths (`product report low-stock`); they are now
 included when their command word is already known. The 60 prompt needed assistant-filled review contracts and the split surface
 repairs (subcommand deduplication, program-word folding and adapter-backed
 grouping) before it reached an acceptance run.  A clean rerun
-with no document patching — only the review records — reached 0 blockers,
-generated from the final code, and passed 9/9; that run took 509.2 s to extract
-and 192.3 s to generate, with 41 mechanical and 21 provisional bodies.
+with no document patching — only the assistant-filled review records — reached
+0 blockers, generated from the final code, and passed 9/9; that run took
+509.2 s to extract and 224.2 s to generate, with 41 mechanical and 21
+provisional bodies.  The three lifecycle methods are emitted from reviewed
+declarative programs (`method_programs.json`), not from an order-specific
+emitter; the interpreter supports generic read/query/check/for-each/update/
+create/assign actions.
