@@ -2090,6 +2090,35 @@ def _line_item_transition_body(ctx, method, params):
                                   for field in model.get("fields") or [])), None)
     if product_model is None or aggregate_model is None or invoice_model is None:
         return None
+    status_field = None
+    status_values = []
+    for field_name, _field in fields_of(ctx, aggregate):
+        values = _field_vocabulary(ctx, aggregate, field_name)
+        if values:
+            status_field, status_values = field_name, values
+            break
+    if status_field is None or not status_values:
+        return None
+
+    def status_value(word):
+        return next((value for value in status_values
+                     if word in normalize(value)), None)
+
+    confirmed_value = status_value("confirm")
+    cancelled_value = status_value("cancel")
+    shipped_value = status_value("ship")
+    initial_value = status_value("pending") or next(
+        (value for value in status_values
+         if value not in (confirmed_value, cancelled_value, shipped_value)),
+        None)
+    target_value = (confirmed_value if name.startswith("confirm")
+                    else cancelled_value if name.startswith("cancel")
+                    else shipped_value)
+    if target_value is None or (name.startswith(("cancel", "ship"))
+                                and confirmed_value is None):
+        return None
+    if name.startswith("confirm") and initial_value is None:
+        return None
     stock_field = next((field["name"] for field in product_model.get("fields") or []
                         if isinstance(field, dict)
                         and str(field.get("type") or "").lower() in
@@ -2102,6 +2131,22 @@ def _line_item_transition_body(ctx, method, params):
                         ("int", "integer", "float", "decimal", "number", "real")
                         and "price" in normalize(field.get("name") or "")), None)
     if stock_field is None or price_field is None:
+        return None
+    amount_field = next((field["name"] for field in model_of(ctx, invoice_model).get("fields") or []
+                         if isinstance(field, dict)
+                         and str(field.get("type") or "").lower() in
+                         ("int", "integer", "float", "decimal", "number", "real")
+                         and any(word in normalize(field.get("name") or "")
+                                 for word in ("total", "amount"))), None)
+    invoice_link = next((field["name"] for field in model_of(ctx, invoice_model).get("fields") or []
+                         if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict)
+                         and normalize(field["foreign_key"].get("target_entity"))
+                         == normalize(aggregate)), None)
+    invoice_date = next((field["name"] for field in model_of(ctx, invoice_model).get("fields") or []
+                         if isinstance(field, dict)
+                         and str(field.get("type") or "").lower() in
+                         ("date", "datetime", "timestamp")), None)
+    if amount_field is None or invoice_link is None:
         return None
 
     def repo(entity):
@@ -2149,6 +2194,7 @@ def _line_item_transition_body(ctx, method, params):
     insufficient = _error_containing(ctx, "insufficient")
     cannot_cancel = _error_containing(ctx, "cancel")
     cannot_ship = _error_containing(ctx, "ship")
+    product_error = _error_containing(ctx, normalize(product), "notfound")
     lines = [
         f"record = self._repos[{agg_cls!r}].{codegen.sanitize(read_agg, 'method')}({codegen.sanitize(agg_param, 'param')})",
         "if record is None:",
@@ -2156,39 +2202,40 @@ def _line_item_transition_body(ctx, method, params):
     ]
     if name.startswith("confirm"):
         lines += [
-            f"if record.{codegen.sanitize('status', 'attr')} != 'pending':",
-            f"    raise {invalid_status}('{aggregate} is not pending')",
+            f"if record.{codegen.sanitize(status_field, 'attr')} != {initial_value!r}:",
+            f"    raise {invalid_status}('{aggregate} is not {initial_value}')",
             f"items = self._repos[{line_cls!r}].{codegen.sanitize(read_lines, 'method')}({codegen.sanitize(agg_param, 'param')})",
             "total = 0",
             "for item in items:",
             f"    product = self._repos[{prod_cls!r}].{codegen.sanitize(read_prod, 'method')}(item.{codegen.sanitize(product_id, 'attr')})",
             "    if product is None:",
-            f"        raise errors.{codegen.sanitize(product)}NotFoundError('{product} not found')",
+            f"        raise {product_error}('{product} not found')",
             f"    if product.{codegen.sanitize(stock_field, 'attr')} < item.{codegen.sanitize(quantity, 'attr')}:",
-            f"        raise {insufficient}('insufficient stock')",
+            f"        raise {insufficient}('insufficient {stock_field}')",
             f"    product.{codegen.sanitize(stock_field, 'attr')} -= item.{codegen.sanitize(quantity, 'attr')}",
             f"    self._repos[{prod_cls!r}].{codegen.sanitize(update_prod, 'method')}(product.{codegen.sanitize(product_id, 'attr')}, {codegen.sanitize(stock_field, 'kw')}=product.{codegen.sanitize(stock_field, 'attr')})",
             f"    total += product.{codegen.sanitize(price_field, 'attr')} * item.{codegen.sanitize(quantity, 'attr')}",
-            f"self._repos[{inv_cls!r}].{codegen.sanitize(create_inv, 'method')}({codegen.sanitize(aggregate[:-1].lower() if aggregate.endswith('s') else aggregate.lower(), 'kw')}_id={codegen.sanitize(agg_param, 'param')}, total_amount=total, generated_at=datetime.datetime.now())",
-            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, status='confirmed')",
+            f"self._repos[{inv_cls!r}].{codegen.sanitize(create_inv, 'method')}({codegen.sanitize(invoice_link, 'kw')}={codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(amount_field, 'kw')}=total"
+            + (f", {codegen.sanitize(invoice_date, 'kw')}=datetime.datetime.now()" if invoice_date else "") + ")",
+            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(status_field, 'kw')}={confirmed_value!r})",
         ]
     elif name.startswith("cancel"):
         lines += [
-            f"if record.{codegen.sanitize('status', 'attr')} != 'confirmed':",
-            f"    raise {cannot_cancel}('not confirmed')",
+            f"if record.{codegen.sanitize(status_field, 'attr')} != {confirmed_value!r}:",
+            f"    raise {cannot_cancel}('not {confirmed_value}')",
             f"items = self._repos[{line_cls!r}].{codegen.sanitize(read_lines, 'method')}({codegen.sanitize(agg_param, 'param')})",
             "for item in items:",
             f"    product = self._repos[{prod_cls!r}].{codegen.sanitize(read_prod, 'method')}(item.{codegen.sanitize(product_id, 'attr')})",
             f"    if product is not None:",
             f"        product.{codegen.sanitize(stock_field, 'attr')} += item.{codegen.sanitize(quantity, 'attr')}",
             f"        self._repos[{prod_cls!r}].{codegen.sanitize(update_prod, 'method')}(product.{codegen.sanitize(product_id, 'attr')}, {codegen.sanitize(stock_field, 'kw')}=product.{codegen.sanitize(stock_field, 'attr')})",
-            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, status='cancelled')",
+            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(status_field, 'kw')}={cancelled_value!r})",
         ]
     else:
         lines += [
-            "if record.status != 'confirmed':",
-            f"    raise {cannot_ship}('not confirmed')",
-            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, status='shipped')",
+            f"if record.{codegen.sanitize(status_field, 'attr')} != {confirmed_value!r}:",
+            f"    raise {cannot_ship}('not {confirmed_value}')",
+            f"self._repos[{agg_cls!r}].{codegen.sanitize(update_agg, 'method')}({codegen.sanitize(agg_param, 'param')}, {codegen.sanitize(status_field, 'kw')}={shipped_value!r})",
         ]
     return lines
 
@@ -2694,7 +2741,10 @@ def _field_vocabulary(ctx, entity, field_name):
     Invariants write `Loan.status must be one of 'active', 'returned'` and
     `Expense.payment_method must be one of 'cash', 'card', 'transfer'`; a
     create body can default a missing non-null value to the first and refuse
-    a spelling outside the set. The bracket form is accepted too.
+    a spelling outside the set. The bracket form is accepted too.  A status
+    vocabulary can also be stated in prose (`Orders can be pending, confirmed,
+    shipped or cancelled`); read that as the same record rather than making
+    the transition emitter know any status word.
     """
     wanted = f"{entity}.{field_name}"
     for invariant in ctx.get("invariants") or []:
@@ -2709,7 +2759,20 @@ def _field_vocabulary(ctx, entity, field_name):
         values = re.findall(r"['\"]([^'\"]+)['\"]", match.group(1))
         if values:
             return values
-    return []
+    if normalize(field_name) not in ("status", "state"):
+        return []
+    requirements = ctx.get("requirements") or ""
+    if not isinstance(requirements, str):
+        return []
+    noun = re.escape(entity)
+    match = re.search(
+        rf"\b{noun}s?\b[^.]*?\b(?:can be|may be|is one of)\s+([^.;]+)",
+        requirements, re.IGNORECASE)
+    if not match:
+        return []
+    values = [value.strip(" `'\"") for value in re.split(
+        r",|\bor\b", match.group(1)) if value.strip(" `'\"")]
+    return values
 
 
 def _criterion_values(ctx, entity, field_name):

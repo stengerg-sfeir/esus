@@ -1360,14 +1360,6 @@ def repair_flat_prose_surface(components, services, models, requirements, log=No
     if not repaired:
         return components
     invocation["commands"] = repaired
-    # Keep only the adapter that the surface actually exposes.  A second
-    # adapter for the same noun/verb (find by status versus find by customer
-    # and status) would otherwise demand a flag no kept command can supply.
-    adapters[:] = [
-        adapter for adapter in adapters
-        if isinstance(adapter, dict)
-        and adapter.get("action_name") in selected_actions
-    ]
     if log is not None:
         log.write(
             f"[ok] step adapters: derived {len(repaired)} command group(s) "

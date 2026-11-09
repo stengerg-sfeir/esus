@@ -1100,7 +1100,11 @@ def ids_of(records, pk):
 def list_products(fx):
     """Product listing through the CLI, or through the package if absent."""
     leaf = fx.surface.find_leaf(PRODUCT, (LIST_ACTIONS, SEARCH_ACTIONS))
-    if leaf is not None:
+    # A search leaf may require a category; the prompt names no product-list
+    # command and no mandatory filter, so only an argument-free leaf is a
+    # valid drop-in for listing.
+    if leaf is not None and not any(option["required"]
+                                    for option in leaf.options):
         return json_values(fx.surface.run(leaf).stdout), "CLI " + leaf.describe()
     deps = lib.generated_deps(fx.out, fx.db)
     try:
