@@ -373,6 +373,17 @@ def check_export(fx):
     text = target.read_text(encoding="utf-8")
     if len(body) != 3 or "old" in text:
         lib.fail(f"the export should hold the 3 expenses of 2024 and not the 2023 one: {rows}")
+    bad = fx.scratch / "missing" / "out.csv"
+    failed = subprocess.run(
+        [sys.executable, str(fx.cli_path), "--db", str(db), "expense",
+         "export", "--from-date", "2024-01-01", "--to-date", "2024-12-31",
+         "--output", str(bad)],
+        capture_output=True, text=True)
+    if failed.returncode == 0:
+        lib.fail("export to a missing directory returned success")
+    message = failed.stdout + failed.stderr
+    if "Traceback (most recent call last)" in message:
+        lib.fail(f"export path failure leaked a traceback: {message}")
 
 
 def check_recurring_detect(fx):

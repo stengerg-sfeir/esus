@@ -5406,6 +5406,38 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  For a returned loan, both `return_date is not None` and",
             "  `status == 'returned'` mean already returned; refusing it",
             "  must not change inventory.",
+            "- Confirming a reservation decrements stock; cancelling it",
+            "  increments stock. For cancel, the final write must be",
+            "  `self._repos['WineRepository'].update(wine.id,",
+            "  stock_quantity=wine.stock_quantity + quantity)`; do not compute",
+            "  `new_stock = current_stock - quantity`.",
+        ]
+    if info.get("file") == "services.py" and "search" in flat_method:
+        tail += [
+            "- `search_wines_by_name` reads all wines with `read_all()`,",
+            "  then returns those where",
+            "  `name.lower() in wine.name.lower()`; never use `read_all(name=...)`",
+            "  for a partial search.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"capacity|summary|utilization", flat_method, re.IGNORECASE):
+        tail += [
+            "- Capacity is the sum of each assigned wine's",
+            "  `stock_quantity`, not the number of wine rows.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"pricing|price", flat_method, re.IGNORECASE):
+        tail += [
+            "- When validating a partial price update, compare the supplied",
+            "  value with the other existing field on the wine; do not",
+            "  reject a one-sided update merely because one argument is None.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"export|write", flat_method, re.IGNORECASE):
+        tail += [
+            "- Catch OSError around file I/O and raise ValueError with a",
+            "  concise message naming the path; never re-raise the raw",
+            "  filesystem exception.",
         ]
     if info.get("file") == "services.py" and re.search(
             r"report|budget|monthly|yearly", flat_method, re.IGNORECASE):

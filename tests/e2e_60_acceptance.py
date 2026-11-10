@@ -1688,6 +1688,31 @@ def check_persistence_and_foreign_keys(fx):
                 lib.fail("a fresh CLI process did not list order B's invoice")
 
 
+def check_service_extras(fx):
+    """Optional customer read and CSV exports fail cleanly."""
+    deps = fx.deps()
+    services = deps["services"]
+    customer = services.get("CustomerService")
+    if customer is not None and callable(getattr(customer, "read_customer_by_id", None)):
+        if customer.read_customer_by_id(999999) is not None:
+            lib.fail("read_customer_by_id must return None for an unknown id")
+    export = services.get("ExportService")
+    if export is not None:
+        for name in ("export_orders_to_csv", "export_product_stock_to_csv"):
+            method = getattr(export, name, None)
+            if not callable(method):
+                continue
+            bad = fx.scratch / "missing" / f"{name}.csv"
+            try:
+                method(str(bad))
+            except Exception as error:  # noqa: BLE001 - the error shape under test
+                if "ValueError" not in type(error).__name__:
+                    lib.fail(f"{name} path failure raised {type(error).__name__}, not ValueError")
+            else:
+                if not bad.is_file():
+                    lib.fail(f"{name} path failure neither raised nor wrote a file")
+
+
 CHECKS = (
     ("CLI creates customers, categories and products; schema references",
      check_cli_master_data),
@@ -1707,6 +1732,8 @@ CHECKS = (
      check_shipping_and_state_validation),
     ("data persists, foreign keys hold, and a fresh process reads it back",
      check_persistence_and_foreign_keys),
+    ("optional customer read and CSV export errors are clean",
+     check_service_extras),
 )
 
 

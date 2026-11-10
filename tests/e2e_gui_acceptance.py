@@ -1444,6 +1444,103 @@ def check_location_capacity_shrink(package):
     return f"refused a shrink below assigned stock ({rejection})"
 
 
+def _named_service(app, name):
+    for service in app.service_objects:
+        method = getattr(service, name, None)
+        if callable(method):
+            return method
+    fail(f"no generated service implements {name}")
+
+
+def check_service_extras(package):
+    """The extracted service extras that sit beside the GUI CRUD surface."""
+    database = package.scratch("service_extras")
+    with App(package, database) as app:
+        cellars = create_location(
+            app, capacity=20, zone="Extra Cellar", row=1, shelf=1)
+        wine = create_wine(
+            app, cellars, name="Domaine Extra", cost=10, selling=20, stock=4)
+
+        confirm = _named_service(app, "confirm_order")
+        cancel = _named_service(app, "cancel_order")
+        if not confirm(wine, 2):
+            fail("confirm_order returned false for a valid reservation")
+        after_confirm = numeric(
+            read_by_id(app, "Wine", wine), app.wine.stock, "confirmed stock")
+        if after_confirm != 2:
+            fail(f"confirm_order reserved the wrong quantity: {after_confirm}")
+        if not cancel(wine, 2):
+            fail("cancel_order returned false for a valid release")
+        after_cancel = numeric(
+            read_by_id(app, "Wine", wine), app.wine.stock, "cancelled stock")
+        if after_cancel != 4:
+            fail(f"cancel_order did not restore the reserved stock: {after_cancel}")
+
+        search = _named_service(app, "search_wines_by_name")
+        found = {record_id(item, app.wine)
+                 for item in as_list(search("Dom"))}
+        if wine not in found:
+            fail(f"partial wine-name search missed the wine: {found}")
+
+        second = create_wine(
+            app, cellars, name="Second Extra", cost=5, selling=9, stock=7)
+        full_location = create_location(
+            app, capacity=7, zone="Full Extra", row=2, shelf=1)
+        create_wine(
+            app, full_location, name="Full Extra Wine", cost=5, selling=9,
+            stock=7)
+        capacity = _named_service(app, "check_storage_location_capacity")
+        if capacity(full_location, wine):
+            fail("capacity check accepted a location that is already full")
+        unused_location = create_location(
+            app, capacity=10, zone="Empty Extra", row=3, shelf=1)
+        if not capacity(unused_location, wine):
+            fail("capacity check refused a valid assignment")
+        # Keep the second wine assigned so the summary has two rows of
+        # different bottle counts.
+        if read_by_id(app, "Wine", second) is None:
+            fail("second wine was not stored")
+
+        summary = _named_service(app, "get_storage_location_summary")()
+        bucket = summary.get("Extra Cellar")
+        if not isinstance(bucket, dict):
+            bucket = next(
+                (value for value in summary.values()
+                 if isinstance(value, dict)
+                 and (value.get("zone_name") == "Extra Cellar"
+                      or value.get("location_id") == cellars)),
+                None)
+        if bucket is None:
+            fail(f"storage summary omitted the location: {summary}")
+        assigned = bucket.get("assigned_bottles",
+                              bucket.get("total_bottles_assigned"))
+        if assigned != 11:
+            fail(f"storage summary counts rows, not bottles: {bucket}")
+
+        pricing = _named_service(app, "validate_wine_pricing")
+        if not pricing(wine, cost_price=15, selling_price=None):
+            fail("partial pricing validation ignored the existing selling price")
+
+        export = _named_service(app, "export_inventory_to_csv")
+        target = package.scratch("service-export").with_suffix(".csv")
+        if not export(str(target)):
+            fail("export_inventory_to_csv returned false for a valid path")
+        if not target.is_file() or "Wine Name" not in target.read_text(
+                encoding="utf-8"):
+            fail("export_inventory_to_csv did not write the inventory header")
+        bad = package.scratch("missing-parent") / "nested" / "out.csv"
+        try:
+            export(str(bad))
+        except Exception as error:  # noqa: BLE001 - the error shape under test
+            if "ValueError" not in type(error).__name__:
+                fail(f"export path failure raised {type(error).__name__}, "
+                     "not ValueError")
+        else:
+            if not bad.is_file():
+                fail("export path failure neither raised nor wrote a file")
+    return "cancel, search, capacity, summary, pricing and export extras agree"
+
+
 CHECKS = (
     ("GUI panels and pyimgui render loop", check_gui_structure),
     ("location/wine creation, update and persistence",
@@ -1457,6 +1554,7 @@ CHECKS = (
      check_location_deletion_guard),
     ("shrinking an occupied location is refused",
      check_location_capacity_shrink),
+    ("service extras", check_service_extras),
 )
 
 

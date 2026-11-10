@@ -49,15 +49,22 @@ Two review decisions were made rather than inventing mechanical code:
   `status == 'returned'`, matching the prompt.
 
 After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
-inventory all six printed groups, GUI 9/9, `60` 9/9, expenses 14/14, library
+inventory all six printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library
 18/18.  The unit suite passes 1,063 tests.
 
-Known residuals are extra surface the prompts do not require: the GUI CLI has
-no bindings because the GUI prompt declares no CLI; GUI `cancel_order`/search/
-capacity-summary extras may still be imperfect; export extras leak raw
-filesystem errors on invalid paths; `60`'s optional `read_customer_by_id` has
-an ambiguous `None` contract; and the GUI event loop is not launched by
-acceptance (structure and `build_gui` persistence are checked).
+Remaining residuals are limited to non-prompt surface and one ambiguous
+aggregate rule:
+
+- The GUI CLI still has no bindings because the GUI prompt declares no CLI
+  surface; the GUI event loop is still exercised structurally and through a
+  headless `build_gui` persistence probe, not a real window.
+- The repository stock-value aggregate omits categories with no products
+  (the service reports them as zero); the prompt does not settle which shape
+  an empty category should have, so the acceptance check permits both.
+- All export methods now catch `OSError` and raise a concise `ValueError`; the
+  `60` optional customer read returns `None` for an unknown id.  The GUI
+  service-extra checks cover cancel, partial search, capacity, summary,
+  pricing and export.
 
 ## Findings
 
@@ -196,6 +203,6 @@ because acceptance is green; the tests now cover the previously reported
 prompt-affecting defects, but they are still finite probes.  The prompts'
 explicit behaviors are covered by the remediated outputs and the expanded
 suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
-printed groups, GUI 9/9, `60` 9/9, expenses 14/14, library 18/18) and the unit
-suite passes 1,063 tests.  Residual extras and export error wording remain
-documented rather than claimed as production-complete.
+printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library 18/18) and the unit
+suite passes 1,063 tests.  Residual non-prompt surface remains documented rather than
+claimed as production-complete.

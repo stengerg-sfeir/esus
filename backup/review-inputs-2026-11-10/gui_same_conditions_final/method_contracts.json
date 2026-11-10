@@ -1,0 +1,56 @@
+{
+  "method_contracts": [
+    {
+      "holder": "WineInventoryService",
+      "method": "confirm_order",
+      "decided_by": "assistant",
+      "effects": [
+        {
+          "target": "wine.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "WineRepository.update"
+        }
+      ],
+      "creates": [],
+      "reads": [],
+      "derives": [],
+      "preconditions": [
+        {
+          "check": "wine exists",
+          "error": "WineNotFoundError",
+          "raise_when": "false"
+        }
+      ],
+      "order": [],
+      "forbid": [],
+      "requirements_sha": "797396aa6da996f220987f5713e3e5fb3a1a89d1ab6e7a626d17c853eca87cba"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "cancel_order",
+      "decided_by": "assistant",
+      "effects": [
+        {
+          "target": "wine.stock_quantity",
+          "op": "increment",
+          "by": "quantity",
+          "write": "WineRepository.update"
+        }
+      ],
+      "creates": [],
+      "reads": [],
+      "derives": [],
+      "preconditions": [
+        {
+          "check": "wine exists",
+          "error": "WineNotFoundError",
+          "raise_when": "false"
+        }
+      ],
+      "order": [],
+      "forbid": [],
+      "requirements_sha": "797396aa6da996f220987f5713e3e5fb3a1a89d1ab6e7a626d17c853eca87cba"
+    }
+  ]
+}
