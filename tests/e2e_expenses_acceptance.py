@@ -350,6 +350,51 @@ def check_monthly_report(fx):
             lib.fail(f"the per-category breakdown should name {name}: {flat}")
 
 
+def check_monthly_report_calendar(fx):
+    """Every calendar month reports correctly, not only 31-day months."""
+    db = fx.fresh("month-calendar")
+    tables = fx.tables(db)
+    connection = sqlite3.connect(db)
+    q = lib.quoted
+    try:
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.execute(
+            f"INSERT INTO {q(tables['category'])} (name, description, monthly_budget) "
+            "VALUES ('Calendar', 'calendar', 0)")
+        for month, limit in (("2024-02", 1000), ("2024-04", 1000),
+                             ("2024-12", 1000)):
+            connection.execute(
+                f"INSERT INTO {q(tables['budget'])} "
+                "(category_id, month, amount_limit_cents) VALUES (1, ?, ?)",
+                (month, limit))
+        for date, amount in (("2024-02-29", 500),
+                             ("2024-04-30", 950),
+                             ("2024-12-31", 1200)):
+            connection.execute(
+                f"INSERT INTO {q(tables['expense'])} "
+                "(amount_cents, description, expense_date, category_id, "
+                "payment_method, is_recurring) VALUES (?, 'calendar', ?, 1, "
+                "'cash', 0)",
+                (amount, date))
+        connection.commit()
+    finally:
+        connection.close()
+    expected = {
+        "2024-02": (500, "on_track"),
+        "2024-04": (950, "warning"),
+        "2024-12": (1200, "exceeded"),
+    }
+    for month, (total, status) in expected.items():
+        report = parse_value(
+            fx.cli(db, "expense", "report", "monthly", "--month", month).stdout)
+        if report.get("total_spent") != total:
+            lib.fail(f"{month} total should be {total}: {report}")
+        statuses = report.get("budget_status") or {}
+        actual = statuses.get("1", statuses.get(1))
+        if actual != status:
+            lib.fail(f"{month} budget status should be {status}: {report}")
+
+
 def check_yearly_summary(fx):
     db = fx.seeded("yearly")
     flat = json.dumps(parse_value(
@@ -489,6 +534,7 @@ CHECKS = (
     ("an expense over its budget is stored and the overage is visible", check_budget_overage_is_stored_and_visible),
     ("expense list: no filter lists all; category, method and date filters", check_expense_list),
     ("report monthly: total, breakdown, on_track/exceeded", check_monthly_report),
+    ("monthly report works for every calendar month and status", check_monthly_report_calendar),
     ("report yearly: monthly totals, top categories, average", check_yearly_summary),
     ("export writes a CSV of the filtered expenses", check_export),
     ("recurring detect marks monthly repeats", check_recurring_detect),

@@ -5540,6 +5540,14 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  (no keyword arguments), keep rows whose",
             "  `str(expense.expense_date)[:7] == month`, then group them.",
             "  Never pass the same keyword twice to `read_all`.",
+            "- Never construct the month end as `f\"{month}-31\"`.",
+            "  Use `calendar.monthrange(year, month_number)` to get the last",
+            "  valid day, or filter by the `YYYY-MM` prefix.",
+            "- Keep the monthly report keys `total_spent`, `category_spending`",
+            "  and `budget_status`; do not rename them.",
+            "- Budget status: `exceeded` when the category total is above",
+            "  the limit, `warning` when it is at least 90% of the limit,",
+            "  otherwise `on_track`.",
         ]
     if re.search(r"top|categor", flat_method) and re.search(
             r"date|spend", flat_method + requirement_line, re.IGNORECASE):
@@ -5775,6 +5783,13 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
         tail += [
             "- Return the records returned by the repository update calls,",
             "  not the stale pre-update objects.",
+        ]
+    if "product" in flat_method and "stock" in flat_method \
+            and "report" in flat_method:
+        tail += [
+            "- Return one row per product with `product_id`, `name`,",
+            "  `category_id`, `price`, `stock_quantity` and `category_name`.",
+            "  Do not aggregate stock by category.",
         ]
     lines += [
         "- If the requirements do not determine the behavior, reply with",

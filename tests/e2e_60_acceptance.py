@@ -1697,6 +1697,18 @@ def check_service_extras(fx):
     if customer is not None and callable(getattr(customer, "read_customer_by_id", None)):
         if customer.read_customer_by_id(999999) is not None:
             lib.fail("read_customer_by_id must return None for an unknown id")
+    report_service = services.get("ReportService")
+    if callable(getattr(report_service, "get_product_stock_report", None)):
+        products = deps["repos"]["ProductRepository"].read_all()
+        report = report_service.get_product_stock_report()
+        required = {"product_id", "name", "category_id", "price",
+                    "stock_quantity", "category_name"}
+        if len(report) != len(products):
+            lib.fail(f"product stock report should have one row per product: "
+                     f"{len(report)} rows for {len(products)} products")
+        for row in report:
+            if not required <= set(row):
+                lib.fail(f"product stock report row is missing fields: {row}")
     export = services.get("ExportService")
     if export is not None:
         for name in ("export_orders_to_csv", "export_product_stock_to_csv"):
