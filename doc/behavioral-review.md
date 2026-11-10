@@ -49,8 +49,8 @@ Two review decisions were made rather than inventing mechanical code:
   `status == 'returned'`, matching the prompt.
 
 After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
-inventory all six printed groups, GUI 11/11, `60` 9/10, expenses 14/14, library
-18/18.  The unit suite passes 1,065 tests.
+inventory all six printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library
+18/18.  The unit suite passes 1,071 tests.
 
 Remaining residuals are limited to non-prompt surface and one ambiguous
 aggregate rule:
@@ -62,9 +62,10 @@ aggregate rule:
 - The repository stock-value aggregate omits categories with no products
   (the service reports them as zero); the prompt does not settle which shape
   an empty category should have, so the acceptance check permits both.
-- The `60` model bodies are still wrong: `read_customer_by_id` does not catch
-  `CustomerNotFoundError`, and `export_product_stock_to_csv` writes category
-  totals instead of the required product rows.  The rest of `60` passes.
+- The `60` grounding decision drops the unrequested `ExportService` and its
+  `export` CLI verbs.  The standard `read_customer_by_id` wrapper is generated
+  mechanically, and the core `60` behavior passes.  `grounding_report.json`
+  records the evidence and `grounding_decisions.json` records the drop.
 
 ## Findings
 
@@ -203,6 +204,6 @@ because acceptance is green; the tests now cover the previously reported
 prompt-affecting defects, but they are still finite probes.  The prompts'
 explicit behaviors are covered by the remediated outputs and the expanded
 suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
-printed groups, GUI 11/11, `60` 9/10, expenses 14/14, library 18/18) and the unit
-suite passes 1,065 tests.  Residual non-prompt surface remains documented rather than
+printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library 18/18) and the unit
+suite passes 1,071 tests.  Residual non-prompt surface remains documented rather than
 claimed as production-complete.

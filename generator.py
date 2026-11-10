@@ -134,6 +134,12 @@ METHOD_PLANS_KEY = "plans"
 METHOD_PROGRAMS_NAME = "method_programs.json"
 METHOD_PROGRAMS_KEY = "programs"
 
+# `grounding_decisions.json` beside the documents: review decisions that drop
+# service capabilities with no requirement evidence.  The generator applies
+# them before adapters/commands are emitted, so a dropped service cannot leave
+# a dangling CLI verb behind.
+GROUNDING_DECISIONS_NAME = "grounding_decisions.json"
+
 # `surface_decisions.json` beside the documents (written by
 # review_surface.py): duplicate-node keeps, and `kind: "route"` records
 # binding a declared CLI flag to the method it selects. Route records are
@@ -185,6 +191,103 @@ def _adapt_route_options(components, routes):
                 option["required"] = False
                 option["default"] = None
             break
+
+
+def load_grounding_decisions(output_dir, current_sha=None):
+    """Read review-approved service/command drops, or an empty decision."""
+    try:
+        with open(os.path.join(output_dir, GROUNDING_DECISIONS_NAME),
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    stamped = payload.get("requirements_sha")
+    if current_sha is not None and isinstance(stamped, str) \
+            and stamped != current_sha:
+        return {}
+    return payload
+
+
+def _filter_commands(commands, drop_verbs):
+    kept = []
+    for command in commands or []:
+        if not isinstance(command, dict):
+            continue
+        name = normalize(command.get("name") or "")
+        if name in drop_verbs:
+            continue
+        subcommands = command.get("subcommands")
+        if isinstance(subcommands, list):
+            command = dict(command)
+            command["subcommands"] = _filter_commands(subcommands, drop_verbs)
+        kept.append(command)
+    return kept
+
+
+def apply_grounding_decisions(services, adapters, components, routes, decisions):
+    """Drop review-marked capabilities and the surfaces that referenced them."""
+    if not decisions:
+        return services, adapters, components, routes
+    drop_services = {normalize(name) for name in decisions.get("drop_services") or []
+                     if isinstance(name, str)}
+    drop_methods = {(normalize(item.get("holder") or ""), normalize(item.get("method") or ""))
+                    for item in decisions.get("drop_methods") or []
+                    if isinstance(item, dict)}
+    kept_services = []
+    for service in services:
+        name = normalize(service.get("service_name") or "")
+        if name in drop_services:
+            continue
+        methods = []
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            key = (name, normalize(method.get("name") or ""))
+            if key in drop_methods:
+                continue
+            methods.append(method)
+        if methods:
+            service = dict(service)
+            service["methods"] = methods
+            kept_services.append(service)
+    available = {
+        (normalize(service.get("service_name") or ""), normalize(method.get("name") or ""))
+        for service in kept_services
+        for method in service.get("methods") or []
+        if isinstance(method, dict)
+    }
+    kept_adapters = []
+    for adapter in adapters:
+        key = (normalize(adapter.get("target_service") or ""),
+               normalize(adapter.get("target_method") or ""))
+        if key not in available:
+            continue
+        kept_adapters.append(adapter)
+    if isinstance(components, dict):
+        components = dict(components)
+        facade = components.get("facade")
+        if isinstance(facade, dict):
+            facade = dict(facade)
+            invocation = facade.get("invocation")
+            if isinstance(invocation, dict):
+                invocation = dict(invocation)
+                drop_verbs = {normalize(verb) for verb in
+                              decisions.get("drop_command_verbs") or []
+                              if isinstance(verb, str)}
+                invocation["commands"] = _filter_commands(
+                    invocation.get("commands") or [], drop_verbs)
+                facade["invocation"] = invocation
+            components["facade"] = facade
+    kept_routes = []
+    for route in routes:
+        key = (normalize(route.get("service") or ""),
+               normalize(route.get("method") or ""))
+        if key not in available:
+            continue
+        kept_routes.append(route)
+    return kept_services, kept_adapters, components, kept_routes
 
 
 def load_context(output_dir):
@@ -297,6 +400,9 @@ def load_context(output_dir):
             dropped_plans = len(payload.get(METHOD_PLANS_KEY) or [])
     except (OSError, ValueError):
         pass
+    decisions = load_grounding_decisions(output_dir, current)
+    services, adapters, components, routes = apply_grounding_decisions(
+        services, adapters, components, routes, decisions)
     _adapt_route_options(components, routes)
     return {
         "models": models,

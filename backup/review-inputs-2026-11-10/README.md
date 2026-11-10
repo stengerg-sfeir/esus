@@ -24,6 +24,14 @@ incomplete mechanical aggregate.  The library route keeps
 All review decisions copied here are assistant-filled
 (`decided_by: "assistant"`); they are not claimed human authorship.
 
+## Grounding
+
+The `60` directory preserves `grounding_decisions.json` and
+`grounding_report.json`. The report identifies `ExportService` as ungrounded;
+the decision drops that service, its adapters and the `export` CLI verbs before
+generation. Standard `read_<entity>_by_id` wrappers stay and are generated
+mechanically.
+
 ## Requirements SHAs
 
 - `60_program_clean`: `009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f`
