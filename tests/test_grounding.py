@@ -130,6 +130,11 @@ class AggregateDecisionTests(unittest.TestCase):
                       result["services.py"])
         self.assertIn("def _include_empty_groups", result["repositories.py"])
         self.assertIn("def _include_empty_groups", result["services.py"])
+        result, _applied = generator.apply_aggregate_decisions(result, decisions)
+        self.assertEqual(
+            result["repositories.py"].count("return _include_empty_groups("), 1)
+        self.assertEqual(
+            result["services.py"].count("return _include_empty_groups("), 1)
         compile(result["repositories.py"], "repositories.py", "exec")
         compile(result["services.py"], "services.py", "exec")
 

@@ -49,7 +49,7 @@ Two review decisions were made rather than inventing mechanical code:
   `status == 'returned'`, matching the prompt.
 
 After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
-inventory all six printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library
+inventory all six printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library
 18/18.  The unit suite passes 1,075 tests.
 
 ### Grounding check results
@@ -84,6 +84,38 @@ aggregate rule:
   `export` CLI verbs.  The standard `read_customer_by_id` wrapper is generated
   mechanically, and the core `60` behavior passes.  `grounding_report.json`
   records the evidence and `grounding_decisions.json` records the drop.
+
+### Second review: LLM bodies and real GUI launch
+
+The GUI acceptance suite now launches the real generated imgui/GLFW window for
+one frame and closes it; the fake-window loop remains as a second, faster check.
+Both pass.
+
+The remaining provisional bodies were inspected against their prompts,
+contracts and current acceptance behavior.  Known issues not covered by the
+green suites:
+
+- **Expenses `get_monthly_report`**: builds the end of month as
+  `f"{month}-31"`, which raises for February/April when expenses are present;
+  the `warning` branch is unreachable because `<= limit` is classified as
+  `on_track` and `> limit` as `exceeded`.
+- **Expenses `update_expense`**: `data=None` raises `AttributeError`; a new
+  `category_id` is not validated before the repository update (raw SQLite
+  foreign-key error); an ISO string replacing `expense_date` is not converted
+  before the budget check (`.strftime` on a string).
+- **Inventory `find_low_stock_products`**: looks up the Category with
+  `self.PK` (the Product PK).  Both models use `id` in this prompt, so the
+  current tests pass, but the body is not generic across different PK names.
+- **Inventory `add_product` / `restock`**: missing inputs can reach a raw
+  duplicate check or `None < int`; the prompt does not settle every optional
+  input edge.
+- **`60` `get_product_stock_report`**: aggregates stock by category and
+  returns `category_name`/`total_stock`, while its declared contract says a
+  list of products with their own stock quantities and category names.
+  This is a provisional extra report, not a core order-lifecycle failure.
+
+All seven acceptance suites remain green, but these findings mean the LLM
+bodies are not exhaustively proven beyond the accepted scenarios.
 
 ## Findings
 
@@ -222,6 +254,6 @@ because acceptance is green; the tests now cover the previously reported
 prompt-affecting defects, but they are still finite probes.  The prompts'
 explicit behaviors are covered by the remediated outputs and the expanded
 suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
-printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library 18/18) and the unit
+printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library 18/18) and the unit
 suite passes 1,075 tests.  Residual non-prompt surface remains documented rather than
 claimed as production-complete.

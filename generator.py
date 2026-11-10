@@ -263,6 +263,20 @@ def _insert_before_first_class(text, helper):
     return text[:index] + "\n\n" + helper + text[index:]
 
 
+def _unwrap_aggregate_expression(expression, helper_name):
+    """Strip repeated generator wrappers before applying one coverage call."""
+    try:
+        node = ast.parse(expression, mode="eval").body
+    except SyntaxError:
+        return expression
+    while isinstance(node, ast.Call) \
+            and isinstance(node.func, ast.Name) \
+            and node.func.id == helper_name \
+            and node.args:
+        node = node.args[0]
+    return ast.unparse(node)
+
+
 def apply_aggregate_decisions(files, decisions):
     """Apply reviewed empty-group coverage to final aggregate bodies.
 
@@ -309,6 +323,7 @@ def apply_aggregate_decisions(files, decisions):
         if return_index is None:
             continue
         expression = lines[return_index][len("        return "):]
+        expression = _unwrap_aggregate_expression(expression, helper_name)
         if layer == "service":
             parent_repository = record.get("parent_repository") \
                 or f"{parent}Repository"

@@ -1446,6 +1446,34 @@ def check_location_capacity_shrink(package):
     return f"refused a shrink below assigned stock ({rejection})"
 
 
+def check_gui_real_launch(package):
+    """Launch the real imgui/GLFW window for one frame."""
+    import os
+    import glfw
+    import gui as generated_gui
+    directory = Path(tempfile.mkdtemp(prefix="gui-real-", dir=str(package.out)))
+    previous = Path.cwd()
+    calls = {"n": 0}
+
+    def should_close(_window):
+        calls["n"] += 1
+        return calls["n"] > 1
+
+    try:
+        os.chdir(directory)
+        generated_gui.DEFAULT_DB = ":memory:"
+        with mock.patch.object(glfw, "window_should_close",
+                               side_effect=should_close):
+            result = generated_gui.main()
+    finally:
+        os.chdir(previous)
+    if result != 0:
+        fail(f"real gui.main() returned {result}")
+    if calls["n"] < 2:
+        fail("real GUI did not enter the frame loop")
+    return f"real imgui/GLFW window ran {calls['n'] - 1} frame(s) and closed"
+
+
 def check_gui_event_loop(package):
     """Run the emitted frame loop once with fake windowing modules."""
     imgui = types.ModuleType("imgui")
@@ -1567,6 +1595,7 @@ CHECKS = (
     ("shrinking an occupied location is refused",
      check_location_capacity_shrink),
     ("GUI event loop", check_gui_event_loop),
+    ("real GUI launch", check_gui_real_launch),
 )
 
 
