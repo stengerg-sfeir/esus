@@ -49,7 +49,7 @@ Two review decisions were made rather than inventing mechanical code:
   `status == 'returned'`, matching the prompt.
 
 After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
-inventory all six printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library
+inventory all six printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library
 18/18.  The unit suite passes 1,071 tests.
 
 ### Grounding check results
@@ -60,13 +60,13 @@ inventory all six printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library
 - expenses: clean;
 - library: clean;
 - `60`: clean after the reviewed `ExportService` decision;
-- GUI: four review candidates remain because no drop decision was applied:
-  `confirm_order`, `cancel_order`, `search_wines_by_name`,
-  `export_inventory_to_csv`.  The GUI prompt does not mention those
-  capabilities, but the current GUI output is left unchanged deliberately.
+- GUI: the four ungrounded methods (`confirm_order`, `cancel_order`,
+  `search_wines_by_name`, `export_inventory_to_csv`) were dropped through
+  `grounding_decisions.json`; the report is clean.
 
-The report is advisory.  Only `60` has a `grounding_decisions.json`; other
-prompts keep their current generated behavior.
+The report is advisory.  `60` and GUI carry explicit grounding decisions;
+inventory, expenses and library have clean reports and keep their current
+generated behavior.
 
 Remaining residuals are limited to non-prompt surface and one ambiguous
 aggregate rule:
@@ -220,6 +220,6 @@ because acceptance is green; the tests now cover the previously reported
 prompt-affecting defects, but they are still finite probes.  The prompts'
 explicit behaviors are covered by the remediated outputs and the expanded
 suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
-printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library 18/18) and the unit
+printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library 18/18) and the unit
 suite passes 1,071 tests.  Residual non-prompt surface remains documented rather than
 claimed as production-complete.
