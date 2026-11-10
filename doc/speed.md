@@ -12,19 +12,19 @@ Both columns are wall-clock seconds. ESUS times include extraction and generatio
 | --- | ---: | ---: | ---: | --- | --- |
 | Hello world | 14.3 s | 40.1 s | 0.36× | 1/1 | Same acceptance 1/1; runs on Python 3.12 |
 | CSV → JSON CLI | 39.8 s* | 78.2 s | 0.51× | 1/1 | Same acceptance 1/1; runs on Python 3.12 |
-| Inventory | 238.7 s | 172.5 s | 1.38× | 8/8 | 2/2 own tests and CLI smoke; runs on Python 3.12 |
+| Inventory | 228.0 s§ | 172.5 s | 1.32× | 8/8 | 2/2 own tests and CLI smoke; runs on Python 3.12 |
 | Wine GUI | 272.3 s | 178.1 s | 1.53× | 11/11 | 3/3 service tests on 3.12; real one-frame launch fails |
 | Small business (`60`) | 791.9 s | 198.4 s | 3.99× | 10/10 | 3/3 own tests and CLI lifecycle; runs on Python 3.12 |
 | Expenses | 471.3 s† | 222.1 s | 2.12× | 15/16, then 16/16 after repair | 3/3 own tests on 3.14; fails to import on 3.12 |
-| Library | 300.1 s‡ | 255.3 s | 1.18× | 18/18 | 5/5 own tests on 3.14; fails to import on 3.12 |
+| Library | 258.9 s§ | 255.3 s | 1.01× | 18/18 | 5/5 own tests on 3.14; fails to import on 3.12 |
 
 A ratio below 1 means ESUS was faster.
 
 \* 24.4 s extraction plus 15.4 s generation after answering the CSV classifier tie.  
 † 446.5 s first pass plus one 24.8 s Qwen repair pass that filled the remaining `export_to_csv` stub.  
-‡ 232.9 s extraction plus 67.2 s generation; the library extraction also needed two tie answers and a dropped `overdue --overdue` flag before generation.
+§ Generation was remeasured after the closed-contract compiler on a clean copy with Qwen: inventory **63.0 s** (was 73 s) and library **26.0 s** (was 67.2 s). Extraction is unchanged: inventory 165 s, library 233 s. Both acceptance suites stayed green.
 
-For scale, the sum of the seven ESUS times is **2,128 s (35m 28s)** and the sum of the seven direct times is **1,145 s (19m 05s)**, a ratio of **1.86×**. From the first direct start to the last direct finish was about **7m 56s**; the six non-hello agents overlapped. The ESUS runs shared one llama.cpp slot and ran one after another.
+For scale, the sum of the seven ESUS times is **2,076 s (34m 36s)** and the sum of the seven direct times is **1,145 s (19m 05s)**, a ratio of **1.81×**. From the first direct start to the last direct finish was about **7m 56s**; the six non-hello agents overlapped. The ESUS runs shared one llama.cpp slot and ran one after another.
 
 ### What the quality checks showed
 
