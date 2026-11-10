@@ -97,6 +97,43 @@ class AmbiguousAggregateTests(unittest.TestCase):
         self.assertEqual(report["ambiguous_aggregate_groups"], [])
 
 
+class AggregateDecisionTests(unittest.TestCase):
+    def test_repository_and_service_returns_use_the_reviewed_coverage(self):
+        files = {
+            "repositories.py": (
+                "class ProductRepository:\n"
+                "    def total(self):\n"
+                "        result = {}\n"
+                "        return result\n"
+            ),
+            "services.py": (
+                "class InventoryService:\n"
+                "    def total(self):\n"
+                "        result = {}\n"
+                "        return result\n"
+            ),
+        }
+        decisions = [
+            {"holder": "ProductRepository", "method": "total",
+             "layer": "repository", "include_empty_groups": True,
+             "parent_entity": "Category", "key_field": "id"},
+            {"holder": "InventoryService", "method": "total",
+             "layer": "service", "include_empty_groups": True,
+             "parent_entity": "Category", "key_field": "id"},
+        ]
+        result, applied = generator.apply_aggregate_decisions(files, decisions)
+        self.assertEqual(sorted(applied),
+                         ["InventoryService.total", "ProductRepository.total"])
+        self.assertIn("self._store.select('Category', [])",
+                      result["repositories.py"])
+        self.assertIn("self._repos['CategoryRepository'].read_all()",
+                      result["services.py"])
+        self.assertIn("def _include_empty_groups", result["repositories.py"])
+        self.assertIn("def _include_empty_groups", result["services.py"])
+        compile(result["repositories.py"], "repositories.py", "exec")
+        compile(result["services.py"], "services.py", "exec")
+
+
 class GroundingDecisionTests(unittest.TestCase):
     def test_decisions_drop_the_service_its_adapters_and_export_verb(self):
         services = [service("ExportService", "export_orders_to_csv"),

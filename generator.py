@@ -140,6 +140,12 @@ METHOD_PROGRAMS_KEY = "programs"
 # a dangling CLI verb behind.
 GROUNDING_DECISIONS_NAME = "grounding_decisions.json"
 
+# `aggregate_decisions.json`: reviewed answer to whether a grouped mapping
+# includes parent rows that have no child rows.  The generator applies the
+# decision to the final repository body, after the mechanical or LLM body is
+# chosen, so the behavior is not left to a model prompt.
+AGGREGATE_DECISIONS_NAME = "aggregate_decisions.json"
+
 # `surface_decisions.json` beside the documents (written by
 # review_surface.py): duplicate-node keeps, and `kind: "route"` records
 # binding a declared CLI flag to the method it selects. Route records are
@@ -224,6 +230,111 @@ def _filter_commands(commands, drop_verbs):
             command["subcommands"] = _filter_commands(subcommands, drop_verbs)
         kept.append(command)
     return kept
+
+
+def load_aggregate_decisions(output_dir, current_sha=None):
+    """Read reviewed aggregate group-coverage decisions."""
+    try:
+        with open(os.path.join(output_dir, AGGREGATE_DECISIONS_NAME),
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    if not isinstance(payload, dict):
+        return []
+    stamped = payload.get("requirements_sha")
+    if current_sha is not None and isinstance(stamped, str) \
+            and stamped != current_sha:
+        return []
+    return [record for record in payload.get("decisions") or []
+            if isinstance(record, dict)
+            and isinstance(record.get("holder"), str)
+            and isinstance(record.get("method"), str)
+            and record.get("include_empty_groups") is True]
+
+
+def _insert_before_first_class(text, helper):
+    marker = "\n\nclass "
+    if text.startswith("class "):
+        return helper + "\n\n" + text
+    index = text.find(marker)
+    if index < 0:
+        return helper + "\n\n" + text
+    return text[:index] + "\n\n" + helper + text[index:]
+
+
+def apply_aggregate_decisions(files, decisions):
+    """Apply reviewed empty-group coverage to final aggregate bodies.
+
+    The decision is applied after the LLM/mechanical body is selected.  It
+    wraps the final return of a grouped mapping, asking the parent source for
+    every key and filling missing keys with zero.  Repository and service
+    layers use their own parent access path.
+    """
+    if not decisions:
+        return files, []
+    applied = []
+    changed = set()
+    helper_name = "_include_empty_groups"
+    for record in decisions:
+        layer = record.get("layer", "repository")
+        if layer not in ("repository", "service"):
+            continue
+        filename = "services.py" if layer == "service" else "repositories.py"
+        text = files.get(filename)
+        holder = record["holder"]
+        method = record["method"]
+        parent = record.get("parent_entity")
+        key = record.get("key_field") or "id"
+        if not isinstance(text, str) or not isinstance(parent, str) \
+                or not isinstance(key, str):
+            continue
+        lines = text.splitlines()
+        class_start = next((index for index, line in enumerate(lines)
+                            if line.strip() == f"class {holder}:"), None)
+        if class_start is None:
+            continue
+        method_start = next((index for index in range(class_start + 1, len(lines))
+                             if lines[index].startswith(f"    def {method}(")), None)
+        if method_start is None:
+            continue
+        method_end = next((index for index in range(method_start + 1, len(lines))
+                           if lines[index].startswith("    def ")
+                           or lines[index].startswith("class ")), len(lines))
+        return_index = None
+        for index in range(method_end - 1, method_start, -1):
+            if lines[index].startswith("        return "):
+                return_index = index
+                break
+        if return_index is None:
+            continue
+        expression = lines[return_index][len("        return "):]
+        if layer == "service":
+            parent_repository = record.get("parent_repository") \
+                or f"{parent}Repository"
+            parent_rows = (
+                f"self._repos[{parent_repository!r}].read_all()")
+        else:
+            parent_rows = f"self._store.select({parent!r}, [])"
+        lines[return_index] = (
+            "        return "
+            f"{helper_name}({expression}, {parent_rows}, {key!r})")
+        text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+        files[filename] = text
+        changed.add(filename)
+        applied.append(f"{holder}.{method}")
+    helper = (
+        "def _include_empty_groups(result, parent_rows, key):\n"
+        "    \"\"\"Add parent keys absent from a grouped mapping as zero.\"\"\"\n"
+        "    for row in parent_rows:\n"
+        "        value = row.get(key) if isinstance(row, dict) else getattr(row, key, None)\n"
+        "        result.setdefault(value, 0)\n"
+        "    return result")
+    for filename in changed:
+        text = files[filename]
+        if "def _include_empty_groups" not in text:
+            files[filename] = _insert_before_first_class(text, helper)
+    return files, applied
 
 
 def apply_grounding_decisions(services, adapters, components, routes, decisions):
@@ -8756,6 +8867,13 @@ def main(argv=None):
             files, args.model, load_requirements(args.out_dir),
             dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
             context=args.stub_context, contracts=ctx.get("contracts"))
+    aggregate_decisions = load_aggregate_decisions(
+        args.out_dir, requirements_sha(ctx.get("requirements") or ""))
+    files, applied_aggregates = apply_aggregate_decisions(
+        files, aggregate_decisions)
+    if applied_aggregates:
+        stats["aggregate_decisions"] = applied_aggregates
+        print("aggregate decisions: " + ", ".join(applied_aggregates))
     repair_service_dates(files)
 
     target = os.path.join(args.out_dir, GENERATED_DIR)

@@ -68,9 +68,22 @@ def main(argv=None):
             service["methods"] = methods
             effective.append(service)
     report = grounding.report(requirements, intentions, effective)
+    aggregates = _read(os.path.join(args.out_dir, "aggregate_decisions.json"), {})
+    aggregate_keys = {
+        (grounding._flat(item.get("holder") or ""),
+         grounding._flat(item.get("method") or ""))
+        for item in aggregates.get("decisions") or []
+        if isinstance(item, dict) and item.get("include_empty_groups") is not None
+    }
+    report["ambiguous_aggregate_groups"] = [
+        item for item in report.get("ambiguous_aggregate_groups") or []
+        if (grounding._flat(item.get("holder") or ""),
+            grounding._flat(item.get("method") or "")) not in aggregate_keys
+    ]
     report["applied_decisions"] = {
         "drop_services": sorted(drop_services),
         "drop_methods": sorted(".".join(item) for item in drop_methods),
+        "aggregate_groups": sorted(".".join(item) for item in aggregate_keys),
     }
     text = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
     print(text, end="")

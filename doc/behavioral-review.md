@@ -50,7 +50,7 @@ Two review decisions were made rather than inventing mechanical code:
 
 After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
 inventory all six printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library
-18/18.  The unit suite passes 1,074 tests.
+18/18.  The unit suite passes 1,075 tests.
 
 ### Grounding check results
 
@@ -75,10 +75,11 @@ aggregate rule:
   surface.
 - The GUI event loop now runs one frame through fake windowing modules; a real
   GLFW window is still not launched.
-- The inventory stock-value aggregate’s empty-category policy is now detected
-  by `review_grounding.py` as an `ambiguous_aggregate_groups` question.  The
-  prompt does not state whether categories with no products must appear as
-  zero, so no decision is applied and the acceptance check permits both.
+- The inventory stock-value aggregate’s empty-category policy was detected by
+  `review_grounding.py` as an `ambiguous_aggregate_groups` question.  The
+  reviewed decision is **include zero entries**; `aggregate_decisions.json`
+  makes the generator fill missing parent keys in both the repository and
+  service bodies.  The inventory acceptance check now requires zero entries.
 - The `60` grounding decision drops the unrequested `ExportService` and its
   `export` CLI verbs.  The standard `read_customer_by_id` wrapper is generated
   mechanically, and the core `60` behavior passes.  `grounding_report.json`
@@ -222,5 +223,5 @@ prompt-affecting defects, but they are still finite probes.  The prompts'
 explicit behaviors are covered by the remediated outputs and the expanded
 suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
 printed groups, GUI 10/10, `60` 10/10, expenses 14/14, library 18/18) and the unit
-suite passes 1,074 tests.  Residual non-prompt surface remains documented rather than
+suite passes 1,075 tests.  Residual non-prompt surface remains documented rather than
 claimed as production-complete.

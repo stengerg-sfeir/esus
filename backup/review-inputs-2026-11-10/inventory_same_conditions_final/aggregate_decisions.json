@@ -1,0 +1,26 @@
+{
+  "requirements_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716",
+  "decided_by": "user",
+  "decisions": [
+    {
+      "holder": "ProductRepository",
+      "method": "aggregate_stock_value_by_category",
+      "layer": "repository",
+      "include_empty_groups": true,
+      "parent_entity": "Category",
+      "key_field": "id",
+      "question": "Should groups with no child rows appear with zero, or be omitted?",
+      "answer": "include zero entries"
+    },
+    {
+      "holder": "InventoryService",
+      "method": "stock_value_by_category",
+      "layer": "service",
+      "include_empty_groups": true,
+      "parent_entity": "Category",
+      "key_field": "id",
+      "question": "Should groups with no child rows appear with zero, or be omitted?",
+      "answer": "include zero entries"
+    }
+  ]
+}

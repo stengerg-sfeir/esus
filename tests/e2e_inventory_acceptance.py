@@ -247,10 +247,10 @@ def main(argv):
         fail(f"repository low-stock query returned {[item.sku for item in repo_low]}")
     repo_values = repos["ProductRepository"].aggregate_stock_value_by_category()
     service_values = stock_value()
-    if service_values.get(empty.id, None) != 0:
-        fail(f"the service stock value omits an empty category: {service_values!r}")
-    # The repository aggregate is allowed to report only categories with
-    # products; its description says "by category", not "every category".
+    if repo_values.get(empty.id, None) != 0 \
+            or service_values.get(empty.id, None) != 0:
+        fail(f"empty categories must appear with value zero: {repo_values!r}, "
+             f"{service_values!r}")
     for category_id, value in repo_values.items():
         if value < 0:
             fail(f"negative stock value for category {category_id}: {repo_values!r}")
