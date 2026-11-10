@@ -61,6 +61,42 @@ class GroundingReportTests(unittest.TestCase):
             ["confirm"])
 
 
+class AmbiguousAggregateTests(unittest.TestCase):
+    def test_a_grouped_value_map_without_coverage_wording_is_reported(self):
+        report = grounding.report(
+            "Aggregate stock value by category.",
+            ["Aggregate stock value by category"],
+            [{"service_name": "InventoryService", "methods": [{
+                "name": "stock_value_by_category",
+                "description": "Returns a dictionary mapping each category "
+                               "to the total value of products.",
+                "params": [], "return_type": "dict[int: int]"}]}])
+        self.assertEqual(
+            [item["method"] for item in report["ambiguous_aggregate_groups"]],
+            ["stock_value_by_category"])
+
+    def test_explicit_each_category_wording_resolves_the_question(self):
+        report = grounding.report(
+            "Return the stock value for each category, including empty ones.",
+            ["Return stock value for each category"],
+            [{"service_name": "InventoryService", "methods": [{
+                "name": "stock_value_by_category",
+                "description": "Returns a dictionary mapping each category "
+                               "to the total value of products.",
+                "params": [], "return_type": "dict[int: int]"}]}])
+        self.assertEqual(report["ambiguous_aggregate_groups"], [])
+
+    def test_a_non_grouped_summary_is_not_flagged(self):
+        report = grounding.report(
+            "Summarize storage locations.",
+            ["Summarize storage locations"],
+            [{"service_name": "WineService", "methods": [{
+                "name": "get_storage_location_summary",
+                "description": "Returns a summary of all locations.",
+                "params": [], "return_type": "dict[str, object]"}]}])
+        self.assertEqual(report["ambiguous_aggregate_groups"], [])
+
+
 class GroundingDecisionTests(unittest.TestCase):
     def test_decisions_drop_the_service_its_adapters_and_export_verb(self):
         services = [service("ExportService", "export_orders_to_csv"),

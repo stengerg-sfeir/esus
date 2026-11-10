@@ -148,11 +148,58 @@ def _missing_capabilities(intentions, services):
     return missing
 
 
+def _ambiguous_aggregate_groups(requirements, intentions, services):
+    """Grouped mappings whose empty-group policy is not stated.
+
+    A mapping keyed by a parent entity can either include parents with no
+    children as zero, or omit them.  If the requirements never say "each",
+    "all", "every", "zero", "empty" or "only ... with", no rule can decide.
+    Report the question; do not invent an answer.
+    """
+    text = " ".join([requirements or "", *(intentions or ())]).lower()
+    coverage_phrases = (
+        "each category", "all categories", "every category",
+        "categories with products", "empty categories", "zero value",
+        "non-empty", "nonempty",
+    )
+    if any(phrase in text for phrase in coverage_phrases):
+        return []
+    aggregate_words = ("value", "total", "sum", "aggregate", "spend", "count")
+    ambiguous = []
+    for service in services:
+        holder = service.get("service_name")
+        if not isinstance(holder, str) or holder.endswith("Repository"):
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            returned = str(method.get("return_type") or "").lower()
+            if "dict" not in returned and "mapping" not in returned:
+                continue
+            label = f"{method.get('name')} {method.get('description')}".lower()
+            text = _flat(label)
+            if not any(_stem(word) in text for word in aggregate_words):
+                continue
+            if not re.search(
+                    r"(?:^|[^a-z0-9])by[_\s]+"
+                    r"(?:categor(?:y|ies)|type|month|year|status)\b"
+                    r"|per category", label):
+                continue
+            ambiguous.append({
+                "holder": holder,
+                "method": method.get("name"),
+                "question": "Should groups with no child rows appear with zero, or be omitted?",
+            })
+    return ambiguous
+
+
 def report(requirements, intentions, services, commands=()):
     """The reviewable grounding report for one extracted output."""
     extras = _service_extra_methods(
         requirements, intentions, services, commands)
     missing = _missing_capabilities(intentions, services)
+    ambiguous = _ambiguous_aggregate_groups(
+        requirements, intentions, services)
     suggestions = {"drop_services": [], "drop_methods": [],
                    "drop_command_verbs": []}
     services_by_name = {service.get("service_name"): service
@@ -185,5 +232,6 @@ def report(requirements, intentions, services, commands=()):
     return {
         "extra_methods": extras,
         "missing_capabilities": missing,
+        "ambiguous_aggregate_groups": ambiguous,
         "suggested_decisions": suggestions,
     }

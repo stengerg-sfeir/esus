@@ -1,9 +1,20 @@
 {
   "extra_methods": [],
   "missing_capabilities": [],
+  "ambiguous_aggregate_groups": [
+    {
+      "holder": "InventoryService",
+      "method": "stock_value_by_category",
+      "question": "Should groups with no child rows appear with zero, or be omitted?"
+    }
+  ],
   "suggested_decisions": {
     "drop_services": [],
     "drop_methods": [],
     "drop_command_verbs": []
+  },
+  "applied_decisions": {
+    "drop_services": [],
+    "drop_methods": []
   }
 }
