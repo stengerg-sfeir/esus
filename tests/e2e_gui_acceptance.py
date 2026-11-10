@@ -28,6 +28,8 @@ import re
 import sys
 import tempfile
 import traceback
+import types
+from unittest import mock
 from pathlib import Path
 
 
@@ -1444,6 +1446,113 @@ def check_location_capacity_shrink(package):
     return f"refused a shrink below assigned stock ({rejection})"
 
 
+def check_gui_event_loop(package):
+    """Run the emitted frame loop once with fake windowing modules."""
+    imgui = types.ModuleType("imgui")
+    integrations = types.ModuleType("imgui.integrations")
+    backend = types.ModuleType("imgui.integrations.glfw")
+    glfw = types.ModuleType("glfw")
+    opengl = types.ModuleType("OpenGL")
+    gl = types.ModuleType("OpenGL.GL")
+
+    class IO:
+        display_size = types.SimpleNamespace(x=1280, y=800)
+
+    imgui.get_io = lambda: IO()
+    imgui.set_next_window_position = lambda *args: None
+    imgui.set_next_window_size = lambda *args: None
+    imgui.begin = lambda *args: (True, False)
+    imgui.end = lambda: None
+    imgui.button = lambda *args: False
+    imgui.same_line = lambda: None
+    imgui.text = lambda *args: None
+    imgui.begin_table = lambda *args: True
+    imgui.end_table = lambda: None
+    imgui.table_next_column = lambda: None
+    imgui.table_next_row = lambda: None
+    imgui.separator = lambda: None
+    imgui.input_text = lambda _label, value, _size: (False, value)
+    imgui.new_frame = lambda: None
+    imgui.render = lambda: None
+    imgui.get_draw_data = lambda: {}
+    imgui.create_context = lambda: None
+    imgui.integrations = integrations
+    integrations.glfw = backend
+
+    class Renderer:
+        def __init__(self, _window):
+            pass
+
+        def process_inputs(self):
+            pass
+
+        def render(self, _data):
+            pass
+
+        def shutdown(self):
+            pass
+
+    backend.GlfwRenderer = Renderer
+    state = {"frames": 0, "closed": False, "terminated": False}
+    glfw.init = lambda: True
+    glfw.window_hint = lambda *args: None
+    glfw.create_window = lambda *args: object()
+    glfw.make_context_current = lambda *args: None
+    glfw.poll_events = lambda: None
+    glfw.swap_buffers = lambda *args: state.__setitem__(
+        "frames", state["frames"] + 1)
+    glfw.window_should_close = lambda *args: state["closed"]
+    glfw.terminate = lambda: state.__setitem__("terminated", True)
+    glfw.CONTEXT_VERSION_MAJOR = 0
+    glfw.CONTEXT_VERSION_MINOR = 0
+    glfw.OPENGL_PROFILE = 0
+    glfw.OPENGL_CORE_PROFILE = 0
+    glfw.OPENGL_FORWARD_COMPAT = 0
+    gl.glClearColor = lambda *args: None
+    gl.glClear = lambda *args: None
+    gl.GL_COLOR_BUFFER_BIT = 0
+    opengl.GL = gl
+
+    modules = {
+        "imgui": imgui,
+        "imgui.integrations": integrations,
+        "imgui.integrations.glfw": backend,
+        "glfw": glfw,
+        "OpenGL": opengl,
+        "OpenGL.GL": gl,
+    }
+    source = (package.generated / "gui.py").read_text(encoding="utf-8")
+    with tempfile.TemporaryDirectory(dir=str(package.out)) as directory:
+        previous = Path.cwd()
+        try:
+            import os
+            os.chdir(directory)
+            with mock.patch.dict(sys.modules, modules):
+                namespace = {"__name__": "gui_loop_under_test"}
+                exec(compile(source, "gui.py", "exec"), namespace)  # noqa: S102
+                namespace["DEFAULT_DB"] = ":memory:"
+                # Let the while condition enter once, then close.
+                state["closed"] = False
+                old = glfw.window_should_close
+                calls = {"n": 0}
+
+                def should_close(_window):
+                    calls["n"] += 1
+                    return calls["n"] > 1
+
+                glfw.window_should_close = should_close
+                result = namespace["main"]()
+        finally:
+            os.chdir(previous)
+    if result != 0:
+        fail(f"gui.main() returned {result}")
+    if state["frames"] < 1:
+        fail("gui.main() did not execute a frame")
+    if not state["terminated"]:
+        fail("gui.main() did not terminate glfw")
+    return f"frame loop ran {state['frames']} frame(s) and terminated cleanly"
+
+
 def _named_service(app, name):
     for service in app.service_objects:
         method = getattr(service, name, None)
@@ -1555,6 +1664,7 @@ CHECKS = (
     ("shrinking an occupied location is refused",
      check_location_capacity_shrink),
     ("service extras", check_service_extras),
+    ("GUI event loop", check_gui_event_loop),
 )
 
 
