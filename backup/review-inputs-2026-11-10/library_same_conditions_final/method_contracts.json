@@ -48,7 +48,7 @@
     {
       "holder": "LibraryService",
       "method": "return_book",
-      "decided_by": "user",
+      "decided_by": "assistant",
       "effects": [
         {
           "target": "loan.return_date",
@@ -79,7 +79,7 @@
           "raise_when": "false"
         },
         {
-          "check": "getattr(self._repos['LoanRepository'].read_one(loan_id), 'return_date', None) is not None",
+          "check": "getattr(self._repos['LoanRepository'].read_one(loan_id), 'return_date', None) is not None or str(getattr(self._repos['LoanRepository'].read_one(loan_id), 'status', '') or '').lower() == 'returned'",
           "error": "AlreadyReturnedLoanError",
           "raise_when": "true"
         }

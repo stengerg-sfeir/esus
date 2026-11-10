@@ -842,20 +842,6 @@ def emit_repositories(ctx, stats):
             fname = codegen.sanitize(method["name"], "method")
             declaration, params = _signature(method, ctx["entity_names"])
             returns = _return_of(method, ctx["entity_names"])
-            program = (ctx.get("programs") or {}).get(
-                (holder, method["name"]))
-            if isinstance(program, dict):
-                program_body = _repo_program_body(ctx, program, entity)
-                if program_body is not None:
-                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
-                              f'        """{_docstring(method.get("description"))} '
-                              '[reviewed repository program]"""']
-                    lines.extend("        " + line if line else ""
-                                 for line in program_body)
-                    stats["implemented"] += 1
-                    _record(stats, holder, method["name"], strategy, True,
-                            "reviewed repository program")
-                    continue
             pattern, slots = _slot_pattern(ctx, holder, method)
             if pattern is not None and _slots_usable(pattern, slots, method, True):
                 field_types = {name: (field.get("type") or "")
@@ -2084,21 +2070,9 @@ def _program_steps(ctx, steps, indent=0):
         if op == "query":
             target = step.get("as")
             args = [_program_expr(arg) for arg in step.get("args") or []]
-            kwargs = step.get("kwargs") or {}
-            if (any(arg is None for arg in args)
-                    or not isinstance(target, str)
-                    or not isinstance(kwargs, dict)):
+            if any(arg is None for arg in args) or not isinstance(target, str):
                 return None
-            rendered_kwargs = []
-            for key, value in kwargs.items():
-                expr = _program_expr(value)
-                if expr is None:
-                    return None
-                rendered_kwargs.append(
-                    f"{codegen.sanitize(key, 'kw')}={expr}")
-            call = (f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
-                    f"({', '.join([*args, *rendered_kwargs])})")
-            lines.append(f"{pad}{target} = {call}")
+            lines.append(f"{pad}{target} = {_program_call(repo, method, args)}")
             continue
         if op == "check":
             condition = _program_expr(step.get("condition"))
@@ -2134,45 +2108,10 @@ def _program_steps(ctx, steps, indent=0):
             lines.append(f"{pad}for {name} in {collection}:")
             lines.extend(nested or [f"{pad}    pass"])
             continue
-        if op == "if":
-            condition = _program_expr(step.get("condition"))
-            if condition is None:
-                return None
-            nested = _program_steps(ctx, step.get("steps") or [], indent + 4)
-            if nested is None:
-                return None
-            lines.append(f"{pad}if {condition}:")
-            lines.extend(nested or [f"{pad}    pass"])
-            alternative = step.get("else")
-            if alternative is not None:
-                otherwise = _program_steps(ctx, alternative or [], indent + 4)
-                if otherwise is None:
-                    return None
-                lines.append(f"{pad}else:")
-                lines.extend(otherwise or [f"{pad}    pass"])
-            continue
-        if op == "append":
-            name = step.get("name")
-            expr = _program_expr(step.get("expr"))
-            if not isinstance(name, str) or expr is None:
-                return None
-            lines.append(f"{pad}{name}.append({expr})")
-            continue
-        if op == "set":
-            name = step.get("name")
-            key = _program_expr(step.get("key"))
-            value = _program_expr(step.get("value"))
-            if not isinstance(name, str) or key is None or value is None:
-                return None
-            lines.append(f"{pad}{name}[{key}] = {value}")
-            continue
         if op == "update":
             args = [_program_expr(arg) for arg in step.get("args") or []]
             fields = step.get("fields") or {}
-            target = step.get("as")
-            if (any(arg is None for arg in args)
-                    or not isinstance(fields, dict)
-                    or (target is not None and not isinstance(target, str))):
+            if any(arg is None for arg in args) or not isinstance(fields, dict):
                 return None
             rendered_fields = []
             for key, value in fields.items():
@@ -2180,18 +2119,14 @@ def _program_steps(ctx, steps, indent=0):
                 if expr is None:
                     return None
                 rendered_fields.append(f"{codegen.sanitize(key, 'kw')}={expr}")
-            call = (
-                f"{_program_call(repo, method, args)}" if not rendered_fields
-                else f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+            lines.append(
+                f"{pad}{_program_call(repo, method, args)}" if not rendered_fields
+                else f"{pad}self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
                      f"({', '.join([*(_program_expr(arg) for arg in args or []), *rendered_fields])})")
-            lines.append(f"{pad}{target} = {call}" if target
-                         else f"{pad}{call}")
             continue
         if op == "create":
             fields = step.get("fields") or {}
-            target = step.get("as")
-            if not isinstance(fields, dict) or (
-                    target is not None and not isinstance(target, str)):
+            if not isinstance(fields, dict):
                 return None
             rendered = []
             for key, value in fields.items():
@@ -2199,11 +2134,9 @@ def _program_steps(ctx, steps, indent=0):
                 if expr is None:
                     return None
                 rendered.append(f"{codegen.sanitize(key, 'kw')}={expr}")
-            call = (
-                f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+            lines.append(
+                f"{pad}self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
                 f"({', '.join(rendered)})")
-            lines.append(f"{pad}{target} = {call}" if target
-                         else f"{pad}{call}")
             continue
         if op == "call":
             args = [_program_expr(arg) for arg in step.get("args") or []]
@@ -2234,139 +2167,6 @@ def _program_body(ctx, program):
         "    " + line if line.strip() else "" for line in lines)
     try:
         compile(source, "service_program", "exec")
-    except SyntaxError:
-        return None
-    return lines
-
-
-def _repo_program_steps(ctx, steps, entity, indent=0):
-    """Lines for a reviewed declarative repository program, or None.
-
-    Repository programs are deliberately tiny: they can select rows, fetch a
-    row by key, and use the same `assign`/`if`/`for_each`/`append`/`return`
-    control flow as service programs.  They cannot mutate storage; a program
-    that needs a write is a service concern and stays there.
-    """
-    pad = " " * indent
-    lines = []
-    for step in steps or []:
-        if not isinstance(step, dict):
-            return None
-        op = str(step.get("op") or "").strip().lower()
-        if op == "select":
-            entity_ref = step.get("entity") or "self.ENTITY"
-            target = step.get("as")
-            criteria = step.get("criteria")
-            if not isinstance(entity_ref, str) or not isinstance(target, str):
-                return None
-            rendered_entity = ("self.ENTITY" if entity_ref == "self.ENTITY"
-                               else repr(entity_ref))
-            rendered_criteria = ("[]" if criteria is None
-                                 else _program_expr(criteria))
-            if rendered_criteria is None:
-                return None
-            lines.append(
-                f"{pad}{target} = self._store.select("
-                f"{rendered_entity}, {rendered_criteria})")
-            continue
-        if op == "get":
-            entity_ref = step.get("entity", entity)
-            target = step.get("as")
-            key = _program_expr(step.get("key"))
-            if (not isinstance(entity_ref, str) or not isinstance(target, str)
-                    or key is None):
-                return None
-            pk = primary_key_of(ctx, entity_ref)
-            error = step.get("error")
-            call = (f"self._store.get({entity_ref!r}, {pk!r}, {key}"
-                    + (f", error={_program_error(ctx, error)}"
-                       if error else "") + ")")
-            lines.append(f"{pad}{target} = {call}")
-            continue
-        if op == "assign":
-            name = step.get("name")
-            expr = _program_expr(step.get("expr"))
-            if not isinstance(name, str) or expr is None:
-                return None
-            lines.append(f"{pad}{name} = {expr}")
-            continue
-        if op == "check":
-            condition = _program_expr(step.get("condition"))
-            if condition is None:
-                return None
-            error = _program_error(ctx, step.get("error"))
-            message = step.get("message") or condition
-            lines.append(f"{pad}if {condition}:")
-            lines.append(f"{pad}    raise {error}({message!r})")
-            continue
-        if op == "for_each":
-            collection = _program_expr(step.get("collection"))
-            name = step.get("as")
-            if collection is None or not isinstance(name, str):
-                return None
-            nested = _repo_program_steps(
-                ctx, step.get("steps") or [], entity, indent + 4)
-            if nested is None:
-                return None
-            lines.append(f"{pad}for {name} in {collection}:")
-            lines.extend(nested or [f"{pad}    pass"])
-            continue
-        if op == "if":
-            condition = _program_expr(step.get("condition"))
-            if condition is None:
-                return None
-            nested = _repo_program_steps(
-                ctx, step.get("steps") or [], entity, indent + 4)
-            if nested is None:
-                return None
-            lines.append(f"{pad}if {condition}:")
-            lines.extend(nested or [f"{pad}    pass"])
-            alternative = step.get("else")
-            if alternative is not None:
-                otherwise = _repo_program_steps(
-                    ctx, alternative or [], entity, indent + 4)
-                if otherwise is None:
-                    return None
-                lines.append(f"{pad}else:")
-                lines.extend(otherwise or [f"{pad}    pass"])
-            continue
-        if op == "append":
-            name = step.get("name")
-            expr = _program_expr(step.get("expr"))
-            if not isinstance(name, str) or expr is None:
-                return None
-            lines.append(f"{pad}{name}.append({expr})")
-            continue
-        if op == "set":
-            name = step.get("name")
-            key = _program_expr(step.get("key"))
-            value = _program_expr(step.get("value"))
-            if not isinstance(name, str) or key is None or value is None:
-                return None
-            lines.append(f"{pad}{name}[{key}] = {value}")
-            continue
-        if op == "return":
-            expr = _program_expr(step.get("expr"))
-            lines.append(f"{pad}return {expr if expr is not None else 'None'}")
-            continue
-        if op == "raise":
-            error = _program_error(ctx, step.get("error"))
-            message = step.get("message") or "refused"
-            lines.append(f"{pad}raise {error}({message!r})")
-            continue
-        return None
-    return lines
-
-
-def _repo_program_body(ctx, program, entity):
-    """A reviewed repository body, validated as a unit."""
-    lines = _repo_program_steps(ctx, program.get("steps") or [], entity)
-    if lines is None:
-        return None
-    source = "def _body(self):\n" + "\n".join(
-        "    " + line if line.strip() else "" for line in lines)
-    try:
-        compile(source, "repository_program", "exec")
     except SyntaxError:
         return None
     return lines
@@ -5380,6 +5180,8 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "- A repository update that lists individual fields takes them",
             "  as named keywords (`update(id=..., is_recurring=True)`); only",
             "  a method that declares a `data` parameter takes a dict.",
+            "- A `data` mapping parameter may be None; treat None as an",
+            "  empty mapping before reading or iterating it.",
             "- Changing a dataclass in memory does not save it: call the",
             "  repository's update method for every record you mark.",
         ]
@@ -5415,13 +5217,73 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  set — no month arithmetic, and never parse `YYYY-MM` with",
             "  `datetime.date.fromisoformat`.",
         ]
+    flat_method = normalize(method)
     if re.search(r"year|annual", method, re.IGNORECASE):
         tail += [
             "- A yearly summary keys monthly totals by `YYYY-MM` labels",
             "  (for example `2024-01`), not by bare month numbers.",
+            "- A yearly repository aggregate returns a mapping from",
+            "  `YYYY-MM` to the total; never return one scalar.",
             "- `top_spending_categories` must be JSON-serialisable: use a",
             "  list of [category_id, amount] pairs or string-keyed dict,",
             "  never tuple keys.",
+        ]
+    if "monthly" in flat_method or "month" in flat_method:
+        tail += [
+            "- A monthly spending-by-category aggregate returns a mapping",
+            "  from category id to that category's total; never one scalar.",
+            "- For a monthly report, read the expenses with `read_all()`",
+            "  (no keyword arguments), keep rows whose",
+            "  `str(expense.expense_date)[:7] == month`, then group them.",
+            "  Never pass the same keyword twice to `read_all`.",
+        ]
+    if re.search(r"top|categor", flat_method) and re.search(
+            r"date|spend", flat_method + requirement_line, re.IGNORECASE):
+        tail += [
+            "- For an inclusive date window, compare full ISO date strings",
+            "  with `>= start_text` and `<= end_text`; never use",
+            "  `startswith` or `endswith`.",
+            "- When the tuple return type includes a string category name,",
+            "  read `CategoryRepository` and return `category.name`; never",
+            "  return `str(category_id)` as the name.",
+        ]
+    if re.search(r"add|create", flat_method) and re.search(
+            r"budget|month", flat_method + requirement_line, re.IGNORECASE):
+        tail += [
+            "- After creating an expense, call",
+            "  `ExpenseRepository.get_monthly_spending_by_category(month)`",
+            "  and compare `spending.get(category_id, 0)` with the budget.",
+            "  Never compare only the new expense's amount or a single day.",
+        ]
+    if "budget" in flat_method and "status" in flat_method:
+        tail += [
+            "- `get_budget_by_category_and_month` returns a Budget model:",
+            "  use `budget.amount_limit_cents`, not `budget.get(...)`.",
+            "- Status is `exceeded` only when the month total is above the",
+            "  limit, `warning` at 90% or more, otherwise `on_track`.",
+        ]
+    if info.get("file") == "repositories.py" and "search" in flat_method:
+        tail += [
+            "- When the search requirement includes an author name, read",
+            "  the related author by `author_id` and compare `author.name`",
+            "  as well as the row's own title and ISBN.",
+            "- Collect matching rows in a list and return that list; never",
+            "  rebuild `select` criteria from a set/comprehension of ids.",
+        ]
+    if info.get("file") == "repositories.py" and "top" in flat_method:
+        tail += [
+            "- `self._store.get('Category', 'id', category_id)` returns a",
+            "  dict, not a model. Read its name with `.get('name')`.",
+        ]
+    if info.get("file") == "services.py" and "add" in flat_method \
+            and "expense" in flat_method:
+        tail += [
+            "- Compute the month total explicitly after create, for example:",
+            "  `month_total = sum(e.amount_cents for e in",
+            "  self._repos['ExpenseRepository'].read_all()",
+            "  if e.category_id == category_id and",
+            "  str(e.expense_date)[:7] == month)`.",
+            "  Compare `month_total` with the budget, not the new row alone.",
         ]
     if re.search(r"spend(?:ing)?|total|aggregate|\bsum\b", method, re.IGNORECASE):
         tail += [
@@ -5477,6 +5339,100 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  and compares ids/numbers exactly. `select(..., 'eq', ...)`",
             "  is an exact test, so read the records and filter text in",
             "  Python.",
+        ]
+    if info.get("file") == "repositories.py":
+        tail += [
+            "- `_store.select` and `_store.get` return plain dictionaries.",
+            "  If the declared return type is a model (or a list of models),",
+            "  construct `models.X(**record)`; never read attributes on a",
+            "  store dictionary.",
+            "- `_store.select` always takes the entity and a criteria list;",
+            "  use `self._store.select(self.ENTITY, [])` for every record.",
+            "- A stored date may already be a `datetime.date`, not a string.",
+            "  Normalise it with `str(value)[:10]` before slicing or comparing;",
+            "  use `str(value)[:7]` for a `YYYY-MM` month key.",
+        ]
+    if re.search(r"year|annual", method, re.IGNORECASE):
+        tail += [
+            "- A method with a `year` parameter filters records by that",
+            "  year; compare `str(record_date)[:4] == str(year)` and never",
+            "  ignore the parameter.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"only|include|available|active", signature
+            + " ".join(info.get("params") or []), re.IGNORECASE):
+        tail += [
+            "- A boolean selector filters only when it is true. When it is",
+            "  false or omitted, return the unfiltered records; do not use",
+            "  `is None` as the only off switch.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"stock|quantity|qty", flat_method + signature, re.IGNORECASE):
+        tail += [
+            "- Apply every numeric bound the requirements state before",
+            "  saving a stock/quantity change; a negative restock is a",
+            "  rejection, not a smaller number. Raise ValueError for the",
+            "  invalid value before changing the record, not a not-found",
+            "  error.",
+        ]
+    if any(line.strip() == "creates:" for line in contract):
+        tail += [
+            "- Every required (non-null) create field must be checked",
+            "  before the create. If a required value is missing, raise",
+            "  ValueError; never let a schema NOT NULL error escape.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"stock|value|aggregate|sum", flat_method, re.IGNORECASE) \
+            and "dict" in _return_annotation(info).lower():
+        tail += [
+            "- A category-keyed map includes every category in the model,",
+            "  initialising categories with no products to zero.",
+        ]
+    if info.get("file") == "repositories.py" and re.search(
+            r"stock|value|aggregate|sum", flat_method, re.IGNORECASE) \
+            and "dict" in _return_annotation(info).lower():
+        tail += [
+            "- A category-keyed map includes a zero entry for every",
+            "  category, even when no product references it.",
+            "- Build that map from the parent rows first: initialise each",
+            "  parent id to zero, then add each child row's value. Do not",
+            "  build the map only from child rows.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"return|borrow|confirm|cancel|ship", flat_method,
+            re.IGNORECASE):
+        tail += [
+            "- A state guard checks every field that defines the state.",
+            "  For a returned loan, both `return_date is not None` and",
+            "  `status == 'returned'` mean already returned; refusing it",
+            "  must not change inventory.",
+        ]
+    if info.get("file") == "services.py" and re.search(
+            r"report|budget|monthly|yearly", flat_method, re.IGNORECASE):
+        tail += [
+            "- A period budget status compares the period total for each",
+            "  category, not one expense row at a time.",
+            "- A yearly category table aggregates once per category over",
+            "  the whole year; do not key it by (category, month).",
+        ]
+    if info.get("file") == "services.py" and "invoice" in flat_method \
+            and "customer" in flat_method:
+        tail += [
+            "- To find invoices for a customer, first find that customer's",
+            "  orders, then match invoices on each invoice's `order_id`;",
+            "  an invoice id is not an order id.",
+        ]
+    if info.get("file") == "services.py" and "status" in flat_method \
+            and "report" in flat_method:
+        tail += [
+            "- A status report starts by initialising every documented",
+            "  status to zero, then counts the records; absent statuses",
+            "  must still appear with zero.",
+        ]
+    if "recurr" in flat_method:
+        tail += [
+            "- Return the records returned by the repository update calls,",
+            "  not the stale pre-update objects.",
         ]
     lines += [
         "- If the requirements do not determine the behavior, reply with",

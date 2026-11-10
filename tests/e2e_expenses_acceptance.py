@@ -426,7 +426,8 @@ def check_repository_date_queries(fx):
         summary = service.get_yearly_summary(2024)
         if summary.get("monthly_totals") != {"2024-01": 2000, "2024-02": 700}:
             lib.fail(f"the yearly summary kept the wrong monthly totals: {summary}")
-        if summary.get("top_spending_categories") != [[2, 1500], [1, 1200]]:
+        top = [list(item) for item in summary.get("top_spending_categories") or []]
+        if top != [[2, 1500], [1, 1200]]:
             lib.fail(f"the yearly top categories should aggregate by category: {summary}")
     finally:
         deps["store"].close()
