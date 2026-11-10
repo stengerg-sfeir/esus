@@ -14,7 +14,10 @@ the human confirms or edits it, and the generator compiles that record into
 the prompt and the body checks. The vocabulary is domain-neutral:
 
     effects       a field set/incremented/decremented and the write that saves it
-    creates       a model class created through a named repository call
+    creates       a model class created through a named repository call, with
+                  optional `fields` values for a closed deterministic graph
+    bindings      an entity read by primary key through a named repository
+                  method, used by the closed-contract compiler
     preconditions a check and whether a named error is raised when it is
                   true or when it is false
     order         the required order of the preconditions/create/write steps
@@ -148,10 +151,38 @@ def normalize_contract(raw):
         for key in ("class", "call"):
             if isinstance(create.get(key), str) and create[key]:
                 item[key] = create[key]
+        fields = {}
+        for key, value in (create.get("fields") or {}).items():
+            if isinstance(key, str) and key and isinstance(value, str) and value.strip():
+                fields[key] = value.strip()
+        if fields:
+            item["fields"] = fields
         if item:
             creates.append(item)
     if creates:
         record["creates"] = creates
+
+    bindings = []
+    for binding in raw.get("bindings") or []:
+        if not isinstance(binding, dict):
+            continue
+        name = binding.get("name")
+        repository = binding.get("repository")
+        method = binding.get("method")
+        if not (isinstance(name, str) and name
+                and isinstance(repository, str) and repository
+                and isinstance(method, str) and method):
+            continue
+        item = {"name": name, "repository": repository, "method": method}
+        args = [arg for arg in (binding.get("args") or [])
+                if isinstance(arg, str) and arg.strip()]
+        if args:
+            item["args"] = args
+        if isinstance(binding.get("error"), str) and binding["error"]:
+            item["error"] = binding["error"]
+        bindings.append(item)
+    if bindings:
+        record["bindings"] = bindings
 
     preconditions = []
     for precondition in raw.get("preconditions") or []:

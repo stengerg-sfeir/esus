@@ -78,6 +78,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import probe_readiness  # noqa: E402
 from kernel import codegen  # noqa: E402
+from kernel import contract_compiler  # noqa: E402
 from kernel import tie_rules  # noqa: E402
 from kernel.consistency.checks_surface import COMMAND_VERB_STEMS  # noqa: E402
 from kernel.consistency.loader import load_documents, load_requirements  # noqa: E402
@@ -2136,6 +2137,22 @@ def emit_services(ctx, repo_index, stats):
                     stats["implemented"] += 1
                     _record(stats, name, method["name"], strategy, True,
                             "reviewed program")
+                    continue
+            contract = contract_for(
+                ctx.get("contracts") or [], name, method["name"])
+            compiled, compile_reason = contract_compiler.compile_contract(
+                contract, method, ctx)
+            if compiled is not None:
+                compiled_body = _program_body(ctx, compiled)
+                if compiled_body is not None:
+                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                              f'        """{_docstring(method.get("description"))} '
+                              f'[closed contract: {compile_reason}]"""']
+                    lines.extend("        " + line if line else ""
+                                 for line in compiled_body)
+                    stats["implemented"] += 1
+                    _record(stats, name, method["name"], "closed-contract", True,
+                            compile_reason)
                     continue
             plan = (ctx.get("method_plans") or {}).get((name, method["name"]))
             if plan and plan.get("strategy") == "mechanical" \
