@@ -1,0 +1,16 @@
+{
+  "repairs": [
+    {
+      "holder": "ExpenseService",
+      "method": "update_expense",
+      "decided_by": "assistant",
+      "previous": "        # Validate the expense exists\n        expense = self._repos['ExpenseRepository'].read_one(id=id)\n        if not expense:\n            raise errors.ExpenseNotFoundError(f\"Expense with id {id} not found\")\n\n        # Validate category exists\n        category = self._repos['CategoryRepository'].read_one(id=expense.category_id)\n        if not category:\n            raise errors.CategoryNotFoundError(f\"Category with id {expense.category_id} not found\")\n\n        # Update the expense with provided data\n        updated_data = {}\n        if data is not None:\n            for field, value in data.items():\n                if field in ['amount_cents', 'description', 'expense_date', 'payment_method', 'is_recurring']:\n                    if field == 'expense_date':\n                        if value is not None:\n                            value = _as_date(value)\n                    updated_data[field] = value\n\n        # Apply updates to the expense\n        updated_expense = self._repos['ExpenseRepository'].update(\n            id=id,\n            amount_cents=updated_data.get('amount_cents'),\n            description=updated_data.get('description'),\n            expense_date=updated_data.get('expense_date'),\n            category_id=updated_data.get('category_id'),\n            payment_method=updated_data.get('payment_method'),\n            is_recurring=updated_data.get('is_recurring')\n        )\n\n        # Check if budget has been exceeded after update\n        month = updated_expense.expense_date.strftime(\"%Y-%m\") if updated_expense.expense_date else None\n        if month is not None:\n            monthly_spending = self._repos['ExpenseRepository'].get_monthly_spending_by_category(month=month)\n            total_spending = monthly_spending.get(updated_expense.category_id, 0)\n\n            budget = self._repos['BudgetRepository'].get_budget_by_category_and_month(\n                category_id=updated_expense.category_id,\n                month=month\n            )\n            if budget is not None and total_spending > budget.amount_limit_cents:\n                raise errors.BudgetExceededException(\n                    f\"Expense exceeds monthly budget for category {updated_expense.category_id} in month {month}\"\n                )\n\n        return updated_expense",
+      "complaints": [
+        "Treat data=None as an empty mapping.",
+        "If data contains category_id, validate CategoryRepository.read_one before the update and include category_id in the repository update.",
+        "Convert an ISO expense_date string with _as_date before saving or strftime.",
+        "Compare the month total after update, via get_monthly_spending_by_category, and raise BudgetExceededException."
+      ]
+    }
+  ]
+}

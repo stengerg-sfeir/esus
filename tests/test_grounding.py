@@ -139,6 +139,24 @@ class AggregateDecisionTests(unittest.TestCase):
         compile(result["services.py"], "services.py", "exec")
 
 
+class RelatedPrimaryKeyRepairTests(unittest.TestCase):
+    def test_a_related_lookup_does_not_reuse_the_current_repository_pk(self):
+        ctx = {"mappings": {}, "models": [
+            {"name": "Product", "fields": [
+                {"name": "product_id", "type": "int", "primary_key": True}]},
+            {"name": "Category", "fields": [
+                {"name": "category_id", "type": "int", "primary_key": True}]},
+        ]}
+        files = {"repositories.py": (
+            "class ProductRepository:\n"
+            "    def find(self):\n"
+            "        return self._store.get('Category', self.PK, 1)\n")}
+        result, repaired = generator.repair_related_primary_keys(files, ctx)
+        self.assertEqual(repaired, ["Category.category_id"])
+        self.assertIn("'Category', 'category_id'", result["repositories.py"])
+        self.assertNotIn("self.PK", result["repositories.py"])
+
+
 class GroundingDecisionTests(unittest.TestCase):
     def test_decisions_drop_the_service_its_adapters_and_export_verb(self):
         services = [service("ExportService", "export_orders_to_csv"),

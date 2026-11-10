@@ -50,7 +50,7 @@ Two review decisions were made rather than inventing mechanical code:
 
 After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
 inventory all six printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library
-18/18.  The unit suite passes 1,075 tests.
+18/18.  The unit suite passes 1,076 tests.
 
 ### Grounding check results
 
@@ -95,18 +95,15 @@ The remaining provisional bodies were inspected against their prompts,
 contracts and current acceptance behavior.  Known issues not covered by the
 green suites:
 
-- **Expenses `update_expense`**: `data=None` raises `AttributeError`; a new
-  `category_id` is not validated before the repository update (raw SQLite
-  foreign-key error); an ISO string replacing `expense_date` is not converted
-  before the budget check (`.strftime` on a string).
+- **Expenses `update_expense`**: fixed with a reviewed Qwen repair; it now
+  accepts missing data, validates a supplied category, converts ISO dates and
+  compares the month total.
 - **Expenses `get_monthly_report`**: fixed and covered for January, February,
   April and December, including `on_track`, `warning` and `exceeded`.
-- **Inventory `find_low_stock_products`**: looks up the Category with
-  `self.PK` (the Product PK).  Both models use `id` in this prompt, so the
-  current tests pass, but the body is not generic across different PK names.
-- **Inventory `add_product` / `restock`**: missing inputs can reach a raw
-  duplicate check or `None < int`; the prompt does not settle every optional
-  input edge.
+- Inventory `find_low_stock_products`: the generator now replaces the
+  related `self.PK` lookup with the related model's actual primary key.
+- Inventory `add_product` / `restock`: fixed with reviewed Qwen repairs for
+  required inputs and missing quantities.
 - **`60` `get_product_stock_report`**: fixed and covered; it now returns one
   row per product with the required product fields and category name.
 
@@ -250,6 +247,6 @@ because acceptance is green; the tests now cover the previously reported
 prompt-affecting defects, but they are still finite probes.  The prompts'
 explicit behaviors are covered by the remediated outputs and the expanded
 suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
-printed groups, GUI 11/11, `60` 10/10, expenses 15/15, library 18/18) and the unit
-suite passes 1,075 tests.  Residual non-prompt surface remains documented rather than
+printed groups, GUI 11/11, `60` 10/10, expenses 16/16, library 18/18) and the unit
+suite passes 1,076 tests.  Residual non-prompt surface remains documented rather than
 claimed as production-complete.

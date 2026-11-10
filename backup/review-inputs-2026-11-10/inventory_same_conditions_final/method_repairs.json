@@ -1,0 +1,15 @@
+{
+  "repairs": [
+    {
+      "holder": "InventoryService",
+      "method": "add_product",
+      "decided_by": "assistant",
+      "previous": null,
+      "complaints": [
+        "Validate required parameters with `is None`, not falsy checks. Zero price and zero stock are valid.",
+        "Before any lookup or create, if any of sku, name, category_id, price_cents, stock_qty is None, raise ValueError.",
+        "Never call ProductRepository.read_all(sku=None) as a duplicate check."
+      ]
+    }
+  ]
+}

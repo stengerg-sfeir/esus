@@ -28,7 +28,9 @@ All review decisions copied here are assistant-filled
 
 Each directory preserves its `grounding_report.json`. The `60` and GUI directories also
 preserve `grounding_decisions.json`; inventory preserves
-`aggregate_decisions.json` for the include-zero group policy. The `60` report identifies `ExportService` as ungrounded;
+`aggregate_decisions.json` for the include-zero group policy. Inventory and
+expenses preserve `method_repairs.json`, the reviewed LLM-body complaints used
+to regenerate their validation bodies. The `60` report identifies `ExportService` as ungrounded;
 the decision drops that service, its adapters and the `export` CLI verbs before
 generation. Standard `read_<entity>_by_id` wrappers stay and are generated
 mechanically.

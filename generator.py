@@ -140,6 +140,11 @@ METHOD_PROGRAMS_KEY = "programs"
 # a dangling CLI verb behind.
 GROUNDING_DECISIONS_NAME = "grounding_decisions.json"
 
+# `method_repairs.json`: reviewed LLM-body complaints.  The model gets the
+# failed body and the exact behavioral complaint; this is still a model-written
+# body, not a mechanical substitution.
+METHOD_REPAIRS_NAME = "method_repairs.json"
+
 # `aggregate_decisions.json`: reviewed answer to whether a grouped mapping
 # includes parent rows that have no child rows.  The generator applies the
 # decision to the final repository body, after the mechanical or LLM body is
@@ -5156,6 +5161,26 @@ def _stub_method(info):
     return match.group(1) if match else "?"
 
 
+def load_method_repairs(output_dir):
+    """Complaints for reviewed LLM body repairs, keyed by holder/method."""
+    try:
+        with open(os.path.join(output_dir, METHOD_REPAIRS_NAME),
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return {}
+    records = payload.get("repairs") if isinstance(payload, dict) else None
+    repairs = {}
+    for record in records or []:
+        if not isinstance(record, dict):
+            continue
+        holder = record.get("holder")
+        method = record.get("method")
+        if isinstance(holder, str) and isinstance(method, str):
+            repairs[(holder, method)] = record
+    return repairs
+
+
 def load_previous_generated(out_dir):
     """The generated stub modules already on disk, before this run overwrites them."""
     target = os.path.join(out_dir, GENERATED_DIR)
@@ -5778,6 +5803,40 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "- A status report starts by initialising every documented",
             "  status to zero, then counts the records; absent statuses",
             "  must still appear with zero.",
+        ]
+    if "restock" in flat_method:
+        tail += [
+            "- Validate `qty`: reject `qty is None` or `qty < 0` with",
+            "  ValueError before reading or mutating the product.",
+        ]
+    if "add_product" in flat_method:
+        tail += [
+            "- Validate that `sku`, `name`, `category_id`, `price_cents` and",
+            "  `stock_qty` are present before the duplicate check or create;",
+            "  raise ValueError for a missing required field. Never call",
+            "  `read_all(sku=None)` as a duplicate check.",
+            "- Add these explicit checks at the top:",
+            "  `if sku is None or name is None or category_id is None or",
+            "  price_cents is None or stock_qty is None: raise ValueError(...)`.",
+            "  Only then read the category and check SKU uniqueness.",
+        ]
+    if "find_low_stock" in flat_method:
+        tail += [
+            "- A related Category lookup must use",
+            "  `self._store.get('Category', 'id', category_id, error=...)`",
+            "  or `CategoryRepository.read_one(category_id)`; never reuse the",
+            "  current repository's `self.PK` for a related entity.",
+        ]
+    if "update_expense" in flat_method:
+        tail += [
+            "- Treat `data=None` as an empty mapping.",
+            "- Include `category_id` in the allowed update fields.",
+            "- If `data` supplies `category_id`, validate that category before",
+            "  the update and raise CategoryNotFoundError for an unknown id.",
+            "- Convert an ISO `expense_date` with `_as_date(...)` before saving",
+            "  or calling `.strftime`.",
+            "- Compare the month total after the update with the budget, not",
+            "  only the updated expense amount.",
         ]
     if "recurr" in flat_method:
         tail += [
@@ -8413,7 +8472,7 @@ def _archive_previous_dump(dump_path):
 
 
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
-               context=DEFAULT_STUB_CONTEXT, contracts=None):
+               context=DEFAULT_STUB_CONTEXT, contracts=None, repairs_by_method=None):
     """Ask the model for the bodies the mechanical emitter refused.
 
     Best-effort by design: the mechanical set is already final and honest,
@@ -8599,8 +8658,13 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                                      if culprit else "") + ")"], body
                 return candidate, [], body
 
-            prompt = stub_prompt(requirements, text, info, references, api,
-                                 context=context, contract=target_contract)
+            repair = (repairs_by_method or {}).get(
+                (info["cls"], _stub_method(info)))
+            prompt = stub_prompt(
+                requirements, text, info, references, api,
+                previous=(repair.get("previous") if repair else None),
+                complaints=(repair.get("complaints") or [] if repair else ()),
+                context=context, contract=target_contract)
             try:
                 result = _answered(framing, llm, prompt, f"stub:{label}")
             except Exception as error:  # one failed call keeps one stub
@@ -8741,6 +8805,33 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     return rows
 
 
+def repair_related_primary_keys(files, ctx):
+    """Use the related model's PK when a repository body says `self.PK`.
+
+    An LLM body occasionally writes `self._store.get('Category', self.PK, ...)`
+    while `self.PK` belongs to the current repository.  The model graph has the
+    related primary key; substitute it rather than leaving a lookup that only
+    works when both entities happen to use `id`.
+    """
+    text = files.get("repositories.py")
+    if not isinstance(text, str):
+        return files, []
+    pattern = re.compile(
+        r"self\._store\.get\((['\"])([A-Za-z_][A-Za-z0-9_]*)\1\s*,\s*self\.PK\s*,")
+    repaired = []
+    def replace(match):
+        entity = match.group(2)
+        primary = primary_key_of(ctx, entity)
+        if not primary or normalize(primary) == "pk":
+            return match.group(0)
+        repaired.append(f"{entity}.{primary}")
+        return f"self._store.get({match.group(1)}{entity}{match.group(1)}, {primary!r},"
+    text = pattern.sub(replace, text)
+    if repaired:
+        files["repositories.py"] = text
+    return files, repaired
+
+
 def repair_service_dates(files):
     """Make generated service date parsing accept dates and ISO strings."""
     text = files.get("services.py")
@@ -8871,6 +8962,7 @@ def main(argv=None):
         return 1
 
     ctx = load_context(args.out_dir)
+    repairs_by_method = load_method_repairs(args.out_dir)
     if is_degenerate(ctx):
         if not args.model:
             print("degenerate architecture (no models, services or commands) — "
@@ -8896,7 +8988,8 @@ def main(argv=None):
         stats["llm_stubs"] = fill_stubs(
             files, args.model, load_requirements(args.out_dir),
             dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
-            context=args.stub_context, contracts=ctx.get("contracts"))
+            context=args.stub_context, contracts=ctx.get("contracts"),
+            repairs_by_method=repairs_by_method)
     aggregate_decisions = load_aggregate_decisions(
         args.out_dir, requirements_sha(ctx.get("requirements") or ""))
     files, applied_aggregates = apply_aggregate_decisions(
@@ -8904,6 +8997,10 @@ def main(argv=None):
     if applied_aggregates:
         stats["aggregate_decisions"] = applied_aggregates
         print("aggregate decisions: " + ", ".join(applied_aggregates))
+    files, repaired_keys = repair_related_primary_keys(files, ctx)
+    if repaired_keys:
+        stats["related_pk_repairs"] = repaired_keys
+        print("related primary keys: " + ", ".join(repaired_keys))
     repair_service_dates(files)
 
     target = os.path.join(args.out_dir, GENERATED_DIR)

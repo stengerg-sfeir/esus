@@ -254,6 +254,32 @@ def main(argv):
     for category_id, value in repo_values.items():
         if value < 0:
             fail(f"negative stock value for category {category_id}: {repo_values!r}")
+    try:
+        add_product(sku="MISSING", name="Missing", category_id=None,
+                    price_cents=1, stock_qty=1)
+    except Exception as error:  # noqa: BLE001 - the rule under test
+        if "Value" not in type(error).__name__:
+            fail(f"missing category raised {type(error).__name__}, not a validation error")
+    else:
+        fail("add_product accepted a missing category")
+    try:
+        add_product(sku="ZERO", name="Zero Stock", category_id=parts["id"],
+                    price_cents=100, stock_qty=0)
+    except Exception as error:  # noqa: BLE001 - zero stock is valid
+        fail(f"add_product rejected zero stock: {type(error).__name__}: {error}")
+    connection = sqlite3.connect(database)
+    if not rows_for(connection, product_table, sku="ZERO"):
+        connection.close()
+        fail("add_product did not store a zero-stock product")
+    connection.close()
+    try:
+        restock(bolt["id"], None)
+    except Exception as error:  # noqa: BLE001 - the rule under test
+        if "Value" not in type(error).__name__:
+            fail(f"restock(None) raised {type(error).__name__}, not a validation error")
+    else:
+        fail("restock accepted a missing quantity")
+    print("PASS  missing input validation")
     print("PASS  InventoryService validation, filters, and aggregates")
     deps["store"].close()
 

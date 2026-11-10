@@ -489,6 +489,45 @@ def check_repository_date_queries(fx):
         deps["store"].close()
 
 
+def check_update_expense_edges(fx):
+    """Updating category/date and a missing data mapping are valid paths."""
+    db = fx.seeded("update-edge")
+    deps = lib.generated_deps(fx.out, db)
+    try:
+        service = deps["services"]["ExpenseService"]
+        repos = deps["repos"]
+        category = repos["CategoryRepository"].create(
+            name="Update", description="u", monthly_budget=0)
+        other = repos["CategoryRepository"].create(
+            name="Other", description="o", monthly_budget=0)
+        expense = service.add_expense(
+            amount_cents=100, description="before", expense_date="2024-05-01",
+            category_id=category.id, payment_method="cash", is_recurring=False)
+        service.update_expense(expense.id, {"description": "after"})
+        if repos["ExpenseRepository"].read_one(expense.id).description != "after":
+            lib.fail("update_expense did not update the description")
+        service.update_expense(expense.id, {"category_id": other.id})
+        if repos["ExpenseRepository"].read_one(expense.id).category_id != other.id:
+            lib.fail("update_expense did not update the category")
+        try:
+            service.update_expense(expense.id, {"category_id": 999999})
+        except Exception as error:  # noqa: BLE001 - the rule under test
+            if "CategoryNotFound" not in type(error).__name__:
+                lib.fail(f"unknown update category raised {type(error).__name__}, "
+                         "not CategoryNotFoundError")
+        else:
+            lib.fail("update_expense accepted an unknown category")
+        service.update_expense(expense.id, {"expense_date": "2024-06-15"})
+        stored = repos["ExpenseRepository"].read_one(expense.id)
+        if str(stored.expense_date)[:10] != "2024-06-15":
+            lib.fail(f"update_expense did not accept an ISO date: {stored}")
+        service.update_expense(expense.id, None)
+        if repos["ExpenseRepository"].read_one(expense.id).description != "after":
+            lib.fail("update_expense(None) changed the record")
+    finally:
+        deps["store"].close()
+
+
 def check_service_methods(fx):
     db = fx.seeded("service")
     deps = lib.generated_deps(fx.out, db)
@@ -540,6 +579,7 @@ CHECKS = (
     ("recurring detect marks monthly repeats", check_recurring_detect),
     ("repository date aggregates and budget totals", check_repository_date_queries),
     ("service methods the CLI does not reach", check_service_methods),
+    ("update_expense accepts category/date and rejects unknown category", check_update_expense_edges),
 )
 
 
