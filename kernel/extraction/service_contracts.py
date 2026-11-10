@@ -84,6 +84,7 @@ def _method(name, description, params, return_type, raises=()):
         "params": list(params),
         "return_type": return_type,
         "raises": list(raises),
+        "mechanical": True,
     }
 
 

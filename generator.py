@@ -551,6 +551,65 @@ def _repo_index(ctx):
     return index
 
 
+def _standard_read_repo(ctx, method, params):
+    """`(repo_class, repo_method, entity)` for a standard read-by-id wrapper."""
+    name = normalize(method.get("name") or "")
+    if not name.startswith("read") or not name.endswith("byid"):
+        return None
+    if len(params) != 1:
+        return None
+    service_params = sorted(normalize(item[0]) for item in params)
+    for repo in ctx["repositories"]:
+        entity = repo.get("entity")
+        if not isinstance(entity, str) or normalize(entity) not in name:
+            continue
+        cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+        for candidate in repo.get("methods") or []:
+            if not isinstance(candidate, dict) or not candidate.get("name"):
+                continue
+            strategy, _ = codegen.plan_method(
+                candidate, _match_entry(ctx, cls, candidate["name"]),
+                ctx["entity_names"])
+            if strategy != "crud:read_one":
+                continue
+            candidate_params = sorted(
+                normalize(p.get("name") or "")
+                for p in candidate.get("params") or [] if isinstance(p, dict))
+            if len(candidate_params) != 1 or candidate_params != service_params:
+                continue
+            return cls, candidate, entity
+    return None
+
+
+def _service_standard_read_body(ctx, method, params, returns):
+    """Mechanical `read_<entity>_by_id` delegation, even across return spelling."""
+    # The exact-name read-one path below already handles matching signatures;
+    # this fallback exists only for the mechanically completed wrapper whose
+    # optional return (`Entity | None`) differs from the repository's `Entity`.
+    params_norm = [normalize(item[0]) for item in params]
+    if _read_one_target(ctx, method, params_norm, normalize(returns)) is not None:
+        return None
+    target = _standard_read_repo(ctx, method, params)
+    if target is None:
+        return None
+    repo_cls, repo_method, entity = target
+    rname = codegen.sanitize(repo_method["name"], "method")
+    arg = params[0][1]
+    call = f"self._repos[{repo_cls!r}].{rname}({arg})"
+    optional = bool(re.search(r"\bNone\b", returns or ""))
+    if not optional:
+        return [f"return {call}"]
+    error = method_error(ctx, repo_method, entity)
+    if error == "LookupError":
+        return [f"return {call}"]
+    return [
+        "try:",
+        f"    return {call}",
+        f"except {error}:",
+        "    return None",
+    ]
+
+
 def _service_delegate(ctx, method, repo_index):
     """The `(repo_class, repo_method)` of the same normalized name, or None.
 
@@ -1876,6 +1935,18 @@ def emit_services(ctx, repo_index, stats):
                 stats["implemented"] += 1
                 _record(stats, name, method["name"], strategy, True,
                         "assign relation")
+                continue
+            standard_read = _service_standard_read_body(
+                ctx, method, params, returns)
+            if standard_read is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical standard read]"""']
+                lines.extend("        " + line if line else ""
+                             for line in standard_read)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "standard read")
                 continue
             delegate = _service_delegate(ctx, method, repo_index)
             if delegate is not None and strategy.startswith("crud:"):

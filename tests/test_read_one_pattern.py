@@ -180,6 +180,14 @@ class EmissionTests(unittest.TestCase):
             self.run_service(text, Repository()).read_book_by_id(7),
             {"id": 7})
 
+    def test_a_standard_wrapper_with_optional_service_return_is_mechanical(self):
+        ctx = self.ctx([method(name="read_one", returns="Book")])
+        ctx["errors"] = [{"name": "BookNotFoundError"}]
+        text, stats = self.emit(ctx)
+        self.assertIn("except errors.BookNotFoundError:", text)
+        self.assertIn("return None", text)
+        self.assertEqual((stats["implemented"], stats["stubs"]), (1, 0))
+
     def test_without_a_matching_read_one_the_method_stays_a_stub(self):
         other = method(name="read_one",
                        params=[{"name": "isbn", "type": "str"}])

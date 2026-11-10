@@ -17,6 +17,7 @@ released), so the test does not require the invoice to be deleted.
 
 import argparse
 import contextlib
+import csv
 import datetime as dt
 import inspect
 import json
@@ -1711,6 +1712,20 @@ def check_service_extras(fx):
             else:
                 if not bad.is_file():
                     lib.fail(f"{name} path failure neither raised nor wrote a file")
+            good = fx.scratch / f"{name}.csv"
+            method(str(good))
+            with good.open(encoding="utf-8", newline="") as handle:
+                header = next(csv.reader(handle))
+            expected = {
+                "export_orders_to_csv": [
+                    "order_id", "customer_id", "status", "created_at",
+                    "confirmed_at", "shipped_at", "cancelled_at"],
+                "export_product_stock_to_csv": [
+                    "product_id", "name", "category_id", "price",
+                    "stock_quantity"],
+            }[name]
+            if header != expected:
+                lib.fail(f"{name} header is {header}, expected {expected}")
 
 
 CHECKS = (
