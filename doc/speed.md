@@ -2,7 +2,46 @@
 
 This page records measurements and the ideas they suggest. Some ideas are implemented and measured; each section says which. Figures marked *measured* come from the server's own timings or a wall-clock run; figures marked *estimate* are guesses to be checked before anyone relies on them.
 
+## ESUS vs direct GPT-6 Luna (2026-11-10)
+
+This is an end-to-end comparison, not a model leaderboard. ESUS ran Qwen3-4B through `llama-server` with one slot; the direct runs were one subagent per prompt using **GPT-6 Luna** through OpenCode Go (`opencode-go/gpt-6-luna`), with the prompt file as the only specification. The direct agents had no ESUS documents or contracts and also wrote their own smoke tests and compliance notes.
+
+Both columns are wall-clock seconds. ESUS times include extraction and generation, plus the one repair pass noted below, but exclude human review time. The review decisions used here were the preserved fixtures at `HEAD:backup/review-inputs-2026-11-10` (the working-tree `backup/` directory has since been removed). The direct times include the agent reading the prompt, writing the application, writing its tests and running them. Hello had run first; the six substantive direct agents then ran concurrently, so the per-prompt times are individual measurements, not a sequential total.
+
+| Prompt | ESUS wall | GPT-6 Luna wall | ESUS / direct | ESUS acceptance | Direct runtime / quality |
+| --- | ---: | ---: | ---: | --- | --- |
+| Hello world | 14.3 s | 40.1 s | 0.36× | 1/1 | Same acceptance 1/1; runs on Python 3.12 |
+| CSV → JSON CLI | 39.8 s* | 78.2 s | 0.51× | 1/1 | Same acceptance 1/1; runs on Python 3.12 |
+| Inventory | 238.7 s | 172.5 s | 1.38× | 8/8 | 2/2 own tests and CLI smoke; runs on Python 3.12 |
+| Wine GUI | 272.3 s | 178.1 s | 1.53× | 11/11 | 3/3 service tests on 3.12; real one-frame launch fails |
+| Small business (`60`) | 791.9 s | 198.4 s | 3.99× | 10/10 | 3/3 own tests and CLI lifecycle; runs on Python 3.12 |
+| Expenses | 471.3 s† | 222.1 s | 2.12× | 15/16, then 16/16 after repair | 3/3 own tests on 3.14; fails to import on 3.12 |
+| Library | 300.1 s‡ | 255.3 s | 1.18× | 18/18 | 5/5 own tests on 3.14; fails to import on 3.12 |
+
+A ratio below 1 means ESUS was faster.
+
+\* 24.4 s extraction plus 15.4 s generation after answering the CSV classifier tie.  
+† 446.5 s first pass plus one 24.8 s Qwen repair pass that filled the remaining `export_to_csv` stub.  
+‡ 232.9 s extraction plus 67.2 s generation; the library extraction also needed two tie answers and a dropped `overdue --overdue` flag before generation.
+
+For scale, the sum of the seven ESUS times is **2,128 s (35m 28s)** and the sum of the seven direct times is **1,145 s (19m 05s)**, a ratio of **1.86×**. From the first direct start to the last direct finish was about **7m 56s**; the six non-hello agents overlapped. The ESUS runs shared one llama.cpp slot and ran one after another.
+
+### What the quality checks showed
+
+- **ESUS was behaviourally complete after review/repair.** All seven ESUS outputs passed their prompt-specific external acceptance suites: 1 + 1 + 8 + 11 + 10 + 16 + 18 = **65 checks**. The only acceptance failure seen in a first pass was the expenses CSV export, which was a documented `NotImplementedError` stub; one Qwen repair pass, with no hand-editing, made it pass.
+- **Direct GPT-6 Luna was usually compliant and often concise.** Hello, CSV, inventory and `60` ran on the required Python 3.12 and passed their own tests or a CLI lifecycle check. The inventory and `60` implementations were substantially smaller and easier to inspect than the ESUS outputs.
+- **Two direct outputs were not runnable on the required Python 3.12.** The expenses and library packages fail at import with `TypeError: 'function' object is not subscriptable`. A class method named `list` shadows the built-in in the class body, and annotations such as `list[Expense]` are evaluated at class-definition time on 3.12. They pass on Python 3.14, whose deferred annotations avoid the problem. A `from __future__ import annotations` or equivalent would be enough, but the delivered code does not have it.
+- **The direct GUI does not reach a real frame here.** Its service tests pass, but Python 3.12 with the installed PyImgui/GLFW raises `OpenGL.error.GLError: err = 1282` inside `GlfwRenderer`. The ESUS GUI ran a real imgui/GLFW frame in the same environment and passed its real-launch check.
+- **The direct checks were not the ESUS acceptance suites.** Except for hello and CSV, the direct package layouts are not compatible with the ESUS harnesses, so the table reports their own tests plus targeted CLI/service checks. ESUS's acceptance scripts are external and prompt-specific; the direct subagents wrote their own tests. That is a real limitation of this comparison.
+- **ESUS pays a large extraction cost on `60`.** The split command surface produced 23 extraction steps and 24,499 generated tokens; the adapter step first hit its 3,584-token ceiling and was retried with a 15,056-token ceiling. That single prompt accounts for 791.9 s of the 2,128 s ESUS total. The direct implementation took 198.4 s and passed its own lifecycle tests.
+
+The practical conclusion is not “one system writes better code”. It is that the direct one-shot path is faster and often surprisingly complete, while ESUS buys its acceptance coverage with much more model work and still needs a repair pass when a provisional body is wrong. A cheap runtime gate for the target Python version and a real GUI launch would have caught every direct failure above before delivery.
+
+Raw runs are on disk but ignored by git: `out/esus_bench/<name>/` has the ESUS logs and acceptance output, and `out/chatgpt_compare/<name>/` has the direct project, `TIMING.json`, smoke results and `COMPLIANCE.md`. The direct `TIMING.json` files are the source of the direct wall times. ESUS acceptance commands are the `tests/e2e_*_acceptance.py` scripts with the corresponding directory.
+
 ## What was measured
+
+This section is the earlier **2026-11-09** library deep-dive; it is not the end-to-end benchmark above.
 
 One clean run of the library prompt (`prompts/prompt_library_system.txt`), on an Apple M1 Pro with 16 GB, Qwen3-4B-Instruct Q4_K_M through `llama-server` with one slot, 16,384 context, the Metal GPU and flash attention. The numbers come from the `print_timing` lines of the server log.
 
