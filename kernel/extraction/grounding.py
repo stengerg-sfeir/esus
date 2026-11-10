@@ -19,7 +19,7 @@ from kernel import codegen
 # method with one of these still needs an object token from the requirements.
 GENERIC_VERBS = frozenset({
     "get", "list", "read", "create", "update", "delete", "add", "remove",
-    "set", "find", "fetch", "search",
+    "set", "find", "fetch", "check", "validate", "verify",
 })
 
 # Small synonym groups for matching intentions such as "confirming" or
@@ -123,20 +123,22 @@ def _missing_capabilities(intentions, services):
         if isinstance(method, dict)
     ))
     checks = (
-        ("confirm", ("confirm",)),
-        ("cancel", ("cancel",)),
-        ("ship", ("ship",)),
-        ("borrow", ("borrow",)),
-        ("return", ("return",)),
-        ("renew", ("renew",)),
-        ("search", ("search", "find")),
-        ("export", ("export",)),
+        ("confirm", ("confirm",), ("order", "status")),
+        ("cancel", ("cancel",), ("order", "status")),
+        ("ship", ("ship",), ("order", "status")),
+        ("borrow", ("borrow",), ("loan", "book", "member")),
+        ("return", ("return",), ("loan", "book", "member")),
+        ("renew", ("renew",), ("loan", "book", "member")),
+        ("search", ("search", "find"), ()),
+        ("export", ("export",), ()),
     )
     missing = []
     for intention in intentions or ():
         flat = _flat(intention)
-        for label, stems in checks:
+        for label, stems, domain_words in checks:
             if _stem(label) not in flat:
+                continue
+            if domain_words and not any(word in flat for word in domain_words):
                 continue
             if not any(_stem(stem) in method_text for stem in stems):
                 missing.append({

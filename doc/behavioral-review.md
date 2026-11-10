@@ -52,6 +52,22 @@ After restoration, the seven acceptance suites pass: hello 1/1, CLI tool 1/1,
 inventory all six printed groups, GUI 11/11, `60` 10/10, expenses 14/14, library
 18/18.  The unit suite passes 1,071 tests.
 
+### Grounding check results
+
+`review_grounding.py` now reports the effective service surface:
+
+- inventory: clean;
+- expenses: clean;
+- library: clean;
+- `60`: clean after the reviewed `ExportService` decision;
+- GUI: four review candidates remain because no drop decision was applied:
+  `confirm_order`, `cancel_order`, `search_wines_by_name`,
+  `export_inventory_to_csv`.  The GUI prompt does not mention those
+  capabilities, but the current GUI output is left unchanged deliberately.
+
+The report is advisory.  Only `60` has a `grounding_decisions.json`; other
+prompts keep their current generated behavior.
+
 Remaining residuals are limited to non-prompt surface and one ambiguous
 aggregate rule:
 

@@ -47,7 +47,31 @@ def main(argv=None):
     services = _read(os.path.join(args.out_dir, "service_contracts.json"), {})
     if isinstance(services, dict):
         services = services.get("service_contracts") or []
-    report = grounding.report(requirements, intentions, services)
+    decisions = _read(os.path.join(args.out_dir, "grounding_decisions.json"), {})
+    drop_services = {grounding._flat(name) for name in
+                     decisions.get("drop_services") or []}
+    drop_methods = {(grounding._flat(item.get("holder") or ""),
+                     grounding._flat(item.get("method") or ""))
+                    for item in decisions.get("drop_methods") or []
+                    if isinstance(item, dict)}
+    effective = []
+    for service in services:
+        holder = grounding._flat(service.get("service_name") or "")
+        if holder in drop_services:
+            continue
+        methods = [method for method in service.get("methods") or []
+                   if isinstance(method, dict)
+                   and (holder, grounding._flat(method.get("name") or ""))
+                   not in drop_methods]
+        if methods:
+            service = dict(service)
+            service["methods"] = methods
+            effective.append(service)
+    report = grounding.report(requirements, intentions, effective)
+    report["applied_decisions"] = {
+        "drop_services": sorted(drop_services),
+        "drop_methods": sorted(".".join(item) for item in drop_methods),
+    }
     text = json.dumps(report, indent=2, ensure_ascii=False) + "\n"
     print(text, end="")
     if args.write_report:

@@ -1,0 +1,47 @@
+{
+  "extra_methods": [
+    {
+      "holder": "WineInventoryService",
+      "method": "confirm_order",
+      "reason": "no requirement/intention evidence for verb `confirm`"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "cancel_order",
+      "reason": "no requirement/intention evidence for verb `cancel`"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "check_storage_location_capacity",
+      "reason": "no requirement/intention evidence for verb `check`"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "export_inventory_to_csv",
+      "reason": "no requirement/intention evidence for verb `export`"
+    }
+  ],
+  "missing_capabilities": [],
+  "suggested_decisions": {
+    "drop_services": [],
+    "drop_methods": [
+      {
+        "holder": "WineInventoryService",
+        "method": "confirm_order"
+      },
+      {
+        "holder": "WineInventoryService",
+        "method": "cancel_order"
+      },
+      {
+        "holder": "WineInventoryService",
+        "method": "check_storage_location_capacity"
+      },
+      {
+        "holder": "WineInventoryService",
+        "method": "export_inventory_to_csv"
+      }
+    ],
+    "drop_command_verbs": []
+  }
+}

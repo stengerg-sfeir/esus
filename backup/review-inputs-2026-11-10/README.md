@@ -26,8 +26,8 @@ All review decisions copied here are assistant-filled
 
 ## Grounding
 
-The `60` directory preserves `grounding_decisions.json` and
-`grounding_report.json`. The report identifies `ExportService` as ungrounded;
+Each directory preserves its `grounding_report.json`. The `60` directory also
+preserves `grounding_decisions.json`. That report identifies `ExportService` as ungrounded;
 the decision drops that service, its adapters and the `export` CLI verbs before
 generation. Standard `read_<entity>_by_id` wrappers stay and are generated
 mechanically.
