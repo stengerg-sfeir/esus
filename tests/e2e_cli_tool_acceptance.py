@@ -106,6 +106,8 @@ def main(argv):
         fail("a missing input file returned success")
     if not (missing.stdout + missing.stderr).strip():
         fail("a missing input file produced no error message")
+    if "Traceback (most recent call last)" in (missing.stdout + missing.stderr):
+        fail("a missing input file produced a traceback instead of a clean error")
 
     malformed = tmp / "malformed.csv"
     malformed.write_bytes(b"\xff\xfe\x00\x01not text")
@@ -114,6 +116,8 @@ def main(argv):
         fail("malformed CSV returned success")
     if not (bad.stdout + bad.stderr).strip():
         fail("malformed CSV produced no error message")
+    if "Traceback (most recent call last)" in (bad.stdout + bad.stderr):
+        fail("malformed CSV produced a traceback instead of a clean error")
 
     print("PASS: dynamic headers, stdout JSON, optional output file, missing "
           "file and malformed CSV are handled")

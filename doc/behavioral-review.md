@@ -17,12 +17,58 @@ probes cover reported branches, not every possible input.
 
 ## Verdict
 
-The mechanical CRUD and the tested acceptance paths work.  **The generated
-programs are not fully prompt-compliant.**  Several provisional bodies have
-concrete behavioral defects outside their acceptance coverage, and the GUI
-program does not persist data or run a usable GUI.
+The mechanical CRUD and the tested acceptance paths work.  At the time of the
+original review, **the generated programs were not fully prompt-compliant.**
+The prompt-affecting findings have since been remediated through generic
+generator mechanisms and reviewed declarative programs; see *Remediation
+status* below.  Residual items are limited to extra methods the prompts do not
+require, plus filesystem-error wording on export extras.
+
+## Remediation status (2026-11-10)
+
+All prompt-affecting findings below were fixed in the generated outputs and
+covered by acceptance or targeted unit tests:
+
+- **CSV-to-JSON:** the fallback's `__main__` guard now converts an uncaught
+  expected failure into one `error: ...` line and a nonzero exit; the missing
+  file path is checked for the absence of a traceback.
+- **Inventory:** low-stock repository lookup, `list_products(..., False)`,
+  `update_product(id, None)`, negative restock, empty-category aggregates,
+  and required-field validation now behave as specified.  The inventory
+  acceptance suite exercises each case.
+- **GUI:** `build_gui()` uses `Store(DEFAULT_DB, SCHEMA)` and keys repositories
+  by repository class, so the running GUI persists and its service wiring can
+  find the repositories.  Cancel releases stock, name search is substring,
+  capacity checks count bottles, pricing partials are validated, summaries use
+  bottle counts and percentages, capacity shrink is guarded, and assigning a
+  missing/`None` location is refused.  The GUI acceptance suite now includes
+  the capacity-shrink path; `build_gui` persistence was also probed directly.
+- **Library:** `return_book` checks both `return_date` and `status`;
+  `find_overdue_loans` uses the stated date rule; and the CLI search route now
+  reaches `LibraryService.search_books`.  Acceptance covers the status-only
+  returned edge.
+- **Expenses:** date-range top categories, monthly/yearly grouped aggregates,
+  cumulative budget checks, monthly budget status, yearly category totals,
+  and `detect_recurring` returning updated records are fixed and tested.
+- **60:** customer invoice lookup selects invoices by `order_id`;
+  zero-count order statuses are reported; and the invoice/status paths are
+  checked explicitly.
+
+Review-sidecar authorship now says `decided_by: "assistant"` for the reviewed
+programs and the `60` contracts supplied by the assistant.
+
+Remaining non-prompt residuals: the GUI CLI still has no bindings because the
+GUI prompt declares no CLI surface; export extras in the GUI, expenses and
+`60` outputs still surface raw filesystem errors on an invalid path; `60`'s
+optional `read_customer_by_id` has an ambiguous `None` contract; and the GUI
+event loop is still not launched by acceptance (structure and `build_gui`
+wiring are checked instead).
 
 ## Findings
+
+> The findings below are the original review record, kept for audit.  See
+> *Remediation status* above for which prompt-affecting items were fixed.
+
 
 ### Hello world
 
@@ -141,24 +187,20 @@ defects:
 
 ## Acceptance coverage gaps
 
-- GUI: only static structure; no event loop, no GUI CRUD, no persistence.
-- Inventory: negative restock/update, `list_products(..., False)`, direct
-  low-stock repository use, empty-category aggregates, missing-field service
-  calls and category update/delete are untested.
-- GUI: search, summary, capacity-check method, pricing partials, order
-  confirm/cancel, update/delete edge cases, export paths and all CLI commands.
-- Expenses: top-category date ranges, monthly budget status with multiple
-  expenses, yearly category aggregation, stale returned records and export
-  error paths.
-- 60: report zero-statuses, customer invoice repository path, exports,
-  category delete/read and several finder combinations.
-- Library: status-only returned loans, overdue with null return date, inactive
-  borrower policy and the service-level search path.
+The remediation closed the prompt-level gaps listed here for inventory, GUI
+capacity/assignment, library returned/overdue edges, expenses date and budget
+aggregates, `60` invoice/status lookup, and the CSV fallback error boundary.
+What remains uncovered is mostly extra surface the prompts do not require:
+the GUI event loop itself, GUI CLI commands, export error paths, category
+delete/finder combinations in `60`, and inactive-borrower policy in the library.
 
 ## Conclusion
 
-Do not describe the generated code as fully compliant or fully verified.  The
-acceptance tests establish that the covered scenarios run.  The defects above
-show that the provisional bodies and the GUI do not yet satisfy all explicit
-prompt requirements.  They should be fixed or covered by new behavioral tests
-before claiming production readiness.
+The generated programs should no longer be described as fully compliant just
+because acceptance is green; the tests now cover the previously reported
+prompt-affecting defects, but they are still finite probes.  The prompts'
+explicit behaviors are covered by the remediated outputs and the expanded
+suites: seven acceptance suites pass (hello 1/1, CLI tool 1/1, inventory all six
+printed groups, GUI 9/9, `60` 9/9, expenses 14/14, library 18/18) and the unit
+suite passes 1,069 tests.  Residual extras and export error wording remain
+documented rather than claimed as production-complete.

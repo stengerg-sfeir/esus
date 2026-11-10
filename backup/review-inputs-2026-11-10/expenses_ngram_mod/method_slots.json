@@ -1,0 +1,41 @@
+{
+  "slots": [
+    {
+      "holder": "ExpenseRepository",
+      "method": "get_monthly_spending_by_category",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "slots": {
+        "aggregate_func": "SUM",
+        "target_field": "amount_cents",
+        "date_field": "expense_date"
+      },
+      "decided_by": "user",
+      "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50"
+    },
+    {
+      "holder": "ExpenseRepository",
+      "method": "get_yearly_spending_summary",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "slots": {
+        "aggregate_func": "SUM",
+        "target_field": "amount_cents",
+        "date_field": "expense_date"
+      },
+      "decided_by": "user",
+      "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50"
+    },
+    {
+      "holder": "BudgetRepository",
+      "method": "check_budget_exceeded",
+      "pattern": "BUDGET_OVERFLOW_GUARD",
+      "slots": {
+        "spend_entity": "Expense",
+        "limit_field": "amount_limit_cents",
+        "target_field": "amount_cents",
+        "date_field": "expense_date"
+      },
+      "decided_by": "user",
+      "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50"
+    }
+  ]
+}

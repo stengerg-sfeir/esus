@@ -1445,6 +1445,26 @@ def check_customer_lists(fx):
         if found != expected:
             lib.fail(f"{source} returned {entity} ids {found} for customer "
                      f"{customer}; expected {expected}")
+    customer_repo = deps["repos"].get("CustomerRepository")
+    if callable(getattr(customer_repo, "find_invoices_by_customer_id", None)):
+        direct = customer_repo.find_invoices_by_customer_id(customer_a)
+        found = ids_of(direct, state["invoice_pk"])
+        if found != {invoice_a}:
+            lib.fail(f"CustomerRepository.find_invoices_by_customer_id "
+                     f"returned {found}; expected {{invoice_a}}")
+    report_service = deps["services"].get("ReportService")
+    if callable(getattr(report_service, "get_order_status_report", None)):
+        report = report_service.get_order_status_report()
+        orders = deps["repos"]["OrderRepository"].read_all()
+        expected_counts = {"pending": 0, "confirmed": 0, "shipped": 0,
+                           "cancelled": 0}
+        for order in orders:
+            if order.status in expected_counts:
+                expected_counts[order.status] += 1
+        for status, count in expected_counts.items():
+            if report.get(status) != count:
+                lib.fail(f"order status report must include {status!r} "
+                         f"with count {count}: {report}")
 
 
 def check_cancel_releases_stock(fx):

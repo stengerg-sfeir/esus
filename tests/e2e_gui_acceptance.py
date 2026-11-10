@@ -1082,9 +1082,13 @@ def check_gui_structure(package):
     for needle in (
             "import imgui", "import glfw", "GlfwRenderer", "def build_gui",
             "while not glfw.window_should_close", "imgui.new_frame()",
-            "imgui.render()", "glfw.swap_buffers", "PANELS"):
+            "imgui.render()", "glfw.swap_buffers", "PANELS",
+            "from schema import SCHEMA", "Store(DEFAULT_DB, SCHEMA)",
+            "repos[panel['repo']]"):
         if needle not in source:
             fail(f"gui.py does not contain {needle!r}")
+    if "repos[panel['entity']]" in source:
+        fail("gui.py indexes repositories by entity instead of repository class")
     return (f"PANELS expose {wine_panel['entity']} and "
             f"{storage_panel['entity']}; imgui/glfw frame loop present")
 
@@ -1417,6 +1421,29 @@ def check_location_deletion_guard(package):
             f"deleted the empty one")
 
 
+def check_location_capacity_shrink(package):
+    """Shrinking a location below its assigned stock is refused."""
+    database = package.scratch("shrink")
+    with App(package, database) as app:
+        location = create_location(
+            app, capacity=10, zone="Shrink Cellar", row=1, shelf=1)
+        create_wine(
+            app, location, name="Shrink Wine", cost=10, selling=20, stock=4)
+        rejection = expect_rejected(
+            app, "StorageLocation", "update",
+            {app.location.id: location, app.location.capacity: 2},
+            "capacity", "a capacity below the assigned stock")
+        stored = read_by_id(app, "StorageLocation", location)
+        if numeric(stored, app.location.capacity, "stored capacity") != 10:
+            fail(f"a refused shrink changed the capacity: {stored}")
+        update_entity(app, "StorageLocation", location,
+                      {app.location.capacity: 20})
+        stored = read_by_id(app, "StorageLocation", location)
+        if numeric(stored, app.location.capacity, "grown capacity") != 20:
+            fail(f"a valid capacity increase was not persisted: {stored}")
+    return f"refused a shrink below assigned stock ({rejection})"
+
+
 CHECKS = (
     ("GUI panels and pyimgui render loop", check_gui_structure),
     ("location/wine creation, update and persistence",
@@ -1428,6 +1455,8 @@ CHECKS = (
     ("storage location capacity", check_location_capacity),
     ("occupied location cannot be deleted",
      check_location_deletion_guard),
+    ("shrinking an occupied location is refused",
+     check_location_capacity_shrink),
 )
 
 

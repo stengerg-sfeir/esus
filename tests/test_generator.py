@@ -242,6 +242,20 @@ class DegenerateFallbackTests(unittest.TestCase):
         self.assertIn("Convert CSV to JSON.", prompt)
         self.assertIn("MalformedCSVError(ValueError): bad csv", prompt)
         self.assertIn("ONLY Python code", prompt)
+        self.assertIn("Never let an expected error escape", prompt)
+
+    def test_the_fallback_guard_turns_an_expected_failure_into_a_message(self):
+        """A path check outside main's try must not print a traceback."""
+        code = ('def main():\n'
+                '    raise OSError("missing.csv")\n\n\n'
+                'if __name__ == "__main__":\n'
+                '    main()\n')
+        bounded = generator._clean_error_boundary(code)
+        self.assertIn("except Exception as error:", bounded)
+        self.assertIn('print(f"error: {error}", file=sys.stderr)', bounded)
+        self.assertNotIn('if __name__ == "__main__":\n    main()', bounded)
+        compile(bounded, "app.py", "exec")
+
 
     def test_prompt_without_errors_has_no_error_section(self):
         self.assertNotIn("Registered application errors",
@@ -3712,6 +3726,10 @@ class GuiBackendTests(unittest.TestCase):
         self.assertIn("set_next_window_size", text)
         self.assertIn("records:", text)
         self.assertNotIn("Reload", text)
+        self.assertIn("from schema import SCHEMA", text)
+        self.assertIn("Store(DEFAULT_DB, SCHEMA)", text)
+        self.assertIn("repos[panel['repo']]", text)
+        self.assertNotIn("repos[panel['entity']]", text)
         for name in ("Wine", "WineRepository", "create_wine",
                      "read_all_wines", "update_wine", "delete_wine"):
             self.assertIn(name, text)
@@ -3781,10 +3799,12 @@ class GuiBackendTests(unittest.TestCase):
             mods = {}
             for name in ("imgui", "glfw", "OpenGL", "OpenGL.GL",
                          "imgui.integrations", "imgui.integrations.glfw",
-                         "models", "errors", "store", "repositories"):
+                         "models", "errors", "schema", "store",
+                         "repositories"):
                 mods[name] = types.ModuleType(name)
             mods["imgui.integrations.glfw"].GlfwRenderer = object
             mods["models"].Widget = lambda **kw: kw
+            mods["schema"].SCHEMA = {}
             mods["store"].Store = object
             mods["repositories"].WidgetRepository = FakeRepo
             return mods
@@ -4389,6 +4409,102 @@ class ServiceProgramTests(unittest.TestCase):
             {"op": "check", "condition": "item.status ==", "error": "ValueError"}
         ]}
         self.assertIsNone(generator._program_body(ctx, program))
+
+    def test_programs_can_branch_append_and_index(self):
+        ctx = {"errors": []}
+        program = {"steps": [
+            {"op": "assign", "name": "out", "expr": "[]"},
+            {"op": "for_each", "collection": "items", "as": "item",
+             "steps": [
+                 {"op": "if", "condition": "item.ok",
+                  "steps": [{"op": "append", "name": "out", "expr": "item"}],
+                  "else": [{"op": "set", "name": "out", "key": "0",
+                            "value": "item"}]},
+             ]},
+            {"op": "return", "expr": "out"},
+        ]}
+        lines = generator._program_body(ctx, program)
+        text = "\n".join(lines)
+        self.assertIn("if item.ok:", text)
+        self.assertIn("out.append(item)", text)
+        self.assertIn("out[0] = item", text)
+        self.assertIn("return out", text)
+
+    def test_query_accepts_keyword_arguments(self):
+        ctx = {"errors": []}
+        program = {"steps": [
+            {"op": "query", "repo": "ItemRepository", "method": "read_all",
+             "kwargs": {"status": "status"}, "as": "items"},
+        ]}
+        text = "\n".join(generator._program_body(ctx, program))
+        self.assertIn("read_all(status=status)", text)
+
+    def test_update_can_bind_the_returned_record(self):
+        ctx = {"errors": []}
+        program = {"steps": [
+            {"op": "update", "repo": "ItemRepository", "method": "update",
+             "args": ["item.id"], "fields": {"status": "'closed'"},
+             "as": "updated"},
+            {"op": "return", "expr": "updated"},
+        ]}
+        text = "\n".join(generator._program_body(ctx, program))
+        self.assertIn("updated = self._repos['ItemRepository'].update", text)
+        self.assertIn("status='closed'", text)
+
+
+class RepositoryProgramTests(unittest.TestCase):
+    def ctx(self):
+        return {
+            "models": [
+                {"name": "Product", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "category_id", "type": "int"},
+                    {"name": "stock_qty", "type": "int"}]},
+                {"name": "Category", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True},
+                    {"name": "reorder_threshold", "type": "int"}]},
+            ],
+            "errors": [{"name": "CategoryNotFoundError"}],
+            "mappings": {},
+        }
+
+    def test_a_repository_program_selects_rows_and_returns_models(self):
+        program = {"steps": [
+            {"op": "select", "as": "products"},
+            {"op": "assign", "name": "result", "expr": "[]"},
+            {"op": "for_each", "collection": "products", "as": "product",
+             "steps": [
+                 {"op": "if", "condition": "product.get('stock_qty') == 0",
+                  "steps": [{"op": "append", "name": "result",
+                             "expr": "product"}]},
+             ]},
+            {"op": "return",
+             "expr": "[models.Product(**row) for row in result]"},
+        ]}
+        body = generator._repo_program_body(self.ctx(), program, "Product")
+        text = "\n".join(body)
+        self.assertIn("self._store.select(self.ENTITY, [])", text)
+        self.assertIn("models.Product(**row) for row in result", text)
+        compile("def _body(self):\n" + "\n".join(
+            "    " + line for line in body), "repository_program", "exec")
+
+    def test_a_repository_program_can_get_by_primary_key(self):
+        program = {"steps": [
+            {"op": "get", "entity": "Category", "key": "category_id",
+             "as": "category", "error": "CategoryNotFoundError"},
+            {"op": "return", "expr": "category"},
+        ]}
+        body = generator._repo_program_body(self.ctx(), program, "Product")
+        text = "\n".join(body)
+        self.assertIn(
+            "self._store.get('Category', 'id', category_id, "
+            "error=errors.CategoryNotFoundError)", text)
+
+    def test_unknown_repository_operation_is_refused(self):
+        program = {"steps": [{"op": "delete", "entity": "Product"}]}
+        self.assertIsNone(
+            generator._repo_program_body(self.ctx(), program, "Product"))
+
 
 
 if __name__ == "__main__":

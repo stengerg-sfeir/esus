@@ -1,0 +1,196 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderService",
+      "method": "create_order",
+      "decided_by": "assistant",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "creates": [
+        {
+          "class": "Order",
+          "call": "OrderRepository.create"
+        }
+      ]
+    },
+    {
+      "holder": "ProductService",
+      "method": "add_product",
+      "decided_by": "assistant",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "creates": [
+        {
+          "class": "Product",
+          "call": "ProductRepository.create"
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "category exists",
+          "error": "CategoryNotFoundError",
+          "raise_when": "false"
+        }
+      ]
+    },
+    {
+      "holder": "CategoryService",
+      "method": "add_category",
+      "decided_by": "assistant",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "creates": [
+        {
+          "class": "Category",
+          "call": "CategoryRepository.create"
+        }
+      ]
+    },
+    {
+      "holder": "CustomerService",
+      "method": "create_customer",
+      "decided_by": "assistant",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "creates": [
+        {
+          "class": "Customer",
+          "call": "CustomerRepository.create"
+        }
+      ]
+    },
+    {
+      "holder": "ProductRepository",
+      "method": "get_product_by_category_and_name",
+      "decided_by": "assistant",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "reads": [
+        {
+          "entity": "Category",
+          "field": "name",
+          "repository": "CategoryRepository",
+          "via": "Product.category_id"
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "confirm_order",
+      "decided_by": "assistant",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "write": "OrderRepository.update",
+          "value": "confirmed"
+        },
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "item.quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "creates": [
+        {
+          "class": "Invoice",
+          "call": "InvoiceRepository.create"
+        }
+      ],
+      "reads": [
+        {
+          "entity": "OrderItem",
+          "field": "quantity",
+          "via": "Order.order_id",
+          "repository": "OrderItemRepository"
+        }
+      ],
+      "derives": [],
+      "preconditions": [
+        {
+          "check": "order.status in ('confirmed', 'shipped')",
+          "error": "OrderAlreadyConfirmedError",
+          "raise_when": "true"
+        }
+      ],
+      "order": [
+        "preconditions",
+        "InvoiceRepository.create",
+        "OrderRepository.update",
+        "ProductRepository.update"
+      ],
+      "forbid": [],
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+    },
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "decided_by": "assistant",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "write": "OrderRepository.update",
+          "value": "cancelled"
+        },
+        {
+          "target": "product.stock_quantity",
+          "op": "increment",
+          "by": "item.quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "creates": [],
+      "reads": [
+        {
+          "entity": "OrderItem",
+          "field": "quantity",
+          "via": "Order.order_id",
+          "repository": "OrderItemRepository"
+        }
+      ],
+      "derives": [],
+      "preconditions": [
+        {
+          "check": "order.status != 'confirmed'",
+          "error": "OrderCannotBeCancelledError",
+          "raise_when": "true"
+        },
+        {
+          "check": "order.status == 'shipped'",
+          "error": "OrderCannotBeCancelledAfterShipmentError",
+          "raise_when": "true"
+        }
+      ],
+      "order": [
+        "preconditions",
+        "ProductRepository.update",
+        "OrderRepository.update"
+      ],
+      "forbid": [],
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+    },
+    {
+      "holder": "OrderService",
+      "method": "ship_order",
+      "decided_by": "assistant",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "write": "OrderRepository.update",
+          "value": "shipped"
+        }
+      ],
+      "creates": [],
+      "reads": [],
+      "derives": [],
+      "preconditions": [
+        {
+          "check": "order.status != 'confirmed'",
+          "error": "OrderCannotBeShippedError",
+          "raise_when": "true"
+        }
+      ],
+      "order": [],
+      "forbid": [],
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+    }
+  ]
+}

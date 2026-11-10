@@ -1,0 +1,364 @@
+{
+  "programs": [
+    {
+      "holder": "WineInventoryService",
+      "method": "cancel_order",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "WineRepository",
+          "method": "read_one",
+          "args": [
+            "wine_id"
+          ],
+          "as": "wine",
+          "error": "WineNotFoundError"
+        },
+        {
+          "op": "if",
+          "condition": "quantity is None or quantity <= 0",
+          "steps": [
+            {
+              "op": "return",
+              "expr": "False"
+            }
+          ]
+        },
+        {
+          "op": "check",
+          "condition": "wine.stock_quantity is None",
+          "error": "NegativeStockError",
+          "message": "stock quantity is not set"
+        },
+        {
+          "op": "update",
+          "repo": "WineRepository",
+          "method": "update",
+          "args": [
+            "wine.id"
+          ],
+          "fields": {
+            "stock_quantity": "wine.stock_quantity + quantity"
+          }
+        },
+        {
+          "op": "return",
+          "expr": "True"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "update_wine_stock",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "WineRepository",
+          "method": "read_one",
+          "args": [
+            "wine_id"
+          ],
+          "as": "wine",
+          "error": "WineNotFoundError"
+        },
+        {
+          "op": "check",
+          "condition": "new_stock_quantity is None or new_stock_quantity < 0",
+          "error": "NegativeStockError",
+          "message": "stock quantity cannot be negative"
+        },
+        {
+          "op": "update",
+          "repo": "WineRepository",
+          "method": "update",
+          "args": [
+            "wine.id"
+          ],
+          "fields": {
+            "stock_quantity": "new_stock_quantity"
+          }
+        },
+        {
+          "op": "return",
+          "expr": "True"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "validate_wine_pricing",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "WineRepository",
+          "method": "read_one",
+          "args": [
+            "wine_id"
+          ],
+          "as": "wine",
+          "error": "WineNotFoundError"
+        },
+        {
+          "op": "assign",
+          "name": "cost",
+          "expr": "cost_price if cost_price is not None else wine.cost_price"
+        },
+        {
+          "op": "assign",
+          "name": "selling",
+          "expr": "selling_price if selling_price is not None else wine.selling_price"
+        },
+        {
+          "op": "check",
+          "condition": "cost is not None and selling is not None and selling <= cost",
+          "error": "InvalidPricingException",
+          "message": "selling price must be strictly greater than cost price"
+        },
+        {
+          "op": "return",
+          "expr": "True"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "check_storage_location_capacity",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "StorageLocationRepository",
+          "method": "read_one",
+          "args": [
+            "location_id"
+          ],
+          "as": "location",
+          "error": "StorageLocationNotFoundError"
+        },
+        {
+          "op": "read",
+          "repo": "WineRepository",
+          "method": "read_one",
+          "args": [
+            "wine_id"
+          ],
+          "as": "wine",
+          "error": "WineNotFoundError"
+        },
+        {
+          "op": "assign",
+          "name": "used",
+          "expr": "0"
+        },
+        {
+          "op": "query",
+          "repo": "WineRepository",
+          "method": "read_all",
+          "kwargs": {
+            "storage_location_id": "location.id"
+          },
+          "as": "assigned"
+        },
+        {
+          "op": "for_each",
+          "collection": "assigned",
+          "as": "other",
+          "steps": [
+            {
+              "op": "add",
+              "name": "used",
+              "expr": "other.stock_quantity or 0"
+            }
+          ]
+        },
+        {
+          "op": "return",
+          "expr": "used + (wine.stock_quantity or 0) - ((wine.stock_quantity or 0) if wine.storage_location_id == location.id else 0) <= (location.maximum_capacity or 0)"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "search_wines_by_name",
+      "steps": [
+        {
+          "op": "query",
+          "repo": "WineRepository",
+          "method": "read_all",
+          "args": [],
+          "as": "wines"
+        },
+        {
+          "op": "if",
+          "condition": "name is None",
+          "steps": [
+            {
+              "op": "return",
+              "expr": "wines"
+            }
+          ]
+        },
+        {
+          "op": "assign",
+          "name": "result",
+          "expr": "[]"
+        },
+        {
+          "op": "for_each",
+          "collection": "wines",
+          "as": "wine",
+          "steps": [
+            {
+              "op": "if",
+              "condition": "(wine.name or '').lower().find(name.lower()) >= 0",
+              "steps": [
+                {
+                  "op": "append",
+                  "name": "result",
+                  "expr": "wine"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "return",
+          "expr": "result"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "get_storage_location_summary",
+      "steps": [
+        {
+          "op": "query",
+          "repo": "StorageLocationRepository",
+          "method": "read_all",
+          "args": [],
+          "as": "locations"
+        },
+        {
+          "op": "assign",
+          "name": "result",
+          "expr": "{}"
+        },
+        {
+          "op": "for_each",
+          "collection": "locations",
+          "as": "location",
+          "steps": [
+            {
+              "op": "query",
+              "repo": "WineRepository",
+              "method": "read_all",
+              "kwargs": {
+                "storage_location_id": "location.id"
+              },
+              "as": "wines"
+            },
+            {
+              "op": "assign",
+              "name": "assigned_count",
+              "expr": "0"
+            },
+            {
+              "op": "for_each",
+              "collection": "wines",
+              "as": "wine",
+              "steps": [
+                {
+                  "op": "add",
+                  "name": "assigned_count",
+                  "expr": "wine.stock_quantity or 0"
+                }
+              ]
+            },
+            {
+              "op": "assign",
+              "name": "capacity",
+              "expr": "location.maximum_capacity or 0"
+            },
+            {
+              "op": "assign",
+              "name": "remaining",
+              "expr": "capacity - assigned_count"
+            },
+            {
+              "op": "assign",
+              "name": "rate",
+              "expr": "(assigned_count * 100.0 / capacity) if capacity else 0.0"
+            },
+            {
+              "op": "set",
+              "name": "result",
+              "key": "location.id",
+              "value": "{'assigned_count': assigned_count, 'remaining_capacity': remaining, 'utilization_rate': rate, 'zone_name': location.zone_name, 'row_number': location.row_number, 'shelf_number': location.shelf_number}"
+            }
+          ]
+        },
+        {
+          "op": "return",
+          "expr": "result"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "StorageLocationRepository",
+      "method": "get_location_utilization_rate",
+      "steps": [
+        {
+          "op": "if",
+          "condition": "location_id is not None",
+          "steps": [
+            {
+              "op": "get",
+              "entity": "StorageLocation",
+              "key": "location_id",
+              "as": "location",
+              "error": "StorageLocationNotFoundError"
+            },
+            {
+              "op": "assign",
+              "name": "used",
+              "expr": "sum((row.get('stock_quantity') or 0) for row in self._store.select('Wine', [('storage_location_id', 'eq', location.get('id'))]))"
+            },
+            {
+              "op": "assign",
+              "name": "capacity",
+              "expr": "location.get('maximum_capacity') or 0"
+            },
+            {
+              "op": "return",
+              "expr": "(used * 100.0 / capacity) if capacity else 0.0"
+            }
+          ],
+          "else": [
+            {
+              "op": "assign",
+              "name": "used",
+              "expr": "sum((row.get('stock_quantity') or 0) for row in self._store.select('Wine', []))"
+            },
+            {
+              "op": "assign",
+              "name": "capacity",
+              "expr": "sum((row.get('maximum_capacity') or 0) for row in self._store.select('StorageLocation', []))"
+            },
+            {
+              "op": "return",
+              "expr": "(used * 100.0 / capacity) if capacity else 0.0"
+            }
+          ]
+        }
+      ],
+      "decided_by": "assistant"
+    }
+  ],
+  "schema": "method_programs/1",
+  "requirements_sha": "797396aa6da996f220987f5713e3e5fb3a1a89d1ab6e7a626d17c853eca87cba"
+}

@@ -1,0 +1,62 @@
+{
+  "programs": [
+    {
+      "holder": "LibraryService",
+      "method": "return_book",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "LoanRepository",
+          "method": "read_one",
+          "args": [
+            "loan_id"
+          ],
+          "as": "loan",
+          "error": "LoanNotFoundError"
+        },
+        {
+          "op": "check",
+          "condition": "loan.return_date is not None or str(loan.status or '').lower() == 'returned'",
+          "error": "AlreadyReturnedLoanError",
+          "message": "loan is already returned"
+        },
+        {
+          "op": "read",
+          "repo": "BookRepository",
+          "method": "read_one",
+          "args": [
+            "loan.book_id"
+          ],
+          "as": "book",
+          "error": "BookNotFoundError"
+        },
+        {
+          "op": "update",
+          "repo": "LoanRepository",
+          "method": "update",
+          "args": [
+            "loan.id"
+          ],
+          "fields": {
+            "return_date": "datetime.date.today()",
+            "status": "'returned'"
+          }
+        },
+        {
+          "op": "update",
+          "repo": "BookRepository",
+          "method": "update",
+          "args": [
+            "book.id"
+          ],
+          "fields": {
+            "available_copies": "(book.available_copies or 0) + 1"
+          }
+        }
+      ],
+      "decided_by": "assistant"
+    }
+  ],
+  "schema": "method_programs/1",
+  "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+}

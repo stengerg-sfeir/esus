@@ -1,0 +1,49 @@
+{
+  "slots": [
+    {
+      "holder": "MemberRepository",
+      "method": "find_active_members",
+      "pattern": "FILTER_CRITERION",
+      "slots": {
+        "criterion_field": "is_active",
+        "criterion_value": "True"
+      },
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+    },
+    {
+      "holder": "MemberRepository",
+      "method": "find_inactive_members",
+      "pattern": "FILTER_CRITERION",
+      "slots": {
+        "criterion_field": "is_active",
+        "criterion_value": "False"
+      },
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+    },
+    {
+      "holder": "LoanRepository",
+      "method": "find_overdue_loans",
+      "pattern": "THRESHOLD_SCAN",
+      "slots": {
+        "comparison_field": "due_date",
+        "operator": "<",
+        "threshold": "today"
+      },
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+    },
+    {
+      "holder": "LoanRepository",
+      "method": "find_active_loans",
+      "pattern": "FILTER_CRITERION",
+      "slots": {
+        "criterion_field": "status",
+        "criterion_value": "active"
+      },
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+    }
+  ]
+}

@@ -189,8 +189,10 @@ def main(argv):
     deps = generated_deps(out_dir, database)
     repos, services = deps["repos"], deps["services"]
     add_product = find_service(services, "add_product")
+    update_product = find_service(services, "update_product")
     list_products = find_service(services, "list_products")
     low_stock = find_service(services, "low_stock_report")
+    restock = find_service(services, "restock")
     stock_value = find_service(services, "stock_value_by_category")
     try:
         add_product(sku="P-1", name="Duplicate", category_id=parts["id"],
@@ -220,6 +222,35 @@ def main(argv):
     value = stock_value()
     if not value:
         fail("stock_value_by_category returned no values")
+    if {item.sku for item in list_products(None, False)} != {"P-1", "T-1", "T-2"}:
+        fail("list_products(..., False) must return every product")
+    try:
+        restock(bolt["id"], -5)
+    except Exception as error:  # noqa: BLE001 - the rule under test
+        if "Value" not in type(error).__name__ and "Negative" not in type(error).__name__:
+            fail(f"negative restock raised {type(error).__name__}, not a validation error")
+    else:
+        fail("restock accepted a negative quantity")
+    try:
+        update_product(bolt["id"], None)
+    except Exception as error:  # noqa: BLE001 - no data is a no-op
+        fail(f"update_product(id, None) raised {type(error).__name__}: {error}")
+    connection = sqlite3.connect(database)
+    current = rows_for(connection, product_table, id=bolt["id"])[0]
+    connection.close()
+    if current["stock_qty"] != 2 or current["name"] != "Long Bolt":
+        fail(f"update_product(id, None) changed the product: {current}")
+    empty = repos["CategoryRepository"].create(
+        name="Empty", description="nothing here", reorder_threshold=1)
+    repo_low = repos["ProductRepository"].find_low_stock_products()
+    if {item.sku for item in repo_low} != {"P-1"}:
+        fail(f"repository low-stock query returned {[item.sku for item in repo_low]}")
+    repo_values = repos["ProductRepository"].aggregate_stock_value_by_category()
+    service_values = stock_value()
+    if repo_values.get(empty.id, None) != 0 \
+            or service_values.get(empty.id, None) != 0:
+        fail(f"empty categories are missing from the stock value: {repo_values!r}, "
+             f"{service_values!r}")
     print("PASS  InventoryService validation, filters, and aggregates")
     deps["store"].close()
 

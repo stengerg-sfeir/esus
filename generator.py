@@ -842,6 +842,20 @@ def emit_repositories(ctx, stats):
             fname = codegen.sanitize(method["name"], "method")
             declaration, params = _signature(method, ctx["entity_names"])
             returns = _return_of(method, ctx["entity_names"])
+            program = (ctx.get("programs") or {}).get(
+                (holder, method["name"]))
+            if isinstance(program, dict):
+                program_body = _repo_program_body(ctx, program, entity)
+                if program_body is not None:
+                    lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                              f'        """{_docstring(method.get("description"))} '
+                              '[reviewed repository program]"""']
+                    lines.extend("        " + line if line else ""
+                                 for line in program_body)
+                    stats["implemented"] += 1
+                    _record(stats, holder, method["name"], strategy, True,
+                            "reviewed repository program")
+                    continue
             pattern, slots = _slot_pattern(ctx, holder, method)
             if pattern is not None and _slots_usable(pattern, slots, method, True):
                 field_types = {name: (field.get("type") or "")
@@ -1185,6 +1199,28 @@ def _capacity_relation(ctx, entity):
                      "ValueError")
         return fk_name, source_quantity, target, capacity, error
     return None
+
+
+def _capacity_targets(ctx, entity):
+    """The source relations whose capacity lives on `entity`.
+
+    Updating a capacity row is the reverse direction of `_capacity_relation`:
+    the wine side guards its own writes, but shrinking a location must also
+    look at the bottles already assigned to it.  Return one tuple per source
+    model that points at `entity`.
+    """
+    targets = []
+    for model in ctx.get("models") or []:
+        source = model.get("name") if isinstance(model, dict) else None
+        if not isinstance(source, str):
+            continue
+        relation = _capacity_relation(ctx, source)
+        if relation is None:
+            continue
+        fk, quantity, target, capacity, error = relation
+        if normalize(target) == normalize(entity):
+            targets.append((source, fk, quantity, capacity, error))
+    return targets
 
 
 def _in_use_relation(ctx, entity):
@@ -1591,6 +1627,18 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
             f"if row.get(self.PK) != found[0][self.PK])",
             f"    if used + quantity > location.get({capacity_field!r}, 0):",
             f"        raise {error}(f\"{target} capacity exceeded for {{location_id}}\")",
+        ]
+    for source, fk, quantity, capacity_field, error in _capacity_targets(
+            ctx, entity):
+        lines += [
+            f"new_capacity = patch.get({capacity_field!r})",
+            "if new_capacity is not None:",
+            f"    used = sum(row.get({quantity!r}) or 0 for row in "
+            f"self._store.select({source!r}, [({fk!r}, 'eq', "
+            f"found[0][self.PK])]))",
+            "    if used > new_capacity:",
+            f"        raise {error}(f\"{entity}.{capacity_field} capacity "
+            "below assigned quantity\")",
         ]
     unique_fields = _unique_fields(ctx, entity)
     if unique_fields:
@@ -2036,9 +2084,21 @@ def _program_steps(ctx, steps, indent=0):
         if op == "query":
             target = step.get("as")
             args = [_program_expr(arg) for arg in step.get("args") or []]
-            if any(arg is None for arg in args) or not isinstance(target, str):
+            kwargs = step.get("kwargs") or {}
+            if (any(arg is None for arg in args)
+                    or not isinstance(target, str)
+                    or not isinstance(kwargs, dict)):
                 return None
-            lines.append(f"{pad}{target} = {_program_call(repo, method, args)}")
+            rendered_kwargs = []
+            for key, value in kwargs.items():
+                expr = _program_expr(value)
+                if expr is None:
+                    return None
+                rendered_kwargs.append(
+                    f"{codegen.sanitize(key, 'kw')}={expr}")
+            call = (f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+                    f"({', '.join([*args, *rendered_kwargs])})")
+            lines.append(f"{pad}{target} = {call}")
             continue
         if op == "check":
             condition = _program_expr(step.get("condition"))
@@ -2074,10 +2134,45 @@ def _program_steps(ctx, steps, indent=0):
             lines.append(f"{pad}for {name} in {collection}:")
             lines.extend(nested or [f"{pad}    pass"])
             continue
+        if op == "if":
+            condition = _program_expr(step.get("condition"))
+            if condition is None:
+                return None
+            nested = _program_steps(ctx, step.get("steps") or [], indent + 4)
+            if nested is None:
+                return None
+            lines.append(f"{pad}if {condition}:")
+            lines.extend(nested or [f"{pad}    pass"])
+            alternative = step.get("else")
+            if alternative is not None:
+                otherwise = _program_steps(ctx, alternative or [], indent + 4)
+                if otherwise is None:
+                    return None
+                lines.append(f"{pad}else:")
+                lines.extend(otherwise or [f"{pad}    pass"])
+            continue
+        if op == "append":
+            name = step.get("name")
+            expr = _program_expr(step.get("expr"))
+            if not isinstance(name, str) or expr is None:
+                return None
+            lines.append(f"{pad}{name}.append({expr})")
+            continue
+        if op == "set":
+            name = step.get("name")
+            key = _program_expr(step.get("key"))
+            value = _program_expr(step.get("value"))
+            if not isinstance(name, str) or key is None or value is None:
+                return None
+            lines.append(f"{pad}{name}[{key}] = {value}")
+            continue
         if op == "update":
             args = [_program_expr(arg) for arg in step.get("args") or []]
             fields = step.get("fields") or {}
-            if any(arg is None for arg in args) or not isinstance(fields, dict):
+            target = step.get("as")
+            if (any(arg is None for arg in args)
+                    or not isinstance(fields, dict)
+                    or (target is not None and not isinstance(target, str))):
                 return None
             rendered_fields = []
             for key, value in fields.items():
@@ -2085,14 +2180,18 @@ def _program_steps(ctx, steps, indent=0):
                 if expr is None:
                     return None
                 rendered_fields.append(f"{codegen.sanitize(key, 'kw')}={expr}")
-            lines.append(
-                f"{pad}{_program_call(repo, method, args)}" if not rendered_fields
-                else f"{pad}self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+            call = (
+                f"{_program_call(repo, method, args)}" if not rendered_fields
+                else f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
                      f"({', '.join([*(_program_expr(arg) for arg in args or []), *rendered_fields])})")
+            lines.append(f"{pad}{target} = {call}" if target
+                         else f"{pad}{call}")
             continue
         if op == "create":
             fields = step.get("fields") or {}
-            if not isinstance(fields, dict):
+            target = step.get("as")
+            if not isinstance(fields, dict) or (
+                    target is not None and not isinstance(target, str)):
                 return None
             rendered = []
             for key, value in fields.items():
@@ -2100,9 +2199,11 @@ def _program_steps(ctx, steps, indent=0):
                 if expr is None:
                     return None
                 rendered.append(f"{codegen.sanitize(key, 'kw')}={expr}")
-            lines.append(
-                f"{pad}self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
+            call = (
+                f"self._repos[{repo!r}].{codegen.sanitize(method, 'method')}"
                 f"({', '.join(rendered)})")
+            lines.append(f"{pad}{target} = {call}" if target
+                         else f"{pad}{call}")
             continue
         if op == "call":
             args = [_program_expr(arg) for arg in step.get("args") or []]
@@ -2133,6 +2234,139 @@ def _program_body(ctx, program):
         "    " + line if line.strip() else "" for line in lines)
     try:
         compile(source, "service_program", "exec")
+    except SyntaxError:
+        return None
+    return lines
+
+
+def _repo_program_steps(ctx, steps, entity, indent=0):
+    """Lines for a reviewed declarative repository program, or None.
+
+    Repository programs are deliberately tiny: they can select rows, fetch a
+    row by key, and use the same `assign`/`if`/`for_each`/`append`/`return`
+    control flow as service programs.  They cannot mutate storage; a program
+    that needs a write is a service concern and stays there.
+    """
+    pad = " " * indent
+    lines = []
+    for step in steps or []:
+        if not isinstance(step, dict):
+            return None
+        op = str(step.get("op") or "").strip().lower()
+        if op == "select":
+            entity_ref = step.get("entity") or "self.ENTITY"
+            target = step.get("as")
+            criteria = step.get("criteria")
+            if not isinstance(entity_ref, str) or not isinstance(target, str):
+                return None
+            rendered_entity = ("self.ENTITY" if entity_ref == "self.ENTITY"
+                               else repr(entity_ref))
+            rendered_criteria = ("[]" if criteria is None
+                                 else _program_expr(criteria))
+            if rendered_criteria is None:
+                return None
+            lines.append(
+                f"{pad}{target} = self._store.select("
+                f"{rendered_entity}, {rendered_criteria})")
+            continue
+        if op == "get":
+            entity_ref = step.get("entity", entity)
+            target = step.get("as")
+            key = _program_expr(step.get("key"))
+            if (not isinstance(entity_ref, str) or not isinstance(target, str)
+                    or key is None):
+                return None
+            pk = primary_key_of(ctx, entity_ref)
+            error = step.get("error")
+            call = (f"self._store.get({entity_ref!r}, {pk!r}, {key}"
+                    + (f", error={_program_error(ctx, error)}"
+                       if error else "") + ")")
+            lines.append(f"{pad}{target} = {call}")
+            continue
+        if op == "assign":
+            name = step.get("name")
+            expr = _program_expr(step.get("expr"))
+            if not isinstance(name, str) or expr is None:
+                return None
+            lines.append(f"{pad}{name} = {expr}")
+            continue
+        if op == "check":
+            condition = _program_expr(step.get("condition"))
+            if condition is None:
+                return None
+            error = _program_error(ctx, step.get("error"))
+            message = step.get("message") or condition
+            lines.append(f"{pad}if {condition}:")
+            lines.append(f"{pad}    raise {error}({message!r})")
+            continue
+        if op == "for_each":
+            collection = _program_expr(step.get("collection"))
+            name = step.get("as")
+            if collection is None or not isinstance(name, str):
+                return None
+            nested = _repo_program_steps(
+                ctx, step.get("steps") or [], entity, indent + 4)
+            if nested is None:
+                return None
+            lines.append(f"{pad}for {name} in {collection}:")
+            lines.extend(nested or [f"{pad}    pass"])
+            continue
+        if op == "if":
+            condition = _program_expr(step.get("condition"))
+            if condition is None:
+                return None
+            nested = _repo_program_steps(
+                ctx, step.get("steps") or [], entity, indent + 4)
+            if nested is None:
+                return None
+            lines.append(f"{pad}if {condition}:")
+            lines.extend(nested or [f"{pad}    pass"])
+            alternative = step.get("else")
+            if alternative is not None:
+                otherwise = _repo_program_steps(
+                    ctx, alternative or [], entity, indent + 4)
+                if otherwise is None:
+                    return None
+                lines.append(f"{pad}else:")
+                lines.extend(otherwise or [f"{pad}    pass"])
+            continue
+        if op == "append":
+            name = step.get("name")
+            expr = _program_expr(step.get("expr"))
+            if not isinstance(name, str) or expr is None:
+                return None
+            lines.append(f"{pad}{name}.append({expr})")
+            continue
+        if op == "set":
+            name = step.get("name")
+            key = _program_expr(step.get("key"))
+            value = _program_expr(step.get("value"))
+            if not isinstance(name, str) or key is None or value is None:
+                return None
+            lines.append(f"{pad}{name}[{key}] = {value}")
+            continue
+        if op == "return":
+            expr = _program_expr(step.get("expr"))
+            lines.append(f"{pad}return {expr if expr is not None else 'None'}")
+            continue
+        if op == "raise":
+            error = _program_error(ctx, step.get("error"))
+            message = step.get("message") or "refused"
+            lines.append(f"{pad}raise {error}({message!r})")
+            continue
+        return None
+    return lines
+
+
+def _repo_program_body(ctx, program, entity):
+    """A reviewed repository body, validated as a unit."""
+    lines = _repo_program_steps(ctx, program.get("steps") or [], entity)
+    if lines is None:
+        return None
+    source = "def _body(self):\n" + "\n".join(
+        "    " + line if line.strip() else "" for line in lines)
+    try:
+        compile(source, "repository_program", "exec")
     except SyntaxError:
         return None
     return lines
@@ -2257,28 +2491,54 @@ def _service_assign_body(ctx, service_name, method, params, returns):
                    and normalize(m.get("name") or "") == "update"), None)
     if read is None or update is None:
         return None
-    source_param = next(raw for raw in raw_params
-                        if isinstance(raw, str)
-                        and normalize(source) in normalize(raw))
-    target_param = next(raw for raw in raw_params
-                        if isinstance(raw, str)
-                        and normalize(target).replace("storagelocation", "location")
-                        in normalize(raw))
+    target_repo = next((item for item in ctx["repositories"]
+                        if normalize(item.get("entity")) == normalize(target)),
+                       None)
+    if target_repo is None:
+        return None
+    target_cls = target_repo.get("interface_name") or f"{target}Repository"
+    target_read = next((m["name"] for m in target_repo.get("methods") or []
+                        if isinstance(m, dict)
+                        and normalize(m.get("name") or "").startswith("readone")),
+                       None)
+    if target_read is None:
+        return None
+    source_param = next((raw for raw in raw_params
+                         if isinstance(raw, str)
+                         and normalize(source) in normalize(raw)), None)
+    target_param = next((raw for raw in raw_params
+                         if isinstance(raw, str)
+                         and normalize(target).replace("storagelocation", "location")
+                         in normalize(raw)), None)
+    if source_param is None or target_param is None:
+        return None
     not_found = next((f"errors.{codegen.sanitize(item['name'])}"
                       for item in ctx.get("errors") or []
                       if isinstance(item, dict) and isinstance(item.get("name"), str)
                       and normalize(source) in normalize(item["name"])
                       and "notfound" in normalize(item["name"])), None)
+    target_not_found = next((f"errors.{codegen.sanitize(item['name'])}"
+                             for item in ctx.get("errors") or []
+                             if isinstance(item, dict) and isinstance(item.get("name"), str)
+                             and normalize(target) in normalize(item["name"])
+                             and "notfound" in normalize(item["name"])), None)
     pk = primary_key_of(ctx, source)
+    source_ident = codegen.sanitize(source_param, "param")
+    target_ident = codegen.sanitize(target_param, "param")
     lines = [
+        f"if {target_ident} is None:",
+        f"    raise {target_not_found or 'ValueError'}("
+        f"{target_param + ' is required'!r})",
+        f"self._repos[{target_cls!r}].{codegen.sanitize(target_read, 'method')}"
+        f"({target_ident})",
         f"record = self._repos[{repo_cls!r}].{codegen.sanitize(read, 'method')}"
-        f"({codegen.sanitize(source_param, 'param')})",
+        f"({source_ident})",
         "if record is None:",
         f"    raise {not_found or 'LookupError'}(f\"{source} not found\")",
-        f"record.{codegen.sanitize(fk, 'attr')} = {codegen.sanitize(target_param, 'param')}",
+        f"record.{codegen.sanitize(fk, 'attr')} = {target_ident}",
         f"self._repos[{repo_cls!r}].{codegen.sanitize(update, 'method')}"
         f"(record.{codegen.sanitize(pk, 'attr')}, "
-        f"{codegen.sanitize(fk, 'kw')}={codegen.sanitize(target_param, 'param')})",
+        f"{codegen.sanitize(fk, 'kw')}={target_ident})",
     ]
     declared = str(method.get("return_type") or "").strip().lower()
     if "bool" in declared:
@@ -3176,9 +3436,6 @@ def _repo_threshold_body(entity, model_cls, field_types, method, fname, slots):
         lines.append(f"bound = {codegen.sanitize(threshold, 'param')}")
     lines.append("out = []")
     lines.append(f"for record in self._store.select(self.ENTITY, []):")
-    if "overdue" in normalize(fname) and "status" in field_types:
-        lines.append("    if str(record.get('status') or '').lower() == 'returned':")
-        lines.append("        continue")
     return_field = next((name for name in field_types
                          if normalize(name) == "returndate"), None)
     if "overdue" in normalize(fname) and return_field is not None:
@@ -4364,8 +4621,12 @@ def emit_gui_pyimgui(ctx, stats):
              "",
              "import models",
              "import errors",
+             "from schema import SCHEMA",
              "from store import Store",
              "import repositories",
+             "",
+             "",
+             f"DEFAULT_DB = {(stats.get('prog') or 'app') + '.db'!r}",
              "",
              "",
              "PANELS = " + repr(panels),
@@ -4508,12 +4769,12 @@ def emit_gui_pyimgui(ctx, stats):
              "",
              "",
              "def build_gui():",
-             "    store = Store()",
+             "    store = Store(DEFAULT_DB, SCHEMA)",
              "    repos = {}",
              "    states = {}",
              "    for panel in PANELS:",
              "        repo = getattr(repositories, panel['repo'])(store)",
-             "        repos[panel['entity']] = repo",
+             "        repos[panel['repo']] = repo",
              "        state = _new_state()",
              "        _refresh(panel, repo, state)",
              "        states[panel['entity']] = state",
@@ -4549,7 +4810,7 @@ def emit_gui_pyimgui(ctx, stats):
              "        for panel in PANELS:",
              "            state = states[panel['entity']]",
              "            if state['open']:",
-             "                _draw_panel(panel, repos[panel['entity']], state)",
+             "                _draw_panel(panel, repos[panel['repo']], state)",
              "        gl.glClearColor(0.1, 0.1, 0.1, 1)",
              "        gl.glClear(gl.GL_COLOR_BUFFER_BIT)",
              "        imgui.render()",
@@ -4584,6 +4845,10 @@ def fallback_prompt(requirements, errors):
               "  no bullet points, no explanations.",
               '- Include `def main():` and the `if __name__ == "__main__": main()` guard.',
               "- Type hints throughout.",
+              "- Expected input, decoding and file errors must be caught at the",
+              "  command boundary: print a concise `error: ...` message to stderr",
+              "  and exit nonzero. Never let an expected error escape as a",
+              "  traceback.",
               "",
               "Remember: your entire response must be Python code and nothing else."]
     return "\n".join(lines) + "\n"
@@ -8094,6 +8359,31 @@ def repair_service_dates(files):
     return files
 
 
+def _clean_error_boundary(source):
+    """Wrap the fallback's `main()` so expected failures are not tracebacks.
+
+    A generated single-file tool often validates paths before its own `try`.
+    The fallback has no domain architecture to preserve, so its command
+    boundary is fixed here: exit status and wording stay the program's, but
+    an uncaught exception becomes one concise stderr line.
+    """
+    guard = re.compile(
+        r"(?ms)^if\s+__name__\s*==\s*['\"]__main__['\"]\s*:\s*\n"
+        r"(?:[ \t]+.*(?:\n|$))*")
+    replacement = (
+        'if __name__ == "__main__":\n'
+        "    try:\n"
+        "        main()\n"
+        "    except SystemExit:\n"
+        "        raise\n"
+        "    except Exception as error:\n"
+        "        print(f\"error: {error}\", file=sys.stderr)\n"
+        "        raise SystemExit(1)\n")
+    if guard.search(source):
+        return guard.sub(replacement, source, count=1)
+    return source.rstrip() + "\n\n\n" + replacement
+
+
 def generate_fallback(out_dir, model_path):
     """Write `generated/app.py` from the requirements; return the exit code."""
     requirements = load_requirements(out_dir)
@@ -8114,6 +8404,7 @@ def generate_fallback(out_dir, model_path):
     if not code:
         print("error: the model returned no code for the fallback program")
         return 1
+    code = _clean_error_boundary(code)
     try:
         compile(code, "app.py", "exec")
     except SyntaxError as error:

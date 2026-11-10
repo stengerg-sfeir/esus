@@ -1,0 +1,301 @@
+{
+  "programs": [
+    {
+      "holder": "OrderService",
+      "method": "confirm_order",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ],
+          "as": "order",
+          "error": "OrderNotFoundError"
+        },
+        {
+          "op": "check",
+          "condition": "order.status in ('confirmed', 'shipped')",
+          "error": "OrderAlreadyConfirmedError"
+        },
+        {
+          "op": "assign",
+          "name": "total",
+          "expr": "0"
+        },
+        {
+          "op": "query",
+          "repo": "OrderItemRepository",
+          "method": "get_order_items_by_order_id",
+          "args": [
+            "order_id"
+          ],
+          "as": "items"
+        },
+        {
+          "op": "for_each",
+          "collection": "items",
+          "as": "item",
+          "steps": [
+            {
+              "op": "read",
+              "repo": "ProductRepository",
+              "method": "read_one",
+              "args": [
+                "item.product_id"
+              ],
+              "as": "product",
+              "error": "ProductNotFoundError"
+            },
+            {
+              "op": "check",
+              "condition": "product.stock_quantity < item.quantity",
+              "error": "InsufficientStockError"
+            },
+            {
+              "op": "update",
+              "repo": "ProductRepository",
+              "method": "update",
+              "args": [
+                "product.product_id"
+              ],
+              "fields": {
+                "stock_quantity": "product.stock_quantity - item.quantity"
+              }
+            },
+            {
+              "op": "add",
+              "name": "total",
+              "expr": "product.price * item.quantity"
+            }
+          ]
+        },
+        {
+          "op": "create",
+          "repo": "InvoiceRepository",
+          "method": "create",
+          "fields": {
+            "order_id": "order_id",
+            "total_amount": "total",
+            "generated_at": "datetime.datetime.now()"
+          }
+        },
+        {
+          "op": "update",
+          "repo": "OrderRepository",
+          "method": "update",
+          "args": [
+            "order_id"
+          ],
+          "fields": {
+            "status": "'confirmed'"
+          }
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ],
+          "as": "order",
+          "error": "OrderNotFoundError"
+        },
+        {
+          "op": "check",
+          "condition": "order.status != 'confirmed'",
+          "error": "OrderCannotBeCancelledError"
+        },
+        {
+          "op": "query",
+          "repo": "OrderItemRepository",
+          "method": "get_order_items_by_order_id",
+          "args": [
+            "order_id"
+          ],
+          "as": "items"
+        },
+        {
+          "op": "for_each",
+          "collection": "items",
+          "as": "item",
+          "steps": [
+            {
+              "op": "read",
+              "repo": "ProductRepository",
+              "method": "read_one",
+              "args": [
+                "item.product_id"
+              ],
+              "as": "product",
+              "error": "ProductNotFoundError"
+            },
+            {
+              "op": "update",
+              "repo": "ProductRepository",
+              "method": "update",
+              "args": [
+                "product.product_id"
+              ],
+              "fields": {
+                "stock_quantity": "product.stock_quantity + item.quantity"
+              }
+            }
+          ]
+        },
+        {
+          "op": "update",
+          "repo": "OrderRepository",
+          "method": "update",
+          "args": [
+            "order_id"
+          ],
+          "fields": {
+            "status": "'cancelled'"
+          }
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "OrderService",
+      "method": "ship_order",
+      "steps": [
+        {
+          "op": "read",
+          "repo": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ],
+          "as": "order",
+          "error": "OrderNotFoundError"
+        },
+        {
+          "op": "check",
+          "condition": "order.status != 'confirmed'",
+          "error": "OrderCannotBeShippedError"
+        },
+        {
+          "op": "update",
+          "repo": "OrderRepository",
+          "method": "update",
+          "args": [
+            "order_id"
+          ],
+          "fields": {
+            "status": "'shipped'"
+          }
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "CustomerRepository",
+      "method": "find_invoices_by_customer_id",
+      "steps": [
+        {
+          "op": "select",
+          "entity": "Order",
+          "criteria": "[('customer_id', 'eq', customer_id)]",
+          "as": "orders"
+        },
+        {
+          "op": "assign",
+          "name": "order_ids",
+          "expr": "{row.get('order_id') for row in orders}"
+        },
+        {
+          "op": "select",
+          "entity": "Invoice",
+          "as": "invoices"
+        },
+        {
+          "op": "assign",
+          "name": "result",
+          "expr": "[]"
+        },
+        {
+          "op": "for_each",
+          "collection": "invoices",
+          "as": "invoice",
+          "steps": [
+            {
+              "op": "if",
+              "condition": "invoice.get('order_id') in order_ids",
+              "steps": [
+                {
+                  "op": "append",
+                  "name": "result",
+                  "expr": "invoice"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "return",
+          "expr": "[models.Invoice(**row) for row in result]"
+        }
+      ],
+      "decided_by": "assistant"
+    },
+    {
+      "holder": "ReportService",
+      "method": "get_order_status_report",
+      "steps": [
+        {
+          "op": "assign",
+          "name": "statuses",
+          "expr": "{'pending': 0, 'confirmed': 0, 'shipped': 0, 'cancelled': 0}"
+        },
+        {
+          "op": "query",
+          "repo": "OrderRepository",
+          "method": "read_all",
+          "args": [],
+          "as": "orders"
+        },
+        {
+          "op": "for_each",
+          "collection": "orders",
+          "as": "order",
+          "steps": [
+            {
+              "op": "assign",
+              "name": "status",
+              "expr": "str(order.status or '')"
+            },
+            {
+              "op": "if",
+              "condition": "status in statuses",
+              "steps": [
+                {
+                  "op": "set",
+                  "name": "statuses",
+                  "key": "status",
+                  "value": "statuses[status] + 1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "op": "return",
+          "expr": "statuses"
+        }
+      ],
+      "decided_by": "assistant"
+    }
+  ],
+  "schema": "method_programs/1",
+  "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+}

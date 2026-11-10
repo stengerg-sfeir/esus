@@ -349,6 +349,36 @@ def prompt_required_checks(out_dir, passed):
              "error")
     passed("prompt-required: renew_membership toggles is_active and rejects "
            "an unknown member")
+
+    # A loan whose stored status is already 'returned' must be refused even
+    # when its nullable return_date was not filled in by a caller.
+    returned_book = create(books, title="Returned Book", isbn="RETURN-1",
+                           published_year=2002, available_copies=1,
+                           author_id=ada)
+    returned_member = create(members, name="Returned Member",
+                             email="returned@example.test")
+    returned_loan = create(loans, book_id=returned_book,
+                           member_id=returned_member, loan_date=today,
+                           due_date=today + dt.timedelta(days=14),
+                           return_date=None, status="returned")
+    copies_before = books.read_one(returned_book).available_copies
+    return_book = next(
+        (getattr(service, "return_book") for service in services.values()
+         if callable(getattr(service, "return_book", None))), None)
+    if return_book is None:
+        fail("no generated service implements return_book")
+    try:
+        return_book(returned_loan)
+    except Exception as error:  # noqa: BLE001 - the rule under test
+        if "AlreadyReturned" not in type(error).__name__:
+            fail(f"a status-only returned loan raised "
+                 f"{type(error).__name__}, not AlreadyReturnedLoanError")
+    else:
+        fail("return_book accepted a loan whose status is already returned")
+    if books.read_one(returned_book).available_copies != copies_before:
+        fail("refusing an already-returned loan still changed book inventory")
+    passed("prompt-required: a status-only returned loan is refused without "
+           "changing inventory")
     deps["store"].close()
 
 

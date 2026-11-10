@@ -298,6 +298,25 @@ def check_budget_overage_is_stored_and_visible(fx):
     if "exceeded" not in report:
         lib.fail(f"the monthly report should show the budget as exceeded: {report!r}")
 
+    # Two individually-small expenses must be compared as a monthly total.
+    cumulative = fx.fresh("cumulative")
+    fx.cli(cumulative, "expense", "category", "add", "--name", "Cumulative",
+           "--description", "c")
+    fx.cli(cumulative, "budget", "add", "--category-id", "1",
+           "--month", "2024-01", "--amount", "10")
+    fx.cli(cumulative, "expense", "add", "--amount", "6",
+           "--description", "first", "--category", "1",
+           "--expense-date", "2024-01-10")
+    second = fx.cli(cumulative, "expense", "add", "--amount", "6",
+                    "--description", "second", "--category", "1",
+                    "--expense-date", "2024-01-11", expected=1)
+    refused(second, "BudgetExceededException")
+    cumulative_report = fx.cli(
+        cumulative, "expense", "report", "monthly", "--month", "2024-01").stdout
+    if "exceeded" not in cumulative_report:
+        lib.fail(f"two 6-cent expenses against a 10-cent budget must be "
+                 f"exceeded: {cumulative_report!r}")
+
 
 def check_expense_list(fx):
     db = fx.seeded("list")
@@ -377,6 +396,42 @@ def check_recurring_detect(fx):
         lib.fail(f"detect should mark the three monthly rents and not the one-off: {rows}")
 
 
+def check_repository_date_queries(fx):
+    """The repository aggregates honor their date window and group keys."""
+    db = fx.seeded("repository_dates")
+    deps = lib.generated_deps(fx.out, db)
+    try:
+        repo = deps["repos"]["ExpenseRepository"]
+        monthly = repo.get_monthly_spending_by_category("2024-01")
+        if monthly != {1: 500, 2: 1500}:
+            lib.fail(f"January spending by category should be {{1: 500, 2: 1500}}: {monthly}")
+        february = repo.get_monthly_spending_by_category("2024-02")
+        if february != {1: 700}:
+            lib.fail(f"February spending by category should be {{1: 700}}: {february}")
+        yearly = repo.get_yearly_spending_summary(2024)
+        if yearly != {"2024-01": 2000, "2024-02": 700}:
+            lib.fail(f"2024 monthly totals should be {{'2024-01': 2000, "
+                     f"'2024-02': 700}}: {yearly}")
+        top = repo.get_top_spending_categories(
+            dt.date(2024, 1, 1), dt.date(2024, 1, 31))
+        if top != [(2, "Travel", 1500), (1, "Food", 500)]:
+            lib.fail(f"January top categories should be Travel then Food: {top}")
+        service = deps["services"]["ExpenseService"]
+        report = service.get_monthly_report("2024-01")
+        if report.get("total_spent") != 2000:
+            lib.fail(f"the January report total should be 2000: {report}")
+        if report.get("budget_status", {}).get(1) != "on_track" \
+                or report.get("budget_status", {}).get(2) != "exceeded":
+            lib.fail(f"budget status must compare category totals, not one row: {report}")
+        summary = service.get_yearly_summary(2024)
+        if summary.get("monthly_totals") != {"2024-01": 2000, "2024-02": 700}:
+            lib.fail(f"the yearly summary kept the wrong monthly totals: {summary}")
+        if summary.get("top_spending_categories") != [[2, 1500], [1, 1200]]:
+            lib.fail(f"the yearly top categories should aggregate by category: {summary}")
+    finally:
+        deps["store"].close()
+
+
 def check_service_methods(fx):
     db = fx.seeded("service")
     deps = lib.generated_deps(fx.out, db)
@@ -425,6 +480,7 @@ CHECKS = (
     ("report yearly: monthly totals, top categories, average", check_yearly_summary),
     ("export writes a CSV of the filtered expenses", check_export),
     ("recurring detect marks monthly repeats", check_recurring_detect),
+    ("repository date aggregates and budget totals", check_repository_date_queries),
     ("service methods the CLI does not reach", check_service_methods),
 )
 
