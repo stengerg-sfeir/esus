@@ -5433,6 +5433,12 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  value with the other existing field on the wine; do not",
             "  reject a one-sided update merely because one argument is None.",
         ]
+    if info.get("file") == "services.py" and "| None" in (info.get("def") or ""):
+        tail += [
+            "- The return annotation permits `None`: if the repository lookup",
+            "  raises its not-found error, catch that exact error and return",
+            "  None instead of letting it escape.",
+        ]
     if info.get("file") == "services.py" and re.search(
             r"export|write", flat_method, re.IGNORECASE):
         tail += [
@@ -6978,6 +6984,59 @@ def _mentions_field(node, field):
     return any(field in _target_names_of(inner) for inner in ast.walk(node))
 
 
+def _mentions_field_resolved(tree, node, field, seen=None):
+    """Like `_mentions_field`, following simple local assignments.
+
+    A correct body often writes `current = wine.stock_quantity`, computes
+    `new = current + quantity`, then assigns `wine.stock_quantity = new`.
+    The contract is about the field, not the spelling of the local variable,
+    so follow a Name back to its assigned expression before judging the
+    increment.
+    """
+    if node is None:
+        return False
+    if _mentions_field(node, field):
+        return True
+    seen = set() if seen is None else seen
+    if isinstance(node, ast.Name):
+        if node.id in seen:
+            return False
+        seen = set(seen)
+        seen.add(node.id)
+        for value in _assigned_values(tree, node.id):
+            try:
+                inner = ast.parse(value, mode="eval").body
+            except SyntaxError:
+                continue
+            if _mentions_field_resolved(tree, inner, field, seen):
+                return True
+    if isinstance(node, ast.BinOp):
+        return (_mentions_field_resolved(tree, node.left, field, seen)
+                or _mentions_field_resolved(tree, node.right, field, seen))
+    return False
+
+
+def _resolved_binops(tree, node, seen=None):
+    """BinOps assigned to `node`, following simple local names."""
+    if isinstance(node, ast.BinOp):
+        return [node]
+    if not isinstance(node, ast.Name):
+        return []
+    seen = set() if seen is None else seen
+    if node.id in seen:
+        return []
+    seen = set(seen)
+    seen.add(node.id)
+    found = []
+    for value in _assigned_values(tree, node.id):
+        try:
+            inner = ast.parse(value, mode="eval").body
+        except SyntaxError:
+            continue
+        found.extend(_resolved_binops(tree, inner, seen))
+    return found
+
+
 def _call_names(tree):
     """Method names called anywhere in the body (`update_book`, `now`, ...)."""
     return {node.func.attr for node in ast.walk(tree)
@@ -7758,11 +7817,15 @@ def _contract_complaints(tree, contract, judge=None, body_text=""):
                         and isinstance(node.op, wanted):
                     matched = True
                     break
-                if isinstance(value, ast.BinOp) \
-                        and isinstance(value.op, wanted) \
-                        and (_mentions_field(value.left, field)
-                             or _mentions_field(value.right, field)):
-                    matched = True
+                for expression in _resolved_binops(tree, value):
+                    if isinstance(expression.op, wanted) \
+                            and (_mentions_field_resolved(
+                                tree, expression.left, field)
+                                 or _mentions_field_resolved(
+                                     tree, expression.right, field)):
+                        matched = True
+                        break
+                if matched:
                     break
             if not matched:
                 found.append(

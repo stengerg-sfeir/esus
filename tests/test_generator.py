@@ -3386,6 +3386,36 @@ class ContractComplaintTests(unittest.TestCase):
             ["the confirmed contract changes `book.available_copies`, but "
              "the body never writes `available_copies`"])
 
+    def test_an_increment_through_a_local_variable_is_satisfied(self):
+        info = {"cls": "WineInventoryService",
+                "def": "def cancel_order(self, wine_id: int = None, "
+                       "quantity: int = None) -> bool:",
+                "file": "services.py"}
+        models = ("class Wine:\n"
+                  "    id: int = 0\n"
+                  "    stock_quantity: int = 0\n")
+        body = [
+            "wine = self._repos['WineRepository'].read_one(wine_id)",
+            "if not wine:",
+            "    raise errors.WineNotFoundError(wine_id)",
+            "current_stock = wine.stock_quantity",
+            "new_stock = current_stock + quantity",
+            "wine.stock_quantity = new_stock",
+            "self._repos['WineRepository'].update(",
+            "    wine.id, stock_quantity=wine.stock_quantity)",
+            "return True",
+        ]
+        contract = {
+            "holder": "WineInventoryService", "method": "cancel_order",
+            "effects": [{"target": "wine.stock_quantity", "op": "increment",
+                         "by": "quantity",
+                         "write": "WineRepository.update"}],
+        }
+        self.assertEqual(
+            self.complaints(body, info=info, models=models,
+                            contract=contract), [])
+
+
     def test_confirmed_effects_are_satisfied_by_the_body(self):
         info = {"cls": "LibraryService",
                 "def": "def return_book(self, loan_id: int = None) "
