@@ -52,7 +52,7 @@ that still fails keeps the stub. Accepted docstrings are tagged
 the mechanical coverage. These bodies are provisional: syntax, API and
 contract checks do not establish runtime behavior. The run leaves every raw
 answer and its per-answer timing (wall, prompt, cached prompt and decode
-seconds) in `<out>/llm_stub_answers.json` for inspection.
+seconds) in `<out>/llm_stub_answers.json`; each run moves the previous dump to `<out>/llm_stub_answers_runs/` before overwriting it, so a truncated answer is not lost.
 The default body ask (`--stub-context exact`) shows `models.py` as code and
 repeats the target signature and return dataclass; the other contexts
 remain available for experiments.
@@ -63,6 +63,7 @@ path, using the same `LLAMA_SERVER_URL` setting as `extract_arch.py`.
 
 import argparse
 import ast
+import datetime
 import builtins
 import io
 import json
@@ -8006,6 +8007,30 @@ def _parse_equivalence(text):
     return verdict.group(1).upper() == "YES", why
 
 
+def _archive_previous_dump(dump_path):
+    """Move the previous raw-answer dump aside before this run overwrites it.
+
+    The dump is the only place a truncated body survives; replacing it on the
+    next invocation destroyed the evidence for a live 11k-token cancel answer.
+    Keep every completed run under `llm_stub_answers_runs/` beside the latest
+    `llm_stub_answers.json`.
+    """
+    if not os.path.isfile(dump_path):
+        return None
+    archive_dir = os.path.join(os.path.dirname(dump_path),
+                               "llm_stub_answers_runs")
+    os.makedirs(archive_dir, exist_ok=True)
+    stamp = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
+    candidate = os.path.join(archive_dir, f"llm_stub_answers-{stamp}.json")
+    suffix = 1
+    while os.path.exists(candidate):
+        candidate = os.path.join(
+            archive_dir, f"llm_stub_answers-{stamp}-{suffix}.json")
+        suffix += 1
+    os.replace(dump_path, candidate)
+    return candidate
+
+
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                context=DEFAULT_STUB_CONTEXT, contracts=None):
     """Ask the model for the bodies the mechanical emitter refused.
@@ -8325,6 +8350,9 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
         if entry.get("label") in judgements:
             entry["equivalence_judgements"] = judgements[entry["label"]]
     if dump_path and dumped:
+        archived = _archive_previous_dump(dump_path)
+        if archived:
+            out(f"llm: previous raw answers archived -> {archived}")
         with open(dump_path, "w", encoding="utf-8") as handle:
             json.dump(dumped, handle, indent=2, ensure_ascii=False)
             handle.write("\n")

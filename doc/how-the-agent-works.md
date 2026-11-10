@@ -173,7 +173,7 @@ LLAMA_SERVER_URL=http://127.0.0.1:8080 \
   python3 generator.py out/my-app --model server --stub-context exact --verbose
 ```
 
-The generated files are written under `out/my-app/generated/`, and the raw model answers, refusals and verdicts are kept in `out/my-app/llm_stub_answers.json`. Read the generator's summary and inspect any reported stubs before treating the application as complete.
+The generated files are written under `out/my-app/generated/`, and the raw model answers, refusals and verdicts are kept in `out/my-app/llm_stub_answers.json`. Each run moves the previous dump to `out/my-app/llm_stub_answers_runs/` before overwriting it, so truncated or refused answers remain inspectable. Read the generator's summary and inspect any reported stubs before treating the application as complete.
 
 ### Verifying the generated program
 

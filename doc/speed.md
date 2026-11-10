@@ -20,7 +20,7 @@ Other measured facts:
 
 ## Per-answer timing record
 
-`<out>/llm_stub_answers.json` now records, beside every body answer, `seconds` (wall), `decode_seconds`, `prompt_tokens` and `cached_tokens`; a repaired body also has `first_*` for its first attempt. The `prompt_tokens` figure is the total context offered, so `prompt_tokens - cached_tokens` is the new prefill the server actually processed.
+`<out>/llm_stub_answers.json` now records, beside every body answer, `seconds` (wall), `decode_seconds`, `prompt_tokens` and `cached_tokens`; a repaired body also has `first_*` for its first attempt. The `prompt_tokens` figure is the total context offered, so `prompt_tokens - cached_tokens` is the new prefill the server actually processed. The previous dump is moved to `<out>/llm_stub_answers_runs/` before each overwrite, so raw answers from earlier runs are retained.
 
 The first measurements with the 2 GiB/no-spec server:
 

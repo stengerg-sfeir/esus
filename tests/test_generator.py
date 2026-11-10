@@ -2520,6 +2520,22 @@ class StubFillTests(unittest.TestCase):
         self.assertEqual(data[0]["context"], "exact")
 
 
+    def test_the_previous_raw_answer_dump_is_archived_not_overwritten(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            dump = Path(directory) / "llm_stub_answers.json"
+            dump.write_text('[{"label": "first run"}]\n', encoding="utf-8")
+            archived = generator._archive_previous_dump(str(dump))
+            self.assertIsNotNone(archived)
+            self.assertFalse(dump.exists())
+            self.assertTrue(Path(archived).is_file())
+            self.assertEqual(Path(archived).read_text(encoding="utf-8"),
+                             '[{"label": "first run"}]\n')
+            runs = Path(directory) / "llm_stub_answers_runs"
+            self.assertEqual([item.name for item in runs.iterdir()],
+                             [Path(archived).name])
+
+
 class StoreContractTests(unittest.TestCase):
     """The ask names the contract, not the SQLite implementation.
 
