@@ -483,6 +483,13 @@ class MainTests(unittest.TestCase):
             self.assertEqual(main.main(["prompt.txt"]), 130)
             self.assertIn("interrupted", out.getvalue())
 
+    def test_pipeline_environment_uses_the_reviewed_extraction_flags(self):
+        env = main.pipeline_env("http://x")
+        self.assertEqual(env["LLAMA_SERVER_URL"], "http://x")
+        self.assertEqual(env["ESUS_COMPONENTS_SPLIT"], "1")
+        self.assertEqual(env["ESUS_MECHANICAL_SCHEMA"], "1")
+        self.assertEqual(env["ESUS_MECHANICAL_SERVICES"], "1")
+
     def test_the_commands_use_the_requested_model_and_mode(self):
         extract = main.build_extract_command(
             Path("p.txt"), Path("out/x"), "server", review=False)
@@ -493,6 +500,9 @@ class MainTests(unittest.TestCase):
             Path("p.txt"), Path("out/x"), "m.gguf", review=True))
         generate = main.build_generate_command(Path("out/x"), "server")
         self.assertEqual(generate[generate.index("--model") + 1], "server")
+        self.assertIn("--stub-context", generate)
+        self.assertIn("exact", generate)
+        self.assertIn("--reuse-reviewed-bodies", generate)
 
 
 if __name__ == "__main__":

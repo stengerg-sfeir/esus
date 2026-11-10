@@ -319,6 +319,15 @@ def check_inputs(prompt, model, server_url):
     return True, f"model: {model}"
 
 
+def pipeline_env(server_url):
+    """The environment shared by extraction, review and generation."""
+    env = dict(os.environ, LLAMA_SERVER_URL=server_url, PYTHONUNBUFFERED="1")
+    for key in ("ESUS_COMPONENTS_SPLIT", "ESUS_MECHANICAL_SCHEMA",
+                "ESUS_MECHANICAL_SERVICES"):
+        env.setdefault(key, "1")
+    return env
+
+
 def echo(text):
     """Pass child output through as it arrives, prompts without a newline too."""
     sys.stdout.write(text)
@@ -333,7 +342,8 @@ def build_extract_command(prompt, output, model, review):
 
 def build_generate_command(output, model):
     return [sys.executable, "-u", str(ROOT / "generator.py"), str(output),
-            "--model", model, "--verbose"]
+            "--model", model, "--verbose", "--stub-context", "exact",
+            "--reuse-reviewed-bodies"]
 
 
 def fail(display, detail, lines=(), log=None):
@@ -352,7 +362,7 @@ def run_pipeline(args, display):
     output = Path(args.output).resolve() if args.output else default_output(prompt)
     logs = output / "logs"
     server_url = args.server_url or os.environ.get("LLAMA_SERVER_URL", DEFAULT_SERVER)
-    env = dict(os.environ, LLAMA_SERVER_URL=server_url, PYTHONUNBUFFERED="1")
+    env = pipeline_env(server_url)
     stream = args.verbose or args.review
     started = time.monotonic()
     display.line(f"ESUS  {prompt.name}  ->  {_shown(output)}")
@@ -391,6 +401,20 @@ def run_pipeline(args, display):
     steps = ran.get("steps", len(done))
     display.end(True, f"{steps} steps" + (f", {ran['tokens']:,} tokens"
                                           if "tokens" in ran else ""))
+
+    # 1b. grounding review, after extraction and before generation
+    if args.review and (output / "requirements.txt").is_file():
+        review_log = logs / "grounding-review.log"
+        display.begin("Grounding review", stream=True)
+        code, tail = run_command(
+            [sys.executable, "-u", str(ROOT / "review_grounding.py"),
+             str(output), "--review"],
+            review_log, env=env, interactive=True, echo=echo)
+        if code != 0:
+            fail(display, f"review_grounding.py exited with {code}",
+                 [line for line in tail if line.strip()][-3:], _shown(review_log))
+            return 1
+        display.end(True, "reviewed")
 
     # 2. readiness, read from the extraction's own summary
     verdict = parse_verdict("\n".join(tail))
@@ -466,8 +490,9 @@ def parse_args(argv=None):
     parser.add_argument("--server-url", help="llama-server URL (default: "
                         f"$LLAMA_SERVER_URL or {DEFAULT_SERVER})")
     parser.add_argument("--review", action="store_true",
-                        help="answer the review questions on the terminal "
-                             "(shows the extraction's output instead of a spinner)")
+                        help="answer the extraction and grounding review "
+                             "questions on the terminal (shows their output "
+                             "instead of a spinner)")
     parser.add_argument("--verbose", action="store_true",
                         help="show every message instead of the spinner")
     return parser.parse_args(argv)

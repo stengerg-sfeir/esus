@@ -1,6 +1,8 @@
 """Grounding reports extras without mutating the extracted documents."""
 
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -9,6 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from kernel.extraction import grounding  # noqa: E402
 from kernel import codegen  # noqa: E402
 import generator  # noqa: E402
+import review_grounding  # noqa: E402
 
 
 def service(name, *methods):
@@ -137,6 +140,31 @@ class AggregateDecisionTests(unittest.TestCase):
             result["services.py"].count("return _include_empty_groups("), 1)
         compile(result["repositories.py"], "repositories.py", "exec")
         compile(result["services.py"], "services.py", "exec")
+
+
+class ReviewGroundingTests(unittest.TestCase):
+    def test_review_writes_drop_decisions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            out = Path(directory)
+            (out / "requirements.txt").write_text(
+                "Customers can search orders and invoices.", encoding="utf-8")
+            (out / "intentions.json").write_text(json.dumps({
+                "intentions": ["Search orders and invoices"]}), encoding="utf-8")
+            (out / "data_models.json").write_text(json.dumps({
+                "data_models": []}), encoding="utf-8")
+            (out / "service_contracts.json").write_text(json.dumps({
+                "service_contracts": [
+                    {"service_name": "ExportService", "methods": [
+                        {"name": "export_orders_to_csv", "params": [],
+                         "return_type": "None"}]}]}), encoding="utf-8")
+            asked, answered = review_grounding.run_review(
+                str(out), ask=lambda _prompt, _default: True,
+                out_fn=lambda _line: None)
+            self.assertEqual((asked, answered), (1, 1))
+            data = json.loads(
+                (out / "grounding_decisions.json").read_text(encoding="utf-8"))
+            self.assertEqual(data["drop_services"], ["ExportService"])
+            self.assertEqual(data["drop_command_verbs"], ["export"])
 
 
 class RelatedPrimaryKeyRepairTests(unittest.TestCase):
