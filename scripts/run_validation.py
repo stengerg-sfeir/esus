@@ -26,6 +26,7 @@ import re
 import subprocess
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -237,6 +238,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--only", default=None,
                         help="comma-separated prompt stems, e.g. prompt_01,prompt_02")
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--concurrency", type=int, default=1,
+                        help="number of concurrent extraction processes "
+                             "(match llama-server -np)")
     parser.add_argument("--force", action="store_true",
                         help="rerun prompts that already have metrics.json")
     args = parser.parse_args(argv)
@@ -255,6 +259,7 @@ def main(argv: list[str] | None = None) -> int:
         "model": args.model,
         "server_url": args.server_url,
         "timeout_seconds": args.timeout,
+        "concurrency": args.concurrency,
         "environment": {
             "ESUS_COMPONENTS_SPLIT": "1",
             "ESUS_MECHANICAL_SCHEMA": "1",
@@ -262,33 +267,60 @@ def main(argv: list[str] | None = None) -> int:
         },
     }
     records: list[dict] = []
+    pending = []
+    for prompt in prompts:
+        output_dir = run_dir / prompt.stem
+        metrics_path = output_dir / "metrics.json"
+        if metrics_path.is_file() and not args.force:
+            records.append(json.loads(metrics_path.read_text(encoding="utf-8")))
+        else:
+            pending.append((prompt, output_dir, metrics_path))
+
+    def report(record: dict, index: int, total: int) -> None:
+        summary = record.get("summary") or {}
+        print(
+            f"[{index}/{total}] {record['prompt']}: "
+            f"{record['classification']} in {record['seconds']}s; "
+            f"tokens out={record['tokens']['tokens_out']} "
+            f"prompt={record['tokens']['tokens_prompt']}; "
+            f"blockers={summary.get('blockers', '?')} "
+            f"ties={summary.get('open_ties', '?')}",
+            flush=True,
+        )
+
     try:
-        for index, prompt in enumerate(prompts, start=1):
-            output_dir = run_dir / prompt.stem
-            metrics_path = output_dir / "metrics.json"
-            if metrics_path.is_file() and not args.force:
-                print(f"[{index}/{len(prompts)}] {prompt.stem}: resume", flush=True)
-                records.append(json.loads(metrics_path.read_text(encoding="utf-8")))
-                continue
-            print(f"[{index}/{len(prompts)}] {prompt.stem}: extracting", flush=True)
-            record = run_one(prompt, output_dir, run_id=run_id,
-                             model=args.model, server_url=args.server_url,
-                             timeout=args.timeout)
-            metrics_path.write_text(
-                json.dumps(record, indent=2, ensure_ascii=False) + "\n",
-                encoding="utf-8",
-            )
-            records.append(record)
-            summary = record.get("summary") or {}
-            print(
-                f"    {record['classification']} in {record['seconds']}s; "
-                f"tokens out={record['tokens']['tokens_out']} "
-                f"prompt={record['tokens']['tokens_prompt']}; "
-                f"blockers={summary.get('blockers', '?')} "
-                f"ties={summary.get('open_ties', '?')}",
-                flush=True,
-            )
+        if args.concurrency <= 1:
+            for index, (prompt, output_dir, metrics_path) in enumerate(pending, start=1):
+                record = run_one(prompt, output_dir, run_id=run_id,
+                                 model=args.model, server_url=args.server_url,
+                                 timeout=args.timeout)
+                metrics_path.write_text(
+                    json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+                    encoding="utf-8",
+                )
+                records.append(record)
+                report(record, index, len(pending))
+        else:
+            with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
+                futures = {
+                    pool.submit(
+                        run_one, prompt, output_dir, run_id=run_id,
+                        model=args.model, server_url=args.server_url,
+                        timeout=args.timeout,
+                    ): (prompt, metrics_path)
+                    for prompt, output_dir, metrics_path in pending
+                }
+                for index, future in enumerate(as_completed(futures), start=1):
+                    prompt, metrics_path = futures[future]
+                    record = future.result()
+                    metrics_path.write_text(
+                        json.dumps(record, indent=2, ensure_ascii=False) + "\n",
+                        encoding="utf-8",
+                    )
+                    records.append(record)
+                    report(record, index, len(pending))
     finally:
+        records.sort(key=lambda item: item.get("prompt", ""))
         manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
         manifest["counts"] = {}
         for record in records:

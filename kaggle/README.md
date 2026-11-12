@@ -73,11 +73,10 @@ kaggle kernels logs gillesstenger/esus-validation-60-prompts
 ```
 
 The notebook downloads a CUDA `llama-server` prebuilt if the image does not
-provide one, starts one server per GPU, runs `scripts/run_validation.py` on
-disjoint prompt shards, and merges them with
-`scripts/merge_validation_runs.py`. The merged run includes every prompt's
-extraction output and is archived as
-`/kaggle/working/validation-<run-id>.zip`.
+provide one, starts one server with two parallel decode slots, and runs
+`scripts/run_validation.py --concurrency 2`. The two slots share the loaded
+model; each prompt is still executed exactly once. The run directory is
+archived as `/kaggle/working/validation-<run-id>.zip`.
 
 If the full 60-prompt run exceeds the session limit, rerun in batches:
 

@@ -143,48 +143,51 @@ notebook; a dataset avoids relying on a third-party URL.
 
 The notebook downloads the official CUDA `llama-server` prebuilt
 (`llama-b12110-bin-ubuntu-cuda-12.8-x64`); if that is unavailable it falls
-back to a CPU build. It starts one server per visible GPU, with:
+back to a CPU build. It starts **one server with two parallel decode slots**
+across all visible GPUs:
 
 ```sh
-llama-server -m <model> -c 16384 -ngl 99 -fa on --port 8080 -np 1
+llama-server -m <model> -c 32768 -ngl 99 -fa on --parallel 2 --port 8080
 ```
 
-Each server is pinned to its own `CUDA_VISIBLE_DEVICES`. The notebook waits
-for `GET /health` before running the validation.
+The two slots share the loaded model rather than loading it twice. The
+notebook waits up to 30 minutes for `GET /health` before running validation.
+This startup wait was raised after the first two-server calibration timed out
+while loading two copies of the model.
 
-### 3. Run with checkpointing and two GPUs
+### 3. Run with checkpointing and server slots
 
 Kaggle sessions are time-limited, and a 60-prompt extraction run can exceed a
-single session. The notebook detects visible GPUs and starts one
-`llama-server` per device (ports 8080 and 8081). The prompt set is split into
-disjoint shards and each shard runs concurrently:
-
-```text
-prompt_01, prompt_03, ...  -> GPU 0 / port 8080
-prompt_02, prompt_04, ...  -> GPU 1 / port 8081
-```
-
-Each worker writes its own run ID. `scripts/merge_validation_runs.py` then
-merges the two `summary.json` files, rejects duplicate prompts, and writes the
-combined `summary.json`/`summary.csv`:
-
-```sh
-python3 scripts/merge_validation_runs.py \
-  --runs out/validation/runs/<worker-0> out/validation/runs/<worker-1> \
-  --out out/validation/runs/<merged-run-id> \
-  --require 60
-```
-
-A directory with `metrics.json` is skipped unless `--force` is passed. The
-single-server runner remains available for local work:
+single session. The notebook runs one extraction process with
+`--concurrency 2`, matching the server's two decode slots:
 
 ```sh
 python3 scripts/run_validation.py \
   --prompts prompts/validation \
   --out out/validation/runs \
   --run-id kaggle-<date> \
-  --server-url http://127.0.0.1:8080
+  --server-url http://127.0.0.1:8080 \
+  --concurrency 2
 ```
+
+A directory with `metrics.json` is skipped unless `--force` is passed. The
+runner records per-prompt wall time and tokens even when both slots are
+occupied; these measures include the contention of concurrent decoding.
+
+The calibration set is intentionally varied:
+
+```text
+prompt_01, prompt_50, prompt_10, prompt_20,
+prompt_30, prompt_40, prompt_56, prompt_60
+```
+
+It covers the shortest prompt, CRUD, reporting, architecture, notification,
+capacity, atomic stock, and the longest prompt. Only after the calibration
+has produced metrics should the full 60-prompt run be started.
+
+`scripts/merge_validation_runs.py` remains available for experiments that
+really use separate worker directories, but the normal two-slot path does not
+need it.
 
 ### 4. Publish results
 
@@ -220,9 +223,10 @@ runner's parser and classifier are covered by
 - [x] Create/upload the code and model datasets.
 - [x] Replace placeholder dataset IDs and kernel owner in `kaggle/`.
 - [x] Push the kernel with `kaggle kernels push`.
-- [ ] Run a 3–5 prompt calibration batch inside Kaggle.
-- [ ] Estimate the full 60-prompt runtime and decide whether to split it.
-- [ ] Run all 60 prompts.
+- [x] Run an 8-prompt calibration batch inside Kaggle.
+- [ ] Confirm that the first calibration produced metrics for all 8 prompts.
+- [ ] Estimate the full 60-prompt runtime under two server slots.
+- [ ] Run all 60 prompts with `--concurrency 2`.
 - [ ] Review/run the review scripts on the `review` class and remeasure
       readiness.
 - [ ] Compare the counts against the fresh-prompt benchmark in
