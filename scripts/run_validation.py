@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import fcntl
 import hashlib
 import json
 import os
@@ -252,6 +253,14 @@ def main(argv: list[str] | None = None) -> int:
     run_id = args.run_id or utc_stamp()
     run_dir = Path(args.out) / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
+    # A second runner with the same run id would duplicate requests and make
+    # the summary ambiguous. Keep one writer per run.
+    lock_handle = open(run_dir / ".run.lock", "w", encoding="utf-8")
+    try:
+        fcntl.flock(lock_handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print(f"run {run_id!r} is already active: {run_dir}", file=sys.stderr)
+        return 2
     manifest = {
         "run_id": run_id,
         "started_utc": datetime.now(timezone.utc).isoformat(),
