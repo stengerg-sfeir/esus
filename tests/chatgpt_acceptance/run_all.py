@@ -33,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("root", nargs="?", default="out/initial/chatgpt_compare",
                         help="directory containing the non-60 direct outputs")
-    parser.add_argument("--sixty-root", default="out/60/chatgpt_compare",
+    parser.add_argument("--sixty-root", default="out/validation/60/chatgpt_compare",
                         help="directory containing the 60 direct output")
     parser.add_argument("--only", default=None,
                         help="comma-separated suite names")

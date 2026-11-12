@@ -37,7 +37,7 @@ For scale, the sum of the seven ESUS times is **2,076 s (34m 36s)** and the sum 
 
 The practical conclusion is not “one system writes better code”. It is that the direct one-shot path is faster and often surprisingly complete, while ESUS buys its acceptance coverage with much more model work and still needs a repair pass when a provisional body is wrong. A cheap runtime gate for the target Python version and a real GUI launch would have caught every direct failure above before delivery.
 
-Raw runs are on disk but ignored by git: `out/initial/esus_bench/<name>/` and `out/initial/chatgpt_compare/<name>/` hold the six non-60 outputs; the `60` output is under `out/60/esus_bench/60/` and `out/60/chatgpt_compare/60/`. ESUS acceptance commands are the `tests/e2e_*_acceptance.py` scripts with the corresponding directory; the independent direct suites are under `tests/chatgpt_acceptance/`, with `run_all.py` and the Python 3.12 `compat.py` gate.
+Raw runs are on disk but ignored by git: `out/initial/esus_bench/<name>/` and `out/initial/chatgpt_compare/<name>/` hold the six non-60 outputs; the `60` output is under `out/validation/60/esus_bench/60/` and `out/validation/60/chatgpt_compare/60/`. ESUS acceptance commands are the `tests/e2e_*_acceptance.py` scripts with the corresponding directory; the independent direct suites are under `tests/chatgpt_acceptance/`, with `run_all.py` and the Python 3.12 `compat.py` gate.
 
 ### Token use
 

@@ -2,7 +2,7 @@
 
 These are independent behavioural checks for the seven outputs. The six
 initial-prompt outputs are under `out/initial/chatgpt_compare/`; the `60`
-output is under `out/60/chatgpt_compare/60`. They are deliberately separate
+output is under `out/validation/60/chatgpt_compare/60`. They are deliberately separate
 from the subagents' own smoke tests and follow the same idea as
 `tests/e2e_*_acceptance.py`: use a fresh SQLite database, drive the public
 CLI/service surface, and report one line per check.
@@ -40,7 +40,7 @@ python3.12 tests/chatgpt_acceptance/hello.py out/initial/chatgpt_compare/hello_w
 python3.12 tests/chatgpt_acceptance/cli_tool.py out/initial/chatgpt_compare/cli_tool
 python3.12 tests/chatgpt_acceptance/inventory.py out/initial/chatgpt_compare/inventory
 python3.12 tests/chatgpt_acceptance/gui.py out/initial/chatgpt_compare/gui
-python3.12 tests/chatgpt_acceptance/business.py out/60/chatgpt_compare/60
+python3.12 tests/chatgpt_acceptance/business.py out/validation/60/chatgpt_compare/60
 python3.14 tests/chatgpt_acceptance/expenses.py out/initial/chatgpt_compare/expenses
 python3.14 tests/chatgpt_acceptance/library.py out/initial/chatgpt_compare/library
 ```

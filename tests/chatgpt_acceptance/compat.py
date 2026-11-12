@@ -24,7 +24,7 @@ def run(root: Path, python: str | None = None,
     if not interpreter:
         print("FAIL  python3.12 is not installed", file=sys.stderr)
         return 2
-    sixty_root = sixty_root or root.parent.parent / "60" / "chatgpt_compare"
+    sixty_root = sixty_root or root.parent.parent / "validation" / "60" / "chatgpt_compare"
     results = []
     for name, package, source in PROJECTS:
         project = (sixty_root / "60") if name == "60" else (root / name)
@@ -57,7 +57,7 @@ def main(argv: list[str]) -> int:
     root = (Path(argv[1]).resolve() if len(argv) > 1
             else Path("out/initial/chatgpt_compare").resolve())
     sixty_root = (Path(argv[2]).resolve() if len(argv) > 2
-                  else Path("out/60/chatgpt_compare").resolve())
+                  else Path("out/validation/60/chatgpt_compare").resolve())
     return run(root, None, sixty_root)
 
 
