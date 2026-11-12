@@ -39,6 +39,20 @@ The practical conclusion is not “one system writes better code”. It is that 
 
 Raw runs are on disk but ignored by git: `out/esus_bench/<name>/` has the ESUS logs and acceptance output, and `out/chatgpt_compare/<name>/` has the direct project, `TIMING.json`, smoke results and `COMPLIANCE.md`. The direct `TIMING.json` files are the source of the direct wall times. ESUS acceptance commands are the `tests/e2e_*_acceptance.py` scripts with the corresponding directory; the independent direct suites are under `tests/chatgpt_acceptance/`, with `run_all.py` and the Python 3.12 `compat.py` gate.
 
+### Token use
+
+The token accounting is not directly comparable. ESUS counts Qwen's extraction prompts/outputs plus the body-generation prompts/outputs recorded in `llm_stub_answers.json`; the direct counts come from the OpenCode Go session totals and include the agent's reasoning, tool calls, test writing and repeated cached context.
+
+|  | ESUS | GPT-6 Luna |
+| --- | ---: | ---: |
+| Prompt/input | **340,316** | **1,361,794** buckets |
+| — of which cached | 187,166 generation-cache reads | 1,254,273 cache reads |
+| Output | **60,980** | **67,057** |
+| Reasoning | not reported | **25,173** |
+| Reported API cost | local Qwen | **$0.0721** |
+
+ESUS breaks down as 62,618 extraction prompt tokens, 277,698 generation prompt tokens, 52,941 extraction output tokens and 7,308 generation output tokens, plus 731 fallback-app output tokens for hello/CSV. The direct input figure is `input + cache.read + cache.write` from the seven successful sessions; cached reads are still part of the provider's reported context.
+
 ## What was measured
 
 This section is the earlier **2026-11-09** library deep-dive; it is not the end-to-end benchmark above.
