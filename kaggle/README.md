@@ -1,18 +1,19 @@
 # Kaggle validation run
 
 This directory contains the notebook and kernel metadata for the 60-prompt
-validation run. The Kaggle API key is not configured yet; these steps are
-ready for the account key.
+validation run. The notebook runs one worker per visible GPU (up to two),
+merges the shards into one run directory, and writes a self-contained zip
+under `/kaggle/working/`.
 
 ## Prerequisites
 
 ```sh
 export KAGGLE_USERNAME=...
 export KAGGLE_KEY=...
-# or place the key at ~/.kaggle/kaggle.json
+# or place the token at ~/.kaggle/access_token
 ```
 
-Replace `YOUR_KAGGLE_USERNAME` in `kernel-metadata.json`.
+Replace `gillesstenger` below if you use another Kaggle account.
 
 ## Datasets
 
@@ -20,21 +21,29 @@ Create two private datasets.
 
 ### Code
 
-The code dataset must contain the repository at its root (`extract_arch.py`,
-`kernel/`, `prompts/validation/`, `scripts/run_validation.py`, ...):
+The notebook expects a single zip file named `esus-code.bundle` at the root
+of `/kaggle/input/esus-code-bundle/`. That file contains the repository at
+its root (`extract_arch.py`, `kernel/`, `prompts/validation/`,
+`scripts/run_validation.py`, ...):
 
 ```sh
-mkdir -p /tmp/esus-code-dataset
-rsync -a --exclude out --exclude .git ./ /tmp/esus-code-dataset/
-cat > /tmp/esus-code-dataset/dataset-metadata.json <<'JSON'
+mkdir -p /tmp/esus-code-bundle
+cd /path/to/esus
+zip -qr /tmp/esus-code-bundle/esus-code.bundle . \
+  -x 'out/*' '.git/*' '__pycache__/*' '*.pyc' \
+     'esus/*' 'llama.cpp/*' 'session.json'
+cat > /tmp/esus-code-bundle/dataset-metadata.json <<'JSON'
 {
-  "title": "ESUS code",
-  "id": "YOUR_KAGGLE_USERNAME/esus-code",
+  "title": "ESUS code bundle",
+  "id": "gillesstenger/esus-code-bundle",
   "licenses": [{"name": "CC0-1.0"}]
 }
 JSON
-kaggle datasets create -p /tmp/esus-code-dataset
+kaggle datasets create -p /tmp/esus-code-bundle
 ```
+
+`esus-code.bundle` is a normal zip archive despite the name. The notebook
+extracts it into `/kaggle/working/esus`.
 
 ### Model
 
@@ -46,7 +55,7 @@ cp ~/Documents/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf /tmp/qwen3-4b-dataset/
 cat > /tmp/qwen3-4b-dataset/dataset-metadata.json <<'JSON'
 {
   "title": "Qwen3 4B Instruct 2507 Q4_K_M",
-  "id": "YOUR_KAGGLE_USERNAME/qwen3-4b-instruct",
+  "id": "gillesstenger/qwen3-4b-instruct",
   "licenses": [{"name": "Apache-2.0"}]
 }
 JSON
@@ -59,13 +68,16 @@ From the repository root:
 
 ```sh
 kaggle kernels push -p kaggle
-kaggle kernels status YOUR_KAGGLE_USERNAME/esus-validation-60
-kaggle kernels logs YOUR_KAGGLE_USERNAME/esus-validation-60
+kaggle kernels status gillesstenger/esus-validation-60-prompts
+kaggle kernels logs gillesstenger/esus-validation-60-prompts
 ```
 
-The notebook builds `llama.cpp` if `llama-server` is absent, starts the Qwen
-server, runs `scripts/run_validation.py`, and writes a zip under
-`/kaggle/working/`.
+The notebook downloads a CUDA `llama-server` prebuilt if the image does not
+provide one, starts one server per GPU, runs `scripts/run_validation.py` on
+disjoint prompt shards, and merges them with
+`scripts/merge_validation_runs.py`. The merged run includes every prompt's
+extraction output and is archived as
+`/kaggle/working/validation-<run-id>.zip`.
 
 If the full 60-prompt run exceeds the session limit, rerun in batches:
 

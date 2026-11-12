@@ -115,22 +115,25 @@ suite.
 
 ## Kaggle plan
 
-The Kaggle key is not yet available, so the upload/push steps are prepared but
-not executed.
+The code and model datasets are uploaded as private Kaggle datasets, and the
+validation kernel is pushed with `kaggle kernels push -p kaggle`.
 
 ### 1. Upload the code and model
 
 Two private Kaggle datasets are needed:
 
-1. **ESUS code**: this repository snapshot including `extract_arch.py`,
-   `kernel/`, `prompts/validation/`, and `scripts/run_validation.py`.
-2. **Qwen model**: `Qwen3-4B-Instruct-2507-Q4_K_M.gguf` (about 2.3 GB).
+1. **ESUS code bundle**: a zip named `esus-code.bundle` containing this
+   repository snapshot (`extract_arch.py`, `kernel/`,
+   `prompts/validation/`, and `scripts/run_validation.py`), dataset id
+   `gillesstenger/esus-code-bundle`.
+2. **Qwen model**: `Qwen3-4B-Instruct-2507-Q4_K_M.gguf` (about 2.3 GB),
+   dataset id `gillesstenger/qwen3-4b-instruct`.
 
-The notebook mounts them at:
+The notebook finds them under:
 
 ```text
-/kaggle/input/esus-code/
-/kaggle/input/qwen3-4b-instruct/
+/kaggle/input/esus-code-bundle/esus-code.bundle
+/kaggle/input/qwen3-4b-instruct/Qwen3-4B-Instruct-2507-Q4_K_M.gguf
 ```
 
 If Kaggle internet is enabled, the model can instead be downloaded in the
@@ -138,27 +141,42 @@ notebook; a dataset avoids relying on a third-party URL.
 
 ### 2. Build the runtime
 
-The notebook must provide a `llama-server` binary. Preferred path:
+The notebook downloads the official CUDA `llama-server` prebuilt
+(`llama-b12110-bin-ubuntu-cuda-12.8-x64`); if that is unavailable it falls
+back to a CPU build. It starts one server per visible GPU, with:
 
 ```sh
-git clone --depth 1 https://github.com/ggml-org/llama.cpp
-cmake -S llama.cpp -B llama.cpp/build -DGGML_CUDA=ON -DLLAMA_CURL=OFF
-cmake --build llama.cpp/build --config Release -j2
+llama-server -m <model> -c 16384 -ngl 99 -fa on --port 8080 -np 1
 ```
 
-Then start the model with the same context/slot settings as ESUS:
+Each server is pinned to its own `CUDA_VISIBLE_DEVICES`. The notebook waits
+for `GET /health` before running the validation.
 
-```sh
-llama-server -m /kaggle/input/qwen3-4b-instruct/Qwen3-4B-Instruct-2507-Q4_K_M.gguf \
-  -c 16384 -ngl 99 -fa on --port 8080 -np 1
-```
-
-The notebook waits for `GET /health` before running the validation.
-
-### 3. Run with checkpointing
+### 3. Run with checkpointing and two GPUs
 
 Kaggle sessions are time-limited, and a 60-prompt extraction run can exceed a
-single session. The runner already supports resume:
+single session. The notebook detects visible GPUs and starts one
+`llama-server` per device (ports 8080 and 8081). The prompt set is split into
+disjoint shards and each shard runs concurrently:
+
+```text
+prompt_01, prompt_03, ...  -> GPU 0 / port 8080
+prompt_02, prompt_04, ...  -> GPU 1 / port 8081
+```
+
+Each worker writes its own run ID. `scripts/merge_validation_runs.py` then
+merges the two `summary.json` files, rejects duplicate prompts, and writes the
+combined `summary.json`/`summary.csv`:
+
+```sh
+python3 scripts/merge_validation_runs.py \
+  --runs out/validation/runs/<worker-0> out/validation/runs/<worker-1> \
+  --out out/validation/runs/<merged-run-id> \
+  --require 60
+```
+
+A directory with `metrics.json` is skipped unless `--force` is passed. The
+single-server runner remains available for local work:
 
 ```sh
 python3 scripts/run_validation.py \
@@ -167,15 +185,6 @@ python3 scripts/run_validation.py \
   --run-id kaggle-<date> \
   --server-url http://127.0.0.1:8080
 ```
-
-A directory with `metrics.json` is skipped unless `--force` is passed. The
-notebook should run in batches if necessary:
-
-```sh
---only prompt_01,prompt_02,...,prompt_10
-```
-
-or use `--limit` for a first calibration batch.
 
 ### 4. Publish results
 
@@ -200,16 +209,17 @@ kaggle/
 └── validation.ipynb
 ```
 
-The metadata uses placeholders for the Kaggle username and dataset IDs until
-the API key and account name are supplied. The runner's parser and classifier
-are covered by `tests/test_validation_runner.py`.
+The metadata now points at `gillesstenger/esus-validation-60-prompts`,
+`gillesstenger/esus-code-bundle` and `gillesstenger/qwen3-4b-instruct`. The
+runner's parser and classifier are covered by
+`tests/test_validation_runner.py`.
 
 ## Open items
 
-- [ ] Receive Kaggle API credentials and username.
-- [ ] Create/upload the code and model datasets.
-- [ ] Replace placeholder dataset IDs and kernel owner in `kaggle/`.
-- [ ] Push the kernel with `kaggle kernels push`.
+- [x] Receive Kaggle API credentials and username.
+- [x] Create/upload the code and model datasets.
+- [x] Replace placeholder dataset IDs and kernel owner in `kaggle/`.
+- [x] Push the kernel with `kaggle kernels push`.
 - [ ] Run a 3–5 prompt calibration batch inside Kaggle.
 - [ ] Estimate the full 60-prompt runtime and decide whether to split it.
 - [ ] Run all 60 prompts.
@@ -230,5 +240,10 @@ are covered by `tests/test_validation_runner.py`.
   `direct`, 17.155 s cold / 8.477 s warm, 320 output / 1 639 prompt tokens.
 - Added the Kaggle notebook, kernel metadata, dataset/push instructions, and
   parser/classifier unit tests.
-- Kaggle CLI is installed (`kaggle 2.2.4`) but credentials are not configured
-  yet; upload and kernel push are intentionally blocked on the API key.
+- Kaggle credentials are configured (`kaggle 2.2.4`).
+- Uploaded `gillesstenger/esus-code-bundle` (a zip containing
+  `esus-code.bundle`) and `gillesstenger/qwen3-4b-instruct`; pushed
+  `gillesstenger/esus-validation-60-prompts`.
+- The notebook now extracts the code archive, uses official CUDA prebuilts
+  with a CPU fallback, runs one worker per visible GPU, and merges the shards
+  into a self-contained run directory.
