@@ -7,7 +7,7 @@ ESUS outputs.
 
 Run one suite with the interpreter under test::
 
-    python3.12 tests/chatgpt_acceptance/inventory.py out/chatgpt_compare/inventory
+    python3.12 tests/chatgpt_acceptance/inventory.py out/initial/chatgpt_compare/inventory
 
 ``run_all.py`` runs every suite and writes a combined result file.
 """

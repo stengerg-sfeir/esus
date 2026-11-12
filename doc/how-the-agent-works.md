@@ -85,7 +85,7 @@ If the architecture is clean but empty, `generator.py --model MODEL.gguf` uses a
 ## One command: `main.py`
 
 ```bash
-python3 main.py prompts/prompt_library_system.txt
+python3 main.py prompts/initial/prompt_library_system.txt
 ```
 
 `main.py` runs the whole pipeline on one prompt file: it extracts the architecture, checks readiness, and, if the documents are ready, generates the program. It hides the two scripts' messages and shows only the major steps, each with an ok or KO status, and a rolling spinner while one runs:
@@ -101,7 +101,7 @@ Done in 5s
   logs:    out/hello_world/logs  (+ out/hello_world/run.log)
 ```
 
-A prompt whose extraction leaves open questions stops at readiness. Both outputs here are real runs; this one is `prompts/prompt_expenses.txt`:
+A prompt whose extraction leaves open questions stops at readiness. Both outputs here are real runs; this one is `prompts/initial/prompt_expenses.txt`:
 
 ```text
 ESUS  prompt_expenses.txt  ->  out/expenses

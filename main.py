@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run the whole pipeline on one prompt file: extract, check, generate.
 
-    python3 main.py prompts/prompt_library_system.txt
+    python3 main.py prompts/initial/prompt_library_system.txt
 
 The intermediate messages of `extract_arch.py` and `generator.py` are hidden.
 Their full output is saved in the output folder (`logs/extract.log`,
@@ -140,7 +140,7 @@ def generated_summary(generated):
 
 
 def default_output(prompt):
-    """`out/<name>` for `prompts/prompt_<name>.txt`."""
+    """`out/<name>` for a prompt file named `prompt_<name>.txt`."""
     stem = Path(prompt).stem
     return ROOT / "out" / (stem[len("prompt_"):] if stem.startswith("prompt_") else stem)
 
@@ -482,7 +482,7 @@ def parse_args(argv=None):
                     "re-extracted in place and keeps its recorded decisions.",
         epilog="exit codes: 0 done, 1 extraction or readiness failed, "
                "2 generation failed, 3 bad inputs, 130 interrupted")
-    parser.add_argument("prompt", help="requirements file, e.g. prompts/prompt_hello_world.txt")
+    parser.add_argument("prompt", help="requirements file, e.g. prompts/initial/prompt_hello_world.txt")
     parser.add_argument("-o", "--output", help="output folder (default: out/<prompt name>)")
     parser.add_argument("--model", default="server",
                         help="`server` (a running llama-server, the default) "

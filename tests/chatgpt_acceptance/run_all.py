@@ -31,12 +31,15 @@ SUITE_SCRIPTS = {"60": "business"}
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("root", nargs="?", default="out/chatgpt_compare",
-                        help="directory containing the direct outputs")
+    parser.add_argument("root", nargs="?", default="out/initial/chatgpt_compare",
+                        help="directory containing the non-60 direct outputs")
+    parser.add_argument("--sixty-root", default="out/60/chatgpt_compare",
+                        help="directory containing the 60 direct output")
     parser.add_argument("--only", default=None,
                         help="comma-separated suite names")
     args = parser.parse_args(argv)
     root = Path(args.root).resolve()
+    sixty_root = Path(args.sixty_root).resolve()
     selected = list(PROJECTS)
     if args.only:
         selected = [name.strip() for name in args.only.split(",") if name.strip()]
@@ -47,7 +50,8 @@ def main(argv: list[str] | None = None) -> int:
 
     results = []
     for name in selected:
-        project = root / PROJECTS[name]
+        project = (sixty_root / PROJECTS[name]) if name == "60" \
+            else (root / PROJECTS[name])
         script = Path(__file__).with_name(f"{SUITE_SCRIPTS.get(name, name)}.py")
         print(f"\n=== {name} ({project}) ===", flush=True)
         result = subprocess.run([sys.executable, str(script), str(project)],
@@ -66,6 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         results.append({"suite": name, "exit": result.returncode, "checks": checks})
     payload = {
         "root": str(root),
+        "sixty_root": str(sixty_root),
         "interpreter": sys.version,
         "results": results,
         "status": "passed" if all(item["exit"] == 0 for item in results) else "failed",

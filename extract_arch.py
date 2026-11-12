@@ -17,11 +17,11 @@ generatable while the generated code is still incomplete or wrong. Pass
 
 Usage:
     python3.12 extract_arch.py --model MODEL.gguf --output out/library \\
-        --requirements prompts/prompt_library_system.txt
+        --requirements prompts/initial/prompt_library_system.txt
     python3.12 extract_arch.py --model MODEL.gguf --output out/library \\
-        --requirements prompts/prompt_library_system.txt --chat
+        --requirements prompts/initial/prompt_library_system.txt --chat
     python3.12 extract_arch.py --model server --output out/library \\
-        --requirements prompts/prompt_library_system.txt --no-chat
+        --requirements prompts/initial/prompt_library_system.txt --no-chat
 
 `--model server` uses an already-running llama-server instead of loading the
 GGUF here. Set LLAMA_SERVER_URL (default http://127.0.0.1:8080) to point at it;

@@ -37,7 +37,7 @@ For scale, the sum of the seven ESUS times is **2,076 s (34m 36s)** and the sum 
 
 The practical conclusion is not “one system writes better code”. It is that the direct one-shot path is faster and often surprisingly complete, while ESUS buys its acceptance coverage with much more model work and still needs a repair pass when a provisional body is wrong. A cheap runtime gate for the target Python version and a real GUI launch would have caught every direct failure above before delivery.
 
-Raw runs are on disk but ignored by git: `out/esus_bench/<name>/` has the ESUS logs and acceptance output, and `out/chatgpt_compare/<name>/` has the direct project, `TIMING.json`, smoke results and `COMPLIANCE.md`. The direct `TIMING.json` files are the source of the direct wall times. ESUS acceptance commands are the `tests/e2e_*_acceptance.py` scripts with the corresponding directory; the independent direct suites are under `tests/chatgpt_acceptance/`, with `run_all.py` and the Python 3.12 `compat.py` gate.
+Raw runs are on disk but ignored by git: `out/initial/esus_bench/<name>/` and `out/initial/chatgpt_compare/<name>/` hold the six non-60 outputs; the `60` output is under `out/60/esus_bench/60/` and `out/60/chatgpt_compare/60/`. ESUS acceptance commands are the `tests/e2e_*_acceptance.py` scripts with the corresponding directory; the independent direct suites are under `tests/chatgpt_acceptance/`, with `run_all.py` and the Python 3.12 `compat.py` gate.
 
 ### Token use
 
@@ -57,7 +57,7 @@ ESUS breaks down as 62,618 extraction prompt tokens, 277,698 generation prompt t
 
 This section is the earlier **2026-11-09** library deep-dive; it is not the end-to-end benchmark above.
 
-One clean run of the library prompt (`prompts/prompt_library_system.txt`), on an Apple M1 Pro with 16 GB, Qwen3-4B-Instruct Q4_K_M through `llama-server` with one slot, 16,384 context, the Metal GPU and flash attention. The numbers come from the `print_timing` lines of the server log.
+One clean run of the library prompt (`prompts/initial/prompt_library_system.txt`), on an Apple M1 Pro with 16 GB, Qwen3-4B-Instruct Q4_K_M through `llama-server` with one slot, 16,384 context, the Metal GPU and flash attention. The numbers come from the `print_timing` lines of the server log.
 
 | Phase | Wall time | Measured detail |
 | --- | --- | --- |
@@ -137,7 +137,7 @@ then begins with the same **3,225-character** requirements prefix, so the
 server can reuse it:
 
 ```bash
-ESUS_SHARED_CONTEXT=1 python3 main.py prompts/prompt_expenses.txt \
+ESUS_SHARED_CONTEXT=1 python3 main.py prompts/initial/prompt_expenses.txt \
     --model server -o out/expenses_llama_shared
 ```
 
@@ -295,7 +295,7 @@ more than one slot and enough context for both:
 CTX=32768 SLOTS=2 ./scripts/start_llama_server.sh
 ESUS_COMPONENTS_SPLIT=1 ESUS_PARALLEL=1 python3.12 extract_arch.py \
     --model server --output out/expenses_parallel \
-    --requirements prompts/prompt_expenses.txt --no-chat --quiet
+    --requirements prompts/initial/prompt_expenses.txt --no-chat --quiet
 ```
 
 Measured on the expenses prompt, Qwen3-4B Q4_K_M, split components, 16,384

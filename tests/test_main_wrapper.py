@@ -151,7 +151,7 @@ class GeneratedSummaryTests(unittest.TestCase):
 
 class NamingTests(unittest.TestCase):
     def test_the_default_output_drops_the_prompt_prefix(self):
-        self.assertEqual(main.default_output("prompts/prompt_hello_world.txt"),
+        self.assertEqual(main.default_output("prompts/initial/prompt_hello_world.txt"),
                          ROOT / "out" / "hello_world")
         self.assertEqual(main.default_output("elsewhere/my_spec.txt"),
                          ROOT / "out" / "my_spec")

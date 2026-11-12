@@ -51,9 +51,10 @@ class ExtractTests(unittest.TestCase):
 
     def test_full_prompts_yield_their_command_lines(self):
         here = Path(__file__).resolve().parent.parent
+        initial = here / "prompts" / "initial"
         counts = {}
         for name in ("prompt_library_system", "prompt_inventory", "prompt_expenses"):
-            text = (here / "prompts" / f"{name}.txt").read_text(encoding="utf-8")
+            text = (initial / f"{name}.txt").read_text(encoding="utf-8")
             counts[name] = len(command_lines.extract_command_lines(text))
         self.assertEqual(counts, {"prompt_library_system": 15,
                                   "prompt_inventory": 11,
@@ -61,9 +62,10 @@ class ExtractTests(unittest.TestCase):
                                   # names (`expense category list`, `expense
                                   # recurring detect`), enumerated since stage A.
                                   "prompt_expenses": 14})
-        for name in ("prompt_60", "prompt_hello_world", "prompt_cli_tool",
-                     "prompt_gui"):
-            text = (here / "prompts" / f"{name}.txt").read_text(encoding="utf-8")
+        text = (here / "prompts" / "prompt_60.txt").read_text(encoding="utf-8")
+        self.assertEqual(command_lines.extract_command_lines(text), [])
+        for name in ("prompt_hello_world", "prompt_cli_tool", "prompt_gui"):
+            text = (initial / f"{name}.txt").read_text(encoding="utf-8")
             self.assertEqual(command_lines.extract_command_lines(text), [])
 
 

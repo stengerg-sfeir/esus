@@ -18,14 +18,16 @@ PROJECTS = (
 )
 
 
-def run(root: Path, python: str | None = None) -> int:
+def run(root: Path, python: str | None = None,
+        sixty_root: Path | None = None) -> int:
     interpreter = python or shutil.which("python3.12")
     if not interpreter:
         print("FAIL  python3.12 is not installed", file=sys.stderr)
         return 2
+    sixty_root = sixty_root or root.parent.parent / "60" / "chatgpt_compare"
     results = []
     for name, package, source in PROJECTS:
-        project = root / name
+        project = (sixty_root / "60") if name == "60" else (root / name)
         env = dict(os.environ)
         env["PYTHONPATH"] = str(project / source)
         result = subprocess.run(
@@ -52,8 +54,11 @@ def run(root: Path, python: str | None = None) -> int:
 
 
 def main(argv: list[str]) -> int:
-    root = Path(argv[1]).resolve() if len(argv) > 1 else Path("out/chatgpt_compare").resolve()
-    return run(root, argv[2] if len(argv) > 2 else None)
+    root = (Path(argv[1]).resolve() if len(argv) > 1
+            else Path("out/initial/chatgpt_compare").resolve())
+    sixty_root = (Path(argv[2]).resolve() if len(argv) > 2
+                  else Path("out/60/chatgpt_compare").resolve())
+    return run(root, None, sixty_root)
 
 
 if __name__ == "__main__":

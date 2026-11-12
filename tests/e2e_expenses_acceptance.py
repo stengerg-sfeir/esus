@@ -4,7 +4,7 @@ Run after real extraction and generation have populated ``OUT_DIR``::
 
     python3 tests/e2e_expenses_acceptance.py out/expenses
 
-Every requirement of ``prompts/prompt_expenses.txt`` that can be run is checked
+Every requirement of ``prompts/initial/prompt_expenses.txt`` that can be run is checked
 through the generated CLI in fresh processes, or through the package for the
 service methods the CLI does not reach. Each check is independent and the whole
 list is reported, because a program with several defects should show all of
