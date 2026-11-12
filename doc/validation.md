@@ -113,6 +113,34 @@ Result: `direct`, first cold run **17.155 s**, warm repeat **8.477 s**,
 classification path. It is not a representative sample of the 60-prompt
 suite.
 
+## Calibration results (2026-11-12)
+
+The first complete calibration ran on two visible GPUs with one
+`llama-server` (`--parallel 2`) and `run_validation.py --concurrency 2`.
+
+| Prompt | Class | Time | Tokens out | Tokens prompt | Observed blocker |
+| --- | --- | ---: | ---: | ---: | --- |
+| `prompt_01` | direct | 66.6 s | 320 | 1 639 | none |
+| `prompt_10` | direct | 126.3 s | 3 281 | 4 406 | none |
+| `prompt_20` | review | 172.4 s | 4 775 | 4 597 | 2 open ties |
+| `prompt_30` | not generatable | 71.1 s | 2 689 | 2 050 | persistence required, no data models/CRUD, 14 surface questions |
+| `prompt_40` | not generatable | 42.1 s | 1 247 | 1 857 | persistence required, no data models/CRUD, 1 surface question |
+| `prompt_50` | review | 151.0 s | 3 492 | 3 860 | 1 open tie |
+| `prompt_56` | review | 511.4 s | 13 257 | 7 117 | 3 method contracts |
+| `prompt_60` | review | 481.8 s | 23 758 | 10 068 | 1 pattern slot + 5 contracts |
+| **Total** | 2 direct / 4 review / 2 blocked | **27m 03s** | **52 819** | **35 594** | 96 timed calls |
+
+The two long prompts (`prompt_56`, `prompt_60`) dominate: together they take
+16m 33s and produce 37 015 output tokens. A full 60-prompt run at this
+calibration rate is roughly **3–4 hours** on two slots, before review.
+This is a rough estimate because the calibration deliberately includes the
+longest prompt.
+
+The kernel log shows each prompt line twice. This is **not a duplicate
+extraction**: the run has one command, a global `.validation.lock`, and the
+merged summary contains exactly eight unique prompt rows. The duplication is
+in Kaggle/Papermill's stdout capture, not in the extraction count.
+
 ## Kaggle plan
 
 The code and model datasets are uploaded as private Kaggle datasets, and the
@@ -224,9 +252,12 @@ runner's parser and classifier are covered by
 - [x] Replace placeholder dataset IDs and kernel owner in `kaggle/`.
 - [x] Push the kernel with `kaggle kernels push`.
 - [x] Run an 8-prompt calibration batch inside Kaggle.
-- [ ] Confirm that the first calibration produced metrics for all 8 prompts.
-- [ ] Estimate the full 60-prompt runtime under two server slots.
+- [x] Confirm that the first calibration produced metrics for all 8 prompts.
+- [x] Estimate the full 60-prompt runtime under two server slots (3–4 hours).
 - [ ] Run all 60 prompts with `--concurrency 2`.
+- [ ] Fix the two structural failures: `prompt_30` and `prompt_40` extract
+      empty data models while claiming persistence is required (no
+      `persistence_ports.json`).
 - [ ] Review/run the review scripts on the `review` class and remeasure
       readiness.
 - [ ] Compare the counts against the fresh-prompt benchmark in
@@ -249,5 +280,8 @@ runner's parser and classifier are covered by
   `esus-code.bundle`) and `gillesstenger/qwen3-4b-instruct`; pushed
   `gillesstenger/esus-validation-60-prompts`.
 - The notebook now extracts the code archive, uses official CUDA prebuilts
-  with a CPU fallback, runs one worker per visible GPU, and merges the shards
-  into a self-contained run directory.
+  with a CPU fallback, starts one server with two decode slots, runs the
+  concurrent prompt runner, and archives the single run directory.
+- Completed the 8-prompt calibration: 2 direct, 4 review, 2 not generatable;
+  total 27m 03s and 52,819 output / 35,594 prompt tokens. The two blocked
+  prompts both extract zero data models while declaring persistence required.
