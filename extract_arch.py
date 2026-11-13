@@ -328,7 +328,7 @@ def repair_existing(output_dir):
     """
     from kernel.consistency.loader import load_documents, load_requirements
     from kernel.consistency.report import Report
-    from kernel.extraction import components_completion, repairs
+    from kernel.extraction import components_completion, dedupe, interfaces, repairs
 
     directory = Path(output_dir)
     report = Report(directory.name)
@@ -351,17 +351,43 @@ def repair_existing(output_dir):
     if isinstance(models, list):
         repairs.repair_primary_key_uniqueness(models, log)
         repairs.repair_primary_key_foreign_keys(models, log)
+        repairs.repair_primary_key_foreign_key_names(models, log)
         repairs.repair_period_field_types(
             models, requirements, log, documents.get(pipeline_module.INVARIANTS))
+    errors = documents.get(pipeline_module.ERRORS)
+    if isinstance(services, list):
+        services, removed = dedupe.deduplicate(
+            pipeline_module.SERVICE_CONTRACTS, services)
+        if removed:
+            log.write(
+                f"[ok] step persistence: removed {removed} duplicate service "
+                "method name(s)"
+            )
+        errors, services = repairs.repair_unknown_raises(
+            errors, services, requirements, log)
+        documents[pipeline_module.ERRORS] = errors
+        documents[pipeline_module.SERVICE_CONTRACTS] = services
     if isinstance(components, dict):
+        repairs.repair_persistence_consistency(components, log)
         repairs.repair_missing_surface(components, requirements, models, log)
         repairs.repair_placeholder_subcommands(components, log)
         repairs.repair_flat_command_duplicates(components, log)
         components_completion.complete_crud_entities(components, models, log)
     ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
     if isinstance(ports, dict):
+        ports, removed = dedupe.deduplicate(
+            pipeline_module.PERSISTENCE_PORTS, ports)
+        if removed:
+            log.write(
+                f"[ok] step persistence: removed {removed} duplicate method or "
+                "parameter name(s)"
+            )
+        documents[pipeline_module.PERSISTENCE_PORTS] = ports
         repairs.repair_create_missing_fields(ports, models, log)
+        repairs.repair_required_create_fields(ports, models, log)
     if isinstance(adapters, list):
+        repairs.repair_capability_adapters(
+            components, services, adapters, models, requirements, log)
         repairs.repair_adapter_transforms(adapters, log, services)
         repairs.repair_adapter_targets(adapters, services, log)
         repairs.repair_adapter_field_names(adapters, services, models, log)
@@ -369,6 +395,9 @@ def repair_existing(output_dir):
             components, adapters, services, models, log)
         repairs.repair_missing_filter_actions(
             components, adapters, services, models, log)
+        if isinstance(ports, dict):
+            documents[pipeline_module.PERSISTENCE_PORTS] = (
+                interfaces.unify_repository_interfaces(ports, services, log))
     if isinstance(components, dict):
         decisions = load_surface_decisions(directory)
         if decisions:

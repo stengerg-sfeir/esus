@@ -581,6 +581,14 @@ def _best_adapter(adapters, verb_stems, command, sub, unmapped):
     return (scored[0][1], scored[0][0])
 
 
+def _method_returns_nothing(method):
+    """True when a method explicitly returns None/void, not an entity."""
+    if not isinstance(method, dict):
+        return False
+    returns = method.get("return_type")
+    return isinstance(returns, str) and normalize(returns) in ("none", "void")
+
+
 def action_targets(adapters, services, repositories, entity_names):
     """`{action_name: {target_param: model_class_or_None}}` from signatures.
 
@@ -630,11 +638,18 @@ def action_targets(adapters, services, repositories, entity_names):
                         model_cls = sanitize(name, "Model")
                         break
             elif is_mapping_type(ptype):
-                owner = adapter.get("target_service") or ""
-                entity = next((name for name in entity_names
-                               if normalize(owner).startswith(normalize(name))),
-                              None)
-                model_cls = MAPPING_TARGET + (entity or "")
+                if method is not None and _method_returns_nothing(method):
+                    # `ship_order(order_id, shipping_details: dict) -> None`
+                    # carries an auxiliary payload, not an entity to construct.
+                    # The owner-prefix heuristic would call it an Order mapping
+                    # and then demand every key be an Order field.
+                    model_cls = None
+                else:
+                    owner = adapter.get("target_service") or ""
+                    entity = next((name for name in entity_names
+                                   if normalize(owner).startswith(normalize(name))),
+                                  None)
+                    model_cls = MAPPING_TARGET + (entity or "")
             if isinstance(target, str):
                 mapping[target] = model_cls
         targets[adapter.get("action_name")] = mapping

@@ -385,10 +385,13 @@ class Pipeline:
         # was never read anywhere, so it is noise, not modeling — fixed here
         # so the check below judges the repaired models.
         if isinstance(body, list):
+            body = repairs.repair_empty_domain(
+                body, requirements, self.documents.get(INTENTIONS), self.log)
             repairs.repair_primary_key_shapes(body, self.log)
             repairs.repair_foreign_key_types(body, self.log)
             repairs.repair_primary_key_uniqueness(body, self.log)
             repairs.repair_primary_key_foreign_keys(body, self.log)
+            repairs.repair_primary_key_foreign_key_names(body, self.log)
             self.documents[DATA_MODELS] = body
         return body
 
@@ -613,6 +616,8 @@ class Pipeline:
             self.documents[COMPONENTS] = body
         components_completion.complete_crud_entities(
             body, self.documents.get(DATA_MODELS), self.log)
+        repairs.repair_empty_domain_components(
+            body, self.documents.get(DATA_MODELS), self.log)
         return body
 
     def _step_contracts(self, requirements):
@@ -760,6 +765,12 @@ class Pipeline:
         errors, services = repairs.repair_errors(
             self.documents.get(ERRORS), services, self.log
         )
+        # A raised name that the registry does not declare is a hard blocker.
+        # Validation-shaped names the prompt never grounds are dropped; the
+        # remaining names are registered so the contract stays implementable.
+        errors, services = repairs.repair_unknown_raises(
+            errors, services, getattr(self, "requirements", ""), self.log
+        )
         # A declared error that no method raises is dead code. The registry keeps
         # one when a method raises it, when the requirements name it, or when a
         # distinctive word of its name is grounded in the requirements; otherwise
@@ -890,6 +901,26 @@ class Pipeline:
             # _generate stores every attempt: point the document back at the
             # kept one, or a degrading retry silently replaces good content.
             self.documents[INTERACTION_ADAPTERS] = kept
+        # A search/export action whose service contract only names `read_all`
+        # has no capability method to call; an import described in prose has
+        # no action at all. Add both mechanically, then let the surface pass
+        # below derive the leaves from the completed adapter set.
+        repairs.repair_capability_adapters(
+            self.documents.get(COMPONENTS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.documents.get(DATA_MODELS),
+            requirements,
+            self.log,
+        )
+        # A capability method added to a repository contract after step H must
+        # reach the persistence port too; otherwise the checker sees one
+        # interface declared two ways.
+        self.documents[PERSISTENCE_PORTS] = interfaces.unify_repository_interfaces(
+            self.documents.get(PERSISTENCE_PORTS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.log,
+        )
         # The surface and adapter steps are separate: an adapter can require
         # a value the surface never declares. Expose it after both exist so
         # the readiness probe judges a runnable leaf, not a stranded call.
@@ -1110,6 +1141,7 @@ class Pipeline:
     def _step_persistence(self, requirements):
         """Step H: repositories and mappings are fixed by steps B and D."""
         components = self.documents.get(COMPONENTS)
+        repairs.repair_persistence_consistency(components, self.log)
         if not persistence_required(components):
             self.log.write("[ok] step persistence: components declare no persistence — step skipped")
             return
@@ -1146,6 +1178,13 @@ class Pipeline:
         self.documents[SERVICE_CONTRACTS] = interfaces.merge_repository_methods(
             self.documents.get(SERVICE_CONTRACTS), body, self.log
         )
+        self.documents[SERVICE_CONTRACTS], removed = dedupe.deduplicate(
+            SERVICE_CONTRACTS, self.documents.get(SERVICE_CONTRACTS))
+        if removed:
+            self.log.write(
+                f"[ok] step persistence: removed {removed} duplicate service "
+                "method name(s) after merging repositories"
+            )
         # A repository step E already declared is the same class, so its method
         # set is E's; H keeps the mapping it alone produces. Without this the two
         # documents described one interface two ways in all five domain prompts.
@@ -1164,9 +1203,22 @@ class Pipeline:
         self.documents[PERSISTENCE_PORTS] = return_types.repair_port_returns(
             unified, self._entities(), self.log
         )
+        self.documents[PERSISTENCE_PORTS], removed = dedupe.deduplicate(
+            PERSISTENCE_PORTS, self.documents.get(PERSISTENCE_PORTS))
+        if removed:
+            self.log.write(
+                f"[ok] step persistence: removed {removed} duplicate method or "
+                "parameter name(s) after unification"
+            )
         # A create that describes a required field its parameters omit can
         # never succeed at the store; the description is the evidence.
         repairs.repair_create_missing_fields(
+            self.documents[PERSISTENCE_PORTS], self.documents.get(DATA_MODELS),
+            self.log)
+        # A plain create still cannot insert a required field it does not take;
+        # add those mechanically from the model. Mapping/entity-style creates
+        # are skipped inside the repair.
+        repairs.repair_required_create_fields(
             self.documents[PERSISTENCE_PORTS], self.documents.get(DATA_MODELS),
             self.log)
         # Step H owns the same minimum as step E: a repository per listed entity

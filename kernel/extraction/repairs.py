@@ -101,6 +101,86 @@ def repair_errors(errors, services, log):
     return errors, services
 
 
+def repair_unknown_raises(errors, services, requirements, log):
+    """Make every raised error name resolvable.
+
+    A service contract may name an error the registry does not declare. That
+    is a hard generator blocker, not a review decision. Two generic outcomes
+    are safe:
+
+    - a validation-shaped name (`Invalid…`) the requirements never ground is
+      removed from `raises`, because the prompt does not establish that check;
+    - any other raised name is registered as a small error class, preserving
+      the declared failure surface.
+    """
+    if not isinstance(services, list):
+        return errors, services
+    registry = errors if isinstance(errors, list) else []
+    names = {
+        item.get("name") for item in registry
+        if isinstance(item, dict) and isinstance(item.get("name"), str)
+    }
+    lowered = (requirements or "").lower()
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        service_name = service.get("service_name") or "Service"
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            method_name = method.get("name") or "method"
+            raises = method.get("raises")
+            if not isinstance(raises, list):
+                continue
+            kept = []
+            for raw in raises:
+                if not isinstance(raw, str) or not raw.strip():
+                    kept.append(raw)
+                    continue
+                name = raw.rsplit(".", 1)[-1]
+                if name in names:
+                    kept.append(raw)
+                    continue
+                if _is_validation_error(name) and not _validation_word_grounded(
+                        name, lowered):
+                    if log is not None:
+                        log.write(
+                            f"[ok] step errors: dropped unregistered validation "
+                            f"raise '{name}' from {service_name}.{method_name}")
+                    continue
+                registry.append({
+                    "name": name,
+                    "base": _base_for_error(name),
+                    "description": (
+                        f"Raised by {service_name}.{method_name} when the "
+                        "requested operation is not valid."
+                    ),
+                })
+                names.add(name)
+                kept.append(raw)
+                if log is not None:
+                    log.write(
+                        f"[ok] step errors: registered raised error '{name}' "
+                        f"from {service_name}.{method_name}")
+            method["raises"] = kept
+    return registry, services
+
+
+def _base_for_error(name):
+    """A conservative Python base for a raised-but-undeclared error name."""
+    lowered = name.lower()
+    if "notfound" in lowered or "missing" in lowered:
+        return "LookupError"
+    if "permission" in lowered or "forbidden" in lowered:
+        return "PermissionError"
+    if "invalid" in lowered or "stock" in lowered or "price" in lowered \
+            or "name" in lowered:
+        return "ValueError"
+    if "state" in lowered or "transition" in lowered:
+        return "RuntimeError"
+    return "RuntimeError"
+
+
 # --- a declared error nothing raises and the requirements never name ---------------
 
 # Too common to prove an error is grounded on their own: every name ends in one,
@@ -818,6 +898,51 @@ def repair_foreign_key_types(models, log=None):
     return models
 
 
+def repair_primary_key_foreign_key_names(models, log=None):
+    """Rename `<Entity> primary_key` FK fields to the conventional `<entity>_id`.
+
+    The extraction sometimes records a relationship as `book_primary_key` or
+    `member_primary_key`.  The field is a foreign key, not a second primary key;
+    repositories and relation filters look for `book_id`/`member_id`. Rename
+    only when the target is unambiguous and the conventional name is free.
+    """
+    if not isinstance(models, list):
+        return models
+    for model in models:
+        if not isinstance(model, dict):
+            continue
+        fields = model.get("fields")
+        if not isinstance(fields, list):
+            continue
+        existing = {normalize(field.get("name") or "")
+                    for field in fields if isinstance(field, dict)}
+        for field in fields:
+            if not isinstance(field, dict):
+                continue
+            foreign = field.get("foreign_key")
+            if not isinstance(foreign, dict):
+                continue
+            target = foreign.get("target_entity")
+            name = field.get("name")
+            if not isinstance(target, str) or not isinstance(name, str):
+                continue
+            wanted = f"{target.lower()}_id"
+            family = {
+                normalize(f"{target.lower()}_primary_key"),
+                normalize(f"{target.lower()}_key"),
+                normalize(f"{target.lower()}_pk"),
+            }
+            if normalize(name) not in family or normalize(wanted) in existing:
+                continue
+            field["name"] = wanted
+            existing.add(normalize(wanted))
+            if log is not None:
+                log.write(
+                    f"[ok] step data_models: renamed {model.get('name')}.{name} "
+                    f"to {wanted} (foreign key to {target})")
+    return models
+
+
 def repair_primary_key_uniqueness(models, log):
     """Set `unique=true` on primary-key fields declaring `unique=false`.
 
@@ -973,6 +1098,144 @@ _PORT_TYPES = {"string": "str", "text": "str", "integer": "int",
                "boolean": "bool"}
 
 
+_DOMAIN_STOPWORDS = frozenset({
+    "python", "application", "system", "program", "tool", "simple", "basic",
+    "management", "manager", "service", "services", "data", "model",
+})
+
+
+def _domain_candidates(text):
+    """Singular nouns a prose prompt names as the application's subject."""
+    found = []
+    for pattern in (
+            r"\b([a-z][a-z0-9_]*)\s+(?:application|management|manager|tracker)\b",
+            r"\b(?:managing|manage|management of)\s+([a-z][a-z0-9_]*)\b",
+            r"\b([a-z][a-z0-9_]*)\s+records?\b",
+    ):
+        for match in re.finditer(pattern, text, re.IGNORECASE):
+            noun = match.group(1).lower()
+            if noun.endswith("ies"):
+                noun = noun[:-3] + "y"
+            elif noun.endswith("s") and not noun.endswith("ss"):
+                noun = noun[:-1]
+            if len(noun) < 3 or noun in _DOMAIN_STOPWORDS:
+                continue
+            if noun not in found:
+                found.append(noun)
+    return found
+
+
+def repair_empty_domain(models, requirements, intentions=None, log=None):
+    """Build a minimal persisted entity when extraction yields no data model.
+
+    A prose prompt such as "an order application that confirms orders" names a
+    real domain record but contains no field list, so step B can legitimately
+    return `[]`.  That is not a no-domain utility: the prompt asks for state and
+    a notification around an order.  Infer the single subject noun from the
+    application phrase and give it the smallest useful record: an integer key,
+    a status when the prose describes a transition, and timestamps only when
+    the requirements do.  The model is marked as inferred, so a reviewer can
+    see that no field was copied from a nonexistent specification.
+    """
+    if models:
+        return models
+    text = " ".join([requirements or ""] + [
+        str(item) for item in (intentions or [])])
+    candidates = _domain_candidates(text)
+    if not candidates:
+        return models
+    noun = candidates[0]
+    name = noun.replace("_", " ").title().replace(" ", "")
+    fields = [
+        {"name": "id", "type": "int", "primary_key": True,
+         "nullable": False, "unique": True, "foreign_key": None,
+         "status": "inferred"},
+        {"name": "status", "type": "string", "primary_key": False,
+         "nullable": False, "unique": False, "foreign_key": None,
+         "status": "inferred"},
+    ]
+    if re.search(r"\b(?:created|creation|opened)\b", text, re.IGNORECASE):
+        fields.append({"name": "created_at", "type": "datetime",
+                       "primary_key": False, "nullable": False, "unique": False,
+                       "foreign_key": None, "status": "inferred"})
+    model = {"name": name, "fields": fields,
+             "status": "inferred from prose"}
+    if log is not None:
+        log.write(
+            f"[ok] step data_models: no model was extracted; inferred "
+            f"{name} from the application phrase"
+        )
+    return [model]
+
+
+def repair_empty_domain_components(components, models, log=None):
+    """Give an inferred persisted entity the standard CRUD service set."""
+    if not isinstance(components, dict) or not isinstance(models, list):
+        return components
+    if not any(isinstance(model, dict)
+               and model.get("status") == "inferred from prose"
+               for model in models):
+        return components
+    persistence = components.get("persistence")
+    if not isinstance(persistence, dict):
+        persistence = {"required": False, "technology": None}
+        components["persistence"] = persistence
+    if persistence.get("required") is not True:
+        # The inferred record exists to hold order state; a service cannot act
+        # on it if the persistence step is skipped. The prose named no database,
+        # so SQLite is the generator's default store.
+        persistence["required"] = True
+        if str(persistence.get("technology") or "").strip().lower() in (
+                "none", "null", ""):
+            persistence["technology"] = "sqlite"
+        if log is not None:
+            log.write(
+                "[ok] step components: inferred entity needs a store — "
+                "enabled persistence"
+            )
+    if components.get("crud_services"):
+        return components
+    added = []
+    for model in models:
+        if not isinstance(model, dict) or not isinstance(model.get("name"), str):
+            continue
+        components.setdefault("crud_services", []).append({
+            "entity": model["name"],
+            "operations": ["create", "read_one", "read_all", "update"],
+        })
+        added.append(model["name"])
+    if added and log is not None:
+        log.write(
+            f"[ok] step components: inferred CRUD services for "
+            f"{', '.join(added)}"
+        )
+    return components
+
+
+def repair_persistence_consistency(components, log=None):
+    """Normalize the one persistence contradiction we can settle without a model.
+
+    A component block that says persistence is required while its technology is
+    `none` describes no store at all. The prompt may legitimately ask for an
+    in-memory application, so the safe interpretation is "no persistence
+    required", not inventing a persistence port. Technology `none` is the
+    explicit signal; a non-empty technology is left untouched.
+    """
+    if not isinstance(components, dict):
+        return components
+    persistence = components.get("persistence")
+    if not isinstance(persistence, dict):
+        return components
+    technology = str(persistence.get("technology") or "").strip().lower()
+    if persistence.get("required") is True and technology in ("none", "null", ""):
+        persistence["required"] = False
+        if log is not None:
+            log.write(
+                "[ok] step components: persistence required with technology "
+                f"'{technology or 'empty'}' — marked not required")
+    return components
+
+
 def repair_create_missing_fields(ports, models, log):
     """Add the required field a create describes but does not take.
 
@@ -1035,6 +1298,67 @@ def repair_create_missing_fields(ports, models, log):
 
 
 # --- a transform that does not fit the field's name -------------------------------
+
+def _is_mapping_type(type_name):
+    """A request/DTO-shaped parameter already carries the model fields."""
+    if not isinstance(type_name, str):
+        return False
+    normalized = normalize(type_name)
+    return normalized.endswith(("data", "request", "input", "dto", "payload"))
+
+
+def repair_required_create_fields(ports, models, log=None):
+    """Add every required model field a plain create method cannot receive.
+
+    `repair_create_missing_fields` adds only fields the description names.  A
+    repository create with no entity/mapping parameter still cannot insert a
+    NOT NULL field that is absent from its signature; this pass adds those
+    fields mechanically from the model, which is the same authority the CREATE
+    emitter already uses.  Entity/mapping-style creates are left alone.
+    """
+    repositories = ports.get("repositories") if isinstance(ports, dict) else None
+    if not isinstance(repositories, list) or not isinstance(models, list):
+        return ports
+    model_names = [m.get("name") for m in models if isinstance(m, dict)]
+    for repository in repositories:
+        if not isinstance(repository, dict):
+            continue
+        model = next((m for m in models if isinstance(m, dict)
+                      and m.get("name") == repository.get("entity")), None)
+        if model is None:
+            continue
+        for method in repository.get("methods") or []:
+            if not isinstance(method, dict) or method.get("name") != "create":
+                continue
+            params = method.get("params")
+            if not isinstance(params, list):
+                continue
+            if any(is_entity_type(p.get("type"), model_names)
+                   or _is_mapping_type(p.get("type"))
+                   for p in params if isinstance(p, dict)):
+                continue
+            taken = {normalize(p.get("name")) for p in params
+                     if isinstance(p, dict)}
+            for field in model.get("fields") or []:
+                if not isinstance(field, dict) or not field.get("name"):
+                    continue
+                name = field["name"]
+                if (field.get("primary_key") or field.get("nullable")
+                        or normalize(name) in taken):
+                    continue
+                declared = str(field.get("type") or "").strip()
+                params.append({
+                    "name": name,
+                    "type": _PORT_TYPES.get(declared.lower(), declared)})
+                taken.add(normalize(name))
+                if log is not None:
+                    log.write(
+                        f"[ok] step persistence: "
+                        f"{repository.get('interface_name') or repository.get('entity')}"
+                        f".create cannot receive required '{name}' — added as "
+                        f"{params[-1]['type']}")
+    return ports
+
 
 def repair_adapter_transforms(adapters, log, services=None):
     """Replace a transform whose kind contradicts the field or target type.
@@ -1125,6 +1449,15 @@ def _fitter_transform(field_entry, method=None):
     if transform == "BOOL_TO_ONE" and kind in ("bool", "boolean"):
         # A presence flag onto a boolean parameter is the value itself;
         # BOOL_TO_ONE only supplies a count for an integer threshold.
+        return "DIRECT"
+    if transform == "ENUM_LOOKUP" and kind in ("bool", "boolean"):
+        # A boolean model field is not an enum key.  The option already carries
+        # a boolean value, so copying it is the only valid transform.
+        return "DIRECT"
+    if transform == "BOOL_TO_ONE" and kind not in (
+            "int", "integer", "float", "decimal"):
+        # BOOL_TO_ONE is only the count/threshold adapter.  On a scalar bool or
+        # an entity parameter it is a type mismatch, not a conversion.
         return "DIRECT"
     return None
 
@@ -1390,6 +1723,217 @@ def repair_supported_gui_tech(components, log=None):
         log.write(
             f"[ok] step components: GUI technology {tech or '(none)'!r} has no "
             "emitter — using the supported pyimgui backend for the same panels")
+    return components
+
+
+_CAPABILITY_STEMS = {
+    "search": ("search", "find"),
+    "export": ("export",),
+    "import": ("import",),
+    "report": ("report", "summary"),
+    "stock": ("stock",),
+}
+
+
+def _capability_verb(name):
+    """The capability verb an action/method name states, or None."""
+    normalized = normalize(name or "")
+    # `update_product_stock` is an ordinary create/update action, not a
+    # separate stock capability; only a capability-shaped leading verb is
+    # repaired here.
+    if normalized.startswith(("create", "update", "delete", "read", "list",
+                              "add", "remove", "edit", "set")):
+        return None
+    for verb, stems in _CAPABILITY_STEMS.items():
+        if any(stem in normalized for stem in stems):
+            return verb
+    return None
+
+
+def _capability_entity(name, models):
+    """The longest declared entity contained in a service/action name."""
+    normalized = normalize(name or "")
+    found = [(len(normalize(model.get("name"))), model.get("name"))
+             for model in models or []
+             if isinstance(model, dict) and isinstance(model.get("name"), str)
+             and normalize(model.get("name")) in normalized]
+    return max(found)[1] if found else None
+
+
+def _capability_service(services, name):
+    wanted = normalize(name)
+    for service in services or []:
+        if isinstance(service, dict) and normalize(service.get("service_name")) == wanted:
+            return service
+    service = {"service_name": name, "methods": []}
+    services.append(service)
+    return service
+
+
+def _capability_param_type(field_name, models, method=None):
+    if isinstance(method, dict):
+        for param in method.get("params") or []:
+            if (isinstance(param, dict)
+                    and normalize(param.get("name")) == normalize(field_name)):
+                declared = str(param.get("type") or "").strip()
+                if declared:
+                    return declared
+    for model in models or []:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if (isinstance(field, dict)
+                    and normalize(field.get("name")) == normalize(field_name)):
+                declared = str(field.get("type") or "").strip().lower()
+                return _PORT_TYPES.get(declared, field.get("type") or "str")
+    return "str"
+
+
+def _add_capability_method(service, name, adapter, entity, verb, models, log):
+    """Add and return one capability method, or the existing one."""
+    for method in service.get("methods") or []:
+        if isinstance(method, dict) and normalize(method.get("name")) == normalize(name):
+            return method
+    fields = []
+    seen = set()
+    for item in adapter.get("input_fields") or []:
+        if not isinstance(item, dict) or not item.get("field_name"):
+            continue
+        field_name = item["field_name"]
+        key = normalize(field_name)
+        if key in seen:
+            continue
+        seen.add(key)
+        fields.append({
+            "name": field_name,
+            "type": _capability_param_type(field_name, models),
+        })
+    if verb == "search":
+        returns = (f"list[{entity}]" if entity else "list")
+    elif verb == "import":
+        returns = "int"
+    else:
+        returns = "None"
+    method = {
+        "name": name,
+        "description": f"{name.replace('_', ' ').capitalize()}.",
+        "params": fields,
+        "return_type": returns,
+        "raises": [],
+    }
+    service.setdefault("methods", []).append(method)
+    if log is not None:
+        log.write(
+            f"[ok] step adapters: added capability method "
+            f"{service.get('service_name')}.{name} ({verb})"
+        )
+    return method
+
+
+def repair_capability_adapters(components, services, adapters, models,
+                               requirements, log=None):
+    """Give capability actions a method and expose import when prose asks for it.
+
+    A search/export/import action can be fully described by its adapter, yet
+    the service contract names only the CRUD method it delegates to (`read_all`).
+    The CLI leaf then has no method whose name states the capability, and the
+    readiness checker correctly refuses to generate it.  Add the missing
+    capability method on the service that owns the entity; export/import get a
+    service rather than a repository because their generated body writes a file.
+    The adapter is retargeted to that method, so the surface and the call agree.
+    """
+    if not isinstance(services, list) or not isinstance(adapters, list):
+        return components
+    for adapter in list(adapters):
+        if not isinstance(adapter, dict):
+            continue
+        action = adapter.get("action_name")
+        verb = _capability_verb(action)
+        if verb is None:
+            continue
+        target_service = adapter.get("target_service")
+        target_method = adapter.get("target_method")
+        if not isinstance(target_service, str) or not target_service:
+            continue
+        entity = _capability_entity(action, models) \
+            or _capability_entity(target_service, models)
+        service_name = target_service
+        if verb in ("export", "import") and target_service.endswith("Repository"):
+            service_name = (entity or target_service[:-len("Repository")]) + "Service"
+        if target_service != service_name:
+            adapter["target_service"] = service_name
+        method = _add_capability_method(
+            _capability_service(services, service_name), action, adapter,
+            entity, verb, models, log)
+        adapter["target_method"] = method["name"]
+
+    # A prose import requirement has no action yet. Add the command, method and
+    # adapter together; the command is the surface the prompt asks for.
+    text = requirements or ""
+    if not re.search(r"\bimport\b", text, re.IGNORECASE):
+        return components
+    fmt = "json" if re.search(r"\bjson\b", text, re.IGNORECASE) else "csv"
+    if not re.search(rf"\b{fmt}\b", text, re.IGNORECASE):
+        return components
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    invocation = (facade or {}).get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return components
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        for sub in command.get("subcommands") or []:
+            if isinstance(sub, dict) and normalize(sub.get("name")) == "import":
+                return components
+    group = next((command for command in commands
+                  if isinstance(command, dict)
+                  and _capability_entity(command.get("name"), models)), None)
+    if group is None:
+        # Prefer a group the requirements name.
+        group = next((command for command in commands
+                      if isinstance(command, dict)
+                      and normalize(command.get("name")) in normalize(text)), None)
+    if group is None:
+        return components
+    entity = _capability_entity(group.get("name"), models)
+    if entity is None:
+        return components
+    service_name = (entity + "Service")
+    service = _capability_service(services, service_name)
+    action = f"import_{entity.lower()}s_from_{fmt}"
+    adapter = {
+        "action_name": action,
+        "target_service": service_name,
+        "target_method": action,
+        "input_fields": [{
+            "field_name": "file_path",
+            "target_param": "file_path",
+            "transform": "DIRECT",
+            "lookup_entity": None,
+            "required": True,
+        }],
+    }
+    _add_capability_method(service, action, adapter, entity, "import",
+                           models, log)
+    adapters.append(adapter)
+    group.setdefault("subcommands", []).append({
+        "name": "import",
+        "options": [{
+            "name": "--file-path",
+            "short": None,
+            "type": "str",
+            "required": True,
+            "default": None,
+        }],
+    })
+    if log is not None:
+        log.write(
+            f"[ok] step adapters: exposed prose import as "
+            f"{group.get('name')} import"
+        )
     return components
 
 

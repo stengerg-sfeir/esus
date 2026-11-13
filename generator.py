@@ -2182,8 +2182,6 @@ def _service_export_csv_body(ctx, service_name, method, params, returns):
                        if isinstance(field, dict)
                        and str(field.get("type") or "").lower()
                        in ("date", "datetime")), None)
-    if date_field is None:
-        return None
     path_param = next((item for item in params
                        if any(word in normalize(item[0])
                               for word in ("file", "output", "path"))), None)
@@ -2198,8 +2196,8 @@ def _service_export_csv_body(ctx, service_name, method, params, returns):
     end = next((item for item in date_params
                 if any(word in normalize(item[0])
                        for word in ("end", "to"))), None)
-    if path_param is None:
-        return None
+    path_expr = (codegen.sanitize(path_param[0], "param") if path_param
+                 else repr(f"{normalize(entity) or 'export'}.csv"))
     row_values = []
     for field_name in field_names:
         field = next((item for name_, item in fields_of(ctx, entity)
@@ -2209,34 +2207,77 @@ def _service_export_csv_body(ctx, service_name, method, params, returns):
                 "str", "string", "text", "date", "datetime"):
             attr = f"'' if {attr} is None else {attr}"
         row_values.append(attr)
-    lines = []
-    if start is not None:
-        ident = codegen.sanitize(start[0], "param")
-        lines.append(f"start = str({ident})[:10] if {ident} is not None else ''")
-    else:
-        lines.append("start = ''")
-    if end is not None:
-        ident = codegen.sanitize(end[0], "param")
-        lines.append(f"end = str({ident})[:10] if {ident} is not None else ''")
-    else:
-        lines.append("end = ''")
-    lines += [
+    lines = [
         f"records = self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}()",
-        "filtered = []",
-        "for record in records:",
-        f"    date = str(getattr(record, {date_field!r}, None) or '')[:10]",
-        "    if start and date < start:",
-        "        continue",
-        "    if end and date > end:",
-        "        continue",
-        "    filtered.append(record)",
-        f"with open({codegen.sanitize(path_param[0], 'param')}, 'w', newline='', encoding='utf-8') as handle:",
+    ]
+    if date_field is not None:
+        if start is not None:
+            ident = codegen.sanitize(start[0], "param")
+            lines.append(f"start = str({ident})[:10] if {ident} is not None else ''")
+        else:
+            lines.append("start = ''")
+        if end is not None:
+            ident = codegen.sanitize(end[0], "param")
+            lines.append(f"end = str({ident})[:10] if {ident} is not None else ''")
+        else:
+            lines.append("end = ''")
+        lines += [
+            "filtered = []",
+            "for record in records:",
+            f"    date = str(getattr(record, {date_field!r}, None) or '')[:10]",
+            "    if start and date < start:",
+            "        continue",
+            "    if end and date > end:",
+            "        continue",
+            "    filtered.append(record)",
+        ]
+    else:
+        lines.append("filtered = records")
+    lines += [
+        f"with open({path_expr}, 'w', newline='', encoding='utf-8') as handle:",
         "    writer = csv.writer(handle)",
         f"    writer.writerow({field_names!r})",
         "    for record in filtered:",
         f"        writer.writerow([{', '.join(row_values)}])",
     ]
     return lines
+
+
+def _service_export_json_body(ctx, service_name, method, params, returns):
+    """JSON export of all records of the service's entity."""
+    name = normalize(method.get("name") or "")
+    if "export" not in name or "json" not in name:
+        return None
+    entity = _entity_for_service(ctx, service_name)
+    model = model_of(ctx, entity) if entity else None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    if model is None or repo is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    read_all = next((item.get("name") for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    if read_all is None:
+        return None
+    field_names = [field_name for field_name, _field in fields_of(ctx, entity)]
+    path_param = next((item for item in params
+                       if any(word in normalize(item[0])
+                              for word in ("file", "output", "path"))), None)
+    path_expr = (codegen.sanitize(path_param[0], "param") if path_param
+                 else repr(f"{normalize(entity) or 'export'}.json"))
+    return [
+        f"records = self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}()",
+        "rows = []",
+        "for record in records:",
+        "    rows.append({",
+        *[f"        {field_name!r}: getattr(record, {field_name!r}, None),"
+          for field_name in field_names],
+        "    })",
+        f"with open({path_expr}, 'w', encoding='utf-8') as handle:",
+        "    json.dump(rows, handle, indent=2, default=str)",
+    ]
 
 
 def _service_detect_recurring_body(ctx, service_name, method, params, returns):
@@ -3336,6 +3377,7 @@ def emit_services(ctx, repo_index, stats):
              "import calendar",
              "import csv",
              "import datetime",
+             "import json",
              "",
              "import models",
              "import errors",
@@ -3507,6 +3549,18 @@ def emit_services(ctx, repo_index, stats):
                 stats["implemented"] += 1
                 _record(stats, name, method["name"], strategy, True,
                         "csv export")
+                continue
+            export_json = _service_export_json_body(
+                ctx, name, method, params, returns)
+            if export_json is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical JSON export]"""']
+                lines.extend("        " + line if line else ""
+                             for line in export_json)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "json export")
                 continue
             recurring = _service_detect_recurring_body(
                 ctx, name, method, params, returns)

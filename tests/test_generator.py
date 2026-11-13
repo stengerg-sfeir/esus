@@ -1034,6 +1034,42 @@ class ServiceCompositionTests(unittest.TestCase):
         models = [{"name": "Book", "fields": [{"name": "id", "type": "int"}]}]
         self.assertEqual(codegen.unknown_model_fields(adapters, services, [], models), [])
 
+    def test_a_mapping_payload_on_a_void_method_is_not_an_entity_target(self):
+        """`shipping_details: dict -> None` is auxiliary, not an Order."""
+        adapters = [{"action_name": "ship_order", "target_service": "OrderService",
+                     "target_method": "ship_order",
+                     "input_fields": [
+                         {"field_name": "order_id", "target_param": "order_id",
+                          "transform": "LOOKUP_ID", "required": True},
+                         {"field_name": "shipping_details",
+                          "target_param": "shipping_details",
+                          "transform": "DIRECT", "required": True}]}]
+        services = [{"service_name": "OrderService", "methods": [{
+            "name": "ship_order",
+            "params": [{"name": "order_id", "type": "int"},
+                       {"name": "shipping_details", "type": "dict"}],
+            "return_type": "None"}]}]
+        models = [{"name": "Order", "fields": [{"name": "id", "type": "int"}]}]
+        targets = codegen.action_targets(adapters, services, [], ["Order"])
+        self.assertIsNone(targets["ship_order"]["shipping_details"])
+        self.assertEqual(codegen.unknown_model_fields(adapters, services, [], models), [])
+
+    def test_a_mapping_payload_on_an_entity_return_remains_a_target(self):
+        adapters = [{"action_name": "update_category",
+                     "target_service": "CategoryRepository",
+                     "target_method": "update",
+                     "input_fields": [
+                         {"field_name": "name", "target_param": "data",
+                          "transform": "DIRECT", "required": True}]}]
+        repositories = [{"entity": "Category", "interface_name": "CategoryRepository",
+                         "methods": [{
+                             "name": "update",
+                             "params": [{"name": "data", "type": "dict"}],
+                             "return_type": "Category"}]}]
+        targets = codegen.action_targets(adapters, [], repositories, ["Category"])
+        self.assertEqual(targets["update_category"]["data"],
+                         codegen.MAPPING_TARGET + "Category")
+
 
 class CliChoiceTests(unittest.TestCase):
     """One leaf, several possible methods: flags pick, partial flags name gaps.
@@ -4466,6 +4502,46 @@ class ServiceProgramTests(unittest.TestCase):
 
 
 
+
+
+class CapabilityExportTests(unittest.TestCase):
+    def ctx(self):
+        return {
+            "models": [{"name": "Contact", "fields": [
+                {"name": "id", "type": "int", "primary_key": True},
+                {"name": "first_name", "type": "string"},
+                {"name": "email", "type": "string"},
+            ]}],
+            "entity_names": ["Contact"],
+            "repositories": [{
+                "entity": "Contact",
+                "interface_name": "ContactRepository",
+                "methods": [{"name": "read_all", "params": [],
+                             "return_type": "list[Contact]"}],
+            }],
+            "services": [], "adapters": [], "errors": [], "invariants": [],
+            "requirements": "", "components": {},
+        }
+
+    def test_csv_export_has_no_date_or_path_requirement(self):
+        lines = generator._service_export_csv_body(
+            self.ctx(), "ContactService",
+            {"name": "export_contacts_to_csv", "params": [],
+             "return_type": "None"}, [], None)
+        self.assertIsNotNone(lines)
+        text = "\n".join(lines)
+        self.assertIn("filtered = records", text)
+        self.assertIn("contact.csv", text)
+        self.assertNotIn("date =", text)
+
+    def test_json_export_is_mechanical(self):
+        lines = generator._service_export_json_body(
+            self.ctx(), "ContactService",
+            {"name": "export_contacts_to_json", "params": [],
+             "return_type": "None"}, [], None)
+        self.assertIsNotNone(lines)
+        self.assertIn("json.dump", "\n".join(lines))
+        self.assertIn("contact.json", "\n".join(lines))
 
 
 if __name__ == "__main__":
