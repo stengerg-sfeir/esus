@@ -17,8 +17,10 @@ from kernel.consistency.checks_crud import check_crud_coverage
 from kernel.consistency.checks_surface import check_flag_coverage, check_surface_coverage
 from kernel.consistency.report import Report
 from kernel.extraction import (
+    adapters_mechanical,
     classification,
     command_lines,
+    components_completion,
     dedupe,
     grammar_builders,
     grammar_check,
@@ -63,6 +65,7 @@ COMPONENTS_SPLIT = os.environ.get("ESUS_COMPONENTS_SPLIT") == "1"
 PARALLEL = os.environ.get("ESUS_PARALLEL") == "1"
 MECHANICAL_SCHEMA = os.environ.get("ESUS_MECHANICAL_SCHEMA") == "1"
 MECHANICAL_SERVICES = os.environ.get("ESUS_MECHANICAL_SERVICES") == "1"
+MECHANICAL_ADAPTERS = os.environ.get("ESUS_MECHANICAL_ADAPTERS") == "1"
 PATTERN_MATCHES = "pattern_matches"
 INTERACTION_ADAPTERS = "interaction_adapters"
 PERSISTENCE_PORTS = "persistence_ports"
@@ -475,7 +478,18 @@ class Pipeline:
                            "deriving the surface from prose")
         else:
             self.log.write(f"[ok] step components: {len(spans)} command line(s) enumerated")
-        if COMPONENTS_SPLIT:
+        # The split path exists to bound one call per explicitly named command
+        # group.  A prose-only prompt names none, so there is nothing to split
+        # on: the plan call would invent the groups and every group call would
+        # then ask for a subtree with no required line to fill.  Measured on
+        # prompt_60: 14 calls (the plan plus 13 groups) and ~13k generated
+        # tokens for a surface the single call writes in one answer.  Disable
+        # split here rather than in main.py so every caller gets the same rule.
+        split = COMPONENTS_SPLIT and lines_block is not None
+        if COMPONENTS_SPLIT and not split:
+            self.log.write("[ok] step components: split disabled — no command "
+                           "lines to divide into groups")
+        if split:
             body = self._generate_components_split(
                 requirements, block, lines_block,
                 spans=spans,
@@ -487,6 +501,25 @@ class Pipeline:
                 prompts.components(requirements, block, lines_block),
                 grammar,
             )
+            # The single prose call is meant for a CLI surface.  A GUI/API
+            # facade is a different judgement: the plan path is what chose the
+            # facade and the CRUD operations that feed every later prompt, and
+            # the single call can silently drop an operation (GUI's
+            # StorageLocation delete).  When the single call comes back
+            # non-CLI, ask for the plan instead and keep that answer.
+            facade = (body.get("facade") if isinstance(body, dict) else None)
+            facade_kind = (facade.get("type") if isinstance(facade, dict) else None)
+            if COMPONENTS_SPLIT and facade_kind in ("gui", "api"):
+                plan = self._generate(
+                    COMPONENTS,
+                    prompts.component_plan(requirements, block, lines_block),
+                    grammar_components.plan(self._vocabulary(), paths=False),
+                )
+                if isinstance(plan, dict):
+                    self.log.write(
+                        "[ok] step components: prose facade is "
+                        f"{facade_kind} — kept the plan surface")
+                    body = plan
         # A bare command line (`` `library overdue` ``) comes back with a
         # subcommand named `none` stating there is none. The grammar leaves
         # subcommand names free text, so the placeholder is removed here —
@@ -527,7 +560,7 @@ class Pipeline:
         # retried once with the miss itself appended to the requirements,
         # exactly as named.
         missing = _missing_commands(body, requirements) + _missing_flags(body, requirements)
-        if missing and COMPONENTS_SPLIT:
+        if missing and split:
             # The split path has already asked every group separately.  A
             # full-surface retry here would recreate the very unbounded
             # generation the split exists to avoid.
@@ -578,6 +611,8 @@ class Pipeline:
             # _generate stores every attempt: point the document back at the
             # kept one, or a degrading retry silently replaces good content.
             self.documents[COMPONENTS] = body
+        components_completion.complete_crud_entities(
+            body, self.documents.get(DATA_MODELS), self.log)
         return body
 
     def _step_contracts(self, requirements):
@@ -775,13 +810,50 @@ class Pipeline:
             self.log.write("[ok] step adapters: step E produced no services — no adapters")
             self.documents[INTERACTION_ADAPTERS] = []
             return
+        facade = (self.documents.get(COMPONENTS) or {}).get("facade")
+        facade_kind = (facade.get("type") if isinstance(facade, dict) else "") or ""
+        if facade_kind.lower() in ("gui", "api"):
+            # Interaction adapters map command-line input.  The GUI emitter
+            # binds its CRUD panels straight to the repositories/services, and
+            # the GUI acceptance suite passes with an empty adapter list; asking
+            # the model for one costs ~96 s and ~3.4k tokens on the wine prompt.
+            self.log.write(
+                "[ok] step adapters: non-CLI facade — no CLI input adapters")
+            self.documents[INTERACTION_ADAPTERS] = []
+            return
         block = prompts.combined_block(vocab)
         grammar = grammar_builders.adapters(vocab)
-        self._generate(
-            INTERACTION_ADAPTERS,
-            prompts.adapters(requirements, block),
-            grammar,
-        )
+        body = None
+        if MECHANICAL_ADAPTERS:
+            explicit_surface = bool(
+                command_lines.extract_command_lines(requirements))
+            derived, reason = adapters_mechanical.derive_adapters(
+                self.documents.get(COMPONENTS),
+                self.documents.get(SERVICE_CONTRACTS),
+                self.documents.get(DATA_MODELS),
+                requirements,
+                allow_prose=True,
+            )
+            if derived is not None:
+                self.documents[INTERACTION_ADAPTERS] = derived
+                source = "explicit surface" if explicit_surface \
+                    else "model-chosen prose surface"
+                self.log.write(
+                    f"[ok] step adapters: {len(derived)} adapter(s) derived "
+                    f"mechanically from the {source}"
+                )
+                body = derived
+            else:
+                self.log.write(
+                    f"[!] step adapters: mechanical derivation declined "
+                    f"({reason}) — asking the model"
+                )
+        if body is None:
+            self._generate(
+                INTERACTION_ADAPTERS,
+                prompts.adapters(requirements, block),
+                grammar,
+            )
         self._repair_adapters()
         # An adapter assembling an undeclared model field (`author_id` into a
         # `Book` with no such field) fails at construction no matter what the

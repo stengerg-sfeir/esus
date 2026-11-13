@@ -30,12 +30,13 @@ the server's context size and native grammar sampler are used.
 
 import argparse
 import os
+import shutil
 import sys
 from pathlib import Path
 
 from kernel.extraction import generation_plans
 from kernel.extraction import pipeline as pipeline_module
-from kernel.extraction import runner, writer
+from kernel.extraction import runner, triage, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
 from kernel.extraction.server_backend import ServerError
 from kernel.extraction.decisions import apply_decisions, load_decisions
@@ -226,7 +227,7 @@ STEP_PLAN = (
 # `[run] 11 steps, 18409 generated tokens in 621.2s` — and only that `[run]`
 # line, never the requirements/temperature preamble.
 STEP_RESULT = __import__("re").compile(r"^\[.+\] \d+ tokens in .*tok/s")
-RUN_TOTALS = __import__("re").compile(r"^\[run\] \d+ steps, \d+ generated tokens in ")
+RUN_TOTALS = __import__("re").compile(r"^\[run\] \d+ steps?, \d+ generated tokens in ")
 
 
 def print_step_plan(out_fn=print, start=None):
@@ -327,7 +328,7 @@ def repair_existing(output_dir):
     """
     from kernel.consistency.loader import load_documents, load_requirements
     from kernel.consistency.report import Report
-    from kernel.extraction import repairs
+    from kernel.extraction import components_completion, repairs
 
     directory = Path(output_dir)
     report = Report(directory.name)
@@ -356,6 +357,7 @@ def repair_existing(output_dir):
         repairs.repair_missing_surface(components, requirements, models, log)
         repairs.repair_placeholder_subcommands(components, log)
         repairs.repair_flat_command_duplicates(components, log)
+        components_completion.complete_crud_entities(components, models, log)
     ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
     if isinstance(ports, dict):
         repairs.repair_create_missing_fields(ports, models, log)
@@ -380,6 +382,62 @@ def repair_existing(output_dir):
 def main():
     args = build_parser().parse_args()
     return run(args)
+
+
+def triage_shortcut(output_dir, requirements, log, args, outcome):
+    """Write the minimal documents for a no-domain prompt and stop.
+
+    The generator's degenerate path writes one `app.py` from the requirements;
+    it needs the document files only because the normal gate reads them.  No
+    extraction step has anything to add here, so the run is one model call.
+    """
+    directory = Path(output_dir)
+    documents = {
+        pipeline_module.INTENTIONS: [],
+        pipeline_module.DATA_MODELS: [],
+        pipeline_module.ERRORS: [],
+        pipeline_module.INVARIANTS: [],
+        pipeline_module.COMPONENTS: {
+            "facade": {"type": "cli", "technology": "none",
+                       "invocation": None},
+            "persistence": {"required": False, "technology": None},
+            "crud_services": [],
+        },
+        pipeline_module.SERVICE_CONTRACTS: [],
+        pipeline_module.PATTERN_MATCHES: [],
+        pipeline_module.INTERACTION_ADAPTERS: [],
+    }
+    # A rerun in place must not leave a previous domain run's plans or code
+    # beside the new empty architecture; the fallback writes only app.py.
+    for stale in ("method_plans.json", "command_group.json",
+                  "llm_stub_answers.json"):
+        path = directory / stale
+        if path.is_file():
+            path.unlink()
+    generated = directory / "generated"
+    if generated.exists():
+        shutil.rmtree(generated)
+    speed = outcome.tokens / outcome.seconds if outcome.seconds else 0.0
+    log.write(
+        f"[triage] {outcome.tokens} tokens in {outcome.seconds:.1f}s "
+        f"({speed:.1f} tok/s, {outcome.prompt_tokens} prompt) — {outcome.answer}"
+    )
+    log.write("[ok] triage: no domain data model — extraction skipped")
+    for path in writer.write_documents(directory, documents):
+        log.write(f"[write] {path}")
+    log.write(f"[write] {writer.write_requirements(directory, requirements)}")
+    log.write(
+        f"[run] 1 step, {outcome.tokens} generated tokens in "
+        f"{outcome.seconds:.1f}s"
+    )
+    log.flush()
+    if getattr(args, "quiet", False):
+        print_quiet_results(log)
+    status = 0
+    if getattr(args, "check", False):
+        status = check_output(directory, quiet=getattr(args, "quiet", False))
+    report_verdict(directory, out_fn=print, reviewed=False)
+    return status
 
 
 def run(args):
@@ -459,6 +517,23 @@ def run(args):
         print(f"error: {error}", file=sys.stderr)
         return 1
 
+    triage_result = None
+    if (os.environ.get("ESUS_DOMAIN_TRIAGE") == "1"
+            and start is None and not internal_resume):
+        triage_result = triage.classify(
+            extractor, requirements, seed=pipeline_module.SEED)
+        if triage_result.answer == "N":
+            return triage_shortcut(output_dir, requirements, log, args,
+                                   triage_result)
+        speed = (triage_result.tokens / triage_result.seconds
+                 if triage_result.seconds else 0.0)
+        log.write(
+            f"[triage] {triage_result.tokens} tokens in "
+            f"{triage_result.seconds:.1f}s ({speed:.1f} tok/s, "
+            f"{triage_result.prompt_tokens} prompt) — "
+            f"{triage_result.answer}; running the architecture steps"
+        )
+
     # Step F reads last-token logits from the extractor's own context, so the
     # GGUF is loaded once. The high-level `logprobs` API would need a second
     # `logits_all=True` context; `_next_token_logprobs` avoids that.
@@ -522,8 +597,13 @@ def run(args):
 
     tokens = sum(result.tokens for result in pipeline.results)
     seconds = sum(result.seconds for result in pipeline.results)
+    steps = len(pipeline.results)
+    if triage_result is not None:
+        tokens += triage_result.tokens
+        seconds += triage_result.seconds
+        steps += 1
     log.write(
-        f"[run] {len(pipeline.results)} steps, {tokens} generated tokens in {seconds:.1f}s"
+        f"[run] {steps} steps, {tokens} generated tokens in {seconds:.1f}s"
     )
     log.flush()
     if getattr(args, "quiet", False):

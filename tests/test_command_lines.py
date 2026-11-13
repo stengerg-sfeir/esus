@@ -220,6 +220,85 @@ class PipelineWiringTests(unittest.TestCase):
         self.assertNotIn("Go through them one by one", seen[0])
         self.assertTrue(any("no command lines extracted" in line for line in log.lines))
 
+    def test_prose_only_requirements_never_use_the_split_path(self):
+        """No command lines means no groups: one call, not a plan plus groups."""
+        from unittest import mock
+
+        from kernel.extraction import pipeline
+        from kernel.extraction.runner import StepResult
+
+        labels = []
+        log = _Log()
+
+        def fake_generate(llm, prompt, grammar_text, label, temperature=0.0,
+                          max_new_tokens=None, seed=None):
+            labels.append(label)
+            return StepResult("components",
+                              '{"components": {"facade": {"type": "cli", '
+                              '"technology": "none", "invocation": null}, '
+                              '"persistence": {"required": false}, '
+                              '"crud_services": []}}',
+                              10, 1.0, "stop", 3584)
+
+        pipe = pipeline.Pipeline(llm=None, classifier=None, log=log)
+        pipe.documents[pipeline.DATA_MODELS] = []
+        real_generate = pipeline.runner.generate
+        real_assert = pipeline.grammar_check.assert_valid
+        pipeline.runner.generate = fake_generate
+        pipeline.grammar_check.assert_valid = lambda text, label="grammar": None
+        try:
+            with mock.patch.object(pipeline, "COMPONENTS_SPLIT", True):
+                pipe._step_components("Search orders by customer.")
+        finally:
+            pipeline.runner.generate = real_generate
+            pipeline.grammar_check.assert_valid = real_assert
+        self.assertEqual(labels, ["components"])
+        self.assertTrue(any("split disabled" in line for line in log.lines))
+
+    def test_a_prose_gui_facade_keeps_the_plan_surface(self):
+        """The single prose call can drop a CRUD operation; the plan keeps it."""
+        from unittest import mock
+
+        from kernel.extraction import pipeline
+        from kernel.extraction.runner import StepResult
+
+        labels = []
+        log = _Log()
+        first = ('{"components": {"facade": {"type": "gui", '
+                 '"technology": "pyimgui", "invocation": null}, '
+                 '"persistence": {"required": true, "technology": "sqlite"}, '
+                 '"crud_services": [{"entity": "Wine", "operations": '
+                 '["create", "read_one", "read_all", "update"]}]}}')
+        second = ('{"components": {"facade": {"type": "gui", '
+                  '"technology": "pyimgui", "invocation": null}, '
+                  '"persistence": {"required": true, "technology": "sqlite"}, '
+                  '"crud_services": [{"entity": "Wine", "operations": '
+                  '["create", "read_one", "read_all", "update", "delete"]}]}}')
+
+        def fake_generate(llm, prompt, grammar_text, label, temperature=0.0,
+                          max_new_tokens=None, seed=None):
+            labels.append(label)
+            return StepResult("components", first if len(labels) == 1 else second,
+                              10, 1.0, "stop", 3584)
+
+        pipe = pipeline.Pipeline(llm=None, classifier=None, log=log)
+        pipe.documents[pipeline.DATA_MODELS] = [
+            {"name": "Wine", "fields": [{"name": "id", "type": "int"}]}]
+        real_generate = pipeline.runner.generate
+        real_assert = pipeline.grammar_check.assert_valid
+        pipeline.runner.generate = fake_generate
+        pipeline.grammar_check.assert_valid = lambda text, label="grammar": None
+        try:
+            with mock.patch.object(pipeline, "COMPONENTS_SPLIT", True):
+                body = pipe._step_components("A GUI ...")
+        finally:
+            pipeline.runner.generate = real_generate
+            pipeline.grammar_check.assert_valid = real_assert
+        self.assertEqual(labels, ["components", "components"])
+        self.assertIn("delete",
+                      pipe.documents["components"]["crud_services"][0]["operations"])
+        self.assertTrue(any("kept the plan surface" in line for line in log.lines))
+
 class _Log:
     def __init__(self):
         self.lines = []

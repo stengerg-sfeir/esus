@@ -415,8 +415,10 @@ class ValueRouteTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             out = writes_book_author(directory)
             question = review_surface.collect_routes(out)[0][0]
-            self.assertEqual(question["candidates"],
-                             [("AuthorRepository", "find_books_by_author")])
+            self.assertEqual(
+                question["candidates"],
+                [("AuthorRepository", "find_books_by_author"),
+                 ("BookRepository", "search_books_by_title_author_isbn")])
             detail = question["candidate_details"][
                 "AuthorRepository.find_books_by_author"]
             self.assertEqual(detail["param"], "author_id")

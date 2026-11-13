@@ -285,3 +285,21 @@ runner's parser and classifier are covered by
 - Completed the 8-prompt calibration: 2 direct, 4 review, 2 not generatable;
   total 27m 03s and 52,819 output / 35,594 prompt tokens. The two blocked
   prompts both extract zero data models while declaring persistence required.
+- `ESUS_COMPONENTS_SPLIT=1` is now ignored when a prompt states no command
+  lines; the single components call replaces the plan plus one call per group.
+  On `prompt_60` that took extraction from **651.0 s / 24,499 tokens / 23
+  steps** to **278.9 s / 10,438 tokens / 8 steps**.  See `doc/speed.md`.
+- `ESUS_MECHANICAL_ADAPTERS=1` is now set by `main.py` by default (set
+  `ESUS_MECHANICAL_ADAPTERS=0` to force the model).  It derives the interaction
+  adapters from the command surface, service signatures and data model.  With
+  split off it took `prompt_60` to **175.3 s / 7,149 tokens / 7 steps** with the
+  same readiness result.  The dependent-entity completion adds the missing
+  `OrderItemRepository` and its `get_order_items_by_order_id` query; with the
+  preserved review answers the generated program passes the 60 acceptance
+  suite **10/10**.
+- `main.py` also enables `ESUS_DOMAIN_TRIAGE` by default.  On a one-letter
+  `Y/N/U` answer, `N` skips extraction and goes straight to the one-file
+  `app.py` fallback.  On 66 initial+validation prompts the answer was
+  **62 Y / 4 N / 0 U**, with **0 false N**, for **15.2 s total** triage cost.
+  The six initial prompts moved from **1,333 s / 35,430 tokens** to
+  **691 s / 21,643 tokens** with the same acceptance results.

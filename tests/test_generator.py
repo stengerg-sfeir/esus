@@ -243,6 +243,8 @@ class DegenerateFallbackTests(unittest.TestCase):
         self.assertIn("MalformedCSVError(ValueError): bad csv", prompt)
         self.assertIn("ONLY Python code", prompt)
         self.assertIn("Never let an expected error escape", prompt)
+        self.assertIn("as Python", prompt)
+        self.assertIn("exception classes", prompt)
 
     def test_the_fallback_guard_turns_an_expected_failure_into_a_message(self):
         """A path check outside main's try must not print a traceback."""
@@ -4118,16 +4120,22 @@ class MappingEmissionTests(unittest.TestCase):
         self.assertEqual([book["title"] for book in found], ["T"])
         self.assertEqual(authors.find_books_by_author(8), [])
 
-    def test_unmappable_filter_parameter_refuses_with_a_stub(self):
+    def test_text_search_reads_title_isbn_and_author_name(self):
         namespace, store, stats = self.exec_repositories(self.ctx())
-        books = namespace["BookRepository"](store.Store())
-        with self.assertRaises(NotImplementedError) as caught:
-            books.search_books_by_title_author_isbn("T")
-        self.assertIn("maps to no field", str(caught.exception))
-        self.assertTrue(any("search_books_by_title_author_isbn" in reason
-                            for reason in stats["stub_reasons"]))
+        backend = store.Store()
+        backend.add("Author", "id", {"id": 7, "name": "Ursula"})
+        backend.add("Book", "id", {"id": 1, "title": "Rocannon", "isbn": "X",
+                                   "author_id": 7})
+        books = namespace["BookRepository"](backend)
+        self.assertEqual([book["title"] for book in
+                          books.search_books_by_title_author_isbn("rocannon")],
+                         ["Rocannon"])
+        self.assertEqual([book["title"] for book in
+                          books.search_books_by_title_author_isbn("ursula")],
+                         ["Rocannon"])
+        self.assertEqual(books.search_books_by_title_author_isbn("missing"), [])
         kinds = {m["method"]: m["implemented"] for m in stats["methods"]}
-        self.assertFalse(kinds["search_books_by_title_author_isbn"])
+        self.assertTrue(kinds["search_books_by_title_author_isbn"])
         self.assertTrue(kinds["read_one_book"])
 
 
