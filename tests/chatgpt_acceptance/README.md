@@ -2,7 +2,9 @@
 
 These are independent behavioural checks for the seven outputs. The six
 initial-prompt outputs are under `out/initial/chatgpt_compare/`; the `60`
-output is under `out/validation/60/chatgpt_compare/60`. They are deliberately separate
+output is under `out/validation/60/chatgpt_compare/60`.  The 2026-11-13 rerun
+produced different package layouts, so its suites live in
+`tests/gpt6_rerun_acceptance/` instead of being forced into these fixtures. They are deliberately separate
 from the subagents' own smoke tests and follow the same idea as
 `tests/e2e_*_acceptance.py`: use a fresh SQLite database, drive the public
 CLI/service surface, and report one line per check.

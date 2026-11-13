@@ -2,6 +2,11 @@
 
 This page records measurements and the ideas they suggest. Some ideas are implemented and measured; each section says which. Figures marked *measured* come from the server's own timings or a wall-clock run; figures marked *estimate* are guesses to be checked before anyone relies on them.
 
+> **2026-11-13 update.** The table below is the historical 2026-11-10 run. The
+> rerun, its corrected latency accounting, the determinism/token/acceptance
+> evidence and the scaling and sovereignty caveats are in
+> [What the rerun does and does not establish](#what-the-rerun-does-and-does-not-establish-2026-11-13).
+
 ## ESUS vs direct GPT-6 Luna (2026-11-10)
 
 This is an end-to-end comparison, not a model leaderboard. ESUS ran Qwen3-4B through `llama-server` with one slot; the direct runs were one subagent per prompt using **GPT-6 Luna** through OpenCode Go (`opencode-go/gpt-6-luna`), with the prompt file as the only specification. The direct agents had no ESUS documents or contracts and also wrote their own smoke tests and compliance notes.
@@ -97,7 +102,7 @@ With the current launch script (no explicit `--cache-ram`), the expenses prompt 
 2. **Cache every model call by its prompt.** Not implemented. Key a stored answer by the model, the server settings, the prompt text and the sampling parameters. An unchanged rerun then takes seconds, and a rerun after a change recomputes only the calls whose prompt changed. It is safe because the same input gives the same output. It does nothing for a first run, but it is what removes the 8 to 15 minute wait from every fix-and-retry loop.
 3. **Speculative decoding for extraction.** **Implemented and measured; no gain on this machine.** The draft model loads and works with the grammar sampler (draft acceptance was mostly 72–95% on the extraction steps), but running the 0.6B model beside the 4B model costs more than the accepted tokens save on this memory-bandwidth-bound M1 Pro. One extraction run took 409.5 s of generation against 397.5 s without a draft; a full body-generation pass took 156.8 s against 125.9 s without one. The launch script therefore defaults to `SPEC=0`. It is left as an opt-in experiment; a different draft model, quant or `--spec-draft-n-max` may change the result. The Qwen3-Reranker-0.6B in the models folder is a scoring model and does not qualify.
 4. **Run independent extraction steps in parallel (`-np 2`).** **Implemented and measured; slower on this machine.** See [Parallel extraction](#parallel-extraction-opt-in-measured-slower). Overlapping requests divides decode bandwidth instead of adding it, and the largest adapter step becomes slower when it shares the GPU with pattern classification.
-5. **Run generation requests in parallel (`-np 2` to `4`).** Not implemented. Decoding on this GPU is limited by memory bandwidth, so serving several sequences at once may raise aggregate throughput, but body prompts also share a long prefix that a single slot reuses across requests. Each parallel slot needs its own context and cache, and the body prompts would have to be built from the same base text so the result does not depend on which request finishes first.
+5. **Run generation requests in parallel (`-np 2` to `4`).** **Ruled out on this machine.** Decoding on this GPU is limited by memory bandwidth, and each parallel slot needs its own context and cache. The loaded server already uses about 10 GB of the 16 GB machine, so a second slot does not fit; the body prompts would also have to be built from the same base text so the result does not depend on which request finishes first.
 6. **Smaller prompt blocks.** Showing only the target class's methods instead of the whole module cuts prompt processing, but the `exact` context was tuned for the small model, so this risks the quality of the bodies.
 7. **Generate schema invariants mechanically.** **Implemented as `ESUS_MECHANICAL_SCHEMA=1`; measured small gain.** Step C now asks for business rules only and derives field type, nullability, uniqueness, key, foreign-key, default and numeric-bound facts from `data_models.json`. On expenses the invariant step fell from 611 to 424 generated tokens (15.3 s to 12.6 s) and kept the same 2 blockers; the extra schema entries are skipped by pattern classification. It is opt-in because the document text changes.
 8. **Answer ordinary repository CRUD without the classifier.** **Implemented.** A repository method whose name and return shape already agree (`create`, `read_one`, `read_all`, `filter`) is classified by `codegen.plan_method` instead of a two-stage logprobs call. Replaying the expenses classification took 11.8 s for every item and 8.7 s with the deterministic answers, a 3.1 s saving; aggregates, guards and every service method still reach the model.
@@ -153,6 +158,14 @@ the shared run had 18 readiness blockers (baseline 4). It is therefore **off by
 default** until a reviewed shared-context run passes the same end-to-end
 acceptance suite. The flag is the experiment; do not treat it as a free cache on
 the current prompts.
+
+Re-tested on the seven reference prompts after the mechanical passes
+(2026-11-13): the result is worse, not better. Expenses took **358 s / 13,243
+tokens** and stopped on a pattern-slot blocker (current: 180 s / 5,730); library
+took 208 s / 7,363 with 14 blockers; GUI crashed during extraction; `60` took
+172 s / 6,288 but still had two blockers. Only hello and cli_tool pass because
+triage sends them to the fallback before extraction. The flag remains off and
+the experiment is abandoned.
 
 Blocker counts count report lines, not independent defects, and every run above
 is **unreviewed**. The baseline's 4 were three open review questions plus one
@@ -250,7 +263,289 @@ The split path is not faster for Qwen: the plan call plus two group calls cost
 about the same as the single components call.  It is useful because it bounds
 each call's output and makes the explicit command surface predictable.
 
+#### Split is not used when the prompt states no command lines (measured 2026-11-12)
 
+The split path exists to divide explicitly named command groups.  On a
+prose-only prompt it first has to invent the groups, and each group call then
+has no required line to fill.  `ESUS_COMPONENTS_SPLIT=1` is now ignored when
+`extract_command_lines` returns nothing; the log says
+`[ok] step components: split disabled — no command lines to divide into groups`
+and the single components call runs.
+
+Measured on `prompts/prompt_60.txt`, Qwen3-4B Q4_K_M, 16k context, one slot,
+same code and flags (the only difference is the auto-disable):
+
+| Extraction | Wall | Generated tokens | Steps | Components calls |
+| --- | ---: | ---: | ---: | ---: |
+| Split: plan + 13 group calls | 651.0 s | 24,499 | 23 | 14 |
+| No command lines: split disabled | **278.9 s** | **10,438** | **8** | **1** |
+
+The adapter step stayed one call in the faster run: 3,414 tokens in 94.8 s.
+Both runs were unreviewed and report the same single open-review blocker
+(8 contracts in the split run, 7 in the faster one); the faster surface has
+three more residual risks (15 against 12).
+
+The surface itself differs.  The single call chose a `SearchService`, made
+`Product search`/`Product export` leaves, and omitted `OrderItem` from
+`crud_services`.  With the preserved 60 grounding review applied (it drops the
+unrequested `ExportService`), a mechanical `OrderItemRepository` shell and its
+`get_order_items_by_order_id` query, the generated program passes 10/10.  Without
+that completeness repair the faster extraction loses the item repository and
+the same acceptance suite stops at 2/10.  The 57% extraction saving is real,
+but a prose-only prompt with a domain needs the completeness pass before the
+split can be dropped uncritically.
+
+### Mechanical interaction adapters (default in `main.py`, measured 2026-11-12)
+
+`main.py` sets `ESUS_MECHANICAL_ADAPTERS=1` by default (set it to `0` to force
+the model).  The pass derives step G from the command surface, the service
+signatures and the data model instead of asking the model to copy them.  A leaf
+whose target method is ambiguous, or whose flags do not all resolve to
+parameters, declines the whole derivation and falls back to the model, so the
+semantic choices stay with the LLM.
+
+| Prompt | Adapters | Model call saved | Tokens saved | Readiness |
+| --- | ---: | ---: | ---: | --- |
+| Library (explicit surface) | 10 | 34.2 s | 1,174 | unchanged (0 blockers) |
+| Expenses (explicit surface) | 14 | 64.7 s | 2,359 | unchanged (0 blockers) |
+| Inventory (explicit surface) | 11 | 41.7 s | 1,553 | unchanged (0 blockers) |
+| GUI (no CLI surface) | 0 | **96.1 s** | **3,424** | unchanged (11/11 acceptance) |
+| `60` (prose surface, split off) | 18 | 94.8 s | 3,414 | unchanged (1 open-review blocker) |
+
+A non-CLI facade has no command-line input to adapt: the GUI emitter binds its
+CRUD panels straight to the repositories/services.  The adapter step now writes
+an empty list instead of asking the model, and the GUI acceptance suite still
+passes 11/11.
+
+The explicit-surface runs pick the same targets as the model, with two benign
+differences: the public service wrapper wins over its repository, and a
+primary-key lookup is `DIRECT` rather than `LOOKUP_ID` (both pass the integer
+unchanged).  On `60` the model still chooses the surface and the actions; the
+mechanical pass fills their targets, flags, transforms and required flags.
+With split off and mechanical adapters, extraction falls from 651.0 s / 24,499
+tokens to **175.3 s / 7,149 tokens** (7 steps, no adapter model call).  The
+dependent-entity completion also adds `OrderItemRepository` and its
+`get_order_items_by_order_id` query; with the preserved review answers the
+generated program passes **10/10** of the 60 acceptance checks.
+
+The initial prompts were rechecked on the same code and review inputs:
+hello **1/1**, CLI tool **1/1**, GUI **11/11**, inventory **8/8**, expenses
+**15/16 then 16/16 after one repair pass**, library **18/18**.  A prose GUI
+keeps the plan surface: the single prose call can drop a CRUD operation, so
+when its facade is `gui`/`api` the step asks for the plan it used before and
+keeps that answer.  The generated library, inventory and expenses programs
+also pass their acceptance suites (**18/18, 8/8, 16/16**) with mechanical
+adapters.
+
+### Domain triage (default in `main.py`, measured 2026-11-12)
+
+`main.py` sets `ESUS_DOMAIN_TRIAGE=1` by default.  It asks one single-letter
+question before extraction: does the program define named domain entities with
+fields?  `Y`/`U` runs the normal pipeline; `N` skips extraction and lets the
+generator write the one-file `app.py` from the requirements.  The triage prompt
+was tested on the six initial prompts and all sixty validation prompts: **66
+answers, 62 Y, 4 N, 0 U, 0 false N**; the four `N` prompts were hello,
+cli_tool and two equivalent validation prompts.  The call took **15.2 s total
+for 66 prompts** (mean 0.23 s, max 0.86 s), so its cost is negligible beside
+the steps it can skip.
+
+With triage and the mechanical service wrappers, the six initial prompts
+total **691 s / 21,643 tokens** against the baseline
+**1,333 s / 35,430 tokens** (-48% / -39%).  Per prompt:
+
+| Prompt | Baseline | Now |
+| --- | ---: | ---: |
+| hello | 14 s / 375 tokens | **4 s / 156 tokens** |
+| cli_tool | 39 s / 1,474 tokens | **14 s / 519 tokens** |
+| gui | 272 s / 7,692 tokens | **118 s / 3,758 tokens** |
+| inventory | 238 s / 6,587 tokens | **118 s / 3,828 tokens** |
+| expenses | 471 s / 11,324 tokens | **268 s / 7,348 tokens** |
+| library | 299 s / 7,978 tokens | **169 s / 6,034 tokens** |
+
+GUI improves because a non-CLI facade no longer asks the model for CLI input
+adapters: the GUI emitter binds its CRUD panels directly, and the GUI
+acceptance suite passes with an empty adapter list.  The plan-surface guard
+still costs one components call, but the skipped adapter call is much larger.
+Library's generation was remeasured at 46 s in this pass (24–46 s across runs);
+its code path did not change.
+
+
+
+
+### Mechanical service CRUD wrappers (measured 2026-11-12)
+
+A service method named exactly after one entity's CRUD verb (`create_customer`,
+`update_order`, `delete_product`) and whose parameters map one-for-one to that
+repository method is now emitted mechanically.  The wrapper is refused when the
+description names another rule (budget, capacity, validation), when a reviewed
+repair exists, or when the contract carries effects/reads/derives.
+
+On `prompt_60` the last four stubs are now mechanical too: a two-hop
+repository filter (`Customer -> Order -> Invoice`), a lookup through a named
+relation (`Product by Category.name + Product.name`), a status-count report and
+a product-stock report.  The emitted program is **100% mechanical**:
+
+| | Before | After |
+| --- | ---: | ---: |
+| LLM bodies | 14 | **0** |
+| Generation wall | 179 s | **~1 s** |
+| Generation output tokens | 1,303 | **0** |
+| **Total `60`** | 791.9 s / 25,593 tok. | **176.3 s / 7,149 tok.** |
+| Acceptance | 10/10 | **10/10** |
+
+Inventory also gained mechanical low-stock and stock-value queries, plus the
+mapping update; its generation is now fully mechanical:
+
+| | Before | After |
+| --- | ---: | ---: |
+| LLM bodies | 8 | **0** |
+| Generation wall | 60 s | **~1 s** |
+| Generation output tokens | 900 | **0** |
+| **Total inventory** | 238 s / 6,587 tok. | **118 s / 3,828 tok.** |
+| Acceptance | 8/8 | **8/8** |
+
+Expenses gained mechanical period aggregates, the CSV export and recurring
+detection.  The monthly/yearly report bodies and the budget status remain
+LLM-written because their output keys/status words come from the wording of
+the requirement, not from the data model; writing those keys mechanically
+would be prompt overfitting.
+
+| | Before | After |
+| --- | ---: | ---: |
+| LLM bodies | 10 | **5** |
+| Generation wall | 207 s | **88 s** |
+| Generation output tokens | 3,237 | **1,618** |
+| **Total expenses** | 471 s / 11,324 tok. | **268 s / 7,348 tok.** |
+| Acceptance | 16/16 | **16/16** |
+
+The CSV export no longer ends in a stub, so the second generation/repair pass
+is **eliminated**: the acceptance suite is 16/16 on the first pass, with **0
+repair asks**.
+
+Library gained a mechanical text search (title, ISBN, related author name), a
+mechanical overdue read and a search delegation; only `renew_membership`
+remains LLM-written:
+
+| | Before | After |
+| --- | ---: | ---: |
+| LLM bodies | 4 | **1** |
+| Generation wall | 46 s | **2 s** |
+| Generation output tokens | 413 | **52** |
+| **Total library** | 299 s / 7,978 tok. | **169 s / 6,034 tok.** |
+| Acceptance | 18/18 | **18/18** |
+
+GUI gained mechanical count-by-type, contained-name filtering and a list-filter
+delegation; five business guards/summaries remain LLM-written:
+
+| | Before | After |
+| --- | ---: | ---: |
+| LLM bodies | 8 | **2** |
+| Generation wall | 82 s | **12 s** |
+| Generation output tokens | 988 | **320** |
+| **Total GUI** | 272 s / 7,692 tok. | **118 s / 3,758 tok.** |
+| Acceptance | 11/11 | **11/11** |
+
+Across the six initial prompts, the cumulative state is now
+**691 s / 21,643 tokens** against the baseline **1,333 s / 35,430 tokens**
+(-48% / -39%).  Adding `prompt_60` gives **867 s / 28,792 tokens** against
+the 2026-11-10 GPT-6 Luna run's **1,145 s**, a ratio of **0.76×** — ESUS was
+24% faster in that aggregate, with the same acceptance coverage.
+
+
+
+### GPT-6 Luna rerun (measured 2026-11-13)
+
+The end-to-end comparison was repeated with the same protocol: one subagent per
+prompt, the prompt file as the only specification, GPT-6 Luna through OpenCode
+Go (`opencode-go/gpt-6-luna`), Python 3.12.  The seven original agents started
+together; the times below are individual wall-clock measurements, not a
+sequential total.  The first expenses agent hit a stuck tool call after writing
+its files.  The benchmark keeps that run at its full **375.4 s** wall time,
+because the stalled stream is part of the latency a user would experience; a
+clean **126.9 s** rerun confirms the prompt can complete without the stall but
+is not used for the timing.
+
+| Prompt | ESUS | GPT-6 rerun | ESUS / direct | Direct own tests |
+| --- | ---: | ---: | ---: | --- |
+| Hello world | 4 s | 11.5 s | 0.35× | 2/2 |
+| CSV → JSON CLI | 14 s | 37.3 s | 0.38× | 10/10 |
+| Inventory | 118 s | 104.1 s | 1.13× | 5/5 |
+| Wine GUI | 118 s | 132.6 s | 0.89× | 8/8 service |
+| Expenses | 268 s | 375.4 s | 0.71× | 5/5 |
+| Library | 169 s | 154.2 s | 1.10× | 9/9 |
+| Small business (`60`) | 176.3 s | 104.7 s | 1.68× | 8/8 |
+| **Six initial prompts** | **691 s** | **815.1 s** | **0.85×** | |
+| **All seven** | **867 s** | **919.8 s** | **0.94×** | |
+
+A ratio above 1 means ESUS was slower.  With the stalled expenses stream
+included, the direct total is **19.7% faster than the 2026-11-10 direct run**
+(919.8 s versus 1,145 s), but ESUS is slightly faster in this aggregate
+(867 s versus 919.8 s); the six initial prompts are 0.85×.  The seven direct
+agents overlapped, so the actual batch wall was about 375 s, dominated by the
+stalled expenses run; the sums are the sequential-equivalent used for the
+comparison with ESUS.
+
+Direct token use was **1,448,826 input buckets** (1,347,731 of them cache
+reads), **65,445 output tokens**, **14,692 reasoning tokens** and **$0.0662**
+reported API cost.  ESUS used **28,792 tokens** for the same seven prompts.
+The accounting is not directly comparable: the direct figure includes repeated
+cached context, tool calls and test writing, while ESUS counts extraction and
+generation prompts/outputs only.
+
+All seven direct projects import and pass their own tests on **Python 3.12**
+(47 tests total; the previous direct expenses and library outputs failed to
+import on 3.12).  The independent `tests/chatgpt_acceptance/` harness is
+layout-bound: hello passes **4/4** after the entry file is copied to `app.py`,
+and the CLI suite passes **10/10** after a small positional-output shim
+(**8/10** as delivered, with only the output-file syntax differing).  The other
+outputs chose different package and service layouts from the preserved direct
+fixtures, so the old 91-check total cannot be reused without adapters.  A
+rerun-specific harness was added at `tests/gpt6_rerun_acceptance/`: it reports
+**73/73 checks** on Python 3.12 — hello 4, CLI 10, inventory 13, GUI 9,
+expenses 11, library 12 and `60` 14.  The GUI checks cover the domain rules,
+persistence and tkinter wiring, not a live frame: this Python lacks `_tkinter`.
+The new harness is not the old 91-check suite; it drives the rerun's public
+APIs and CLI.  The two runs are materially different implementations: the old
+inventory used repository subpackages while the rerun uses a flat module; the
+old `60` used `src/shop/database.py` while the rerun uses `shop/db.py`; the old
+GUI was a PyImgui/GLFW `wine_inventory` package while the rerun is a flat
+tkinter application.  Same prompts and model, different layouts and service
+contracts.  ESUS still has the stronger acceptance evidence: **65/65**
+external checks, including a real GUI launch.
+
+The direct code is much smaller: roughly 700–850 source lines per substantive
+app, versus 1.6k–2.2k in the preserved ESUS outputs.  It is also less
+reproducible across runs: the same prompts produced different layouts and CLI
+option shapes from the 2026-11-10 direct run.
+
+### What the rerun does and does not establish (2026-11-13)
+
+The result supports a narrower conclusion than "one system writes better code".
+This table separates what was measured from what is still a hypothesis.
+
+| Claim | Verdict | Evidence and caveat |
+| --- | --- | --- |
+| ESUS is about as fast, sometimes faster | **Sequential-equivalent only** | 867 s versus 919.8 s for the sum of individual direct runs; 691 s versus 815.1 s on the six initial prompts. The seven direct agents ran concurrently, so their batch wall was about 375 s; ESUS uses one llama slot sequentially. Per prompt, direct was faster on inventory, library and `60`; ESUS was faster on hello, CLI, GUI and expenses. Latency conclusions therefore depend on the scheduling model. |
+| ESUS is deterministic | **Cold first pass, in practice** | `kernel/extraction/pipeline.py` uses `TEMPERATURE = 0.0` and `SEED = 20261012`; `generator.py` uses the same policy for fallback. But retries use `RETRY_TEMPERATURE = 0.35`, GPU arithmetic can vary, and a model, quantization, server or review-fixture change changes the output. "Same prompt, same code" is not a bit-for-bit guarantee. |
+| ESUS uses far fewer tokens | **Yes, with a measurement caveat** | ESUS used 28,792 tokens for the seven prompts. Direct used 1,448,826 input buckets (including 1,347,731 cache reads), 65,445 output tokens and 14,692 reasoning tokens. The two accountings are not identical because the direct figure includes repeated cached context, tool calls and test writing, but the order of magnitude is clear. |
+| ESUS output is functional and conformant by default | **On the tested reference prompts** | **65/65** external checks on the six initial prompts plus `60`, with **0 repair asks** in the latest run. The acceptance tests are prompt-specific; validation prompts 01–59 are outside that suite. This is strong evidence for the reference corpus, not a guarantee for every future prompt. |
+| GPT-6 Luna is sometimes faster | **Yes** | It was faster on inventory, library and `60` in individual wall time, and its parallel batch finished in about 375 s. Its sequential-equivalent sum is slower because one expenses stream stalled for 253 s; that stall is included in the user-facing latency. |
+| GPT-6 Luna uses much more context | **Yes** | The 1.45M input buckets and 65k output tokens above are far above ESUS's 28.8k total, even after allowing for the different accounting. The reported API cost was $0.0662 for the seven prompts. |
+| The GPT-6 API is unstable | **One observed stall, not a reliability rate** | One response stream stayed in `streaming` with empty tool arguments for about 253 s, then completed. The other six streams ran normally. The evidence does not isolate provider server, network/SSE or client handler, so this is a real risk to monitor, not a measured failure rate. |
+| GPT-6 is nondeterministic | **Observed** | The same prompt produced different package layouts, service APIs and CLI shapes from the 2026-11-10 run. This may come from sampling, tool choices or model/version changes; for greenfield code it is tolerable, for brownfield review and reproducibility it matters. |
+| ESUS will scale better on larger projects | **Plausible for greenfield, unproven** | Mechanical CRUD and deterministic emitters reduce repeated model work, but the extractor uses a small Qwen model and a 16k context; larger specifications mean more documents, more review and potentially more blockers. There is no larger greenfield benchmark, and ESUS is not a repository-navigation agent. For brownfield work, an agent with file access is currently the better fit. |
+| ESUS is better for sovereignty and sensitive data | **Conditional advantage** | A local `llama-server` keeps prompts and code on the machine if there is no telemetry. Model provenance/license (Qwen), host security, local logs and generated dependencies still matter. GPT-6 sends code and context to an external provider, so retention/region/DPA must be checked. Neither system should receive credentials in prompts; a direct agent with repository access also needs a sandbox and secret redaction. |
+
+**Recommended conclusion.** Use ESUS for repeatable greenfield generation where
+external acceptance, low token cost and local data matter. Use GPT-6 Luna for
+fast one-shot exploration or brownfield work where an agent can inspect a
+repository, but sandbox it, redact secrets, record the model/version and treat
+the output as reviewable rather than reproducible. Do not claim that ESUS
+scales better until it has a larger greenfield benchmark and a brownfield
+prototype; do not claim that the GPT-6 API is reliably fast until more runs
+quantify the stream-stall rate. For latency, always state both the
+sequential-equivalent sum and the parallel batch wall, because they lead to
+opposite conclusions.
 
 ### Mechanical extraction passes (measured 2026-11-06)
 

@@ -489,6 +489,18 @@ class MainTests(unittest.TestCase):
         self.assertEqual(env["ESUS_COMPONENTS_SPLIT"], "1")
         self.assertEqual(env["ESUS_MECHANICAL_SCHEMA"], "1")
         self.assertEqual(env["ESUS_MECHANICAL_SERVICES"], "1")
+        self.assertEqual(env["ESUS_MECHANICAL_ADAPTERS"], "1")
+        self.assertEqual(env["ESUS_DOMAIN_TRIAGE"], "1")
+
+    def test_mechanical_adapters_can_still_be_disabled(self):
+        with mock.patch.dict(os.environ, {"ESUS_MECHANICAL_ADAPTERS": "0"}):
+            env = main.pipeline_env("http://x")
+        self.assertEqual(env["ESUS_MECHANICAL_ADAPTERS"], "0")
+
+    def test_domain_triage_can_still_be_disabled(self):
+        with mock.patch.dict(os.environ, {"ESUS_DOMAIN_TRIAGE": "0"}):
+            env = main.pipeline_env("http://x")
+        self.assertEqual(env["ESUS_DOMAIN_TRIAGE"], "0")
 
     def test_the_commands_use_the_requested_model_and_mode(self):
         extract = main.build_extract_command(

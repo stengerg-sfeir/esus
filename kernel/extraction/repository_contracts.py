@@ -72,6 +72,52 @@ def _method(name, description, params, return_type, raises=()):
     }
 
 
+def _snake(name):
+    return "".join(
+        ("_" + char.lower()) if char.isupper() and index else char.lower()
+        for index, char in enumerate(str(name or ""))
+    ).lstrip("_")
+
+
+def _plural(entity):
+    snake = _snake(entity)
+    if snake.endswith("s"):
+        return snake
+    return snake + "s"
+
+
+def _child_query(entity, fields):
+    """A query by the first foreign key of a dependent entity.
+
+    A child repository without this query is structurally complete but cannot
+    serve the parent method that reads its lines (`confirm_order` asks
+    `OrderItemRepository.get_order_items_by_order_id`).  The parent entity and
+    its key are already in the field's `foreign_key` fact, so the name is
+    derived, not guessed.
+    """
+    for field in fields:
+        lookup = field.get("foreign_key")
+        if not isinstance(lookup, dict):
+            continue
+        target = lookup.get("target_entity")
+        target_field = lookup.get("target_field")
+        # The query name must be the child's own key (`order_id`), not a
+        # generic `id` borrowed from the parent.  A data model that writes
+        # `target_field: id` does not tell us how the child column is named,
+        # so the method would be `get_expenses_by_id` — a query no service
+        # calls and a name that pushes the body prompts around.
+        if not target or not target_field or target_field == "id" \
+                or target_field != field.get("name"):
+            continue
+        return _method(
+            f"get_{_plural(entity)}_by_{target_field}",
+            f"Lists the {entity} records belonging to one {target}.",
+            [{"name": target_field, "type": "int"}],
+            f"list[{entity}]",
+        )
+    return None
+
+
 def _shell(entity, fields, operations, errors):
     primary_key = _primary_key(fields, entity)
     writable = [
@@ -117,6 +163,9 @@ def _shell(entity, fields, operations, errors):
                 [{"name": primary_key, "type": "int"}, *field_params],
                 "None", lookup_raises,
             ))
+    child = _child_query(entity, fields)
+    if child is not None:
+        methods.append(child)
     return {"service_name": f"{entity}Repository", "methods": methods}
 
 

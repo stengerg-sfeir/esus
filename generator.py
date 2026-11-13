@@ -557,6 +557,7 @@ def load_context(output_dir):
         "dropped_programs": dropped_programs,
         "routes": routes,
         "dropped_routes": dropped_routes,
+        "method_repairs": load_method_repairs(output_dir),
         "requirements": requirements_text,
     }
 
@@ -846,6 +847,168 @@ def _service_standard_read_body(ctx, method, params, returns):
         f"except {error}:",
         "    return None",
     ]
+
+
+# A standard `<verb>_<entity>` service wrapper is only mechanical when its
+# description does not hide a domain check.  A description that mentions a
+# budget or another business rule is not a plain CRUD wrapper; the repository
+# already owns FK existence, but it does not own the rule.
+SERVICE_CRUD_BLOCK_WORDS = (
+    "budget", "exceed", "overage", "balance", "insufficient", "capacity",
+    "guard", "pricing", "discount", "tax",
+)
+
+
+def _preexisting_fk_messages(ctx, entity, contract):
+    """True when every precondition is only an FK existence the repo checks."""
+    preconditions = contract.get("preconditions") or []
+    if not preconditions:
+        return True
+    model = model_of(ctx, entity)
+    if model is None:
+        return False
+    fk_targets = {
+        normalize(field["foreign_key"].get("target_entity"))
+        for _name, field in fields_of(ctx, entity)
+        if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict)
+    }
+    registered = {normalize(error.get("name"))
+                  for error in ctx.get("errors") or []
+                  if isinstance(error, dict) and error.get("name")}
+    for item in preconditions:
+        if not isinstance(item, dict):
+            return False
+        check = str(item.get("check") or "").strip()
+        match = re.fullmatch(r"([A-Za-z_]\w*)\s+exists", check)
+        if match is None:
+            return False
+        target = normalize(match.group(1))
+        error = normalize(item.get("error") or "")
+        if target not in fk_targets or error not in registered:
+            return False
+    return True
+
+
+def _repair_is_input_validation(record):
+    """True when a repair record only asks for required-value validation."""
+    complaints = record.get("complaints") if isinstance(record, dict) else None
+    if not complaints:
+        return False
+    allowed = ("required", "is none", "valueerror", "read_all", "duplicate",
+               "missing", "empty")
+    return all(any(word in str(item).lower() for word in allowed)
+               for item in complaints)
+
+
+def _service_crud_wrapper(ctx, service_name, method, params, returns):
+    """Body for a plain `<verb>_<entity>` create/update/delete wrapper.
+
+    This is the contract the model does not need to write: a service method
+    named exactly after one entity's CRUD verb, whose parameters map one-for-one
+    to that repository method, and whose description names no extra rule.  It
+    returns None for anything less certain.
+    """
+    name = method.get("name") or ""
+    tokens = _verb_tokens(name)
+    if len(tokens) < 2 or tokens[0] not in ("create", "add", "update", "delete",
+                                            "remove"):
+        return None
+    if len(tokens) > 2 and not (tokens[0] == "update"
+                                and tokens[2] in ("stock", "quantity", "count")):
+        return None
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) == normalize(tokens[1])), None)
+    if entity is None:
+        return None
+    description = str(method.get("description") or "").lower()
+    if any(word in description for word in SERVICE_CRUD_BLOCK_WORDS):
+        return None
+    kind = codegen.classify_crud(name)
+    if kind not in ("create", "update", "delete"):
+        return None
+    repair = (ctx.get("method_repairs") or {}).get((service_name, name))
+    if repair is not None and not (
+            kind == "create" and _repair_is_input_validation(repair)):
+        return None
+    contract = contract_for(ctx.get("contracts") or [], service_name, name)
+    if isinstance(contract, dict):
+        if contract.get("effects") or contract.get("reads") \
+                or contract.get("derives"):
+            return None
+        if not _preexisting_fk_messages(ctx, entity, contract):
+            return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    if repo is None:
+        return None
+    target = next((item for item in repo.get("methods") or []
+                   if isinstance(item, dict) and item.get("name")
+                   and codegen.classify_crud(item["name"]) == kind), None)
+    if target is None:
+        return None
+    target_params = [item.get("name") for item in target.get("params") or []
+                     if isinstance(item, dict) and item.get("name")]
+    mapped = []
+    used = set()
+    for raw, ident, _ptype in params:
+        key = _service_param_target(raw, entity, target_params)
+        if key is None or key in used:
+            return None
+        used.add(key)
+        mapped.append((key, ident))
+    model = model_of(ctx, entity)
+    fields = fields_of(ctx, entity) if model else []
+    required = {}
+    if kind == "create":
+        required = {normalize(name): name for name, field in fields
+                    if isinstance(field, dict) and not field.get("primary_key")
+                    and not field.get("nullable")}
+        supplied = {normalize(key) for key, _ in mapped}
+        if set(required) - supplied:
+            return None
+    else:
+        primary = primary_key_of(ctx, entity)
+        if normalize(primary) not in {normalize(key) for key, _ in mapped}:
+            return None
+    holder = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    repo_method = codegen.sanitize(target["name"], "method")
+    args = ", ".join(f"{codegen.sanitize(key, 'kw')}={ident}"
+                     for key, ident in mapped)
+    call = f"self._repos[{holder!r}].{repo_method}({args})"
+    lines = []
+    if kind == "create":
+        missing = [ident for key, ident in mapped
+                   if normalize(key) in {normalize(item) for item in required}]
+        if missing:
+            check = " or ".join(f"{item} is None" for item in missing)
+            lines += [f"if {check}:", "    raise ValueError('missing required field')"]
+    if normalize(returns) in ("none", "nonetype", "void", ""):
+        lines.append(call)
+    else:
+        lines.append(f"return {call}")
+    return lines
+
+
+def _service_param_target(raw, entity, target_params):
+    """The repository parameter a service parameter feeds, or None."""
+    wanted = normalize(raw)
+    exact = [name for name in target_params if normalize(name) == wanted]
+    if len(exact) == 1:
+        return exact[0]
+    if exact:
+        return None
+    entity_prefix = normalize(entity)
+    rest = wanted[len(entity_prefix):] if wanted.startswith(entity_prefix) else ""
+    if rest:
+        matches = [name for name in target_params if normalize(name) == rest]
+        if len(matches) == 1:
+            return matches[0]
+    if wanted.startswith("new") and len(wanted) > 3:
+        rest = wanted[3:]
+        matches = [name for name in target_params if normalize(name) == rest]
+        if len(matches) == 1:
+            return matches[0]
+    return None
 
 
 def _service_delegate(ctx, method, repo_index):
@@ -1170,6 +1333,111 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "named field filter")
                 continue
+            relation_lookup = _repo_relation_lookup_body(
+                ctx, entity, model_cls, method)
+            if relation_lookup is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[lookup through a named relation]"""']
+                lines.extend("        " + line if line else ""
+                             for line in relation_lookup)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "relation lookup")
+                continue
+            two_hop = _repo_two_hop_filter_body(
+                ctx, entity, model_cls, method)
+            if two_hop is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[filters through one intermediate relation]"""']
+                lines.extend("        " + line if line else "" for line in two_hop)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "two-hop filter")
+                continue
+            text_search = _repo_text_search_body(
+                ctx, entity, model_cls, method)
+            if text_search is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical text search]"""']
+                lines.extend("        " + line if line else "" for line in text_search)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "text search")
+                continue
+            count_by = _repo_count_by_field_body(ctx, entity, method)
+            if count_by is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical count by field]"""']
+                lines.extend("        " + line if line else "" for line in count_by)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "count by field")
+                continue
+            containment = _repo_containment_filter_body(
+                ctx, entity, model_cls, method)
+            if containment is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical contained-name filter]"""']
+                lines.extend("        " + line if line else "" for line in containment)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "contained-name filter")
+                continue
+            low_stock = _repo_low_stock_body(ctx, entity, model_cls, method)
+            if low_stock is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical low-stock scan]"""']
+                lines.extend("        " + line if line else "" for line in low_stock)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "low-stock scan")
+                continue
+            stock_value = _repo_stock_value_body(ctx, entity, model_cls, method)
+            if stock_value is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical stock value]"""']
+                lines.extend("        " + line if line else "" for line in stock_value)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "stock value")
+                continue
+            utilization = _repo_utilization_body(ctx, entity, method)
+            if utilization is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical utilization]"""']
+                lines.extend("        " + line if line else "" for line in utilization)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "utilization")
+                continue
+            period_sum = _repo_period_sum_body(ctx, entity, method)
+            if period_sum is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical period sum]"""']
+                lines.extend("        " + line if line else "" for line in period_sum)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "period sum")
+                continue
+            top_categories = _repo_top_categories_body(ctx, entity, method)
+            if top_categories is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical top categories]"""']
+                lines.extend("        " + line if line else "" for line in top_categories)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "top categories")
+                continue
             lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:"]
             query_fields, query_model, query_table = field_names, model_cls, "self.ENTITY"
             target = _query_entity(ctx, method, entity)
@@ -1245,6 +1513,1002 @@ def _read_one_names_entity_error(ctx, method, entity):
     return any(wanted and wanted in normalize(name)
                for name in method.get("raises") or []
                if isinstance(name, str))
+
+
+def _repo_low_stock_body(ctx, entity, model_cls, method):
+    """Products below their category's reorder threshold."""
+    name = normalize(method.get("name") or "")
+    if "low" not in name or "stock" not in name:
+        return None
+    if method.get("params"):
+        return None
+    fields = fields_of(ctx, entity)
+    stock = next((field_name for field_name, field in fields
+                  if isinstance(field, dict) and "stock" in normalize(field_name)),
+                 None)
+    relation = next(((field_name, field) for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if stock is None or relation is None:
+        return None
+    relation_name, relation_field = relation
+    parent = relation_field["foreign_key"]["target_entity"]
+    threshold = next((field_name for field_name, field in fields_of(ctx, parent)
+                      if isinstance(field, dict)
+                      and ("threshold" in normalize(field_name)
+                           or "reorder" in normalize(field_name))), None)
+    if threshold is None:
+        return None
+    parent_pk = primary_key_of(ctx, parent)
+    lines = [
+        f"parents = self._store.select({parent!r}, [])",
+        f"thresholds = {{row[{parent_pk!r}]: row[{threshold!r}] for row in parents}}",
+        "result = []",
+        "for row in self._store.select(self.ENTITY, []):",
+        f"    parent_id = row.get({relation_name!r})",
+        "    threshold = thresholds.get(parent_id)",
+        f"    stock = row.get({stock!r})",
+        "    if stock is not None and threshold is not None and stock < threshold:",
+        "        result.append(row)",
+    ]
+    if model_cls is None:
+        lines.append("return result")
+    else:
+        lines.append(f"return _model_list([{model_cls}(**row) for row in result], {model_cls})")
+    return lines
+
+
+def _repo_stock_value_body(ctx, entity, model_cls, method):
+    """Stock value per category: price * stock, with empty categories at zero."""
+    name = normalize(method.get("name") or "")
+    if "stock" not in name or "value" not in name or method.get("params"):
+        return None
+    fields = fields_of(ctx, entity)
+    price = next((field_name for field_name, field in fields
+                  if isinstance(field, dict)
+                  and ("price" in normalize(field_name)
+                       or "cost" in normalize(field_name))), None)
+    stock = next((field_name for field_name, field in fields
+                  if isinstance(field, dict) and "stock" in normalize(field_name)),
+                 None)
+    relation = next(((field_name, field) for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if price is None or stock is None or relation is None:
+        return None
+    relation_name, relation_field = relation
+    parent = relation_field["foreign_key"]["target_entity"]
+    parent_pk = primary_key_of(ctx, parent)
+    return [
+        f"parents = self._store.select({parent!r}, [])",
+        f"values = {{row[{parent_pk!r}]: 0 for row in parents}}",
+        "for row in self._store.select(self.ENTITY, []):",
+        f"    parent_id = row.get({relation_name!r})",
+        "    if parent_id is None:",
+        "        continue",
+        f"    values[parent_id] = values.get(parent_id, 0) + "
+        f"(row.get({price!r}) or 0) * (row.get({stock!r}) or 0)",
+        "return values",
+    ]
+
+
+def _repo_text_search_body(ctx, entity, model_cls, method):
+    """Case-insensitive substring search over text fields and one relation name."""
+    name = normalize(method.get("name") or "")
+    if "search" not in name:
+        return None
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", method.get("return_type") or "")}
+    if "list" not in words:
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    param = params[0]
+    if str(param.get("type") or "").lower() not in ("str", "string", "text"):
+        return None
+    fields = fields_of(ctx, entity)
+    text_fields = [field_name for field_name, field in fields
+                   if isinstance(field, dict)
+                   and str(field.get("type") or "").lower() in
+                   ("str", "string", "text")]
+    relation = next(((field_name, field) for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if not text_fields:
+        return None
+    ident = codegen.sanitize(param["name"], "param")
+    lines = [
+        f"if not {ident}:",
+        "    return []",
+        f"query = str({ident}).lower()",
+    ]
+    parent_name = None
+    if relation is not None:
+        relation_name, relation_field = relation
+        parent = relation_field["foreign_key"]["target_entity"]
+        parent_name = next((field_name for field_name, field in fields_of(ctx, parent)
+                            if isinstance(field, dict)
+                            and normalize(field_name) == "name"), None)
+        parent_pk = primary_key_of(ctx, parent)
+        if parent_name is not None:
+            lines += [
+                f"parents = self._store.select({parent!r}, [])",
+                f"names = {{row[{parent_pk!r}]: row[{parent_name!r}] for row in parents}}",
+            ]
+    values = [f"row.get({field_name!r})" for field_name in text_fields]
+    if parent_name is not None and relation is not None:
+        values.append(f"names.get(row.get({relation[0]!r}))")
+    lines += [
+        "result = []",
+        "for row in self._store.select(self.ENTITY, []):",
+        "    values = [" + ", ".join(values) + "]",
+        "    if any(value is not None and query in str(value).lower() "
+        "for value in values):",
+        "        result.append(row)",
+    ]
+    if model_cls is None:
+        lines.append("return result")
+    else:
+        lines.append(f"return _model_list([{model_cls}(**row) for row in result], {model_cls})")
+    return lines
+
+
+def _service_overdue_body(ctx, method, params, returns):
+    """Active records whose due date is before today."""
+    name = normalize(method.get("name") or "")
+    if "overdue" not in name or params:
+        return None
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns or "")}
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in words), None)
+    if entity is None:
+        return None
+    fields = fields_of(ctx, entity)
+    due = next((field_name for field_name, field in fields
+                if isinstance(field, dict) and "due" in normalize(field_name)), None)
+    returned = next((field_name for field_name, field in fields
+                     if isinstance(field, dict)
+                     and "return" in normalize(field_name)), None)
+    status = next((field_name for field_name, field in fields
+                   if isinstance(field, dict)
+                   and normalize(field_name) in ("status", "state")), None)
+    if due is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    read_all = next((item.get("name") for item in (repo or {}).get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    if repo is None or read_all is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    var = codegen.sanitize(entity.lower(), "row")
+    due_attr = codegen.sanitize(due, "attr")
+    lines = [
+        f"records = self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}()",
+        "today = datetime.date.today()",
+        "result = []",
+        f"for {var} in records:",
+        f"    if {var}.{due_attr} is None or {var}.{due_attr} >= today:",
+        "        continue",
+    ]
+    if returned is not None:
+        lines += [f"    if {var}.{codegen.sanitize(returned, 'attr')} is not None:",
+                  "        continue"]
+    if status is not None:
+        lines.append(f"    {var}.{codegen.sanitize(status, 'attr')} = 'overdue'")
+    lines += ["    result.append(" + var + ")", "return result"]
+    return lines
+
+
+def _service_search_delegate_body(ctx, method, params, returns):
+    """Delegate a list search to the matching repository search."""
+    name = normalize(method.get("name") or "")
+    if "search" not in name or len(params) != 1:
+        return None
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns or "")}
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in words), None)
+    if entity is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    if repo is None:
+        return None
+    target = next((item.get("name") for item in repo.get("methods") or []
+                   if isinstance(item, dict) and "search" in normalize(item.get("name") or "")), None)
+    if target is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    return [f"return self._repos[{repo_cls!r}].{codegen.sanitize(target, 'method')}"
+            f"({codegen.sanitize(params[0][0], 'param')})"]
+
+
+def _repo_count_by_field_body(ctx, entity, method):
+    """Count records grouped by one categorical field."""
+    name = normalize(method.get("name") or "")
+    if "count" not in name or method.get("params"):
+        return None
+    fields = {normalize(field_name): field_name for field_name, field in fields_of(ctx, entity)
+              if isinstance(field, dict)
+              and str(field.get("type") or "").lower() in ("str", "string", "text")}
+    field = max(
+        (value for value in fields.values()
+         if all(token in name for token in _verb_tokens(value))),
+        key=len, default=None)
+    if field is None:
+        return None
+    return [
+        "counts = {}",
+        "for row in self._store.select(self.ENTITY, []):",
+        f"    key = row.get({field!r})",
+        "    if key is not None:",
+        "        counts[key] = counts.get(key, 0) + 1",
+        "return counts",
+    ]
+
+
+def _repo_containment_filter_body(ctx, entity, model_cls, method):
+    """A list filter whose parameter is uniquely contained in a field name."""
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", method.get("return_type") or "")}
+    if "list" not in words:
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    wanted = normalize(params[0]["name"])
+    fields = [field_name for field_name, field in fields_of(ctx, entity)
+              if isinstance(field, dict) and field.get("name")
+              and normalize(field_name) != wanted]
+    matches = [field_name for field_name in fields
+               if wanted in normalize(field_name)]
+    if len(matches) != 1:
+        return None
+    field = matches[0]
+    ident = codegen.sanitize(params[0]["name"], "param")
+    lines = ["criteria = []",
+             f"if {ident} is not None:",
+             f"    criteria.append(({field!r}, 'eq', {ident}))",
+             "found = self._store.select(self.ENTITY, criteria)"]
+    if model_cls is None:
+        lines.append("return found")
+    else:
+        lines.append(f"return _model_list([{model_cls}(**row) for row in found], {model_cls})")
+    return lines
+
+
+def _model_param_field(ctx, entity, raw):
+    """The model field a service parameter names, allowing `new_` prefixes."""
+    fields = [name for name, _field in fields_of(ctx, entity)]
+    wanted = normalize(raw)
+    exact = [name for name in fields if normalize(name) == wanted]
+    if len(exact) == 1:
+        return exact[0]
+    for prefix in ("new", "updated", "current"):
+        if wanted.startswith(prefix) and len(wanted) > len(prefix):
+            rest = wanted[len(prefix):]
+            matches = [name for name in fields if normalize(name) == rest]
+            if len(matches) == 1:
+                return matches[0]
+    matches = [name for name in fields
+               if wanted in normalize(name) or normalize(name) in wanted]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _error_named(ctx, *hints):
+    """A registered error whose normalized name mentions one of the hints."""
+    for error in ctx.get("errors") or []:
+        if not isinstance(error, dict) or not isinstance(error.get("name"), str):
+            continue
+        lowered = normalize(error["name"])
+        if any(hint in lowered for hint in hints):
+            return f"errors.{codegen.sanitize(error['name'])}"
+    return None
+
+
+def _service_negative_stock_body(ctx, service_name, method, params, returns):
+    """A bool guard rejecting a negative value written to a stock field."""
+    if normalize(returns) not in ("bool", "boolean"):
+        return None
+    text = (normalize(method.get("name") or "") + " "
+            + normalize(method.get("description") or ""))
+    if "stock" not in text or "negative" not in text:
+        return None
+    entity = _entity_for_service(ctx, service_name)
+    if entity is None:
+        return None
+    numeric = [item for item in params
+               if str(item[2]).lower() in ("int", "integer", "float", "decimal")]
+    matches = [(item, _model_param_field(ctx, entity, item[0])) for item in numeric]
+    matches = [(item, field) for item, field in matches
+               if field and "stock" in normalize(field)]
+    if len(matches) != 1:
+        return None
+    (raw, ident, _ptype), field = matches[0]
+    error = _error_named(ctx, "negativestock", "negative", "stock")
+    if error is None:
+        return None
+    return [
+        f"if {ident} is not None and {ident} < 0:",
+        f"    raise {error}({field + ' must be non-negative'!r})",
+        "return True",
+    ]
+
+
+def _service_price_guard_body(ctx, service_name, method, params, returns):
+    """A bool guard comparing two numeric model fields named in the description."""
+    if normalize(returns) not in ("bool", "boolean"):
+        return None
+    description = str(method.get("description") or "").lower()
+    comparator = next((word for word in ("greater than", "less than")
+                       if word in description), None)
+    if comparator is None:
+        return None
+    entity = _entity_for_service(ctx, service_name)
+    if entity is None:
+        return None
+    numeric = []
+    for item in params:
+        if str(item[2]).lower() not in ("int", "integer", "float", "decimal"):
+            continue
+        field = _model_param_field(ctx, entity, item[0])
+        if field is None:
+            continue
+        phrase = normalize(field).replace("_", " ")
+        position = description.find(field.replace("_", " "))
+        if position < 0:
+            position = description.find(normalize(field))
+        if position >= 0:
+            numeric.append((position, item, field))
+    if len(numeric) != 2:
+        return None
+    numeric.sort()
+    if numeric[0][0] >= description.find(comparator):
+        return None
+    if numeric[1][0] <= description.find(comparator):
+        return None
+    left, right = numeric[0][1], numeric[1][1]
+    error = _error_named(ctx, "pricing", "price", "invalidpricing")
+    if error is None:
+        return None
+    operator = ">" if comparator == "greater than" else "<"
+    return [
+        f"if not ({left[1]} {operator} {right[1]}):",
+        f"    raise {error}('invalid price comparison')",
+        "return True",
+    ]
+
+
+def _service_utilization_body(ctx, service_name, method, params, returns):
+    """A percentage from a parent capacity and the sum of its children's stock."""
+    if normalize(returns) not in ("float", "number", "decimal"):
+        return None
+    if "utilization" not in normalize(method.get("name") or ""):
+        return None
+    if len(params) != 1:
+        return None
+    entity = next((item for item in ctx["entity_names"]
+                   if _param_for_entity([params[0][0]], item)), None)
+    if entity is None:
+        return None
+    parent_fields = fields_of(ctx, entity)
+    capacity = next((name for name, field in parent_fields
+                     if isinstance(field, dict)
+                     and ("capacity" in normalize(name)
+                          or "limit" in normalize(name))), None)
+    if capacity is None:
+        return None
+    child = next((name for name in ctx["entity_names"]
+                  if normalize(name) != normalize(entity)
+                  and any(isinstance(field, dict)
+                          and isinstance(field.get("foreign_key"), dict)
+                          and normalize(field["foreign_key"].get("target_entity"))
+                          == normalize(entity)
+                          for _n, field in fields_of(ctx, name))), None)
+    if child is None:
+        return None
+    fk = next((name for name, field in fields_of(ctx, child)
+               if isinstance(field, dict)
+               and isinstance(field.get("foreign_key"), dict)
+               and normalize(field["foreign_key"].get("target_entity"))
+               == normalize(entity)), None)
+    stock = next((name for name, field in fields_of(ctx, child)
+                  if isinstance(field, dict) and "stock" in normalize(name)), None)
+    if fk is None or stock is None:
+        return None
+    parent_repo = next((item for item in ctx["repositories"]
+                        if normalize(item.get("entity")) == normalize(entity)), None)
+    child_repo = next((item for item in ctx["repositories"]
+                       if normalize(item.get("entity")) == normalize(child)), None)
+    if parent_repo is None or child_repo is None:
+        return None
+    read_parent = next((item.get("name") for item in parent_repo.get("methods") or []
+                        if isinstance(item, dict)
+                        and codegen.classify_crud(item.get("name") or "") == "read_one"),
+                       None)
+    read_children = next((item.get("name") for item in child_repo.get("methods") or []
+                          if isinstance(item, dict)
+                          and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                         None)
+    if read_parent is None or read_children is None:
+        return None
+    parent_cls = codegen.sanitize(parent_repo.get("interface_name") or entity, "Repository")
+    child_cls = codegen.sanitize(child_repo.get("interface_name") or child, "Repository")
+    pk = codegen.sanitize(primary_key_of(ctx, entity), "attr")
+    param = codegen.sanitize(params[0][0], "param")
+    return [
+        f"record = self._repos[{parent_cls!r}].{codegen.sanitize(read_parent, 'method')}({param})",
+        f"used = sum(item.{codegen.sanitize(stock, 'attr')} or 0 "
+        f"for item in self._repos[{child_cls!r}].{codegen.sanitize(read_children, 'method')}() "
+        f"if item.{codegen.sanitize(fk, 'attr')} == getattr(record, {pk!r}))",
+        f"capacity = getattr(record, {codegen.sanitize(capacity, 'attr')!r}, 0) or 0",
+        "if not capacity:",
+        "    return 0.0",
+        "return float(used) / capacity * 100.0",
+    ]
+
+
+def _repo_utilization_body(ctx, entity, method):
+    """Percentage used from a parent capacity and the sum of its children."""
+    if "utilization" not in normalize(method.get("name") or ""):
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    fields = fields_of(ctx, entity)
+    capacity = next((name for name, field in fields
+                     if isinstance(field, dict)
+                     and ("capacity" in normalize(name)
+                          or "limit" in normalize(name))), None)
+    child = next((name for name in ctx["entity_names"]
+                  if normalize(name) != normalize(entity)
+                  and any(isinstance(field, dict)
+                          and isinstance(field.get("foreign_key"), dict)
+                          and normalize(field["foreign_key"].get("target_entity"))
+                          == normalize(entity)
+                          for _n, field in fields_of(ctx, name))), None)
+    if capacity is None or child is None:
+        return None
+    fk = next((name for name, field in fields_of(ctx, child)
+               if isinstance(field, dict)
+               and isinstance(field.get("foreign_key"), dict)
+               and normalize(field["foreign_key"].get("target_entity"))
+               == normalize(entity)), None)
+    stock = next((name for name, field in fields_of(ctx, child)
+                  if isinstance(field, dict) and "stock" in normalize(name)), None)
+    if fk is None or stock is None:
+        return None
+    ident = codegen.sanitize(params[0]["name"], "param")
+    pk = primary_key_of(ctx, entity)
+    return [
+        f"record = self._store.get(self.ENTITY, self.PK, {ident}, "
+        f"error={_error_named(ctx, normalize(entity).lower()) or 'LookupError'})",
+        f"used = sum(row.get({stock!r}) or 0 for row in "
+        f"self._store.select({child!r}, [({fk!r}, 'eq', record[{pk!r}])]))",
+        f"capacity = record.get({capacity!r}) or 0",
+        "if not capacity:",
+        "    return 0.0",
+        "return float(used) / capacity * 100.0",
+    ]
+
+
+def _service_plain_list_filter_body(ctx, method, params, returns):
+    """Delegate a list-shaped filter to the entity repository's read_all."""
+    raw_returns = method.get("return_type") or returns
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", raw_returns or "")}
+    if "list" not in words or not params:
+        return None
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in normalize(method.get("name") or "")), None)
+    if entity is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    read_all = next((item for item in (repo or {}).get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    if repo is None or read_all is None:
+        return None
+    repo_params = [item.get("name") for item in read_all.get("params") or []
+                   if isinstance(item, dict) and item.get("name")]
+    args = []
+    for raw, ident, _ptype in params:
+        target = next((item for item in repo_params
+                       if normalize(item) == normalize(raw)), None)
+        if target is None:
+            return None
+        args.append(f"{codegen.sanitize(target, 'kw')}={ident}")
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    return [f"return self._repos[{repo_cls!r}].{codegen.sanitize(read_all.get('name'), 'method')}"
+            f"({', '.join(args)})"]
+
+
+def _repo_period_sum_body(ctx, entity, method):
+    """Monthly-by-category or yearly-by-month spending totals."""
+    name = normalize(method.get("name") or "")
+    if "spending" not in name and "summary" not in name:
+        return None
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    fields = fields_of(ctx, entity)
+    amount = next((field_name for field_name, field in fields
+                   if isinstance(field, dict)
+                   and ("amount" in normalize(field_name)
+                        or "total" in normalize(field_name))), None)
+    date = next((field_name for field_name, field in fields
+                 if isinstance(field, dict) and "date" in normalize(field_name)), None)
+    relation = next(((field_name, field) for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)), None)
+    if amount is None or date is None:
+        return None
+    ident = codegen.sanitize(params[0], "param")
+    if "monthly" in name and "category" in name and relation is not None:
+        relation_name, _ = relation
+        return [
+            "totals = {}",
+            "for row in self._store.select(self.ENTITY, []):",
+            f"    date = str(row.get({date!r}) or '')[:10]",
+            f"    if not date.startswith(str({ident})):",
+            "        continue",
+            f"    key = row.get({relation_name!r})",
+            "    if key is None:",
+            "        continue",
+            f"    totals[key] = totals.get(key, 0) + (row.get({amount!r}) or 0)",
+            "return totals",
+        ]
+    if "yearly" in name and "summary" in name:
+        return [
+            "totals = {}",
+            "for row in self._store.select(self.ENTITY, []):",
+            f"    date = str(row.get({date!r}) or '')[:10]",
+            f"    if not date.startswith(str({ident})):",
+            "        continue",
+            "    key = date[:7]",
+            f"    totals[key] = totals.get(key, 0) + (row.get({amount!r}) or 0)",
+            "return dict(sorted(totals.items()))",
+        ]
+    return None
+
+
+def _repo_top_categories_body(ctx, entity, method):
+    """Top spending categories for a date range, with category names."""
+    name = normalize(method.get("name") or "")
+    if "top" not in name or "categor" not in name:
+        return None
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 2:
+        return None
+    fields = fields_of(ctx, entity)
+    amount = next((field_name for field_name, field in fields
+                   if isinstance(field, dict)
+                   and ("amount" in normalize(field_name)
+                        or "total" in normalize(field_name))), None)
+    date = next((field_name for field_name, field in fields
+                 if isinstance(field, dict) and "date" in normalize(field_name)), None)
+    relation = next(((field_name, field) for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if amount is None or date is None or relation is None:
+        return None
+    relation_name, relation_field = relation
+    parent = relation_field["foreign_key"]["target_entity"]
+    parent_name = next((field_name for field_name, field in fields_of(ctx, parent)
+                        if isinstance(field, dict)
+                        and normalize(field_name) == "name"), None)
+    parent_pk = primary_key_of(ctx, parent)
+    if parent_name is None:
+        return None
+    start, end = (codegen.sanitize(item, "param") for item in params)
+    return [
+        f"start = str({start})[:10] if {start} is not None else ''",
+        f"end = str({end})[:10] if {end} is not None else ''",
+        "totals = {}",
+        "for row in self._store.select(self.ENTITY, []):",
+        f"    date = str(row.get({date!r}) or '')[:10]",
+        "    if start and date < start:",
+        "        continue",
+        "    if end and date > end:",
+        "        continue",
+        f"    key = row.get({relation_name!r})",
+        "    if key is None:",
+        "        continue",
+        f"    totals[key] = totals.get(key, 0) + (row.get({amount!r}) or 0)",
+        f"parents = self._store.select({parent!r}, [])",
+        f"names = {{row[{parent_pk!r}]: row[{parent_name!r}] for row in parents}}",
+        "return sorted([(key, names.get(key), total) "
+        "for key, total in totals.items()], key=lambda item: (-item[2], item[0]))",
+    ]
+
+
+def _entity_for_service(ctx, service_name):
+    """The declared entity a service/repository name is built around.
+
+    `ExpenseService` is exact; `WineInventoryService` contains `Wine`, so the
+    longest declared entity name contained in the service name wins.  No
+    domain-specific service spelling is assumed.
+    """
+    base = re.sub(r"(?:Service|Repository)$", "", str(service_name or ""))
+    exact = next((item for item in ctx["entity_names"]
+                  if normalize(item) == normalize(base)), None)
+    if exact is not None:
+        return exact
+    contained = [item for item in ctx["entity_names"]
+                 if normalize(item) and normalize(item) in normalize(base)]
+    return max(contained, key=lambda item: len(normalize(item)), default=None)
+
+
+def _service_export_csv_body(ctx, service_name, method, params, returns):
+    """CSV export of the date-filtered records of the service's entity."""
+    name = normalize(method.get("name") or "")
+    if "export" not in name or "csv" not in name:
+        return None
+    entity = _entity_for_service(ctx, service_name)
+    model = model_of(ctx, entity) if entity else None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)         if entity else None
+    if model is None or repo is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    read_all = next((item.get("name") for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    if read_all is None:
+        return None
+    field_names = [field_name for field_name, _field in fields_of(ctx, entity)]
+    date_field = next((field_name for field_name, field in fields_of(ctx, entity)
+                       if isinstance(field, dict)
+                       and str(field.get("type") or "").lower()
+                       in ("date", "datetime")), None)
+    if date_field is None:
+        return None
+    path_param = next((item for item in params
+                       if any(word in normalize(item[0])
+                              for word in ("file", "output", "path"))), None)
+    if path_param is None:
+        path_param = next((item for item in params
+                           if str(item[2]).lower() in ("str", "string", "text")),
+                          None)
+    date_params = [item for item in params if item is not path_param]
+    start = next((item for item in date_params
+                  if any(word in normalize(item[0])
+                         for word in ("start", "from"))), None)
+    end = next((item for item in date_params
+                if any(word in normalize(item[0])
+                       for word in ("end", "to"))), None)
+    if path_param is None:
+        return None
+    row_values = []
+    for field_name in field_names:
+        field = next((item for name_, item in fields_of(ctx, entity)
+                      if name_ == field_name), {})
+        attr = f"record.{codegen.sanitize(field_name, 'attr')}"
+        if str(field.get("type") or "").lower() in (
+                "str", "string", "text", "date", "datetime"):
+            attr = f"'' if {attr} is None else {attr}"
+        row_values.append(attr)
+    lines = []
+    if start is not None:
+        ident = codegen.sanitize(start[0], "param")
+        lines.append(f"start = str({ident})[:10] if {ident} is not None else ''")
+    else:
+        lines.append("start = ''")
+    if end is not None:
+        ident = codegen.sanitize(end[0], "param")
+        lines.append(f"end = str({ident})[:10] if {ident} is not None else ''")
+    else:
+        lines.append("end = ''")
+    lines += [
+        f"records = self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}()",
+        "filtered = []",
+        "for record in records:",
+        f"    date = str(getattr(record, {date_field!r}, None) or '')[:10]",
+        "    if start and date < start:",
+        "        continue",
+        "    if end and date > end:",
+        "        continue",
+        "    filtered.append(record)",
+        f"with open({codegen.sanitize(path_param[0], 'param')}, 'w', newline='', encoding='utf-8') as handle:",
+        "    writer = csv.writer(handle)",
+        f"    writer.writerow({field_names!r})",
+        "    for record in filtered:",
+        f"        writer.writerow([{', '.join(row_values)}])",
+    ]
+    return lines
+
+
+def _service_detect_recurring_body(ctx, service_name, method, params, returns):
+    """Mark groups of same amount/related-record present in more than one month."""
+    name = normalize(method.get("name") or "")
+    if "recurring" not in name or "detect" not in name:
+        return None
+    entity = _entity_for_service(ctx, service_name)
+    if entity is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    if repo is None:
+        return None
+    fields = fields_of(ctx, entity)
+    amount = next((field_name for field_name, field in fields
+                   if isinstance(field, dict)
+                   and ("amount" in normalize(field_name)
+                        or "total" in normalize(field_name)
+                        or "price" in normalize(field_name))), None)
+    date = next((field_name for field_name, field in fields
+                 if isinstance(field, dict)
+                 and ("date" in normalize(field_name)
+                      or "period" in normalize(field_name))), None)
+    relation = next((field_name for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)), None)
+    recurring = next((field_name for field_name, field in fields
+                      if isinstance(field, dict)
+                      and "recurr" in normalize(field_name)), None)
+    if amount is None or date is None or recurring is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    read_all = next((item.get("name") for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    update = next((item.get("name") for item in repo.get("methods") or []
+                   if isinstance(item, dict)
+                   and codegen.classify_crud(item.get("name") or "") == "update"),
+                  None)
+    if read_all is None or update is None:
+        return None
+    key_parts = [f"record.{codegen.sanitize(amount, 'attr')}"]
+    if relation is not None:
+        key_parts.append(f"record.{codegen.sanitize(relation, 'attr')}")
+    month_attr = codegen.sanitize(date, "attr")
+    flag_attr = codegen.sanitize(recurring, "kw")
+    return [
+        f"records = self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}()",
+        "groups = {}",
+        "for record in records:",
+        f"    key = ({', '.join(key_parts)}{',' if len(key_parts) == 1 else ''})",
+        "    groups.setdefault(key, []).append(record)",
+        "result = []",
+        "for group in groups.values():",
+        f"    months = {{str(getattr(item, {date!r}, None) or '')[:7] for item in group}}",
+        "    if len(months) <= 1:",
+        "        continue",
+        "    for item in group:",
+        f"        result.append(self._repos[{repo_cls!r}].{codegen.sanitize(update, 'method')}(item.{codegen.sanitize(primary_key_of(ctx, entity), 'attr')}, {flag_attr}=True))",
+        "return result",
+    ]
+
+
+def _service_stock_value_body(ctx, method, params, returns):
+    """Delegate a stock-value report to its repository aggregate."""
+    name = normalize(method.get("name") or "")
+    if params or "stock" not in name or "value" not in name:
+        return None
+    candidates = []
+    for repo in ctx["repositories"]:
+        for target in repo.get("methods") or []:
+            if not isinstance(target, dict):
+                continue
+            target_name = normalize(target.get("name") or "")
+            if "stock" in target_name and "value" in target_name:
+                candidates.append((repo, target))
+    if len(candidates) != 1:
+        return None
+    repo, target = candidates[0]
+    holder = codegen.sanitize(repo.get("interface_name") or repo.get("entity"), "Repository")
+    return [f"return self._repos[{holder!r}].{codegen.sanitize(target['name'], 'method')}()"]
+
+
+def _service_mapping_update_body(ctx, service_name, method, params):
+    """An update taking one dict, delegated to the repository's update."""
+    if codegen.classify_crud(method.get("name") or "") != "update":
+        return None
+    if (service_name, method.get("name")) in (ctx.get("method_repairs") or {}):
+        return None
+    description = str(method.get("description") or "").lower()
+    if any(word in description for word in SERVICE_CRUD_BLOCK_WORDS):
+        return None
+    mapping = next((item for item in params
+                    if codegen.is_mapping_type(item[2])), None)
+    key = next((item for item in params if item is not mapping), None)
+    if mapping is None or key is None:
+        return None
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in normalize(method.get("name") or "")), None)
+    if entity is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    target = next((item for item in (repo or {}).get("methods") or []
+                   if isinstance(item, dict)
+                   and codegen.classify_crud(item.get("name") or "") == "update"), None)
+    if repo is None or target is None:
+        return None
+    holder = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    key_name = codegen.sanitize(key[0], "param")
+    data_name = codegen.sanitize(mapping[0], "param")
+    target_params = [item.get("name") for item in target.get("params") or []
+                     if isinstance(item, dict) and item.get("name")]
+    key_target = next((item for item in target_params
+                       if normalize(item) == normalize(key[0])), None)
+    if key_target is None:
+        return None
+    extras = [item for item in target_params if item != key_target]
+    call_args = [f"{codegen.sanitize(key_target, 'kw')}={key_name}"]
+    call_args += [f"{codegen.sanitize(item, 'kw')}={data_name}.get({item!r})"
+                  for item in extras]
+    return [
+        f"if {data_name} is None:",
+        "    return",
+        f"self._repos[{holder!r}].{codegen.sanitize(target['name'], 'method')}"
+        f"({', '.join(call_args)})",
+    ]
+
+
+def _repo_relation_lookup_body(ctx, entity, model_cls, method):
+    """A unique lookup by a related entity's name plus a field of this one.
+
+    `get_product_by_category_and_name(category_name, product_name)` reads the
+    Category row by name, then the Product by `category_id` and `name`.  The
+    data model carries both steps, so the body is derived, not guessed.
+    """
+    if codegen.classify_crud(method.get("name") or "") in (
+            "create", "update", "delete"):
+        return None
+    returns = method.get("return_type") or ""
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    if normalize(entity) not in words or "list" in words:
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return None
+    own_fields = {normalize(name): name for name, _field in fields_of(ctx, entity)}
+    relation_for = {}
+    for name, field in fields_of(ctx, entity):
+        if isinstance(field, dict) and isinstance(field.get("foreign_key"), dict):
+            target = field["foreign_key"].get("target_entity")
+            if target:
+                relation_for[normalize(target)] = (name, target)
+    criteria = []
+    relation_used = False
+    for param in params:
+        raw = param["name"]
+        ident = codegen.sanitize(raw, "param")
+        target = next((key for key in relation_for
+                       if normalize(raw).startswith(key)), None)
+        if target is not None:
+            relation_used = True
+            fk_name, parent = relation_for[target]
+            parent_field = next((field_name for field_name, field in fields_of(ctx, parent)
+                                 if isinstance(field, dict)
+                                 and normalize(field_name) in normalize(raw)
+                                 and normalize(field_name) != normalize(fk_name)), None)
+            if parent_field is None:
+                parent_field = next((field_name for field_name, field in fields_of(ctx, parent)
+                                     if isinstance(field, dict)
+                                     and normalize(field_name) == "name"), None)
+            parent_pk = primary_key_of(ctx, parent)
+            if parent_field is None:
+                return None
+            criteria.append((fk_name, ident, parent, parent_field, parent_pk))
+            continue
+        remainder = normalize(raw)
+        if remainder.startswith(normalize(entity)):
+            remainder = remainder[len(normalize(entity)):]
+        own = own_fields.get(remainder)
+        if own is None:
+            return None
+        criteria.append((own, ident, None, None, None))
+    if not relation_used or not criteria:
+        return None
+    lines = ["criteria = []"]
+    for field_name, ident, parent, parent_field, parent_pk in criteria:
+        lines.append(f"if {ident} is not None:")
+        if parent is None:
+            lines.append(f"    criteria.append(({field_name!r}, 'eq', {ident}))")
+        else:
+            lines.append(
+                f"    parent_rows = self._store.select({parent!r}, "
+                f"[({parent_field!r}, 'eq', {ident})])")
+            lines.append("    if not parent_rows:")
+            lines.append("        return None")
+            lines.append(
+                f"    criteria.append(({field_name!r}, 'eq', "
+                f"parent_rows[0][{parent_pk!r}]))")
+    lines += ["found = self._store.select(self.ENTITY, criteria)",
+              "if not found:",
+              "    return None"]
+    if model_cls is None:
+        lines.append("return dict(found[0])")
+    else:
+        lines.append(f"return {model_cls}(**found[0])")
+    return lines
+
+
+def _repo_two_hop_filter_body(ctx, entity, model_cls, method):
+    """A list query that reaches its entity through one intermediate FK.
+
+    `CustomerRepository.find_invoices_by_customer_id` is Invoice -> Order ->
+    Customer: the direct filter planner sees `customer_id` on no Invoice field.
+    The model graph supplies both hops; the body reads the middle rows, then
+    the target rows whose FK meets the middle key.
+    """
+    returns = method.get("return_type") or ""
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns)}
+    if "list" not in words:
+        return None
+    target = next((name for name in ctx["entity_names"]
+                   if normalize(name) in words
+                   and normalize(name) != normalize(entity)), None)
+    if target is None or model_of(ctx, target) is None:
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    related = normalize(params[0]["name"][:-3]) \
+        if normalize(params[0]["name"]).endswith("id") else ""
+    if not related:
+        return None
+    related_entity = next((name for name in ctx["entity_names"]
+                           if normalize(name) == related), None)
+    if related_entity is None:
+        return None
+    target_fks = [(name, field["foreign_key"].get("target_entity"))
+                  for name, field in fields_of(ctx, target)
+                  if isinstance(field, dict)
+                  and isinstance(field.get("foreign_key"), dict)]
+    for target_fk, middle in target_fks:
+        if middle is None or normalize(middle) == normalize(related_entity):
+            continue
+        middle_fk = next((name for name, field in fields_of(ctx, middle)
+                          if isinstance(field, dict)
+                          and isinstance(field.get("foreign_key"), dict)
+                          and normalize(field["foreign_key"].get("target_entity"))
+                          == normalize(related_entity)), None)
+        if middle_fk is None:
+            continue
+        middle_pk = primary_key_of(ctx, middle)
+        ident = codegen.sanitize(params[0]["name"], "param")
+        target_cls = f"models.{codegen.sanitize(target, 'Model')}"
+        lines = [
+            f"middle_rows = self._store.select({middle!r}, [({middle_fk!r}, 'eq', {ident})])",
+            f"middle_ids = {{row[{middle_pk!r}] for row in middle_rows}}",
+            f"found = [row for row in self._store.select({target!r}, []) "
+            f"if row.get({target_fk!r}) in middle_ids]",
+        ]
+        if model_cls is None:
+            lines.append("return found")
+        else:
+            lines.append(f"return _model_list([{target_cls}(**row) for row in found], {target_cls})")
+        return lines
+    return None
 
 
 def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal, table="self.ENTITY"):
@@ -2070,6 +3334,7 @@ def emit_services(ctx, repo_index, stats):
              "from typing import Any, Dict, List, Optional, Tuple, Union",
              "",
              "import calendar",
+             "import csv",
              "import datetime",
              "",
              "import models",
@@ -2154,6 +3419,39 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "closed-contract", True,
                             compile_reason)
                     continue
+            wrapper = _service_crud_wrapper(
+                ctx, name, method, params, returns)
+            if wrapper is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical CRUD wrapper]"""']
+                lines.extend("        " + line if line else "" for line in wrapper)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "mechanical CRUD wrapper")
+                continue
+            count_report = _service_count_report_body(
+                ctx, method, params, returns)
+            if count_report is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical count report]"""']
+                lines.extend("        " + line if line else "" for line in count_report)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "count report")
+                continue
+            stock_report = _service_stock_report_body(
+                ctx, method, params, returns)
+            if stock_report is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical stock report]"""']
+                lines.extend("        " + line if line else "" for line in stock_report)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "stock report")
+                continue
             plan = (ctx.get("method_plans") or {}).get((name, method["name"]))
             if plan and plan.get("strategy") == "mechanical" \
                     and str(plan.get("pattern") or "").startswith("AGGREGATE"):
@@ -2167,6 +3465,125 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "mechanical", True,
                             f"plan:{plan.get('pattern')}")
                     continue
+            low_stock_body = _service_low_stock_body(
+                ctx, method, params, returns)
+            if low_stock_body is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical low-stock filter]"""']
+                lines.extend("        " + line if line else ""
+                             for line in low_stock_body)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "low-stock filter")
+                continue
+            stock_value = _service_stock_value_body(ctx, method, params, returns)
+            if stock_value is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[delegates to the stock-value aggregate]"""']
+                lines.extend("        " + line if line else "" for line in stock_value)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "stock value delegation")
+                continue
+            mapping_update = _service_mapping_update_body(
+                ctx, name, method, params)
+            if mapping_update is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[delegates the mapping to the repository update]"""']
+                lines.extend("        " + line if line else "" for line in mapping_update)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "mapping update")
+                continue
+            export_csv = _service_export_csv_body(ctx, name, method, params, returns)
+            if export_csv is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical CSV export]"""']
+                lines.extend("        " + line if line else "" for line in export_csv)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "csv export")
+                continue
+            recurring = _service_detect_recurring_body(
+                ctx, name, method, params, returns)
+            if recurring is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical recurring detection]"""']
+                lines.extend("        " + line if line else "" for line in recurring)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "recurring detection")
+                continue
+            overdue = _service_overdue_body(ctx, method, params, returns)
+            if overdue is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical overdue read]"""']
+                lines.extend("        " + line if line else "" for line in overdue)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "overdue read")
+                continue
+            search_delegate = _service_search_delegate_body(
+                ctx, method, params, returns)
+            if search_delegate is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[delegates to the repository search]"""']
+                lines.extend("        " + line if line else "" for line in search_delegate)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "search delegation")
+                continue
+            plain_filter = _service_plain_list_filter_body(
+                ctx, method, params, returns)
+            if plain_filter is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[delegates the list filter to read_all]"""']
+                lines.extend("        " + line if line else "" for line in plain_filter)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "plain list filter")
+                continue
+            negative_stock = _service_negative_stock_body(
+                ctx, name, method, params, returns)
+            if negative_stock is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical non-negative stock guard]"""']
+                lines.extend("        " + line if line else "" for line in negative_stock)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "negative stock guard")
+                continue
+            price_guard = _service_price_guard_body(
+                ctx, name, method, params, returns)
+            if price_guard is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical price comparison guard]"""']
+                lines.extend("        " + line if line else "" for line in price_guard)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "price guard")
+                continue
+            utilization = _service_utilization_body(
+                ctx, name, method, params, returns)
+            if utilization is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical utilization]"""']
+                lines.extend("        " + line if line else "" for line in utilization)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "utilization")
+                continue
             related_body = _service_related_filter_body(ctx, method, params)
             if related_body is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -2498,6 +3915,213 @@ def _program_body(ctx, program):
     return lines
 
 
+def _service_low_stock_body(ctx, method, params, returns):
+    """A list/report of products below their category's reorder threshold.
+
+    The data model carries the whole rule: the product's stock field, its
+    category FK, and the category's threshold field.  The model kept writing
+    the `low_only=False` branch as "not None", which returned only low-stock
+    products for a false flag; deriving the body from the fields removes that
+    whole class of prompt-dependent error.
+    """
+    name = normalize(method.get("name") or "")
+    raw_params = [item[0] if isinstance(item, tuple) else item.get("name")
+                  for item in params if item]
+    low_param = next((raw for raw in raw_params
+                      if "low" in normalize(raw)), None)
+    if "low" not in name and low_param is None:
+        return None
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns or "")}
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in words), None)
+    if entity is None:
+        return None
+    fields = fields_of(ctx, entity)
+    stock = next((name for name, field in fields
+                  if isinstance(field, dict)
+                  and "stock" in normalize(name)), None)
+    relation = next(((name, field) for name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if stock is None or relation is None:
+        return None
+    relation_name, relation_field = relation
+    parent = relation_field["foreign_key"]["target_entity"]
+    threshold = next((name for name, field in fields_of(ctx, parent)
+                      if isinstance(field, dict)
+                      and ("threshold" in normalize(name)
+                           or "reorder" in normalize(name))), None)
+    if threshold is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    parent_repo = next((item for item in ctx["repositories"]
+                        if normalize(item.get("entity")) == normalize(parent)), None)
+    if repo is None or parent_repo is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    parent_cls = codegen.sanitize(
+        parent_repo.get("interface_name") or parent, "Repository")
+    read_all = next((item["name"] for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    parent_read = next((item["name"] for item in parent_repo.get("methods") or []
+                        if isinstance(item, dict)
+                        and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                       None)
+    if read_all is None or parent_read is None:
+        return None
+    category_param = next((raw for raw in raw_params
+                           if normalize(raw) == normalize(relation_name)), None)
+    repo_params = {item.get("name") for item in
+                   (next(method for method in repo.get("methods") or []
+                         if isinstance(method, dict)
+                         and method.get("name") == read_all).get("params") or [])
+                   if isinstance(item, dict)}
+    category_arg = (f"{codegen.sanitize(category_param, 'param')}="
+                    f"{codegen.sanitize(category_param, 'param')}"
+                    if category_param and relation_name in repo_params else "")
+    base = f"self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}({category_arg})"
+    parent_pk = primary_key_of(ctx, parent)
+    product_fk = codegen.sanitize(relation_name, "attr")
+    stock_attr = codegen.sanitize(stock, "attr")
+    threshold_attr = codegen.sanitize(threshold, "attr")
+    parent_pk_attr = codegen.sanitize(parent_pk, "attr")
+    lines = [f"products = {base}"]
+    if low_param is not None:
+        low = codegen.sanitize(low_param, "param")
+        lines.append(f"if {low} is not True:")
+        lines.append("    return products")
+    lines += [
+        f"categories = self._repos[{parent_cls!r}].{codegen.sanitize(parent_read, 'method')}()",
+        f"thresholds = {{row.{parent_pk_attr}: row.{threshold_attr} for row in categories}}",
+        "result = []",
+        "for product in products:",
+        f"    if product.{product_fk} is None:",
+        "        continue",
+        f"    threshold = thresholds.get(product.{product_fk})",
+        "    if threshold is not None and product." + f"{stock_attr} < threshold:",
+        "        result.append(product)",
+        "return result",
+    ]
+    return lines
+
+
+def _service_count_report_body(ctx, method, params, returns):
+    """A `{status: count}` report over one entity field."""
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns or "")}
+    if "dict" not in words or "list" in words or params:
+        return None
+    name_tokens = _tokens_for_report(method.get("name") or "")
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in name_tokens), None)
+    if entity is None:
+        return None
+    fields = {normalize(name): name for name, _field in fields_of(ctx, entity)}
+    field = next((fields[token] for token in name_tokens if token in fields), None)
+    if field is None:
+        return None
+    values = _field_vocabulary(ctx, entity, field)
+    if not values:
+        match = re.search(r"status(?:es)?\s*:\s*(.+)",
+                          method.get("description") or "", re.IGNORECASE)
+        if match:
+            values = [value.strip(" `'\"") for value in re.split(
+                r",|\bor\b", match.group(1)) if value.strip(" `'\"")]
+    if not values:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    read_all = next((item["name"] for item in (repo or {}).get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    if repo is None or read_all is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    attr = codegen.sanitize(field, "attr")
+    var = codegen.sanitize(entity.lower(), "row")
+    return [
+        f"counts = {{{', '.join(repr(value) + ': 0' for value in values)}}}",
+        f"for {var} in self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}():",
+        f"    key = {var}.{attr}",
+        "    if key in counts:",
+        "        counts[key] += 1",
+        "return counts",
+    ]
+
+
+def _tokens_for_report(name):
+    return [token for token in re.split(r"[_-]+", str(name or "").lower()) if token]
+
+
+def _service_stock_report_body(ctx, method, params, returns):
+    """A list of product rows carrying their category name."""
+    name = normalize(method.get("name") or "")
+    words = {normalize(token) for token in
+             re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns or "")}
+    if params or "list" not in words or "stock" not in name or "report" not in name:
+        return None
+    entity = next((item for item in ctx["entity_names"]
+                   if normalize(item) in normalize(method.get("name") or "")), None)
+    if entity is None:
+        return None
+    fields = fields_of(ctx, entity)
+    relation = next(((field_name, field) for field_name, field in fields
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if relation is None:
+        return None
+    relation_name, relation_field = relation
+    parent = relation_field["foreign_key"]["target_entity"]
+    parent_name = next((field_name for field_name, field in fields_of(ctx, parent)
+                        if isinstance(field, dict)
+                        and normalize(field_name) == "name"), None)
+    if parent_name is None:
+        return None
+    repo = next((item for item in ctx["repositories"]
+                 if normalize(item.get("entity")) == normalize(entity)), None)
+    parent_repo = next((item for item in ctx["repositories"]
+                        if normalize(item.get("entity")) == normalize(parent)), None)
+    read_all = next((item["name"] for item in (repo or {}).get("methods") or []
+                     if isinstance(item, dict)
+                     and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                    None)
+    parent_read = next((item["name"] for item in (parent_repo or {}).get("methods") or []
+                        if isinstance(item, dict)
+                        and codegen.classify_crud(item.get("name") or "") == "read_all"),
+                       None)
+    if repo is None or parent_repo is None or read_all is None or parent_read is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    parent_cls = codegen.sanitize(
+        parent_repo.get("interface_name") or parent, "Repository")
+    parent_pk = codegen.sanitize(primary_key_of(ctx, parent), "attr")
+    rows = {}
+    for field_name, _field in fields:
+        rows[field_name] = f"'{field_name}': {codegen.sanitize(entity.lower(), 'row')}.{codegen.sanitize(field_name, 'attr')}"
+    rows[f"{normalize(parent)}_name"] = (
+        f"'{normalize(parent)}_name': names.get("
+        f"{codegen.sanitize(entity.lower(), 'row')}.{codegen.sanitize(relation_name, 'attr')})")
+    var = codegen.sanitize(entity.lower(), "row")
+    return [
+        f"rows = self._repos[{repo_cls!r}].{codegen.sanitize(read_all, 'method')}()",
+        f"parents = self._repos[{parent_cls!r}].{codegen.sanitize(parent_read, 'method')}()",
+        f"names = {{row.{parent_pk}: row.{codegen.sanitize(parent_name, 'attr')} for row in parents}}",
+        "result = []",
+        f"for {var} in rows:",
+        "    result.append({" + ", ".join(rows.values()) + "})",
+        "return result",
+    ]
+
+
 def _service_related_filter_body(ctx, method, params):
     """Filter a list through one intermediate relation (Invoice -> Order -> Customer).
 
@@ -2566,6 +4190,31 @@ def _service_related_filter_body(ctx, method, params):
     return None
 
 
+def _name_tokens(name):
+    """Lowercased tokens of a camelCase, snake_case or kebab-case name."""
+    spaced = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", str(name or ""))
+    return [token for token in re.split(r"[^a-z0-9]+", spaced.lower())
+            if token]
+
+
+def _param_for_entity(raw_params, entity):
+    """The parameter whose tokens name the entity, when exactly one does."""
+    tokens = set(_name_tokens(entity))
+    matches = []
+    for raw in raw_params:
+        if not isinstance(raw, str):
+            continue
+        overlap = tokens & set(_name_tokens(raw))
+        if overlap:
+            matches.append((len(overlap), raw))
+    if not matches:
+        return None
+    matches.sort(key=lambda item: -item[0])
+    if len(matches) > 1 and matches[1][0] == matches[0][0]:
+        return None
+    return matches[0][1]
+
+
 def _service_assign_body(ctx, service_name, method, params, returns):
     """A `assign_<entity>_to_<target>` service method that moves a record.
 
@@ -2629,13 +4278,8 @@ def _service_assign_body(ctx, service_name, method, params, returns):
                        None)
     if target_read is None:
         return None
-    source_param = next((raw for raw in raw_params
-                         if isinstance(raw, str)
-                         and normalize(source) in normalize(raw)), None)
-    target_param = next((raw for raw in raw_params
-                         if isinstance(raw, str)
-                         and normalize(target).replace("storagelocation", "location")
-                         in normalize(raw)), None)
+    source_param = _param_for_entity(raw_params, source)
+    target_param = _param_for_entity(raw_params, target)
     if source_param is None or target_param is None:
         return None
     not_found = next((f"errors.{codegen.sanitize(item['name'])}"
@@ -3562,8 +5206,10 @@ def _repo_threshold_body(entity, model_cls, field_types, method, fname, slots):
         lines.append(f"bound = {codegen.sanitize(threshold, 'param')}")
     lines.append("out = []")
     lines.append(f"for record in self._store.select(self.ENTITY, []):")
-    return_field = next((name for name in field_types
-                         if normalize(name) == "returndate"), None)
+    return_field = next((name for name, type_ in field_types.items()
+                         if "return" in normalize(name)
+                         and str(type_ or "").lower() in ("date", "datetime")),
+                        None)
     if "overdue" in normalize(fname) and return_field is not None:
         # "Overdue" means two predicates: the due date has passed *and* the
         # loan has not been returned. THRESHOLD_SCAN names only the date
@@ -4971,6 +6617,9 @@ def fallback_prompt(requirements, errors):
               "  no bullet points, no explanations.",
               '- Include `def main():` and the `if __name__ == "__main__": main()` guard.',
               "- Type hints throughout.",
+              "- Define application errors named by the requirements as Python",
+              "  exception classes (subclasses of `Exception`); raise each where",
+              "  the failure occurs, with a clear message.",
               "- Expected input, decoding and file errors must be caught at the",
               "  command boundary: print a concise `error: ...` message to stderr",
               "  and exit nonzero. Never let an expected error escape as a",
@@ -5469,6 +7118,9 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "- Standard CRUD is on the repositories, not on this service.",
             "  Do not call a service method that is absent from the module;",
             "  use `self._repos['...']` for create/read/update/delete.",
+            "- A method declared by another repository is reached as",
+            "  `self._repos['OtherRepository'].method(...)`, never as",
+            "  `self.method(...)`; `self` is the holder you are writing.",
             "- Copy repository parameter names exactly from the method",
             "  list; a keyword can use a different noun than the entity",
             "  id. When a method takes one value, passing it positionally",
@@ -5524,7 +7176,7 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
     if info.get("file") == "services.py":
         lines += [
             "- A repository update that lists individual fields takes them",
-            "  as named keywords (`update(id=..., is_recurring=True)`); only",
+            "  as named keywords (`update(id=..., field=value)`); only",
             "  a method that declares a `data` parameter takes a dict.",
             "- A `data` mapping parameter may be None; treat None as an",
             "  empty mapping before reading or iterating it.",
@@ -5552,44 +7204,41 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
     if re.search(r"recurr", method, re.IGNORECASE) \
             or "recurr" in (requirement_line or "").lower():
         tail += [
-            "- Recurring means the same amount and category appear in",
-            "  different months. Group the expense records themselves by",
-            "  (amount, category), not by month; collect the distinct",
-            "  `YYYY-MM` prefixes from the group. Two or more distinct",
-            "  months make every record in that group recurring: set each",
-            "  record's flag and call `update(id=record.id,",
-            "  is_recurring=True)` for that record. Do not update a",
-            "  different loop's leftover variable. Compare prefixes as a",
-            "  set — no month arithmetic, and never parse `YYYY-MM` with",
-            "  `datetime.date.fromisoformat`.",
+            "- Recurring records share the fields that define the",
+            "  recurrence and appear in more than one period. Group the",
+            "  records themselves, collect the distinct period prefixes,",
+            "  and for each group with at least two periods set the",
+            "  recurring flag on every record and save it through the",
+            "  repository update. Never reuse a loop variable from another",
+            "  loop; compare period prefixes as a set, never parse them",
+            "  with a date constructor.",
         ]
     flat_method = normalize(method)
     if re.search(r"year|annual", method, re.IGNORECASE):
         tail += [
-            "- A yearly summary keys monthly totals by `YYYY-MM` labels",
-            "  (for example `2024-01`), not by bare month numbers.",
+            "- A yearly summary keys period totals by `YYYY-MM` labels,",
+            "  not by bare month numbers.",
             "- A yearly repository aggregate returns a mapping from",
             "  `YYYY-MM` to the total; never return one scalar.",
-            "- `top_spending_categories` must be JSON-serialisable: use a",
-            "  list of [category_id, amount] pairs or string-keyed dict,",
-            "  never tuple keys.",
+            "- A top-category result must be JSON-serialisable: a list of",
+            "  [key, amount] pairs or a string-keyed dict, never tuple",
+            "  keys or a name built from an id.",
         ]
     if "monthly" in flat_method or "month" in flat_method:
         tail += [
             "- A monthly spending-by-category aggregate returns a mapping",
-            "  from category id to that category's total; never one scalar.",
-            "- For a monthly report, read the expenses with `read_all()`",
-            "  (no keyword arguments), keep rows whose",
-            "  `str(expense.expense_date)[:7] == month`, then group them.",
-            "  Never pass the same keyword twice to `read_all`.",
-            "- Never construct the month end as `f\"{month}-31\"`.",
-            "  Use `calendar.monthrange(year, month_number)` to get the last",
-            "  valid day, or filter by the `YYYY-MM` prefix.",
-            "- Keep the monthly report keys `total_spent`, `category_spending`",
-            "  and `budget_status`; do not rename them.",
-            "- Budget status: `exceeded` when the category total is above",
-            "  the limit, `warning` when it is at least 90% of the limit,",
-            "  otherwise `on_track`.",
+            "  from the related record's id to its total; never one",
+            "  scalar.",
+            "- For a monthly report, read the records with `read_all()`",
+            "  (no keyword arguments), keep rows whose date field starts",
+            "  with the requested `YYYY-MM`, then group them. Never pass the",
+            "  same keyword twice.",
+            "- Never construct the month end as a fixed `-31`; use",
+            "  `calendar.monthrange` or filter by the `YYYY-MM` prefix.",
+            "- Keep the exact output keys the method and contract declare;",
+            "  do not rename them.",
+            "- Budget status: `exceeded` when the period total is above the",
+            "  limit, `warning` at 90% or more, otherwise `on_track`.",
         ]
     if re.search(r"top|categor", flat_method) and re.search(
             r"date|spend", flat_method + requirement_line, re.IGNORECASE):
@@ -5597,48 +7246,41 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "- For an inclusive date window, compare full ISO date strings",
             "  with `>= start_text` and `<= end_text`; never use",
             "  `startswith` or `endswith`.",
-            "- When the tuple return type includes a string category name,",
-            "  read `CategoryRepository` and return `category.name`; never",
-            "  return `str(category_id)` as the name.",
+            "- When the return includes a related record's name, read the",
+            "  parent rows and use that record's name field; never return",
+            "  `str(id)` as the name.",
+            "- When the return type declares pairs of a numeric key and an",
+            "  amount, keep the key numeric; do not stringify it.",
         ]
     if re.search(r"add|create", flat_method) and re.search(
             r"budget|month", flat_method + requirement_line, re.IGNORECASE):
         tail += [
-            "- After creating an expense, call",
-            "  `ExpenseRepository.get_monthly_spending_by_category(month)`",
-            "  and compare `spending.get(category_id, 0)` with the budget.",
-            "  Never compare only the new expense's amount or a single day.",
+            "- After creating a record whose amount counts toward a",
+            "  period total, recompute that period total from all records",
+            "  and compare it with the budget's limit field; never compare",
+            "  only the new record.",
         ]
     if "budget" in flat_method and "status" in flat_method:
         tail += [
-            "- `get_budget_by_category_and_month` returns a Budget model:",
-            "  use `budget.amount_limit_cents`, not `budget.get(...)`.",
-            "- Status is `exceeded` only when the month total is above the",
+            "- A budget record exposes its limit through its own model",
+            "  attribute, not a store dict.",
+            "- Status is `exceeded` only when the period total is above the",
             "  limit, `warning` at 90% or more, otherwise `on_track`.",
         ]
     if info.get("file") == "repositories.py" and "search" in flat_method:
         tail += [
-            "- When the search requirement includes an author name, read",
-            "  the related author by `author_id` and compare `author.name`",
-            "  as well as the row's own title and ISBN.",
+            "- When the search covers a related record's name as well as",
+            "  the row's own text fields, read the related rows too and",
+            "  compare each text field independently.",
             "- Collect matching rows in a list and return that list; never",
             "  rebuild `select` criteria from a set/comprehension of ids.",
         ]
     if info.get("file") == "repositories.py" and "top" in flat_method:
         tail += [
-            "- `self._store.get('Category', 'id', category_id)` returns a",
-            "  dict, not a model. Read its name with `.get('name')`.",
+            "- When a repository reads a parent row by key, the store",
+            "  returns a dict, not a model; read the field with `.get(...)`.",
         ]
-    if info.get("file") == "services.py" and "add" in flat_method \
-            and "expense" in flat_method:
-        tail += [
-            "- Compute the month total explicitly after create, for example:",
-            "  `month_total = sum(e.amount_cents for e in",
-            "  self._repos['ExpenseRepository'].read_all()",
-            "  if e.category_id == category_id and",
-            "  str(e.expense_date)[:7] == month)`.",
-            "  Compare `month_total` with the budget, not the new row alone.",
-        ]
+
     if re.search(r"spend(?:ing)?|total|aggregate|\bsum\b", method, re.IGNORECASE):
         tail += [
             "- This method aggregates: return the total, or the keyed",
@@ -5646,9 +7288,8 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  record.",
             "- For a date-range aggregate, call `read_all()` with no",
             "  keyword filters and filter the returned records in Python:",
-            "  compare `str(record.expense_date)[:10]` with ISO start/end.",
-            "  Never pass `expense_date__ge` or `expense_date__le`; those",
-            "  parameter names do not exist.",
+            "  compare the record's date field as ISO text with the ISO",
+            "  start/end. Never invent `__ge` or `__le` suffixes.",
         ]
     if any(line.strip() == "creates:" for line in contract):
         tail += [
@@ -5670,9 +7311,9 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
     reference_text = (module_text or "") + "\n" + "\n".join(references or ())
     if info.get("file") == "services.py" \
             and any(line.strip() == "creates:" for line in contract) \
-            and re.search(r"loan|borrow", method, re.IGNORECASE) \
-            and "due_date" in reference_text \
-            and re.search(r"\bdue\b[^.\n]*\b(?:calendar\s+)?days?\b",
+            and re.search(r"\bdue\b", requirement_line or "",
+                          re.IGNORECASE) \
+            and re.search(r"\b(?:calendar\s+)?days?\b",
                           requirements or "", re.IGNORECASE):
         tail += [
             "- The requirements state a due date. Compute it from the",
@@ -5705,6 +7346,14 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "- A stored date may already be a `datetime.date`, not a string.",
             "  Normalise it with `str(value)[:10]` before slicing or comparing;",
             "  use `str(value)[:7]` for a `YYYY-MM` month key.",
+        ]
+    if re.search(r"report|summary", flat_method):
+        tail += [
+            "- The requirements name the report's keys; use their snake_case",
+            "  spellings exactly (for example `total spent` -> `total_spent`),",
+            "  not invented synonyms.",
+            "- An id stays an int in every returned structure; never call",
+            "  `str()` on it, even when a dict key must be a string.",
         ]
     if re.search(r"year|annual", method, re.IGNORECASE):
         tail += [
@@ -5756,23 +7405,13 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             r"return|borrow|confirm|cancel|ship", flat_method,
             re.IGNORECASE):
         tail += [
-            "- A state guard checks every field that defines the state.",
-            "  For a returned loan, both `return_date is not None` and",
-            "  `status == 'returned'` mean already returned; refusing it",
-            "  must not change inventory.",
-            "- Confirming a reservation decrements stock; cancelling it",
-            "  increments stock. For cancel, the final write must be",
-            "  `self._repos['WineRepository'].update(wine.id,",
-            "  stock_quantity=wine.stock_quantity + quantity)`; do not compute",
-            "  `new_stock = current_stock - quantity`.",
+            "- A state guard checks every field that defines the state",
+            "  before writing.",
+            "- A reservation that decrements stock on confirmation must",
+            "  increment it on cancellation; base the write on the record's",
+            "  current value, not a recomputed opposite.",
         ]
-    if info.get("file") == "services.py" and "search" in flat_method:
-        tail += [
-            "- `search_wines_by_name` reads all wines with `read_all()`,",
-            "  then returns those where",
-            "  `name.lower() in wine.name.lower()`; never use `read_all(name=...)`",
-            "  for a partial search.",
-        ]
+
     if info.get("file") == "services.py" and re.search(
             r"capacity|summary|utilization", flat_method, re.IGNORECASE):
         tail += [
@@ -5821,52 +7460,7 @@ def stub_prompt(requirements, module_text, info, references=(), api=(),
             "  status to zero, then counts the records; absent statuses",
             "  must still appear with zero.",
         ]
-    if "restock" in flat_method:
-        tail += [
-            "- Validate `qty`: reject `qty is None` or `qty < 0` with",
-            "  ValueError before reading or mutating the product.",
-        ]
-    if "add_product" in flat_method:
-        tail += [
-            "- Validate that `sku`, `name`, `category_id`, `price_cents` and",
-            "  `stock_qty` are present before the duplicate check or create;",
-            "  raise ValueError for a missing required field. Never call",
-            "  `read_all(sku=None)` as a duplicate check.",
-            "- Add these explicit checks at the top:",
-            "  `if sku is None or name is None or category_id is None or",
-            "  price_cents is None or stock_qty is None: raise ValueError(...)`.",
-            "  Only then read the category and check SKU uniqueness.",
-        ]
-    if "find_low_stock" in flat_method:
-        tail += [
-            "- A related Category lookup must use",
-            "  `self._store.get('Category', 'id', category_id, error=...)`",
-            "  or `CategoryRepository.read_one(category_id)`; never reuse the",
-            "  current repository's `self.PK` for a related entity.",
-        ]
-    if "update_expense" in flat_method:
-        tail += [
-            "- Treat `data=None` as an empty mapping.",
-            "- Include `category_id` in the allowed update fields.",
-            "- If `data` supplies `category_id`, validate that category before",
-            "  the update and raise CategoryNotFoundError for an unknown id.",
-            "- Convert an ISO `expense_date` with `_as_date(...)` before saving",
-            "  or calling `.strftime`.",
-            "- Compare the month total after the update with the budget, not",
-            "  only the updated expense amount.",
-        ]
-    if "recurr" in flat_method:
-        tail += [
-            "- Return the records returned by the repository update calls,",
-            "  not the stale pre-update objects.",
-        ]
-    if "product" in flat_method and "stock" in flat_method \
-            and "report" in flat_method:
-        tail += [
-            "- Return one row per product with `product_id`, `name`,",
-            "  `category_id`, `price`, `stock_quantity` and `category_name`.",
-            "  Do not aggregate stock by category.",
-        ]
+
     lines += [
         "- If the requirements do not determine the behavior, reply with",
         '  `raise NotImplementedError("...")` and nothing else.',
@@ -7829,10 +9423,8 @@ def _keyword_call_complaints(tree, references_text):
 def _positional_dict_complaints(tree, references_text):
     """Reject a field dict passed into a scalar repository parameter.
 
-    `ExpenseRepository.update(id, dict)` has no `data` parameter: a live
-    recurring body passed `{'is_recurring': True}` into `amount_cents`, so
-    the flag was never saved. Only a method that declares a mapping
-    (`update(id, data)`) takes a dict.
+    A method that declares scalar parameters does not take a field dict;
+    only a method that declares a mapping (`update(id, data)`) does.
     """
     signatures = _signature_parameters(references_text)
     if not signatures:
@@ -7860,7 +9452,7 @@ def _positional_dict_complaints(tree, references_text):
             found.append(
                 f"passes a dict positionally to `{repo}.{method.attr}(...)`, "
                 f"where parameter {index + 1} is `{target}`; pass the field "
-                "as a keyword (`is_recurring=True`) instead")
+                "as a keyword instead")
             break
     return found
 
@@ -7868,8 +9460,8 @@ def _positional_dict_complaints(tree, references_text):
 def _scalar_return_complaints(tree, references_text):
     """Reject a scalar repository result treated as a record.
 
-    `ExpenseRepository.create(...) -> int` returns the new id. A body that
-    assigns it to `expense` and reads `expense.expense_date` crashes; the
+    A repository `create(...) -> int` returns the new id. A body that
+    assigns it to a record variable and reads its fields crashes; the
     record must be read back first.
     """
     returns = {}
@@ -7918,7 +9510,7 @@ def _scalar_return_complaints(tree, references_text):
 def _repository_call_complaints(tree, references_text):
     """Reject a method called on a repository that does not define it.
 
-    A service body guessed `ExpenseRepository.find_expenses_by_category`
+    A service body guessed a repository finder that did not exist
     while the method is declared on `CategoryRepository`; the call reads
     fine and fails only when reached. The module's own repository
     signatures are the only authority.

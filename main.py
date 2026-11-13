@@ -44,10 +44,10 @@ EXTRACT_STEPS = ("intentions", "data_models", "errors", "invariants",
 # A step's model call finishes with `[name] N tokens in Ts`; the pattern step
 # has no such line and announces itself as `[ok] step patterns`.
 STEP_DONE = re.compile(
-    r"^\[(intentions|data_models|errors|invariants|components|"
+    r"^\[(triage|intentions|data_models|errors|invariants|components|"
     r"service_contracts|interaction_adapters|persistence_ports)\] \d+ tokens")
 PATTERN_DONE = re.compile(r"^\[ok\] step patterns")
-RUN_SUMMARY = re.compile(r"^\[run\] (\d+) steps, (\d+) generated tokens in")
+RUN_SUMMARY = re.compile(r"^\[run\] (\d+) steps?, (\d+) generated tokens in")
 LLM_TOTAL = re.compile(r"^llm: (\d+) refused stub\(s\)")
 LLM_CURRENT = re.compile(r"^llm: (\S+) \.\.\.$")
 SUMMARY_MARK = "==== SUMMARY ===="
@@ -323,7 +323,8 @@ def pipeline_env(server_url):
     """The environment shared by extraction, review and generation."""
     env = dict(os.environ, LLAMA_SERVER_URL=server_url, PYTHONUNBUFFERED="1")
     for key in ("ESUS_COMPONENTS_SPLIT", "ESUS_MECHANICAL_SCHEMA",
-                "ESUS_MECHANICAL_SERVICES"):
+                "ESUS_MECHANICAL_SERVICES", "ESUS_MECHANICAL_ADAPTERS",
+                "ESUS_DOMAIN_TRIAGE"):
         env.setdefault(key, "1")
     return env
 
@@ -399,8 +400,9 @@ def run_pipeline(args, display):
              [line for line in tail if line.strip()][-3:], _shown(extract_log))
         return 1
     steps = ran.get("steps", len(done))
-    display.end(True, f"{steps} steps" + (f", {ran['tokens']:,} tokens"
-                                          if "tokens" in ran else ""))
+    step_word = "step" if steps == 1 else "steps"
+    display.end(True, f"{steps} {step_word}" + (f", {ran['tokens']:,} tokens"
+                                               if "tokens" in ran else ""))
 
     # 1b. grounding review, after extraction and before generation
     if args.review and (output / "requirements.txt").is_file():
