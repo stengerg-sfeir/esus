@@ -41,11 +41,11 @@ GENERATABLE: NO — `generator.py` will refuse this output
 
 
 class SummaryTests(unittest.TestCase):
-    def test_direct_summary_is_parsed(self):
+    def test_successful_summary_is_parsed(self):
         summary = runner.parse_summary(DIRECT)
         self.assertEqual((summary["generatable"], summary["blockers"],
                           summary["open_ties"]), (True, 0, 0))
-        self.assertEqual(runner.classify(summary, 0, False), "direct")
+        self.assertEqual(runner.classify(summary, 0, False), "successful")
 
     def test_reviewable_blocker_is_review(self):
         summary = runner.parse_summary(REVIEW)

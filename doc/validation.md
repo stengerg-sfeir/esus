@@ -7,7 +7,7 @@ per prompt:
 
 - wall-clock time;
 - prompt and generated tokens;
-- whether the extracted architecture is **directly generatable**;
+- whether the extracted architecture is **successful** (formerly called direct);
 - whether it becomes generatable **after human review**;
 - whether it is **not generatable**.
 
@@ -107,7 +107,7 @@ Qwen server:
 python3.12 scripts/run_validation.py --only prompt_01 --run-id smoke
 ```
 
-Result: `direct`, first cold run **17.155 s**, warm repeat **8.477 s**,
+Result: `successful`, first cold run **17.155 s**, warm repeat **8.477 s**,
 **320** generated tokens, **1 639** prompt tokens, 6 timed calls, 0 blockers,
 0 ties. This validates the subprocess, summary parser, token parser, and
 classification path. It is not a representative sample of the 60-prompt
@@ -120,15 +120,15 @@ The first complete calibration ran on two visible GPUs with one
 
 | Prompt | Class | Time | Tokens out | Tokens prompt | Observed blocker |
 | --- | --- | ---: | ---: | ---: | --- |
-| `prompt_01` | direct | 66.6 s | 320 | 1 639 | none |
-| `prompt_10` | direct | 126.3 s | 3 281 | 4 406 | none |
+| `prompt_01` | successful | 66.6 s | 320 | 1 639 | none |
+| `prompt_10` | successful | 126.3 s | 3 281 | 4 406 | none |
 | `prompt_20` | review | 172.4 s | 4 775 | 4 597 | 2 open ties |
 | `prompt_30` | not generatable | 71.1 s | 2 689 | 2 050 | persistence required, no data models/CRUD, 14 surface questions |
 | `prompt_40` | not generatable | 42.1 s | 1 247 | 1 857 | persistence required, no data models/CRUD, 1 surface question |
 | `prompt_50` | review | 151.0 s | 3 492 | 3 860 | 1 open tie |
 | `prompt_56` | review | 511.4 s | 13 257 | 7 117 | 3 method contracts |
 | `prompt_60` | review | 481.8 s | 23 758 | 10 068 | 1 pattern slot + 5 contracts |
-| **Total** | 2 direct / 4 review / 2 blocked | **27m 03s** | **52 819** | **35 594** | 96 timed calls |
+| **Total** | 2 successful / 4 review / 2 blocked | **27m 03s** | **52 819** | **35 594** | 96 timed calls |
 
 The two long prompts (`prompt_56`, `prompt_60`) dominate: together they take
 16m 33s and produce 37 015 output tokens. A full 60-prompt run at this
@@ -272,7 +272,7 @@ runner's parser and classifier are covered by
   parsing, token parsing, classification, checkpoint/resume, and CSV/JSON
   output.
 - Added the validation runner smoke test; `prompt_01` is classified
-  `direct`, 17.155 s cold / 8.477 s warm, 320 output / 1 639 prompt tokens.
+  `successful`, 17.155 s cold / 8.477 s warm, 320 output / 1 639 prompt tokens.
 - Added the Kaggle notebook, kernel metadata, dataset/push instructions, and
   parser/classifier unit tests.
 - Kaggle credentials are configured (`kaggle 2.2.4`).
@@ -282,7 +282,7 @@ runner's parser and classifier are covered by
 - The notebook now extracts the code archive, uses official CUDA prebuilts
   with a CPU fallback, starts one server with two decode slots, runs the
   concurrent prompt runner, and archives the single run directory.
-- Completed the 8-prompt calibration: 2 direct, 4 review, 2 not generatable;
+- Completed the 8-prompt calibration: 2 successful, 4 review, 2 not generatable;
   total 27m 03s and 52,819 output / 35,594 prompt tokens. The two blocked
   prompts both extract zero data models while declaring persistence required.
 - `ESUS_COMPONENTS_SPLIT=1` is now ignored when a prompt states no command

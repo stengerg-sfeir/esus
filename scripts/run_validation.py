@@ -6,7 +6,7 @@ per-prompt `metrics.json` plus combined `summary.json`/`summary.csv`.
 
 The classification is intentionally conservative:
 
-- `direct`: extraction says GENERATABLE: YES with zero blockers and zero ties;
+- `successful`: extraction says GENERATABLE: YES with zero blockers and zero ties;
 - `review`: the remaining blockers are `open_human_review` or
   `ignored_cli_option`, or only unresolved ties remain;
 - `not_generatable`: any other blocker, a crash, or a timeout.
@@ -117,9 +117,9 @@ def classify(summary: dict | None, exit_code: int, timed_out: bool) -> str:
     rules = {item["rule"] for item in summary["rules"]}
     if summary["generatable"] and summary["blockers"] == 0 \
             and summary["open_ties"] == 0:
-        return "direct"
+        return "successful"
     if summary["generatable"] and not rules:
-        return "direct"
+        return "successful"
     if summary["blockers"] and rules <= REVIEWABLE_RULES:
         return "review"
     if summary["open_ties"] and not summary["blockers"]:
