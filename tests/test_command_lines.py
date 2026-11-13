@@ -62,7 +62,10 @@ class ExtractTests(unittest.TestCase):
                                   # names (`expense category list`, `expense
                                   # recurring detect`), enumerated since stage A.
                                   "prompt_expenses": 14})
-        text = (here / "prompts" / "prompt_60.txt").read_text(encoding="utf-8")
+        prompt_60 = here / "prompts" / "prompt_60.txt"
+        if not prompt_60.is_file():
+            prompt_60 = here / "prompts" / "validation" / "prompt_60.txt"
+        text = prompt_60.read_text(encoding="utf-8")
         self.assertEqual(command_lines.extract_command_lines(text), [])
         for name in ("prompt_hello_world", "prompt_cli_tool", "prompt_gui"):
             text = (initial / f"{name}.txt").read_text(encoding="utf-8")
