@@ -547,6 +547,22 @@ quantify the stream-stall rate. For latency, always state both the
 sequential-equivalent sum and the parallel batch wall, because they lead to
 opposite conclusions.
 
+### Fresh post-merge generation (2026-11-13)
+
+A fresh generation from the merged `main` with the preserved review sidecars
+(`ca7e255^:backup/review-inputs-2026-11-10`) generated all seven prompts and
+passed all seven acceptance suites. Its final wall times were **947.3 s** total:
+hello 5.7 s, CLI 13.6 s, GUI 122.1 s, inventory 123.4 s, expenses 288.7 s,
+library 200.8 s and `60` 192.9 s.
+
+This does not reproduce the **867 s** figure exactly. The fresh extraction
+produced different documents for some prompts: library generated a dead
+`overdue --overdue` flag and asked for three provisional bodies instead of one,
+while the `60` command surface also differed. A library surface review decision
+and one rerun were needed. This is extraction/run-state variation, not a
+`generator.py` merge regression. The 867 s figure remains a measured run, not a
+bit-for-bit guarantee.
+
 ### Mechanical extraction passes (measured 2026-11-06)
 
 The deterministic passes above were measured together on expenses, Qwen3-4B
