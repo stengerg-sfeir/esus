@@ -303,3 +303,54 @@ runner's parser and classifier are covered by
   **62 Y / 4 N / 0 U**, with **0 false N**, for **15.2 s total** triage cost.
   The six initial prompts moved from **1,333 s / 35,430 tokens** to
   **691 s / 21,643 tokens** with the same acceptance results.
+
+### 2026-11-13/14 — generic repair pass
+
+The first full run (`kaggle-20261113-121941`, label `direct`) produced
+**28 direct / 22 review / 10 not generatable** in **6,448.1 s**, with
+**212,199** output and **255,764** prompt tokens. Triage of the 10 blocked
+prompts is in `doc/validation-triage.md`.
+
+Generic repairs were then added and the full suite was rerun as
+`kaggle-20261113-170925` with the `successful` label:
+
+| Class | Prompts |
+| --- | ---: |
+| `successful` | 32 |
+| `review` | 27 |
+| `not_generatable` | 1 |
+
+**Measured total:** **6,847.0 s**, **218,965** output tokens, **260,879**
+prompt tokens, **502** timed calls.
+
+The single hard blocker was `prompt_03` (`persistence_ports.json` was written
+as `null` after the persistence step was skipped). The skip path now removes
+the document key, and the adapter-side unify pass only runs when a ports
+object exists; the archived output re-probes as **review** with one unanswered
+method contract. Adjusted final classification: **32 successful / 28 review /
+0 not generatable**.
+
+Repairs introduced or exercised in this pass:
+
+- persistence `required=true, technology=none` becomes not required;
+- unknown raised errors are registered, or an ungrounded validation raise is
+  dropped;
+- `<Entity>_primary_key` foreign keys are renamed to `<entity>_id`;
+- plain create methods receive required non-null model fields;
+- adapter transforms agree with boolean/enum target types;
+- the false entity target for a `dict` payload on a `-> None` method is gone;
+- merged repository/service method lists are deduplicated;
+- search/export/import actions get a capability method and adapter
+  (export/import get a service; prose import also gets the missing CLI leaf);
+- an empty domain model is inferred from the application noun (`prompt_40`:
+  `Order`), with standard CRUD and persistence enabled;
+- CSV export works without a date field or explicit path, and JSON export is
+  mechanical.
+
+The validation suite now has no structural blocker after the `prompt_03`
+skip-path fix. Remaining results are review questions (ties, open contracts,
+ignored options), not generation failures. The targeted local reruns for the
+formerly blocked prompts were: `prompt_03` review, `prompt_13` successful,
+`prompt_18` successful, `prompt_19` review, `prompt_26` review,
+`prompt_32` successful, `prompt_34` review, `prompt_40` successful,
+`prompt_41` successful, `prompt_60` review.

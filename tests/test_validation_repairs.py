@@ -7,6 +7,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from kernel.extraction import repairs  # noqa: E402
+from kernel.extraction.pipeline import (  # noqa: E402
+    COMPONENTS, PERSISTENCE_PORTS, Pipeline,
+)
 
 
 class PersistenceRepairTests(unittest.TestCase):
@@ -19,6 +22,23 @@ class PersistenceRepairTests(unittest.TestCase):
         components = {"persistence": {"required": True, "technology": "sqlite"}}
         repairs.repair_persistence_consistency(components)
         self.assertTrue(components["persistence"]["required"])
+
+
+class _Log:
+    def write(self, text):
+        pass
+
+
+class PersistenceSkipTests(unittest.TestCase):
+    def test_skipping_persistence_removes_a_null_ports_document(self):
+        pipeline = Pipeline(None, log=_Log())
+        pipeline.documents = {
+            COMPONENTS: {"persistence": {"required": True,
+                                         "technology": "none"}},
+            PERSISTENCE_PORTS: None,
+        }
+        pipeline._step_persistence("")
+        self.assertNotIn(PERSISTENCE_PORTS, pipeline.documents)
 
 
 class UnknownRaiseTests(unittest.TestCase):

@@ -138,3 +138,28 @@ gone.
 
 Only the affected prompts should be regenerated after each fix; rerunning all
 60 prompts is unnecessary until the structural rules are corrected.
+
+## Resolution (2026-11-14)
+
+The generic repair pass and the second full run (`kaggle-20261113-170925`,
+**32 successful / 27 review / 1 hard**) cleared the structural blockers. The
+last hard case was a new `null` persistence document on `prompt_03`; the skip
+path now omits the file and only unifies ports when an object exists, so the
+archived output re-probes as review.
+
+| Prompt | After | Evidence |
+| --- | --- | --- |
+| `prompt_03` | review | in-memory persistence normalized; no null ports |
+| `prompt_13` | successful | search capability method added |
+| `prompt_18` | successful | CSV export service + prose import leaf |
+| `prompt_19` | review | JSON export + import; open ties only |
+| `prompt_26` | review | FK names and create fields repaired |
+| `prompt_32` | successful | errors registered; void mapping target fixed |
+| `prompt_34` | review | adapter mismatch gone; open tie |
+| `prompt_40` | successful | `Order` inferred from prose, CRUD/persistence enabled |
+| `prompt_41` | successful | bool transforms corrected |
+| `prompt_60` | review | validation raise dropped; open contract only |
+
+The adjusted full-run classification is **32 successful / 28 review / 0 not
+generatable** after the `prompt_03` skip-path fix. Remaining work is review
+quality, not structural generation.

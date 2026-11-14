@@ -369,6 +369,9 @@ def repair_existing(output_dir):
         documents[pipeline_module.SERVICE_CONTRACTS] = services
     if isinstance(components, dict):
         repairs.repair_persistence_consistency(components, log)
+        persistence = components.get("persistence")
+        if not (isinstance(persistence, dict) and persistence.get("required")):
+            documents.pop(pipeline_module.PERSISTENCE_PORTS, None)
         repairs.repair_missing_surface(components, requirements, models, log)
         repairs.repair_placeholder_subcommands(components, log)
         repairs.repair_flat_command_duplicates(components, log)

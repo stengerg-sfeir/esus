@@ -916,11 +916,12 @@ class Pipeline:
         # A capability method added to a repository contract after step H must
         # reach the persistence port too; otherwise the checker sees one
         # interface declared two ways.
-        self.documents[PERSISTENCE_PORTS] = interfaces.unify_repository_interfaces(
-            self.documents.get(PERSISTENCE_PORTS),
-            self.documents.get(SERVICE_CONTRACTS),
-            self.log,
-        )
+        if isinstance(self.documents.get(PERSISTENCE_PORTS), dict):
+            self.documents[PERSISTENCE_PORTS] = interfaces.unify_repository_interfaces(
+                self.documents.get(PERSISTENCE_PORTS),
+                self.documents.get(SERVICE_CONTRACTS),
+                self.log,
+            )
         # The surface and adapter steps are separate: an adapter can require
         # a value the surface never declares. Expose it after both exist so
         # the readiness probe judges a runnable leaf, not a stranded call.
@@ -1143,6 +1144,10 @@ class Pipeline:
         components = self.documents.get(COMPONENTS)
         repairs.repair_persistence_consistency(components, self.log)
         if not persistence_required(components):
+            # A skipped step must not leave a `null` ports document behind.
+            # Nothing is required, so the clean representation is no file at
+            # all; the checker only demands one when persistence is required.
+            self.documents.pop(PERSISTENCE_PORTS, None)
             self.log.write("[ok] step persistence: components declare no persistence — step skipped")
             return
         vocab = vocabulary.Vocabulary(
@@ -1151,6 +1156,7 @@ class Pipeline:
             crud_operations=vocabulary.crud_requirements(components),
         )
         if not vocab.entity_names and not vocab.crud_entities:
+            self.documents.pop(PERSISTENCE_PORTS, None)
             self.log.write("[!] step persistence: no entities to persist — step skipped")
             return
         entries = grammar_persistence.persisted_entities(vocab)
