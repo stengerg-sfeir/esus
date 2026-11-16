@@ -19,6 +19,10 @@ import tempfile
 import traceback
 from pathlib import Path
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from kernel.consistency.naming import normalize
+
 
 def _read(path):
     try:
@@ -467,6 +471,55 @@ def _leaf_entries(components):
     return list(walk(commands))
 
 
+def _cli_value(docs, name, declared, number):
+    """A type-aware fixture for one required CLI option."""
+    key = str(name or "").lstrip("-").replace("-", "_")
+    fields = []
+    for model in docs.get("models") or []:
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            if normalize(field["name"]) == normalize(key):
+                fields.append((model.get("name"), field))
+    field = fields[0][1] if fields else None
+    kind = str((field or {}).get("type") or declared or "").lower()
+    if field is not None:
+        allowed = _allowed_values(docs, fields[0][0], field["name"])
+        if allowed:
+            return allowed[0]
+    if "date" in key or "time" in key:
+        return "2024-01-01" if kind != "datetime" else "2024-01-01T00:00:00"
+    if kind in ("int", "integer"):
+        if key.endswith("id") or "capacity" in key:
+            return "1"
+        if "current" in key or "attendee" in key:
+            return "2"
+        return "2"
+    if kind in ("float", "double", "decimal", "money"):
+        return "1.0"
+    if kind in ("bool", "boolean"):
+        return None
+    if "email" in key:
+        return f"cli{number}@example.test"
+    return f"value{number}"
+
+
+def _cli_args(docs, node, number):
+    args = []
+    for option in node.get("options") or []:
+        if not isinstance(option, dict) or not option.get("required"):
+            continue
+        name = option.get("name")
+        if not isinstance(name, str) or not name:
+            continue
+        declared = str(option.get("type") or "").lower()
+        args.append(name)
+        value = _cli_value(docs, name, declared, number)
+        if value is not None:
+            args.append(value)
+    return args
+
+
 def _leaf_paths(components):
     return [path for path, _node in _leaf_entries(components)]
 
@@ -811,12 +864,12 @@ def run(out_dir):
                        "reason": f"{type(error).__name__}: {error}"})
     if cli_path.is_file():
         for number, (path, node) in enumerate(_leaf_entries(docs.get("components")), start=1):
-            required = _required_cli_args(node, number)
+            required = _cli_args(docs, node, number)
             if required:
                 checks.append({
                     "name": "cli-run:" + " ".join(path),
                     "status": "skipped",
-                    "reason": "requires a reviewed scenario fixture",
+                    "reason": "requires a reviewed CLI scenario fixture",
                 })
                 continue
             args = [sys.executable, str(cli_path), "--db", str(db), *path]
