@@ -384,7 +384,7 @@ in a temporary store, and executes every scalar-effect method contract through
 the generated service/repository. Results are written to
 `out/validation/bench/acceptance/`. The mechanical harness now reports
 The generated CLI scenarios now cover the command surface with **no skipped
-checks**: **970 checks passed** and **33 failed** across the 60 prompts. The
+checks**: **974 checks passed** and **29 failed** across the 60 prompts. The
 failures are real fixture/generator findings and are kept visible rather than
 converted into passes. The harness itself is complete enough to expose them:
 every command leaf and every scalar contract now has either an execution or a
