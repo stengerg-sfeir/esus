@@ -886,6 +886,18 @@ class Pipeline:
         # no leaf declares, like inventory's flagless `product add` — is step
         # D's retry to heal; it is listed here only when the adapter side can
         # also move, e.g. renaming the field to the flag.)
+        # A mapping create whose CLI only exposes line fields cannot consume
+        # them. The generator already falls back to the entity's plain create;
+        # doing it here makes readiness judge the same surface generation
+        # will emit instead of a false hard blocker.
+        adapters = self.documents.get(INTERACTION_ADAPTERS)
+        ports = self.documents.get(PERSISTENCE_PORTS)
+        repositories = (ports.get("repositories")
+                        if isinstance(ports, dict) else None) or []
+        repairs.repair_aggregate_create_adapters(
+            self.documents.get(COMPONENTS), adapters,
+            self.documents.get(SERVICE_CONTRACTS), repositories,
+            self.documents.get(DATA_MODELS), self.log)
         unknown = _unknown_model_fields(self.documents) + _uncovered_cli_fields(self.documents)
         if unknown:
             self.log.write(
@@ -932,6 +944,13 @@ class Pipeline:
                 self.documents.get(SERVICE_CONTRACTS),
                 self.log,
             )
+        # A capability method is added after the first target pass. Its
+        # parameter names are the new truth: an adapter that still points at
+        # the method it replaced (`file_path`/`start_date` vs
+        # `output`/`from_date`) must be redirected now, before readiness.
+        repairs.repair_adapter_targets(
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.documents.get(SERVICE_CONTRACTS), self.log)
         # The surface and adapter steps are separate: an adapter can require
         # a value the surface never declares. Expose it after both exist so
         # the readiness probe judges a runnable leaf, not a stranded call.
@@ -971,6 +990,9 @@ class Pipeline:
         adapters = self.documents.get(INTERACTION_ADAPTERS)
         if not isinstance(adapters, list):
             return
+        ports = self.documents.get(PERSISTENCE_PORTS)
+        repositories = (ports.get("repositories")
+                        if isinstance(ports, dict) else None) or []
         # A transform that contradicts the field's name — a count converted
         # to cents, a single name read as a list — is not expressible in the
         # grammar (transform is an enum, the name is free text), so it is
@@ -979,6 +1001,9 @@ class Pipeline:
             adapters, self.log, self.documents.get(SERVICE_CONTRACTS))
         repairs.repair_adapter_id_transforms(
             adapters, self.documents.get(SERVICE_CONTRACTS), self.log)
+        repairs.repair_adapter_lookup_entities(
+            adapters, self.documents.get(SERVICE_CONTRACTS), repositories,
+            self.documents.get(DATA_MODELS), self.log)
         # A field mapped past a parameter of its own name — `category_id`
         # into `data` while the method declares `category_id` — is the same
         # class of defect: the field's name and the method's parameter list

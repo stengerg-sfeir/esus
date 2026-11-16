@@ -219,6 +219,76 @@ class CapabilityOwnershipTests(unittest.TestCase):
         self.assertEqual(adapters, [])
 
 
+class DeterministicAdapterRepairTests(unittest.TestCase):
+    def test_unknown_lookup_entity_resolves_from_method_name(self):
+        adapters = [{"action_name": "product_delete",
+                     "target_service": "InventoryService",
+                     "target_method": "delete_product", "input_fields": [{
+            "field_name": "id", "target_param": "id",
+            "transform": "LOOKUP_ID", "lookup_entity": "Inventory",
+            "required": True}]}]
+        services = [{"service_name": "InventoryService", "methods": [{
+            "name": "delete_product",
+            "params": [{"name": "id", "type": "int"}]}]}]
+        repositories = [{"interface_name": "ProductRepository",
+                         "entity": "Product", "methods": []}]
+        models = [{"name": "Product", "fields": [{"name": "id"}]}]
+        repairs.repair_adapter_lookup_entities(
+            adapters, services, repositories, models)
+        self.assertEqual(adapters[0]["input_fields"][0]["lookup_entity"],
+                         "Product")
+
+    def test_capability_method_retargets_old_parameters(self):
+        adapters = [{"action_name": "expenseexport",
+                     "target_service": "ExpenseService",
+                     "target_method": "expenseexport", "input_fields": [
+            {"field_name": "from_date", "target_param": "start_date"},
+            {"field_name": "to_date", "target_param": "end_date"},
+            {"field_name": "output", "target_param": "file_path"}]}]
+        services = [{"service_name": "ExpenseService", "methods": [{
+            "name": "expenseexport", "params": [
+                {"name": "from_date", "type": "str"},
+                {"name": "to_date", "type": "str"},
+                {"name": "output", "type": "str"}]}]}]
+        repairs.repair_adapter_targets(adapters, services, None)
+        self.assertEqual(
+            [field["target_param"]
+             for field in adapters[0]["input_fields"]],
+            ["from_date", "to_date", "output"])
+
+    def test_aggregate_create_falls_back_to_plain_create(self):
+        models = [
+            {"name": "Order", "fields": [
+                {"name": "order_id", "primary_key": True},
+                {"name": "status"}]},
+            {"name": "OrderLine", "fields": [
+                {"name": "order_line_id", "primary_key": True},
+                {"name": "order_id"}, {"name": "product_id"},
+                {"name": "quantity"}]},
+        ]
+        services = [{"service_name": "OrderService", "methods": [{
+            "name": "create_order_with_lines",
+            "params": [{"name": "order_data", "type": "OrderCreateRequest"},
+                       {"name": "order_lines_data",
+                        "type": "List[OrderLineCreateRequest]"}],
+            "return_type": "models.Order"}]}]
+        repositories = [{"interface_name": "OrderRepository",
+                         "entity": "Order", "methods": [{
+            "name": "create",
+            "params": [{"name": "status", "type": "str"}]}]}]
+        adapters = [{"action_name": "orderadd",
+                     "target_service": "OrderService",
+                     "target_method": "create_order_with_lines",
+                     "input_fields": [
+            {"field_name": "product_id", "target_param": "order_data"},
+            {"field_name": "quantity", "target_param": "order_data"}]}]
+        repairs.repair_aggregate_create_adapters(
+            None, adapters, services, repositories, models)
+        self.assertEqual(adapters[0]["target_service"], "OrderRepository")
+        self.assertEqual(adapters[0]["target_method"], "create")
+        self.assertEqual(adapters[0]["input_fields"], [])
+
+
 class AdapterIdTransformTests(unittest.TestCase):
     def test_bare_id_derives_lookup_entity_from_repository(self):
         adapters = [{"action_name": "categorydelete",

@@ -1677,6 +1677,73 @@ def repair_adapter_id_transforms(adapters, services, log=None):
     return adapters
 
 
+_LOOKUP_STOPWORDS = frozenset({
+    "add", "create", "delete", "remove", "update", "save", "set", "read",
+    "get", "fetch", "find", "list", "one", "all", "by", "id", "service",
+    "repository", "controller", "handler",
+})
+
+
+def _lookup_entity_candidates(adapter, method, field):
+    """Names a LOOKUP_ID field could resolve to, most specific first."""
+    candidates = []
+    for text in (
+            field.get("target_param"),
+            (method or {}).get("name"),
+            adapter.get("action_name"),
+            adapter.get("target_service"),
+    ):
+        for token in re.findall(r"[A-Za-z][A-Za-z0-9]*", str(text or "")):
+            if normalize(token) not in _LOOKUP_STOPWORDS:
+                candidates.append(token)
+    return candidates
+
+
+def repair_adapter_lookup_entities(adapters, services, repositories, models,
+                                   log=None):
+    """Resolve a LOOKUP_ID entity that names no declared model.
+
+    A weaker extractor can write the service name (`Inventory`) where the
+    model entity (`Product`) belongs. The target parameter, method name,
+    command action and owning service are all evidence of the entity; use
+    them when the recorded lookup name does not resolve to a model. Leave
+    truly unknown names in place for the checker to report.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    index = _service_method_index(list(services or []) + list(repositories or []))
+    entities = {
+        normalize(model.get("name")): model.get("name")
+        for model in models or []
+        if isinstance(model, dict) and model.get("name")
+    }
+    if not entities:
+        return adapters
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        for field in adapter.get("input_fields") or []:
+            if not isinstance(field, dict) or field.get("transform") != "LOOKUP_ID":
+                continue
+            lookup = field.get("lookup_entity")
+            if isinstance(lookup, str) and normalize(lookup) in entities:
+                continue
+            resolved = next((entities[normalize(candidate)]
+                             for candidate in _lookup_entity_candidates(
+                                 adapter, method, field)
+                             if normalize(candidate) in entities), None)
+            if resolved is None:
+                continue
+            field["lookup_entity"] = resolved
+            if log is not None:
+                log.write(
+                    f"[ok] step adapters: {adapter.get('action_name')}."
+                    f"{field.get('field_name')} lookup entity {lookup!r} "
+                    f"resolved to {resolved}")
+    return adapters
+
+
 def repair_adapter_transforms(adapters, log, services=None):
     """Replace a transform whose kind contradicts the field or target type.
 

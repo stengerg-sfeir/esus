@@ -399,8 +399,14 @@ def repair_existing(output_dir):
     if isinstance(adapters, list):
         repairs.repair_capability_adapters(
             components, services, adapters, models, requirements, log)
+        repositories = (ports.get("repositories")
+                        if isinstance(ports, dict) else None) or []
+        repairs.repair_aggregate_create_adapters(
+            components, adapters, services, repositories, models, log)
         repairs.repair_adapter_transforms(adapters, log, services)
         repairs.repair_adapter_id_transforms(adapters, services, log)
+        repairs.repair_adapter_lookup_entities(
+            adapters, services, repositories, models, log)
         repairs.repair_adapter_targets(adapters, services, log)
         repairs.repair_adapter_field_names(adapters, services, models, log)
         repairs.repair_create_adapter_fields(adapters, services, models, log)
