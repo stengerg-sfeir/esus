@@ -52,7 +52,7 @@ EFFECT_VERBS = (
     (r"decrements?|decreases?|reduces?|removes?|subtracts?", "decrement"),
     (r"sets?|updates?|changes?|toggles?", "set"),
 )
-CREATE_VERBS = r"creates?|adds?"
+CREATE_VERBS = r"creates?|adds?|records?"
 # English number words are not field names; make quantity/qty one term so a
 # factory description ("stock quantity") can reach a `stock_qty` field.
 SYNONYMS = (("quantities", "qty"), ("quantity", "qty"),
@@ -174,7 +174,7 @@ def _write_call(ctx, entity, role):
 
 def _create_call(ctx, entity, role):
     if role == "repository":
-        return "self._store.insert"
+        return "self._store.add"
     return _repo_call(ctx, entity, "create_")
 
 
@@ -663,6 +663,55 @@ def _collection_create(ctx, method):
         if call:
             return {"class": entity, "call": call}
     return None
+
+
+def _record_create(ctx, method):
+    """A method named `record_*` returning an entity is a creation."""
+    name = normalize(method.get("name") or "")
+    if not name.startswith("record"):
+        return None
+    returns = str(method.get("return_type") or "")
+    entity = next((item for item in ctx.get("entity_names") or []
+                   if re.search(rf"\b{re.escape(item)}\b", returns)), None)
+    if not entity:
+        return None
+    call = _create_call(ctx, entity, "repository")
+    return {"class": entity, "call": call} if call else {"class": entity}
+
+
+def add_inferred_record_creates(output_dir):
+    ctx = generator.load_context(str(output_dir))
+    records, _dropped = contract_rules.load_method_contracts(
+        str(output_dir), load_requirements(str(output_dir)))
+    changed = 0
+    for group in (ctx.get("repositories") or [], ctx.get("services") or []):
+        for holder in group:
+            if not isinstance(holder, dict):
+                continue
+            name = holder.get("interface_name") or holder.get("service_name")
+            for method in holder.get("methods") or []:
+                if not isinstance(method, dict) or not method.get("name"):
+                    continue
+                create = _record_create(ctx, method)
+                if not create:
+                    continue
+                record = next((item for item in records
+                               if item.get("holder") == name
+                               and item.get("method") == method["name"]), None)
+                if record is None:
+                    record = {"holder": name, "method": method["name"],
+                              "decided_by": "inferred", "effects": [],
+                              "creates": [], "bindings": [], "reads": [],
+                              "derives": [], "preconditions": [], "order": [],
+                              "forbid": []}
+                    records.append(record)
+                creates = record.setdefault("creates", [])
+                if not any(item.get("class") == create["class"] for item in creates):
+                    creates.append(create)
+                    changed += 1
+    if changed:
+        contract_rules.save_method_contracts(str(output_dir), records)
+    return changed
 
 
 def add_inferred_collection_creates(output_dir):

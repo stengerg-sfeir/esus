@@ -1448,7 +1448,9 @@ def emit_repositories(ctx, stats):
             try:
                 body = _repo_body(ctx, strategy, detail, method, params, entity,
                                   query_model, query_fields, pk, fk_literal,
-                                  table=query_table)
+                                  table=query_table,
+                                  contract=contract_for(ctx.get("contracts") or [],
+                                                        holder, method["name"]))
             except _Unmappable as stuck:
                 detail = f"parameter {stuck.param!r} maps to no field"
                 body = None
@@ -2552,12 +2554,13 @@ def _repo_two_hop_filter_body(ctx, entity, model_cls, method):
     return None
 
 
-def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal, table="self.ENTITY"):
+def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal, table="self.ENTITY", contract=None):
     """The statement list of one repository method."""
     kind = strategy[5:] if strategy.startswith("crud:") else None
     err = method_error(ctx, method, entity)
     if kind == "create":
-        return _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal)
+        return _create_body(ctx, method, params, entity, model_cls, field_names,
+                            fk_literal, contract=contract)
     if kind == "read_one":
         lookup_err = err if _read_one_names_entity_error(ctx, method, entity) else None
         return _read_one_body(params, entity, model_cls, field_names, pk, lookup_err)
@@ -2942,7 +2945,46 @@ def _unique_error(ctx, entity):
     return "ValueError"
 
 
-def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal):
+def _create_effect_lines(ctx, contract, params, entity):
+    """Apply cross-entity effects after a repository create.
+
+    A repository has `self._store`, not `self._repos`. An effect on another
+    entity is therefore a store get/update, with the key parameter and the
+    operand taken from the method signature rather than a domain noun.
+    """
+    lines = []
+    param_names = {item[1] for item in params}
+    for effect in (contract or {}).get("effects") or []:
+        if effect.get("op") not in ("increment", "decrement"):
+            continue
+        target = str(effect.get("target") or "")
+        variable, _, field = target.partition(".")
+        target_entity = next((name for name in ctx["entity_names"]
+                              if normalize(name) == normalize(variable)), None)
+        model = model_of(ctx, target_entity) if target_entity else None
+        if model is None:
+            continue
+        target_pk = primary_key_of(ctx, target_entity)
+        key_param = next((name for name in param_names
+                          if normalize(name) in (
+                              normalize(target_entity) + "id",
+                              normalize(target_entity) + "key")), None)
+        by = effect.get("by")
+        if not isinstance(by, str) or by not in param_names or key_param is None:
+            continue
+        operator = "-" if effect["op"] == "decrement" else "+"
+        lines += [
+            f"if {key_param} is not None and {by} is not None:",
+            f"    _target = self._store.get({target_entity!r}, {target_pk!r}, {key_param})",
+            "    if _target is not None:",
+            f"        self._store.update({target_entity!r}, {target_pk!r}, {key_param}, "
+            f"{{{field!r}: _target.get({field!r}, 0) {operator} {by}}})",
+        ]
+    return lines
+
+
+def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal,
+                 contract=None):
     entity_param, scalars = _entity_params(params, ctx["entity_names"])
     lines = []
     if entity_param is not None and not scalars:
@@ -3024,6 +3066,7 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
         lines.append(f"        raise {unique_error}("
                      f"f\"{entity} with {{unique_field}}={{value!r}} already exists\")")
     lines.append(f"record = self._store.add(self.ENTITY, self.PK, values, check_fk={fk_literal})")
+    lines.extend(_create_effect_lines(ctx, contract, params, entity))
     declared = str(method.get("return_type") or "").strip().lower()
     if re.search(r"\b(?:int|integer|bool|boolean)\b", declared):
         # A port may declare `create(...) -> int`: returning the dataclass
@@ -9496,6 +9539,111 @@ def _normalise_create_return_usage(body, references_text):
         return list(body)
 
 
+def _add_collection_creates(body, contract, method, files):
+    """Complete a service body that creates a parent but omits its collection.
+
+    The contract names the related create; the method signature names the
+    collection; the parent create assignment in the body supplies the key.
+    The inserted loop is generic: it forwards each item's own fields and
+    overrides only the parent foreign key.
+    """
+    if not body or not isinstance(contract, dict):
+        return list(body)
+    creates = contract.get("creates") or []
+    if len(creates) < 2:
+        return list(body)
+    param_names = ([p.get("name") for p in method.get("params") or []
+                    if isinstance(p, dict)] if isinstance(method, dict)
+                   else [])
+    if not param_names:
+        param_names = _stub_params(method if isinstance(method, dict) else {})
+    target = collection = None
+    for candidate in creates:
+        if not (isinstance(candidate, dict) and candidate.get("call")
+                and candidate.get("class")):
+            continue
+        candidate_name = candidate["class"]
+        candidate_collection = next(
+            (name for name in param_names
+             if isinstance(name, str) and name.endswith("s")
+             and normalize(name)[:-1] == normalize(candidate_name)),
+            None)
+        if candidate_collection:
+            target, collection = candidate, candidate_collection
+            break
+    if target is None or collection is None:
+        return list(body)
+    target_class = target["class"]
+    call_parts = target["call"].split(".")
+    if len(call_parts) < 2:
+        return list(body)
+    target_repo, target_method = call_parts[-2], call_parts[-1]
+    source = textwrap.dedent("\n".join(body))
+    try:
+        function = ast.parse("def _body(self):\n" + textwrap.indent(source, "    ")).body[0]
+    except SyntaxError:
+        return list(body)
+    parent = None
+    for statement in function.body:
+        if not (isinstance(statement, ast.Assign) and len(statement.targets) == 1
+                and isinstance(statement.targets[0], ast.Name)
+                and isinstance(statement.value, ast.Call)
+                and isinstance(statement.value.func, ast.Attribute)
+                and statement.value.func.attr == "create"):
+            continue
+        parent = (statement.targets[0].id, ast.unparse(statement.value.func.value))
+        break
+    if parent is None:
+        return list(body)
+    parent_var, parent_receiver = parent
+    parent_entity = ""
+    match = re.search(r"['\"](\w+)Repository['\"]", parent_receiver)
+    if match:
+        parent_entity = match.group(1)
+    fk = f"{parent_entity.lower()}_id" if parent_entity else "id"
+    # Only forward keys that the related model declares; the generated create
+    # would reject an unknown keyword.
+    model_text = files.get("models.py") or ""
+    fields = []
+    for line in model_text.splitlines():
+        if line.startswith(f"class {target_class}"):
+            fields = []
+        elif line.startswith("class "):
+            fields = None
+        elif fields is not None:
+            match = re.match(r"    (\w+):", line)
+            if match:
+                fields.append(match.group(1))
+    for name in list(fields or []):
+        if name == fk:
+            fields.remove(name)
+    loop_text = (
+        f"for item in {collection} or []:\n"
+        f"    payload = dict(item)\n"
+        f"    payload[{fk!r}] = {parent_var}.id\n"
+        f"    self._repos[{target_repo!r}].{target_method}(**payload)")
+    loop = ast.parse(loop_text).body
+    new_body = []
+    inserted = False
+    for statement in function.body:
+        new_body.append(statement)
+        if (not inserted and isinstance(statement, ast.Assign)
+                and len(statement.targets) == 1
+                and isinstance(statement.targets[0], ast.Name)
+                and statement.targets[0].id == parent_var):
+            new_body.extend(loop)
+            inserted = True
+    if not inserted:
+        return list(body)
+    function.body = new_body
+    try:
+        text = ast.unparse(function)
+        lines = text.splitlines()[1:]
+        return [line[4:] if line.startswith("    ") else line for line in lines]
+    except (SyntaxError, ValueError):
+        return list(body)
+
+
 def _normalise_repository_keywords(body, references_text):
     """Pass a repository call's values positionally when its keywords are
     unambiguous aliases of the declared parameters.
@@ -10507,6 +10655,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 body = _normalise_repository_returns(body, info, filename)
                 body = _normalise_create_return_usage(
                     body, files.get("repositories.py") or "")
+                body = _add_collection_creates(
+                    body, method_contract, info, files)
                 body, keyword_changes = _normalise_repository_keywords(
                     body, files.get("repositories.py") or "")
                 refusal = _body_refusal(body, _module_names(text),

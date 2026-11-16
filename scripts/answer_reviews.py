@@ -154,6 +154,9 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
     collection = review_contracts.add_inferred_collection_creates(directory)
     if collection:
         counts["inferred-collection-creates"] = (collection, collection)
+    records = review_contracts.add_inferred_record_creates(directory)
+    if records:
+        counts["inferred-record-creates"] = (records, records)
     return counts
 
 

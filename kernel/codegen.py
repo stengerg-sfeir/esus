@@ -42,7 +42,7 @@ MODEL_TYPES = {
 # are deliberately absent: `get_monthly_spending` aggregates while
 # `get_product_by_id` reads, and a prefix rule cannot tell them apart — those
 # stay stubs unless their pattern entry says otherwise.
-CREATE_PREFIXES = ("create", "add", "insert", "save", "register", "make", "new")
+CREATE_PREFIXES = ("create", "add", "insert", "save", "register", "make", "new", "record")
 READ_ONE_MARKERS = ("readone", "byid", "byemail", "byname", "bysku", "byisbn", "bycode")
 READ_ALL_MARKERS = ("readall", "all", "list")
 UPDATE_PREFIXES = ("update", "edit")
@@ -216,6 +216,8 @@ def plan_method(method, entry, entity_names=()):
     """
     method = method if isinstance(method, dict) else {}
     name = method.get("name") if isinstance(method.get("name"), str) else ""
+    if normalize(name).startswith("record"):
+        return ("crud:create", "record verb")
     if entry is not None:
         kind, payload = tie_rules.effective_directive(entry)
         if kind == "pattern":

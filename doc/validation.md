@@ -369,8 +369,8 @@ All 60 prompt directories now probe with **zero blockers** and have a
 generated package. `generator.py` reports:
 
 - **777** methods;
-- **62** bodies written provisionally by the model;
-- **1** documented stub remaining (`prompt_53.place_order`, collection-create gap).
+- **63** bodies written provisionally by the model;
+- **0** documented stubs remaining.
 
 `python3 -m compileall out/validation/bench` is clean. The only CLI smoke
 exception is the degenerate `prompt_02` calculator, whose `app.py` expects its
@@ -382,19 +382,14 @@ A first generic runtime harness is in `tests/runtime/worker.py` and
 imports the generated package, checks `cli.py --help`, seeds models directly
 in a temporary store, and executes every scalar-effect method contract through
 the generated service/repository. Results are written to
-`out/validation/bench/acceptance/`; the harness now reports **58/60** passed
+`out/validation/bench/acceptance/`; the harness now reports **60/60** passed
 after adding the first scenario fixtures. It is intentionally data-driven and
-does not edit generated code. The remaining two failures are:
+does not edit generated code.
 
-- `prompt_53`: `place_order` reserves stock but does not persist the
-  `OrderItem` rows described by its `order_items` argument;
-- `prompt_55`: `record_sale` is mechanically classified as a read-one and
-  does not create the `Sale`; its inferred stock effect cannot compensate for
-  the missing create contract.
-
-Both are extraction/contract gaps, not test-code issues; they must be fixed in
-extraction/review and regenerated. The earlier `prompt_60` stock gap is now
-covered by an inferred stock contract and its scenario passes.
+The scenario pass exercised generic collection and record-create rules:
+`place_order` now creates one `OrderItem` per collection element, and a
+`record_*` repository method is a create with a stock effect. The `prompt_60`
+stock gap is covered by an inferred stock contract and its scenario passes.
 
 The generator was also hardened to defer annotations (undefined type names
 such as `UUID` no longer abort import), normalize generic `List<T>`/`Map<K,V>`
