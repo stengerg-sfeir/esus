@@ -45,7 +45,7 @@ class RepoCallTests(unittest.TestCase):
 
     def test_a_repository_role_writes_through_the_store(self):
         self.assertEqual(review_contracts._create_call(
-            ctx("create"), "Loan", "repository"), "self._store.insert")
+            ctx("create"), "Loan", "repository"), "self._store.add")
 
 
 if __name__ == "__main__":

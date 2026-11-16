@@ -186,6 +186,19 @@ def is_mapping_type(text):
             or "dict[" in lowered or "mapping[" in lowered)
 
 
+def is_dto_type(text):
+    """True for a named request/DTO type carried as a field mapping.
+
+    `OrderCreationData` and `OrderCreateRequest` are not Python `dict`
+    spellings, but adapters still target their members as keys of one value.
+    A command that exposes those members must group them, exactly as it does
+    for a plain mapping; a named aggregate is not a scalar string.
+    """
+    if not isinstance(text, str):
+        return False
+    return normalize(text).endswith(("data", "request", "input", "dto", "payload"))
+
+
 def classify_crud(method_name):
     """The mechanical CRUD kind of a method name, or None when ambiguous."""
     name = normalize(method_name or "")
@@ -522,7 +535,8 @@ def _best_path_adapter(adapters, verb_stems, command, sub, unmapped):
             continue
         method = normalize(adapter.get("target_method") or "")
         action = normalize(adapter.get("action_name") or "")
-        if stems and not any(stem in method for stem in stems):
+        if (stems and not any(stem in method for stem in stems)
+                and not any(stem in action for stem in stems)):
             continue
         blob = (normalize(adapter.get("target_service") or "") + "|"
                 + method + "|" + action)
@@ -564,7 +578,8 @@ def _best_adapter(adapters, verb_stems, command, sub, unmapped):
             continue
         method = normalize(adapter.get("target_method") or "")
         action = normalize(adapter.get("action_name") or "")
-        if verb and not any(stem in method for stem in stems):
+        if (verb and not any(stem in method for stem in stems)
+                and verb not in action):
             continue
         blob = (normalize(adapter.get("target_service") or "") + "|"
                 + method + "|" + action)
@@ -639,7 +654,7 @@ def action_targets(adapters, services, repositories, entity_names):
                     if normalize(name) in tokens:
                         model_cls = sanitize(name, "Model")
                         break
-            elif is_mapping_type(ptype):
+            elif is_mapping_type(ptype) or is_dto_type(ptype):
                 if method is not None and _method_returns_nothing(method):
                     # `ship_order(order_id, shipping_details: dict) -> None`
                     # carries an auxiliary payload, not an entity to construct.

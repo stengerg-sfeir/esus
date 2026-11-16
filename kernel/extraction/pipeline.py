@@ -757,6 +757,9 @@ class Pipeline:
         self.documents[SERVICE_CONTRACTS] = repairs.repair_id_param_types(
             self.documents.get(SERVICE_CONTRACTS), self.documents.get(DATA_MODELS),
             self.log)
+        self.documents[SERVICE_CONTRACTS] = repairs.repair_mapping_create_params(
+            self.documents.get(SERVICE_CONTRACTS), self.documents.get(DATA_MODELS),
+            self.log)
 
     def _repair_errors(self):
         """Remove the two error contradictions the grammar cannot express (§9.28).
@@ -950,6 +953,10 @@ class Pipeline:
             self.documents.get(DATA_MODELS),
             self.log,
         )
+        repairs.repair_delete_adapter_fields(
+            self.documents.get(INTERACTION_ADAPTERS), self.log)
+        repairs.repair_delete_surface(
+            self.documents.get(COMPONENTS), self.log)
         repairs.repair_surface_from_adapters(
             self.documents.get(COMPONENTS),
             self.documents.get(INTERACTION_ADAPTERS),
@@ -989,6 +996,13 @@ class Pipeline:
             adapters, self.documents.get(SERVICE_CONTRACTS),
             self.documents.get(DATA_MODELS), self.log
         )
+        # Required NOT NULL fields the adapter never maps are added from the
+        # model. Exposing the new flags happens after the retry/settle pass:
+        # a field the surface cannot supply is a miss to name to the model
+        # first, not one to paper over with a flag before that attempt.
+        repairs.repair_create_adapter_fields(
+            adapters, self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS), self.log)
 
     @staticmethod
     def _group_block(spans, group):
@@ -1240,6 +1254,11 @@ class Pipeline:
         repairs.repair_required_create_fields(
             self.documents[PERSISTENCE_PORTS], self.documents.get(DATA_MODELS),
             self.log)
+        ports = self.documents.get(PERSISTENCE_PORTS)
+        if isinstance(ports, dict):
+            repairs.repair_mapping_create_params(
+                ports.get("repositories"), self.documents.get(DATA_MODELS),
+                self.log)
         # Step H owns the same minimum as step E: a repository per listed entity
         # with a method for every required operation. A miss is logged, not
         # retried — the document is already unified with E's method sets, so a

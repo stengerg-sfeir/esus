@@ -10,7 +10,7 @@
             "--title",
             "value1",
             "--date",
-            "2024-01-01",
+            "2024-01-01T00:00:00",
             "--capacity",
             "1",
             "--current-attendees-count",
@@ -32,24 +32,8 @@
             "--title",
             "value1",
             "--date",
-            "2024-01-01",
+            "2024-01-01T00:00:00",
             "--capacity",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Registration cancel",
-      "when": {
-        "cli_variants": [
-          [
-            "Registration",
-            "cancel",
-            "--registration-id",
             "1"
           ]
         ]

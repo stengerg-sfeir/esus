@@ -12,7 +12,7 @@
             "--password",
             "value1",
             "--created-at",
-            "2024-01-01"
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -34,7 +34,7 @@
             "--password",
             "value1",
             "--created-at",
-            "2024-01-01"
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -76,7 +76,7 @@
             "--content",
             "value1",
             "--created-at",
-            "2024-01-01",
+            "2024-01-01T00:00:00",
             "--user-id",
             "1"
           ]
@@ -100,7 +100,7 @@
             "--content",
             "value1",
             "--created-at",
-            "2024-01-01"
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -115,6 +115,11 @@
           [
             "Document",
             "delete",
+            "--document-id"
+          ],
+          [
+            "Document",
+            "delete",
             "--document-id",
             "1"
           ],
@@ -122,7 +127,7 @@
             "Document",
             "delete",
             "--document-id",
-            "1"
+            "true"
           ]
         ]
       },

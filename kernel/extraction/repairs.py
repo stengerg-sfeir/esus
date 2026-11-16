@@ -542,7 +542,7 @@ def _service_method_index(services):
     for service in services:
         if not isinstance(service, dict):
             continue
-        service_name = service.get("service_name")
+        service_name = service.get("service_name") or service.get("interface_name")
         if not isinstance(service_name, str) or not service_name.strip():
             continue
         methods = index.setdefault(normalize(service_name), {})
@@ -1465,21 +1465,129 @@ def repair_required_create_fields(ports, models, log=None):
     return ports
 
 
-def repair_id_param_types(services, models, log=None):
-    """A `*_id` method parameter is integer when its model field is."""
+def repair_mapping_create_params(services, models, log=None):
+    """Replace a create/update DTO parameter with the model fields it carries.
+
+    A contract can describe a create as `create_customer(customer_data: dict)`
+    even when the model declares name/email/phone/address.  The generated CRUD
+    body then tries to insert the dictionary as a column named `customer_data`.
+    The mapping's own name identifies its model; expanding it keeps the
+    documented operation while making the body and the CLI surface concrete.
+    """
     if not isinstance(services, list):
         return services
-    fields = {}
-    for model in models or []:
-        if not isinstance(model, dict):
-            continue
-        for field in model.get("fields") or []:
-            if isinstance(field, dict) and field.get("name"):
-                fields[normalize(field["name"])] = field
+    models_by_name = {normalize(m.get("name")): m for m in models or []
+                      if isinstance(m, dict) and m.get("name")}
     changed = 0
     for service in services:
         if not isinstance(service, dict):
             continue
+        owner = normalize(str(service.get("service_name") or ""))
+        for suffix in ("repository", "service"):
+            if owner.endswith(suffix):
+                owner = owner[:-len(suffix)]
+                break
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            params = method.get("params")
+            if not isinstance(params, list):
+                continue
+            replacement = []
+            for param in params:
+                if not isinstance(param, dict):
+                    replacement.append(param)
+                    continue
+                name = str(param.get("name") or "")
+                prefix = normalize(name)
+                name_hint = any(prefix.endswith(suffix) for suffix in
+                                ("data", "request", "input", "dto", "payload"))
+                type_text = str(param.get("type") or "").strip().lower()
+                # Only an actually untyped mapping can be expanded from the
+                # model. A named DTO (`OrderCreationData`) is a structured
+                # aggregate whose fields need not be that entity's columns.
+                if not (name_hint and type_text in (
+                        "dict", "dict[str, any]", "mapping", "object")):
+                    replacement.append(param)
+                    continue
+                for suffix in ("data", "request", "input", "dto", "payload"):
+                    if prefix.endswith(suffix):
+                        prefix = prefix[:-len(suffix)]
+                        break
+                model = models_by_name.get(prefix) or models_by_name.get(owner)
+                if model is None:
+                    replacement.append(param)
+                    continue
+                fields = [field for field in model.get("fields") or []
+                          if isinstance(field, dict) and field.get("name")
+                          and not field.get("primary_key")]
+                if not fields:
+                    replacement.append(param)
+                    continue
+                for field in fields:
+                    declared = str(field.get("type") or "").strip()
+                    replacement.append({
+                        "name": field["name"],
+                        "type": _PORT_TYPES.get(declared.lower(), declared),
+                    })
+                changed += 1
+            method["params"] = replacement
+    if changed and log is not None:
+        log.write(f"[ok] step contracts: expanded {changed} mapping parameter(s) "
+                  "into model fields")
+    return services
+
+
+def repair_id_param_types(services, models, log=None):
+    """A `*_id` method parameter is integer when its model key is.
+
+    Matching the exact field name covers ordinary foreign keys.  A service
+    method often names its own entity key `order_id` while the model calls the
+    key `id`, and a repository key can be a composite (`OrderProduct.order_id`).
+    Both cases are resolved from the model's primary key so a string id does
+    not reach an integer store lookup.
+    """
+    if not isinstance(services, list):
+        return services
+    fields = {}
+    models_by_name = {}
+    for model in models or []:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        name = normalize(model["name"])
+        models_by_name[name] = model
+        for field in model.get("fields") or []:
+            if isinstance(field, dict) and field.get("name"):
+                fields[normalize(field["name"])] = field
+
+    def int_key(model):
+        if not isinstance(model, dict):
+            return False
+        key = next((field for field in model.get("fields") or []
+                    if isinstance(field, dict)
+                    and (field.get("primary_key")
+                         or normalize(field.get("name") or "") == "id")),
+                   None)
+        if key is None:
+            key = next((field for field in model.get("fields") or []
+                        if isinstance(field, dict)
+                        and normalize(field.get("name") or "")
+                        == normalize(str(model.get("name") or "") + "_id")),
+                       None)
+        return (isinstance(key, dict)
+                and str(key.get("type") or "").strip().lower()
+                in ("int", "integer"))
+
+    changed = 0
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        holder = normalize(str(service.get("service_name") or ""))
+        owner = holder
+        for suffix in ("repository", "service"):
+            if owner.endswith(suffix):
+                owner = owner[:-len(suffix)]
+                break
         for method in service.get("methods") or []:
             if not isinstance(method, dict):
                 continue
@@ -1489,11 +1597,25 @@ def repair_id_param_types(services, models, log=None):
                 name = param.get("name")
                 if not isinstance(name, str) or not normalize(name).endswith("id"):
                     continue
-                if str(param.get("type") or "").strip().lower() not in ("str", "string", "text"):
+                if str(param.get("type") or "").strip().lower() not in (
+                        "str", "string", "text", "uuid"):
                     continue
                 field = fields.get(normalize(name))
-                if field is not None and str(field.get("type") or "").lower() in (
-                        "int", "integer"):
+                if field is not None:
+                    is_int = str(field.get("type") or "").strip().lower() in (
+                        "int", "integer")
+                else:
+                    prefix = normalize(name)[:-2] if normalize(name).endswith("id") else ""
+                    is_int = int_key(models_by_name.get(prefix))
+                if (field is None and not is_int
+                        and normalize(name) in (
+                            normalize(owner) + "id", "id")):
+                    # A service's own key may omit the entity spelling
+                    # (`OrderService.confirm_order(order_id)` for `Order.id`),
+                    # but a declared field spelling wins: `Order.order_id` is
+                    # a string order number, not the integer primary key.
+                    is_int = int_key(models_by_name.get(owner))
+                if is_int:
                     param["type"] = "int"
                     changed += 1
     if changed and log is not None:
@@ -1540,6 +1662,7 @@ def repair_adapter_id_transforms(adapters, services, log=None):
                 log.write(
                     f"[ok] step adapters: {adapter.get('action_name')}.{name} "
                     f"targets an integer key — changed DIRECT to LOOKUP_ID")
+    return adapters
 
 
 def repair_adapter_transforms(adapters, log, services=None):
@@ -2772,6 +2895,281 @@ def _boolean_flag(flag):
 
 
 # --- a required adapter field the bound leaf does not expose -----------------
+
+
+def repair_delete_surface(components, log=None):
+    """Only the key is required on a delete verb.
+
+    A delete repository method takes the key plus optional narrowing fields.
+    Extraction often copies every model field onto the command as required, so
+    `delete --id 1` is rejected for lack of a timestamp that the method can
+    leave out. The key named by the leaf is enough; every other filter becomes
+    optional, exactly as the generated delete body treats it.
+    """
+    if not isinstance(components, dict):
+        return components
+    invocation = ((components.get("facade") or {}).get("invocation")
+                  if isinstance(components.get("facade"), dict) else None)
+    changed = 0
+    def walk(nodes):
+        nonlocal changed
+        for node in nodes or []:
+            if not isinstance(node, dict):
+                continue
+            subcommands = node.get("subcommands")
+            if isinstance(subcommands, list) and subcommands:
+                walk(subcommands)
+                continue
+            if str(node.get("name") or "").lower() not in ("delete", "remove"):
+                continue
+            options = node.get("options") or []
+            key = None
+            for option in options:
+                if not isinstance(option, dict):
+                    continue
+                dest = normalize(str(option.get("name") or "").lstrip("-"))
+                if dest == "id" or dest.endswith("id"):
+                    key = option
+                    break
+            if key is None:
+                continue
+            for option in options:
+                if option is key or not isinstance(option, dict):
+                    continue
+                if option.get("required"):
+                    option["required"] = False
+                    changed += 1
+    if isinstance(invocation, dict):
+        walk(invocation.get("commands"))
+    if changed and log is not None:
+        log.write(f"[ok] step surface: made {changed} delete filter(s) optional")
+    return components
+
+
+def repair_delete_adapter_fields(adapters, log=None):
+    """Make non-key fields optional on an adapter bound to delete."""
+    if not isinstance(adapters, list):
+        return adapters
+    changed = 0
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        if str(adapter.get("target_method") or "").lower() not in (
+                "delete", "remove"):
+            continue
+        fields = [field for field in adapter.get("input_fields") or []
+                  if isinstance(field, dict)]
+        key = next((field for field in fields
+                    if str(field.get("field_name") or "").lower().endswith("id")),
+                   None)
+        if key is None:
+            continue
+        for field in fields:
+            if field is not key and field.get("required"):
+                field["required"] = False
+                changed += 1
+    if changed and log is not None:
+        log.write(f"[ok] step adapters: made {changed} delete field(s) optional")
+    return adapters
+
+
+def repair_aggregate_create_adapters(components, adapters, services, repositories,
+                                     models, log=None):
+    """Fall back to a plain create when an aggregate cannot consume its flags.
+
+    A command surface may expose only the line fields of an aggregate create
+    (`Order add --product-id --quantity ...`) while the service takes a named
+    DTO (`OrderCreationData`) and the store creates `Order`. The bound method
+    can never consume those flags, so the emitted command would always fail.
+    Expose the entity's own plain create instead: it is the only create whose
+    parameters the model can supply. The action name stays for the review
+    trail; the adapter is pointed at the repository/service `create` method.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    all_methods = list(services or []) + list(repositories or [])
+    index = _service_method_index(all_methods)
+    models_by_name = {normalize(m.get("name")): m for m in models or []
+                      if isinstance(m, dict) and m.get("name")}
+    repo_by_entity = {}
+    for repo in repositories or []:
+        if isinstance(repo, dict) and repo.get("entity"):
+            repo_by_entity.setdefault(normalize(repo["entity"]), repo)
+    changed = 0
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        if method is None or not str(method.get("name") or "").startswith("create"):
+            continue
+        params = [p for p in method.get("params") or [] if isinstance(p, dict)]
+        mapping_names = {
+            normalize(p.get("name")) for p in params
+            if p.get("name") and (
+                _is_mapping_type(p.get("type"))
+                or str(p.get("type") or "").strip().lower().startswith("list"))}
+        targets = {
+            normalize(f.get("target_param"))
+            for f in adapter.get("input_fields") or []
+            if isinstance(f, dict) and f.get("target_param")}
+        if not targets or not targets <= mapping_names:
+            continue
+        returned = normalize(str(method.get("return_type") or ""))
+        returned = returned.replace("models", "").replace("list[", "").replace("]", "")
+        entity = next((name for key, name in models_by_name.items()
+                       if key and (key in returned or returned in key)), None)
+        if entity is None:
+            owner = normalize(str(adapter.get("target_service") or ""))
+            for suffix in ("repository", "service"):
+                if owner.endswith(suffix):
+                    owner = owner[:-len(suffix)]
+                    break
+            entity = models_by_name.get(owner)
+        if entity is None:
+            continue
+        entity_name = entity.get("name")
+        model_fields = {
+            normalize(f.get("name")) for f in entity.get("fields") or []
+            if isinstance(f, dict) and f.get("name")}
+        exposed = {
+            normalize(f.get("field_name"))
+            for f in adapter.get("input_fields") or []
+            if isinstance(f, dict) and f.get("field_name")}
+        if exposed and exposed <= model_fields:
+            continue
+        repo = repo_by_entity.get(normalize(entity_name))
+        candidates = []
+        if repo is not None:
+            for candidate in repo.get("methods") or []:
+                if isinstance(candidate, dict) and \
+                        normalize(candidate.get("name")) == "create":
+                    candidates.append(
+                        (repo.get("interface_name") or entity_name, candidate))
+        for service in services or []:
+            if not isinstance(service, dict):
+                continue
+            name = normalize(service.get("service_name") or "")
+            if not name.endswith(normalize(entity_name)):
+                continue
+            for candidate in service.get("methods") or []:
+                if isinstance(candidate, dict) and \
+                        normalize(candidate.get("name")) == "create":
+                    candidates.append((service.get("service_name"), candidate))
+        if not candidates:
+            continue
+        owner, create = candidates[0]
+        adapter["target_service"] = owner
+        adapter["target_method"] = create.get("name")
+        adapter["input_fields"] = []
+        adapter["_surface_retargeted"] = True
+        changed += 1
+        _prune_leaf_options(components, adapter)
+    if changed and log is not None:
+        log.write(
+            f"[ok] step adapters: retargeted {changed} aggregate create "
+            "adapter(s) to plain create")
+    return adapters
+
+
+def _prune_leaf_options(components, adapter):
+    """Remove flags the retargeted adapter no longer reads."""
+    if not isinstance(components, dict):
+        return
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    if not isinstance(invocation, dict):
+        return
+    from kernel.codegen import bind_commands
+    from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+    bindings, _ = bind_commands([adapter], invocation, COMMAND_VERB_STEMS)
+    action = adapter.get("action_name")
+    for (command, sub), bound in bindings.items():
+        if bound is None or bound[0] != action:
+            continue
+        leaf = _find_leaf(invocation, command, sub)
+        if leaf is not None:
+            leaf["options"] = []
+
+
+def repair_create_adapter_fields(adapters, services, models, log=None):
+    """Expose every required model field a create adapter does not map.
+
+    Adapters and persistence ports are written in different steps.  A port can
+    correctly require `quantity` or `customer_id` while the adapter still maps
+    only the visible scalar field, leaving the generated create to insert a
+    NULL.  The model's NOT NULL fields are the authority; only plain create
+    methods are extended, and only fields their signatures already accept.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    index = _service_method_index(services)
+    models_by_name = {}
+    for model in models or []:
+        if isinstance(model, dict) and model.get("name"):
+            models_by_name[normalize(model["name"])] = model
+    changed = 0
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        if method is None or not str(method.get("name") or "").startswith("create"):
+            continue
+        target = normalize(str(adapter.get("target_service") or ""))
+        for suffix in ("repository", "service"):
+            if target.endswith(suffix):
+                target = target[:-len(suffix)]
+                break
+        model = models_by_name.get(target)
+        if model is None:
+            returned = normalize(str(method.get("return_type") or ""))
+            returned = returned.replace("list[", "").replace("]", "")
+            model = models_by_name.get(returned)
+        if model is None:
+            continue
+        params = {normalize(p.get("name")): p for p in method.get("params") or []
+                  if isinstance(p, dict) and p.get("name")}
+        mapped = set()
+        for field in adapter.get("input_fields") or []:
+            if not isinstance(field, dict):
+                continue
+            for key in ("field_name", "target_param"):
+                if field.get(key):
+                    mapped.add(normalize(field[key]))
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            name = field["name"]
+            if (field.get("primary_key") or field.get("nullable")
+                    or normalize(name) not in params
+                    or normalize(name) in mapped):
+                continue
+            declared = str(field.get("type") or "").strip().lower()
+            if declared in ("bool", "boolean"):
+                # Booleans usually have a false/default at the store; exposing
+                # every one as a required create flag is not a NOT NULL fix.
+                continue
+            transform = "DIRECT"
+            lookup = None
+            if declared in ("int", "integer") and normalize(name).endswith("id"):
+                transform = "LOOKUP_ID"
+                base = name[:-3]
+                lookup = base[:1].upper() + base[1:]
+            elif declared in ("datetime", "date", "time", "datetime.datetime"):
+                transform = "ISO_DATE"
+            elif declared in ("decimal", "float", "money"):
+                transform = "DECIMAL_TO_CENTS"
+            adapter.setdefault("input_fields", []).append({
+                "field_name": name,
+                "target_param": name,
+                "transform": transform,
+                "lookup_entity": lookup,
+                "required": True,
+            })
+            mapped.add(normalize(name))
+            changed += 1
+    if changed and log is not None:
+        log.write(f"[ok] step adapters: added {changed} required create field(s)")
+    return adapters
 
 
 def repair_missing_adapter_flags(components, adapters, services, models, log):

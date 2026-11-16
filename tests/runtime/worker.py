@@ -10,6 +10,8 @@ prompt.
 from __future__ import annotations
 
 import ast
+import csv
+import datetime
 import importlib
 import json
 import re
@@ -40,18 +42,21 @@ def _sample(field, number):
     name = str(field.get("name") or "")
     kind = str(field.get("type") or "").strip().lower()
     if "email" in name:
-        _UNIQUE_COUNTER += 1
-        return f"user{number}-{_UNIQUE_COUNTER}@example.test"
+        return f"seed{number}@example.test"
     if kind in ("int", "integer"):
-        return number
+        if "capacity" in name:
+            return 1
+        if "current" in name or "attendee" in name:
+            return 2
+        return 2 if name not in ("id",) else 1
     if kind in ("float", "double", "decimal", "money"):
-        return float(number)
+        return 2.0
     if kind in ("bool", "boolean"):
         return False
-    if kind in ("date",):
-        return "2024-01-01"
-    if kind in ("datetime", "timestamp"):
-        return "2024-01-01T00:00:00"
+    if kind in ("date", "datetime", "timestamp"):
+        # CLI ISO_DATE transforms produce date objects; seed the same shape so
+        # a delete/update filter by the seeded date matches.
+        return datetime.date(2024, 1, 1)
     if kind in ("list", "array", "dict", "mapping"):
         return [] if kind in ("list", "array") else {}
     if field.get("unique"):
@@ -91,6 +96,21 @@ def _seed(store, model, number=1, overrides=None):
             values[name] = _sample(field, number)
         else:
             values[name] = _sample(field, number)
+    # The same scenario seeds a second row into a store that already has the
+    # first (contract and invariant fixtures do this). A unique string column
+    # must not repeat, or the harness fails before exercising the method.
+    for field in model.get("fields") or []:
+        if not isinstance(field, dict) or not field.get("unique"):
+            continue
+        name = field["name"]
+        value = values.get(name)
+        if not isinstance(value, str):
+            continue
+        suffix = 1
+        while store.select(model["name"], [(name, "eq", value)]):
+            value = f"{values[name]}-{suffix}"
+            suffix += 1
+        values[name] = value
     db = getattr(store, "_db", None)
     if db is not None:
         db.execute("PRAGMA foreign_keys=OFF")
@@ -375,9 +395,55 @@ def _resolve(value, refs):
     return value
 
 
+def _materialize_file_args(docs, args):
+    """Give an import command a real CSV file derived from its model."""
+    out = list(args)
+    command = next((item for item in out if not str(item).startswith("-")), "")
+    model = next((item for item in docs.get("models") or []
+                  if isinstance(item, dict)
+                  and normalize(item.get("name") or "") == normalize(command)), None)
+    for index, arg in enumerate(out[:-1]):
+        flag = str(arg).lower()
+        if not flag.startswith("--") or not any(
+                marker in flag for marker in ("file", "path")):
+            continue
+        value = out[index + 1]
+        if not isinstance(value, str) or Path(value).exists():
+            continue
+        target = Path(tempfile.mkdtemp(prefix="esus-import-")) / "import.csv"
+        if model is not None:
+            fields = [field.get("name") for field in model.get("fields") or []
+                      if isinstance(field, dict) and field.get("name")]
+            with target.open("w", newline="", encoding="utf-8") as handle:
+                writer = csv.writer(handle)
+                writer.writerow(fields)
+                writer.writerow([_sample(field, 1) for field in
+                                 model.get("fields") or []
+                                 if isinstance(field, dict)])
+        else:
+            target.write_text("", encoding="utf-8")
+        out[index + 1] = str(target)
+    return out
+
+
+def _clear_store(store):
+    db = getattr(store, "_db", None)
+    schema = getattr(store, "_schema", None) or {}
+    if db is None:
+        return
+    try:
+        for entity in schema:
+            db.execute('DELETE FROM "' + str(entity).replace('"', '""') + '"')
+        db.commit()
+    except Exception:
+        pass
+
+
 def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
                   cli_module=None):
     name = f"scenario:{scenario.get('name') or 'unnamed'}"
+    if scenario.get("setup"):
+        _clear_store(store)
     refs = {}
     model_by_entity = {m.get("name"): m for m in docs["models"]}
     for number, step in enumerate(scenario.get("setup") or [], start=1):
@@ -418,10 +484,12 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
             db = Path(tempfile.mkdtemp(prefix="esus-cli-scenario-")) / "cli.sqlite3"
             built = cli_module.build_cli(str(db))
             fresh = built[1] if isinstance(built, tuple) else built
-            _seed_all(docs, fresh["store"])
+            _seed_all(docs, fresh["store"], when.get("seed_overrides"),
+                      when.get("seed_exclude"))
         expected = (scenario.get("expect") or {}).get("error")
         last = None
         for cli_args in cli_variants:
+            cli_args = _materialize_file_args(docs, cli_args)
             result = subprocess.run(
                 [sys.executable, str(cli_path), "--db", str(db), *cli_args],
                 capture_output=True, text=True)
@@ -542,11 +610,12 @@ def _cli_value(docs, name, declared, number):
                        if re.fullmatch(r"[A-Za-z0-9_.-]+", str(value))]
             if allowed:
                 return allowed[0]
-    if kind in ("date", "datetime", "timestamp") or field_kind in (
-            "date", "datetime", "timestamp") or "date" in key or "time" in key \
-            or key.endswith("_at") or "created" in key or "updated" in key:
-        # ISO_DATE parses a date; datetime.fromisoformat accepts the shorter
-        # date form too, so one fixture is valid for both transforms.
+    if kind in ("datetime", "timestamp") or field_kind in (
+            "datetime", "timestamp") or key.endswith("_at") \
+            or "created" in key or "updated" in key:
+        return "2024-01-01T00:00:00"
+    if kind in ("date",) or field_kind in ("date",) or "date" in key \
+            or key.endswith("_time") or key == "time":
         return "2024-01-01"
     if kind in ("int", "integer"):
         if key.endswith("id") or "capacity" in key:
@@ -555,7 +624,9 @@ def _cli_value(docs, name, declared, number):
             return "2"
         return "2"
     if kind in ("float", "double", "decimal", "money"):
-        return "1.0"
+        # A generated money/amount option may be cents (int) or a float.
+        # The integer spelling parses under both.
+        return "2"
     if kind in ("bool", "boolean"):
         return None
     if "email" in key:
@@ -689,13 +760,17 @@ def _model_method(docs, holder, name):
     return None
 
 
-def _seed_all(docs, store):
+def _seed_all(docs, store, overrides=None, exclude=None):
     """Seed one row per model so repository foreign keys have targets."""
     records = {}
+    overrides = overrides if isinstance(overrides, dict) else {}
+    exclude = {normalize(name) for name in (exclude or [])}
     models = {model.get("name"): model for model in docs["models"]
               if isinstance(model, dict) and model.get("name")}
     for entity, model in models.items():
-        record, pk = _seed(store, model, 1)
+        if normalize(entity) in exclude:
+            continue
+        record, pk = _seed(store, model, 1, overrides.get(entity))
         record["__entity__"] = entity
         records[entity] = (record, pk)
     # Point every FK at a compatible seeded row where possible.
@@ -725,6 +800,8 @@ def _args_for_create(docs, method, model, number):
                 args[name] = 1
             elif name == "capacity":
                 args[name] = 1
+            elif name in ("stock_quantity", "stock", "inventory_quantity"):
+                args[name] = 100
             elif name in ("current_attendees_count", "current_count", "attendees"):
                 args[name] = 2
             elif allowed:
@@ -893,6 +970,8 @@ def _check_repository(docs, deps, repo, number):
                         params.append(1)
                     elif name == "capacity":
                         params.append(1)
+                    elif name in ("stock_quantity", "stock", "inventory_quantity"):
+                        params.append(100)
                     elif name in ("current_attendees_count", "current_count", "attendees"):
                         params.append(2)
                     elif allowed:
@@ -946,6 +1025,16 @@ def _scenario_path(out_dir):
 def run(out_dir):
     checks = []
     docs = _documents(out_dir)
+    # CLI checks describe the surface the generator actually emits, including
+    # reviewed drops. Raw components.json can still name a command group that
+    # grounding decisions removed.
+    try:
+        import generator as _generator
+        effective = _generator.load_context(out_dir)
+        if isinstance(effective.get("components"), dict):
+            docs["components"] = effective["components"]
+    except Exception:
+        pass
     cli_path = Path(out_dir) / "generated" / "cli.py"
     if not cli_path.is_file():
         app_path = Path(out_dir) / "generated" / "app.py"

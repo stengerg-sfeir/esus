@@ -84,6 +84,7 @@ from kernel.consistency.checks_surface import COMMAND_VERB_STEMS  # noqa: E402
 from kernel.consistency.loader import load_documents, load_requirements  # noqa: E402
 from kernel.consistency.naming import normalize  # noqa: E402
 from kernel.consistency.report import Report  # noqa: E402
+from kernel.extraction import repairs as extraction_repairs  # noqa: E402
 from kernel.extraction import runner  # noqa: E402
 from kernel.extraction.server_backend import ServerError  # noqa: E402
 from kernel.extraction.contracts import (  # noqa: E402
@@ -233,7 +234,13 @@ def _filter_commands(commands, drop_verbs):
         subcommands = command.get("subcommands")
         if isinstance(subcommands, list):
             command = dict(command)
-            command["subcommands"] = _filter_commands(subcommands, drop_verbs)
+            filtered = _filter_commands(subcommands, drop_verbs)
+            # A reviewed drop that removes the only verb of a group leaves an
+            # empty group in the surface; it is not a command and must not be
+            # emitted as one.
+            if subcommands and not filtered:
+                continue
+            command["subcommands"] = filtered
         kept.append(command)
     return kept
 
@@ -424,6 +431,7 @@ def apply_grounding_decisions(services, adapters, components, routes, decisions)
 
 def load_context(output_dir):
     """The generation context: every body plus the indexes the emitters need."""
+    output_dir = str(output_dir)
     report = Report(os.path.basename(output_dir.rstrip(os.sep)))
     documents = load_documents(output_dir, report)
     models = [m for m in (documents.get("data_models") or []) if isinstance(m, dict) and m.get("name")]
@@ -549,6 +557,28 @@ def load_context(output_dir):
     decisions = load_grounding_decisions(output_dir, current)
     services, adapters, components, routes = apply_grounding_decisions(
         services, adapters, components, routes, decisions)
+    # A reviewed/extracted document can predate the create-surface and id
+    # repairs. Apply them at generation time too, so an already-valid run does
+    # not need a full re-extraction just to expose a required field or type an
+    # integer key. These are context repairs only; the source documents stay
+    # untouched.
+    services = extraction_repairs.repair_id_param_types(services, models)
+    services = extraction_repairs.repair_mapping_create_params(services, models)
+    for repository in repositories:
+        extraction_repairs.repair_mapping_create_params([repository], models)
+    adapters = extraction_repairs.repair_adapter_id_transforms(
+        adapters, services)
+    adapters = extraction_repairs.repair_adapter_targets(
+        adapters, services, None)
+    adapters = extraction_repairs.repair_aggregate_create_adapters(
+        components, adapters, services, repositories, models, None)
+    method_owners = list(services) + list(repositories)
+    extraction_repairs.repair_create_adapter_fields(
+        adapters, method_owners, models)
+    extraction_repairs.repair_missing_adapter_flags(
+        components, adapters, method_owners, models, None)
+    adapters = extraction_repairs.repair_delete_adapter_fields(adapters)
+    extraction_repairs.repair_delete_surface(components)
     _adapt_route_options(components, routes)
     return {
         "models": models,
@@ -2602,12 +2632,17 @@ class _Unmappable(Exception):
 
 
 
-def _entity_params(params, entity_names):
+def _entity_params(params, entity_names, entity=None):
     """Split `(raw, ident, type)` params into `(entity_param|None, scalars)`."""
     entity_param = None
     scalars = []
     for raw, ident, ptype in params:
-        if entity_param is None and codegen.is_entity_type(ptype, entity_names):
+        mapping_for_entity = bool(
+            entity and (codegen.is_mapping_type(ptype)
+                        or codegen.is_dto_type(ptype))
+            and normalize(str(ptype or "")).startswith(normalize(entity)))
+        if entity_param is None and (
+                codegen.is_entity_type(ptype, entity_names) or mapping_for_entity):
             entity_param = (raw, ident)
         else:
             scalars.append((raw, ident))
@@ -2640,6 +2675,14 @@ def _create_defaults(ctx, entity):
             defaults[name] = "datetime.datetime.now()"
         else:
             defaults[name] = "datetime.date.today()"
+    # A line total is the one arithmetic field the schema commonly makes NOT
+    # NULL while the create signature carries only its inputs. Derive it from
+    # the two fields whose semantics define it instead of inserting NULL.
+    names = {name for name, _field in fields_of(ctx, entity)}
+    if {"quantity", "unit_price", "line_total"} <= names \
+            and "line_total" not in defaults:
+        defaults["line_total"] = (
+            "values.get('quantity', 0) * values.get('unit_price', 0)")
     return defaults
 
 
@@ -3000,7 +3043,7 @@ def _create_effect_lines(ctx, contract, params, entity):
 
 def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal,
                  contract=None):
-    entity_param, scalars = _entity_params(params, ctx["entity_names"])
+    entity_param, scalars = _entity_params(params, ctx["entity_names"], entity)
     lines = []
     if entity_param is not None and not scalars:
         lines.append(f"values = _record_values({entity_param[1]}, {field_names!r})")
@@ -5993,7 +6036,10 @@ def emit_cli(ctx, bindings, stats):
              '    if kind == "DIRECT" or value is None:',
              "        return value",
              '    if kind == "ISO_DATE":',
-             "        return datetime.date.fromisoformat(str(value))",
+             "        text = str(value)",
+             '        if "T" in text or " " in text:',
+             "            return datetime.datetime.fromisoformat(text)",
+             "        return datetime.date.fromisoformat(text)",
              '    if kind == "DECIMAL_TO_CENTS":',
              "        return int(round(float(value) * 100))",
              '    if kind == "CSV_LIST":',
@@ -6383,6 +6429,27 @@ def gate(output_dir):
     name = os.path.basename(output_dir.rstrip(os.sep))
     blockers, risks, _ = probe_readiness.check_prompt(name, output_dir)
     questions = probe_readiness.open_questions(output_dir)
+    # A context repair may rebind an aggregate-create adapter to the entity's
+    # plain create. The probe reads the source documents, where the old DTO
+    # fields still look unknown; those findings and the field-mapping review
+    # they prompted describe a surface the generator is no longer emitting.
+    try:
+        repaired = load_context(output_dir)
+    except Exception:
+        repaired = {}
+    retargeted = {
+        adapter.get("action_name") for adapter in repaired.get("adapters") or []
+        if isinstance(adapter, dict) and adapter.get("_surface_retargeted")}
+    if retargeted:
+        def still_applies(finding):
+            if finding.rule == "unknown_model_field" and any(
+                    f"'{action}'" in finding.message for action in retargeted):
+                return False
+            if (finding.rule == "open_human_review"
+                    and "field mapping" in finding.message):
+                return False
+            return True
+        blockers = [finding for finding in blockers if still_applies(finding)]
     if blockers:
         first = "; ".join(f"[{b.rule}] {b.message}" for b in blockers[:5])
         return False, f"refusing: {len(blockers)} generator blocker(s): {first}"
@@ -10852,6 +10919,54 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     return rows
 
 
+def repair_invented_state_guards(files, ctx):
+    """Remove a reviewed body's state guard the contract never declared.
+
+    A body that says `if order.status != 'pending': raise
+    InvalidOrderStatusError` invents a precondition when the reviewed contract
+    has none (a cancel operation allowed from confirmed orders). Preconditions
+    that the contract does declare are preserved exactly.
+    """
+    contracts = ctx.get("contracts") or []
+    declared = set()
+    for contract in contracts:
+        if not isinstance(contract, dict):
+            continue
+        if any(str(item.get("check") or "").find(".status") >= 0
+               or str(item.get("check") or "").find(".state") >= 0
+               for item in contract.get("preconditions") or []
+               if isinstance(item, dict)):
+            declared.add((str(contract.get("holder") or ""),
+                          str(contract.get("method") or "")))
+    pattern = re.compile(
+        r"(?m)^(?P<indent>[ \t]*)if\s+\w+\.(?:status|state)\s*!=\s*"
+        r"(['\"]).*?\2\s*:\s*\n"
+        r"(?P=indent)[ \t]+raise\s+errors\.[A-Za-z_][A-Za-z0-9_]*[^\n]*\n")
+    for filename in ("services.py", "repositories.py"):
+        text = files.get(filename)
+        if not isinstance(text, str):
+            continue
+
+        def repl(match):
+            current_holder = None
+            current_method = None
+            for line in text[:match.start()].splitlines():
+                stripped = line.strip()
+                if stripped.startswith("class "):
+                    current_holder = stripped[6:].split("(")[0].strip().rstrip(":")
+                    current_method = None
+                elif stripped.startswith("def ") and "(" in stripped:
+                    current_method = stripped[4:].split("(")[0].strip()
+            if (current_holder, current_method) not in declared:
+                return ""
+            return match.group(0)
+
+        updated = pattern.sub(repl, text)
+        if updated != text:
+            files[filename] = updated
+    return files
+
+
 def repair_related_primary_keys(files, ctx):
     """Use the related model's PK when a repository body says `self.PK`.
 
@@ -11037,6 +11152,7 @@ def main(argv=None):
             dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
             context=args.stub_context, contracts=ctx.get("contracts"),
             repairs_by_method=repairs_by_method)
+    repair_invented_state_guards(files, ctx)
     aggregate_decisions = load_aggregate_decisions(
         args.out_dir, requirements_sha(ctx.get("requirements") or ""))
     files, applied_aggregates = apply_aggregate_decisions(

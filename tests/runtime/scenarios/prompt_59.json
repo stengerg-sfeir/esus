@@ -101,7 +101,11 @@
             "Customer",
             "delete",
             "--customer-id",
-            "1"
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "seed1@example.test"
           ],
           [
             "Customer",
@@ -185,7 +189,13 @@
             "Product",
             "delete",
             "--product-id",
-            "1"
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2.0",
+            "--stock-level",
+            "2"
           ],
           [
             "Product",
@@ -209,7 +219,7 @@
             "--customer-id",
             "1",
             "--order-date",
-            "2024-01-01",
+            "2024-01-01T00:00:00",
             "--status",
             "value1"
           ]
@@ -245,7 +255,7 @@
             "--customer-id",
             "1",
             "--order-date",
-            "2024-01-01",
+            "2024-01-01T00:00:00",
             "--status",
             "value1"
           ]
@@ -263,7 +273,13 @@
             "Order",
             "delete",
             "--order-id",
-            "1"
+            "1",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
           ],
           [
             "Order",
@@ -287,7 +303,12 @@
             "--order-id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "confirmed"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -369,7 +390,15 @@
             "OrderLine",
             "delete",
             "--order-line-id",
-            "1"
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2.0"
           ],
           [
             "OrderLine",
@@ -453,7 +482,13 @@
             "Discount",
             "delete",
             "--discount-id",
-            "1"
+            "1",
+            "--name",
+            "value1",
+            "--value",
+            "2.0",
+            "--type",
+            "value1"
           ],
           [
             "Discount",
@@ -531,7 +566,11 @@
             "Tax",
             "delete",
             "--tax-id",
-            "1"
+            "1",
+            "--name",
+            "value1",
+            "--rate",
+            "2.0"
           ],
           [
             "Tax",

@@ -216,7 +216,7 @@ class GroundingDecisionTests(unittest.TestCase):
         self.assertEqual([(item["name"],
                            [sub["name"] for sub in item["subcommands"]])
                           for item in commands],
-                         [("Order", ["confirm"]), ("Product", [])])
+                         [("Order", ["confirm"])])
         self.assertEqual(kept_routes, [])
         self.assertIsNone(codegen.classify_crud("export_orders_to_csv"))
 

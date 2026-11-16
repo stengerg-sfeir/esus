@@ -33,8 +33,8 @@ class CreateOnceTests(unittest.TestCase):
             "self._repos['MemberRepository'].create(name=name)\n")
         self.assertEqual(found, [
             "the confirmed contract creates one `Member` through "
-            "`MemberRepository.create(...)`, but the body calls `create` "
-            "2 times"])
+            "`MemberRepository.create(...)`, but the body calls "
+            "`MemberRepository.create` 2 times"])
 
     def test_no_call_is_still_refused(self):
         self.assertEqual(len(complaints("pass\n")), 1)

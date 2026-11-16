@@ -357,6 +357,7 @@ def repair_existing(output_dir):
     errors = documents.get(pipeline_module.ERRORS)
     services = repairs.repair_generic_type_spellings(services, models, log)
     services = repairs.repair_id_param_types(services, models, log)
+    services = repairs.repair_mapping_create_params(services, models, log)
     if isinstance(services, list):
         services, removed = dedupe.deduplicate(
             pipeline_module.SERVICE_CONTRACTS, services)
@@ -390,6 +391,9 @@ def repair_existing(output_dir):
                 "parameter name(s)"
             )
         documents[pipeline_module.PERSISTENCE_PORTS] = ports
+        repairs.repair_mapping_create_params(
+            ports.get("repositories") if isinstance(ports, dict) else None,
+            models, log)
         repairs.repair_create_missing_fields(ports, models, log)
         repairs.repair_required_create_fields(ports, models, log)
     if isinstance(adapters, list):
@@ -399,10 +403,13 @@ def repair_existing(output_dir):
         repairs.repair_adapter_id_transforms(adapters, services, log)
         repairs.repair_adapter_targets(adapters, services, log)
         repairs.repair_adapter_field_names(adapters, services, models, log)
+        repairs.repair_create_adapter_fields(adapters, services, models, log)
         repairs.repair_missing_adapter_flags(
             components, adapters, services, models, log)
         repairs.repair_missing_filter_actions(
             components, adapters, services, models, log)
+        repairs.repair_delete_adapter_fields(adapters, log)
+        repairs.repair_delete_surface(components, log)
         repairs.repair_surface_from_adapters(
             components, adapters, models, services, requirements, log)
         if isinstance(ports, dict):

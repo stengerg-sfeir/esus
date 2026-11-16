@@ -34,7 +34,8 @@
             "--description",
             "value1",
             "--status",
-            "value1"
+            "value1",
+            "--is-deleted"
           ],
           [
             "Project",
@@ -46,7 +47,9 @@
             "--description",
             "value1",
             "--status",
-            "value1"
+            "value1",
+            "--is-deleted",
+            "true"
           ]
         ]
       },
@@ -66,7 +69,8 @@
             "--description",
             "value1",
             "--status",
-            "value1"
+            "value1",
+            "--is-deleted"
           ],
           [
             "Project",
@@ -76,7 +80,9 @@
             "--description",
             "value1",
             "--status",
-            "value1"
+            "value1",
+            "--is-deleted",
+            "true"
           ]
         ]
       },
@@ -93,21 +99,14 @@
             "delete",
             "--project-id",
             "1",
-            "--is-deleted"
+            "--is-deleted",
+            "false"
           ],
           [
             "Project",
             "delete",
             "--project-id",
             "1"
-          ],
-          [
-            "Project",
-            "delete",
-            "--project-id",
-            "1",
-            "--is-deleted",
-            "true"
           ]
         ]
       },

@@ -377,21 +377,38 @@ exception is the degenerate `prompt_02` calculator, whose `app.py` expects its
 three runtime arguments rather than `--help`. Per-prompt counts are in
 `out/validation/bench/summary.json`.
 
-A first generic runtime harness is in `tests/runtime/worker.py` and
+The generic runtime harness is in `tests/runtime/worker.py` and
 `scripts/run_bench_acceptance.py`. It runs one fresh interpreter per prompt,
-imports the generated package, checks `cli.py --help`, seeds models directly
-in a temporary store, and executes every scalar-effect method contract through
-the generated service/repository. Results are written to
-`out/validation/bench/acceptance/`. The mechanical harness now reports
-The generated CLI scenarios now cover the command surface with **no skipped
-checks**: **980 checks passed** and **23 failed** across the 60 prompts. The
-failures are real fixture/generator findings and are kept visible rather than
-converted into passes. The harness itself is complete enough to expose them:
-every command leaf and every scalar contract now has either an execution or a
-scenario check. The harness is intentionally data-driven
-and does not edit generated code.
+imports the generated package, checks every CLI leaf's `--help`, validates the
+schema and store round-trips, exercises CRUD and unique/foreign-key
+constraints, executes scalar-effect method contracts through the generated
+service/repository, and runs **268** data-driven CLI and semantic scenarios.
+CLI scenarios are generated from the surface the generator actually emits;
+each runs in a fresh SQLite database with the foreign keys it needs seeded.
 
-The scenario pass exercised generic collection and record-create rules:
+Final result on `out/validation/bench`:
+
+- **60 / 60 prompts passed**;
+- **1001 checks passed**, **0 failed**, **0 skipped**;
+- `python3 -m compileall out/validation/bench` is clean.
+
+The harness is deliberately data-driven and never edits generated code. The
+scenario pass exposed and drove these generic fixes:
+
+- DTO/mapping creates group their fields into the documented request object
+  instead of passing the last flag as a scalar;
+- an aggregate create that cannot consume its CLI fields falls back to the
+  entity's plain `create`, with the stale line flags removed;
+- delete operations require only their key, while non-key adapter fields stay
+  optional;
+- reviewed bodies cannot invent a state guard the method contract never
+  declared;
+- ISO date transforms accept full datetimes as well as dates;
+- file/path arguments receive a real temporary CSV for import commands;
+- fixture seeding gives unique columns fresh values, and repository fixtures
+  respect stock/quantity invariants.
+
+The scenario pass also exercised generic collection and record-create rules:
 `place_order` now creates one `OrderItem` per collection element, and a
 `record_*` repository method is a create with a stock effect. The `prompt_60`
 stock gap is covered by an inferred stock contract and its scenario passes.
