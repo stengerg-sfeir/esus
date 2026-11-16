@@ -6264,6 +6264,22 @@ def emit_schema(ctx):
                                        sort_dicts=False) + "\n"
 
 
+def _defer_annotations(text):
+    """Make emitted annotations lazy without qualifying every model class.
+
+    Type hints are not executable behavior, but a generated repository or
+    service can name a UUID or a request shape that has no sibling import.
+    `from __future__ import annotations` keeps those hints as strings and
+    prevents import-time NameError from an otherwise runnable program.
+    """
+    if "from __future__ import annotations" in text:
+        return text
+    match = re.match(r"\A(\s*(?:\"\"\"[\s\S]*?\"\"\"|'''[\s\S]*?''')\s*\n)",
+                     text)
+    insert = match.end() if match else 0
+    return text[:insert] + "from __future__ import annotations\n\n" + text[insert:]
+
+
 def render_program(ctx, stats):
     """Every file of the package as `{filename: text}`."""
     stats.setdefault("skipped_options", [])
@@ -7883,10 +7899,26 @@ def _module_bindings(text):
 
     The mirror of `_module_names` for bare names: a body reading a name
     that is neither a parameter, a local, an import nor a module-level
-    definition is a NameError waiting to happen.
+    definition is a NameError waiting to happen.  The prompt-side module
+    text can be a truncated tail (the context was full), so a syntax error
+    must degrade to the regex names rather than abort generation before the
+    already-mechanical files are written.
     """
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        lines = text.splitlines()
+        for _ in range(min(8, len(lines))):
+            lines = lines[:-1]
+            try:
+                tree = ast.parse("\n".join(lines))
+                break
+            except SyntaxError:
+                continue
+        else:
+            return _module_names(text)
     names = set()
-    for node in ast.parse(text).body:
+    for node in tree.body:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 names.add(alias.asname or alias.name.split(".")[0])
@@ -10678,6 +10710,8 @@ def main(argv=None):
         print(f"dropped {ctx['dropped_routes']} predated route decision(s) — "
               f"their questions reopen in review_surface.py")
     for filename, text in files.items():
+        if filename.endswith(".py"):
+            text = _defer_annotations(text)
         with open(os.path.join(target, filename), "w", encoding="utf-8") as handle:
             handle.write(text)
         print(f"[write] {os.path.join(target, filename)}")

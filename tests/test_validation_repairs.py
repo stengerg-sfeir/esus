@@ -90,6 +90,25 @@ class ForeignKeyNameTests(unittest.TestCase):
         self.assertEqual(models[0]["fields"][1]["name"], "book_primary_key")
 
 
+class GenericTypeTests(unittest.TestCase):
+    def test_java_generics_become_python_annotations(self):
+        services = [{"service_name": "S", "methods": [{
+            "name": "list", "params": [{"name": "id", "type": "UUID"}],
+            "return_type": "List<Book>"}]}]
+        models = [{"name": "Book", "fields": []}]
+        repairs.repair_generic_type_spellings(services, models)
+        self.assertEqual(services[0]["methods"][0]["return_type"],
+                         "list[models.Book]")
+        self.assertEqual(services[0]["methods"][0]["params"][0]["type"], "UUID")
+
+    def test_map_generics_use_dict(self):
+        services = [{"service_name": "S", "methods": [{
+            "name": "count", "params": [], "return_type": "Map<string, int>"}]}]
+        repairs.repair_generic_type_spellings(services, [])
+        self.assertEqual(services[0]["methods"][0]["return_type"],
+                         "dict[str, int]")
+
+
 class RequiredCreateFieldTests(unittest.TestCase):
     def test_required_fk_fields_are_added_to_a_plain_create(self):
         models = [{"name": "Loan", "fields": [

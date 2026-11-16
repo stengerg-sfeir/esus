@@ -750,6 +750,10 @@ class Pipeline:
                 self.log, unit="required operation(s)",
             )
             self.documents[SERVICE_CONTRACTS] = body
+        self.documents[SERVICE_CONTRACTS] = (
+            repairs.repair_generic_type_spellings(
+                self.documents.get(SERVICE_CONTRACTS),
+                self.documents.get(DATA_MODELS), self.log))
 
     def _repair_errors(self):
         """Remove the two error contradictions the grammar cannot express (§9.28).
@@ -1216,6 +1220,10 @@ class Pipeline:
                 f"[ok] step persistence: removed {removed} duplicate method or "
                 "parameter name(s) after unification"
             )
+        self.documents[PERSISTENCE_PORTS] = (
+            repairs.repair_generic_type_spellings(
+                self.documents.get(PERSISTENCE_PORTS),
+                self.documents.get(DATA_MODELS), self.log))
         # A create that describes a required field its parameters omit can
         # never succeed at the store; the description is the evidence.
         repairs.repair_create_missing_fields(

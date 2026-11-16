@@ -1193,6 +1193,20 @@ def repair_empty_domain_components(components, models, log=None):
                 "[ok] step components: inferred entity needs a store — "
                 "enabled persistence"
             )
+    facade = components.get("facade")
+    if isinstance(facade, dict) and facade.get("invocation") is None:
+        # The prose-only components step often leaves no command graph. The
+        # adapter pass can derive one, but only if the invocation object
+        # exists to receive it and a concrete CLI backend parses it.
+        facade["invocation"] = {"positional": [], "options": [],
+                                "commands": []}
+        if str(facade.get("technology") or "").strip().lower() in (
+                "none", "null", ""):
+            facade["technology"] = "argparse"
+    elif isinstance(facade, dict) and facade.get("invocation") is not None \
+            and str(facade.get("technology") or "").strip().lower() in (
+                "none", "null", ""):
+        facade["technology"] = "argparse"
     if components.get("crud_services"):
         return components
     added = []
@@ -1210,6 +1224,97 @@ def repair_empty_domain_components(components, models, log=None):
             f"{', '.join(added)}"
         )
     return components
+
+
+def _split_type_arguments(text):
+    """Split generic arguments at top-level commas."""
+    parts = []
+    depth = 0
+    current = []
+    for char in text:
+        if char in "<[(":
+            depth += 1
+        elif char in ">])":
+            depth -= 1
+        if char == "," and depth == 0:
+            parts.append("".join(current).strip())
+            current = []
+        else:
+            current.append(char)
+    if current:
+        parts.append("".join(current).strip())
+    return parts
+
+
+def _python_type(text, entity_names):
+    """Turn Java-shaped `List<T>`/`Map<K,V>` spellings into Python types."""
+    if not isinstance(text, str):
+        return text
+    value = text.strip()
+    match = re.match(r"^([A-Za-z_]\w*)\s*<(.+)>$", value)
+    if match:
+        base = match.group(1).lower()
+        args = [_python_type(part, entity_names)
+                for part in _split_type_arguments(match.group(2))]
+        if base in ("list", "arraylist", "collection"):
+            return "list[" + ", ".join(args) + "]"
+        if base == "set":
+            return "set[" + ", ".join(args) + "]"
+        if base in ("map", "hashmap", "dictionary", "dict"):
+            return "dict[" + ", ".join(args) + "]"
+        if base == "optional":
+            return "Optional[" + ", ".join(args) + "]"
+        return f"{match.group(1)}[" + ", ".join(args) + "]"
+    key = normalize(value)
+    if key in entity_names:
+        return "models." + entity_names[key]
+    return {"string": "str", "integer": "int", "boolean": "bool",
+            "double": "float"}.get(value.lower(), value)
+
+
+def repair_generic_type_spellings(services, models, log=None):
+    """Normalize method annotations emitted from Java-shaped type prose.
+
+    The model occasionally writes `List<Entity>` or `Map<string, int>` into a
+    contract. Those are valid in the source language but syntax errors in
+    Python; the same names are already Python types (`list`, `dict`) and model
+    classes are qualified as `models.<Entity>`.
+    """
+    if isinstance(services, dict):
+        holders = services.get("repositories") or services.get("service_contracts") or []
+    elif isinstance(services, list):
+        holders = services
+    else:
+        return services
+    entity_names = {
+        normalize(model.get("name")): model.get("name")
+        for model in models or []
+        if isinstance(model, dict) and isinstance(model.get("name"), str)
+    }
+    changed = 0
+    for service in holders:
+        if not isinstance(service, dict):
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            original = method.get("return_type")
+            method["return_type"] = _python_type(original, entity_names)
+            if method["return_type"] != original:
+                changed += 1
+            for param in method.get("params") or []:
+                if not isinstance(param, dict):
+                    continue
+                before = param.get("type")
+                param["type"] = _python_type(before, entity_names)
+                if param["type"] != before:
+                    changed += 1
+    if changed and log is not None:
+        log.write(
+            f"[ok] step contracts: normalized {changed} generic type "
+            "spelling(s) to Python annotations"
+        )
+    return services
 
 
 def repair_persistence_consistency(components, log=None):
@@ -1732,6 +1837,7 @@ _CAPABILITY_STEMS = {
     "import": ("import",),
     "report": ("report", "summary"),
     "stock": ("stock",),
+    "confirm": ("confirm",),
 }
 
 
@@ -1790,10 +1896,7 @@ def _capability_param_type(field_name, models, method=None):
 
 
 def _add_capability_method(service, name, adapter, entity, verb, models, log):
-    """Add and return one capability method, or the existing one."""
-    for method in service.get("methods") or []:
-        if isinstance(method, dict) and normalize(method.get("name")) == normalize(name):
-            return method
+    """Add and return one capability method, or complete the existing one."""
     fields = []
     seen = set()
     for item in adapter.get("input_fields") or []:
@@ -1808,6 +1911,15 @@ def _add_capability_method(service, name, adapter, entity, verb, models, log):
             "name": field_name,
             "type": _capability_param_type(field_name, models),
         })
+    for method in service.get("methods") or []:
+        if isinstance(method, dict) and normalize(method.get("name")) == normalize(name):
+            params = method.setdefault("params", [])
+            taken = {normalize(param.get("name")) for param in params
+                     if isinstance(param, dict)}
+            for field in fields:
+                if normalize(field["name"]) not in taken:
+                    params.append(field)
+            return method
     if verb == "search":
         returns = (f"list[{entity}]" if entity else "list")
     elif verb == "import":

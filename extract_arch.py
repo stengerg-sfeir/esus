@@ -355,6 +355,7 @@ def repair_existing(output_dir):
         repairs.repair_period_field_types(
             models, requirements, log, documents.get(pipeline_module.INVARIANTS))
     errors = documents.get(pipeline_module.ERRORS)
+    services = repairs.repair_generic_type_spellings(services, models, log)
     if isinstance(services, list):
         services, removed = dedupe.deduplicate(
             pipeline_module.SERVICE_CONTRACTS, services)
@@ -369,6 +370,7 @@ def repair_existing(output_dir):
         documents[pipeline_module.SERVICE_CONTRACTS] = services
     if isinstance(components, dict):
         repairs.repair_persistence_consistency(components, log)
+        repairs.repair_empty_domain_components(components, models, log)
         persistence = components.get("persistence")
         if not (isinstance(persistence, dict) and persistence.get("required")):
             documents.pop(pipeline_module.PERSISTENCE_PORTS, None)
@@ -378,6 +380,7 @@ def repair_existing(output_dir):
         components_completion.complete_crud_entities(components, models, log)
     ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
     if isinstance(ports, dict):
+        ports = repairs.repair_generic_type_spellings(ports, models, log)
         ports, removed = dedupe.deduplicate(
             pipeline_module.PERSISTENCE_PORTS, ports)
         if removed:
@@ -398,6 +401,8 @@ def repair_existing(output_dir):
             components, adapters, services, models, log)
         repairs.repair_missing_filter_actions(
             components, adapters, services, models, log)
+        repairs.repair_surface_from_adapters(
+            components, adapters, models, services, requirements, log)
         if isinstance(ports, dict):
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
