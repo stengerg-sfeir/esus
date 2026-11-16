@@ -58,6 +58,30 @@ def prompt_files(root: Path) -> list[Path]:
     return files
 
 
+def selected_prompt_files(roots: list[Path]) -> list[Path]:
+    """Prompt files from several roots, de-duplicated by stem."""
+    files = []
+    seen = set()
+    for root in roots:
+        if not root.is_dir():
+            raise SystemExit(f"prompt directory not found: {root}")
+        for path in prompt_files(root):
+            if path.stem in seen:
+                continue
+            seen.add(path.stem)
+            files.append(path)
+    return files
+
+
+def outcome_for(classification: str) -> str:
+    """The three-category report used by the reproducibility job."""
+    if classification == "successful":
+        return "successful"
+    if classification == "review":
+        return "review"
+    return "failed"
+
+
 def select_prompts(files: list[Path], only: str | None,
                    limit: int | None) -> list[Path]:
     wanted = None
@@ -176,6 +200,7 @@ def run_one(prompt: Path, output_dir: Path, *, run_id: str,
     tokens = parse_tokens(log_text)
     if not tokens["calls"]:
         tokens = parse_tokens(stdout)
+    classification = classify(summary, exit_code, timed_out)
     return {
         "prompt": prompt.stem,
         "run_id": run_id,
@@ -188,7 +213,8 @@ def run_one(prompt: Path, output_dir: Path, *, run_id: str,
         "seconds": elapsed,
         "tokens": tokens,
         "summary": summary,
-        "classification": classify(summary, exit_code, timed_out),
+        "classification": classification,
+        "outcome": outcome_for(classification),
         "commands": {"extract": cmd},
     }
 
@@ -200,9 +226,9 @@ def write_summary(run_dir: Path, records: list[dict], manifest: dict) -> None:
         encoding="utf-8",
     )
     fields = [
-        "prompt", "classification", "exit_code", "timed_out", "seconds",
-        "calls", "tokens_out", "tokens_prompt", "blockers", "open_ties",
-        "rules", "output_dir",
+        "prompt", "classification", "outcome", "exit_code", "timed_out",
+        "seconds", "calls", "tokens_out", "tokens_prompt", "blockers",
+        "open_ties", "rules", "output_dir",
     ]
     with (run_dir / "summary.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
@@ -213,6 +239,8 @@ def write_summary(run_dir: Path, records: list[dict], manifest: dict) -> None:
             writer.writerow({
                 "prompt": record["prompt"],
                 "classification": record["classification"],
+                "outcome": record.get("outcome",
+                                      outcome_for(record["classification"])),
                 "exit_code": record["exit_code"],
                 "timed_out": record["timed_out"],
                 "seconds": record["seconds"],
@@ -228,7 +256,9 @@ def write_summary(run_dir: Path, records: list[dict], manifest: dict) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prompts", default=str(DEFAULT_PROMPTS))
+    parser.add_argument("--prompts", action="append", default=None,
+                        help="prompt directory; repeat for several roots "
+                             f"(default: {DEFAULT_PROMPTS})")
     parser.add_argument("--out", default=str(DEFAULT_RUN_ROOT))
     parser.add_argument("--run-id", default=None)
     parser.add_argument("--model", default="server")
@@ -246,7 +276,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="rerun prompts that already have metrics.json")
     args = parser.parse_args(argv)
 
-    prompts = select_prompts(prompt_files(Path(args.prompts)), args.only, args.limit)
+    roots = ([Path(item) for item in args.prompts] if args.prompts
+             else [DEFAULT_PROMPTS])
+    prompts = select_prompts(selected_prompt_files(roots), args.only, args.limit)
     if not prompts:
         print("no prompt files selected", file=sys.stderr)
         return 2
@@ -268,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
     manifest = {
         "run_id": run_id,
         "started_utc": datetime.now(timezone.utc).isoformat(),
+        "prompt_roots": [str(root) for root in roots],
         "prompts": [path.stem for path in prompts],
         "model": args.model,
         "server_url": args.server_url,
@@ -336,11 +369,18 @@ def main(argv: list[str] | None = None) -> int:
         records.sort(key=lambda item: item.get("prompt", ""))
         manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
         manifest["counts"] = {}
+        manifest["outcome_counts"] = {
+            "successful": 0, "review": 0, "failed": 0}
         for record in records:
             kind = record["classification"]
             manifest["counts"][kind] = manifest["counts"].get(kind, 0) + 1
+            outcome = record.get("outcome") or outcome_for(kind)
+            manifest["outcome_counts"][outcome] += 1
+        manifest["total"] = len(records)
         write_summary(run_dir, records, manifest)
     print(f"results: {run_dir / 'summary.json'}", flush=True)
+    print(json.dumps(manifest.get("outcome_counts", {}), sort_keys=True),
+          flush=True)
     return 0
 
 

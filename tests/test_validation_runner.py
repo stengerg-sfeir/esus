@@ -2,6 +2,7 @@
 
 import importlib.util
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -63,6 +64,34 @@ class SummaryTests(unittest.TestCase):
     def test_crash_or_timeout_is_not_generatable(self):
         self.assertEqual(runner.classify(None, 1, False), "not_generatable")
         self.assertEqual(runner.classify(None, 0, True), "not_generatable")
+
+
+class PromptSelectionTests(unittest.TestCase):
+    def test_several_roots_are_merged_and_deduplicated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            validation = root / "validation"
+            initial = root / "initial"
+            validation.mkdir()
+            initial.mkdir()
+            (validation / "prompt_01.txt").write_text("one")
+            (validation / "prompt_02.txt").write_text("two")
+            (initial / "prompt_hello.txt").write_text("hello")
+            (initial / "prompt_01.txt").write_text("duplicate")
+            files = runner.selected_prompt_files([validation, initial])
+            self.assertEqual([path.stem for path in files],
+                             ["prompt_01", "prompt_02", "prompt_hello"])
+
+    def test_missing_prompt_root_is_reported(self):
+        with self.assertRaises(SystemExit):
+            runner.selected_prompt_files([Path("/definitely/missing")])
+
+
+class OutcomeTests(unittest.TestCase):
+    def test_three_category_report_maps_not_generatable_to_failed(self):
+        self.assertEqual(runner.outcome_for("successful"), "successful")
+        self.assertEqual(runner.outcome_for("review"), "review")
+        self.assertEqual(runner.outcome_for("not_generatable"), "failed")
 
 
 class TokenTests(unittest.TestCase):

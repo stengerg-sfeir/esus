@@ -62,7 +62,7 @@ JSON
 kaggle datasets create -p /tmp/qwen3-4b-dataset
 ```
 
-## Push the kernel
+## Push the kernels
 
 From the repository root:
 
@@ -70,6 +70,15 @@ From the repository root:
 kaggle kernels push -p kaggle
 kaggle kernels status gillesstenger/esus-validation-60-prompts
 kaggle kernels logs gillesstenger/esus-validation-60-prompts
+```
+
+The reproducibility kernel re-extracts all **66** prompts (60 validation plus
+the six initial prompts) and reports `successful`, `review`, and `failed`:
+
+```sh
+kaggle kernels push -p kaggle/repro66
+kaggle kernels status gillesstenger/esus-repro-66-prompts
+kaggle kernels logs gillesstenger/esus-repro-66-prompts
 ```
 
 The notebook downloads a CUDA `llama-server` prebuilt if the image does not
