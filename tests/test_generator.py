@@ -7,6 +7,7 @@ stub refuses with its work order, and the CLI dispatches add/list/remove. The
 gate is pinned too: a document the probe rejects produces no `generated/`.
 """
 
+import ast
 import io
 import json
 import sys
@@ -4502,6 +4503,26 @@ class ServiceProgramTests(unittest.TestCase):
 
 
 
+
+
+class ContractFlowTests(unittest.TestCase):
+    def test_a_patch_mapping_is_a_field_write(self):
+        tree = ast.parse("def f(self, stock_quantity):\n"
+                         "    patch = {'stock_quantity': stock_quantity}\n"
+                         "    self._store.update(self.ENTITY, self.PK, 1, patch)\n")
+        writes = generator._field_writes(tree, "stock_quantity")
+        self.assertTrue(writes)
+
+    def test_creates_are_counted_per_repository(self):
+        tree = ast.parse(
+            "def f(self):\n"
+            "    self._repos['OrderRepository'].create(customer_id=1)\n"
+            "    self._repos['OrderItemRepository'].create(order_id=1)\n")
+        contract = {"creates": [{"class": "Order",
+                                 "call": "OrderRepository.create"}]}
+        complaints = generator._contract_complaints(tree, contract)
+        self.assertFalse(any("calls" in item and "2 times" in item
+                             for item in complaints))
 
 
 class CapabilityExportTests(unittest.TestCase):

@@ -368,9 +368,10 @@ Dead flags whose upstream relationship was absent were recorded as explicit
 All 60 prompt directories now probe with **zero blockers** and have a
 generated package. `generator.py` reports:
 
-- **782** methods;
-- **62** bodies written provisionally by the model;
-- **11** documented stubs remaining.
+- **777** methods;
+- **64** bodies written provisionally by the model;
+- **0** documented stubs remaining after the generic contract and ownership
+  repairs.
 
 `python3 -m compileall out/validation/bench` is clean. The only CLI smoke
 exception is the degenerate `prompt_02` calculator, whose `app.py` expects its
@@ -378,7 +379,20 @@ three runtime arguments rather than `--help`. Per-prompt counts are in
 `out/validation/bench/summary.json`.
 
 The generator was also hardened to defer annotations (undefined type names
-such as `UUID` no longer abort import), normalize Java-shaped
-`List<T>`/`Map<K,V>` contract spellings, and degrade gracefully when a prompt
-module is truncated. A `null` persistence document and merged-method
+such as `UUID` no longer abort import), normalize generic `List<T>`/`Map<K,V>`
+spellings from extraction into Python annotations, and degrade gracefully when
+a prompt module is truncated. A `null` persistence document and merged-method
 duplicates are removed by the generic repair path.
+
+The remaining stubs were removed with domain-neutral rules:
+
+- a `*Repository` contract is never emitted as a service class;
+- contract writes are recognised through `store.update(..., patch)`, not by a
+  method name;
+- a create is counted per repository/entity, so creating an order line beside
+  its order is not a duplicate order;
+- a capability action may only attach to a service that owns its entity, or be
+  removed for review rather than attached to the wrong service;
+- state transitions from `from X to Y` or `status is updated to Y` become
+  reviewed state effects and preconditions, including `Already<State>Error`
+  checks.

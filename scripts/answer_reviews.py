@@ -39,26 +39,54 @@ def _surface_answer(prompt):
     return "1"
 
 
-def _contract_answers(proposals):
-    """Flatten the answers in the exact order `ask_proposal` consumes them."""
-    answers = []
+def _answer_contracts(directory: Path) -> tuple[int, int]:
+    """Answer contract questions proposal by proposal.
+
+    The review normally consumes a flat stdin; this caller needs to know
+    which proposal a question belongs to so that an optional error check can
+    be skipped without shifting the next proposal's answers.
+    """
+    proposals, context = review_contracts.collect_contracts(str(directory))
+    if not proposals:
+        return 0, 0
+    records, _dropped = review_contracts.contract_rules.load_method_contracts(
+        str(directory), review_contracts.load_requirements(str(directory)))
+    ctx = review_contracts.generator.load_context(str(directory))
+    answered = 0
     for proposal in proposals:
+        answers = {}
+        method_name = str(proposal.get("method") or "").lower()
         for question in proposal.get("questions") or []:
+            question_id = question.get("id")
             if question.get("kind") == "choice":
                 choices = question.get("choices") or []
-                answers.append(choices[0][1] if choices else "skip")
-                continue
-            target = str(question.get("effect") or "")
-            if "order.status" in target:
-                answers.append("'cancelled'")
+                answers[question_id] = choices[0][1] if choices else None
             elif question.get("required"):
-                # A required value with no enumerable option: keep the
-                # generated expression valid rather than leave the contract
-                # open. The review file records the choice for replacement.
-                answers.append("1")
+                target = str(question.get("effect") or "")
+                if target.endswith(".status") or target.endswith(".state"):
+                    if "cancel" in method_name:
+                        answers[question_id] = "'cancelled'"
+                    elif "ship" in method_name:
+                        answers[question_id] = "'shipped'"
+                    elif "confirm" in method_name:
+                        answers[question_id] = "'confirmed'"
+                    else:
+                        answers[question_id] = "1"
+                else:
+                    answers[question_id] = "1"
             else:
-                answers.append("skip")
-    return answers
+                answers[question_id] = None
+        record = review_contracts._finalize(
+            proposal, answers, context["prompt_sha"], ctx)
+        if record is None:
+            continue
+        records = [item for item in records
+                   if (item.get("holder"), item.get("method"))
+                   != (record["holder"], record["method"])]
+        records.append(record)
+        answered += 1
+    review_contracts.contract_rules.save_method_contracts(str(directory), records)
+    return len(proposals), answered
 
 
 def _drop_upstream_gaps(directory: Path) -> int:
@@ -119,14 +147,7 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
     counts["aliases"] = review_aliases.run_review(
         str(directory), input_fn=lambda _prompt: "1")
 
-    proposals, _context = review_contracts.collect_contracts(str(directory))
-    queue = _contract_answers(proposals)
-
-    def contract_input(_prompt):
-        return queue.pop(0) if queue else "skip"
-
-    counts["contracts"] = review_contracts.run_review(
-        str(directory), input_fn=contract_input)
+    counts["contracts"] = _answer_contracts(directory)
     return counts
 
 

@@ -514,6 +514,108 @@ def _derived_values(ctx, method, text):
     return found
 
 
+def _state_transition(ctx, holder, method, text):
+    """A generic state-transition binding/effect/precondition proposal.
+
+    The description is the only source of the transition: `from pending to
+    confirmed`, `from pending or confirmed to cancelled`. The entity and the
+    `status`/`state` field come from the model; the key parameter and the
+    repository `read_one` come from the signature. No domain noun is hardcoded.
+    """
+    entity = _match_class(holder, ctx) or _match_class(text, ctx)
+    if not entity:
+        return None
+    fields = [(name, ftype, field) for cls, name, ftype, field in _fields(ctx)
+              if cls == entity]
+    state_field = next((name for name, _ftype, _field in fields
+                        if name.lower() in ("status", "state")), None)
+    if state_field is None:
+        return None
+    match = re.search(
+        r"\bfrom\s+(?:the\s+)?([a-z_]+(?:\s*(?:,|or)\s+[a-z_]+)*)\s+to\s+"
+        r"(?:the\s+)?([a-z_]+)", text, re.IGNORECASE)
+    starts, target = [], None
+    if match:
+        starts = [part.strip().strip(".'") for part in
+                  re.split(r"\s*(?:,|or)\s*", match.group(1).lower())
+                  if part.strip()]
+        target = match.group(2).strip().strip(".'").lower()
+    else:
+        # "the order status is updated to 'confirmed'" is the same transition
+        # without the source state spelled as `from ... to ...`.
+        updated = re.search(
+            r"\bstatus\s+(?:is\s+)?(?:updated|set|changed)\s+to\s+"
+            r"['\"]?([a-z_]+)", text, re.IGNORECASE)
+        if updated:
+            target = updated.group(1).strip(".'").lower()
+            source = re.search(r"\b(?:a|an)\s+([a-z_]+)\s+order\b",
+                               text, re.IGNORECASE)
+            if source:
+                starts = [source.group(1).lower()]
+    if not target:
+        return None
+    params = _params(method)
+    key_param = next((param for param in params if param.endswith("_id")), None)
+    repo = _repo_for(ctx, entity)
+    if key_param is None or repo is None:
+        return None
+    read_one = next((item.get("name") for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and normalize(item.get("name") or "") == "readone"), None)
+    if read_one is None:
+        return None
+    raises = [str(name).rsplit(".", 1)[-1]
+              for name in (method.get("raises") or [])]
+    not_found = next((name for name in raises if name.endswith("NotFoundError")), None)
+    state_error = next((name for name in raises
+                        if not name.endswith("NotFoundError")), None)
+    binding = entity.lower()
+    binding_record = {
+        "name": binding,
+        "repository": repo.get("interface_name"),
+        "method": read_one,
+        "args": [key_param],
+    }
+    if not_found:
+        binding_record["error"] = not_found
+    effect = {
+        "target": f"{binding}.{state_field}",
+        "op": "set",
+        # A status vocabulary is string data; quote it so the closed
+        # contract compiler can distinguish it from a parameter name.
+        "value": repr(target),
+        "write": _repo_call(ctx, entity, "update_"),
+    }
+    already = next((name for name in raises
+                    if normalize(f"Already{target}") in normalize(name)),
+                   None)
+    if starts:
+        if len(starts) == 1:
+            check = f"{binding}.{state_field} == {starts[0]!r}"
+        else:
+            check = (f"{binding}.{state_field} in "
+                     f"({', '.join(repr(item) for item in starts)})")
+        precondition = {"check": check, "raise_when": "false"}
+    elif already:
+        # `OrderAlreadyConfirmedError` means the target state is forbidden;
+        # the check is the state that triggers it, so raise_when is true.
+        precondition = {
+            "check": f"{binding}.{state_field} == {target!r}",
+            "raise_when": "true",
+            "error": already,
+        }
+    else:
+        precondition = None
+    if precondition is not None and state_error:
+        precondition.setdefault("error", state_error)
+    return {
+        "entity": entity,
+        "binding": binding_record,
+        "effect": effect,
+        "precondition": precondition,
+    }
+
+
 def _propose(ctx, holder, method, role, requirement):
     """One proposal from the method's description/requirement, or None."""
     description = method.get("description") or ""
@@ -521,7 +623,9 @@ def _propose(ctx, holder, method, role, requirement):
     fields = _fields(ctx)
     params = _params(method)
     effects, creates = [], []
+    bindings = []
     seen_effects, seen_creates = set(), set()
+    transition = _state_transition(ctx, holder, method, text) if role == "service" else None
 
     def add_effect(entity, field_name, op, write):
         key = (f"{entity.lower()}.{field_name}", op)
@@ -571,6 +675,11 @@ def _propose(ctx, holder, method, role, requirement):
                     seen_creates.add(key)
                     creates.append({"class": entity, "call": call} if call
                                    else {"class": entity})
+    if transition:
+        target = transition["effect"]["target"]
+        if not any(effect.get("target") == target for effect in effects):
+            effects.append(transition["effect"])
+        bindings.append(transition["binding"])
     reads = _related_reads(ctx, holder, text) if role == "repository" else []
     derives = [] if effects or creates else _derived_values(ctx, method, text)
     if not effects and not creates and not reads and not derives:
@@ -578,6 +687,13 @@ def _propose(ctx, holder, method, role, requirement):
 
     preconditions, open_errors = _obvious_preconditions(
         ctx, method.get("raises") or [], fields, method, effects)
+    if transition:
+        if transition.get("precondition"):
+            preconditions.append(transition["precondition"])
+            # The state error is already represented by this concrete check;
+            # do not also ask for an abstract expression for the same class.
+            open_errors = [error for error in open_errors
+                           if error != transition["precondition"].get("error")]
     questions = []
     if preconditions:
         questions.append({
@@ -589,6 +705,14 @@ def _propose(ctx, holder, method, role, requirement):
     for index, effect in enumerate(effects):
         question = _effect_questions(ctx, index, effect, params)
         question["effect"] = effect["target"]
+        if transition and effect.get("target") == transition["effect"]["target"]:
+            value = transition["effect"]["value"]
+            choices = question.get("choices") or []
+            if not any(choice[1] == value for choice in choices):
+                choices = [(str(value), value)] + choices
+            if choices:
+                question["kind"] = "choice"
+                question["choices"] = choices
         questions.append(question)
     if creates:
         questions.append({
@@ -647,8 +771,8 @@ def _propose(ctx, holder, method, role, requirement):
         "holder": holder, "method": method.get("name") or "?",
         "role": role, "entity": method.get("entity"),
         "description": description, "requirement": requirement,
-        "effects": effects, "creates": creates, "reads": reads,
-        "derives": derives,
+        "effects": effects, "creates": creates, "bindings": bindings,
+        "reads": reads, "derives": derives,
         "preconditions": preconditions, "order": [], "forbid": [],
         "open_preconditions": open_errors,
         "questions": questions,
@@ -828,6 +952,7 @@ def _finalize(proposal, answers, prompt_sha, ctx):
     reads = []
     if answers.get("keep_reads", "keep") != "drop":
         reads = [dict(item) for item in proposal.get("reads") or []]
+    bindings = [dict(item) for item in proposal.get("bindings") or []]
     preconditions = []
     if answers.get("keep_preconditions", "keep") != "drop":
         preconditions = [dict(item) for item in proposal["preconditions"]]
@@ -870,6 +995,7 @@ def _finalize(proposal, answers, prompt_sha, ctx):
         "decided_by": "user",
         "effects": effects,
         "creates": creates,
+        "bindings": bindings,
         "reads": reads,
         "derives": derives,
         "preconditions": preconditions,

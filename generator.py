@@ -3414,7 +3414,11 @@ def emit_services(ctx, repo_index, stats):
     emitted = set()
     for service in ctx["services"]:
         name = service.get("service_name")
-        if normalize(name) in port_names:
+        if normalize(name) in port_names \
+                or normalize(name).endswith("repository"):
+            # A repository contract is implemented by repositories.py. When
+            # persistence is skipped there is no port name to compare, but
+            # the `*Repository` suffix still identifies the same layer.
             continue
         cls = codegen.sanitize(name, "Service")
         emitted.add(cls)
@@ -9032,12 +9036,30 @@ def _date_assignment_complaints(tree):
     return found
 
 
+def _mapping_items(node, tree):
+    """`(key, value)` pairs of a dict literal or a local dict variable."""
+    if isinstance(node, ast.Dict):
+        for key, value in zip(node.keys, node.values):
+            if isinstance(key, ast.Constant) and isinstance(key.value, str):
+                yield key.value, value
+        return
+    if isinstance(node, ast.Name):
+        for text in _assigned_values(tree, node.id):
+            try:
+                value = ast.parse(text, mode="eval").body
+            except SyntaxError:
+                continue
+            yield from _mapping_items(value, tree)
+
+
 def _field_writes(tree, field):
     """Every write of `field`, with the expression assigned or passed.
 
     A service saves through the repository API, so `update(return_date=...)`
     is a write exactly as `loan.return_date = ...` is; both shapes carry the
-    value the contract checks need to see.
+    value the contract checks need to see. A repository path may also build a
+    patch mapping (`patch = {'stock': value}`) and pass it to
+    `store.update(..., patch)`; the mapping key is the write.
     """
     writes = []
     for node in ast.walk(tree):
@@ -9048,6 +9070,10 @@ def _field_writes(tree, field):
             for keyword in node.keywords:
                 if keyword.arg == field:
                     writes.append((node, keyword.value))
+            for argument in node.args:
+                for key, mapped in _mapping_items(argument, tree):
+                    if key == field:
+                        writes.append((node, mapped))
     return writes
 
 
@@ -9937,19 +9963,28 @@ def _contract_complaints(tree, contract, judge=None, body_text=""):
                 f"through `{call}(...)`, but the body never calls "
                 f"`{_last_name(call)}`")
         elif call:
-            # One confirmed create is one record: a second call stores a
-            # duplicate (a live body created the member twice, and the
-            # unique email refused the second at the first `member add`).
-            times = sum(1 for node in ast.walk(tree)
-                        if isinstance(node, ast.Call)
+            # One confirmed create is one record on its own repository: a
+            # second call there stores a duplicate. Calls to another
+            # repository's `create` (an order line beside its order) are a
+            # different entity and are not a duplicate of this contract.
+            parts = call.split(".")
+            repo_name, method_name = ((parts[-2], parts[-1])
+                                      if len(parts) >= 2
+                                      else (None, _last_name(call)))
+            times = 0
+            for node in ast.walk(tree):
+                if not (isinstance(node, ast.Call)
                         and isinstance(node.func, ast.Attribute)
-                        and node.func.attr == _last_name(call))
+                        and node.func.attr == method_name):
+                    continue
+                if repo_name is None or _repo_name(node.func.value) == repo_name:
+                    times += 1
             if times > 1:
                 found.append(
                     f"the confirmed contract creates one "
                     f"`{create.get('class') or 'record'}` through "
-                    f"`{call}(...)`, but the body calls `{_last_name(call)}` "
-                    f"{times} times")
+                    f"`{call}(...)`, but the body calls "
+                    f"`{call}` {times} times")
 
     for precondition in contract.get("preconditions") or []:
         error = precondition.get("error")

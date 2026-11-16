@@ -1969,9 +1969,38 @@ def repair_capability_adapters(components, services, adapters, models,
             continue
         entity = _capability_entity(action, models) \
             or _capability_entity(target_service, models)
-        service_name = target_service
+        declared = next((service for service in services
+                         if isinstance(service, dict)
+                         and normalize(service.get("service_name")) == normalize(target_service)),
+                        None)
+        existing = any(
+            isinstance(method, dict)
+            and normalize(method.get("name")) == normalize(action)
+            for method in (declared or {}).get("methods") or [])
+        owns_target = (entity is None
+                       or normalize(entity) in normalize(target_service)
+                       or existing)
         if verb in ("export", "import") and target_service.endswith("Repository"):
             service_name = (entity or target_service[:-len("Repository")]) + "Service"
+        elif owns_target:
+            service_name = target_service
+        else:
+            owner = next((service.get("service_name") for service in services
+                          if isinstance(service, dict)
+                          and isinstance(service.get("service_name"), str)
+                          and entity is not None
+                          and normalize(entity) in normalize(service["service_name"])
+                          and normalize(service["service_name"]).endswith("service")),
+                         None)
+            if owner is None:
+                if log is not None:
+                    log.write(
+                        f"[!] step adapters: '{action}' names {entity} but no "
+                        "owning service declares it; adapter removed rather "
+                        "than attached to the wrong service")
+                adapters.remove(adapter)
+                continue
+            service_name = owner
         if target_service != service_name:
             adapter["target_service"] = service_name
         method = _add_capability_method(

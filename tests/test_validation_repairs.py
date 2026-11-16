@@ -203,6 +203,22 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertEqual(len(adapters), before)
 
 
+class CapabilityOwnershipTests(unittest.TestCase):
+    def test_an_action_cannot_land_on_a_service_that_does_not_own_it(self):
+        models = [{"name": "Order", "fields": []}]
+        services = [{"service_name": "NotificationService", "methods": [
+            {"name": "send_notification", "params": [], "return_type": "None"}]}]
+        adapters = [{"action_name": "confirm_order",
+                     "target_service": "NotificationService",
+                     "target_method": "send_notification",
+                     "input_fields": []}]
+        repairs.repair_capability_adapters(
+            None, services, adapters, models, "")
+        self.assertFalse(any(m.get("name") == "confirm_order"
+                             for m in services[0]["methods"]))
+        self.assertEqual(adapters, [])
+
+
 class AdapterTransformTests(unittest.TestCase):
     def test_enum_lookup_on_a_bool_field_becomes_direct(self):
         adapters = [{"action_name": "add", "target_service": "BookRepository",
