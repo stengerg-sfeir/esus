@@ -8,6 +8,10 @@ SQLite database, and checks:
 - every method contract with a scalar binding and effect:
   - a valid fixture reaches the declared effect;
   - an invalid fixture raises the declared error;
+- CLI leaf `--help`;
+- schema metadata (keys, nullability, uniqueness, foreign keys, autoincrement);
+- repository read/update/delete round-trips and unique/FK constraints where the
+  generated shape exposes a usable create/read pair;
 - optional `scenarios.json` scenarios.
 
 The outer runner is:

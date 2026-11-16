@@ -447,7 +447,7 @@ def _run_scenario(docs, deps, store, scenario, sequence):
     return {"name": name, "status": "passed"}
 
 
-def _leaf_paths(components):
+def _leaf_entries(components):
     invocation = ((components or {}).get("facade") or {}).get("invocation") or {}
     commands = invocation.get("commands") if isinstance(invocation, dict) else None
     if not isinstance(commands, list):
@@ -462,9 +462,34 @@ def _leaf_paths(components):
             if isinstance(subcommands, list) and subcommands:
                 yield from walk(subcommands, path)
             else:
-                yield path
+                yield path, node
 
     return list(walk(commands))
+
+
+def _leaf_paths(components):
+    return [path for path, _node in _leaf_entries(components)]
+
+
+def _required_cli_args(node, number):
+    args = []
+    for option in node.get("options") or []:
+        if not isinstance(option, dict) or not option.get("required"):
+            continue
+        name = option.get("name")
+        if not isinstance(name, str) or not name:
+            continue
+        args.append(name)
+        declared = str(option.get("type") or "").lower()
+        if declared in ("bool", "boolean"):
+            continue
+        if declared in ("int", "integer"):
+            args.append("1" if name.endswith("id") or "capacity" in name else "2")
+        elif declared in ("float", "double", "decimal"):
+            args.append("1.0")
+        else:
+            args.append(f"value{number}")
+    return args
 
 
 def _check_schema(docs, deps):
@@ -784,6 +809,25 @@ def run(out_dir):
     except Exception as error:  # noqa: BLE001
         checks.append({"name": "seed-all", "status": "failed",
                        "reason": f"{type(error).__name__}: {error}"})
+    if cli_path.is_file():
+        for number, (path, node) in enumerate(_leaf_entries(docs.get("components")), start=1):
+            required = _required_cli_args(node, number)
+            if required:
+                checks.append({
+                    "name": "cli-run:" + " ".join(path),
+                    "status": "skipped",
+                    "reason": "requires a reviewed scenario fixture",
+                })
+                continue
+            args = [sys.executable, str(cli_path), "--db", str(db), *path]
+            result = subprocess.run(args, capture_output=True, text=True)
+            checks.append({
+                "name": "cli-run:" + " ".join(path),
+                "status": "passed" if result.returncode == 0 else "skipped",
+                "reason": "" if result.returncode == 0 else (
+                    "command needs a seeded fixture: "
+                    + (result.stderr or result.stdout)[-250:]),
+            })
     for number, repo in enumerate(docs.get("repos") or [], start=1):
         if isinstance(repo, dict):
             checks.append(_check_repository(docs, deps, repo, number))
