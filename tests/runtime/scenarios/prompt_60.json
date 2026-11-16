@@ -1,6 +1,43 @@
 {
   "scenarios": [
     {
+      "name": "ship_confirmed_order",
+      "setup": [
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "customer_id": {
+              "ref": "customer.customer_id"
+            },
+            "status": "confirmed"
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderService",
+        "method": "ship_order",
+        "args": [
+          {
+            "ref": "order.order_id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.status": "shipped"
+        }
+      }
+    },
+    {
       "name": "confirm_order_reserves_stock_and_creates_invoice",
       "setup": [
         {

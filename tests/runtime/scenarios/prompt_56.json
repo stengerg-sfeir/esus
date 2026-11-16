@@ -1,6 +1,66 @@
 {
   "scenarios": [
     {
+      "name": "cancel_confirmed_order_releases_stock",
+      "setup": [
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Product",
+          "as": "product",
+          "values": {
+            "name": "Widget",
+            "price": 10,
+            "stock_quantity": 5
+          }
+        },
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "customer_id": {
+              "ref": "customer.customer_id"
+            },
+            "status": "confirmed"
+          }
+        },
+        {
+          "entity": "OrderProduct",
+          "as": "line",
+          "values": {
+            "order_id": {
+              "ref": "order.order_id"
+            },
+            "product_id": {
+              "ref": "product.product_id"
+            },
+            "quantity": 2
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderService",
+        "method": "cancel_order",
+        "args": [
+          {
+            "ref": "order.order_id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 3
+        }
+      }
+    },
+    {
       "name": "cli:OrderProduct update",
       "when": {
         "cli": [

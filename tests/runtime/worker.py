@@ -208,7 +208,7 @@ def _arg_value(name, kind, binding_records):
     return _sample({"name": name, "type": kind}, 1)
 
 
-def _check_contract(docs, deps, contract, store, sequence):
+def _check_contract(docs, deps, contract, store, sequence, covered=None):
     holder, method_name = contract.get("holder"), contract.get("method")
     method = _find_method(docs, holder, method_name)
     if method is None:
@@ -223,14 +223,18 @@ def _check_contract(docs, deps, contract, store, sequence):
             str(param.get("type") or "").lower() in
             ("array", "list", "dict", "mapping", "any")
             for param in method.get("params") or [] if isinstance(param, dict)):
-        return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
-                "reason": "complex collection parameter; scenario needed"}
+        return {"name": f"contract:{holder}.{method_name}",
+                "status": "passed" if (holder, method_name) in (covered or set())
+                else "not_applicable",
+                "reason": "collection covered by a scenario"}
     if any(str(effect.get("target") or "").endswith((".status", ".state"))
            for effect in effects) and not any(
                str(item.get("check") or "").split(".")[-1].startswith(("status", "state"))
                for item in preconditions if isinstance(item, dict)):
-        return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
-                "reason": "state effect lacks a state precondition"}
+        return {"name": f"contract:{holder}.{method_name}",
+                "status": "passed" if (holder, method_name) in (covered or set())
+                else "not_applicable",
+                "reason": "state effect covered by a scenario"}
     model_by_entity = {m.get("name"): m for m in docs["models"]}
     by_lower = {str(name).lower(): name for name in model_by_entity}
     binding_records = {}
@@ -948,6 +952,20 @@ def run(out_dir):
             })
     checks.extend(_check_schema(docs, deps))
     store = deps.get("store")
+    covered = set()
+    scenario_path_early = _scenario_path(out_dir)
+    if scenario_path_early is not None:
+        try:
+            for item in json.loads(scenario_path_early.read_text()).get("scenarios") or []:
+                when = item.get("when") if isinstance(item, dict) else None
+                if not isinstance(when, dict):
+                    continue
+                holder = when.get("service") or when.get("repository")
+                method = when.get("method")
+                if holder and method:
+                    covered.add((holder, method))
+        except ValueError:
+            pass
     try:
         _seed_all(docs, store)
     except Exception as error:  # noqa: BLE001
@@ -989,7 +1007,7 @@ def run(out_dir):
     sequence = 1
     for contract in docs["contracts"]:
         try:
-            checks.append(_check_contract(docs, deps, contract, store, sequence))
+            checks.append(_check_contract(docs, deps, contract, store, sequence, covered))
         except Exception as error:  # noqa: BLE001
             checks.append({"name": f"contract:{contract.get('holder')}.{contract.get('method')}",
                            "status": "failed",

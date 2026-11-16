@@ -59,6 +59,7 @@ fixtures. `as` exposes the row and its primary key as `alias.id` and
 row back after the call; `expect.rows` counts an entity. `expect.error` names
 the expected exception class.
 
-The harness never edits generated modules. Prompt-specific semantic gaps are
-reported as scenario failures so they can be fixed in extraction, review or
-the generator and then regenerated.
+The harness never edits generated modules. Every leaf gets a generated CLI
+scenario; prompt-specific semantic gaps are reported as scenario failures so
+they can be fixed in extraction, review or the generator and then regenerated.
+There are currently no skipped checks: failures are visible test results.

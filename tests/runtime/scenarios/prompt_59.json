@@ -1,6 +1,43 @@
 {
   "scenarios": [
     {
+      "name": "cancel_order_updates_status",
+      "setup": [
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "customer_id": {
+              "ref": "customer.customer_id"
+            },
+            "status": "confirmed"
+          }
+        }
+      ],
+      "when": {
+        "repository": "OrderRepository",
+        "method": "cancel_order",
+        "args": [
+          {
+            "ref": "order.order_id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.status": "cancelled"
+        }
+      }
+    },
+    {
       "name": "cli:Customer add",
       "when": {
         "cli": [
