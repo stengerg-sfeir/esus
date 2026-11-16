@@ -1656,6 +1656,18 @@ def repair_adapter_id_transforms(adapters, services, log=None):
             field["transform"] = "LOOKUP_ID"
             if not field.get("lookup_entity"):
                 base = name[:-3] if normalize(name).endswith("id") else ""
+                if not base:
+                    target = str(field.get("target_param") or "")
+                    base = target[:-3] if normalize(target).endswith("id") else ""
+                if not base:
+                    # A bare `id` names no entity. The repository/service that
+                    # owns the method does: CategoryRepository -> Category.
+                    holder = str(adapter.get("target_service") or "")
+                    for suffix in ("Repository", "Service"):
+                        if holder.endswith(suffix):
+                            holder = holder[:-len(suffix)]
+                            break
+                    base = holder
                 if base and base.lower() not in ("", "id"):
                     field["lookup_entity"] = base[:1].upper() + base[1:]
             if log is not None:

@@ -219,6 +219,34 @@ class CapabilityOwnershipTests(unittest.TestCase):
         self.assertEqual(adapters, [])
 
 
+class AdapterIdTransformTests(unittest.TestCase):
+    def test_bare_id_derives_lookup_entity_from_repository(self):
+        adapters = [{"action_name": "categorydelete",
+                     "target_service": "CategoryRepository",
+                     "target_method": "delete", "input_fields": [{
+            "field_name": "id", "target_param": "id",
+            "transform": "DIRECT", "lookup_entity": None, "required": True}]}]
+        services = [{"service_name": "CategoryRepository", "methods": [{
+            "name": "delete", "params": [{"name": "id", "type": "int"}]}]}]
+        repairs.repair_adapter_id_transforms(adapters, services)
+        field = adapters[0]["input_fields"][0]
+        self.assertEqual(field["transform"], "LOOKUP_ID")
+        self.assertEqual(field["lookup_entity"], "Category")
+
+    def test_bare_id_derives_lookup_entity_from_target_param(self):
+        adapters = [{"action_name": "categoryget",
+                     "target_service": "ExpenseRepository",
+                     "target_method": "read_one", "input_fields": [{
+            "field_name": "id", "target_param": "category_id",
+            "transform": "DIRECT", "lookup_entity": None, "required": True}]}]
+        services = [{"service_name": "ExpenseRepository", "methods": [{
+            "name": "read_one",
+            "params": [{"name": "category_id", "type": "int"}]}]}]
+        repairs.repair_adapter_id_transforms(adapters, services)
+        self.assertEqual(adapters[0]["input_fields"][0]["lookup_entity"],
+                         "Category")
+
+
 class AdapterTransformTests(unittest.TestCase):
     def test_enum_lookup_on_a_bool_field_becomes_direct(self):
         adapters = [{"action_name": "add", "target_service": "BookRepository",
