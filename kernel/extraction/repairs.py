@@ -1465,6 +1465,83 @@ def repair_required_create_fields(ports, models, log=None):
     return ports
 
 
+def repair_id_param_types(services, models, log=None):
+    """A `*_id` method parameter is integer when its model field is."""
+    if not isinstance(services, list):
+        return services
+    fields = {}
+    for model in models or []:
+        if not isinstance(model, dict):
+            continue
+        for field in model.get("fields") or []:
+            if isinstance(field, dict) and field.get("name"):
+                fields[normalize(field["name"])] = field
+    changed = 0
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            for param in method.get("params") or []:
+                if not isinstance(param, dict):
+                    continue
+                name = param.get("name")
+                if not isinstance(name, str) or not normalize(name).endswith("id"):
+                    continue
+                if str(param.get("type") or "").strip().lower() not in ("str", "string", "text"):
+                    continue
+                field = fields.get(normalize(name))
+                if field is not None and str(field.get("type") or "").lower() in (
+                        "int", "integer"):
+                    param["type"] = "int"
+                    changed += 1
+    if changed and log is not None:
+        log.write(f"[ok] step contracts: retyped {changed} id parameter(s) to int")
+    return services
+
+
+def repair_adapter_id_transforms(adapters, services, log=None):
+    """A flag naming an integer/UUID key must use LOOKUP_ID, not DIRECT.
+
+    The CLI parser hands strings to adapters; a method declared
+    `update(user_id: int)` cannot match the store key if DIRECT leaves it as
+    `"1"`. Only fields whose name is an id and whose target parameter is
+    integer-like are changed.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    index = _service_method_index(services)
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        if method is None:
+            continue
+        ptypes = {normalize(p.get("name")): p.get("type")
+                  for p in method.get("params") or []
+                  if isinstance(p, dict) and p.get("name")}
+        for field in adapter.get("input_fields") or []:
+            if not isinstance(field, dict) or field.get("transform") not in (
+                    "DIRECT", "LOOKUP_ID"):
+                continue
+            name = str(field.get("field_name") or "")
+            if not (normalize(name).endswith("id") or normalize(name) == "id"):
+                continue
+            declared = str(ptypes.get(normalize(field.get("target_param"))) or "").lower()
+            if declared not in ("int", "integer", "uuid"):
+                continue
+            field["transform"] = "LOOKUP_ID"
+            if not field.get("lookup_entity"):
+                base = name[:-3] if normalize(name).endswith("id") else ""
+                if base and base.lower() not in ("", "id"):
+                    field["lookup_entity"] = base[:1].upper() + base[1:]
+            if log is not None:
+                log.write(
+                    f"[ok] step adapters: {adapter.get('action_name')}.{name} "
+                    f"targets an integer key — changed DIRECT to LOOKUP_ID")
+
+
 def repair_adapter_transforms(adapters, log, services=None):
     """Replace a transform whose kind contradicts the field or target type.
 

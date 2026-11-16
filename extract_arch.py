@@ -356,6 +356,7 @@ def repair_existing(output_dir):
             models, requirements, log, documents.get(pipeline_module.INVARIANTS))
     errors = documents.get(pipeline_module.ERRORS)
     services = repairs.repair_generic_type_spellings(services, models, log)
+    services = repairs.repair_id_param_types(services, models, log)
     if isinstance(services, list):
         services, removed = dedupe.deduplicate(
             pipeline_module.SERVICE_CONTRACTS, services)
@@ -395,6 +396,7 @@ def repair_existing(output_dir):
         repairs.repair_capability_adapters(
             components, services, adapters, models, requirements, log)
         repairs.repair_adapter_transforms(adapters, log, services)
+        repairs.repair_adapter_id_transforms(adapters, services, log)
         repairs.repair_adapter_targets(adapters, services, log)
         repairs.repair_adapter_field_names(adapters, services, models, log)
         repairs.repair_missing_adapter_flags(

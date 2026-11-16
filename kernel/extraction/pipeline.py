@@ -754,6 +754,9 @@ class Pipeline:
             repairs.repair_generic_type_spellings(
                 self.documents.get(SERVICE_CONTRACTS),
                 self.documents.get(DATA_MODELS), self.log))
+        self.documents[SERVICE_CONTRACTS] = repairs.repair_id_param_types(
+            self.documents.get(SERVICE_CONTRACTS), self.documents.get(DATA_MODELS),
+            self.log)
 
     def _repair_errors(self):
         """Remove the two error contradictions the grammar cannot express (§9.28).
@@ -967,6 +970,8 @@ class Pipeline:
         # removed here, reusing the checker's own predicate (§9.28).
         repairs.repair_adapter_transforms(
             adapters, self.log, self.documents.get(SERVICE_CONTRACTS))
+        repairs.repair_adapter_id_transforms(
+            adapters, self.documents.get(SERVICE_CONTRACTS), self.log)
         # A field mapped past a parameter of its own name — `category_id`
         # into `data` while the method declares `category_id` — is the same
         # class of defect: the field's name and the method's parameter list

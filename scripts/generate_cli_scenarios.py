@@ -38,7 +38,7 @@ def main(argv=None):
                      if not str(item.get("name", "")).startswith("cli:")]
         for number, (path, node) in enumerate(
                 worker._leaf_entries(docs.get("components")), start=1):
-            args = worker._cli_args(docs, node, number)
+            args = worker._cli_args(docs, node, 1)
             scenarios.append({
                 "name": "cli:" + " ".join(path),
                 "when": {"cli": list(path) + list(args)},

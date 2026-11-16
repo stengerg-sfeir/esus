@@ -508,6 +508,17 @@ def _cli_value(docs, name, declared, number):
                 continue
             if normalize(field["name"]) == normalize(key):
                 fields.append((model.get("name"), field))
+    if not fields:
+        wanted = normalize(key)
+        candidates = []
+        for model in docs.get("models") or []:
+            for candidate in model.get("fields") or []:
+                if not isinstance(candidate, dict) or not candidate.get("name"):
+                    continue
+                if normalize(candidate["name"]) in wanted or wanted in normalize(candidate["name"]):
+                    candidates.append((model.get("name"), candidate))
+        if len(candidates) == 1:
+            fields = candidates
     field = fields[0][1] if fields else None
     field_kind = str((field or {}).get("type") or "").lower()
     kind = str(declared or field_kind or "").lower()
@@ -674,8 +685,8 @@ def _seed_all(docs, store):
     records = {}
     models = {model.get("name"): model for model in docs["models"]
               if isinstance(model, dict) and model.get("name")}
-    for number, (entity, model) in enumerate(models.items(), start=1):
-        record, pk = _seed(store, model, number)
+    for entity, model in models.items():
+        record, pk = _seed(store, model, 1)
         record["__entity__"] = entity
         records[entity] = (record, pk)
     # Point every FK at a compatible seeded row where possible.
