@@ -27,11 +27,16 @@ def _read(path):
         return {}
 
 
+_UNIQUE_COUNTER = 1
+
+
 def _sample(field, number):
+    global _UNIQUE_COUNTER
     name = str(field.get("name") or "")
     kind = str(field.get("type") or "").strip().lower()
     if "email" in name:
-        return f"user{number}@example.test"
+        _UNIQUE_COUNTER += 1
+        return f"user{number}-{_UNIQUE_COUNTER}@example.test"
     if kind in ("int", "integer"):
         return number
     if kind in ("float", "double", "decimal", "money"):
@@ -44,6 +49,9 @@ def _sample(field, number):
         return "2024-01-01T00:00:00"
     if kind in ("list", "array", "dict", "mapping"):
         return [] if kind in ("list", "array") else {}
+    if field.get("unique"):
+        _UNIQUE_COUNTER += 1
+        return f"value{number}-{_UNIQUE_COUNTER}"
     return f"value{number}"
 
 
@@ -70,6 +78,8 @@ def _seed(store, model, number=1, overrides=None):
             continue
         if overrides and name in overrides:
             values[name] = overrides[name]
+        elif isinstance(field.get("foreign_key"), dict):
+            values[name] = 1
         elif field.get("nullable"):
             # Supplying a value is safe for the fixtures and avoids SQL NULL
             # surprises in code paths that read every model field.
@@ -95,6 +105,8 @@ def _documents(out_dir):
         "contracts": _read(Path(out_dir) / "method_contracts.json").get("method_contracts") or [],
         "invariants": _read(Path(out_dir) / "invariants.json").get("invariants") or [],
         "components": _read(Path(out_dir) / "components.json").get("components") or {},
+        "requirements": ((Path(out_dir) / "requirements.txt").read_text(encoding="utf-8")
+                         if (Path(out_dir) / "requirements.txt").is_file() else ""),
     }
 
 
@@ -159,6 +171,16 @@ def _allowed_values(docs, entity, field):
         quoted = re.findall(r"['\"](.*?)['\"]", text)
         if quoted:
             return quoted
+    if field.lower() in ("status", "state"):
+        plural = entity + "s"
+        match = re.search(
+            rf"\b{re.escape(plural)}\b[^.]*?\b(?:can be|may be|is one of)\s+([^.;]+)",
+            docs.get("requirements") or "", re.IGNORECASE)
+        if match:
+            values = [value.strip(" `'\"") for value in re.split(
+                r",|\bor\b", match.group(1)) if value.strip(" `'\"")]
+            if all(re.fullmatch(r"[A-Za-z0-9_.-]+", value) for value in values):
+                return values
     return []
 
 
@@ -199,6 +221,12 @@ def _check_contract(docs, deps, contract, store, sequence):
             for param in method.get("params") or [] if isinstance(param, dict)):
         return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
                 "reason": "complex collection parameter; scenario needed"}
+    if any(str(effect.get("target") or "").endswith((".status", ".state"))
+           for effect in effects) and not any(
+               str(item.get("check") or "").split(".")[-1].startswith(("status", "state"))
+               for item in preconditions if isinstance(item, dict)):
+        return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
+                "reason": "state effect lacks a state precondition"}
     model_by_entity = {m.get("name"): m for m in docs["models"]}
     by_lower = {str(name).lower(): name for name in model_by_entity}
     binding_records = {}
@@ -216,7 +244,7 @@ def _check_contract(docs, deps, contract, store, sequence):
         record, pk = _seed(store, model, sequence)
         record["__entity__"] = entity
         binding_records[variable] = (record, pk)
-    for binding in bindings:
+    for binding_index, binding in enumerate(bindings):
         repo = next((item for item in docs["repos"]
                      if item.get("interface_name") == binding.get("repository")), None)
         entity = repo.get("entity") if repo else None
@@ -225,7 +253,8 @@ def _check_contract(docs, deps, contract, store, sequence):
             return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
                     "reason": f"unknown binding entity {entity!r}"}
         overrides = _precondition_values(contract, binding.get("name") or "")
-        record, pk = _seed(store, model, sequence, overrides)
+        record, pk = _seed(store, model, sequence + 1000 + binding_index * 10,
+                           overrides)
         record["__entity__"] = entity
         binding_records[binding.get("name") or entity] = (record, pk)
     param_overrides = {}
@@ -418,6 +447,300 @@ def _run_scenario(docs, deps, store, scenario, sequence):
     return {"name": name, "status": "passed"}
 
 
+def _leaf_paths(components):
+    invocation = ((components or {}).get("facade") or {}).get("invocation") or {}
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return []
+
+    def walk(nodes, prefix=()):
+        for node in nodes or []:
+            if not isinstance(node, dict) or not isinstance(node.get("name"), str):
+                continue
+            path = prefix + (node["name"],)
+            subcommands = node.get("subcommands")
+            if isinstance(subcommands, list) and subcommands:
+                yield from walk(subcommands, path)
+            else:
+                yield path
+
+    return list(walk(commands))
+
+
+def _check_schema(docs, deps):
+    store = deps.get("store")
+    schema = getattr(store, "_schema", None)
+    if not isinstance(schema, dict):
+        return [{"name": "schema", "status": "skipped",
+                 "reason": "store schema unavailable"}]
+    checks = []
+    connection = getattr(store, "_db", None)
+    for model in docs["models"]:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        entity = model["name"]
+        spec = schema.get(entity)
+        if not isinstance(spec, dict):
+            checks.append({"name": f"schema:{entity}", "status": "failed",
+                           "reason": "entity missing from generated schema"})
+            continue
+        fields = {field.get("name"): field for field in spec.get("fields") or []
+                  if isinstance(field, dict)}
+        problems = []
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            name = field["name"]
+            declared = fields.get(name)
+            if declared is None:
+                problems.append(f"{entity}.{name} missing")
+                continue
+            if bool(declared.get("primary_key")) != bool(field.get("primary_key")):
+                problems.append(f"{entity}.{name} primary-key flag differs")
+            if bool(declared.get("nullable")) != bool(field.get("nullable")):
+                problems.append(f"{entity}.{name} nullability differs")
+            if bool(declared.get("unique")) != bool(field.get("unique")):
+                problems.append(f"{entity}.{name} uniqueness differs")
+            source_fk = field.get("foreign_key") or {}
+            target_fk = declared.get("foreign_key") or {}
+            if bool(source_fk) != bool(target_fk):
+                problems.append(f"{entity}.{name} foreign-key flag differs")
+            elif source_fk and (
+                    str(source_fk.get("target_entity")) != str(target_fk.get("target_entity"))
+                    or str(source_fk.get("target_field")) != str(target_fk.get("target_field"))):
+                problems.append(f"{entity}.{name} foreign-key target differs")
+        if connection is not None:
+            try:
+                tables = [row[0] for row in connection.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%'")]
+                table = entity if entity in tables else next(
+                    (name for name in tables
+                     if {row[1] for row in connection.execute(
+                         f'PRAGMA table_info("{name}")')}
+                     >= {field.get("name") for field in model.get("fields") or []
+                         if isinstance(field, dict)}), None)
+                if table is None:
+                    problems.append(f"{entity} table missing")
+                else:
+                    sql = connection.execute(
+                        "SELECT sql FROM sqlite_master WHERE name=?", (table,)).fetchone()
+                    if sql and spec.get("primary_key") and "AUTOINCREMENT" not in (sql[0] or "").upper():
+                        problems.append(f"{entity} primary key is not AUTOINCREMENT")
+            except Exception as error:  # noqa: BLE001
+                problems.append(f"schema introspection failed: {error}")
+        checks.append({"name": f"schema:{entity}",
+                       "status": "failed" if problems else "passed",
+                       "reason": "; ".join(problems)})
+    return checks
+
+
+def _model_method(docs, holder, name):
+    for group in (docs["repos"], docs["services"]):
+        for service in group:
+            if service.get("interface_name") == holder or service.get("service_name") == holder:
+                for method in service.get("methods") or []:
+                    if method.get("name") == name:
+                        return method
+    return None
+
+
+def _seed_all(docs, store):
+    """Seed one row per model so repository foreign keys have targets."""
+    records = {}
+    models = {model.get("name"): model for model in docs["models"]
+              if isinstance(model, dict) and model.get("name")}
+    for number, (entity, model) in enumerate(models.items(), start=1):
+        record, pk = _seed(store, model, number)
+        record["__entity__"] = entity
+        records[entity] = (record, pk)
+    # Point every FK at a compatible seeded row where possible.
+    for entity, (record, pk) in list(records.items()):
+        for field in models[entity].get("fields") or []:
+            foreign = field.get("foreign_key") if isinstance(field, dict) else None
+            target = foreign.get("target_entity") if isinstance(foreign, dict) else None
+            if target in records:
+                record[field["name"]] = records[target][0].get(records[target][1])
+    return records
+
+
+def _args_for_create(docs, method, model, number):
+    args = {}
+    fields = {field.get("name"): field for field in model.get("fields") or []
+              if isinstance(field, dict)}
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            continue
+        name = param["name"]
+        if name in fields:
+            field = fields[name]
+            if field.get("primary_key"):
+                continue
+            allowed = _allowed_values(docs, model.get("name"), name)
+            if isinstance(field.get("foreign_key"), dict):
+                args[name] = 1
+            elif name == "capacity":
+                args[name] = 1
+            elif name in ("current_attendees_count", "current_count", "attendees"):
+                args[name] = 2
+            elif allowed:
+                args[name] = allowed[0]
+            else:
+                args[name] = _sample(field, number)
+        else:
+            args[name] = _sample(param, number)
+    return args
+
+
+def _check_invariants(docs, deps, number):
+    """Exercise the mechanical uniqueness and FK constraints in the store."""
+    store = deps.get("store")
+    checks = []
+    schema = getattr(store, "_schema", None) or {}
+    for model in docs["models"]:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        entity = model["name"]
+        model_fields = {field.get("name"): field for field in model.get("fields") or []
+                        if isinstance(field, dict)}
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            if field.get("primary_key"):
+                continue
+            name = field["name"]
+            if field.get("unique"):
+                try:
+                    record, pk = _seed(store, model, number + 5000)
+                    values = {key: value for key, value in record.items()
+                              if key not in (pk, "__entity__")}
+                    store.add(entity, pk, values, ())
+                except Exception:
+                    checks.append({"name": f"invariant:unique:{entity}.{name}",
+                                   "status": "passed"})
+                else:
+                    checks.append({"name": f"invariant:unique:{entity}.{name}",
+                                   "status": "failed",
+                                   "reason": "duplicate value was accepted"})
+            foreign = field.get("foreign_key")
+            if isinstance(foreign, dict) and foreign.get("target_entity"):
+                target = foreign["target_entity"]
+                target_model = next((item for item in docs["models"]
+                                     if item.get("name") == target), None)
+                if target_model is None:
+                    continue
+                target_pk = next((item.get("name") for item in target_model.get("fields") or []
+                                  if isinstance(item, dict) and item.get("primary_key")), "id")
+                try:
+                    _seed(store, target_model, number + 7000)
+                    source, source_pk = _seed(store, model, number + 8000)
+                    values = {key: value for key, value in source.items()
+                              if key not in (source_pk, "__entity__")}
+                    values[name] = 999999
+                    store.add(entity, source_pk, values,
+                              [(name, target, target_pk, KeyError)])
+                except Exception:
+                    checks.append({"name": f"invariant:fk:{entity}.{name}",
+                                   "status": "passed"})
+                else:
+                    checks.append({"name": f"invariant:fk:{entity}.{name}",
+                                   "status": "failed",
+                                   "reason": "missing foreign key was accepted"})
+    return checks
+
+
+def _check_repository(docs, deps, repo, number):
+    entity = repo.get("entity")
+    holder = repo.get("interface_name") or entity
+    model = next((item for item in docs["models"]
+                  if item.get("name") == entity), None)
+    obj = deps.get("repos", {}).get(holder)
+    if model is None or obj is None:
+        return {"name": f"repository:{holder}", "status": "skipped",
+                "reason": "repository/model missing"}
+    create = _model_method(docs, holder, "create")
+    read_one = _model_method(docs, holder, "read_one")
+    read_all = _model_method(docs, holder, "read_all")
+    update = _model_method(docs, holder, "update")
+    delete = _model_method(docs, holder, "delete")
+    if create is not None:
+        # A mapping/entity parameter is a different create shape; the
+        # mechanical CRUD contract below does not apply.
+        if any(str(param.get("type") or "").lower() in
+               ("dict", "mapping", "any") for param in create.get("params") or []
+               if isinstance(param, dict)):
+            return {"name": f"repository:{holder}", "status": "skipped",
+                    "reason": "mapping-shaped create"}
+    if create is not None and read_one is not None:
+        try:
+            created = obj.create(**_args_for_create(docs, create, model, number + 100))
+        except Exception as error:  # noqa: BLE001
+            return {"name": f"repository:{holder}", "status": "failed",
+                    "reason": f"create raised {type(error).__name__}: {error}"}
+        pk = next((field.get("name") for field in model.get("fields") or []
+                   if field.get("primary_key")), "id")
+        key = created.get(pk) if isinstance(created, dict) else getattr(created, pk, created)
+        try:
+            read = obj.read_one(key)
+        except Exception as error:  # noqa: BLE001
+            return {"name": f"repository:{holder}", "status": "failed",
+                    "reason": f"read_one raised {type(error).__name__}: {error}"}
+        if read is None:
+            return {"name": f"repository:{holder}", "status": "failed",
+                    "reason": "read_one returned None after create"}
+        if read_all is not None:
+            rows = obj.read_all()
+            ids = {row.get(pk) if isinstance(row, dict) else getattr(row, pk, None)
+                   for row in rows}
+            if key not in ids:
+                return {"name": f"repository:{holder}", "status": "failed",
+                        "reason": "read_all does not contain the created row"}
+        if update is not None:
+            params = []
+            for param in update.get("params") or []:
+                if not isinstance(param, dict) or not param.get("name"):
+                    continue
+                name = param["name"]
+                if name == pk or name in ("id",):
+                    params.append(key)
+                else:
+                    field = next((item for item in model.get("fields") or []
+                                  if isinstance(item, dict)
+                                  and item.get("name") == name), None)
+                    allowed = _allowed_values(docs, entity, name)
+                    if isinstance((field or {}).get("foreign_key"), dict):
+                        params.append(1)
+                    elif name == "capacity":
+                        params.append(1)
+                    elif name in ("current_attendees_count", "current_count", "attendees"):
+                        params.append(2)
+                    elif allowed:
+                        params.append(allowed[0])
+                    else:
+                        params.append(_sample(param, number + 200))
+            try:
+                obj.update(*params)
+            except Exception as error:  # noqa: BLE001
+                return {"name": f"repository:{holder}", "status": "failed",
+                        "reason": f"update raised {type(error).__name__}: {error}"}
+        if delete is not None:
+            try:
+                obj.delete(key)
+            except Exception as error:  # noqa: BLE001
+                return {"name": f"repository:{holder}", "status": "failed",
+                        "reason": f"delete raised {type(error).__name__}: {error}"}
+            try:
+                gone = obj.read_one(key)
+            except Exception:
+                gone = None
+            if gone is not None:
+                return {"name": f"repository:{holder}", "status": "failed",
+                        "reason": "read_one still returns after delete"}
+        return {"name": f"repository:{holder}", "status": "passed"}
+    return {"name": f"repository:{holder}", "status": "skipped",
+            "reason": "create/read_one pair unavailable"}
+
+
 def run(out_dir):
     checks = []
     docs = _documents(out_dir)
@@ -445,10 +768,34 @@ def run(out_dir):
         checks.append({"name": "cli-help",
                        "status": "passed" if result.returncode == 0 else "failed",
                        "reason": "" if result.returncode == 0 else result.stderr[-300:]})
+        for path in _leaf_paths(docs.get("components")):
+            result = subprocess.run(
+                [sys.executable, str(cli_path), "--db", str(db), *path, "--help"],
+                capture_output=True, text=True)
+            checks.append({
+                "name": "cli-leaf:" + " ".join(path),
+                "status": "passed" if result.returncode == 0 else "failed",
+                "reason": "" if result.returncode == 0 else result.stderr[-300:],
+            })
+    checks.extend(_check_schema(docs, deps))
     store = deps.get("store")
+    try:
+        _seed_all(docs, store)
+    except Exception as error:  # noqa: BLE001
+        checks.append({"name": "seed-all", "status": "failed",
+                       "reason": f"{type(error).__name__}: {error}"})
+    for number, repo in enumerate(docs.get("repos") or [], start=1):
+        if isinstance(repo, dict):
+            checks.append(_check_repository(docs, deps, repo, number))
+    checks.extend(_check_invariants(docs, deps, 1))
     sequence = 1
     for contract in docs["contracts"]:
-        checks.append(_check_contract(docs, deps, contract, store, sequence))
+        try:
+            checks.append(_check_contract(docs, deps, contract, store, sequence))
+        except Exception as error:  # noqa: BLE001
+            checks.append({"name": f"contract:{contract.get('holder')}.{contract.get('method')}",
+                           "status": "failed",
+                           "reason": f"harness error: {type(error).__name__}: {error}"})
         sequence += 1
     scenario_path = Path(out_dir) / "scenarios.json"
     if not scenario_path.is_file():

@@ -382,9 +382,12 @@ A first generic runtime harness is in `tests/runtime/worker.py` and
 imports the generated package, checks `cli.py --help`, seeds models directly
 in a temporary store, and executes every scalar-effect method contract through
 the generated service/repository. Results are written to
-`out/validation/bench/acceptance/`; the harness now reports **60/60** passed
-after adding the first scenario fixtures. It is intentionally data-driven and
-does not edit generated code.
+`out/validation/bench/acceptance/`. The mechanical harness now reports
+**60/60 prompts passed**, **701 checks passed**, and **36 checks skipped**.
+The skips are explicit: repository methods without a create/read pair,
+contracts with only creates/no scalar effect, and state effects whose state
+precondition is not yet extracted. The harness is intentionally data-driven
+and does not edit generated code.
 
 The scenario pass exercised generic collection and record-create rules:
 `place_order` now creates one `OrderItem` per collection element, and a

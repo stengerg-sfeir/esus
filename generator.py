@@ -4869,7 +4869,11 @@ def _field_vocabulary(ctx, entity, field_name):
         return []
     values = [value.strip(" `'\"") for value in re.split(
         r",|\bor\b", match.group(1)) if value.strip(" `'\"")]
-    return values
+    # A prose continuation (`orders can be cancelled, cancelling an order...`)
+    # is not a status vocabulary. Only short identifier-like values qualify.
+    if all(re.fullmatch(r"[A-Za-z0-9_.-]+", value) for value in values):
+        return values
+    return []
 
 
 def _criterion_values(ctx, entity, field_name):
