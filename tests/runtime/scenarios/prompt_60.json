@@ -1,0 +1,77 @@
+{
+  "scenarios": [
+    {
+      "name": "confirm_order_reserves_stock_and_creates_invoice",
+      "setup": [
+        {
+          "entity": "Category",
+          "as": "category",
+          "values": {
+            "name": "General"
+          }
+        },
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Product",
+          "as": "product",
+          "values": {
+            "name": "Widget",
+            "category_id": {
+              "ref": "category.category_id"
+            },
+            "price": 10,
+            "stock_quantity": 5
+          }
+        },
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "customer_id": {
+              "ref": "customer.customer_id"
+            },
+            "status": "pending"
+          }
+        },
+        {
+          "entity": "OrderItem",
+          "as": "item",
+          "values": {
+            "order_id": {
+              "ref": "order.order_id"
+            },
+            "product_id": {
+              "ref": "product.product_id"
+            },
+            "quantity": 2
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderService",
+        "method": "confirm_order",
+        "args": [
+          {
+            "ref": "order.order_id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.status": "confirmed",
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Invoice": 1
+        }
+      }
+    }
+  ]
+}

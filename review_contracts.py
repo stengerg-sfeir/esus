@@ -288,6 +288,8 @@ def _effect_questions(ctx, index, effect, params):
         prompt = (f"By how much should `{target}` "
                   f"{effect['op']}?")
         choices = [("1", "1")]
+        if isinstance(effect.get("by"), str):
+            choices.insert(0, (effect["by"], effect["by"]))
         choices += [(name, name) for name in _effect_params(
             field_name, params, effect["op"])]
     else:
@@ -617,6 +619,33 @@ def _state_transition(ctx, holder, method, text):
     }
 
 
+def _stock_reservation_effect(ctx, role, text):
+    """A generic `reserve stock` description as a decrement contract effect.
+
+    The field name comes from the model (any numeric field whose name contains
+    `stock`), the entity from that model, and the amount from the related
+    `quantity` the prose names. The exact loop remains model-written; the
+    contract tells the body what must change.
+    """
+    if role != "service" or "stock" not in text.lower():
+        return None
+    if not re.search(r"\b(reserv|decreas|reduc|deduct)", text, re.IGNORECASE):
+        return None
+    for class_name, field_name, field_type, field in _fields(ctx):
+        if "stock" not in normalize(field_name):
+            continue
+        if field_type not in ("int", "integer", "float", "double",
+                              "decimal", "number"):
+            continue
+        return {
+            "target": f"{class_name.lower()}.{field_name}",
+            "op": "decrement",
+            "by": "quantity",
+            "write": _repo_call(ctx, class_name, "update_"),
+        }
+    return None
+
+
 def _propose(ctx, holder, method, role, requirement):
     """One proposal from the method's description/requirement, or None."""
     description = method.get("description") or ""
@@ -681,6 +710,11 @@ def _propose(ctx, holder, method, role, requirement):
         if not any(effect.get("target") == target for effect in effects):
             effects.append(transition["effect"])
         bindings.append(transition["binding"])
+    stock_effect = _stock_reservation_effect(ctx, role, text)
+    if stock_effect and not any(
+            effect.get("target") == stock_effect["target"]
+            and effect.get("op") == "decrement" for effect in effects):
+        effects.append(stock_effect)
     reads = _related_reads(ctx, holder, text) if role == "repository" else []
     derives = [] if effects or creates else _derived_values(ctx, method, text)
     if not effects and not creates and not reads and not derives:
@@ -1006,6 +1040,51 @@ def _finalize(proposal, answers, prompt_sha, ctx):
     if prompt_sha is not None:
         record["requirements_sha"] = prompt_sha
     return record
+
+
+def add_inferred_stock_effects(output_dir):
+    """Append a stock reservation/decrement effect to existing contracts.
+
+    This is the review's deterministic consequence of a prose invariant:
+    `reserves the stock ... by the quantity` names a field (from the model)
+    and an operation (decrement), not a free-form behavior. It is stored in
+    the normal contract sidecar, so regeneration sees it and the body is
+    checked against it.
+    """
+    ctx = generator.load_context(str(output_dir))
+    records, _dropped = contract_rules.load_method_contracts(
+        str(output_dir), load_requirements(str(output_dir)))
+    changed = 0
+    for service in ctx.get("services") or []:
+        if not isinstance(service, dict):
+            continue
+        holder = service.get("service_name")
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            effect = _stock_reservation_effect(
+                ctx, "service", method.get("description") or "")
+            if effect is None:
+                continue
+            record = next((item for item in records
+                           if item.get("holder") == holder
+                           and item.get("method") == method["name"]), None)
+            if record is None:
+                record = {"holder": holder, "method": method["name"],
+                          "decided_by": "inferred",
+                          "effects": [], "creates": [], "bindings": [],
+                          "reads": [], "derives": [], "preconditions": [],
+                          "order": [], "forbid": []}
+                records.append(record)
+            effects = record.setdefault("effects", [])
+            if any(item.get("target") == effect["target"]
+                   and item.get("op") == "decrement" for item in effects):
+                continue
+            effects.append(effect)
+            changed += 1
+    if changed:
+        contract_rules.save_method_contracts(str(output_dir), records)
+    return changed
 
 
 def run_review(output_dir, input_fn=input, out_fn=print):

@@ -1,0 +1,30 @@
+{
+  "scenarios": [
+    {
+      "name": "confirm pending order",
+      "setup": [
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "state": "pending"
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderService",
+        "method": "confirm_order",
+        "args": [
+          {
+            "ref": "order.id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.state": "confirmed"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "scenarios": [
+    {
+      "name": "place_order_reserves_stock",
+      "setup": [
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Product",
+          "as": "product",
+          "values": {
+            "name": "Widget",
+            "stock_quantity": 5
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderManagementService",
+        "method": "place_order",
+        "args": [
+          {
+            "ref": "customer.id"
+          },
+          [
+            {
+              "product_id": {
+                "ref": "product.id"
+              },
+              "quantity": 2
+            }
+          ]
+        ]
+      },
+      "expect": {
+        "fields": {
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Order": 1,
+          "OrderItem": 1
+        }
+      }
+    }
+  ]
+}

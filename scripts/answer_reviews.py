@@ -148,6 +148,9 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
         str(directory), input_fn=lambda _prompt: "1")
 
     counts["contracts"] = _answer_contracts(directory)
+    inferred = review_contracts.add_inferred_stock_effects(directory)
+    if inferred:
+        counts["inferred-stock-effects"] = (inferred, inferred)
     return counts
 
 

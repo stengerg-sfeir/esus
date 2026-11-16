@@ -8968,6 +8968,7 @@ def _body_complaints(body, info, module_text, references_text, files,
     found += _positional_dict_complaints(tree, references_text)
     found += _scalar_return_complaints(tree, references_text)
     found += _repository_call_complaints(tree, references_text)
+    found += _entity_create_usage_complaints(tree, references_text)
     found += _store_operator_complaints(tree)
     return found
 
@@ -9422,6 +9423,79 @@ def _normalise_repository_returns(body, info, filename):
     return text.splitlines()
 
 
+def _normalise_create_return_usage(body, references_text):
+    """Use the created record's key when a body treats the record as an id.
+
+    `order_id = OrderRepository.create(...)` returns the `Order` dataclass in
+    the generated repository, not an integer. A later
+    `read_one(id=order_id)` or `OrderItemRepository.create(order_id=order_id)`
+    therefore needs `order_id.id`. The rewrite is syntax-driven and only
+    applies to variables assigned directly from a repository `create`.
+    """
+    if not body:
+        return list(body)
+    returns = {}
+    for line in _method_signatures(references_text):
+        match = re.match(r"^(\w+)\.(\w+)\(.*\)\s*->\s*(.+?)\s*$", line)
+        if match:
+            returns[(match.group(1), match.group(2))] = match.group(3).strip()
+    if not returns:
+        return list(body)
+    wrapped = "def _body(self):\n" + "\n".join(
+        ("    " + line) if line.strip() else "" for line in body)
+    try:
+        tree = ast.parse(wrapped)
+    except SyntaxError:
+        return list(body)
+    created = {}
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Call)):
+            continue
+        func = node.value.func
+        if not isinstance(func, ast.Attribute):
+            continue
+        repo = _repo_name(func.value)
+        if repo is None:
+            continue
+        declared = returns.get((repo, func.attr))
+        if not declared or declared.lower() in ("none", "nontype", "int", "str",
+                                                "bool", "float", "uuid"):
+            continue
+        created[node.targets[0].id] = True
+    if not created:
+        return list(body)
+
+    class Rewrite(ast.NodeTransformer):
+        def visit_Call(self, node):
+            node = self.generic_visit(node)
+            if not (isinstance(node.func, ast.Attribute)
+                    and node.func.attr in ("read_one", "update", "delete",
+                                            "create")):
+                return node
+            for keyword in node.keywords:
+                if (keyword.arg == "id" or (keyword.arg or "").endswith("_id")) \
+                        and isinstance(keyword.value, ast.Name) \
+                        and keyword.value.id in created:
+                    keyword.value = ast.Attribute(
+                        value=keyword.value, attr="id", ctx=ast.Load())
+            if node.func.attr in ("read_one", "update", "delete"):
+                for index, arg in enumerate(node.args):
+                    if isinstance(arg, ast.Name) and arg.id in created:
+                        node.args[index] = ast.Attribute(
+                            value=arg, attr="id", ctx=ast.Load())
+            return node
+
+    try:
+        rewritten = ast.fix_missing_locations(Rewrite().visit(tree))
+        text = ast.unparse(rewritten)
+        lines = text.splitlines()[1:]
+        return [line[4:] if line.startswith("    ") else line for line in lines]
+    except (SyntaxError, ValueError):
+        return list(body)
+
+
 def _normalise_repository_keywords(body, references_text):
     """Pass a repository call's values positionally when its keywords are
     unambiguous aliases of the declared parameters.
@@ -9483,6 +9557,75 @@ def _normalise_repository_keywords(body, references_text):
             continue
         rewritten[index] = line[:start] + replacement + line[end:]
     return rewritten, labels
+
+
+def _entity_create_usage_complaints(tree, references_text):
+    """Reject an entity returned by `create` used as a scalar id.
+
+    Repositories return the created model; a body that assigns
+    `order_id = OrderRepository.create(...)` then calls
+    `read_one(id=order_id)` has mistaken the record for its key. The signatures
+    come from the generated repositories module, so this is independent of the
+    domain and of the method name.
+    """
+    returns = {}
+    for line in _method_signatures(references_text):
+        match = re.match(r"^(\w+)\.(\w+)\(.*\)\s*->\s*(.+?)\s*$", line)
+        if match:
+            returns[(match.group(1), match.group(2))] = match.group(3).strip()
+    if not returns:
+        return []
+    scalar = re.compile(
+        r"^(?:int|bool|float|str|None|NoneType|UUID|Any|dict|list\[)"
+        r"(?:\s*\|.*)?$", re.IGNORECASE)
+    created = {}
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Call)):
+            continue
+        func = node.value.func
+        if not isinstance(func, ast.Attribute):
+            continue
+        repo = _repo_name(func.value)
+        if repo is None:
+            continue
+        declared = returns.get((repo, func.attr))
+        if not declared or scalar.match(declared):
+            continue
+        created[node.targets[0].id] = f"{repo}.{func.attr}"
+    found = []
+    for name, call in created.items():
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            for keyword in node.keywords:
+                if keyword.arg == "id" or (keyword.arg or "").endswith("_id"):
+                    if isinstance(keyword.value, ast.Name) and keyword.value.id == name:
+                        found.append(
+                            f"`{name}` is assigned from `{call}`, which returns "
+                            "an entity, but is passed as an id; read the created "
+                            f"record's key (`{name}.id` or its declared primary key)")
+                        break
+            if found and found[-1].startswith(f"`{name}`"):
+                break
+        # A positional id into a repository read/update/delete is the same
+        # mistake without a keyword to inspect.
+        if any(item.startswith(f"`{name}`") for item in found):
+            continue
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr in ("read_one", "update", "delete")):
+                continue
+            if any(isinstance(arg, ast.Name) and arg.id == name
+                   for arg in node.args):
+                found.append(
+                    f"`{name}` is assigned from `{call}`, which returns an "
+                    f"entity, but is passed as an id to `{node.func.attr}`; "
+                    f"use `{name}.id` or its declared primary key")
+                break
+    return found
 
 
 def _keyword_call_complaints(tree, references_text):
@@ -10361,6 +10504,8 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 nonlocal keyword_changes
                 body = _qualify_error_names(_clean_body(raw), error_names)
                 body = _normalise_repository_returns(body, info, filename)
+                body = _normalise_create_return_usage(
+                    body, files.get("repositories.py") or "")
                 body, keyword_changes = _normalise_repository_keywords(
                     body, files.get("repositories.py") or "")
                 refusal = _body_refusal(body, _module_names(text),

@@ -193,6 +193,12 @@ def _check_contract(docs, deps, contract, store, sequence):
     if not effects:
         return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
                 "reason": "contract has no scalar effect"}
+    if not bindings and any(
+            str(param.get("type") or "").lower() in
+            ("array", "list", "dict", "mapping", "any")
+            for param in method.get("params") or [] if isinstance(param, dict)):
+        return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
+                "reason": "complex collection parameter; scenario needed"}
     model_by_entity = {m.get("name"): m for m in docs["models"]}
     by_lower = {str(name).lower(): name for name in model_by_entity}
     binding_records = {}
@@ -354,6 +360,8 @@ def _run_scenario(docs, deps, store, scenario, sequence):
         refs[alias] = record
         refs[f"{alias}.id"] = record.get(pk)
         refs[f"{alias}.{pk}"] = record.get(pk)
+    row_baseline = {entity: len(store.all(entity))
+                    for entity in model_by_entity}
     when = scenario.get("when") or {}
     holder = when.get("service") or when.get("repository")
     target = deps.get("services", {}).get(holder) or deps.get("repos", {}).get(holder)
@@ -403,7 +411,7 @@ def _run_scenario(docs, deps, store, scenario, sequence):
         if entity not in model_by_entity:
             return {"name": name, "status": "failed",
                     "reason": f"unknown expected entity {entity!r}"}
-        count = len(store.all(entity))
+        count = len(store.all(entity)) - row_baseline.get(entity, 0)
         if count != expected:
             return {"name": name, "status": "failed",
                     "reason": f"{entity} row count is {count}, expected {expected}"}
@@ -443,6 +451,9 @@ def run(out_dir):
         checks.append(_check_contract(docs, deps, contract, store, sequence))
         sequence += 1
     scenario_path = Path(out_dir) / "scenarios.json"
+    if not scenario_path.is_file():
+        scenario_path = Path(__file__).resolve().parent / "scenarios" / (
+            Path(out_dir).name + ".json")
     if scenario_path.is_file():
         try:
             scenarios = json.loads(scenario_path.read_text(encoding="utf-8"))
