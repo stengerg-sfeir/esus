@@ -5880,8 +5880,10 @@ def emit_cli(ctx, bindings, stats):
     repo_classes = [codegen.sanitize(r.get("interface_name") or r.get("entity"), "Repository")
                     for r in ctx["repositories"]]
     port_names = {normalize(r.get("interface_name") or "") for r in ctx["repositories"]}
-    service_classes = [codegen.sanitize(s["service_name"], "Service") for s in ctx["services"]
-                       if normalize(s["service_name"]) not in port_names]
+    service_classes = [codegen.sanitize(s["service_name"], "Service")
+                       for s in ctx["services"]
+                       if normalize(s["service_name"]) not in port_names
+                       and not normalize(s["service_name"]).endswith("repository")]
     model_names = [codegen.sanitize(m["name"], "Model") for m in ctx["models"]]
     leaves, actions, argv, targets, assembled = _leaf_scan(ctx, bindings, stats)
     for leaf in leaves:

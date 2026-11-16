@@ -544,8 +544,9 @@ def _state_transition(ctx, holder, method, text):
         # "the order status is updated to 'confirmed'" is the same transition
         # without the source state spelled as `from ... to ...`.
         updated = re.search(
-            r"\bstatus\s+(?:is\s+)?(?:updated|set|changed)\s+to\s+"
-            r"['\"]?([a-z_]+)", text, re.IGNORECASE)
+            r"\b(?:status\s+(?:is\s+)?(?:updated|set|changed)|"
+            r"(?:updates?|sets?|changes?)\s+(?:the\s+)?(?:order\s+)?status)"
+            r"\s+to\s+['\"]?([a-z_]+)", text, re.IGNORECASE)
         if updated:
             target = updated.group(1).strip(".'").lower()
             source = re.search(r"\b(?:a|an)\s+([a-z_]+)\s+order\b",

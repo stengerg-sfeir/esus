@@ -369,7 +369,7 @@ All 60 prompt directories now probe with **zero blockers** and have a
 generated package. `generator.py` reports:
 
 - **777** methods;
-- **64** bodies written provisionally by the model;
+- **62** bodies written provisionally by the model;
 - **0** documented stubs remaining after the generic contract and ownership
   repairs.
 
@@ -377,6 +377,16 @@ generated package. `generator.py` reports:
 exception is the degenerate `prompt_02` calculator, whose `app.py` expects its
 three runtime arguments rather than `--help`. Per-prompt counts are in
 `out/validation/bench/summary.json`.
+
+A first generic runtime harness is in `tests/runtime/worker.py` and
+`scripts/run_bench_acceptance.py`. It runs one fresh interpreter per prompt,
+imports the generated package, checks `cli.py --help`, seeds models directly
+in a temporary store, and executes every scalar-effect method contract through
+the generated service/repository. Results are written to
+`out/validation/bench/acceptance/`; all 60 prompts pass. It is intentionally
+data-driven and does not edit generated code. The harness currently skips
+contracts with only creates or no scalar effect; those need the scenario DSL
+described above.
 
 The generator was also hardened to defer annotations (undefined type names
 such as `UUID` no longer abort import), normalize generic `List<T>`/`Map<K,V>`
