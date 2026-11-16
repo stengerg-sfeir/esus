@@ -14,6 +14,7 @@ import importlib
 import json
 import re
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import traceback
@@ -482,13 +483,16 @@ def _cli_value(docs, name, declared, number):
             if normalize(field["name"]) == normalize(key):
                 fields.append((model.get("name"), field))
     field = fields[0][1] if fields else None
-    kind = str((field or {}).get("type") or declared or "").lower()
+    kind = str(declared or (field or {}).get("type") or "").lower()
     if field is not None:
         allowed = _allowed_values(docs, fields[0][0], field["name"])
-        if allowed:
+        if allowed and kind in ("str", "string", "text"):
             return allowed[0]
-    if "date" in key or "time" in key:
-        return "2024-01-01" if kind != "datetime" else "2024-01-01T00:00:00"
+    if kind in ("date", "datetime", "timestamp") or "date" in key or "time" in key \
+            or key.endswith("_at") or "created" in key or "updated" in key:
+        if kind == "date" or "date" in key or key.endswith("_at"):
+            return "2024-01-01"
+        return "2024-01-01T00:00:00"
     if kind in ("int", "integer"):
         if key.endswith("id") or "capacity" in key:
             return "1"
@@ -507,12 +511,19 @@ def _cli_value(docs, name, declared, number):
 def _cli_args(docs, node, number):
     args = []
     for option in node.get("options") or []:
-        if not isinstance(option, dict) or not option.get("required"):
+        if not isinstance(option, dict):
             continue
         name = option.get("name")
         if not isinstance(name, str) or not name:
             continue
         declared = str(option.get("type") or "").lower()
+        if not option.get("required"):
+            if str(node.get("name") or "").lower() in ("delete", "remove"):
+                continue
+            if declared in ("bool", "boolean"):
+                continue
+            if any(word in name for word in ("help", "version", "output", "file", "path")):
+                continue
         args.append(name)
         value = _cli_value(docs, name, declared, number)
         if value is not None:
@@ -817,6 +828,17 @@ def _check_repository(docs, deps, repo, number):
         return {"name": f"repository:{holder}", "status": "passed"}
     return {"name": f"repository:{holder}", "status": "skipped",
             "reason": "create/read_one pair unavailable"}
+
+
+def _run_cli_command(cli, docs, cli_path, path, node, variant):
+    db = Path(tempfile.mkdtemp(prefix="esus-cli-")) / "cli.sqlite3"
+    built = cli.build_cli(str(db))
+    deps = built[1] if isinstance(built, tuple) else built
+    _seed_all(docs, deps["store"])
+    args = [sys.executable, str(cli_path), "--db", str(db), *path]
+    args += _cli_args(docs, node, variant)
+    result = subprocess.run(args, capture_output=True, text=True)
+    return result
 
 
 def run(out_dir):
