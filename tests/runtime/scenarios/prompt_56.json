@@ -1,0 +1,50 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:OrderProduct update",
+      "when": {
+        "cli": [
+          "OrderProduct",
+          "update",
+          "--order-id",
+          "1",
+          "--quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderProduct add",
+      "when": {
+        "cli": [
+          "OrderProduct",
+          "add",
+          "--product-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderProduct delete",
+      "when": {
+        "cli": [
+          "OrderProduct",
+          "delete",
+          "--order-id",
+          "1",
+          "--product-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -72,6 +72,304 @@
           "Invoice": 1
         }
       }
+    },
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli": [
+          "Customer",
+          "add",
+          "--name",
+          "value1",
+          "--email",
+          "cli1@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli": [
+          "Customer",
+          "update",
+          "--customer-id",
+          "1",
+          "--name",
+          "value2",
+          "--email",
+          "cli2@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order search",
+      "when": {
+        "cli": [
+          "Order",
+          "search",
+          "--customer-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli": [
+          "Order",
+          "add",
+          "--customer-id",
+          "1",
+          "--status",
+          "pending",
+          "--created-at",
+          "2024-01-01",
+          "--confirmed-at",
+          "2024-01-01",
+          "--shipped-at",
+          "2024-01-01",
+          "--cancelled-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order confirm",
+      "when": {
+        "cli": [
+          "Order",
+          "confirm",
+          "--order-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order cancel",
+      "when": {
+        "cli": [
+          "Order",
+          "cancel",
+          "--order-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order ship",
+      "when": {
+        "cli": [
+          "Order",
+          "ship",
+          "--order-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli": [
+          "Order",
+          "update",
+          "--order-id",
+          "1",
+          "--customer-id",
+          "1",
+          "--status",
+          "pending",
+          "--created-at",
+          "2024-01-01",
+          "--confirmed-at",
+          "2024-01-01",
+          "--shipped-at",
+          "2024-01-01",
+          "--cancelled-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli": [
+          "Order",
+          "delete",
+          "--order-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Invoice search",
+      "when": {
+        "cli": [
+          "Invoice",
+          "search",
+          "--customer-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Invoice add",
+      "when": {
+        "cli": [
+          "Invoice",
+          "add",
+          "--order-id",
+          "1",
+          "--total-amount",
+          "2",
+          "--generated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--name",
+          "value12",
+          "--category-id",
+          "1",
+          "--price",
+          "1.0",
+          "--stock-quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--product-id",
+          "1",
+          "--stock-quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli": [
+          "Product",
+          "delete",
+          "--product-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product search",
+      "when": {
+        "cli": [
+          "Product",
+          "search",
+          "--category-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Category add",
+      "when": {
+        "cli": [
+          "Category",
+          "add",
+          "--name",
+          "value16"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Category update",
+      "when": {
+        "cli": [
+          "Category",
+          "update",
+          "--category-id",
+          "1",
+          "--name",
+          "value17"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderItem add",
+      "when": {
+        "cli": [
+          "OrderItem",
+          "add",
+          "--order-id",
+          "1",
+          "--product-id",
+          "1",
+          "--quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
     }
   ]
 }

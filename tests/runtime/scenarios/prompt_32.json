@@ -25,6 +25,64 @@
           "order.state": "confirmed"
         }
       }
+    },
+    {
+      "name": "cli:Order confirm",
+      "when": {
+        "cli": [
+          "Order",
+          "confirm",
+          "--order-id",
+          "value1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order ship",
+      "when": {
+        "cli": [
+          "Order",
+          "ship",
+          "--order-id",
+          "value2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order cancel",
+      "when": {
+        "cli": [
+          "Order",
+          "cancel",
+          "--order-id",
+          "value3"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli": [
+          "Order",
+          "update",
+          "--order-id",
+          "1",
+          "--state",
+          "value4"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
     }
   ]
 }

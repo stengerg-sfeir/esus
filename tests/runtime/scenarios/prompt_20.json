@@ -1,0 +1,22 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Sale update",
+      "when": {
+        "cli": [
+          "Sale",
+          "update",
+          "--product-id",
+          "1",
+          "--quantity",
+          "2",
+          "--sale-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,306 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Project add",
+      "when": {
+        "cli": [
+          "Project",
+          "add",
+          "--name",
+          "value1",
+          "--description",
+          "value1",
+          "--created-at",
+          "2024-01-01",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project list",
+      "when": {
+        "cli": [
+          "Project",
+          "list",
+          "--name",
+          "value2",
+          "--description",
+          "value2",
+          "--created-at",
+          "2024-01-01",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project update",
+      "when": {
+        "cli": [
+          "Project",
+          "update",
+          "--id",
+          "1",
+          "--name",
+          "value3",
+          "--description",
+          "value3",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project delete",
+      "when": {
+        "cli": [
+          "Project",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli": [
+          "Task",
+          "add",
+          "--title",
+          "value5",
+          "--description",
+          "value5",
+          "--project-id",
+          "1",
+          "--created-at",
+          "2024-01-01",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli": [
+          "Task",
+          "list",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli": [
+          "Task",
+          "update",
+          "--id",
+          "1",
+          "--title",
+          "value7",
+          "--description",
+          "value7",
+          "--project-id",
+          "1",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli": [
+          "Task",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember add",
+      "when": {
+        "cli": [
+          "TeamMember",
+          "add",
+          "--name",
+          "value9",
+          "--email",
+          "cli9@example.test",
+          "--role",
+          "value9",
+          "--created-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember list",
+      "when": {
+        "cli": [
+          "TeamMember",
+          "list",
+          "--name",
+          "value10",
+          "--email",
+          "cli10@example.test",
+          "--role",
+          "value10",
+          "--created-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember update",
+      "when": {
+        "cli": [
+          "TeamMember",
+          "update",
+          "--id",
+          "1",
+          "--name",
+          "value11",
+          "--email",
+          "cli11@example.test",
+          "--role",
+          "value11",
+          "--created-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember delete",
+      "when": {
+        "cli": [
+          "TeamMember",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment add",
+      "when": {
+        "cli": [
+          "TaskAssignment",
+          "add",
+          "--task-id",
+          "1",
+          "--member-id",
+          "1",
+          "--responsibility-type",
+          "value13",
+          "--assigned-at",
+          "s assigned_at timestamp must be on or after the task",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment list",
+      "when": {
+        "cli": [
+          "TaskAssignment",
+          "list",
+          "--task-id",
+          "1",
+          "--member-id",
+          "1",
+          "--responsibility-type",
+          "value14",
+          "--assigned-at",
+          "s assigned_at timestamp must be on or after the task",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment update",
+      "when": {
+        "cli": [
+          "TaskAssignment",
+          "update",
+          "--id",
+          "1",
+          "--task-id",
+          "1",
+          "--member-id",
+          "1",
+          "--responsibility-type",
+          "value15",
+          "--assigned-at",
+          "s assigned_at timestamp must be on or after the task"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment delete",
+      "when": {
+        "cli": [
+          "TaskAssignment",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

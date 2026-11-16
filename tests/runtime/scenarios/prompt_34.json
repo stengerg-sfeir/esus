@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli": [
+          "Order",
+          "add",
+          "--order-id",
+          "value1",
+          "--product-id",
+          "value1",
+          "--quantity",
+          "value1",
+          "--unit-price",
+          "value1",
+          "--total-price",
+          "value1",
+          "--is-valid",
+          "value1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

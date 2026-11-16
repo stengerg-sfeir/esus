@@ -1,0 +1,74 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Room delete",
+      "when": {
+        "cli": [
+          "Room",
+          "delete",
+          "--room-type",
+          "value1",
+          "--capacity",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest delete",
+      "when": {
+        "cli": [
+          "Guest",
+          "delete",
+          "--name",
+          "value2",
+          "--email",
+          "cli2@example.test",
+          "--phone",
+          "value2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Booking update",
+      "when": {
+        "cli": [
+          "Booking",
+          "update",
+          "--room-id",
+          "1",
+          "--guest-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Booking delete",
+      "when": {
+        "cli": [
+          "Booking",
+          "delete",
+          "--room-id",
+          "1",
+          "--guest-id",
+          "1",
+          "--start-date",
+          "2024-01-01",
+          "--end-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

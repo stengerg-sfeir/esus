@@ -1,0 +1,74 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Note add",
+      "when": {
+        "cli": [
+          "Note",
+          "add",
+          "--title",
+          "value1",
+          "--content",
+          "value1",
+          "--creation-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Note list",
+      "when": {
+        "cli": [
+          "Note",
+          "list",
+          "--title",
+          "value2",
+          "--content",
+          "value2",
+          "--creation-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Note update",
+      "when": {
+        "cli": [
+          "Note",
+          "update",
+          "--id",
+          "1",
+          "--title",
+          "value3",
+          "--content",
+          "value3",
+          "--creation-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Note delete",
+      "when": {
+        "cli": [
+          "Note",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

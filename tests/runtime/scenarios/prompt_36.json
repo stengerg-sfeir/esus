@@ -1,0 +1,84 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--name",
+          "value1",
+          "--category-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--product-id",
+          "1",
+          "--name",
+          "value2",
+          "--category-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli": [
+          "Product",
+          "delete",
+          "--product-id",
+          "1",
+          "--name",
+          "value3"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Category add",
+      "when": {
+        "cli": [
+          "Category",
+          "add",
+          "--name",
+          "value4"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Category delete",
+      "when": {
+        "cli": [
+          "Category",
+          "delete",
+          "--category-id",
+          "1",
+          "--name",
+          "value5"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

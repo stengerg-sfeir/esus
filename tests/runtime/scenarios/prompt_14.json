@@ -1,0 +1,75 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Project add",
+      "when": {
+        "cli": [
+          "Project",
+          "add",
+          "--name",
+          "value1",
+          "--description",
+          "value1",
+          "--status",
+          "value1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project update",
+      "when": {
+        "cli": [
+          "Project",
+          "update",
+          "--project-id",
+          "1",
+          "--name",
+          "value2",
+          "--description",
+          "value2",
+          "--status",
+          "value2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project list",
+      "when": {
+        "cli": [
+          "Project",
+          "list",
+          "--name",
+          "value3",
+          "--description",
+          "value3",
+          "--status",
+          "value3"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project delete",
+      "when": {
+        "cli": [
+          "Project",
+          "delete",
+          "--project-id",
+          "1",
+          "--is-deleted"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

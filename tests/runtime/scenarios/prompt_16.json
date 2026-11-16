@@ -1,0 +1,60 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli": [
+          "Customer",
+          "add",
+          "--first-name",
+          "value1",
+          "--last-name",
+          "value1",
+          "--email",
+          "cli1@example.test",
+          "--phone",
+          "value1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli": [
+          "Customer",
+          "update",
+          "--customer-id",
+          "1",
+          "--first-name",
+          "value2",
+          "--last-name",
+          "value2",
+          "--email",
+          "cli2@example.test",
+          "--phone",
+          "value2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli": [
+          "Customer",
+          "delete",
+          "--customer-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

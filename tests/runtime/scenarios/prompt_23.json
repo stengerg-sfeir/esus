@@ -1,0 +1,164 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Author add",
+      "when": {
+        "cli": [
+          "Author",
+          "add",
+          "--name",
+          "value1",
+          "--email",
+          "cli1@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Author update",
+      "when": {
+        "cli": [
+          "Author",
+          "update",
+          "--author-id",
+          "1",
+          "--name",
+          "value2",
+          "--email",
+          "cli2@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Author delete",
+      "when": {
+        "cli": [
+          "Author",
+          "delete",
+          "--author-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Post add",
+      "when": {
+        "cli": [
+          "Post",
+          "add",
+          "--title",
+          "value4",
+          "--content",
+          "value4",
+          "--author-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Post update",
+      "when": {
+        "cli": [
+          "Post",
+          "update",
+          "--post-id",
+          "1",
+          "--title",
+          "value5",
+          "--content",
+          "value5"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Post delete",
+      "when": {
+        "cli": [
+          "Post",
+          "delete",
+          "--post-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tag add",
+      "when": {
+        "cli": [
+          "Tag",
+          "add",
+          "--post-id",
+          "1",
+          "--tag-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tag update",
+      "when": {
+        "cli": [
+          "Tag",
+          "update",
+          "--tag-id",
+          "1",
+          "--name",
+          "value8"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tag delete",
+      "when": {
+        "cli": [
+          "Tag",
+          "delete",
+          "--tag-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:PostTag add",
+      "when": {
+        "cli": [
+          "PostTag",
+          "add",
+          "--post-id",
+          "1",
+          "--tag-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

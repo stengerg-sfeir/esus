@@ -1,0 +1,56 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Event add",
+      "when": {
+        "cli": [
+          "Event",
+          "add",
+          "--title",
+          "value1",
+          "--date",
+          "2024-01-01",
+          "--capacity",
+          "1",
+          "--current-attendees-count",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Event list",
+      "when": {
+        "cli": [
+          "Event",
+          "list",
+          "--title",
+          "value2",
+          "--date",
+          "2024-01-01",
+          "--capacity",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Registration cancel",
+      "when": {
+        "cli": [
+          "Registration",
+          "cancel",
+          "--registration-id",
+          "value3"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

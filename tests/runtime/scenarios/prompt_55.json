@@ -1,0 +1,36 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--name",
+          "value1",
+          "--stock-quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--id",
+          "1",
+          "--stock-quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

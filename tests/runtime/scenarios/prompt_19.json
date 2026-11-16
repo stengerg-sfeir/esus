@@ -1,0 +1,88 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli": [
+          "Task",
+          "add",
+          "--title",
+          "value1",
+          "--description",
+          "value1",
+          "--status",
+          "s status must be one of ",
+          "--due-date",
+          "pending",
+          "--priority",
+          "low"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli": [
+          "Task",
+          "update",
+          "--id",
+          "1",
+          "--title",
+          "value2",
+          "--description",
+          "value2",
+          "--status",
+          "s status must be one of ",
+          "--due-date",
+          "pending",
+          "--priority",
+          "low"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli": [
+          "Task",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task export",
+      "when": {
+        "cli": [
+          "Task",
+          "export"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task import",
+      "when": {
+        "cli": [
+          "Task",
+          "import"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Account add",
+      "when": {
+        "cli": [
+          "Account",
+          "add",
+          "--customer-id",
+          "1",
+          "--balance",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer list",
+      "when": {
+        "cli": [
+          "Customer",
+          "list",
+          "--name",
+          "value2",
+          "--email",
+          "cli2@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

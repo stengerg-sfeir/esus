@@ -1,0 +1,76 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--sku",
+          "value1",
+          "--name",
+          "value1",
+          "--category",
+          "value1",
+          "--price",
+          "2",
+          "--stock-quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--id",
+          "1",
+          "--name",
+          "value2",
+          "--category",
+          "value2",
+          "--price",
+          "2",
+          "--stock-quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli": [
+          "Product",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product search",
+      "when": {
+        "cli": [
+          "Product",
+          "search",
+          "--category",
+          "value4"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

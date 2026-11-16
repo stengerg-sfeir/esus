@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli": [
+          "Task",
+          "update",
+          "--task-id",
+          "1",
+          "--status",
+          "value1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

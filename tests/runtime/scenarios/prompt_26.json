@@ -1,0 +1,47 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Loan add",
+      "when": {
+        "cli": [
+          "Loan",
+          "add",
+          "--book-id",
+          "1",
+          "--member-id",
+          "1",
+          "--loan-date",
+          "2024-01-01",
+          "--due-date",
+          "2024-01-01",
+          "--is-active"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan update",
+      "when": {
+        "cli": [
+          "Loan",
+          "update",
+          "--id",
+          "1",
+          "--book-id",
+          "1",
+          "--member-id",
+          "1",
+          "--loan-date",
+          "2024-01-01",
+          "--due-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

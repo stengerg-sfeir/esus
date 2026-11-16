@@ -371,7 +371,8 @@ def _resolve(value, refs):
     return value
 
 
-def _run_scenario(docs, deps, store, scenario, sequence):
+def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
+                  cli_module=None):
     name = f"scenario:{scenario.get('name') or 'unnamed'}"
     refs = {}
     model_by_entity = {m.get("name"): m for m in docs["models"]}
@@ -396,6 +397,28 @@ def _run_scenario(docs, deps, store, scenario, sequence):
     row_baseline = {entity: len(store.all(entity))
                     for entity in model_by_entity}
     when = scenario.get("when") or {}
+    if "cli" in when:
+        if cli_path is None or db is None:
+            return {"name": name, "status": "skipped",
+                    "reason": "CLI path/database unavailable"}
+        cli_args = _resolve(when.get("cli") or [], refs)
+        if not isinstance(cli_args, list):
+            cli_args = [str(cli_args)]
+        if cli_module is not None:
+            db = Path(tempfile.mkdtemp(prefix="esus-cli-scenario-")) / "cli.sqlite3"
+            built = cli_module.build_cli(str(db))
+            fresh = built[1] if isinstance(built, tuple) else built
+            _seed_all(docs, fresh["store"])
+        result = subprocess.run(
+            [sys.executable, str(cli_path), "--db", str(db), *map(str, cli_args)],
+            capture_output=True, text=True)
+        expected = (scenario.get("expect") or {}).get("error")
+        if result.returncode == 0 and not expected:
+            return {"name": name, "status": "passed"}
+        if expected and expected in (result.stderr + result.stdout):
+            return {"name": name, "status": "passed"}
+        return {"name": name, "status": "failed",
+                "reason": (result.stderr or result.stdout or "CLI failed")[-350:]}
     holder = when.get("service") or when.get("repository")
     target = deps.get("services", {}).get(holder) or deps.get("repos", {}).get(holder)
     if target is None:
@@ -876,6 +899,17 @@ def _run_cli_command(cli, docs, cli_path, path, node, variant):
     return result
 
 
+def _scenario_path(out_dir):
+    # The checked-in/generated suite is the complete one; a local
+    # scenarios.json may be an older subset.
+    fallback = Path(__file__).resolve().parent / "scenarios" / (
+        Path(out_dir).name + ".json")
+    if fallback.is_file():
+        return fallback
+    path = Path(out_dir) / "scenarios.json"
+    return path if path.is_file() else None
+
+
 def run(out_dir):
     checks = []
     docs = _documents(out_dir)
@@ -919,7 +953,17 @@ def run(out_dir):
     except Exception as error:  # noqa: BLE001
         checks.append({"name": "seed-all", "status": "failed",
                        "reason": f"{type(error).__name__}: {error}"})
-    if cli_path.is_file():
+    scenario_file = _scenario_path(out_dir)
+    has_cli_scenarios = False
+    if scenario_file is not None:
+        try:
+            has_cli_scenarios = any(
+                isinstance(item, dict) and isinstance(item.get("when"), dict)
+                and "cli" in item["when"]
+                for item in json.loads(scenario_file.read_text()).get("scenarios") or [])
+        except ValueError:
+            pass
+    if cli_path.is_file() and not has_cli_scenarios:
         for number, (path, node) in enumerate(_leaf_entries(docs.get("components")), start=1):
             required = _cli_args(docs, node, number)
             if required:
@@ -951,17 +995,16 @@ def run(out_dir):
                            "status": "failed",
                            "reason": f"harness error: {type(error).__name__}: {error}"})
         sequence += 1
-    scenario_path = Path(out_dir) / "scenarios.json"
-    if not scenario_path.is_file():
-        scenario_path = Path(__file__).resolve().parent / "scenarios" / (
-            Path(out_dir).name + ".json")
-    if scenario_path.is_file():
+    scenario_path = _scenario_path(out_dir)
+    if scenario_path is not None:
         try:
             scenarios = json.loads(scenario_path.read_text(encoding="utf-8"))
         except ValueError:
             scenarios = {}
         for scenario in (scenarios.get("scenarios") or []):
-            checks.append(_run_scenario(docs, deps, store, scenario, sequence))
+            checks.append(_run_scenario(docs, deps, store, scenario, sequence,
+                                       cli_path=cli_path, db=db,
+                                       cli_module=cli))
             sequence += 1
     return {"prompt": Path(out_dir).name,
             "status": "passed" if all(c["status"] != "failed" for c in checks) else "failed",

@@ -1,0 +1,74 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--name",
+          "value1",
+          "--price",
+          "2",
+          "--quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product list",
+      "when": {
+        "cli": [
+          "Product",
+          "list",
+          "--name",
+          "value2",
+          "--price",
+          "2",
+          "--quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--product-id",
+          "1",
+          "--name",
+          "value3",
+          "--price",
+          "2",
+          "--quantity",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli": [
+          "Product",
+          "delete",
+          "--product-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

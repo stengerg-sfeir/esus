@@ -1,0 +1,18 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Sale add",
+      "when": {
+        "cli": [
+          "Sale",
+          "add",
+          "--total-price",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

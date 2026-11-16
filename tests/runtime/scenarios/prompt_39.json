@@ -1,0 +1,94 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:User add",
+      "when": {
+        "cli": [
+          "User",
+          "add",
+          "--email",
+          "cli1@example.test",
+          "--password-hash",
+          "value1",
+          "--role",
+          "administrator"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User update",
+      "when": {
+        "cli": [
+          "User",
+          "update",
+          "--user-id",
+          "value2",
+          "--new-role",
+          "value2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--name",
+          "value3",
+          "--price",
+          "1.0",
+          "--description",
+          "value3"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--product-id",
+          "value4",
+          "--name",
+          "value4",
+          "--price",
+          "1.0",
+          "--description",
+          "value4"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli": [
+          "Order",
+          "add",
+          "--user-id",
+          "1",
+          "--order-date",
+          "2024-01-01",
+          "--status",
+          "s status must be one of "
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

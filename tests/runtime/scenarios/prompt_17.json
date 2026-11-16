@@ -1,0 +1,24 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product search",
+      "when": {
+        "cli": [
+          "Product",
+          "search",
+          "--name",
+          "value1",
+          "--category",
+          "value1",
+          "--max-price",
+          "value1",
+          "--min-quantity",
+          "value1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli": [
+          "Customer",
+          "add",
+          "--name",
+          "value1",
+          "--email",
+          "cli1@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer list",
+      "when": {
+        "cli": [
+          "Customer",
+          "list",
+          "--name",
+          "value2",
+          "--email",
+          "cli2@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli": [
+          "Customer",
+          "update",
+          "--customer-id",
+          "1",
+          "--name",
+          "value3",
+          "--email",
+          "cli3@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli": [
+          "Customer",
+          "delete",
+          "--customer-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room add",
+      "when": {
+        "cli": [
+          "Room",
+          "add",
+          "--room-number",
+          "value5"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room list",
+      "when": {
+        "cli": [
+          "Room",
+          "list",
+          "--room-number",
+          "value6"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room update",
+      "when": {
+        "cli": [
+          "Room",
+          "update",
+          "--room-id",
+          "1",
+          "--room-number",
+          "value7"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room delete",
+      "when": {
+        "cli": [
+          "Room",
+          "delete",
+          "--room-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation add",
+      "when": {
+        "cli": [
+          "Reservation",
+          "add",
+          "--customer-id",
+          "1",
+          "--room-id",
+          "1",
+          "--start-date",
+          "2024-01-01",
+          "--end-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation list",
+      "when": {
+        "cli": [
+          "Reservation",
+          "list",
+          "--customer-id",
+          "1",
+          "--room-id",
+          "1",
+          "--start-date",
+          "2024-01-01",
+          "--end-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation update",
+      "when": {
+        "cli": [
+          "Reservation",
+          "update",
+          "--reservation-id",
+          "1",
+          "--customer-id",
+          "1",
+          "--room-id",
+          "1",
+          "--start-date",
+          "2024-01-01",
+          "--end-date",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation delete",
+      "when": {
+        "cli": [
+          "Reservation",
+          "delete",
+          "--reservation-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

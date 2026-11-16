@@ -1,0 +1,426 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli": [
+          "Customer",
+          "add",
+          "--name",
+          "value1",
+          "--email",
+          "cli1@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer list",
+      "when": {
+        "cli": [
+          "Customer",
+          "list",
+          "--name",
+          "value2",
+          "--email",
+          "cli2@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli": [
+          "Customer",
+          "update",
+          "--customer-id",
+          "1",
+          "--name",
+          "value3",
+          "--email",
+          "cli3@example.test"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli": [
+          "Customer",
+          "delete",
+          "--customer-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli": [
+          "Product",
+          "add",
+          "--name",
+          "value5",
+          "--price",
+          "2",
+          "--stock-level",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product list",
+      "when": {
+        "cli": [
+          "Product",
+          "list",
+          "--name",
+          "value6",
+          "--price",
+          "2",
+          "--stock-level",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli": [
+          "Product",
+          "update",
+          "--product-id",
+          "1",
+          "--name",
+          "value7",
+          "--price",
+          "2",
+          "--stock-level",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli": [
+          "Product",
+          "delete",
+          "--product-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli": [
+          "Order",
+          "add",
+          "--customer-id",
+          "1",
+          "--order-date",
+          "2024-01-01",
+          "--status",
+          "value9"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order list",
+      "when": {
+        "cli": [
+          "Order",
+          "list"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli": [
+          "Order",
+          "update",
+          "--order-id",
+          "1",
+          "--customer-id",
+          "1",
+          "--order-date",
+          "2024-01-01",
+          "--status",
+          "value11"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli": [
+          "Order",
+          "delete",
+          "--order-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order cancel",
+      "when": {
+        "cli": [
+          "Order",
+          "cancel",
+          "--order-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine add",
+      "when": {
+        "cli": [
+          "OrderLine",
+          "add",
+          "--order-id",
+          "1",
+          "--product-id",
+          "1",
+          "--quantity",
+          "2",
+          "--unit-price",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine list",
+      "when": {
+        "cli": [
+          "OrderLine",
+          "list",
+          "--order-id",
+          "1",
+          "--product-id",
+          "1",
+          "--quantity",
+          "2",
+          "--unit-price",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine update",
+      "when": {
+        "cli": [
+          "OrderLine",
+          "update",
+          "--order-line-id",
+          "1",
+          "--order-id",
+          "1",
+          "--product-id",
+          "1",
+          "--quantity",
+          "2",
+          "--unit-price",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine delete",
+      "when": {
+        "cli": [
+          "OrderLine",
+          "delete",
+          "--order-line-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Discount add",
+      "when": {
+        "cli": [
+          "Discount",
+          "add",
+          "--name",
+          "value18",
+          "--value",
+          "2",
+          "--type",
+          "value18"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Discount list",
+      "when": {
+        "cli": [
+          "Discount",
+          "list",
+          "--name",
+          "value19",
+          "--value",
+          "2",
+          "--type",
+          "value19"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Discount update",
+      "when": {
+        "cli": [
+          "Discount",
+          "update",
+          "--discount-id",
+          "1",
+          "--name",
+          "value20",
+          "--value",
+          "2",
+          "--type",
+          "value20"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Discount delete",
+      "when": {
+        "cli": [
+          "Discount",
+          "delete",
+          "--discount-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tax add",
+      "when": {
+        "cli": [
+          "Tax",
+          "add",
+          "--name",
+          "value22",
+          "--rate",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tax list",
+      "when": {
+        "cli": [
+          "Tax",
+          "list",
+          "--name",
+          "value23",
+          "--rate",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tax update",
+      "when": {
+        "cli": [
+          "Tax",
+          "update",
+          "--tax-id",
+          "1",
+          "--name",
+          "value24",
+          "--rate",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Tax delete",
+      "when": {
+        "cli": [
+          "Tax",
+          "delete",
+          "--tax-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

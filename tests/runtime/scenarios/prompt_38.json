@@ -1,0 +1,110 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:User add",
+      "when": {
+        "cli": [
+          "User",
+          "add",
+          "--email",
+          "cli1@example.test",
+          "--password",
+          "value1",
+          "--created-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User update",
+      "when": {
+        "cli": [
+          "User",
+          "update",
+          "--user-id",
+          "1",
+          "--email",
+          "cli2@example.test",
+          "--password",
+          "value2",
+          "--created-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User delete",
+      "when": {
+        "cli": [
+          "User",
+          "delete",
+          "--user-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document add",
+      "when": {
+        "cli": [
+          "Document",
+          "add",
+          "--title",
+          "value4",
+          "--content",
+          "value4",
+          "--created-at",
+          "2024-01-01",
+          "--user-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document update",
+      "when": {
+        "cli": [
+          "Document",
+          "update",
+          "--document-id",
+          "1",
+          "--title",
+          "value5",
+          "--content",
+          "value5",
+          "--created-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document delete",
+      "when": {
+        "cli": [
+          "Document",
+          "delete",
+          "--document-id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

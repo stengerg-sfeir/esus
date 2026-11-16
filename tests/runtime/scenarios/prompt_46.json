@@ -1,0 +1,66 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Client add",
+      "when": {
+        "cli": [
+          "Client",
+          "add",
+          "--name",
+          "value1",
+          "--email",
+          "cli1@example.test",
+          "--phone",
+          "value1",
+          "--account-status",
+          "s account_status must be either "
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Invoice add",
+      "when": {
+        "cli": [
+          "Invoice",
+          "add",
+          "--client-id",
+          "1",
+          "--due-date",
+          "s status must be updated to ",
+          "--amount",
+          "2",
+          "--description",
+          "value2",
+          "--status",
+          "pending"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Payment add",
+      "when": {
+        "cli": [
+          "Payment",
+          "add",
+          "--invoice-id",
+          "1",
+          "--payment-date",
+          "2024-01-01",
+          "--amount",
+          "2",
+          "--payment-method",
+          "value3"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

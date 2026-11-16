@@ -383,11 +383,12 @@ imports the generated package, checks `cli.py --help`, seeds models directly
 in a temporary store, and executes every scalar-effect method contract through
 the generated service/repository. Results are written to
 `out/validation/bench/acceptance/`. The mechanical harness now reports
-**60/60 prompts passed**, **738 checks passed**, and **262 checks skipped**.
-The skips are explicit: CLI commands whose required arguments need a reviewed
-scenario fixture, repository methods without a create/read pair, contracts
-with only creates/no scalar effect, and state effects whose state
-precondition is not yet extracted. The harness is intentionally data-driven
+The generated CLI scenarios now cover the command surface: **957 checks
+passed**, **39 failed**, and **4 skipped** across the 60 prompts. The four
+remaining skips are state effects without an extracted state precondition and
+the collection contract covered by its scenario. The 39 failures are real
+fixture/generator findings; they are kept visible rather than converted into
+passes. The harness is intentionally data-driven
 and does not edit generated code.
 
 The scenario pass exercised generic collection and record-create rules:

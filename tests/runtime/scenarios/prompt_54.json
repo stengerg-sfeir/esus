@@ -1,0 +1,56 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Appointment add",
+      "when": {
+        "cli": [
+          "Appointment",
+          "add",
+          "--start-time",
+          "2024-01-01T00:00:00",
+          "--end-time",
+          "2024-01-01T00:00:00"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Appointment update",
+      "when": {
+        "cli": [
+          "Appointment",
+          "update",
+          "--id",
+          "1",
+          "--start-time",
+          "2024-01-01T00:00:00",
+          "--end-time",
+          "2024-01-01T00:00:00"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Appointment delete",
+      "when": {
+        "cli": [
+          "Appointment",
+          "delete",
+          "--id",
+          "1",
+          "--start-time",
+          "2024-01-01T00:00:00",
+          "--end-time",
+          "2024-01-01T00:00:00"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

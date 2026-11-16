@@ -1,0 +1,80 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Book add",
+      "when": {
+        "cli": [
+          "Book",
+          "add",
+          "--title",
+          "value1",
+          "--author",
+          "value1",
+          "--isbn",
+          "value1",
+          "--publication-year",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book list",
+      "when": {
+        "cli": [
+          "Book",
+          "list",
+          "--title",
+          "value2",
+          "--author",
+          "value2",
+          "--isbn",
+          "value2",
+          "--publication-year",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book update",
+      "when": {
+        "cli": [
+          "Book",
+          "update",
+          "--id",
+          "1",
+          "--title",
+          "value3",
+          "--author",
+          "value3",
+          "--isbn",
+          "value3",
+          "--publication-year",
+          "2"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book delete",
+      "when": {
+        "cli": [
+          "Book",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

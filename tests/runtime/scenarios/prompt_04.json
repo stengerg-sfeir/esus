@@ -1,0 +1,69 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli": [
+          "Task",
+          "add",
+          "--description",
+          "value1",
+          "--created-at",
+          "2024-01-01",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli": [
+          "Task",
+          "list",
+          "--description",
+          "value2",
+          "--created-at",
+          "2024-01-01",
+          "--updated-at",
+          "2024-01-01"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli": [
+          "Task",
+          "update",
+          "--id",
+          "1",
+          "--is-completed"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli": [
+          "Task",
+          "delete",
+          "--id",
+          "1"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}
