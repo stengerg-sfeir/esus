@@ -3,15 +3,17 @@
     {
       "name": "cli:Employee add",
       "when": {
-        "cli": [
-          "Employee",
-          "add",
-          "--name",
-          "value1",
-          "--department-id",
-          "1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Employee",
+            "add",
+            "--name",
+            "value1",
+            "--department-id",
+            "1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -21,17 +23,19 @@
     {
       "name": "cli:Employee update",
       "when": {
-        "cli": [
-          "Employee",
-          "update",
-          "--employee-id",
-          "1",
-          "--name",
-          "value1",
-          "--department-id",
-          "1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
+            "--employee-id",
+            "1",
+            "--name",
+            "value1",
+            "--department-id",
+            "1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -41,11 +45,19 @@
     {
       "name": "cli:Employee delete",
       "when": {
-        "cli": [
-          "Employee",
-          "delete",
-          "--employee-id",
-          "1"
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -55,11 +67,13 @@
     {
       "name": "cli:Employee list",
       "when": {
-        "cli": [
-          "Employee",
-          "list",
-          "--department-id",
-          "1"
+        "cli_variants": [
+          [
+            "Employee",
+            "list",
+            "--department-id",
+            "1"
+          ]
         ]
       },
       "expect": {

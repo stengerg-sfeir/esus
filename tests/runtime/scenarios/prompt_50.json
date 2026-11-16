@@ -3,17 +3,19 @@
     {
       "name": "cli:Event add",
       "when": {
-        "cli": [
-          "Event",
-          "add",
-          "--title",
-          "value1",
-          "--date",
-          "2024-01-01",
-          "--capacity",
-          "1",
-          "--current-attendees-count",
-          "2"
+        "cli_variants": [
+          [
+            "Event",
+            "add",
+            "--title",
+            "value1",
+            "--date",
+            "2024-01-01",
+            "--capacity",
+            "1",
+            "--current-attendees-count",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -23,15 +25,17 @@
     {
       "name": "cli:Event list",
       "when": {
-        "cli": [
-          "Event",
-          "list",
-          "--title",
-          "value1",
-          "--date",
-          "2024-01-01",
-          "--capacity",
-          "1"
+        "cli_variants": [
+          [
+            "Event",
+            "list",
+            "--title",
+            "value1",
+            "--date",
+            "2024-01-01",
+            "--capacity",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -41,11 +45,13 @@
     {
       "name": "cli:Registration cancel",
       "when": {
-        "cli": [
-          "Registration",
-          "cancel",
-          "--registration-id",
-          "1"
+        "cli_variants": [
+          [
+            "Registration",
+            "cancel",
+            "--registration-id",
+            "1"
+          ]
         ]
       },
       "expect": {

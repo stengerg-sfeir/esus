@@ -3,19 +3,21 @@
     {
       "name": "cli:Book add",
       "when": {
-        "cli": [
-          "Book",
-          "add",
-          "--title",
-          "value1",
-          "--author",
-          "value1",
-          "--isbn",
-          "value1",
-          "--created-at",
-          "2024-01-01",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -25,19 +27,21 @@
     {
       "name": "cli:Book list",
       "when": {
-        "cli": [
-          "Book",
-          "list",
-          "--title",
-          "value1",
-          "--author",
-          "value1",
-          "--isbn",
-          "value1",
-          "--created-at",
-          "2024-01-01",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Book",
+            "list",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -47,21 +51,23 @@
     {
       "name": "cli:Book update",
       "when": {
-        "cli": [
-          "Book",
-          "update",
-          "--id",
-          "1",
-          "--title",
-          "value1",
-          "--author",
-          "value1",
-          "--isbn",
-          "value1",
-          "--created-at",
-          "2024-01-01",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -71,11 +77,19 @@
     {
       "name": "cli:Book delete",
       "when": {
-        "cli": [
-          "Book",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Book",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Book",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -85,11 +99,13 @@
     {
       "name": "cli:Book search",
       "when": {
-        "cli": [
-          "Book",
-          "search",
-          "--title",
-          "value1"
+        "cli_variants": [
+          [
+            "Book",
+            "search",
+            "--title",
+            "value1"
+          ]
         ]
       },
       "expect": {

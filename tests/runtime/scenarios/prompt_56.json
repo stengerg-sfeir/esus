@@ -63,13 +63,15 @@
     {
       "name": "cli:OrderProduct update",
       "when": {
-        "cli": [
-          "OrderProduct",
-          "update",
-          "--order-id",
-          "1",
-          "--quantity",
-          "2"
+        "cli_variants": [
+          [
+            "OrderProduct",
+            "update",
+            "--order-id",
+            "1",
+            "--quantity",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -79,11 +81,13 @@
     {
       "name": "cli:OrderProduct add",
       "when": {
-        "cli": [
-          "OrderProduct",
-          "add",
-          "--product-id",
-          "1"
+        "cli_variants": [
+          [
+            "OrderProduct",
+            "add",
+            "--product-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -93,13 +97,21 @@
     {
       "name": "cli:OrderProduct delete",
       "when": {
-        "cli": [
-          "OrderProduct",
-          "delete",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1"
+        "cli_variants": [
+          [
+            "OrderProduct",
+            "delete",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1"
+          ],
+          [
+            "OrderProduct",
+            "delete",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {

@@ -3,17 +3,19 @@
     {
       "name": "cli:BorrowingRecord add",
       "when": {
-        "cli": [
-          "BorrowingRecord",
-          "add",
-          "--book-id",
-          "1",
-          "--member-id",
-          "1",
-          "--borrow-date",
-          "2024-01-01",
-          "--return-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "BorrowingRecord",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01",
+            "--return-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {

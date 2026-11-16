@@ -3,13 +3,15 @@
     {
       "name": "cli:Author add",
       "when": {
-        "cli": [
-          "Author",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Author",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -19,15 +21,17 @@
     {
       "name": "cli:Author update",
       "when": {
-        "cli": [
-          "Author",
-          "update",
-          "--author-id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Author",
+            "update",
+            "--author-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -37,11 +41,19 @@
     {
       "name": "cli:Author delete",
       "when": {
-        "cli": [
-          "Author",
-          "delete",
-          "--author-id",
-          "1"
+        "cli_variants": [
+          [
+            "Author",
+            "delete",
+            "--author-id",
+            "1"
+          ],
+          [
+            "Author",
+            "delete",
+            "--author-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -51,15 +63,17 @@
     {
       "name": "cli:Post add",
       "when": {
-        "cli": [
-          "Post",
-          "add",
-          "--title",
-          "value1",
-          "--content",
-          "value1",
-          "--author-id",
-          "1"
+        "cli_variants": [
+          [
+            "Post",
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--author-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -69,15 +83,17 @@
     {
       "name": "cli:Post update",
       "when": {
-        "cli": [
-          "Post",
-          "update",
-          "--post-id",
-          "1",
-          "--title",
-          "value1",
-          "--content",
-          "value1"
+        "cli_variants": [
+          [
+            "Post",
+            "update",
+            "--post-id",
+            "1",
+            "--title",
+            "value1",
+            "--content",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -87,11 +103,19 @@
     {
       "name": "cli:Post delete",
       "when": {
-        "cli": [
-          "Post",
-          "delete",
-          "--post-id",
-          "1"
+        "cli_variants": [
+          [
+            "Post",
+            "delete",
+            "--post-id",
+            "1"
+          ],
+          [
+            "Post",
+            "delete",
+            "--post-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -101,13 +125,15 @@
     {
       "name": "cli:Tag add",
       "when": {
-        "cli": [
-          "Tag",
-          "add",
-          "--post-id",
-          "1",
-          "--tag-id",
-          "1"
+        "cli_variants": [
+          [
+            "Tag",
+            "add",
+            "--post-id",
+            "1",
+            "--tag-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -117,13 +143,15 @@
     {
       "name": "cli:Tag update",
       "when": {
-        "cli": [
-          "Tag",
-          "update",
-          "--tag-id",
-          "1",
-          "--name",
-          "value1"
+        "cli_variants": [
+          [
+            "Tag",
+            "update",
+            "--tag-id",
+            "1",
+            "--name",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -133,11 +161,19 @@
     {
       "name": "cli:Tag delete",
       "when": {
-        "cli": [
-          "Tag",
-          "delete",
-          "--tag-id",
-          "1"
+        "cli_variants": [
+          [
+            "Tag",
+            "delete",
+            "--tag-id",
+            "1"
+          ],
+          [
+            "Tag",
+            "delete",
+            "--tag-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -147,13 +183,15 @@
     {
       "name": "cli:PostTag add",
       "when": {
-        "cli": [
-          "PostTag",
-          "add",
-          "--post-id",
-          "1",
-          "--tag-id",
-          "1"
+        "cli_variants": [
+          [
+            "PostTag",
+            "add",
+            "--post-id",
+            "1",
+            "--tag-id",
+            "1"
+          ]
         ]
       },
       "expect": {

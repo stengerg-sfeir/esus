@@ -3,17 +3,19 @@
     {
       "name": "cli:Employee add",
       "when": {
-        "cli": [
-          "Employee",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--age",
-          "2",
-          "--salary",
-          "2"
+        "cli_variants": [
+          [
+            "Employee",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--age",
+            "2",
+            "--salary",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -23,19 +25,21 @@
     {
       "name": "cli:Employee update",
       "when": {
-        "cli": [
-          "Employee",
-          "update",
-          "--employee-id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--age",
-          "2",
-          "--salary",
-          "2"
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
+            "--employee-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--age",
+            "2",
+            "--salary",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -45,11 +49,19 @@
     {
       "name": "cli:Employee delete",
       "when": {
-        "cli": [
-          "Employee",
-          "delete",
-          "--employee-id",
-          "1"
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ]
         ]
       },
       "expect": {

@@ -3,13 +3,15 @@
     {
       "name": "cli:Project add",
       "when": {
-        "cli": [
-          "Project",
-          "add",
-          "--title",
-          "value1",
-          "--description",
-          "value1"
+        "cli_variants": [
+          [
+            "Project",
+            "add",
+            "--title",
+            "value1",
+            "--description",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -19,13 +21,15 @@
     {
       "name": "cli:Project list",
       "when": {
-        "cli": [
-          "Project",
-          "list",
-          "--title",
-          "value1",
-          "--description",
-          "value1"
+        "cli_variants": [
+          [
+            "Project",
+            "list",
+            "--title",
+            "value1",
+            "--description",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -35,15 +39,17 @@
     {
       "name": "cli:Project update",
       "when": {
-        "cli": [
-          "Project",
-          "update",
-          "--project-id",
-          "1",
-          "--title",
-          "value1",
-          "--description",
-          "value1"
+        "cli_variants": [
+          [
+            "Project",
+            "update",
+            "--project-id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -53,11 +59,19 @@
     {
       "name": "cli:Project delete",
       "when": {
-        "cli": [
-          "Project",
-          "delete",
-          "--project-id",
-          "1"
+        "cli_variants": [
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ],
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -67,19 +81,21 @@
     {
       "name": "cli:Task add",
       "when": {
-        "cli": [
-          "Task",
-          "add",
-          "--title",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1",
-          "--priority",
-          "value1",
-          "--project-id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--priority",
+            "value1",
+            "--project-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -89,19 +105,21 @@
     {
       "name": "cli:Task list",
       "when": {
-        "cli": [
-          "Task",
-          "list",
-          "--title",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1",
-          "--priority",
-          "value1",
-          "--project-id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--priority",
+            "value1",
+            "--project-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -111,21 +129,23 @@
     {
       "name": "cli:Task update",
       "when": {
-        "cli": [
-          "Task",
-          "update",
-          "--task-id",
-          "1",
-          "--title",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1",
-          "--priority",
-          "value1",
-          "--project-id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--task-id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--priority",
+            "value1",
+            "--project-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -135,11 +155,19 @@
     {
       "name": "cli:Task delete",
       "when": {
-        "cli": [
-          "Task",
-          "delete",
-          "--task-id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--task-id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--task-id",
+            "1"
+          ]
         ]
       },
       "expect": {

@@ -3,13 +3,15 @@
     {
       "name": "cli:Room delete",
       "when": {
-        "cli": [
-          "Room",
-          "delete",
-          "--room-type",
-          "value1",
-          "--capacity",
-          "1"
+        "cli_variants": [
+          [
+            "Room",
+            "delete",
+            "--room-type",
+            "value1",
+            "--capacity",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -19,15 +21,17 @@
     {
       "name": "cli:Guest delete",
       "when": {
-        "cli": [
-          "Guest",
-          "delete",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone",
-          "value1"
+        "cli_variants": [
+          [
+            "Guest",
+            "delete",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -37,13 +41,15 @@
     {
       "name": "cli:Booking update",
       "when": {
-        "cli": [
-          "Booking",
-          "update",
-          "--room-id",
-          "1",
-          "--guest-id",
-          "1"
+        "cli_variants": [
+          [
+            "Booking",
+            "update",
+            "--room-id",
+            "1",
+            "--guest-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -53,17 +59,25 @@
     {
       "name": "cli:Booking delete",
       "when": {
-        "cli": [
-          "Booking",
-          "delete",
-          "--room-id",
-          "1",
-          "--guest-id",
-          "1",
-          "--start-date",
-          "2024-01-01",
-          "--end-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Booking",
+            "delete",
+            "--room-id",
+            "1",
+            "--guest-id",
+            "1",
+            "--start-date",
+            "2024-01-01",
+            "--end-date",
+            "2024-01-01"
+          ],
+          [
+            "Booking",
+            "delete",
+            "--room-id",
+            "1"
+          ]
         ]
       },
       "expect": {

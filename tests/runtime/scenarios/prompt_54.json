@@ -3,13 +3,15 @@
     {
       "name": "cli:Appointment add",
       "when": {
-        "cli": [
-          "Appointment",
-          "add",
-          "--start-time",
-          "2024-01-01",
-          "--end-time",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Appointment",
+            "add",
+            "--start-time",
+            "2024-01-01",
+            "--end-time",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -19,15 +21,17 @@
     {
       "name": "cli:Appointment update",
       "when": {
-        "cli": [
-          "Appointment",
-          "update",
-          "--id",
-          "1",
-          "--start-time",
-          "2024-01-01",
-          "--end-time",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Appointment",
+            "update",
+            "--id",
+            "1",
+            "--start-time",
+            "2024-01-01",
+            "--end-time",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -37,15 +41,23 @@
     {
       "name": "cli:Appointment delete",
       "when": {
-        "cli": [
-          "Appointment",
-          "delete",
-          "--id",
-          "1",
-          "--start-time",
-          "2024-01-01",
-          "--end-time",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Appointment",
+            "delete",
+            "--id",
+            "1",
+            "--start-time",
+            "2024-01-01",
+            "--end-time",
+            "2024-01-01"
+          ],
+          [
+            "Appointment",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

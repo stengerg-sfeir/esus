@@ -3,15 +3,17 @@
     {
       "name": "cli:User add",
       "when": {
-        "cli": [
-          "User",
-          "add",
-          "--email",
-          "cli1@example.test",
-          "--password",
-          "value1",
-          "--created-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "User",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--password",
+            "value1",
+            "--created-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -21,17 +23,19 @@
     {
       "name": "cli:User update",
       "when": {
-        "cli": [
-          "User",
-          "update",
-          "--user-id",
-          "1",
-          "--email",
-          "cli1@example.test",
-          "--password",
-          "value1",
-          "--created-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "User",
+            "update",
+            "--user-id",
+            "1",
+            "--email",
+            "cli1@example.test",
+            "--password",
+            "value1",
+            "--created-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -41,11 +45,19 @@
     {
       "name": "cli:User delete",
       "when": {
-        "cli": [
-          "User",
-          "delete",
-          "--user-id",
-          "1"
+        "cli_variants": [
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1"
+          ],
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -55,17 +67,19 @@
     {
       "name": "cli:Document add",
       "when": {
-        "cli": [
-          "Document",
-          "add",
-          "--title",
-          "value1",
-          "--content",
-          "value1",
-          "--created-at",
-          "2024-01-01",
-          "--user-id",
-          "1"
+        "cli_variants": [
+          [
+            "Document",
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--user-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -75,17 +89,19 @@
     {
       "name": "cli:Document update",
       "when": {
-        "cli": [
-          "Document",
-          "update",
-          "--document-id",
-          "1",
-          "--title",
-          "value1",
-          "--content",
-          "value1",
-          "--created-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Document",
+            "update",
+            "--document-id",
+            "1",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--created-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -95,11 +111,19 @@
     {
       "name": "cli:Document delete",
       "when": {
-        "cli": [
-          "Document",
-          "delete",
-          "--document-id",
-          "1"
+        "cli_variants": [
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "1"
+          ],
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "1"
+          ]
         ]
       },
       "expect": {

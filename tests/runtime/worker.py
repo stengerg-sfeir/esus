@@ -401,28 +401,37 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
     row_baseline = {entity: len(store.all(entity))
                     for entity in model_by_entity}
     when = scenario.get("when") or {}
-    if "cli" in when:
+    if "cli" in when or "cli_variants" in when:
         if cli_path is None or db is None:
             return {"name": name, "status": "skipped",
                     "reason": "CLI path/database unavailable"}
-        cli_args = _resolve(when.get("cli") or [], refs)
-        if not isinstance(cli_args, list):
-            cli_args = [str(cli_args)]
+        raw_variants = when.get("cli_variants")
+        if not raw_variants:
+            raw_variants = [[when.get("cli") or []]]
+        cli_variants = []
+        for variant in raw_variants:
+            resolved = _resolve(variant, refs)
+            if not isinstance(resolved, list):
+                resolved = [str(resolved)]
+            cli_variants.append([str(item) for item in resolved])
         if cli_module is not None:
             db = Path(tempfile.mkdtemp(prefix="esus-cli-scenario-")) / "cli.sqlite3"
             built = cli_module.build_cli(str(db))
             fresh = built[1] if isinstance(built, tuple) else built
             _seed_all(docs, fresh["store"])
-        result = subprocess.run(
-            [sys.executable, str(cli_path), "--db", str(db), *map(str, cli_args)],
-            capture_output=True, text=True)
         expected = (scenario.get("expect") or {}).get("error")
-        if result.returncode == 0 and not expected:
-            return {"name": name, "status": "passed"}
-        if expected and expected in (result.stderr + result.stdout):
-            return {"name": name, "status": "passed"}
+        last = None
+        for cli_args in cli_variants:
+            result = subprocess.run(
+                [sys.executable, str(cli_path), "--db", str(db), *cli_args],
+                capture_output=True, text=True)
+            last = result
+            if result.returncode == 0 and not expected:
+                return {"name": name, "status": "passed"}
+            if expected and expected in (result.stderr + result.stdout):
+                return {"name": name, "status": "passed"}
         return {"name": name, "status": "failed",
-                "reason": (result.stderr or result.stdout or "CLI failed")[-350:]}
+                "reason": (last.stderr or last.stdout or "CLI failed")[-350:]}
     holder = when.get("service") or when.get("repository")
     target = deps.get("services", {}).get(holder) or deps.get("repos", {}).get(holder)
     if target is None:
@@ -997,7 +1006,7 @@ def run(out_dir):
         try:
             has_cli_scenarios = any(
                 isinstance(item, dict) and isinstance(item.get("when"), dict)
-                and "cli" in item["when"]
+                and ("cli" in item["when"] or "cli_variants" in item["when"])
                 for item in json.loads(scenario_file.read_text()).get("scenarios") or [])
         except ValueError:
             pass

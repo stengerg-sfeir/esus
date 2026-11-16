@@ -3,19 +3,21 @@
     {
       "name": "cli:Product add",
       "when": {
-        "cli": [
-          "Product",
-          "add",
-          "--sku",
-          "value1",
-          "--category",
-          "value1",
-          "--name",
-          "value1",
-          "--description",
-          "value1",
-          "--price",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--sku",
+            "value1",
+            "--category",
+            "value1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -25,19 +27,21 @@
     {
       "name": "cli:Product list",
       "when": {
-        "cli": [
-          "Product",
-          "list",
-          "--sku",
-          "value1",
-          "--category",
-          "value1",
-          "--name",
-          "value1",
-          "--description",
-          "value1",
-          "--price",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "list",
+            "--sku",
+            "value1",
+            "--category",
+            "value1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -47,21 +51,23 @@
     {
       "name": "cli:Product update",
       "when": {
-        "cli": [
-          "Product",
-          "update",
-          "--id",
-          "1",
-          "--sku",
-          "value1",
-          "--category",
-          "value1",
-          "--name",
-          "value1",
-          "--description",
-          "value1",
-          "--price",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--id",
+            "1",
+            "--sku",
+            "value1",
+            "--category",
+            "value1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -71,11 +77,19 @@
     {
       "name": "cli:Product delete",
       "when": {
-        "cli": [
-          "Product",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

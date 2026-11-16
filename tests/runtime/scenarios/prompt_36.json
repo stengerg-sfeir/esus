@@ -3,13 +3,15 @@
     {
       "name": "cli:Product add",
       "when": {
-        "cli": [
-          "Product",
-          "add",
-          "--name",
-          "value1",
-          "--category-id",
-          "1"
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--category-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -19,15 +21,17 @@
     {
       "name": "cli:Product update",
       "when": {
-        "cli": [
-          "Product",
-          "update",
-          "--product-id",
-          "1",
-          "--name",
-          "value1",
-          "--category-id",
-          "1"
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--category-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -37,13 +41,21 @@
     {
       "name": "cli:Product delete",
       "when": {
-        "cli": [
-          "Product",
-          "delete",
-          "--product-id",
-          "1",
-          "--name",
-          "value1"
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1",
+            "--name",
+            "value1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -53,11 +65,13 @@
     {
       "name": "cli:Category add",
       "when": {
-        "cli": [
-          "Category",
-          "add",
-          "--name",
-          "value1"
+        "cli_variants": [
+          [
+            "Category",
+            "add",
+            "--name",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -67,13 +81,21 @@
     {
       "name": "cli:Category delete",
       "when": {
-        "cli": [
-          "Category",
-          "delete",
-          "--category-id",
-          "1",
-          "--name",
-          "value1"
+        "cli_variants": [
+          [
+            "Category",
+            "delete",
+            "--category-id",
+            "1",
+            "--name",
+            "value1"
+          ],
+          [
+            "Category",
+            "delete",
+            "--category-id",
+            "1"
+          ]
         ]
       },
       "expect": {

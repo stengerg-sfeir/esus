@@ -3,14 +3,26 @@
     {
       "name": "cli:Book add",
       "when": {
-        "cli": [
-          "Book",
-          "add",
-          "--title",
-          "value1",
-          "--author",
-          "value1",
-          "--availability-status"
+        "cli_variants": [
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status"
+          ],
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status",
+            "true"
+          ]
         ]
       },
       "expect": {
@@ -20,15 +32,27 @@
     {
       "name": "cli:Book update",
       "when": {
-        "cli": [
-          "Book",
-          "update",
-          "--book-id",
-          "1",
-          "--title",
-          "value1",
-          "--author",
-          "value1"
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1"
+          ],
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -38,14 +62,26 @@
     {
       "name": "cli:Member add",
       "when": {
-        "cli": [
-          "Member",
-          "add",
-          "--name",
-          "value1",
-          "--contact-details",
-          "value1",
-          "--membership-status"
+        "cli_variants": [
+          [
+            "Member",
+            "add",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status"
+          ],
+          [
+            "Member",
+            "add",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status",
+            "true"
+          ]
         ]
       },
       "expect": {
@@ -55,17 +91,19 @@
     {
       "name": "cli:Loan add",
       "when": {
-        "cli": [
-          "Loan",
-          "add",
-          "--member-id",
-          "1",
-          "--book-id",
-          "1",
-          "--loan-date",
-          "2024-01-01",
-          "--return-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Loan",
+            "add",
+            "--member-id",
+            "1",
+            "--book-id",
+            "1",
+            "--loan-date",
+            "2024-01-01",
+            "--return-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {

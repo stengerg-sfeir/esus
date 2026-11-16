@@ -3,11 +3,13 @@
     {
       "name": "cli:Sale add",
       "when": {
-        "cli": [
-          "Sale",
-          "add",
-          "--total-price",
-          "2"
+        "cli_variants": [
+          [
+            "Sale",
+            "add",
+            "--total-price",
+            "2"
+          ]
         ]
       },
       "expect": {

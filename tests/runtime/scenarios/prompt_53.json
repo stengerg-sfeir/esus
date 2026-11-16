@@ -50,13 +50,15 @@
     {
       "name": "cli:Product list",
       "when": {
-        "cli": [
-          "Product",
-          "list",
-          "--product-name",
-          "value1",
-          "--min-stock",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "list",
+            "--product-name",
+            "value1",
+            "--min-stock",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -66,13 +68,15 @@
     {
       "name": "cli:Product update",
       "when": {
-        "cli": [
-          "Product",
-          "update",
-          "--product-id",
-          "1",
-          "--new-stock-quantity",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--new-stock-quantity",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -82,13 +86,15 @@
     {
       "name": "cli:Order add",
       "when": {
-        "cli": [
-          "Order",
-          "add",
-          "--customer-id",
-          "1",
-          "--order-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -98,13 +104,15 @@
     {
       "name": "cli:Order list",
       "when": {
-        "cli": [
-          "Order",
-          "list",
-          "--customer-id",
-          "1",
-          "--order-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Order",
+            "list",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -114,15 +122,17 @@
     {
       "name": "cli:OrderItem add",
       "when": {
-        "cli": [
-          "OrderItem",
-          "add",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2"
+        "cli_variants": [
+          [
+            "OrderItem",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2"
+          ]
         ]
       },
       "expect": {

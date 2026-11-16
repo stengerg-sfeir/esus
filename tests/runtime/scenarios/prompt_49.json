@@ -3,13 +3,15 @@
     {
       "name": "cli:Employee list",
       "when": {
-        "cli": [
-          "Employee",
-          "list",
-          "--department-id",
-          "1",
-          "--name",
-          "value1"
+        "cli_variants": [
+          [
+            "Employee",
+            "list",
+            "--department-id",
+            "1",
+            "--name",
+            "value1"
+          ]
         ]
       },
       "expect": {

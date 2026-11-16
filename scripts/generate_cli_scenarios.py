@@ -39,9 +39,36 @@ def main(argv=None):
         for number, (path, node) in enumerate(
                 worker._leaf_entries(docs.get("components")), start=1):
             args = worker._cli_args(docs, node, 1)
+            variants = [list(path) + list(args)]
+            if str(path[-1]).lower() in ("delete", "remove"):
+                key_args = []
+                for option in node.get("options") or []:
+                    if (isinstance(option, dict) and option.get("required")
+                            and str(option.get("name") or "").endswith("id")):
+                        key_args = [option["name"], "1"]
+                        break
+                if key_args:
+                    variants.append(list(path) + key_args)
+            if any(isinstance(option, dict)
+                   and str(option.get("type") or "").lower() in ("bool", "boolean")
+                   for option in node.get("options") or []):
+                valued = []
+                for item in list(path) + list(args):
+                    if item.startswith("--") and item not in valued:
+                        valued.append(item)
+                # Try the value-taking spelling as an additional variant.
+                value_variant = [item for item in list(path) + list(args)]
+                for option in node.get("options") or []:
+                    if (isinstance(option, dict)
+                            and str(option.get("type") or "").lower() in ("bool", "boolean")
+                            and option.get("required")):
+                        idx = value_variant.index(option["name"]) + 1 if option["name"] in value_variant else None
+                        if idx is not None and idx >= len(value_variant):
+                            value_variant.insert(idx, "true")
+                variants.append(value_variant)
             scenarios.append({
                 "name": "cli:" + " ".join(path),
-                "when": {"cli": list(path) + list(args)},
+                "when": {"cli_variants": variants},
                 "expect": {"exit": 0},
             })
         path_file.write_text(json.dumps({"scenarios": scenarios},

@@ -3,13 +3,15 @@
     {
       "name": "cli:Product add",
       "when": {
-        "cli": [
-          "Product",
-          "add",
-          "--name",
-          "value1",
-          "--stock-quantity",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--stock-quantity",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -19,13 +21,15 @@
     {
       "name": "cli:Product update",
       "when": {
-        "cli": [
-          "Product",
-          "update",
-          "--id",
-          "1",
-          "--stock-quantity",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--id",
+            "1",
+            "--stock-quantity",
+            "2"
+          ]
         ]
       },
       "expect": {

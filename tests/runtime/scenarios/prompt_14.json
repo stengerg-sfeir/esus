@@ -3,15 +3,17 @@
     {
       "name": "cli:Project add",
       "when": {
-        "cli": [
-          "Project",
-          "add",
-          "--name",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Project",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -21,17 +23,31 @@
     {
       "name": "cli:Project update",
       "when": {
-        "cli": [
-          "Project",
-          "update",
-          "--project-id",
-          "1",
-          "--name",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Project",
+            "update",
+            "--project-id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1"
+          ],
+          [
+            "Project",
+            "update",
+            "--project-id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -41,15 +57,27 @@
     {
       "name": "cli:Project list",
       "when": {
-        "cli": [
-          "Project",
-          "list",
-          "--name",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Project",
+            "list",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1"
+          ],
+          [
+            "Project",
+            "list",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -59,12 +87,28 @@
     {
       "name": "cli:Project delete",
       "when": {
-        "cli": [
-          "Project",
-          "delete",
-          "--project-id",
-          "1",
-          "--is-deleted"
+        "cli_variants": [
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1",
+            "--is-deleted"
+          ],
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ],
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1",
+            "--is-deleted",
+            "true"
+          ]
         ]
       },
       "expect": {

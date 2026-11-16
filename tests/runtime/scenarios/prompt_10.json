@@ -3,15 +3,17 @@
     {
       "name": "cli:Note add",
       "when": {
-        "cli": [
-          "Note",
-          "add",
-          "--title",
-          "value1",
-          "--content",
-          "value1",
-          "--creation-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Note",
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--creation-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -21,15 +23,17 @@
     {
       "name": "cli:Note list",
       "when": {
-        "cli": [
-          "Note",
-          "list",
-          "--title",
-          "value1",
-          "--content",
-          "value1",
-          "--creation-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Note",
+            "list",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--creation-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -39,17 +43,19 @@
     {
       "name": "cli:Note update",
       "when": {
-        "cli": [
-          "Note",
-          "update",
-          "--id",
-          "1",
-          "--title",
-          "value1",
-          "--content",
-          "value1",
-          "--creation-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Note",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--creation-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -59,11 +65,19 @@
     {
       "name": "cli:Note delete",
       "when": {
-        "cli": [
-          "Note",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Note",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Note",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

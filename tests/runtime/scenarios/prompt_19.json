@@ -3,19 +3,21 @@
     {
       "name": "cli:Task add",
       "when": {
-        "cli": [
-          "Task",
-          "add",
-          "--title",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1",
-          "--due-date",
-          "2024-01-01",
-          "--priority",
-          "low"
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--due-date",
+            "2024-01-01",
+            "--priority",
+            "low"
+          ]
         ]
       },
       "expect": {
@@ -25,21 +27,23 @@
     {
       "name": "cli:Task update",
       "when": {
-        "cli": [
-          "Task",
-          "update",
-          "--id",
-          "1",
-          "--title",
-          "value1",
-          "--description",
-          "value1",
-          "--status",
-          "value1",
-          "--due-date",
-          "2024-01-01",
-          "--priority",
-          "low"
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--due-date",
+            "2024-01-01",
+            "--priority",
+            "low"
+          ]
         ]
       },
       "expect": {
@@ -49,11 +53,19 @@
     {
       "name": "cli:Task delete",
       "when": {
-        "cli": [
-          "Task",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -63,9 +75,11 @@
     {
       "name": "cli:Task export",
       "when": {
-        "cli": [
-          "Task",
-          "export"
+        "cli_variants": [
+          [
+            "Task",
+            "export"
+          ]
         ]
       },
       "expect": {
@@ -75,9 +89,11 @@
     {
       "name": "cli:Task import",
       "when": {
-        "cli": [
-          "Task",
-          "import"
+        "cli_variants": [
+          [
+            "Task",
+            "import"
+          ]
         ]
       },
       "expect": {

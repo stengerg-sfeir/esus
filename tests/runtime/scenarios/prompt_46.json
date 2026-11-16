@@ -3,17 +3,19 @@
     {
       "name": "cli:Client add",
       "when": {
-        "cli": [
-          "Client",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone",
-          "value1",
-          "--account-status",
-          "value1"
+        "cli_variants": [
+          [
+            "Client",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1",
+            "--account-status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -23,19 +25,21 @@
     {
       "name": "cli:Invoice add",
       "when": {
-        "cli": [
-          "Invoice",
-          "add",
-          "--client-id",
-          "1",
-          "--due-date",
-          "2024-01-01",
-          "--amount",
-          "2",
-          "--description",
-          "value1",
-          "--status",
-          "pending"
+        "cli_variants": [
+          [
+            "Invoice",
+            "add",
+            "--client-id",
+            "1",
+            "--due-date",
+            "2024-01-01",
+            "--amount",
+            "2",
+            "--description",
+            "value1",
+            "--status",
+            "pending"
+          ]
         ]
       },
       "expect": {
@@ -45,17 +49,19 @@
     {
       "name": "cli:Payment add",
       "when": {
-        "cli": [
-          "Payment",
-          "add",
-          "--invoice-id",
-          "1",
-          "--payment-date",
-          "2024-01-01",
-          "--amount",
-          "2",
-          "--payment-method",
-          "value1"
+        "cli_variants": [
+          [
+            "Payment",
+            "add",
+            "--invoice-id",
+            "1",
+            "--payment-date",
+            "2024-01-01",
+            "--amount",
+            "2",
+            "--payment-method",
+            "value1"
+          ]
         ]
       },
       "expect": {

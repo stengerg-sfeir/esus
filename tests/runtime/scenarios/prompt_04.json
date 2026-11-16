@@ -3,15 +3,27 @@
     {
       "name": "cli:Task add",
       "when": {
-        "cli": [
-          "Task",
-          "add",
-          "--description",
-          "value1",
-          "--created-at",
-          "2024-01-01",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ],
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -21,15 +33,27 @@
     {
       "name": "cli:Task list",
       "when": {
-        "cli": [
-          "Task",
-          "list",
-          "--description",
-          "value1",
-          "--created-at",
-          "2024-01-01",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ],
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -39,12 +63,22 @@
     {
       "name": "cli:Task update",
       "when": {
-        "cli": [
-          "Task",
-          "update",
-          "--id",
-          "1",
-          "--is-completed"
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--is-completed"
+          ],
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--is-completed",
+            "true"
+          ]
         ]
       },
       "expect": {
@@ -54,11 +88,19 @@
     {
       "name": "cli:Task delete",
       "when": {
-        "cli": [
-          "Task",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

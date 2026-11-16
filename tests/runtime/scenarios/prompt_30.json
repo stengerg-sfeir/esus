@@ -3,13 +3,15 @@
     {
       "name": "cli:Task update",
       "when": {
-        "cli": [
-          "Task",
-          "update",
-          "--task-id",
-          "1",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--task-id",
+            "1",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {

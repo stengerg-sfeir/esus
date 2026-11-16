@@ -3,19 +3,21 @@
     {
       "name": "cli:Contact add",
       "when": {
-        "cli": [
-          "Contact",
-          "add",
-          "--first-name",
-          "value1",
-          "--last-name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone",
-          "value1",
-          "--address",
-          "value1"
+        "cli_variants": [
+          [
+            "Contact",
+            "add",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1",
+            "--address",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -25,21 +27,23 @@
     {
       "name": "cli:Contact update",
       "when": {
-        "cli": [
-          "Contact",
-          "update",
-          "--id",
-          "1",
-          "--first-name",
-          "value1",
-          "--last-name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone",
-          "value1",
-          "--address",
-          "value1"
+        "cli_variants": [
+          [
+            "Contact",
+            "update",
+            "--id",
+            "1",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1",
+            "--address",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -49,11 +53,19 @@
     {
       "name": "cli:Contact delete",
       "when": {
-        "cli": [
-          "Contact",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Contact",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Contact",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -63,9 +75,11 @@
     {
       "name": "cli:Contact export",
       "when": {
-        "cli": [
-          "Contact",
-          "export"
+        "cli_variants": [
+          [
+            "Contact",
+            "export"
+          ]
         ]
       },
       "expect": {
@@ -75,11 +89,13 @@
     {
       "name": "cli:Contact import",
       "when": {
-        "cli": [
-          "Contact",
-          "import",
-          "--file-path",
-          "value1"
+        "cli_variants": [
+          [
+            "Contact",
+            "import",
+            "--file-path",
+            "value1"
+          ]
         ]
       },
       "expect": {

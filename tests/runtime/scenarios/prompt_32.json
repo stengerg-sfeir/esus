@@ -29,11 +29,13 @@
     {
       "name": "cli:Order confirm",
       "when": {
-        "cli": [
-          "Order",
-          "confirm",
-          "--order-id",
-          "1"
+        "cli_variants": [
+          [
+            "Order",
+            "confirm",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -43,11 +45,13 @@
     {
       "name": "cli:Order ship",
       "when": {
-        "cli": [
-          "Order",
-          "ship",
-          "--order-id",
-          "1"
+        "cli_variants": [
+          [
+            "Order",
+            "ship",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -57,11 +61,13 @@
     {
       "name": "cli:Order cancel",
       "when": {
-        "cli": [
-          "Order",
-          "cancel",
-          "--order-id",
-          "1"
+        "cli_variants": [
+          [
+            "Order",
+            "cancel",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -71,13 +77,15 @@
     {
       "name": "cli:Order update",
       "when": {
-        "cli": [
-          "Order",
-          "update",
-          "--order-id",
-          "1",
-          "--state",
-          "value1"
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--order-id",
+            "1",
+            "--state",
+            "value1"
+          ]
         ]
       },
       "expect": {

@@ -3,15 +3,17 @@
     {
       "name": "cli:Customer add",
       "when": {
-        "cli": [
-          "Customer",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -21,17 +23,19 @@
     {
       "name": "cli:Customer update",
       "when": {
-        "cli": [
-          "Customer",
-          "update",
-          "--id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -41,11 +45,19 @@
     {
       "name": "cli:Customer delete",
       "when": {
-        "cli": [
-          "Customer",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -55,11 +67,13 @@
     {
       "name": "cli:Customer search",
       "when": {
-        "cli": [
-          "Customer",
-          "search",
-          "--name",
-          "value1"
+        "cli_variants": [
+          [
+            "Customer",
+            "search",
+            "--name",
+            "value1"
+          ]
         ]
       },
       "expect": {

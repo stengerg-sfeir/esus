@@ -3,11 +3,13 @@
     {
       "name": "cli:Document add",
       "when": {
-        "cli": [
-          "Document",
-          "add",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Document",
+            "add",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -17,13 +19,15 @@
     {
       "name": "cli:Document update",
       "when": {
-        "cli": [
-          "Document",
-          "update",
-          "--id",
-          "1",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Document",
+            "update",
+            "--id",
+            "1",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {

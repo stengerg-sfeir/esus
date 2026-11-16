@@ -3,17 +3,19 @@
     {
       "name": "cli:Invoice add",
       "when": {
-        "cli": [
-          "Invoice",
-          "add",
-          "--invoice-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "1.0"
+        "cli_variants": [
+          [
+            "Invoice",
+            "add",
+            "--invoice-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "1.0"
+          ]
         ]
       },
       "expect": {
@@ -23,17 +25,19 @@
     {
       "name": "cli:InvoiceLine add",
       "when": {
-        "cli": [
-          "InvoiceLine",
-          "add",
-          "--invoice-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "1.0"
+        "cli_variants": [
+          [
+            "InvoiceLine",
+            "add",
+            "--invoice-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "1.0"
+          ]
         ]
       },
       "expect": {

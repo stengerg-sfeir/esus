@@ -3,13 +3,15 @@
     {
       "name": "cli:Order add",
       "when": {
-        "cli": [
-          "Order",
-          "add",
-          "--created-at",
-          "2024-01-01",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--created-at",
+            "2024-01-01",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -19,9 +21,11 @@
     {
       "name": "cli:Order list",
       "when": {
-        "cli": [
-          "Order",
-          "list"
+        "cli_variants": [
+          [
+            "Order",
+            "list"
+          ]
         ]
       },
       "expect": {
@@ -31,13 +35,15 @@
     {
       "name": "cli:Order update",
       "when": {
-        "cli": [
-          "Order",
-          "update",
-          "--order-id",
-          "1",
-          "--updated-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--order-id",
+            "1",
+            "--updated-at",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -47,13 +53,21 @@
     {
       "name": "cli:Order delete",
       "when": {
-        "cli": [
-          "Order",
-          "delete",
-          "--order-id",
-          "1",
-          "--created-at",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1",
+            "--created-at",
+            "2024-01-01"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -63,17 +77,19 @@
     {
       "name": "cli:OrderItem add",
       "when": {
-        "cli": [
-          "OrderItem",
-          "add",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderItem",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -83,17 +99,19 @@
     {
       "name": "cli:OrderItem list",
       "when": {
-        "cli": [
-          "OrderItem",
-          "list",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderItem",
+            "list",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -103,19 +121,21 @@
     {
       "name": "cli:OrderItem update",
       "when": {
-        "cli": [
-          "OrderItem",
-          "update",
-          "--order-item-id",
-          "1",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderItem",
+            "update",
+            "--order-item-id",
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -125,19 +145,27 @@
     {
       "name": "cli:OrderItem delete",
       "when": {
-        "cli": [
-          "OrderItem",
-          "delete",
-          "--order-item-id",
-          "1",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderItem",
+            "delete",
+            "--order-item-id",
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ],
+          [
+            "OrderItem",
+            "delete",
+            "--order-item-id",
+            "1"
+          ]
         ]
       },
       "expect": {

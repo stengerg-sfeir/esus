@@ -3,13 +3,15 @@
     {
       "name": "cli:Customer add",
       "when": {
-        "cli": [
-          "Customer",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -19,15 +21,17 @@
     {
       "name": "cli:Customer update",
       "when": {
-        "cli": [
-          "Customer",
-          "update",
-          "--id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -37,11 +41,19 @@
     {
       "name": "cli:Customer delete",
       "when": {
-        "cli": [
-          "Customer",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -51,17 +63,19 @@
     {
       "name": "cli:Order add",
       "when": {
-        "cli": [
-          "Order",
-          "add",
-          "--customer-id",
-          "1",
-          "--order-id",
-          "value1",
-          "--status",
-          "pending",
-          "--items",
-          "value1"
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-id",
+            "value1",
+            "--status",
+            "pending",
+            "--items",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -71,19 +85,21 @@
     {
       "name": "cli:Order update",
       "when": {
-        "cli": [
-          "Order",
-          "update",
-          "--id",
-          "1",
-          "--customer-id",
-          "1",
-          "--order-id",
-          "value1",
-          "--status",
-          "pending",
-          "--items",
-          "value1"
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--id",
+            "1",
+            "--customer-id",
+            "1",
+            "--order-id",
+            "value1",
+            "--status",
+            "pending",
+            "--items",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -93,11 +109,19 @@
     {
       "name": "cli:Order delete",
       "when": {
-        "cli": [
-          "Order",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

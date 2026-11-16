@@ -3,11 +3,19 @@
     {
       "name": "cli:Task add",
       "when": {
-        "cli": [
-          "Task",
-          "add",
-          "--description",
-          "value1"
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1"
+          ],
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -17,11 +25,19 @@
     {
       "name": "cli:Task list",
       "when": {
-        "cli": [
-          "Task",
-          "list",
-          "--description",
-          "value1"
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1"
+          ],
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -31,11 +47,25 @@
     {
       "name": "cli:Task delete",
       "when": {
-        "cli": [
-          "Task",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

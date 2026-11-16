@@ -3,13 +3,15 @@
     {
       "name": "cli:Customer add",
       "when": {
-        "cli": [
-          "Customer",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -19,13 +21,15 @@
     {
       "name": "cli:Customer list",
       "when": {
-        "cli": [
-          "Customer",
-          "list",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "list",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -35,15 +39,17 @@
     {
       "name": "cli:Customer update",
       "when": {
-        "cli": [
-          "Customer",
-          "update",
-          "--customer-id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -53,11 +59,19 @@
     {
       "name": "cli:Customer delete",
       "when": {
-        "cli": [
-          "Customer",
-          "delete",
-          "--customer-id",
-          "1"
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -67,11 +81,13 @@
     {
       "name": "cli:Room add",
       "when": {
-        "cli": [
-          "Room",
-          "add",
-          "--room-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -81,11 +97,13 @@
     {
       "name": "cli:Room list",
       "when": {
-        "cli": [
-          "Room",
-          "list",
-          "--room-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Room",
+            "list",
+            "--room-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -95,13 +113,15 @@
     {
       "name": "cli:Room update",
       "when": {
-        "cli": [
-          "Room",
-          "update",
-          "--room-id",
-          "1",
-          "--room-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Room",
+            "update",
+            "--room-id",
+            "1",
+            "--room-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -111,11 +131,19 @@
     {
       "name": "cli:Room delete",
       "when": {
-        "cli": [
-          "Room",
-          "delete",
-          "--room-id",
-          "1"
+        "cli_variants": [
+          [
+            "Room",
+            "delete",
+            "--room-id",
+            "1"
+          ],
+          [
+            "Room",
+            "delete",
+            "--room-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -125,17 +153,19 @@
     {
       "name": "cli:Reservation add",
       "when": {
-        "cli": [
-          "Reservation",
-          "add",
-          "--customer-id",
-          "1",
-          "--room-id",
-          "1",
-          "--start-date",
-          "2024-01-01",
-          "--end-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Reservation",
+            "add",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-date",
+            "2024-01-01",
+            "--end-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -145,17 +175,19 @@
     {
       "name": "cli:Reservation list",
       "when": {
-        "cli": [
-          "Reservation",
-          "list",
-          "--customer-id",
-          "1",
-          "--room-id",
-          "1",
-          "--start-date",
-          "2024-01-01",
-          "--end-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Reservation",
+            "list",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-date",
+            "2024-01-01",
+            "--end-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -165,19 +197,21 @@
     {
       "name": "cli:Reservation update",
       "when": {
-        "cli": [
-          "Reservation",
-          "update",
-          "--reservation-id",
-          "1",
-          "--customer-id",
-          "1",
-          "--room-id",
-          "1",
-          "--start-date",
-          "2024-01-01",
-          "--end-date",
-          "2024-01-01"
+        "cli_variants": [
+          [
+            "Reservation",
+            "update",
+            "--reservation-id",
+            "1",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-date",
+            "2024-01-01",
+            "--end-date",
+            "2024-01-01"
+          ]
         ]
       },
       "expect": {
@@ -187,11 +221,19 @@
     {
       "name": "cli:Reservation delete",
       "when": {
-        "cli": [
-          "Reservation",
-          "delete",
-          "--reservation-id",
-          "1"
+        "cli_variants": [
+          [
+            "Reservation",
+            "delete",
+            "--reservation-id",
+            "1"
+          ],
+          [
+            "Reservation",
+            "delete",
+            "--reservation-id",
+            "1"
+          ]
         ]
       },
       "expect": {

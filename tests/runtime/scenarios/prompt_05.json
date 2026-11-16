@@ -3,15 +3,17 @@
     {
       "name": "cli:Contact add",
       "when": {
-        "cli": [
-          "Contact",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Contact",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -21,15 +23,17 @@
     {
       "name": "cli:Contact list",
       "when": {
-        "cli": [
-          "Contact",
-          "list",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Contact",
+            "list",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -39,17 +43,19 @@
     {
       "name": "cli:Contact update",
       "when": {
-        "cli": [
-          "Contact",
-          "update",
-          "--id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test",
-          "--phone-number",
-          "value1"
+        "cli_variants": [
+          [
+            "Contact",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -59,11 +65,19 @@
     {
       "name": "cli:Contact delete",
       "when": {
-        "cli": [
-          "Contact",
-          "delete",
-          "--id",
-          "1"
+        "cli_variants": [
+          [
+            "Contact",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Contact",
+            "delete",
+            "--id",
+            "1"
+          ]
         ]
       },
       "expect": {

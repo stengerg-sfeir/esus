@@ -40,13 +40,15 @@
     {
       "name": "cli:Customer add",
       "when": {
-        "cli": [
-          "Customer",
-          "add",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -56,13 +58,15 @@
     {
       "name": "cli:Customer list",
       "when": {
-        "cli": [
-          "Customer",
-          "list",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "list",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -72,15 +76,17 @@
     {
       "name": "cli:Customer update",
       "when": {
-        "cli": [
-          "Customer",
-          "update",
-          "--customer-id",
-          "1",
-          "--name",
-          "value1",
-          "--email",
-          "cli1@example.test"
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
         ]
       },
       "expect": {
@@ -90,11 +96,19 @@
     {
       "name": "cli:Customer delete",
       "when": {
-        "cli": [
-          "Customer",
-          "delete",
-          "--customer-id",
-          "1"
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -104,15 +118,17 @@
     {
       "name": "cli:Product add",
       "when": {
-        "cli": [
-          "Product",
-          "add",
-          "--name",
-          "value1",
-          "--price",
-          "2",
-          "--stock-level",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--stock-level",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -122,15 +138,17 @@
     {
       "name": "cli:Product list",
       "when": {
-        "cli": [
-          "Product",
-          "list",
-          "--name",
-          "value1",
-          "--price",
-          "2",
-          "--stock-level",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "list",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--stock-level",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -140,17 +158,19 @@
     {
       "name": "cli:Product update",
       "when": {
-        "cli": [
-          "Product",
-          "update",
-          "--product-id",
-          "1",
-          "--name",
-          "value1",
-          "--price",
-          "2",
-          "--stock-level",
-          "2"
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--stock-level",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -160,11 +180,19 @@
     {
       "name": "cli:Product delete",
       "when": {
-        "cli": [
-          "Product",
-          "delete",
-          "--product-id",
-          "1"
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -174,15 +202,17 @@
     {
       "name": "cli:Order add",
       "when": {
-        "cli": [
-          "Order",
-          "add",
-          "--customer-id",
-          "1",
-          "--order-date",
-          "2024-01-01",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -192,9 +222,11 @@
     {
       "name": "cli:Order list",
       "when": {
-        "cli": [
-          "Order",
-          "list"
+        "cli_variants": [
+          [
+            "Order",
+            "list"
+          ]
         ]
       },
       "expect": {
@@ -204,17 +236,19 @@
     {
       "name": "cli:Order update",
       "when": {
-        "cli": [
-          "Order",
-          "update",
-          "--order-id",
-          "1",
-          "--customer-id",
-          "1",
-          "--order-date",
-          "2024-01-01",
-          "--status",
-          "value1"
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--order-id",
+            "1",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01",
+            "--status",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -224,11 +258,19 @@
     {
       "name": "cli:Order delete",
       "when": {
-        "cli": [
-          "Order",
-          "delete",
-          "--order-id",
-          "1"
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -238,11 +280,13 @@
     {
       "name": "cli:Order cancel",
       "when": {
-        "cli": [
-          "Order",
-          "cancel",
-          "--order-id",
-          "1"
+        "cli_variants": [
+          [
+            "Order",
+            "cancel",
+            "--order-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -252,17 +296,19 @@
     {
       "name": "cli:OrderLine add",
       "when": {
-        "cli": [
-          "OrderLine",
-          "add",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderLine",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -272,17 +318,19 @@
     {
       "name": "cli:OrderLine list",
       "when": {
-        "cli": [
-          "OrderLine",
-          "list",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderLine",
+            "list",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -292,19 +340,21 @@
     {
       "name": "cli:OrderLine update",
       "when": {
-        "cli": [
-          "OrderLine",
-          "update",
-          "--order-line-id",
-          "1",
-          "--order-id",
-          "1",
-          "--product-id",
-          "1",
-          "--quantity",
-          "2",
-          "--unit-price",
-          "2"
+        "cli_variants": [
+          [
+            "OrderLine",
+            "update",
+            "--order-line-id",
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -314,11 +364,19 @@
     {
       "name": "cli:OrderLine delete",
       "when": {
-        "cli": [
-          "OrderLine",
-          "delete",
-          "--order-line-id",
-          "1"
+        "cli_variants": [
+          [
+            "OrderLine",
+            "delete",
+            "--order-line-id",
+            "1"
+          ],
+          [
+            "OrderLine",
+            "delete",
+            "--order-line-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -328,15 +386,17 @@
     {
       "name": "cli:Discount add",
       "when": {
-        "cli": [
-          "Discount",
-          "add",
-          "--name",
-          "value1",
-          "--value",
-          "2",
-          "--type",
-          "value1"
+        "cli_variants": [
+          [
+            "Discount",
+            "add",
+            "--name",
+            "value1",
+            "--value",
+            "2",
+            "--type",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -346,15 +406,17 @@
     {
       "name": "cli:Discount list",
       "when": {
-        "cli": [
-          "Discount",
-          "list",
-          "--name",
-          "value1",
-          "--value",
-          "2",
-          "--type",
-          "value1"
+        "cli_variants": [
+          [
+            "Discount",
+            "list",
+            "--name",
+            "value1",
+            "--value",
+            "2",
+            "--type",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -364,17 +426,19 @@
     {
       "name": "cli:Discount update",
       "when": {
-        "cli": [
-          "Discount",
-          "update",
-          "--discount-id",
-          "1",
-          "--name",
-          "value1",
-          "--value",
-          "2",
-          "--type",
-          "value1"
+        "cli_variants": [
+          [
+            "Discount",
+            "update",
+            "--discount-id",
+            "1",
+            "--name",
+            "value1",
+            "--value",
+            "2",
+            "--type",
+            "value1"
+          ]
         ]
       },
       "expect": {
@@ -384,11 +448,19 @@
     {
       "name": "cli:Discount delete",
       "when": {
-        "cli": [
-          "Discount",
-          "delete",
-          "--discount-id",
-          "1"
+        "cli_variants": [
+          [
+            "Discount",
+            "delete",
+            "--discount-id",
+            "1"
+          ],
+          [
+            "Discount",
+            "delete",
+            "--discount-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -398,13 +470,15 @@
     {
       "name": "cli:Tax add",
       "when": {
-        "cli": [
-          "Tax",
-          "add",
-          "--name",
-          "value1",
-          "--rate",
-          "2"
+        "cli_variants": [
+          [
+            "Tax",
+            "add",
+            "--name",
+            "value1",
+            "--rate",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -414,13 +488,15 @@
     {
       "name": "cli:Tax list",
       "when": {
-        "cli": [
-          "Tax",
-          "list",
-          "--name",
-          "value1",
-          "--rate",
-          "2"
+        "cli_variants": [
+          [
+            "Tax",
+            "list",
+            "--name",
+            "value1",
+            "--rate",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -430,15 +506,17 @@
     {
       "name": "cli:Tax update",
       "when": {
-        "cli": [
-          "Tax",
-          "update",
-          "--tax-id",
-          "1",
-          "--name",
-          "value1",
-          "--rate",
-          "2"
+        "cli_variants": [
+          [
+            "Tax",
+            "update",
+            "--tax-id",
+            "1",
+            "--name",
+            "value1",
+            "--rate",
+            "2"
+          ]
         ]
       },
       "expect": {
@@ -448,11 +526,19 @@
     {
       "name": "cli:Tax delete",
       "when": {
-        "cli": [
-          "Tax",
-          "delete",
-          "--tax-id",
-          "1"
+        "cli_variants": [
+          [
+            "Tax",
+            "delete",
+            "--tax-id",
+            "1"
+          ],
+          [
+            "Tax",
+            "delete",
+            "--tax-id",
+            "1"
+          ]
         ]
       },
       "expect": {
