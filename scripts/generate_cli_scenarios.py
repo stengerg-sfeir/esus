@@ -59,6 +59,69 @@ def _seed_arg_value(field):
     return "value1"
 
 
+def _model_for_path(docs, path):
+    models = {worker.normalize(model.get("name") or ""): model
+              for model in docs.get("models") or []
+              if isinstance(model, dict) and model.get("name")}
+    for token in reversed(path[:-1]):
+        model = models.get(worker.normalize(token))
+        if model is not None:
+            return model
+    return None
+
+
+def _field_for_option(model, key):
+    wanted = worker.normalize(key)
+    fields = [field for field in model.get("fields") or []
+              if isinstance(field, dict) and field.get("name")]
+    for field in fields:
+        if worker.normalize(field["name"]) == wanted:
+            return field
+    for field in fields:
+        if worker.normalize(field["name"]) == wanted + "id":
+            return field
+        foreign = field.get("foreign_key")
+        if isinstance(foreign, dict) \
+                and worker.normalize(foreign.get("target_entity") or "") == wanted:
+            return field
+    return None
+
+
+def _coerce_seed(value, field):
+    kind = str(field.get("type") or "").lower()
+    try:
+        if kind in ("int", "integer"):
+            return int(value)
+        if kind in ("float", "double", "decimal", "money"):
+            return float(value)
+        if kind in ("bool", "boolean"):
+            return str(value).lower() in ("1", "true", "yes", "on")
+    except (TypeError, ValueError):
+        return value
+    return value
+
+
+def _update_seed_overrides(docs, path, args):
+    """Seed filter fields with the values an update/delete command looks up."""
+    model = _model_for_path(docs, path)
+    if model is None:
+        return {}
+    overrides = {}
+    index = 0
+    while index < len(args):
+        flag = str(args[index])
+        if (not flag.startswith("--") or index + 1 >= len(args)
+                or str(args[index + 1]).startswith("--")):
+            index += 1
+            continue
+        key = flag.lstrip("-").replace("-", "_")
+        field = _field_for_option(model, key)
+        if field is not None and not field.get("primary_key"):
+            overrides[field["name"]] = _coerce_seed(args[index + 1], field)
+        index += 2
+    return overrides
+
+
 def _seed_args_from_flags(docs, flags, node=None):
     declared = getattr(_seed_args_from_flags, "declared", {})
     if node is not None:
@@ -104,7 +167,7 @@ def main(argv=None):
     target = Path(args[1]) if len(args) > 1 else ROOT / "tests" / "runtime" / "scenarios"
     target.mkdir(parents=True, exist_ok=True)
     total = 0
-    for prompt in sorted(path for path in root.glob("prompt_*") if path.is_dir()):
+    for prompt in worker.discover_projects(root):
         docs = worker._documents(prompt)
         # Scenarios describe the surface the generator actually emits: reviewed
         # drops, required create flags, and adapter repairs are applied there.
@@ -124,9 +187,9 @@ def main(argv=None):
         scenarios = [item for item in existing
                      if not str(item.get("name", "")).startswith("cli:")]
         cli_path = prompt / "generated" / "cli.py"
-        for number, (path, node) in enumerate(
-                worker._leaf_entries(docs.get("components")), start=1):
-            flags = _help_flags(cli_path, path) if cli_path.is_file() else []
+        leaves = worker._leaf_entries(docs.get("components")) if cli_path.is_file() else []
+        for number, (path, node) in enumerate(leaves, start=1):
+            flags = _help_flags(cli_path, path)
             args = (_args_from_flags(docs, flags, node) if flags
                     else worker._cli_args(docs, node, 1))
             if str(path[-1]).lower() in ("delete", "remove") and flags:
@@ -175,6 +238,13 @@ def main(argv=None):
                             overrides[model["name"]] = {
                                 field["name"]: state_value}
                             break
+            if verb in ("update", "delete", "remove"):
+                target_model = _model_for_path(docs, path)
+                if target_model is not None:
+                    values = _update_seed_overrides(docs, path, args)
+                    if values:
+                        overrides.setdefault(target_model["name"], {}).update(
+                            values)
             when = {"cli_variants": variants}
             if overrides:
                 when["seed_overrides"] = overrides
@@ -197,9 +267,10 @@ def main(argv=None):
                 "when": when,
                 "expect": {"exit": 0},
             })
-        path_file.write_text(json.dumps({"scenarios": scenarios},
-                                        indent=2, ensure_ascii=False) + "\n",
-                             encoding="utf-8")
+        if scenarios or path_file.is_file():
+            path_file.write_text(json.dumps({"scenarios": scenarios},
+                                            indent=2, ensure_ascii=False) + "\n",
+                                 encoding="utf-8")
         total += len(scenarios)
         print(f"{prompt.name}: {len(scenarios)} scenario(s)")
     print(f"total: {total}")

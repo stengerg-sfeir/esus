@@ -8,6 +8,7 @@ generated file.
 
 Usage:
     python scripts/run_bench_acceptance.py out/validation/bench
+    python scripts/run_bench_acceptance.py out/initial
 """
 
 from __future__ import annotations
@@ -21,6 +22,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKER = ROOT / "tests" / "runtime" / "worker.py"
+sys.path.insert(0, str(WORKER.parent))
+
+import worker  # noqa: E402
 
 
 def run_one(prompt_dir: Path, output_dir: Path) -> dict:
@@ -54,10 +58,10 @@ def main(argv=None):
     output = Path(args.output) if args.output else root / "acceptance"
     selected = ({item.strip() for item in args.only.split(",") if item.strip()}
                 if args.only else None)
-    prompts = sorted(path for path in root.glob("prompt_*") if path.is_dir()
-                     and (selected is None or path.name in selected))
+    prompts = [path for path in worker.discover_projects(root)
+               if selected is None or path.name in selected]
     if not prompts:
-        print(f"no prompt directories under {root}", file=sys.stderr)
+        print(f"no runnable projects under {root}", file=sys.stderr)
         return 2
     results = []
     for prompt in prompts:

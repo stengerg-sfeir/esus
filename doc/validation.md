@@ -389,8 +389,28 @@ each runs in a fresh SQLite database with the foreign keys it needs seeded.
 Final result on `out/validation/bench`:
 
 - **60 / 60 prompts passed**;
-- **1001 checks passed**, **0 failed**, **0 skipped**;
+- **1002 checks passed**, **0 failed**, **0 skipped**;
 - `python3 -m compileall out/validation/bench` is clean.
+
+The same harness now discovers the six named initial projects under
+`out/initial/esus_bench/`; the runner is no longer limited to `prompt_*`
+directories. Final result on that archive:
+
+- **6 / 6 projects passed**;
+- **124 checks passed**, **0 failed**, **0 skipped**;
+- **35** initial CLI scenarios alongside the **268** validation scenarios;
+- `python3 -m compileall out/initial/esus_bench` is clean.
+
+Applying the harness to the initial archive exposed generic rules that are now
+part of it: multi-word component names (`category add`) become separate argv
+tokens; nullable state columns start NULL unless a precondition asks for a
+value; a forbidden `field is not None` seeds NULL; toggle effects
+(`is_active = not is_active`) are compared against the pre-call value; update
+fixtures identify standard CRUD rows by primary key and leave composite-unique
+filters untouched; numeric comparison invariants produce distinct fixtures;
+`--category` resolves to the `category_id` foreign key; grounding decisions
+filter stale contracts; and bare file placeholders are materialised in a
+temporary directory instead of the working tree.
 
 The harness is deliberately data-driven and never edits generated code. The
 scenario pass exposed and drove these generic fixes:

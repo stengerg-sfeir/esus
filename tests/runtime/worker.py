@@ -34,6 +34,38 @@ def _read(path):
         return {}
 
 
+def discover_projects(root):
+    """Directories that can be handed to `run`.
+
+    The validation bench uses `prompt_*`; the initial archive uses named
+    projects one or two levels down. Both layouts are discovered generically,
+    so the runner is not tied to the validation naming scheme.
+    """
+    root = Path(root)
+
+    def is_project(path):
+        return (path.is_dir() and (path / "generated").is_dir()
+                and ((path / "data_models.json").is_file()
+                     or (path / "components.json").is_file()))
+
+    prompts = sorted(path for path in root.glob("prompt_*") if path.is_dir())
+    if prompts:
+        return prompts
+    # The initial archive keeps its runnable projects under `esus_bench/`;
+    # sibling timing/review directories are raw archives, not acceptance
+    # targets.
+    bench = root / "esus_bench"
+    if bench.is_dir():
+        projects = sorted(path for path in bench.iterdir() if is_project(path))
+        if projects:
+            return projects
+    direct = sorted(path for path in root.iterdir() if is_project(path))
+    if direct:
+        return direct
+    return sorted(path for child in root.iterdir() if child.is_dir()
+                  for path in child.iterdir() if is_project(path))
+
+
 _UNIQUE_COUNTER = 1
 
 
@@ -44,6 +76,10 @@ def _sample(field, number):
     if "email" in name:
         return f"seed{number}@example.test"
     if kind in ("int", "integer"):
+        if name == "maximum_capacity":
+            # A storage location's limit must leave room for the seeded wine
+            # stock and for a create fixture.
+            return 100
         if "capacity" in name:
             return 1
         if "current" in name or "attendee" in name:
@@ -76,6 +112,9 @@ def _load_package(out_dir):
     return cli, deps, db
 
 
+_NON_NULL = object()
+
+
 def _seed(store, model, number=1, overrides=None):
     pk = next((field.get("name") for field in model.get("fields") or []
                if field.get("primary_key")), "id")
@@ -87,13 +126,19 @@ def _seed(store, model, number=1, overrides=None):
         if name == pk:
             continue
         if overrides and name in overrides:
-            values[name] = overrides[name]
+            value = overrides[name]
+            values[name] = _sample(field, number) if value is _NON_NULL else value
         elif isinstance(field.get("foreign_key"), dict):
             values[name] = 1
-        elif field.get("nullable"):
-            # Supplying a value is safe for the fixtures and avoids SQL NULL
-            # surprises in code paths that read every model field.
-            values[name] = _sample(field, number)
+        elif field.get("nullable") and not field.get("unique"):
+            # A nullable field is part of the entity's state. Seeding a value
+            # for every optional column made a returned loan look already
+            # returned and broke otherwise valid contracts. The valid fixture
+            # starts nullable state at NULL unless a precondition asks for a
+            # concrete value. A nullable *unique* column still needs a value:
+            # two NULLs are allowed by SQLite and the uniqueness check would
+            # be vacuous.
+            values[name] = None
         else:
             values[name] = _sample(field, number)
     # The same scenario seeds a second row into a store that already has the
@@ -153,19 +198,24 @@ def _binding_seed(store, models, binding, state):
 
 def _precondition_values(contract, binding_name):
     values = {}
+    prefix = rf"{re.escape(binding_name)}\.(\w+)"
     for precondition in contract.get("preconditions") or []:
-        # A `raise_when=true` check describes a forbidden state, not the
-        # state the valid fixture should start in.
-        if precondition.get("raise_when") == "true":
-            continue
         check = str(precondition.get("check") or "")
-        match = re.match(
-            rf"{re.escape(binding_name)}\.(\w+)\s*==\s*(['\"])(.*?)\2", check)
+        forbidden = precondition.get("raise_when") == "true"
+        # Negative state checks seed the opposite of the forbidden value.
+        match = re.match(rf"{prefix}\s+is\s+not\s+None", check)
+        if match:
+            values[match.group(1)] = None if forbidden else _NON_NULL
+            continue
+        if forbidden:
+            # A `raise_when=true` check describes a forbidden state, not the
+            # state the valid fixture should start in.
+            continue
+        match = re.match(rf"{prefix}\s*==\s*(['\"])(.*?)\2", check)
         if match:
             values[match.group(1)] = match.group(3)
             continue
-        match = re.match(
-            rf"{re.escape(binding_name)}\.(\w+)\s+in\s*\(([^)]*)\)", check)
+        match = re.match(rf"{prefix}\s+in\s*\(([^)]*)\)", check)
         if match:
             raw = match.group(2)
             items = re.findall(r"['\"](.*?)['\"]", raw)
@@ -207,6 +257,33 @@ def _allowed_values(docs, entity, field):
             if all(re.fullmatch(r"[A-Za-z0-9_.-]+", value) for value in values):
                 return values
     return []
+
+
+def _composite_unique_fields(docs, entity):
+    """Fields named by a composite unique rule for one entity."""
+    model = next((item for item in docs.get("models") or []
+                  if item.get("name") == entity), None)
+    if model is None:
+        return set()
+    names = {field["name"] for field in model.get("fields") or []
+             if isinstance(field, dict) and field.get("name")}
+    found = set()
+    for invariant in docs.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else ""
+        if "unique" not in str(text).lower():
+            continue
+        match = re.search(r"unique\s+(?:constraint|combination)[^()]*"
+                          r"(?:\(([^)]*)\)|of\s+([^.;]+))",
+                          text, re.IGNORECASE)
+        if not match:
+            continue
+        group = match.group(1) or match.group(2) or ""
+        selected = [name for name in names
+                    if re.search(rf"\b{re.escape(name)}\b", group,
+                                 re.IGNORECASE)]
+        if len(selected) > 1:
+            found.update(selected)
+    return found
 
 
 def _arg_value(name, kind, binding_records):
@@ -316,6 +393,14 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
     if not callable(call):
         return {"name": f"contract:{holder}.{method_name}", "status": "failed",
                 "reason": "method missing"}
+    before = {}
+    for effect in effects:
+        variable, _, field = str(effect.get("target") or "").partition(".")
+        if variable not in binding_records:
+            continue
+        record, pk = binding_records[variable]
+        before[(variable, field)] = store.get(
+            record.get("__entity__", variable), pk, record.get(pk)).get(field)
     try:
         call(*args)
     except Exception as error:  # noqa: BLE001
@@ -332,8 +417,14 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
         if isinstance(expected, str) and expected in param_values:
             expected = param_values[expected]
         elif effect.get("op") == "set" and isinstance(expected, str):
+            if expected.startswith("literal:"):
+                expected = expected[len("literal:"):]
+            if expected == f"not {field}":
+                # A toggle (`is_active = not is_active`) is relative to the
+                # value the fixture started with, not a literal string.
+                expected = not before[(variable, field)]
             try:
-                expected = ast.literal_eval(expected)
+                expected = ast.literal_eval(expected) if isinstance(expected, str) else expected
             except (ValueError, SyntaxError):
                 pass
             if expected == "now":
@@ -404,11 +495,17 @@ def _materialize_file_args(docs, args):
                   and normalize(item.get("name") or "") == normalize(command)), None)
     for index, arg in enumerate(out[:-1]):
         flag = str(arg).lower()
-        if not flag.startswith("--") or not any(
-                marker in flag for marker in ("file", "path")):
+        if not flag.startswith("--"):
+            continue
+        if not any(marker in flag for marker in ("file", "path", "output")) \
+                and flag not in ("--out", "--outfile"):
             continue
         value = out[index + 1]
-        if not isinstance(value, str) or Path(value).exists():
+        if not isinstance(value, str):
+            continue
+        # A bare placeholder such as `value1` is not a fixture, even if a
+        # previous scenario happened to create it in the working directory.
+        if Path(value).exists() and (Path(value).is_absolute() or "/" in value):
             continue
         target = Path(tempfile.mkdtemp(prefix="esus-import-")) / "import.csv"
         if model is not None:
@@ -565,7 +662,11 @@ def _leaf_entries(components):
         for node in nodes or []:
             if not isinstance(node, dict) or not isinstance(node.get("name"), str):
                 continue
-            path = prefix + (node["name"],)
+            # A subcommand may be a path of words (`category add` under
+            # `expense`). The generator emits that as nested groups, so each
+            # token is a separate argv element; treating the whole string as
+            # one token produced `No such command 'category add'`.
+            path = prefix + tuple(node["name"].split())
             subcommands = node.get("subcommands")
             if isinstance(subcommands, list) and subcommands:
                 yield from walk(subcommands, path)
@@ -575,16 +676,35 @@ def _leaf_entries(components):
     return list(walk(commands))
 
 
-def _cli_value(docs, name, declared, number):
-    """A type-aware fixture for one required CLI option."""
-    key = str(name or "").lstrip("-").replace("-", "_")
-    fields = []
+def _option_field(docs, key):
+    """The model field a CLI option names, including `<entity>` for `<entity>_id`."""
+    wanted = normalize(key)
+    exact = []
+    related = []
     for model in docs.get("models") or []:
         for field in model.get("fields") or []:
             if not isinstance(field, dict) or not field.get("name"):
                 continue
-            if normalize(field["name"]) == normalize(key):
-                fields.append((model.get("name"), field))
+            name = normalize(field["name"])
+            if name == wanted:
+                exact.append((model.get("name"), field))
+                continue
+            foreign = field.get("foreign_key")
+            target = (normalize(foreign.get("target_entity") or "")
+                      if isinstance(foreign, dict) else "")
+            if name == wanted + "id" or (target and target == wanted):
+                related.append((model.get("name"), field))
+    if exact:
+        return exact
+    if related:
+        return related
+    return []
+
+
+def _cli_value(docs, name, declared, number):
+    """A type-aware fixture for one required CLI option."""
+    key = str(name or "").lstrip("-").replace("-", "_")
+    fields = _option_field(docs, key)
     if not fields:
         wanted = normalize(key)
         candidates = []
@@ -601,8 +721,17 @@ def _cli_value(docs, name, declared, number):
     kind = str(declared or field_kind or "").lower()
     if key.endswith("id") and field_kind:
         kind = field_kind
+    elif field is not None and field_kind in (
+            "int", "integer", "float", "double", "decimal", "money"):
+        # A generator may expose a lookup key as TEXT while converting it to
+        # an integer; a numeric spelling satisfies both.
+        kind = field_kind
     elif declared in ("int", "integer", "float", "double", "decimal"):
         kind = declared
+    if "month" in key and kind in ("str", "string", "text", ""):
+        return "2024-01"
+    if key in ("year", "published_year") and kind in ("str", "string", "text", ""):
+        return "2024"
     if field is not None:
         allowed = _allowed_values(docs, fields[0][0], field["name"])
         if allowed and field_kind in ("str", "string", "text"):
@@ -618,7 +747,8 @@ def _cli_value(docs, name, declared, number):
             or key.endswith("_time") or key == "time":
         return "2024-01-01"
     if kind in ("int", "integer"):
-        if key.endswith("id") or "capacity" in key:
+        if key.endswith("id") or "capacity" in key \
+                or isinstance((field or {}).get("foreign_key"), dict):
             return "1"
         if "current" in key or "attendee" in key:
             return "2"
@@ -674,7 +804,8 @@ def _required_cli_args(node, number):
         if declared in ("bool", "boolean"):
             continue
         if declared in ("int", "integer"):
-            args.append("1" if name.endswith("id") or "capacity" in name else "2")
+            args.append("100" if "capacity" in name else (
+                "1" if name.endswith("id") else "2"))
         elif declared in ("float", "double", "decimal"):
             args.append("1.0")
         else:
@@ -783,6 +914,52 @@ def _seed_all(docs, store, overrides=None, exclude=None):
     return records
 
 
+def _satisfy_comparisons(docs, entity, values):
+    """Adjust numeric fixtures that a prose invariant compares directly.
+
+    `The selling price ... must be strictly greater than its cost price.`
+    names two model fields; the sample generator would otherwise give both
+    the same value and the generated validation correctly rejects it.
+    """
+    model = next((item for item in docs.get("models") or []
+                  if item.get("name") == entity), None)
+    if model is None:
+        return values
+    numeric = [field["name"] for field in model.get("fields") or []
+               if isinstance(field, dict) and field.get("name")
+               and str(field.get("type") or "").lower() in
+               ("int", "integer", "float", "double", "decimal", "money")]
+    for invariant in docs.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else ""
+        flat = normalize(text or "")
+        for high in numeric:
+            for low in numeric:
+                if high == low:
+                    continue
+                high_key, low_key = normalize(high), normalize(low)
+                start = flat.find(high_key)
+                if start < 0:
+                    continue
+                end = flat.find(low_key, start + len(high_key))
+                if end < 0:
+                    continue
+                between = flat[start + len(high_key):end]
+                if not any(word in between for word in
+                           ("greaterthan", "morethan", "atleast", "exceeds")):
+                    continue
+                high_value, low_value = values.get(high), values.get(low)
+                if not isinstance(high_value, (int, float)) \
+                        or isinstance(high_value, bool) \
+                        or not isinstance(low_value, (int, float)) \
+                        or isinstance(low_value, bool):
+                    continue
+                if high_value <= low_value:
+                    values[high] = low_value + (
+                        1 if isinstance(high_value, int)
+                        and isinstance(low_value, int) else 1.0)
+    return values
+
+
 def _args_for_create(docs, method, model, number):
     args = {}
     fields = {field.get("name"): field for field in model.get("fields") or []
@@ -801,7 +978,9 @@ def _args_for_create(docs, method, model, number):
             elif name == "capacity":
                 args[name] = 1
             elif name in ("stock_quantity", "stock", "inventory_quantity"):
-                args[name] = 100
+                # The seeded row may already occupy part of a location's
+                # capacity; one unit keeps a create fixture valid.
+                args[name] = 1
             elif name in ("current_attendees_count", "current_count", "attendees"):
                 args[name] = 2
             elif allowed:
@@ -810,6 +989,7 @@ def _args_for_create(docs, method, model, number):
                 args[name] = _sample(field, number)
         else:
             args[name] = _sample(param, number)
+    _satisfy_comparisons(docs, model.get("name"), args)
     return args
 
 
@@ -954,30 +1134,47 @@ def _check_repository(docs, deps, repo, number):
                 return {"name": f"repository:{holder}", "status": "failed",
                         "reason": "read_all does not contain the created row"}
         if update is not None:
-            params = []
-            for param in update.get("params") or []:
-                if not isinstance(param, dict) or not param.get("name"):
-                    continue
+            update_params = [param for param in update.get("params") or []
+                             if isinstance(param, dict) and param.get("name")]
+            key_names = {pk, "id"}
+            has_key_param = any(param["name"] in key_names for param in update_params)
+            composite = (_composite_unique_fields(docs, entity)
+                         if has_key_param else set())
+            values = {}
+            for param in update_params:
                 name = param["name"]
                 if name == pk or name in ("id",):
-                    params.append(key)
+                    values[name] = key
+                    continue
+                if has_key_param and name in composite:
+                    # A primary key identifies the row. A composite unique
+                    # field is also used as a lookup criterion by the
+                    # generated update; passing the *new* month/category made
+                    # the lookup search for a row that does not exist yet.
+                    values[name] = None
+                    continue
+                field = next((item for item in model.get("fields") or []
+                              if isinstance(item, dict)
+                              and item.get("name") == name), None)
+                allowed = _allowed_values(docs, entity, name)
+                if isinstance((field or {}).get("foreign_key"), dict):
+                    values[name] = 1
+                elif name == "capacity":
+                    values[name] = 1
+                elif name in ("stock_quantity", "stock", "inventory_quantity"):
+                    # Some generated updates compare an identifier with the
+                    # stock count; stay above a normal fixture id while
+                    # leaving room under a storage-location capacity.
+                    values[name] = (max(10, key + 1)
+                                    if isinstance(key, int) else 10)
+                elif name in ("current_attendees_count", "current_count", "attendees"):
+                    values[name] = 2
+                elif allowed:
+                    values[name] = allowed[0]
                 else:
-                    field = next((item for item in model.get("fields") or []
-                                  if isinstance(item, dict)
-                                  and item.get("name") == name), None)
-                    allowed = _allowed_values(docs, entity, name)
-                    if isinstance((field or {}).get("foreign_key"), dict):
-                        params.append(1)
-                    elif name == "capacity":
-                        params.append(1)
-                    elif name in ("stock_quantity", "stock", "inventory_quantity"):
-                        params.append(100)
-                    elif name in ("current_attendees_count", "current_count", "attendees"):
-                        params.append(2)
-                    elif allowed:
-                        params.append(allowed[0])
-                    else:
-                        params.append(_sample(param, number + 200))
+                    values[name] = _sample(param, number + 200)
+            _satisfy_comparisons(docs, entity, values)
+            params = [values[param["name"]] for param in update_params]
             try:
                 obj.update(*params)
             except Exception as error:  # noqa: BLE001
@@ -1033,6 +1230,23 @@ def run(out_dir):
         effective = _generator.load_context(out_dir)
         if isinstance(effective.get("components"), dict):
             docs["components"] = effective["components"]
+        if isinstance(effective.get("services"), list):
+            docs["services"] = effective["services"]
+        if isinstance(effective.get("repositories"), list):
+            docs["repos"] = effective["repositories"]
+        # A reviewed grounding decision can drop a method from the emitted
+        # service while the extracted contract document still mentions it.
+        # Check the effective surface, not the raw document.
+        available = {
+            (service.get("service_name"), method.get("name"))
+            for group in (docs["services"], docs["repos"])
+            for service in group if isinstance(service, dict)
+            for method in service.get("methods") or [] if isinstance(method, dict)
+        }
+        if available:
+            docs["contracts"] = [
+                contract for contract in docs["contracts"]
+                if (contract.get("holder"), contract.get("method")) in available]
     except Exception:
         pass
     cli_path = Path(out_dir) / "generated" / "cli.py"

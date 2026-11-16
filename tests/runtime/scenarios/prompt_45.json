@@ -12,7 +12,13 @@
             "--capacity",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_type": "value1",
+            "capacity": 1
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -32,7 +38,14 @@
             "--phone",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Guest": {
+            "name": "value1",
+            "email": "seed1@example.test",
+            "phone": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -50,7 +63,13 @@
             "--guest-id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Booking": {
+            "room_id": 1,
+            "guest_id": 1
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -78,7 +97,15 @@
             "--room-id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Booking": {
+            "room_id": 1,
+            "guest_id": 1,
+            "start_date": "2024-01-01",
+            "end_date": "2024-01-01"
+          }
+        }
       },
       "expect": {
         "exit": 0
