@@ -383,18 +383,19 @@ A first generic runtime harness is in `tests/runtime/worker.py` and
 imports the generated package, checks `cli.py --help`, seeds models directly
 in a temporary store, and executes every scalar-effect method contract through
 the generated service/repository. Results are written to
-`out/validation/bench/acceptance/`; the scalar-contract checks pass for all
-60 prompts. The harness is intentionally data-driven and does not edit
-generated code. It also supports reviewed `scenarios.json` data for multi-step
-semantics. The initial scenarios expose two remaining gaps:
+`out/validation/bench/acceptance/`; the harness now reports **58/60** passed
+after adding the first scenario fixtures. It is intentionally data-driven and
+does not edit generated code. The remaining two failures are:
 
-- `prompt_53`: the generated `place_order` uses the entity returned by
-  `OrderRepository.create` as if it were an integer id;
-- `prompt_60`: confirming an order creates an invoice and updates the status
-  but does not decrement product stock.
+- `prompt_53`: `place_order` reserves stock but does not persist the
+  `OrderItem` rows described by its `order_items` argument;
+- `prompt_55`: `record_sale` is mechanically classified as a read-one and
+  does not create the `Sale`; its inferred stock effect cannot compensate for
+  the missing create contract.
 
-Those are extraction/contract gaps, not test-harness failures; they must be
-fixed in extraction/review and regenerated.
+Both are extraction/contract gaps, not test-code issues; they must be fixed in
+extraction/review and regenerated. The earlier `prompt_60` stock gap is now
+covered by an inferred stock contract and its scenario passes.
 
 The generator was also hardened to defer annotations (undefined type names
 such as `UUID` no longer abort import), normalize generic `List<T>`/`Map<K,V>`
