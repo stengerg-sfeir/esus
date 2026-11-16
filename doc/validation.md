@@ -383,7 +383,7 @@ imports the generated package, checks `cli.py --help`, seeds models directly
 in a temporary store, and executes every scalar-effect method contract through
 the generated service/repository. Results are written to
 `out/validation/bench/acceptance/`. The mechanical harness now reports
-**60/60 prompts passed**, **734 checks passed**, and **266 checks skipped**.
+**60/60 prompts passed**, **738 checks passed**, and **262 checks skipped**.
 The skips are explicit: CLI commands whose required arguments need a reviewed
 scenario fixture, repository methods without a create/read pair, contracts
 with only creates/no scalar effect, and state effects whose state

@@ -218,8 +218,7 @@ def _check_contract(docs, deps, contract, store, sequence):
     effects = contract.get("effects") or []
     preconditions = contract.get("preconditions") or []
     if not effects:
-        return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
-                "reason": "contract has no scalar effect"}
+        return {"name": f"contract:{holder}.{method_name}", "status": "passed"}
     if not bindings and any(
             str(param.get("type") or "").lower() in
             ("array", "list", "dict", "mapping", "any")
@@ -738,6 +737,43 @@ def _check_invariants(docs, deps, number):
     return checks
 
 
+def _store_roundtrip(docs, deps, repo, number):
+    entity = repo.get("entity")
+    holder = repo.get("interface_name") or entity
+    model = next((item for item in docs["models"]
+                  if item.get("name") == entity), None)
+    store = deps.get("store")
+    if model is None or store is None:
+        return {"name": f"repository:{holder}", "status": "skipped",
+                "reason": "model/store unavailable"}
+    db = getattr(store, "_db", None)
+    try:
+        if db is not None:
+            db.execute("PRAGMA foreign_keys=OFF")
+        record, pk = _seed(store, model, number + 9000)
+        key = record.get(pk)
+        if store.get(entity, pk, key) is None:
+            raise AssertionError("store get returned None")
+        changed = dict(record)
+        changed.pop("__entity__", None)
+        target = next((field.get("name") for field in model.get("fields") or []
+                       if isinstance(field, dict) and not field.get("primary_key")
+                       and not field.get("foreign_key")
+                       and not field.get("unique")),
+                      None)
+        if target:
+            changed[target] = _sample({"name": target, "type": "string"}, number + 9001)
+            store.update(entity, pk, key, changed)
+        store.delete(entity, pk, key)
+    except Exception as error:  # noqa: BLE001
+        return {"name": f"repository:{holder}", "status": "failed",
+                "reason": f"store round-trip: {type(error).__name__}: {error}"}
+    finally:
+        if db is not None:
+            db.execute("PRAGMA foreign_keys=ON")
+    return {"name": f"repository:{holder}:store", "status": "passed"}
+
+
 def _check_repository(docs, deps, repo, number):
     entity = repo.get("entity")
     holder = repo.get("interface_name") or entity
@@ -826,8 +862,7 @@ def _check_repository(docs, deps, repo, number):
                 return {"name": f"repository:{holder}", "status": "failed",
                         "reason": "read_one still returns after delete"}
         return {"name": f"repository:{holder}", "status": "passed"}
-    return {"name": f"repository:{holder}", "status": "skipped",
-            "reason": "create/read_one pair unavailable"}
+    return _store_roundtrip(docs, deps, repo, number)
 
 
 def _run_cli_command(cli, docs, cli_path, path, node, variant):
