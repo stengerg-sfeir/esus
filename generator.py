@@ -434,6 +434,20 @@ def load_context(output_dir):
     repositories = []
     if isinstance(ports, dict) and isinstance(ports.get("repositories"), list):
         repositories = [r for r in ports["repositories"] if isinstance(r, dict) and r.get("entity")]
+    if not repositories:
+        # An in-memory application can skip the persistence step while its
+        # service contracts still carry the repository interface. Reuse those
+        # interfaces against the in-memory Store instead of dropping CRUD.
+        for service in services:
+            name = service.get("service_name") or ""
+            if not normalize(name).endswith("repository"):
+                continue
+            entity = name[:-len("Repository")]
+            repositories.append({
+                "entity": entity,
+                "interface_name": name,
+                "methods": service.get("methods") or [],
+            })
     mappings = {}
     if isinstance(ports, dict) and isinstance(ports.get("entity_mappings"), list):
         for mapping in ports["entity_mappings"]:
@@ -2619,7 +2633,8 @@ def _create_defaults(ctx, entity):
             continue
         declared = str(field.get("type") or "").strip().lower()
         if name not in ("membership_date", "joined_date", "created_date",
-                        "created_at", "generated_at", "registration_date"):
+                        "created_at", "updated_at", "updated_date",
+                        "modified_at", "generated_at", "registration_date"):
             continue
         if declared in ("datetime", "timestamp"):
             defaults[name] = "datetime.datetime.now()"
