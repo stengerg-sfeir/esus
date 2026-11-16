@@ -319,6 +319,97 @@ def _check_contract(docs, deps, contract, store, sequence):
     return {"name": f"contract:{holder}.{method_name}", "status": "passed"}
 
 
+def _resolve(value, refs):
+    if isinstance(value, dict) and "ref" in value:
+        current = refs
+        for part in str(value["ref"]).split("."):
+            current = current[part]
+        return current
+    if isinstance(value, list):
+        return [_resolve(item, refs) for item in value]
+    if isinstance(value, dict):
+        return {key: _resolve(item, refs) for key, item in value.items()}
+    return value
+
+
+def _run_scenario(docs, deps, store, scenario, sequence):
+    name = f"scenario:{scenario.get('name') or 'unnamed'}"
+    refs = {}
+    model_by_entity = {m.get("name"): m for m in docs["models"]}
+    for number, step in enumerate(scenario.get("setup") or [], start=1):
+        entity = step.get("entity")
+        model = model_by_entity.get(entity)
+        if model is None:
+            return {"name": name, "status": "skipped",
+                    "reason": f"unknown setup entity {entity!r}"}
+        values = {key: _resolve(value, refs)
+                  for key, value in (step.get("values") or {}).items()}
+        try:
+            record, pk = _seed(store, model, sequence + number, values)
+        except Exception as error:  # noqa: BLE001
+            return {"name": name, "status": "failed",
+                    "reason": f"setup {entity} raised {type(error).__name__}: {error}"}
+        record["__entity__"] = entity
+        alias = step.get("as") or entity
+        refs[alias] = record
+        refs[f"{alias}.id"] = record.get(pk)
+        refs[f"{alias}.{pk}"] = record.get(pk)
+    when = scenario.get("when") or {}
+    holder = when.get("service") or when.get("repository")
+    target = deps.get("services", {}).get(holder) or deps.get("repos", {}).get(holder)
+    if target is None:
+        return {"name": name, "status": "skipped",
+                "reason": f"holder {holder!r} not generated"}
+    method = getattr(target, str(when.get("method") or ""), None)
+    if not callable(method):
+        return {"name": name, "status": "failed",
+                "reason": f"method {holder}.{when.get('method')} missing"}
+    raw_args = _resolve(when.get("args") or [], refs)
+    try:
+        if isinstance(raw_args, dict):
+            method(**raw_args)
+        elif isinstance(raw_args, list):
+            method(*raw_args)
+        else:
+            method(raw_args)
+    except Exception as error:  # noqa: BLE001
+        expected = (scenario.get("expect") or {}).get("error")
+        if expected and type(error).__name__ == expected:
+            return {"name": name, "status": "passed"}
+        return {"name": name, "status": "failed",
+                "reason": f"raised {type(error).__name__}: {error}; expected {expected!r}"}
+    expect = scenario.get("expect") or {}
+    if expect.get("error"):
+        return {"name": name, "status": "failed",
+                "reason": f"expected {expect['error']}, no error was raised"}
+    for target_name, expected in (expect.get("fields") or {}).items():
+        variable, _, field = target_name.partition(".")
+        if variable not in refs:
+            return {"name": name, "status": "failed",
+                    "reason": f"unknown scenario reference {variable!r}"}
+        record = refs[variable]
+        entity = record.get("__entity__", variable)
+        pk = next((field.get("name") for field in model_by_entity.get(entity, {}).get("fields", [])
+                   if field.get("primary_key")), "id")
+        try:
+            current = store.get(entity, pk, record.get(pk))
+        except Exception as error:  # noqa: BLE001
+            return {"name": name, "status": "failed",
+                    "reason": f"cannot read {entity}: {error}"}
+        if current.get(field) != expected:
+            return {"name": name, "status": "failed",
+                    "reason": f"{target_name} is {current.get(field)!r}, expected {expected!r}"}
+    for entity, expected in (expect.get("rows") or {}).items():
+        if entity not in model_by_entity:
+            return {"name": name, "status": "failed",
+                    "reason": f"unknown expected entity {entity!r}"}
+        count = len(store.all(entity))
+        if count != expected:
+            return {"name": name, "status": "failed",
+                    "reason": f"{entity} row count is {count}, expected {expected}"}
+    return {"name": name, "status": "passed"}
+
+
 def run(out_dir):
     checks = []
     docs = _documents(out_dir)
@@ -351,6 +442,15 @@ def run(out_dir):
     for contract in docs["contracts"]:
         checks.append(_check_contract(docs, deps, contract, store, sequence))
         sequence += 1
+    scenario_path = Path(out_dir) / "scenarios.json"
+    if scenario_path.is_file():
+        try:
+            scenarios = json.loads(scenario_path.read_text(encoding="utf-8"))
+        except ValueError:
+            scenarios = {}
+        for scenario in (scenarios.get("scenarios") or []):
+            checks.append(_run_scenario(docs, deps, store, scenario, sequence))
+            sequence += 1
     return {"prompt": Path(out_dir).name,
             "status": "passed" if all(c["status"] != "failed" for c in checks) else "failed",
             "checks": checks}
