@@ -151,6 +151,9 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
     inferred = review_contracts.add_inferred_stock_effects(directory)
     if inferred:
         counts["inferred-stock-effects"] = (inferred, inferred)
+    collection = review_contracts.add_inferred_collection_creates(directory)
+    if collection:
+        counts["inferred-collection-creates"] = (collection, collection)
     return counts
 
 

@@ -370,8 +370,7 @@ generated package. `generator.py` reports:
 
 - **777** methods;
 - **62** bodies written provisionally by the model;
-- **0** documented stubs remaining after the generic contract and ownership
-  repairs.
+- **1** documented stub remaining (`prompt_53.place_order`, collection-create gap).
 
 `python3 -m compileall out/validation/bench` is clean. The only CLI smoke
 exception is the degenerate `prompt_02` calculator, whose `app.py` expects its

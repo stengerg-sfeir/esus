@@ -10028,6 +10028,22 @@ def _precondition_order_complaints(tree, contract):
     return found
 
 
+def _call_target_count(tree, call):
+    """How many calls target the exact `Repository.method` in a contract."""
+    parts = str(call).split(".")
+    repo_name, method_name = ((parts[-2], parts[-1]) if len(parts) >= 2
+                              else (None, _last_name(call)))
+    count = 0
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == method_name):
+            continue
+        if repo_name is None or _repo_name(node.func.value) == repo_name:
+            count += 1
+    return count
+
+
 def _contract_complaints(tree, contract, judge=None, body_text=""):
     """Check the human-confirmed method contract, using only its vocabulary.
 
@@ -10102,29 +10118,14 @@ def _contract_complaints(tree, contract, judge=None, body_text=""):
 
     for create in contract.get("creates") or []:
         call = create.get("call")
-        if call and _last_name(call) not in calls:
-            found.append(
-                f"the confirmed contract creates `{create.get('class') or 'a record'}` "
-                f"through `{call}(...)`, but the body never calls "
-                f"`{_last_name(call)}`")
-        elif call:
-            # One confirmed create is one record on its own repository: a
-            # second call there stores a duplicate. Calls to another
-            # repository's `create` (an order line beside its order) are a
-            # different entity and are not a duplicate of this contract.
-            parts = call.split(".")
-            repo_name, method_name = ((parts[-2], parts[-1])
-                                      if len(parts) >= 2
-                                      else (None, _last_name(call)))
-            times = 0
-            for node in ast.walk(tree):
-                if not (isinstance(node, ast.Call)
-                        and isinstance(node.func, ast.Attribute)
-                        and node.func.attr == method_name):
-                    continue
-                if repo_name is None or _repo_name(node.func.value) == repo_name:
-                    times += 1
-            if times > 1:
+        if call:
+            times = _call_target_count(tree, call)
+            if times == 0:
+                found.append(
+                    f"the confirmed contract creates `{create.get('class') or 'a record'}` "
+                    f"through `{call}(...)`, but the body never calls "
+                    f"`{call}`")
+            elif times > 1:
                 found.append(
                     f"the confirmed contract creates one "
                     f"`{create.get('class') or 'record'}` through "

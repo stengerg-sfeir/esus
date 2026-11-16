@@ -646,6 +646,66 @@ def _stock_reservation_effect(ctx, role, text):
     return None
 
 
+def _collection_create(ctx, method):
+    """A collection parameter's related entity, when the model names it."""
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            continue
+        name = str(param["name"])
+        if not name.endswith("s") or len(name) < 4:
+            continue
+        singular = name[:-1].rstrip("_")
+        entity = next((item for item in ctx.get("entity_names") or []
+                       if normalize(item) == normalize(singular)), None)
+        if not entity:
+            continue
+        call = _create_call(ctx, entity, "service")
+        if call:
+            return {"class": entity, "call": call}
+    return None
+
+
+def add_inferred_collection_creates(output_dir):
+    """Persist a collection parameter's create contract on existing methods.
+
+    `place_order(customer_id, order_items)` names the related `OrderItem`
+    collection; the review can derive the create call from the signature and
+    the model, without a domain noun in the generator. The body still has to
+    create one row per item, which the LLM pass then checks against the
+    contract.
+    """
+    ctx = generator.load_context(str(output_dir))
+    records, _dropped = contract_rules.load_method_contracts(
+        str(output_dir), load_requirements(str(output_dir)))
+    changed = 0
+    for service in ctx.get("services") or []:
+        if not isinstance(service, dict):
+            continue
+        holder = service.get("service_name")
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            create = _collection_create(ctx, method)
+            if not create:
+                continue
+            record = next((item for item in records
+                           if item.get("holder") == holder
+                           and item.get("method") == method["name"]), None)
+            if record is None:
+                record = {"holder": holder, "method": method["name"],
+                          "decided_by": "inferred", "effects": [], "creates": [],
+                          "bindings": [], "reads": [], "derives": [],
+                          "preconditions": [], "order": [], "forbid": []}
+                records.append(record)
+            creates = record.setdefault("creates", [])
+            if not any(item.get("class") == create["class"] for item in creates):
+                creates.append(create)
+                changed += 1
+    if changed:
+        contract_rules.save_method_contracts(str(output_dir), records)
+    return changed
+
+
 def _propose(ctx, holder, method, role, requirement):
     """One proposal from the method's description/requirement, or None."""
     description = method.get("description") or ""
