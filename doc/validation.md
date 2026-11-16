@@ -354,3 +354,31 @@ formerly blocked prompts were: `prompt_03` review, `prompt_13` successful,
 `prompt_18` successful, `prompt_19` review, `prompt_26` review,
 `prompt_32` successful, `prompt_34` review, `prompt_40` successful,
 `prompt_41` successful, `prompt_60` review.
+
+## Bench generation (2026-11-16)
+
+The final Kaggle output was downloaded to `out/validation/bench/`. The review
+decisions were answered with `scripts/answer_reviews.py` using the review
+scripts' own writers: ties keep the recorded classifier, duplicate surface
+nodes keep both, slots take the first enumerated candidate, contracts keep the
+proposed effects and skip optional checks, and grounding keeps the evidence.
+Dead flags whose upstream relationship was absent were recorded as explicit
+`drop-flag` surface decisions so the generated program remains runnable.
+
+All 60 prompt directories now probe with **zero blockers** and have a
+generated package. `generator.py` reports:
+
+- **782** methods;
+- **62** bodies written provisionally by the model;
+- **11** documented stubs remaining.
+
+`python3 -m compileall out/validation/bench` is clean. The only CLI smoke
+exception is the degenerate `prompt_02` calculator, whose `app.py` expects its
+three runtime arguments rather than `--help`. Per-prompt counts are in
+`out/validation/bench/summary.json`.
+
+The generator was also hardened to defer annotations (undefined type names
+such as `UUID` no longer abort import), normalize Java-shaped
+`List<T>`/`Map<K,V>` contract spellings, and degrade gracefully when a prompt
+module is truncated. A `null` persistence document and merged-method
+duplicates are removed by the generic repair path.
