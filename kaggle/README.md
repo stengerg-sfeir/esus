@@ -77,8 +77,8 @@ the six initial prompts) and reports `successful`, `review`, and `failed`:
 
 ```sh
 kaggle kernels push -p kaggle/repro66
-kaggle kernels status gillesstenger/esus-repro-66-prompts
-kaggle kernels logs gillesstenger/esus-repro-66-prompts
+kaggle kernels status gillesstenger/esus-reproducibility-66-prompts
+kaggle kernels logs gillesstenger/esus-reproducibility-66-prompts
 ```
 
 The notebook downloads a CUDA `llama-server` prebuilt if the image does not
