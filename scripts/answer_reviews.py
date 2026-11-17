@@ -2,12 +2,12 @@
 """Record deterministic answers for the review questions in a validation tree.
 
 The validation bench stores the extraction documents, not a human at a
-terminal.  This pass answers the finite questions the review scripts offer,
-using conservative defaults: keep the recorded classifier, keep both surface
-nodes, choose the first enumerated slot, keep declared contracts, and keep
-grounding evidence.  Every answer still goes through the normal review writer
-and is stored in its normal sidecar, so the generated program is reproducible
-and a human can replace any decision later.
+terminal.  This pass only records answers that are actually forced by the
+documents: a singleton slot candidate is usable, while a choice between
+several methods, fields, routes or contract values stays open.  Surface drops
+and upstream gaps are never decided automatically.  Every answer still goes
+through the normal review writer and is stored in its normal sidecar, so a
+human can finish the remaining questions later.
 
 Usage:
     python scripts/answer_reviews.py out/validation/bench
@@ -28,15 +28,27 @@ import review_grounding  # noqa: E402
 import review_slots  # noqa: E402
 import review_surface  # noqa: E402
 import review_ties  # noqa: E402
-from kernel.consistency.loader import load_requirements  # noqa: E402
-from kernel.extraction.decisions import requirements_sha  # noqa: E402
 
 
-def _surface_answer(prompt):
-    prompt = prompt.strip().lower()
-    if prompt.startswith("drop or skip"):
-        return "drop"
-    return "1"
+
+def _surface_answer(_prompt):
+    """Do not choose a surface route or drop a flag automatically.
+
+    A dead option with no candidate can look harmless to drop, but it may be
+    a required flag whose extraction was incomplete. A route with several
+    candidates is a business decision. Both stay open for the attended
+    review; only a single, explicitly evidenced route may be automated later.
+    """
+    return "skip"
+
+
+def _slot_answer(prompt):
+    """Answer a slot only when the offered candidate set is a singleton."""
+    if "[" not in prompt or "]" not in prompt:
+        return "skip"
+    shown = prompt.split("[", 1)[1].split("]", 1)[0]
+    candidates = [item.strip() for item in shown.split(",") if item.strip()]
+    return "1" if len(candidates) == 1 else "skip"
 
 
 def _grounding_answer(_prompt, default):
@@ -68,27 +80,26 @@ def _answer_contracts(directory: Path) -> tuple[int, int]:
     answered = 0
     for proposal in proposals:
         answers = {}
-        method_name = str(proposal.get("method") or "").lower()
+        ambiguous = False
+        # A proposal with any non-singleton choice or free-form effect stays
+        # unanswered; the attended review must decide it.
         for question in proposal.get("questions") or []:
             question_id = question.get("id")
             if question.get("kind") == "choice":
                 choices = question.get("choices") or []
-                answers[question_id] = choices[0][1] if choices else None
+                if len(choices) != 1:
+                    ambiguous = True
+                    break
+                answers[question_id] = choices[0][1]
             elif question.get("required"):
-                target = str(question.get("effect") or "")
-                if target.endswith(".status") or target.endswith(".state"):
-                    if "cancel" in method_name:
-                        answers[question_id] = "'cancelled'"
-                    elif "ship" in method_name:
-                        answers[question_id] = "'shipped'"
-                    elif "confirm" in method_name:
-                        answers[question_id] = "'confirmed'"
-                    else:
-                        answers[question_id] = "1"
-                else:
-                    answers[question_id] = "1"
+                # A free-form effect operand or status is a business choice;
+                # do not invent one deterministically.
+                ambiguous = True
+                break
             else:
                 answers[question_id] = None
+        if ambiguous:
+            continue
         record = review_contracts._finalize(
             proposal, answers, context["prompt_sha"], ctx)
         if record is None:
@@ -102,46 +113,14 @@ def _answer_contracts(directory: Path) -> tuple[int, int]:
     return len(proposals), answered
 
 
-def _drop_upstream_gaps(directory: Path) -> int:
-    """Remove a dead flag whose upstream model relationship is absent.
+def _drop_upstream_gaps(_directory: Path) -> int:
+    """Never turn an upstream extraction gap into a surface drop.
 
-    The review deliberately refuses to turn this into a surface decision: the
-    right repair is the missing model field. For the bench, answering `drop`
-    keeps the generated program runnable while the model gap remains visible
-    in the review log.
+    An absent model relationship is a document defect. Dropping the flag
+    hides that defect and can remove a required capability; it stays for the
+    attended review or the extraction repair.
     """
-    routes, _context = review_surface.collect_routes(str(directory))
-    gaps = [question for question in routes
-            if isinstance(question, dict)
-            and question.get("kind") == "upstream-gap"]
-    if not gaps:
-        return 0
-    records = review_surface.load_surface_decisions(str(directory))
-    existing = {(record.get("command"), record.get("subcommand"),
-                 record.get("flag"))
-                for record in records if isinstance(record, dict)}
-    prompt_sha = requirements_sha(load_requirements(str(directory)))
-    added = 0
-    for question in gaps:
-        key = (question.get("command"), question.get("subcommand"),
-               question.get("flag"))
-        if key in existing:
-            continue
-        record = {
-            "kind": "drop-flag",
-            "command": question["command"],
-            "subcommand": question.get("subcommand"),
-            "flag": question["flag"],
-            "decided_by": "auto",
-        }
-        if prompt_sha is not None:
-            record["requirements_sha"] = prompt_sha
-        records.append(record)
-        existing.add(key)
-        added += 1
-    if added:
-        review_surface.save_surface_decisions(str(directory), records)
-    return added
+    return 0
 
 
 def review_one(directory: Path) -> dict[str, tuple[int, int]]:
@@ -149,16 +128,13 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
     counts["grounding"] = review_grounding.run_review(
         str(directory), ask=_grounding_answer)
     counts["ties"] = review_ties.run_review(
-        str(directory), input_fn=lambda _prompt: "1")
+        str(directory), input_fn=lambda _prompt: "skip")
     counts["slots"] = review_slots.run_review(
-        str(directory), input_fn=lambda _prompt: "1")
+        str(directory), input_fn=_slot_answer)
     counts["surface"] = review_surface.run_review(
         str(directory), input_fn=_surface_answer)
-    gap_drops = _drop_upstream_gaps(directory)
-    if gap_drops:
-        counts["upstream-gap-drops"] = (gap_drops, gap_drops)
     counts["aliases"] = review_aliases.run_review(
-        str(directory), input_fn=lambda _prompt: "1")
+        str(directory), input_fn=lambda _prompt: "skip")
 
     counts["contracts"] = _answer_contracts(directory)
     inferred = review_contracts.add_inferred_stock_effects(directory)

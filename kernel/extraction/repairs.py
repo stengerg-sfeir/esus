@@ -3301,17 +3301,10 @@ def repair_missing_method_flags(components, requirements, services, log=None):
                         if (isinstance(param, dict)
                                 and normalize(param.get("name") or "") == normalize(flag)):
                             candidates.append((service, method, param))
-            if len(candidates) > 1:
-                # Prefer the method whose name spells the whole subcommand
-                # (`expense report yearly` -> `expensereportyearly`) over a
-                # generic method that merely mentions the same noun.
-                wanted = normalize(sub or command)
-                preferred = [
-                    item for item in candidates
-                    if wanted in normalize(item[1].get("name") or "")]
-                if len(preferred) == 1:
-                    candidates = preferred
             if len(candidates) != 1:
+                # Several methods can satisfy one flag; the choice changes
+                # the operation and its type. Do not pick a plausible method
+                # by name alone.
                 continue
             _service, _method, param = candidates[0]
             option_type = _option_type(param.get("type"))

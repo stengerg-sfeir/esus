@@ -34,6 +34,7 @@ import shutil
 import sys
 from pathlib import Path
 
+from kernel.extraction import adapters_mechanical
 from kernel.extraction import generation_plans
 from kernel.extraction import pipeline as pipeline_module
 from kernel.extraction import runner, triage, writer
@@ -427,6 +428,17 @@ def repair_existing(output_dir):
         repairs.repair_delete_surface(components, log)
         repairs.repair_surface_from_adapters(
             components, adapters, models, services, requirements, log)
+        derived, reason = adapters_mechanical.derive_adapters(
+            components, services, models, requirements, allow_prose=True)
+        if derived is not None and len(derived) > len(adapters or []):
+            documents[pipeline_module.INTERACTION_ADAPTERS] = derived
+            log.write(
+                f"[ok] step adapters: {len(derived)} adapter(s) re-derived "
+                "after surface repairs")
+        elif reason and log is not None:
+            log.write(
+                f"[!] step adapters: mechanical re-derivation declined "
+                f"({reason}) — keeping the existing adapters")
         if isinstance(ports, dict):
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
