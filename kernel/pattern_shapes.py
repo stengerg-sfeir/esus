@@ -98,6 +98,10 @@ def _shape_of(text):
         return NONE
     if outer in SCALAR_NAMES:
         return SCALAR
+    # A page wrapper is a collection in the only sense the pattern catalogue
+    # cares about: it carries the selected records and is not one entity.
+    if "paginat" in outer or outer.endswith(("page", "paged", "pageresult")):
+        return COLLECTION
     return ENTITY
 
 

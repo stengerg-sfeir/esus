@@ -116,6 +116,134 @@ class ContradictoryRaiseTests(unittest.TestCase):
         self.assertEqual(repaired[0]["methods"][0]["raises"], ["ProductNotFoundError"])
 
 
+class ContractRepairTests(unittest.TestCase):
+    def test_cancel_restores_stock_and_adds_the_status_effect(self):
+        services = [{"service_name": "OrderService", "methods": [{
+            "name": "cancel_order",
+            "params": [{"name": "order_id", "type": "int"}],
+            "return_type": "None"}]}]
+        repositories = [{"entity": "Order", "interface_name": "OrderRepository",
+                         "methods": [
+                             {"name": "read_one", "params": [
+                                 {"name": "order_id", "type": "int"}]},
+                             {"name": "update", "params": [
+                                 {"name": "order_id", "type": "int"},
+                                 {"name": "status", "type": "str"}]}]}]
+        models = [{"name": "Order", "fields": [
+            {"name": "order_id", "type": "int", "primary_key": True},
+            {"name": "status", "type": "str"}]}]
+        contracts = [{
+            "holder": "OrderService", "method": "cancel_order",
+            "effects": [{"target": "product.stock_quantity",
+                         "op": "decrement", "by": "quantity",
+                         "write": "ProductRepository.update"}],
+            "bindings": [{"name": "order", "repository": "OrderRepository",
+                          "method": "read_one", "args": ["order_id"]}],
+            "preconditions": [{"check": "order exists",
+                               "error": "OrderNotFoundError",
+                               "raise_when": "false"}],
+        }]
+        repairs.repair_contracts(
+            contracts, services, repositories, models,
+            "Cancelling restores the stock and sets the order status to cancelled.")
+        operations = {effect["target"]: effect["op"]
+                      for effect in contracts[0]["effects"]}
+        self.assertEqual(operations["product.stock_quantity"], "increment")
+        self.assertEqual(operations["order.status"], "set")
+
+    def test_confirm_creates_the_invoice_named_by_the_prompt(self):
+        services = [{"service_name": "OrderService", "methods": [{
+            "name": "confirm_order",
+            "params": [{"name": "order_id", "type": "int"}],
+            "return_type": "None"}]}]
+        repositories = [
+            {"entity": "Order", "interface_name": "OrderRepository",
+             "methods": [{"name": "read_one", "params": [
+                 {"name": "order_id", "type": "int"}]}]},
+            {"entity": "Invoice", "interface_name": "InvoiceRepository",
+             "methods": [{"name": "create", "params": [
+                 {"name": "order_id", "type": "int"},
+                 {"name": "total_amount", "type": "decimal"},
+                 {"name": "generated_at", "type": "datetime"}]}]},
+        ]
+        models = [
+            {"name": "Order", "fields": [
+                {"name": "order_id", "type": "int", "primary_key": True},
+                {"name": "status", "type": "str"}]},
+            {"name": "Invoice", "fields": [
+                {"name": "invoice_id", "type": "int", "primary_key": True},
+                {"name": "order_id", "type": "int"},
+                {"name": "total_amount", "type": "decimal"},
+                {"name": "generated_at", "type": "datetime"}]},
+        ]
+        contracts = [{
+            "holder": "OrderService", "method": "confirm_order",
+            "bindings": [{"name": "order", "repository": "OrderRepository",
+                          "method": "read_one", "args": ["order_id"]}],
+        }]
+        repairs.repair_contracts(
+            contracts, services, repositories, models,
+            "Confirming an order creates an invoice.")
+        create = contracts[0]["creates"][0]
+        self.assertEqual(create["class"], "Invoice")
+        self.assertEqual(create["call"], "InvoiceRepository.create")
+        self.assertEqual(create["fields"]["order_id"], "param:order_id")
+        self.assertEqual(create["fields"]["generated_at"], "now")
+
+    def test_a_missing_ship_contract_is_synthesized_from_its_verb(self):
+        services = [{"service_name": "OrderService", "methods": [{
+            "name": "ship_order",
+            "params": [{"name": "order_id", "type": "int"}],
+            "return_type": "None"}]}]
+        repositories = [{"entity": "Order", "interface_name": "OrderRepository",
+                         "methods": [
+                             {"name": "read_one", "params": [
+                                 {"name": "order_id", "type": "int"}]},
+                             {"name": "update", "params": [
+                                 {"name": "order_id", "type": "int"},
+                                 {"name": "status", "type": "str"}]}]}]
+        models = [{"name": "Order", "fields": [
+            {"name": "order_id", "type": "int", "primary_key": True},
+            {"name": "status", "type": "str"}]}]
+        contracts = []
+        repairs.repair_contracts(
+            contracts, services, repositories, models, "Ship confirmed orders.")
+        self.assertEqual(contracts[0]["method"], "ship_order")
+        self.assertEqual(contracts[0]["effects"][0]["value"], "'shipped'")
+        self.assertEqual(contracts[0]["preconditions"][0]["check"],
+                         "order.status == 'confirmed'")
+
+    def test_a_param_named_after_the_entity_adds_the_missing_binding(self):
+        services = [{"service_name": "LibraryService", "methods": [{
+            "name": "borrow_book",
+            "params": [{"name": "member_id", "type": "int"},
+                       {"name": "book_id", "type": "int"}],
+            "return_type": "None"}]}]
+        repositories = [
+            {"entity": "Member", "interface_name": "MemberRepository",
+             "methods": [{"name": "read_one", "params": [
+                 {"name": "id", "type": "int"}]}]},
+            {"entity": "Book", "interface_name": "BookRepository",
+             "methods": [{"name": "read_one", "params": [
+                 {"name": "id", "type": "int"}]}]},
+        ]
+        models = [{"name": "Member"}, {"name": "Book"}]
+        contracts = [{
+            "holder": "LibraryService", "method": "borrow_book",
+            "effects": [{"target": "book.available_copies",
+                         "op": "decrement", "by": "1"}],
+            "preconditions": [
+                {"check": "book exists", "error": "BookNotFoundError",
+                 "raise_when": "false"},
+                {"check": "member exists", "error": "MemberNotFoundError",
+                 "raise_when": "false"}],
+        }]
+        repairs.repair_contracts(
+            contracts, services, repositories, models, "Borrow a book.")
+        bound = {item["name"] for item in contracts[0]["bindings"]}
+        self.assertEqual(bound, {"book", "member"})
+
+
 class MappingFieldRepairTests(unittest.TestCase):
     def test_fields_outside_the_signature_move_into_the_mapping(self):
         services = [{"service_name": "CustomerRepository", "methods": [{

@@ -640,6 +640,17 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(strategy, "crud:filter")
         self.assertIn("FILTER_WITH_PAGINATION", detail)
 
+    def test_pagination_signature_plans_a_paginated_read(self):
+        """A page DTO return is not an entity lookup when page params exist."""
+        method = {"name": "read_all_paginated",
+                  "params": [{"name": "page_number", "type": "int"},
+                             {"name": "page_size", "type": "int"}],
+                  "return_type": "PaginatedCustomerList"}
+        strategy, detail = codegen.plan_method(method, None, ["Customer"])
+        self.assertEqual(strategy, "crud:paginate")
+        self.assertEqual(codegen.pagination_params(method),
+                         ("page_number", "page_size"))
+
     def test_model_types_spell_str_bool_and_dict(self):
         self.assertEqual(codegen.map_type("str"), "str")
         self.assertEqual(codegen.map_type("bool"), "bool")

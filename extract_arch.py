@@ -40,6 +40,7 @@ from kernel.extraction import runner, triage, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
 from kernel.extraction.server_backend import ServerError
 from kernel.extraction.decisions import apply_decisions, load_decisions
+from kernel.extraction.contracts import load_method_contracts, save_method_contracts
 from review_surface import apply_surface_decisions, load_surface_decisions
 
 
@@ -427,6 +428,14 @@ def repair_existing(output_dir):
         if isinstance(ports, dict):
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
+    contracts, _dropped_contracts = load_method_contracts(
+        str(directory), requirements)
+    if contracts:
+        repositories = (ports.get("repositories")
+                        if isinstance(ports, dict) else None) or []
+        contracts = repairs.repair_contracts(
+            contracts, services, repositories, models, requirements, log)
+        save_method_contracts(str(directory), contracts)
     if isinstance(components, dict):
         decisions = load_surface_decisions(directory)
         if decisions:

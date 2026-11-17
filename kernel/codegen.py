@@ -219,6 +219,33 @@ def classify_crud(method_name):
     return None
 
 
+PAGINATION_PAGE_NAMES = frozenset({
+    "page", "pagenumber", "pagenum", "pageindex", "pageno",
+})
+PAGINATION_SIZE_NAMES = frozenset({
+    "pagesize", "perpage", "pagecount", "limit",
+})
+
+
+def pagination_params(method):
+    """`(page_name, size_name)` when the method takes a page pair.
+
+    Pagination is a signature fact, not a pattern claim: `read_all_paginated`
+    may have been classified as a one-record read because its declared return
+    is a page DTO rather than a list. The emitter can still write the paged
+    read from the parameters and the entity.
+    """
+    names = [param.get("name") for param in (method or {}).get("params") or []
+             if isinstance(param, dict) and isinstance(param.get("name"), str)]
+    page = next((name for name in names
+                 if normalize(name) in PAGINATION_PAGE_NAMES), None)
+    size = next((name for name in names
+                 if normalize(name) in PAGINATION_SIZE_NAMES), None)
+    if page is None or size is None:
+        return None
+    return page, size
+
+
 def plan_method(method, entry, entity_names=()):
     """Return `(strategy, detail)` for one contract method.
 
@@ -229,6 +256,11 @@ def plan_method(method, entry, entity_names=()):
     """
     method = method if isinstance(method, dict) else {}
     name = method.get("name") if isinstance(method.get("name"), str) else ""
+    pagination = pagination_params(method)
+    if pagination is not None and normalize(name).startswith(
+            ("readall", "list", "find", "search", "getall", "browse")):
+        return ("crud:paginate",
+                f"page parameters {pagination[0]}/{pagination[1]}")
     if normalize(name).startswith("record"):
         return ("crud:create", "record verb")
     if entry is not None:

@@ -1815,6 +1815,279 @@ def repair_adapter_lookup_entities(adapters, services, repositories, models,
     return adapters
 
 
+def repair_contracts(contracts, services, repositories, models, requirements="",
+                     log=None):
+    """Repair generic contract holes the model can infer from the prompt.
+
+    Two structural mistakes recur when the contract review is answered
+    automatically:
+
+    - an effect on a cancellation/return says `decrement` even though the
+      prompt says the stock or copy count is restored;
+    - the contract names an entity in a precondition/effect but carries no
+      binding for the `<entity>_id` parameter that reads it.
+
+    Both are document defects, not code-generation defects. The repair is
+    limited to words present in the prompt, and it only adds bindings to
+    repositories whose `read_one` method exists.
+    """
+    if not isinstance(contracts, list):
+        return contracts
+    text = (requirements or "").lower()
+    restore_intent = any(phrase in text for phrase in (
+        "restore", "restored", "release", "released", "add back",
+        "increments", "increment", "return to stock"))
+    returned_intent = "returned" in text
+    cancelled_intent = "cancelled" in text or "canceled" in text
+    index = _service_method_index(list(services or []) + list(repositories or []))
+    repos_by_entity = {}
+    for repo in repositories or []:
+        if not isinstance(repo, dict):
+            continue
+        entity = repo.get("entity")
+        interface = repo.get("interface_name") or entity
+        if not isinstance(entity, str) or not isinstance(interface, str):
+            continue
+        methods = {normalize(method.get("name"))
+                   for method in repo.get("methods") or []
+                   if isinstance(method, dict) and method.get("name")}
+        if "readone" in methods:
+            repos_by_entity.setdefault(normalize(entity), interface)
+    model_names = {normalize(model.get("name")): model.get("name")
+                   for model in models or []
+                   if isinstance(model, dict) and model.get("name")}
+    known = {(record.get("holder"), record.get("method"))
+             for record in contracts if isinstance(record, dict)}
+    # A state transition may have a service method and human description but
+    # no contract at all (ship_order is the common case). Synthesize the
+    # single, unambiguous status write from the method verb and its `<x>_id`
+    # parameter; the contract compiler can then emit it mechanically.
+    state_verbs = {
+        "ship": ("shipped", "confirmed"),
+        "confirm": ("confirmed", "pending"),
+        "cancel": ("cancelled", "confirmed"),
+        "return": ("returned", None),
+    }
+    for service in services or []:
+        if not isinstance(service, dict):
+            continue
+        holder = service.get("service_name") or ""
+        if normalize(holder).endswith("repository"):
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            method_name = method.get("name")
+            verb = next((word for word in state_verbs
+                         if normalize(method_name).startswith(word)), None)
+            if verb is None or (holder, method_name) in known:
+                continue
+            params = [param.get("name") for param in method.get("params") or []
+                      if isinstance(param, dict) and param.get("name")]
+            entity = next((model_names[normalize(name[:-3])]
+                           for name in params
+                           if normalize(name).endswith("id")
+                           and normalize(name[:-3]) in model_names), None)
+            if entity is None:
+                continue
+            entity_param = next(name for name in params
+                                if normalize(name[:-3]) == normalize(entity)
+                                and normalize(name).endswith("id"))
+            interface = repos_by_entity.get(normalize(entity))
+            if interface is None:
+                continue
+            value, expected = state_verbs[verb]
+            binding_name = normalize(entity)
+            error = next((item.get("name") for item in models or []
+                          if isinstance(item, dict)
+                          and "status" in normalize(item.get("name") or "")),
+                         None) or "ValueError"
+            record = {
+                "holder": holder,
+                "method": method_name,
+                "decided_by": "auto",
+                "bindings": [{
+                    "name": binding_name,
+                    "repository": interface,
+                    "method": "read_one",
+                    "args": [entity_param],
+                }],
+                "effects": [{
+                    "target": f"{binding_name}.status",
+                    "op": "set",
+                    "value": f"'{value}'",
+                    "write": f"{interface}.update",
+                }],
+            }
+            if expected:
+                record["preconditions"] = [{
+                    "check": f"{binding_name}.status == '{expected}'",
+                    "raise_when": "false",
+                    "error": error,
+                }]
+            contracts.append(record)
+            known.add((holder, method_name))
+            if log is not None:
+                log.write(
+                    f"[ok] step contracts: synthesized {holder}.{method_name} "
+                    f"status {value} from its {verb} verb")
+    for record in contracts:
+        if not isinstance(record, dict):
+            continue
+        holder = record.get("holder")
+        method_name = record.get("method")
+        method = index.get(normalize(holder or ""), {}).get(
+            normalize(method_name or ""))
+        if method is None:
+            continue
+        params = [param.get("name") for param in method.get("params") or []
+                  if isinstance(param, dict) and isinstance(param.get("name"), str)]
+        bindings = record.setdefault("bindings", [])
+        bound = {normalize(item.get("name")) for item in bindings
+                 if isinstance(item, dict) and item.get("name")}
+        referenced = []
+        for effect in record.get("effects") or []:
+            target = effect.get("target") if isinstance(effect, dict) else None
+            if isinstance(target, str) and "." in target:
+                referenced.append(target.split(".", 1)[0])
+        for precondition in record.get("preconditions") or []:
+            check = precondition.get("check") if isinstance(precondition, dict) else None
+            if isinstance(check, str):
+                match = re.fullmatch(r"([A-Za-z_]\w*)\s+exists", check.strip())
+                if match:
+                    referenced.append(match.group(1))
+        for entity in referenced:
+            key = normalize(entity)
+            if key in bound:
+                continue
+            interface = repos_by_entity.get(key)
+            if interface is None:
+                continue
+            param = next((name for name in params
+                          if normalize(name) == normalize(entity) + "id"), None)
+            if param is None:
+                continue
+            bindings.append({
+                "name": entity,
+                "repository": interface,
+                "method": "read_one",
+                "args": [param],
+            })
+            bound.add(key)
+            if log is not None:
+                log.write(
+                    f"[ok] step contracts: {holder}.{method_name} bound "
+                    f"{entity} to {interface}.read_one({param})")
+        normalized_method = normalize(method_name or "")
+        cancelling = "cancel" in normalized_method
+        returning = normalized_method.startswith("return") \
+            or normalized_method.startswith("returnbook")
+        if cancelling or returning:
+            for effect in record.get("effects") or []:
+                if not isinstance(effect, dict):
+                    continue
+                target = normalize(effect.get("target") or "")
+                if restore_intent and ("stock" in target or "availablecopies" in target) \
+                        and effect.get("op") == "decrement":
+                    effect["op"] = "increment"
+                    if log is not None:
+                        log.write(
+                            f"[ok] step contracts: {holder}.{method_name} "
+                            f"restores {effect.get('target')} (increment)")
+                if returning and target.endswith(("status", "state")) \
+                        and effect.get("op") == "set" \
+                        and str(effect.get("value")).strip("'\"").lower() in ("active", "open") \
+                        and returned_intent:
+                    effect["value"] = "'returned'"
+                    if log is not None:
+                        log.write(
+                            f"[ok] step contracts: {holder}.{method_name} "
+                            f"sets {effect.get('target')} to returned")
+        if "confirm" in normalized_method and "invoice" in text:
+            has_invoice = any(
+                isinstance(create, dict)
+                and "invoice" in normalize(create.get("class") or "")
+                for create in record.get("creates") or [])
+            if not has_invoice:
+                invoice = next((model for model in models or []
+                                if isinstance(model, dict)
+                                and "invoice" in normalize(model.get("name") or "")),
+                               None)
+                repo = next((item for item in repositories or []
+                             if isinstance(item, dict)
+                             and "invoice" in normalize(item.get("entity") or "")
+                             and any(isinstance(method, dict)
+                                     and normalize(method.get("name") or "") == "create"
+                                     for method in item.get("methods") or [])),
+                            None)
+                order_binding = next(
+                    (item for item in bindings
+                     if isinstance(item, dict)
+                     and isinstance(item.get("args"), list)
+                     and item["args"]), None)
+                if invoice and repo and order_binding:
+                    fields = {}
+                    for field in invoice.get("fields") or []:
+                        if not isinstance(field, dict) or field.get("primary_key"):
+                            continue
+                        name = field.get("name")
+                        kind = str(field.get("type") or "").lower()
+                        if "id" in normalize(name or ""):
+                            fields[name] = f"param:{order_binding['args'][0]}"
+                        elif kind in ("datetime", "timestamp", "date"):
+                            fields[name] = "now"
+                        elif kind in ("int", "integer", "float", "double",
+                                      "decimal", "money"):
+                            fields[name] = "0"
+                        elif not field.get("nullable"):
+                            fields[name] = "''"
+                    if fields:
+                        record["creates"] = [{
+                            "class": invoice.get("name"),
+                            "call": f"{repo.get('interface_name') or repo.get('entity')}.create",
+                            "fields": fields,
+                        }]
+                        if log is not None:
+                            log.write(
+                                f"[ok] step contracts: {holder}.{method_name} "
+                                "creates the model named by the prompt")
+        if cancelling and cancelled_intent:
+            has_status = any(
+                isinstance(effect, dict)
+                and normalize(effect.get("target") or "").endswith(("status", "state"))
+                for effect in record.get("effects") or [])
+            order_binding = next(
+                (item for item in bindings
+                 if isinstance(item, dict)
+                 and normalize(item.get("name")) == "order"), None)
+            if not has_status and order_binding:
+                value = "'cancelled'" if "cancelled" in text else "'canceled'"
+                record.setdefault("effects", []).append({
+                    "target": f"{order_binding['name']}.status",
+                    "op": "set",
+                    "value": value,
+                    "write": f"{order_binding['repository']}.update",
+                })
+                if log is not None:
+                    log.write(
+                        f"[ok] step contracts: {holder}.{method_name} "
+                        f"sets {order_binding['name']}.status to {value}")
+        unique = []
+        seen = set()
+        for effect in record.get("effects") or []:
+            if not isinstance(effect, dict):
+                continue
+            key = (effect.get("target"), effect.get("op"),
+                   effect.get("value"), effect.get("by"), effect.get("write"))
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(effect)
+        if unique:
+            record["effects"] = unique
+    return contracts
+
+
 def repair_adapter_mapping_fields(adapters, services, log=None):
     """Retarget per-field adapter inputs at a method's mapping parameter.
 

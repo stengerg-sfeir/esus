@@ -477,6 +477,8 @@ def load_context(output_dir):
     current = requirements_sha(requirements_text)
     contracts, dropped_contracts = load_method_contracts(
         output_dir, requirements_text)
+    contracts = extraction_repairs.repair_contracts(
+        contracts, services, repositories, models, requirements_text)
     dropped = 0
     try:
         with open(os.path.join(output_dir, METHOD_SLOTS_NAME),
@@ -1373,6 +1375,16 @@ def emit_repositories(ctx, stats):
                     _record(stats, holder, method["name"], strategy, True,
                             f"slots:{pattern}")
                     continue
+            paginated = _repo_pagination_body(ctx, entity, model_cls, method)
+            if paginated is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical pagination]"""']
+                lines.extend("        " + line if line else "" for line in paginated)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "pagination")
+                continue
             named_filter = _repo_named_filter_body(ctx, entity, model_cls,
                                                    method)
             if named_filter is not None:
@@ -3231,6 +3243,57 @@ def _select_body(params, entity, model_cls, field_names, table="self.ENTITY"):
         lines.append("return [dict(r) for r in found]")
     else:
         lines.append(f"return [{model_cls}(**r) for r in found]")
+    return lines
+
+
+def _repo_pagination_body(ctx, entity, model_cls, method):
+    """Mechanical paged read from `page_size`/`page_number` parameters.
+
+    The declared return may be a page DTO the extractor did not declare as a
+    model. A dict with the page items and total-pages fields is the generic
+    representation; when the signature returns a list, return the page items
+    directly. Other filter parameters (for example a foreign key) narrow the
+    records before pagination.
+    """
+    pair = codegen.pagination_params(method)
+    if pair is None:
+        return None
+    page_name, size_name = pair
+    page_ident = codegen.sanitize(page_name, "param")
+    size_ident = codegen.sanitize(size_name, "param")
+    field_names = [name for name, _ in fields_of(ctx, entity)]
+    params = [(item.get("name"), codegen.sanitize(item.get("name"), "param"),
+               item.get("type"))
+              for item in method.get("params") or []
+              if isinstance(item, dict) and item.get("name")
+              and normalize(item.get("name")) not in {
+                  normalize(page_name), normalize(size_name)}]
+    try:
+        lines = _criteria_block(params, field_names) if params else ["criteria = []"]
+    except _Unmappable:
+        return None
+    lines += [
+        "records = self._store.select(self.ENTITY, criteria)",
+        "total = len(records)",
+        f"page_number = {page_ident} if {page_ident} is not None else 1",
+        f"page_size = {size_ident} if {size_ident} is not None else 10",
+        "if page_size <= 0:",
+        "    page_size = 10",
+        "total_pages = (total + page_size - 1) // page_size",
+        "start = max(0, (page_number - 1) * page_size)",
+        "end = start + page_size",
+        "page_records = records[start:end]",
+    ]
+    if model_cls:
+        lines.append(f"items = [{model_cls}(**row) for row in page_records]")
+    else:
+        lines.append("items = [dict(row) for row in page_records]")
+    if _collection_return(method):
+        lines.append("return items")
+    else:
+        lines.append("return {'items': items, 'page_number': page_number, "
+                     "'page_size': page_size, 'total_items': total, "
+                     "'total_pages': total_pages}")
     return lines
 
 
