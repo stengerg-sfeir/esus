@@ -39,6 +39,19 @@ def _surface_answer(prompt):
     return "1"
 
 
+def _grounding_answer(_prompt, default):
+    """Keep the default answer, as a boolean.
+
+    `review_grounding` treats any truthy reply as a drop. Returning the
+    literal default string made its conservative `"n"` truthy and dropped
+    every unsupported service. The default is the safe answer here: keep the
+    evidence unless the attended reviewer explicitly says otherwise.
+    """
+    if isinstance(default, bool):
+        return default
+    return str(default).strip().lower() in ("y", "yes", "true", "1")
+
+
 def _answer_contracts(directory: Path) -> tuple[int, int]:
     """Answer contract questions proposal by proposal.
 
@@ -134,7 +147,7 @@ def _drop_upstream_gaps(directory: Path) -> int:
 def review_one(directory: Path) -> dict[str, tuple[int, int]]:
     counts = {}
     counts["grounding"] = review_grounding.run_review(
-        str(directory), ask=lambda _prompt, default: default)
+        str(directory), ask=_grounding_answer)
     counts["ties"] = review_ties.run_review(
         str(directory), input_fn=lambda _prompt: "1")
     counts["slots"] = review_slots.run_review(

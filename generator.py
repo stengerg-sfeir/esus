@@ -573,6 +573,13 @@ def load_context(output_dir):
     adapters = extraction_repairs.repair_aggregate_create_adapters(
         components, adapters, services, repositories, models, None)
     method_owners = list(services) + list(repositories)
+    # Repository interfaces win over a same-named service contract here:
+    # `CustomerRepository.update_customer` may take a mapping while the
+    # service-contract twin still lists the individual fields.
+    extraction_repairs.repair_adapter_mapping_fields(
+        adapters, list(repositories) + list(services))
+    adapters = extraction_repairs.repair_adapter_transforms(
+        adapters, None, method_owners)
     extraction_repairs.repair_create_adapter_fields(
         adapters, method_owners, models)
     extraction_repairs.repair_missing_adapter_flags(

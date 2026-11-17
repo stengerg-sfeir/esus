@@ -116,6 +116,48 @@ class ContradictoryRaiseTests(unittest.TestCase):
         self.assertEqual(repaired[0]["methods"][0]["raises"], ["ProductNotFoundError"])
 
 
+class MappingFieldRepairTests(unittest.TestCase):
+    def test_fields_outside_the_signature_move_into_the_mapping(self):
+        services = [{"service_name": "CustomerRepository", "methods": [{
+            "name": "update_customer",
+            "params": [{"name": "customer_id", "type": "int"},
+                       {"name": "updated_data", "type": "dict"}]}]}]
+        adapters = [{
+            "action_name": "update_customer",
+            "target_service": "CustomerRepository",
+            "target_method": "update_customer",
+            "input_fields": [
+                {"field_name": "customer_id", "target_param": "customer_id"},
+                {"field_name": "name", "target_param": "name"},
+                {"field_name": "email", "target_param": "email"},
+            ],
+        }]
+        repairs.repair_adapter_mapping_fields(adapters, services)
+        fields = {item["field_name"]: item["target_param"]
+                  for item in adapters[0]["input_fields"]}
+        self.assertEqual(fields["customer_id"], "customer_id")
+        self.assertEqual(fields["name"], "updated_data")
+        self.assertEqual(fields["email"], "updated_data")
+
+    def test_scalar_parameters_are_left_alone(self):
+        services = [{"service_name": "ProductRepository", "methods": [{
+            "name": "update",
+            "params": [{"name": "product_id", "type": "int"},
+                       {"name": "stock_quantity", "type": "int"}]}]}]
+        adapters = [{
+            "action_name": "update_stock",
+            "target_service": "ProductRepository",
+            "target_method": "update",
+            "input_fields": [
+                {"field_name": "product_id", "target_param": "product_id"},
+                {"field_name": "stock_quantity", "target_param": "stock_quantity"},
+            ],
+        }]
+        repairs.repair_adapter_mapping_fields(adapters, services)
+        self.assertEqual(adapters[0]["input_fields"][1]["target_param"],
+                         "stock_quantity")
+
+
 class MismatchedTransformTests(unittest.TestCase):
     def adapter(self, field_name, transform):
         return {
@@ -136,6 +178,23 @@ class MismatchedTransformTests(unittest.TestCase):
     def test_a_single_name_read_as_a_list_becomes_direct(self):
         adapters = [self.adapter("title", "CSV_LIST")]
         repairs.repair_adapter_transforms(adapters, Log())
+        self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
+
+    def test_a_csv_list_on_a_string_target_becomes_direct(self):
+        """A `str` target owns its parsing; CSV_LIST would hand it a list."""
+        services = [{"service_name": "ProductRepository", "methods": [{
+            "name": "check_product_stock",
+            "params": [{"name": "product_ids", "type": "str"}]}]}]
+        adapters = [{
+            "action_name": "check_product_stock",
+            "target_service": "ProductRepository",
+            "target_method": "check_product_stock",
+            "input_fields": [{
+                "field_name": "product_ids",
+                "target_param": "product_ids",
+                "transform": "CSV_LIST"}],
+        }]
+        repairs.repair_adapter_transforms(adapters, Log(), services)
         self.assertEqual(adapters[0]["input_fields"][0]["transform"], "DIRECT")
 
     def test_a_date_field_keeps_its_transform(self):

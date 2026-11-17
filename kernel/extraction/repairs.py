@@ -1815,6 +1815,49 @@ def repair_adapter_lookup_entities(adapters, services, repositories, models,
     return adapters
 
 
+def repair_adapter_mapping_fields(adapters, services, log=None):
+    """Retarget per-field adapter inputs at a method's mapping parameter.
+
+    A method such as `update_customer(customer_id, updated_data: dict)` has
+    one mapping parameter. The adapter may still carry model-field names as
+    its target params (`name`, `email`, ...); the CLI then passes those as
+    keyword arguments and the repository rejects them. When the method has
+    exactly one mapping parameter, fields whose targets are not method
+    parameters belong inside that mapping.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    index = _service_method_index(services)
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        if method is None:
+            continue
+        params = [param for param in method.get("params") or []
+                  if isinstance(param, dict) and param.get("name")]
+        mapping_params = [param for param in params
+                          if is_mapping_type(param.get("type"))]
+        if len(mapping_params) != 1:
+            continue
+        mapping_name = mapping_params[0].get("name")
+        param_names = {normalize(param.get("name")) for param in params}
+        for field in adapter.get("input_fields") or []:
+            if not isinstance(field, dict):
+                continue
+            target = field.get("target_param")
+            if not isinstance(target, str) or not target:
+                continue
+            if normalize(target) in param_names:
+                continue
+            field["target_param"] = mapping_name
+            if log is not None:
+                log.write(
+                    f"[ok] step adapters: {adapter.get('action_name')}."
+                    f"{field.get('field_name')} moved into {mapping_name}")
+    return adapters
+
+
 def repair_adapter_transforms(adapters, log, services=None):
     """Replace a transform whose kind contradicts the field or target type.
 
@@ -1889,9 +1932,25 @@ def _fitter_transform(field_entry, method=None):
     if not ptype:
         return None
     kind = str(ptype).strip().lower()
+    scalar = any(token in kind for token in (
+        "int", "integer", "str", "string", "text", "float", "double",
+        "decimal", "money", "date", "datetime", "timestamp", "bool",
+        "boolean", "object", "any"))
+    if not scalar:
+        # A DTO/mapping parameter carries the sibling fields; its declared
+        # class name says nothing about each field's representation. A
+        # boolean count still cannot feed an object parameter.
+        if transform == "BOOL_TO_ONE":
+            return "DIRECT"
+        return None
     if transform == "ISO_DATE" and not any(
             token in kind for token in
             ("date", "time", "str", "string", "text", "object")):
+        return "DIRECT"
+    if transform == "CSV_LIST" and kind in ("str", "string", "text"):
+        # The target method takes one string, not a list. Splitting the CLI
+        # value into a list here makes a generated body call `.split()` on a
+        # list; the method itself owns the string parsing.
         return "DIRECT"
     if transform == "LOOKUP_ID" and not any(
             token in kind for token in

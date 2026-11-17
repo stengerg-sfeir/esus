@@ -1059,8 +1059,12 @@ class ServiceCompositionTests(unittest.TestCase):
         models = [{"name": "Book", "fields": [{"name": "id", "type": "int"}]}]
         self.assertEqual(codegen.unknown_model_fields(adapters, services, [], models), [])
 
-    def test_a_mapping_payload_on_a_void_method_is_not_an_entity_target(self):
-        """`shipping_details: dict -> None` is auxiliary, not an Order."""
+    def test_a_mapping_payload_on_a_void_method_is_grouped_not_constructed(self):
+        """`shipping_details: dict -> None` is auxiliary, not an Order.
+
+        It still needs the mapping marker so the CLI groups its sibling flags
+        into the dict the method expects.
+        """
         adapters = [{"action_name": "ship_order", "target_service": "OrderService",
                      "target_method": "ship_order",
                      "input_fields": [
@@ -1076,7 +1080,9 @@ class ServiceCompositionTests(unittest.TestCase):
             "return_type": "None"}]}]
         models = [{"name": "Order", "fields": [{"name": "id", "type": "int"}]}]
         targets = codegen.action_targets(adapters, services, [], ["Order"])
-        self.assertIsNone(targets["ship_order"]["shipping_details"])
+        target = targets["ship_order"]["shipping_details"]
+        self.assertTrue(codegen.is_mapping_target(target))
+        self.assertIsNone(codegen.mapping_entity(target))
         self.assertEqual(codegen.unknown_model_fields(adapters, services, [], models), [])
 
     def test_a_mapping_payload_on_an_entity_return_remains_a_target(self):

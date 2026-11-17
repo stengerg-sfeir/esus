@@ -641,20 +641,25 @@ def action_targets(adapters, services, repositories, entity_names):
             if isinstance(method, dict) and method.get("name"):
                 methods.setdefault((normalize(service.get("service_name") or ""),
                                     normalize(method["name"])), method)
+    repo_methods = {}
     for repo in repositories or []:
         if not isinstance(repo, dict):
             continue
         holder = repo.get("interface_name") or repo.get("entity")
         for method in repo.get("methods") or []:
             if isinstance(method, dict) and method.get("name"):
-                methods.setdefault((normalize(holder or ""),
-                                    normalize(method["name"])), method)
+                repo_methods.setdefault((normalize(holder or ""),
+                                         normalize(method["name"])), method)
     targets = {}
     for adapter in adapters or []:
         if not isinstance(adapter, dict):
             continue
-        method = methods.get((normalize(adapter.get("target_service") or ""),
-                              normalize(adapter.get("target_method") or "")))
+        key = (normalize(adapter.get("target_service") or ""),
+               normalize(adapter.get("target_method") or ""))
+        # A repository interface is the concrete call target when its name
+        # collides with a service contract. The repository signature is what
+        # the generated body actually accepts.
+        method = repo_methods.get(key) or methods.get(key)
         ptypes = {}
         if method:
             for param in method.get("params") or []:
@@ -678,9 +683,10 @@ def action_targets(adapters, services, repositories, entity_names):
                 if method is not None and _method_returns_nothing(method):
                     # `ship_order(order_id, shipping_details: dict) -> None`
                     # carries an auxiliary payload, not an entity to construct.
-                    # The owner-prefix heuristic would call it an Order mapping
-                    # and then demand every key be an Order field.
-                    model_cls = None
+                    # It is still a mapping parameter: the CLI must group its
+                    # sibling flags into one dict. The empty entity suffix
+                    # keeps construction off while preserving that grouping.
+                    model_cls = MAPPING_TARGET
                 else:
                     owner = adapter.get("target_service") or ""
                     entity = next((name for name in entity_names
