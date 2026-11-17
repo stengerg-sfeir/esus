@@ -66,6 +66,15 @@ class SummaryTests(unittest.TestCase):
         self.assertEqual(runner.classify(None, 0, True), "not_generatable")
 
 
+class ExtractionEnvironmentTests(unittest.TestCase):
+    def test_mechanical_adapters_are_enabled(self):
+        env = runner.extraction_env("http://x")
+        self.assertEqual(env["LLAMA_SERVER_URL"], "http://x")
+        for flag in ("ESUS_COMPONENTS_SPLIT", "ESUS_MECHANICAL_SCHEMA",
+                     "ESUS_MECHANICAL_SERVICES", "ESUS_MECHANICAL_ADAPTERS"):
+            self.assertEqual(env[flag], "1")
+
+
 class PromptSelectionTests(unittest.TestCase):
     def test_several_roots_are_merged_and_deduplicated(self):
         with tempfile.TemporaryDirectory() as tmp:

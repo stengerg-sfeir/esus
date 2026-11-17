@@ -934,6 +934,30 @@ class ServiceCompositionTests(unittest.TestCase):
         self.assertEqual(bindings[("budget", "add")][0], "create_budget")
         self.assertEqual(unmapped, [])
 
+    def test_a_command_does_not_claim_a_longer_word_in_another_method(self):
+        """`Task delete` must not bind to `delete_project_with_tasks`.
+
+        A substring match treated the plural `tasks` in the Project method
+        as the Task entity, stranding `--task-id` on a delete that could
+        never read it.
+        """
+        from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+        adapters = [
+            {"action_name": "delete_project_with_tasks",
+             "target_service": "ProjectRepository",
+             "target_method": "delete_project_with_tasks"},
+            {"action_name": "delete_task",
+             "target_service": "TaskRepository",
+             "target_method": "delete"},
+        ]
+        invocation = {"commands": [{
+            "name": "Task", "options": [], "subcommands": [
+                {"name": "delete", "options": []}]}]}
+        bindings, unmapped = codegen.bind_commands(
+            adapters, invocation, COMMAND_VERB_STEMS)
+        self.assertEqual(bindings[("Task", "delete")][0], "delete_task")
+        self.assertEqual(unmapped, [])
+
     def test_a_noun_child_under_a_verb_parent_uses_the_parent_verb(self):
         """`return loan` reaches return_book, not get_member_loan_history.
 

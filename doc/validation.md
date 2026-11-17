@@ -28,6 +28,7 @@ model/server configuration.
   - `ESUS_COMPONENTS_SPLIT=1`
   - `ESUS_MECHANICAL_SCHEMA=1`
   - `ESUS_MECHANICAL_SERVICES=1`
+  - `ESUS_MECHANICAL_ADAPTERS=1`
 
 Each prompt runs with `--no-chat --quiet`; review is not answered during
 extraction because the experiment needs the **unreviewed** readiness state
@@ -289,14 +290,14 @@ runner's parser and classifier are covered by
   lines; the single components call replaces the plan plus one call per group.
   On `prompt_60` that took extraction from **651.0 s / 24,499 tokens / 23
   steps** to **278.9 s / 10,438 tokens / 8 steps**.  See `doc/speed.md`.
-- `ESUS_MECHANICAL_ADAPTERS=1` is now set by `main.py` by default (set
-  `ESUS_MECHANICAL_ADAPTERS=0` to force the model).  It derives the interaction
-  adapters from the command surface, service signatures and data model.  With
-  split off it took `prompt_60` to **175.3 s / 7,149 tokens / 7 steps** with the
-  same readiness result.  The dependent-entity completion adds the missing
-  `OrderItemRepository` and its `get_order_items_by_order_id` query; with the
-  preserved review answers the generated program passes the 60 acceptance
-  suite **10/10**.
+- `ESUS_MECHANICAL_ADAPTERS=1` is now the default in the extraction pipeline
+  (set `ESUS_MECHANICAL_ADAPTERS=0` to force the model).  It derives the
+  interaction adapters from the command surface, service signatures and data
+  model.  With split off it took `prompt_60` to **175.3 s / 7,149 tokens / 7
+  steps** with the same readiness result.  The dependent-entity completion adds
+  the missing `OrderItemRepository` and its `get_order_items_by_order_id` query;
+  with the preserved review answers the generated program passes the 60
+  acceptance suite **10/10**.
 - `main.py` also enables `ESUS_DOMAIN_TRIAGE` by default.  On a one-letter
   `Y/N/U` answer, `N` skips extraction and goes straight to the one-file
   `app.py` fallback.  On 66 initial+validation prompts the answer was

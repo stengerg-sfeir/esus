@@ -17,6 +17,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -311,6 +312,7 @@ class AdaptersModelRetryTests(unittest.TestCase):
         self.assertNotIn("retrying once", log.joined())
 
 
+@mock.patch.object(pipeline, "MECHANICAL_ADAPTERS", False)
 class AdaptersFlagRetryTests(unittest.TestCase):
     """A required field no bound leaf flag supplies is retried.
 

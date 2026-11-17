@@ -36,6 +36,25 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PROMPTS = ROOT / "prompts" / "validation"
 DEFAULT_RUN_ROOT = ROOT / "out" / "validation" / "runs"
 
+# Keep the validation and Kaggle runs on the same deterministic extraction
+# path as the reviewed pipeline.  Mechanical adapters are conservative and
+# fall back to the model when the documents do not prove a mapping.
+EXTRACTION_FLAGS = {
+    "ESUS_COMPONENTS_SPLIT": "1",
+    "ESUS_MECHANICAL_SCHEMA": "1",
+    "ESUS_MECHANICAL_SERVICES": "1",
+    "ESUS_MECHANICAL_ADAPTERS": "1",
+}
+
+
+def extraction_env(server_url):
+    """The environment every extraction child gets."""
+    env = dict(os.environ)
+    env.update(EXTRACTION_FLAGS)
+    env["LLAMA_SERVER_URL"] = server_url
+    return env
+
+
 TIMING_RE = re.compile(
     r"^\[([^\]]+)\] (\d+) tokens in ([\d.]+)s "
     r"\(([\d.]+) tok/s, ([\d.]+) decode, (\d+) prompt\)",
@@ -164,13 +183,7 @@ def run_one(prompt: Path, output_dir: Path, *, run_id: str,
         "--no-chat",
         "--quiet",
     ]
-    env = dict(os.environ)
-    env.update({
-        "ESUS_COMPONENTS_SPLIT": "1",
-        "ESUS_MECHANICAL_SCHEMA": "1",
-        "ESUS_MECHANICAL_SERVICES": "1",
-        "LLAMA_SERVER_URL": server_url,
-    })
+    env = extraction_env(server_url)
     started = time.monotonic()
     timed_out = False
     try:
@@ -306,11 +319,7 @@ def main(argv: list[str] | None = None) -> int:
         "server_url": args.server_url,
         "timeout_seconds": args.timeout,
         "concurrency": args.concurrency,
-        "environment": {
-            "ESUS_COMPONENTS_SPLIT": "1",
-            "ESUS_MECHANICAL_SCHEMA": "1",
-            "ESUS_MECHANICAL_SERVICES": "1",
-        },
+        "environment": dict(EXTRACTION_FLAGS),
     }
     records: list[dict] = []
     pending = []

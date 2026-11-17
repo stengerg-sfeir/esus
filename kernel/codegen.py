@@ -515,6 +515,27 @@ def bind_commands(adapters, invocation, verb_stems):
     return bindings, unmapped
 
 
+def _word_tokens(value):
+    """Identifier words, with CamelCase and snake_case split apart."""
+    text = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", str(value or ""))
+    return {normalize(token)
+            for token in re.findall(r"[A-Za-z0-9]+", text)}
+
+
+def _adapter_words(adapter):
+    """The identifier words an adapter names.
+
+    Matching has to be word-exact: `task` must not match the `tasks` in
+    `delete_project_with_tasks`, or a Task command binds to a Project
+    operation merely because that operation's name mentions tasks.
+    """
+    words = set()
+    for value in (adapter.get("target_service"), adapter.get("target_method"),
+                  adapter.get("action_name")):
+        words.update(_word_tokens(value))
+    return words
+
+
 def _best_path_adapter(adapters, verb_stems, command, sub, unmapped):
     """The adapter for a path subcommand (`category add` under `expense`).
 
@@ -538,10 +559,9 @@ def _best_path_adapter(adapters, verb_stems, command, sub, unmapped):
         if (stems and not any(stem in method for stem in stems)
                 and not any(stem in action for stem in stems)):
             continue
-        blob = (normalize(adapter.get("target_service") or "") + "|"
-                + method + "|" + action)
+        words_in_adapter = _adapter_words(adapter)
         score = 0
-        if any(normalize(noun) in blob for noun in nouns):
+        if any(_word_tokens(noun) <= words_in_adapter for noun in nouns):
             score += 4
         if verb and verb in method:
             score += 2
@@ -581,10 +601,10 @@ def _best_adapter(adapters, verb_stems, command, sub, unmapped):
         if (verb and not any(stem in method for stem in stems)
                 and verb not in action):
             continue
-        blob = (normalize(adapter.get("target_service") or "") + "|"
-                + method + "|" + action)
+        words = _adapter_words(adapter)
         score = 0
-        if command and normalize(command) in blob:
+        command_words = _word_tokens(command)
+        if command_words and command_words <= words:
             score += 4
         if verb and verb in method:
             score += 2

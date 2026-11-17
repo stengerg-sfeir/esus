@@ -65,7 +65,9 @@ COMPONENTS_SPLIT = os.environ.get("ESUS_COMPONENTS_SPLIT") == "1"
 PARALLEL = os.environ.get("ESUS_PARALLEL") == "1"
 MECHANICAL_SCHEMA = os.environ.get("ESUS_MECHANICAL_SCHEMA") == "1"
 MECHANICAL_SERVICES = os.environ.get("ESUS_MECHANICAL_SERVICES") == "1"
-MECHANICAL_ADAPTERS = os.environ.get("ESUS_MECHANICAL_ADAPTERS") == "1"
+# Adapters are derivable from the documents; keep the conservative derivation
+# on everywhere and make `=0` the explicit opt-out to the model path.
+MECHANICAL_ADAPTERS = os.environ.get("ESUS_MECHANICAL_ADAPTERS", "1") != "0"
 PATTERN_MATCHES = "pattern_matches"
 INTERACTION_ADAPTERS = "interaction_adapters"
 PERSISTENCE_PORTS = "persistence_ports"

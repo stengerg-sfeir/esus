@@ -295,14 +295,14 @@ the same acceptance suite stops at 2/10.  The 57% extraction saving is real,
 but a prose-only prompt with a domain needs the completeness pass before the
 split can be dropped uncritically.
 
-### Mechanical interaction adapters (default in `main.py`, measured 2026-11-12)
+### Mechanical interaction adapters (default, measured 2026-11-12)
 
-`main.py` sets `ESUS_MECHANICAL_ADAPTERS=1` by default (set it to `0` to force
-the model).  The pass derives step G from the command surface, the service
-signatures and the data model instead of asking the model to copy them.  A leaf
-whose target method is ambiguous, or whose flags do not all resolve to
-parameters, declines the whole derivation and falls back to the model, so the
-semantic choices stay with the LLM.
+`ESUS_MECHANICAL_ADAPTERS=1` is the default in the extraction pipeline and the
+validation runner (set it to `0` to force the model).  The pass derives step G
+from the command surface, the service signatures and the data model instead of
+asking the model to copy them.  A leaf whose target method is ambiguous, or
+whose flags do not all resolve to parameters, declines the whole derivation and
+falls back to the model, so the semantic choices stay with the LLM.
 
 | Prompt | Adapters | Model call saved | Tokens saved | Readiness |
 | --- | ---: | ---: | ---: | --- |

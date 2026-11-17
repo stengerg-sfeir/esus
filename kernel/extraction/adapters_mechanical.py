@@ -19,8 +19,8 @@ For a prose-only prompt, ``allow_prose`` accepts the surface step D chose: the
 model makes the semantic action choices, and this pass fills their targets and
 fields from the service signatures and the data model.
 
-The result is used only when ``ESUS_MECHANICAL_ADAPTERS=1``; the ordinary path
-is unchanged.
+The pass is on by default; set ``ESUS_MECHANICAL_ADAPTERS=0`` to force the
+model path.
 """
 
 import re
