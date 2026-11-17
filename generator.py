@@ -365,6 +365,38 @@ def apply_aggregate_decisions(files, decisions):
     return files, applied
 
 
+def filter_grounded_repositories(repositories, decisions):
+    """Apply reviewed method drops to repository interfaces too.
+
+    The same capability is represented in service and repository documents;
+    filtering only the service side leaves a slot/pattern consumer looking at
+    the repository method that the review just removed.
+    """
+    if not decisions or not isinstance(repositories, list):
+        return repositories
+    drop_services = {normalize(name) for name in decisions.get("drop_services") or []
+                     if isinstance(name, str)}
+    drop_methods = {(normalize(item.get("holder") or ""), normalize(item.get("method") or ""))
+                    for item in decisions.get("drop_methods") or []
+                    if isinstance(item, dict)}
+    kept = []
+    for repo in repositories:
+        if not isinstance(repo, dict):
+            continue
+        holder = repo.get("interface_name") or repo.get("entity") or ""
+        if normalize(holder) in drop_services:
+            continue
+        methods = [method for method in repo.get("methods") or []
+                   if not (isinstance(method, dict)
+                           and (normalize(holder), normalize(method.get("name") or ""))
+                           in drop_methods)]
+        if methods:
+            repo = dict(repo)
+            repo["methods"] = methods
+            kept.append(repo)
+    return kept
+
+
 def apply_grounding_decisions(services, adapters, components, routes, decisions):
     """Drop review-marked capabilities and the surfaces that referenced them."""
     if not decisions:
@@ -561,6 +593,7 @@ def load_context(output_dir):
     decisions = load_grounding_decisions(output_dir, current)
     services, adapters, components, routes = apply_grounding_decisions(
         services, adapters, components, routes, decisions)
+    repositories = filter_grounded_repositories(repositories, decisions)
     # A reviewed/extracted document can predate the create-surface and id
     # repairs. Apply them at generation time too, so an already-valid run does
     # not need a full re-extraction just to expose a required field or type an

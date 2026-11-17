@@ -638,6 +638,12 @@ def _best_adapter(adapters, verb_stems, command, sub, unmapped):
         command_words = _word_tokens(command)
         if command_words and command_words <= words:
             score += 4
+        # A service named exactly after the command's entity (`TagRepository`
+        # for `Tag add`) outranks one that merely contains the token
+        # (`PostTagRepository`, whose relation also mentions `tag`).
+        if command and normalize(strip_role_suffix(
+                adapter.get("target_service") or "")) == normalize(command):
+            score += 4
         if verb and verb in method:
             score += 2
         if verb and verb in action:
