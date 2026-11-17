@@ -11081,6 +11081,38 @@ def repair_service_dates(files):
     return files
 
 
+def normalize_state_spellings(files, ctx):
+    """Use the spelling the documents use for a state literal.
+
+    Model-written bodies sometimes mix `canceled` and `cancelled` even when
+    the error/invariant text chooses one. Only string literals are changed,
+    and only when one spelling is present in the requirements/error/invariant
+    text.
+    """
+    document_text = " ".join([
+        str(ctx.get("requirements") or ""),
+        " ".join(str(item.get("description") or "")
+                 for item in ctx.get("errors") or [] if isinstance(item, dict)),
+        " ".join(str(item.get("text") or "")
+                 for item in ctx.get("invariants") or [] if isinstance(item, dict)),
+    ]).lower()
+    replacements = {}
+    if "cancelled" in document_text:
+        replacements["canceled"] = "cancelled"
+    if "cancelled" in document_text and "cancelation" in document_text:
+        replacements["cancelation"] = "cancellation"
+    if not replacements:
+        return files
+    for filename, text in list(files.items()):
+        if not isinstance(text, str) or not filename.endswith(".py"):
+            continue
+        for old, new in replacements.items():
+            text = text.replace(f'"{old}"', f'"{new}"')
+            text = text.replace(f"'{old}'", f"'{new}'")
+        files[filename] = text
+    return files
+
+
 def _clean_error_boundary(source):
     """Wrap the fallback's `main()` so expected failures are not tracebacks.
 
@@ -11237,6 +11269,7 @@ def main(argv=None):
         stats["related_pk_repairs"] = repaired_keys
         print("related primary keys: " + ", ".join(repaired_keys))
     repair_service_dates(files)
+    normalize_state_spellings(files, ctx)
 
     target = os.path.join(args.out_dir, GENERATED_DIR)
     os.makedirs(target, exist_ok=True)

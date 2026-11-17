@@ -930,6 +930,14 @@ class ServiceCompositionTests(unittest.TestCase):
             stats["dead_options"],
             ["member list: --active-only — no adapter field reads it"])
 
+    def test_state_spelling_follows_the_document_text(self):
+        files = {"services.py": 'status = "canceled"'}
+        ctx = {"requirements": "", "invariants": [],
+               "errors": [{"description": "Raised when already cancelled."}]}
+        generator.normalize_state_spellings(files, ctx)
+        self.assertIn('"cancelled"', files["services.py"])
+        self.assertNotIn('"canceled"', files["services.py"])
+
     def test_scoring_prefers_the_command_own_entity(self):
         """`budget add` reaches the budget creator, not `add_category`."""
         from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
