@@ -378,6 +378,8 @@ def repair_existing(output_dir):
         if not (isinstance(persistence, dict) and persistence.get("required")):
             documents.pop(pipeline_module.PERSISTENCE_PORTS, None)
         repairs.repair_missing_surface(components, requirements, models, log)
+        repairs.repair_missing_method_flags(
+            components, requirements, services, log)
         repairs.repair_placeholder_subcommands(components, log)
         repairs.repair_flat_command_duplicates(components, log)
         components_completion.complete_crud_entities(components, models, log)

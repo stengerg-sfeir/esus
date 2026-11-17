@@ -124,6 +124,11 @@ def _seed(store, model, number=1, overrides=None):
             continue
         name = field["name"]
         if name == pk:
+            # A join model can use its parent foreign key as the primary key.
+            # A scenario that seeds that relation explicitly must be allowed
+            # to provide it; skipping it creates a row under a different key.
+            if overrides and name in overrides:
+                values[name] = overrides[name]
             continue
         if overrides and name in overrides:
             value = overrides[name]

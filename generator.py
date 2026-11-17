@@ -1173,6 +1173,27 @@ def _read_one_target(ctx, method, param_names, returns):
     return None
 
 
+def _service_cancel_stock_delegate(ctx, method, params, delegate):
+    """Same-name delegation for a mechanically emitted cancel/restore body."""
+    if delegate is None:
+        return None
+    target_cls, target = delegate
+    repo = next((item for item in ctx.get("repositories") or []
+                 if isinstance(item, dict)
+                 and (item.get("interface_name") or item.get("entity")) == target_cls),
+                None)
+    entity = repo.get("entity") if isinstance(repo, dict) else None
+    if entity is None or _cancel_stock_plan(ctx, entity, target) is None:
+        return None
+    wanted = sorted(normalize(raw) for raw, _, _ in params)
+    have = sorted(normalize(param.get("name") or "")
+                  for param in target.get("params") or []
+                  if isinstance(param, dict) and param.get("name"))
+    if wanted != have:
+        return None
+    return target_cls, target.get("name")
+
+
 def _realized_delegate(ctx, service_name, method, params, returns, delegate):
     """Same-name delegation past a non-mechanical service plan — when safe.
 
@@ -1453,6 +1474,16 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "contained-name filter")
                 continue
+            cancel_stock = _repo_cancel_stock_body(ctx, entity, model_cls, method)
+            if cancel_stock is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical cancel with stock restoration]"""']
+                lines.extend("        " + line if line else "" for line in cancel_stock)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "cancel stock restoration")
+                continue
             low_stock = _repo_low_stock_body(ctx, entity, model_cls, method)
             if low_stock is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -1580,6 +1611,121 @@ def _read_one_names_entity_error(ctx, method, entity):
     return any(wanted and wanted in normalize(name)
                for name in method.get("raises") or []
                if isinstance(name, str))
+
+
+def _cancel_stock_plan(ctx, entity, method):
+    """The model graph for a cancel operation that restores child stock.
+
+    Returns the child model, its parent/product fields, the product model and
+    stock field, or None when the graph does not prove that shape.
+    """
+    if "cancel" not in normalize(method.get("name") or ""):
+        return None
+    parent_model = model_of(ctx, entity)
+    if parent_model is None:
+        return None
+    status_field = next((field.get("name") for field in parent_model.get("fields") or []
+                         if isinstance(field, dict)
+                         and normalize(field.get("name") or "") in ("status", "state")),
+                        None)
+    if status_field is None:
+        return None
+    child = None
+    for candidate in ctx.get("models") or []:
+        if not isinstance(candidate, dict) or not candidate.get("name"):
+            continue
+        fields = [field for field in candidate.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")]
+        parent_fk = next((field for field in fields
+                          if (isinstance(field.get("foreign_key"), dict)
+                              and normalize(field["foreign_key"].get("target_entity") or "")
+                              == normalize(entity))
+                          or normalize(field.get("name") or "") == normalize(entity) + "id"), None)
+        product_fk = next((field for field in fields
+                           if normalize(field.get("name") or "").endswith("productid")
+                           or (isinstance(field.get("foreign_key"), dict)
+                               and normalize(field["foreign_key"].get("target_entity") or "")
+                               == "product")), None)
+        quantity = next((field for field in fields
+                         if normalize(field.get("name") or "") == "quantity"), None)
+        if parent_fk and product_fk and quantity:
+            child = candidate
+            product_name = (product_fk.get("foreign_key") or {}).get("target_entity") \
+                if isinstance(product_fk.get("foreign_key"), dict) else product_fk["name"][:-3]
+            product = next((model for model in ctx.get("models") or []
+                            if isinstance(model, dict)
+                            and normalize(model.get("name") or "") == normalize(product_name or "")),
+                           None)
+            if product is None:
+                continue
+            stock = next((field.get("name") for field in product.get("fields") or []
+                          if isinstance(field, dict)
+                          and "stock" in normalize(field.get("name") or "")), None)
+            if stock is None:
+                continue
+            return {
+                "child": child["name"],
+                "parent_fk": parent_fk["name"],
+                "product_fk": product_fk["name"],
+                "quantity": quantity["name"],
+                "product": product["name"],
+                "product_pk": primary_key_of(ctx, product["name"]),
+                "stock": stock,
+                "status": status_field,
+            }
+    return None
+
+
+def _repo_cancel_stock_body(ctx, entity, model_cls, method):
+    """Cancel a parent and restore each child line's product stock."""
+    plan = _cancel_stock_plan(ctx, entity, method)
+    if plan is None:
+        return None
+    params = [(param.get("name"), codegen.sanitize(param.get("name"), "param"))
+              for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return None
+    key_param = params[0][1]
+    parent_error = _registered_error(ctx, entity)
+    product_error = _registered_error(ctx, plan["product"])
+    parent = codegen.sanitize(entity, "entity")
+    update_parent = (f"self._store.update(self.ENTITY, self.PK, {key_param}, "
+                     f"{{{plan['status']!r}: 'cancelled'}})")
+    if parent_error:
+        get_parent = (f"self._store.get(self.ENTITY, self.PK, {key_param}, "
+                      f"error=errors.{codegen.sanitize(parent_error)})")
+    else:
+        get_parent = f"self._store.get(self.ENTITY, self.PK, {key_param})"
+    if product_error:
+        get_product = (f"self._store.get({plan['product']!r}, {plan['product_pk']!r}, "
+                       f"product_id, error=errors.{codegen.sanitize(product_error)})")
+    else:
+        get_product = (f"self._store.get({plan['product']!r}, "
+                       f"{plan['product_pk']!r}, product_id)")
+    lines = [
+        f"{parent} = {get_parent}",
+        f"if {parent} is None:",
+        f"    raise errors.{codegen.sanitize(parent_error)}" if parent_error
+        else "    return None",
+        update_parent,
+        f"lines = self._store.select({plan['child']!r}, "
+        f"[({plan['parent_fk']!r}, 'eq', {key_param})])",
+        "for line in lines:",
+        f"    product_id = line.get({plan['product_fk']!r})",
+        f"    quantity = line.get({plan['quantity']!r})",
+        "    if product_id is None or quantity is None:",
+        "        continue",
+        f"    product = {get_product}",
+        "    if product is None:",
+        "        continue",
+        f"    stock = product.get({plan['stock']!r}, 0) + quantity",
+        f"    self._store.update({plan['product']!r}, {plan['product_pk']!r}, "
+        f"product_id, {{{plan['stock']!r}: stock}})",
+    ]
+    if normalize(method.get("return_type") or "") in ("bool", "boolean"):
+        lines.append("return True")
+    return lines
 
 
 def _repo_low_stock_body(ctx, entity, model_cls, method):
@@ -3851,6 +3997,21 @@ def emit_services(ctx, repo_index, stats):
                         "standard read")
                 continue
             delegate = _service_delegate(ctx, method, repo_index)
+            cancel_delegate = _service_cancel_stock_delegate(
+                ctx, method, params, delegate)
+            if cancel_delegate is not None:
+                target_cls, tname = cancel_delegate
+                call = ", ".join(ident for _, ident, _ in params)
+                prefix = "return " if normalize(returns) not in (
+                    "none", "nonetype", "void", "") else ""
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          f'[delegates to {target_cls}.{tname} — cancel/restore]"""',
+                          f"        {prefix}self._repos[{target_cls!r}].{tname}({call})"]
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        f"delegate-cancel:{target_cls}.{tname}")
+                continue
             if delegate is not None and strategy.startswith("crud:"):
                 target_cls, _ = delegate
                 call = ", ".join(ident for _, ident, _ in params)

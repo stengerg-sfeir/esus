@@ -1853,6 +1853,78 @@ def repair_paginated_patterns(matches, services, repositories, log=None):
     return matches
 
 
+def repair_contract_write_methods(contracts, repositories, models, log=None):
+    """Add a standard update method a contract names but the repository omits.
+
+    `confirm_order` may write `OrderRepository.update` while the extraction
+    omitted that operation from the Order repository. The update signature is
+    still fully determined by the Order model; the contract cannot be compiled
+    or checked without it.
+    """
+    if not isinstance(contracts, list) or not isinstance(repositories, list):
+        return repositories
+    by_name = {
+        normalize(repo.get("interface_name") or repo.get("entity") or ""): repo
+        for repo in repositories if isinstance(repo, dict)
+    }
+    model_by_name = {
+        normalize(model.get("name") or ""): model
+        for model in models or [] if isinstance(model, dict) and model.get("name")
+    }
+    for contract in contracts:
+        if not isinstance(contract, dict):
+            continue
+        for effect in contract.get("effects") or []:
+            if not isinstance(effect, dict):
+                continue
+            write = effect.get("write")
+            if not isinstance(write, str) or "." not in write:
+                continue
+            repo_name, method_name = write.split(".", 1)
+            repo = by_name.get(normalize(repo_name))
+            if repo is None or normalize(method_name) != "update":
+                continue
+            methods = repo.setdefault("methods", [])
+            if any(isinstance(method, dict)
+                   and normalize(method.get("name") or "") == "update"
+                   for method in methods):
+                continue
+            entity = repo.get("entity")
+            model = model_by_name.get(normalize(entity or ""))
+            if model is None:
+                continue
+            fields = [field for field in model.get("fields") or []
+                      if isinstance(field, dict) and field.get("name")]
+            primary = next((field["name"] for field in fields
+                            if field.get("primary_key")), "id")
+            params = [{"name": primary, "type": "int"}]
+            for field in fields:
+                if field["name"] == primary:
+                    continue
+                params.append({
+                    "name": field["name"],
+                    "type": {
+                        "int": "int", "integer": "int", "string": "str",
+                        "text": "str", "boolean": "bool", "bool": "bool",
+                        "float": "float", "decimal": "int",
+                        "date": "datetime.date", "datetime": "datetime.datetime",
+                        "timestamp": "datetime.datetime",
+                    }.get(str(field.get("type") or "").strip().lower(), "str"),
+                })
+            methods.append({
+                "name": "update",
+                "description": f"Updates an existing {entity}.",
+                "params": params,
+                "return_type": entity,
+                "raises": [],
+            })
+            if log is not None:
+                log.write(
+                    f"[ok] step contracts: added {repo_name}.update for "
+                    f"{entity} named by a contract")
+    return repositories
+
+
 def repair_contracts(contracts, services, repositories, models, requirements="",
                      log=None):
     """Repair generic contract holes the model can infer from the prompt.
@@ -2016,6 +2088,28 @@ def repair_contracts(contracts, services, repositories, models, requirements="",
                 log.write(
                     f"[ok] step contracts: {holder}.{method_name} bound "
                     f"{entity} to {interface}.read_one({param})")
+        # A method parameter `<entity>_id` is itself a read even when the
+        # effect only names a child (`cancel_order(order_id)` changes the
+        # order's products). Bind it before the contract compiler and the
+        # acceptance fixture look for the parent record.
+        for param in params:
+            if not param.lower().endswith("_id"):
+                continue
+            entity = param[:-3]
+            key = normalize(entity)
+            if key in bound or key not in repos_by_entity:
+                continue
+            bindings.append({
+                "name": entity,
+                "repository": repos_by_entity[key],
+                "method": "read_one",
+                "args": [param],
+            })
+            bound.add(key)
+            if log is not None:
+                log.write(
+                    f"[ok] step contracts: {holder}.{method_name} bound "
+                    f"{entity} from parameter {param}")
         normalized_method = normalize(method_name or "")
         cancelling = "cancel" in normalized_method
         returning = normalized_method.startswith("return") \
@@ -2123,6 +2217,7 @@ def repair_contracts(contracts, services, repositories, models, requirements="",
             unique.append(effect)
         if unique:
             record["effects"] = unique
+    repair_contract_write_methods(contracts, repositories, models, log)
     return contracts
 
 
@@ -3164,6 +3259,76 @@ def repair_nested_paths(components, requirements, log):
                 if log is not None:
                     log.write(f"[ok] step components: folded flat '{command} {first}' "
                               f"into its paths such as '{command} {path}'")
+    return components
+
+
+def repair_missing_method_flags(components, requirements, services, log=None):
+    """Add a required flag whose type is grounded in a service parameter.
+
+    `expense report yearly --year` has no model field called `year`; the
+    method `get_yearly_summary(year: int)` is the only proof of its type.
+    Only an unambiguous method/parameter pair is used.
+    """
+    if not isinstance(components, dict) or not requirements:
+        return components
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    if not isinstance(invocation, dict):
+        return components
+    commands = surface_checks._commands_by_name(invocation)
+    program = surface_checks._program_name(requirements)
+    for span in re.findall(r"`([^`]*)`", requirements):
+        target = surface_checks._resolve_span(span, program, commands)
+        if target is None:
+            continue
+        command, sub = target
+        leaf = _find_leaf(invocation, command, sub)
+        if leaf is None:
+            continue
+        for flag, bracketed in surface_checks._flags_in(span):
+            if _leaf_has_flag(leaf, flag):
+                continue
+            candidates = []
+            for service in services or []:
+                if not isinstance(service, dict):
+                    continue
+                for method in service.get("methods") or []:
+                    if not isinstance(method, dict) or not method.get("name"):
+                        continue
+                    if normalize(flag) not in normalize(method["name"]):
+                        continue
+                    for param in method.get("params") or []:
+                        if (isinstance(param, dict)
+                                and normalize(param.get("name") or "") == normalize(flag)):
+                            candidates.append((service, method, param))
+            if len(candidates) > 1:
+                # Prefer the method whose name spells the whole subcommand
+                # (`expense report yearly` -> `expensereportyearly`) over a
+                # generic method that merely mentions the same noun.
+                wanted = normalize(sub or command)
+                preferred = [
+                    item for item in candidates
+                    if wanted in normalize(item[1].get("name") or "")]
+                if len(preferred) == 1:
+                    candidates = preferred
+            if len(candidates) != 1:
+                continue
+            _service, _method, param = candidates[0]
+            option_type = _option_type(param.get("type"))
+            leaf.setdefault("options", []).append({
+                "name": f"--{flag}",
+                "short": None,
+                "type": option_type,
+                "required": not bracketed,
+                "default": None,
+            })
+            if log is not None:
+                shown = f"[--{flag}]" if bracketed else f"--{flag}"
+                log.write(
+                    f"[ok] step components: {command} {sub or ''} lacked "
+                    f"'{shown}' the requirements pass — added as {option_type} "
+                    f"(typed from {_service.get('service_name')}."
+                    f"{_method.get('name')})")
     return components
 
 
