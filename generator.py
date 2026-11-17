@@ -464,6 +464,8 @@ def load_context(output_dir):
     matches = documents.get("pattern_matches")
     if not isinstance(matches, list):
         matches = []
+    matches = extraction_repairs.repair_paginated_patterns(
+        matches, services, repositories)
     match_index = {}
     for entry in matches:
         if isinstance(entry, dict) and entry.get("source"):

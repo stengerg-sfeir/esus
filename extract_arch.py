@@ -428,11 +428,14 @@ def repair_existing(output_dir):
         if isinstance(ports, dict):
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
+    repositories = (ports.get("repositories")
+                    if isinstance(ports, dict) else None) or []
+    documents[pipeline_module.PATTERN_MATCHES] = repairs.repair_paginated_patterns(
+        documents.get(pipeline_module.PATTERN_MATCHES), services,
+        repositories, log)
     contracts, _dropped_contracts = load_method_contracts(
         str(directory), requirements)
     if contracts:
-        repositories = (ports.get("repositories")
-                        if isinstance(ports, dict) else None) or []
         contracts = repairs.repair_contracts(
             contracts, services, repositories, models, requirements, log)
         save_method_contracts(str(directory), contracts)

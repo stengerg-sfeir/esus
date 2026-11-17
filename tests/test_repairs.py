@@ -116,6 +116,25 @@ class ContradictoryRaiseTests(unittest.TestCase):
         self.assertEqual(repaired[0]["methods"][0]["raises"], ["ProductNotFoundError"])
 
 
+class PaginatedPatternRepairTests(unittest.TestCase):
+    def test_a_page_parameter_read_is_not_a_one_record_lookup(self):
+        services = [{"service_name": "CustomerRepository", "methods": [{
+            "name": "read_all_paginated",
+            "params": [{"name": "page_number", "type": "int"},
+                       {"name": "page_size", "type": "int"}],
+            "return_type": "PaginatedCustomerList"}]}]
+        matches = [{
+            "source": "contract:CustomerRepository.read_all_paginated",
+            "pattern_id": "READ_ONE_BY_ID",
+            "decision": "decided",
+            "rejection": "FILTER_WITH_PAGINATION returns collection",
+        }]
+        repairs.repair_paginated_patterns(matches, services, [])
+        self.assertEqual(matches[0]["pattern_id"], "FILTER_WITH_PAGINATION")
+        self.assertEqual(matches[0]["decision"], "decided")
+        self.assertIsNone(matches[0]["rejection"])
+
+
 class ContractRepairTests(unittest.TestCase):
     def test_cancel_restores_stock_and_adds_the_status_effect(self):
         services = [{"service_name": "OrderService", "methods": [{

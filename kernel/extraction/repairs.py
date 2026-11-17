@@ -37,7 +37,10 @@ from kernel.consistency import checks_adapters, checks_errors, checks_models
 from kernel.consistency import checks_surface as surface_checks
 from kernel.consistency.methods import PLACEHOLDER_VALUES, param_names
 from kernel.consistency.naming import normalize
-from kernel.codegen import bind_field, is_entity_type, is_mapping_type, option_dest
+from kernel.codegen import (
+    bind_field, is_entity_type, is_mapping_type, option_dest,
+    pagination_params,
+)
 
 
 def repair_nested_declarations(holders, log, document="document"):
@@ -1813,6 +1816,41 @@ def repair_adapter_lookup_entities(adapters, services, repositories, models,
                     f"{field.get('field_name')} lookup entity {lookup!r} "
                     f"resolved to {resolved}")
     return adapters
+
+
+def repair_paginated_patterns(matches, services, repositories, log=None):
+    """Classify a page-parameter read from its signature, not its DTO shape.
+
+    A method returning a page wrapper (`PaginatedCustomerList`) has no entity
+    in its return annotation, so the classifier can call it READ_ONE_BY_ID
+    even when it takes page/page_size. The signature is decisive.
+    """
+    if not isinstance(matches, list):
+        return matches
+    index = _service_method_index(list(services or []) + list(repositories or []))
+    for entry in matches:
+        if not isinstance(entry, dict):
+            continue
+        source = entry.get("source")
+        if not isinstance(source, str) or not source.startswith("contract:"):
+            continue
+        holder, _, method_name = source[len("contract:"):].partition(".")
+        method = index.get(normalize(holder), {}).get(normalize(method_name))
+        if method is None or pagination_params(method) is None:
+            continue
+        if entry.get("pattern_id") == "FILTER_WITH_PAGINATION":
+            continue
+        entry["pattern_id"] = "FILTER_WITH_PAGINATION"
+        entry["decision"] = "decided"
+        entry["undecided_stage"] = None
+        entry["rejection"] = None
+        entry["claimed_pattern_id"] = "FILTER_WITH_PAGINATION"
+        entry["claimed_confidence"] = 1.0
+        if log is not None:
+            log.write(
+                f"[ok] step patterns: {holder}.{method_name} classified as "
+                "FILTER_WITH_PAGINATION from its page parameters")
+    return matches
 
 
 def repair_contracts(contracts, services, repositories, models, requirements="",
