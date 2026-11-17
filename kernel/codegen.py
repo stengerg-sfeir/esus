@@ -20,7 +20,7 @@ unknown spelling is visible in the signature rather than guessed at.
 """
 
 from kernel import tie_rules
-from kernel.consistency.naming import normalize
+from kernel.consistency.naming import normalize, strip_role_suffix
 
 import re
 
