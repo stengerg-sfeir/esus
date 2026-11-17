@@ -1268,6 +1268,13 @@ class Pipeline:
             repairs.repair_generic_type_spellings(
                 self.documents.get(PERSISTENCE_PORTS),
                 self.documents.get(DATA_MODELS), self.log))
+        # A list filter keyed by `<related>_id` needs that FK on the model.
+        # Add it before the create repairs so the same pass can expose the
+        # required column on the repository's plain create.
+        self.documents[DATA_MODELS] = repairs.repair_missing_relation_filters(
+            self.documents.get(DATA_MODELS),
+            (self.documents.get(PERSISTENCE_PORTS) or {}).get("repositories"),
+            self.log)
         # A create that describes a required field its parameters omit can
         # never succeed at the store; the description is the evidence.
         repairs.repair_create_missing_fields(

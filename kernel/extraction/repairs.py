@@ -1092,6 +1092,77 @@ def repair_primary_key_foreign_keys(models, log):
     return models
 
 
+def repair_missing_relation_filters(models, repositories, log=None):
+    """Add the FK a repository list filter needs to read its entity.
+
+    A repository method such as `read_all_for_invoice(invoice_id)` filters the
+    entity by a related entity, but the model may omit that FK column
+    (`InvoiceLine` without `invoice_id`). The method and the related model are
+    the evidence: add the missing column with the related model's primary key
+    as its target. A field already present is left alone for the checker.
+    """
+    if not isinstance(models, list) or not isinstance(repositories, list):
+        return models
+    model_by_name = {normalize(model.get("name")): model
+                     for model in models
+                     if isinstance(model, dict) and model.get("name")}
+    for repository in repositories:
+        if not isinstance(repository, dict):
+            continue
+        entity = repository.get("entity")
+        model = model_by_name.get(normalize(entity))
+        if model is None:
+            continue
+        fields = model.get("fields")
+        if not isinstance(fields, list):
+            continue
+        existing = {normalize(field.get("name")) for field in fields
+                    if isinstance(field, dict) and field.get("name")}
+        for method in repository.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            returns = normalize(method.get("return_type") or "")
+            if "list" not in returns or normalize(entity) not in returns:
+                continue
+            for param in method.get("params") or []:
+                if not isinstance(param, dict):
+                    continue
+                match = re.fullmatch(r"(.+)_id", str(param.get("name") or ""),
+                                     re.I)
+                if not match:
+                    continue
+                related = model_by_name.get(normalize(match.group(1)))
+                if related is None or normalize(related.get("name")) == normalize(entity):
+                    continue
+                fk_name = f"{match.group(1)}_id"
+                if normalize(fk_name) in existing:
+                    continue
+                related_pk = next(
+                    (field.get("name") for field in related.get("fields") or []
+                     if isinstance(field, dict) and field.get("primary_key")
+                     and field.get("name")), "id")
+                fields.append({
+                    "name": fk_name,
+                    "type": "int",
+                    "primary_key": False,
+                    "nullable": False,
+                    "unique": False,
+                    "foreign_key": {
+                        "target_entity": related.get("name"),
+                        "target_field": related_pk,
+                        "relationship": "many_to_one",
+                    },
+                    "status": "deduced",
+                })
+                existing.add(normalize(fk_name))
+                if log is not None:
+                    log.write(
+                        f"[ok] step persistence: {method.get('name')} filters "
+                        f"{entity} by {match.group(1)} ID — added "
+                        f"{entity}.{fk_name} as an FK to {related.get('name')}")
+    return models
+
+
 # --- a create whose description names a field its parameters omit -----------------
 
 _PORT_TYPES = {"string": "str", "text": "str", "integer": "int",
@@ -3315,7 +3386,11 @@ def repair_missing_adapter_flags(components, adapters, services, models, log):
                 "required": False,
                 "default": None,
             }
-            leaf.setdefault("options", []).append(option)
+            options = leaf.get("options")
+            if not isinstance(options, list):
+                options = []
+                leaf["options"] = options
+            options.append(option)
             dests.append(option_dest(option))
             if log is not None:
                 log.write(

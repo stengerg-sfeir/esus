@@ -391,6 +391,12 @@ def repair_existing(output_dir):
                 "parameter name(s)"
             )
         documents[pipeline_module.PERSISTENCE_PORTS] = ports
+        documents[pipeline_module.DATA_MODELS] = (
+            repairs.repair_missing_relation_filters(
+                models,
+                ports.get("repositories") if isinstance(ports, dict) else None,
+                log))
+        models = documents[pipeline_module.DATA_MODELS]
         repairs.repair_mapping_create_params(
             ports.get("repositories") if isinstance(ports, dict) else None,
             models, log)

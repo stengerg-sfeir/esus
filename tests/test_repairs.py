@@ -1068,6 +1068,60 @@ class AdapterFlagRepairTests(unittest.TestCase):
         options = body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"]
         self.assertEqual([o["name"] for o in options], ["--stock"])
 
+    def test_a_null_option_list_is_treated_as_empty(self):
+        body = self.surface()
+        body["facade"]["invocation"]["commands"][0]["subcommands"][0][
+            "options"] = None
+        adapters = self.adapters([
+            {"field_name": "stock_qty", "target_param": "stock_qty",
+             "required": True},
+        ])
+        repairs.repair_missing_adapter_flags(
+            body, adapters, self.SERVICES, self.MODELS, Log())
+        options = body["facade"]["invocation"]["commands"][0]["subcommands"][0]["options"]
+        self.assertIsInstance(options, list)
+        self.assertEqual([o["name"] for o in options], ["--stock-qty"])
+
+
+class MissingRelationFilterRepairTests(unittest.TestCase):
+    def test_a_list_filter_adds_the_fk_the_model_omits(self):
+        models = [
+            {"name": "Invoice", "fields": [
+                {"name": "id", "type": "int", "primary_key": True}]},
+            {"name": "InvoiceLine", "fields": [
+                {"name": "line_id", "type": "int", "primary_key": True},
+                {"name": "product_id", "type": "int"}]},
+        ]
+        repositories = [{"entity": "InvoiceLine",
+                         "interface_name": "InvoiceLineRepository",
+                         "methods": [{
+                             "name": "read_all_for_invoice",
+                             "params": [{"name": "invoice_id", "type": "int"}],
+                             "return_type": "list[InvoiceLine]"}]}]
+        repairs.repair_missing_relation_filters(models, repositories)
+        line = next(model for model in models
+                    if model["name"] == "InvoiceLine")
+        field = next(field for field in line["fields"]
+                     if field["name"] == "invoice_id")
+        self.assertEqual(field["foreign_key"]["target_entity"], "Invoice")
+        self.assertEqual(field["foreign_key"]["target_field"], "id")
+        self.assertEqual(field["type"], "int")
+        self.assertFalse(field["primary_key"])
+        self.assertFalse(field["nullable"])
+
+    def test_an_existing_fk_is_left_alone(self):
+        models = [{"name": "InvoiceLine", "fields": [
+            {"name": "invoice_id", "type": "int", "foreign_key": {
+                "target_entity": "Invoice", "target_field": "id",
+                "relationship": "many_to_one"}}]}]
+        repositories = [{"entity": "InvoiceLine",
+                         "methods": [{
+                             "name": "read_all_for_invoice",
+                             "params": [{"name": "invoice_id", "type": "int"}],
+                             "return_type": "list[InvoiceLine]"}]}]
+        repairs.repair_missing_relation_filters(models, repositories)
+        self.assertEqual(len(models[0]["fields"]), 1)
+
 
 class BooleanFilterActionRepairTests(unittest.TestCase):
     """A boolean selector gets the one-parameter filter it names.
