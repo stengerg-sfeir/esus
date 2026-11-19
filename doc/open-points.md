@@ -2,31 +2,39 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Local replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,203 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,213 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
 contains claims that have since been superseded, notably that acceptance exists
 only for the library and expenses prompts.
 
-The 66/66 result is green on the current harness, but it is not yet an
-independent proof of semantic coverage. The priorities below reflect that
-distinction.
+The stored v8 acceptance artifact is green, but it is not yet an
+independent proof of semantic coverage. The checked-in scenario suite now
+contains additional CLI fixtures beyond that 1,073-check artifact; replaying
+the stored v8 code against them is not green yet and is tracked under item 8.
+The priorities below reflect both distinctions.
 
 ## P0 — correctness and trust
 
-### 1. Contract checks can produce false positives
+### 1. ✅ Contract checks are proof-based (done 2026-11-19)
 
-- **F-01:** a `set` effect can be satisfied by the expected value appearing
+- **F-01:** a `set` effect was satisfied by the expected value appearing
   anywhere in the body, including a log message or unrelated constant.
-- **F-02:** a field mentioned as text or a constant can count as a read even
-  when the related record was never read.
-- **F-03:** the `raise_when` polarity is not always proven from the dominant
-  control-flow path.
+  The check now compares only the assigned RHS, including target-relative
+  expressions such as `not member.is_active`.
+- **F-02:** a field mentioned as text or a constant could count as a read even
+  when the related record was never read. Reads now follow repository/store
+  calls through aliases, loops, attribute/subscript access and field filters.
+- **F-03:** an unconditional raise could satisfy a conditional precondition.
+  A `raise_when` contract now requires a recognized conditional guard; an
+  unconditional raise is refused.
 
-**Next:** bind the proof to the actual assignment/read/raise node and dataflow.
-When the proof is inconclusive, report `unknown` or require review rather than
-accepting the body.
+**Regression tests:** `tests/test_contract_proofs.py`. The full suite is
+**1,213 passed**. Re-running the stored v8 method bodies through the stricter
+gate produced no new complaints and fixed the valid
+`renew_membership` expression case; the remaining complaints are pre-existing
+stub/delegation/derive gaps tracked elsewhere.
 
 ### 2. Repairs can be destructive or over-broad
 

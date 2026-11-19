@@ -9769,6 +9769,177 @@ def _resolved_binops(tree, node, seen=None):
     return found
 
 
+def _contract_literal(value):
+    """`(expected, checkable)` for a contract effect value.
+
+    Contract values may be quoted Python literals (`'confirmed'`), bare
+    string literals (`returned`) or parameter names (`new_role`). The proof
+    still has to find one of those forms on the assigned RHS, never merely a
+    matching word elsewhere in the body.
+    """
+    if value is None:
+        return None, False
+    if not isinstance(value, str):
+        return value, True
+    text = value.strip()
+    if not text:
+        return None, False
+    try:
+        return ast.literal_eval(text), True
+    except (ValueError, SyntaxError):
+        return text, True
+
+
+def _target_expression(node, target):
+    """Render `node` with the target object prefix removed.
+
+    A contract value can name the field alone (`not is_active`) while the body
+    names it through the target object (`not member.is_active`). Both prove
+    the same assignment; an access through a different object does not.
+    """
+    owner = field = ""
+    if isinstance(target, str) and "." in target:
+        owner, field = target.rsplit(".", 1)
+    try:
+        expression = ast.parse(ast.unparse(node), mode="eval").body
+    except (SyntaxError, ValueError):
+        return None
+    if owner:
+        class Strip(ast.NodeTransformer):
+            def visit_Attribute(self, attribute):
+                self.generic_visit(attribute)
+                if ast.unparse(attribute) == target:
+                    return ast.copy_location(
+                        ast.Name(id=field, ctx=ast.Load()), attribute)
+                return attribute
+        expression = Strip().visit(expression)
+        ast.fix_missing_locations(expression)
+    return ast.dump(expression, include_attributes=False)
+
+
+def _rhs_has_literal(node, expected, target=""):
+    """True when an assigned RHS is literally `expected` or names it."""
+    if isinstance(expected, str):
+        if isinstance(node, ast.Name) and node.id == expected:
+            return True
+        actual = _target_expression(node, target)
+        wanted = _target_expression(ast.parse(expected, mode="eval"), target) \
+            if _is_expression(expected) else None
+        if actual is not None and actual == wanted:
+            return True
+    try:
+        return ast.literal_eval(node) == expected
+    except (ValueError, SyntaxError):
+        return False
+
+
+def _is_expression(text):
+    try:
+        ast.parse(text, mode="eval")
+        return True
+    except (SyntaxError, ValueError):
+        return False
+
+
+def _read_call_matches(call, read):
+    """True when a call reads the entity/repository named by a contract read."""
+    if not isinstance(call, ast.Call) or not isinstance(call.func, ast.Attribute):
+        return False
+    method = normalize(call.func.attr)
+    if method.startswith(("create", "update", "delete", "remove")):
+        return False
+    entity = str(read.get("entity") or "")
+    repository = str(read.get("repository") or "")
+    owner = call.func.value
+    repo_name = _repo_name(owner)
+    if repository and repo_name == repository:
+        return True
+    if isinstance(owner, ast.Attribute) and owner.attr == "_store":
+        if not call.args or not isinstance(call.args[0], ast.Constant):
+            return False
+        return call.args[0].value == entity
+    return False
+
+
+def _read_usage(tree, read):
+    """`(read_found, field_found)` from the actual read-to-field dataflow.
+
+    A contract read is proven only when a repository/store read is assigned
+    (or iterated), and the demanded field is accessed on that alias. A string
+    constant such as `"name"` in a log is not a read.
+    """
+    aliases = set()
+    read_found = False
+    changed = True
+    while changed:
+        changed = False
+        for node in ast.walk(tree):
+            if isinstance(node, (ast.Assign, ast.AnnAssign)):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                value = node.value
+            elif isinstance(node, (ast.For, ast.comprehension)):
+                targets = [node.target]
+                value = node.iter
+            else:
+                continue
+            if value is None:
+                continue
+            matches = _read_call_matches(value, read) \
+                or (isinstance(value, ast.Name) and value.id in aliases)
+            if matches:
+                read_found = read_found or _read_call_matches(value, read)
+                for target in targets:
+                    if isinstance(target, ast.Name) and target.id not in aliases:
+                        aliases.add(target.id)
+                        changed = True
+    read_found = read_found or any(
+        _read_call_matches(node, read) for node in ast.walk(tree))
+    field = str(read.get("field") or "")
+
+    def direct_read(node):
+        return _read_call_matches(node, read)
+
+    def call_uses_field(call):
+        for keyword in call.keywords:
+            if keyword.arg == field:
+                return True
+        for argument in call.args:
+            for inner in ast.walk(argument):
+                if isinstance(inner, ast.Constant) and inner.value == field:
+                    return True
+        return False
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and direct_read(node) \
+                and call_uses_field(node):
+            return True, True
+        if isinstance(node, ast.Attribute) and node.attr == field:
+            if isinstance(node.value, ast.Name) and node.value.id in aliases:
+                return read_found, True
+            if direct_read(node.value):
+                return True, True
+        if isinstance(node, ast.Subscript):
+            key = node.slice
+            if isinstance(key, ast.Constant) and key.value == field:
+                if isinstance(node.value, ast.Name) and node.value.id in aliases:
+                    return read_found, True
+                if direct_read(node.value):
+                    return True, True
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) \
+                and node.func.id == "getattr" and len(node.args) >= 2:
+            target, name = node.args[0], node.args[1]
+            if isinstance(name, ast.Constant) and name.value == field \
+                    and isinstance(target, ast.Name) and target.id in aliases:
+                return read_found, True
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+                and node.func.attr == "get" and isinstance(node.func.value, ast.Name) \
+                and node.func.value.id in aliases and node.args \
+                and isinstance(node.args[0], ast.Constant) \
+                and node.args[0].value == field:
+            return read_found, True
+    return read_found, False
+
+
 def _call_names(tree):
     """Method names called anywhere in the body (`update_book`, `now`, ...)."""
     return {node.func.attr for node in ast.walk(tree)
@@ -10684,6 +10855,12 @@ def _raise_when_complaints(tree, precondition, judge=None, body_text=""):
     error, check, expected, opposite, target, assigned = match
     guards = _raise_guards(tree, error)
     if not guards:
+        if _last_name(error) in _raise_names(tree):
+            return [
+                f"raises `{error}` without a recognized conditional guard; "
+                f"the confirmed contract requires the raise when "
+                f"`{precondition['check']}` is {precondition['raise_when']}"
+            ]
         return []
     if any(_guard_satisfies(guard, expected, target, assigned)
            for guard in guards):
@@ -10838,14 +11015,11 @@ def _contract_complaints(tree, contract, judge=None, body_text=""):
                 "body never reads the current time")
         if effect.get("op") == "set":
             value = effect.get("value")
-            simple = (isinstance(value, (str, int, float, bool))
-                      and str(value).lower() != "now"
-                      and " " not in str(value) and "." not in str(value))
-            if simple and not any(
-                    (isinstance(inner, ast.Constant)
-                     and inner.value == value)
-                    or (isinstance(value, str) and value in text)
-                    for _node, rhs in writes for inner in ast.walk(rhs)):
+            expected, checkable = _contract_literal(value)
+            checkable = checkable and str(value).lower() != "now"
+            if checkable and not any(
+                    _rhs_has_literal(rhs, expected, target)
+                    for _node, rhs in writes):
                 found.append(
                     f"the confirmed contract sets `{target}` to `{value}`, "
                     "but the body does not use that value")
@@ -10885,15 +11059,12 @@ def _contract_complaints(tree, contract, judge=None, body_text=""):
                   if isinstance(node, ast.Attribute)}
     for read in contract.get("reads") or []:
         entity, field = read.get("entity") or "", read.get("field") or ""
-        # The related model is reached through its repository's key
-        # (`self._repos['AuthorRepository']`) or by naming it to the store
-        # (`self._store.select("Author", ...)`); both are string constants.
-        reached = {entity, read.get("repository")} - {None, ""}
-        if not reached & constants:
+        read_found, field_found = _read_usage(tree, read)
+        if not read_found:
             found.append(
                 f"the confirmed contract reads `{entity}.{field}`, but the "
                 f"body never reads `{entity}`")
-        elif field not in attributes and field not in constants:
+        elif not field_found:
             found.append(
                 f"the confirmed contract reads `{entity}.{field}`, but the "
                 f"body never uses its `{field}`")
