@@ -4,7 +4,7 @@ This guide complements [How the ESUS agent works](how-the-agent-works.md). It ex
 
 ## The short answer
 
-It is not accurate to say that ESUS checks only whether its files are well formed. Some checks compare parts of the extracted design with the original requirements, others check whether related design documents agree, and the generator checks every body the model writes against the confirmed method contract. For one prompt, the library system, an acceptance test also runs the generated program.
+It is not accurate to say that ESUS checks only whether its files are well formed. Some checks compare parts of the extracted design with the original requirements, others check whether related design documents agree, and the generator checks every body the model writes against the confirmed method contract. The generic runtime harness also runs every generated project against a real database; the current 66-project run passes 1,073 checks with no failures or `not_applicable` state checks.
 
 Those checks cover specific cases. A clean result means **the checks ESUS knows how to make found no blocking problem**. It does not prove that ESUS captured every requirement or that the generated program behaves as the user intended.
 
@@ -71,7 +71,7 @@ These checks are structural. They do not prove that a body behaves correctly, wh
 | Agreement between design documents | They can catch selected contradictions and disconnected parts. |
 | Explicit CLI examples | They can catch some missing commands and flags when the examples use the formats they recognize. |
 | Free-form business requirements | They are not checked comprehensively against the extracted design. |
-| Generated behavior | The readiness probe does not run the generated program. For the library prompt, `tests/e2e_library_acceptance.py` does, and checks the behavior the prompt defines; other prompts have no acceptance test yet. |
+| Generated behavior | The readiness probe does not run the generated program. `scripts/run_bench_acceptance.py` does: one fresh interpreter per project, CLI parsing, schema/store round-trips, CRUD, constraints, contract effects and data-driven CLI/semantic scenarios. Current v8: 66/66 projects, 1,073 checks, 0 failed, 0 not applicable. |
 | Model-written bodies | Checked against the confirmed contract and the store's API; behavior is only verified on the paths an acceptance test runs. |
 
 ## Example: a uniqueness rule
@@ -87,7 +87,7 @@ But those checks do not prove that the generated program rejects a second produc
 - **A full link from every sentence to the design.** The current command-line checks cover a narrow, recognizable part of the request; there is no general check that every requirement has a matching design item.
 - **Broad checks of meaning.** Intentions and most free-text rules can be checked for basic content and duplicates, but the checker cannot judge their complete meaning. It may miss implied behavior, edge cases, or a rule described in different words.
 - **A guarantee from internal agreement.** The model can leave a requirement out of several documents in a consistent way. Those documents may agree with each other while still missing the user's intent.
-- **Behavior tests for each request.** Readiness checks inspect the extracted design. A separate acceptance test is needed to run the generated program and check the requested behavior, including errors and edge cases. One exists for the library prompt and one for the expenses prompt (both pass all of their checks); a new prompt needs its own, and a passing run covers only the paths it exercises (most, not all, statements in the model-written bodies run).
+- **Behavior tests for each request.** Readiness checks inspect the extracted design. The generic acceptance harness now runs all 66 generated projects and includes CLI and semantic scenarios (including state-effect scenarios for order cancellation and library return). It is still scenario-driven: a passing run covers only the paths it exercises, not every statement, error and edge case in the model-written bodies.
 - **Requirements the checks do not look at.** For the library prompt these are the instruction to use type hints throughout (the fixed store and CLI templates do not provide them) and the quality of the architecture's separation of concerns. Error messages are not asserted unless a prompt names them.
 
 The known open work is listed in [Open points](open-points.md).
@@ -112,3 +112,4 @@ That mapping would make omissions easier to see and provide stronger evidence th
 - `generator.py` checks each model-written body (`_body_complaints`, `_contract_complaints`) before accepting it.
 - `kernel/pattern_shapes.py` rejects a pattern claim that cannot fit a method's return type.
 - `tests/e2e_library_acceptance.py` runs the generated library program against a real database.
+- `scripts/run_bench_acceptance.py` and `tests/runtime/worker.py` implement the generic 66-project acceptance harness; `tests/runtime/scenarios/` holds CLI and semantic fixtures.

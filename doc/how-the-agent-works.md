@@ -70,6 +70,22 @@ The loop then resumes the relevant extraction step when that can help. It keeps 
 
 A question that does not fit (a flag the answer would delete although the requirements require it, a condition the prompt does not define) can be skipped; `skip` leaves it open and the probe keeps reporting it. Some blockers cannot be answered in a review question. They need a clearer requirement or a change to the code.
 
+### Unattended review and archived repair
+
+`scripts/answer_reviews.py` is the conservative unattended policy used by the
+66-prompt validation replay. It answers only a **singleton** slot candidate;
+it leaves ambiguous ties, route choices, multi-choice contracts and free-form
+conditions open. It never drops an upstream-gap flag or a requirement flag to
+make readiness green. Those remaining questions are the attended review.
+
+`extract_arch.py --repair --output DIR` is a deterministic maintenance pass
+over an existing extraction: it reloads the saved documents, re-applies model,
+surface, contract and adapter repairs, re-derives interaction adapters when the
+repaired surface supports a larger mechanical set, and writes the documents
+back. It makes no model calls and does not answer review questions. A fresh
+extraction already runs the same repairs; `--repair` is for archived output or
+for replaying a review decision without re-extracting.
+
 ### 5. Generate Python code
 
 `generator.py` first checks readiness. If blockers or unanswered ties remain, it refuses to generate the application.
@@ -77,6 +93,13 @@ A question that does not fit (a flag the answer would delete although the requir
 For accepted architecture documents, the generator creates a `generated/` directory with Python modules for models, errors, storage, repositories, services, and the command-line interface. It generates straightforward data operations and supported patterns mechanically: reads, filters, creates, updates, deletes, a read of one record by its key, and a service method that only delegates to a repository. A service method that changes several records is wrapped in one store transaction when its confirmed contract has more than one write. It reports how many method bodies were implemented and how many remain stubs.
 
 What the emitter cannot write safely is first left as an explicit `NotImplementedError` stub with a reason in the docstring. With `--model` (a GGUF file, or `server` for a running `llama-server`), the model then writes those bodies one at a time. A body is accepted only if it passes the checks described in [What ESUS checks](checks-coverage-and-gaps.md); a refused body gets up to two repair asks that quote the complaint, and if it is still refused the stub stays. An accepted body is tagged `[llm-written ... review]` in its docstring and is **provisional**: the checks cover structure and the confirmed contract, not behavior. Without `--model`, or when a body is refused, the stub remains visible rather than silently guessing an implementation.
+
+The emitter also has mechanical bodies for common stateful service shapes
+when the extracted model graph proves them, including order placement with
+child lines and stock reservation, cancellation with stock restoration, stock
+checks, paginated reads, and reviewed closed contracts. These are refused when
+the required parent/child relations, primary keys, stock field or repository
+methods are missing.
 
 Scope limits in the current code generator:
 
@@ -181,13 +204,30 @@ The generated files are written under `out/my-app/generated/`, and the raw model
 
 ### Verifying the generated program
 
-A clean readiness check does not run the program. `tests/e2e_library_acceptance.py` does, for the library prompt:
+A clean readiness check does not run the program. The current generic harness
+does, across a whole generated tree:
+
+```bash
+python3 scripts/run_bench_acceptance.py out/validation/kaggle-v8
+```
+
+It runs one fresh interpreter per project, imports the generated package,
+checks CLI parsing, schema/store round-trips, CRUD, unique and foreign-key
+constraints, contract effects and data-driven CLI and semantic scenarios. It
+never edits a generated module. Current v8 result: **66/66 projects, 1,073
+checks passed, 0 failed, 0 not applicable**, including state-effect scenarios
+for order cancellation and library return.
+
+The older prompt-specific suites remain available:
 
 ```bash
 python3 tests/e2e_library_acceptance.py out/my-app
+python3 tests/e2e_expenses_acceptance.py out/my-app
 ```
 
-It runs the generated CLI in fresh processes against a temporary SQLite database, calls the methods the CLI does not reach through the package's own wiring, and never edits a generated module. It checks the behavior the prompt defines: constraints, search, borrow and return, the due date, derived overdue status, rollback on a failed write, cascade, and the absence of commands the prompt does not list. It is written for that prompt; another prompt needs its own acceptance fixture. `tests/e2e_expenses_acceptance.py` does the same for the expenses prompt; on the current output it passes 13 of 13 checks.
+They run the generated CLI in fresh processes against a temporary SQLite
+database and check the behavior those prompts define. A passing run still
+covers only the paths it exercises.
 
 ## A practical review of the design
 
@@ -209,5 +249,7 @@ For a Sfeir.dev article, a concise way to describe the approach is: **use the mo
 - `kernel/repo_patterns/` and `kernel/service_patterns/` hold the pattern catalogues the classifier chooses from.
 - `generator.py` writes the generated Python application and checks the model's bodies; `kernel/codegen.py` plans each method.
 - `kernel/codegen_store_template.py` and `kernel/store_contract.py` define the store every generated program uses and what a body may assume about it.
+- `scripts/run_bench_acceptance.py` runs the generic acceptance harness over all generated projects.
+- `tests/runtime/worker.py` implements the per-project runtime checks; `tests/runtime/scenarios/` holds the CLI and semantic fixtures.
 - `tests/e2e_library_acceptance.py` runs the generated library program against a real database.
 - `doc/open-points.md` lists the known open work.

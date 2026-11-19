@@ -1,9 +1,36 @@
-# Validation of the 60-prompt suite
+# Validation of the 66-prompt suite
+
+## Current status (2026-11-19)
+
+The current reproducibility job extracts the **60 validation prompts plus the
+six initial prompts** (`hello_world`, `cli_tool`, `expenses`, `gui`,
+`inventory`, `library_system`).
+
+Latest Kaggle run (`repro66-20261119-105248`, kernel version 8):
+
+- **42 successful / 24 review / 0 failed**
+- **3,596 s** total extraction
+- **529** timed model calls
+- **197,885** output tokens / **292,957** prompt tokens
+
+Local replay from that extraction, using the conservative review sidecars and
+the current generator:
+
+- **66/66 generated**
+- **66/66 acceptance projects passed**
+- **1,073 checks passed**
+- **0 failed**
+- **0 not applicable**
+- **1,203 unit tests passed**
+
+The two state-effect checks that previously reported `not_applicable` now have
+semantic scenarios: `OrderService.cancel_order` and
+`LibraryService.return_book`.
 
 ## Goal
 
-Run `extract_arch.py` on the 60 prompts in `prompts/validation/` and measure,
-per prompt:
+Run `extract_arch.py` on the 60 prompts in `prompts/validation/` plus the six
+initial prompts and measure, per prompt:
 
 - wall-clock time;
 - prompt and generated tokens;
@@ -20,7 +47,8 @@ model/server configuration.
 
 ## Inputs
 
-- 60 prompts: `prompts/validation/prompt_01.txt` … `prompt_60.txt`.
+- 60 validation prompts: `prompts/validation/prompt_01.txt` … `prompt_60.txt`.
+- Six initial prompts: `prompts/initial/prompt_*.txt`.
 - Extraction entry point: `extract_arch.py`.
 - Model: Qwen3-4B-Instruct-2507-Q4_K_M through `llama-server` at
   `http://127.0.0.1:8080` by default.
@@ -71,6 +99,28 @@ Any crash, timeout, or blocker outside the reviewable set. Examples include a
 missing required surface, contradictory documents, an unmappable adapter, or
 an unregistered error. These are not counted as “just review” merely because
 a human could eventually repair them.
+
+## Current review policy
+
+Extraction still runs unreviewed first. When a local replay is wanted,
+`scripts/answer_reviews.py` is deliberately conservative:
+
+- it answers a slot only when the offered candidate set is a singleton;
+- it keeps the recorded tie only when the choice is forced; ambiguous ties,
+  slots, routes and contracts remain open;
+- it never drops an upstream gap or a flag just to make the probe green;
+- it does not invent a state value or a free-form precondition.
+
+The remaining questions are the required attended review. The review sidecars
+are `decisions.json`, `method_slots.json`, `surface_decisions.json`,
+`method_contracts.json`, and `grounding_decisions.json`. After those decisions
+are written, `extract_arch.py --repair` re-applies the deterministic document
+and adapter repairs; it makes no model calls and does not answer review
+questions.
+
+The v8 replay used evidence-backed decisions for the open cases and added two
+state-effect acceptance scenarios, so the final harness has no
+`not_applicable` state checks.
 
 ## Metrics
 
@@ -241,9 +291,10 @@ kaggle/
 └── validation.ipynb
 ```
 
-The metadata now points at `gillesstenger/esus-validation-60-prompts`,
+The current 66-prompt kernel is
+`gillesstenger/esus-reproducibility-66-prompts`; its sources are
 `gillesstenger/esus-code-bundle` and `gillesstenger/qwen3-4b-instruct`. The
-runner's parser and classifier are covered by
+runner's parser, classifier, and extraction environment are covered by
 `tests/test_validation_runner.py`.
 
 ## Open items
@@ -358,13 +409,14 @@ formerly blocked prompts were: `prompt_03` review, `prompt_13` successful,
 
 ## Bench generation (2026-11-16)
 
-The final Kaggle output was downloaded to `out/validation/bench/`. The review
-decisions were answered with `scripts/answer_reviews.py` using the review
-scripts' own writers: ties keep the recorded classifier, duplicate surface
-nodes keep both, slots take the first enumerated candidate, contracts keep the
-proposed effects and skip optional checks, and grounding keeps the evidence.
-Dead flags whose upstream relationship was absent were recorded as explicit
-`drop-flag` surface decisions so the generated program remains runnable.
+The final Kaggle output was downloaded to `out/validation/bench/`. This
+paragraph records the older 2026-11-16 bench policy, not the current
+`answer_reviews.py`: that historical run kept the recorded classifier, kept
+both duplicate surface nodes, took the first enumerated slot, kept proposed
+contracts, skipped optional checks, and kept grounding evidence. Dead flags
+whose upstream relationship was absent were recorded as explicit `drop-flag`
+surface decisions so the generated program remained runnable. The current
+policy above leaves ambiguous decisions open instead.
 
 All 60 prompt directories now probe with **zero blockers** and have a
 generated package. `generator.py` reports:
@@ -387,11 +439,16 @@ service/repository, and runs **268** data-driven CLI and semantic scenarios.
 CLI scenarios are generated from the surface the generator actually emits;
 each runs in a fresh SQLite database with the foreign keys it needs seeded.
 
-Final result on `out/validation/bench`:
+Final result on `out/validation/bench` (historical 2026-11-16 archive):
 
 - **60 / 60 prompts passed**;
 - **1002 checks passed**, **0 failed**, **0 skipped**;
 - `python3 -m compileall out/validation/bench` is clean.
+
+The current 66-project v8 result above supersedes these counts: **66/66,
+1,073 checks, 0 failed, 0 not applicable**. The generic harness now includes
+state-effect scenarios for cancellation and return, so the older
+`not_applicable` checks are no longer skipped.
 
 The same harness now discovers the six named initial projects under
 `out/initial/esus_bench/`; the runner is no longer limited to `prompt_*`

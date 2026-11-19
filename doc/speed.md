@@ -7,6 +7,37 @@ This page records measurements and the ideas they suggest. Some ideas are implem
 > evidence and the scaling and sovereignty caveats are in
 > [What the rerun does and does not establish](#what-the-rerun-does-and-does-not-establish-2026-11-13).
 
+## Current 66-prompt status (2026-11-19)
+
+The latest reproducibility run is snapshot `repro66-20261119-105248`
+(kernel version 8). It extracts the 60 validation prompts plus the six
+initial prompts.
+
+| Run | Outcome | Wall | Calls | Output tokens | Prompt tokens |
+| --- | --- | ---: | ---: | ---: | ---: |
+| v5 | 39 successful / 27 review / 0 failed | 4,410 s | 529 | 197,975 | 292,980 |
+| v6 | 41 / 25 / 0 | 3,843 s | 529 | 197,975 | 292,980 |
+| v7 | 41 / 25 / 0 | 4,557 s | 529 | 197,975 | 292,980 |
+| **v8** | **42 / 24 / 0** | **3,596 s** | **529** | **197,885** | **292,957** |
+
+The wall differences between runs with the same token counts are server/GPU
+variation, not a code-path difference. v8 includes the strict unattended
+review policy, post-repair adapter re-derivation, grounded repository
+filtering, and mechanical order-placement/stock-check bodies.
+
+Local generation from the v8 extraction took **1,161 s** and produced **66/66**
+projects. The generic acceptance harness passed **66/66 projects, 1,073 checks,
+0 failed, 0 not applicable**; the two former state-effect gaps
+(`OrderService.cancel_order`, `LibraryService.return_book`) now have semantic
+scenarios. Unit tests: **1,203 passed**.
+
+The mechanical pass is still the main deterministic lever: `52/66` v5 prompts
+were fully derivable from their final documents, while the extraction order
+left adapter model calls in `45` prompts. The code now re-derives adapters
+after surface repair, but the adapter model-call count still depends on how
+much of the surface the first pass exposes. This is the next measured speed
+target, not a correctness shortcut.
+
 ## ESUS vs direct GPT-6 Luna (2026-11-10)
 
 This is an end-to-end comparison, not a model leaderboard. ESUS ran Qwen3-4B through `llama-server` with one slot; the direct runs were one subagent per prompt using **GPT-6 Luna** through OpenCode Go (`opencode-go/gpt-6-luna`), with the prompt file as the only specification. The direct agents had no ESUS documents or contracts and also wrote their own smoke tests and compliance notes.
