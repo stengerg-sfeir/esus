@@ -31,7 +31,9 @@ contradiction, so a repair and the rule that reports it can never disagree. Run
 after every step that produces the documents it touches, and before writing.
 """
 
+import json
 import re
+from pathlib import Path
 
 from kernel.consistency import checks_adapters, checks_errors, checks_models
 from kernel.consistency import checks_surface as surface_checks
@@ -3283,12 +3285,38 @@ def repair_nested_paths(components, requirements, log):
     return components
 
 
-def repair_missing_method_flags(components, requirements, services, log=None):
+FLAG_DECISIONS_NAME = "flag_decisions.json"
+
+
+def load_flag_decisions(output_dir):
+    """The recorded answers for ambiguous method-backed flags."""
+    try:
+        with open(Path(output_dir) / FLAG_DECISIONS_NAME,
+                  encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    records = payload.get("decisions") if isinstance(payload, dict) else payload
+    return [record for record in records or [] if isinstance(record, dict)]
+
+
+def save_flag_decisions(output_dir, records):
+    """Persist the ambiguous-flag review answers."""
+    path = Path(output_dir) / FLAG_DECISIONS_NAME
+    path.write_text(json.dumps({"decisions": records}, indent=2,
+                               ensure_ascii=False) + "\n", encoding="utf-8")
+    return path
+
+
+def repair_missing_method_flags(components, requirements, services, log=None,
+                                decisions=None):
     """Add a required flag whose type is grounded in a service parameter.
 
     `expense report yearly --year` has no model field called `year`; the
     method `get_yearly_summary(year: int)` is the only proof of its type.
-    Only an unambiguous method/parameter pair is used.
+    An unambiguous method/parameter pair is used directly. When several
+    methods can satisfy the same flag, the choice must be recorded in
+    `flag_decisions.json`; the repair never picks one by name alone.
     """
     if not isinstance(components, dict) or not requirements:
         return components
@@ -3322,12 +3350,42 @@ def repair_missing_method_flags(components, requirements, services, log=None):
                         if (isinstance(param, dict)
                                 and normalize(param.get("name") or "") == normalize(flag)):
                             candidates.append((service, method, param))
-            if len(candidates) != 1:
-                # Several methods can satisfy one flag; the choice changes
-                # the operation and its type. Do not pick a plausible method
-                # by name alone.
+            chosen = None
+            if len(candidates) == 1:
+                chosen = candidates[0]
+            elif decisions:
+                for candidate in candidates:
+                    service, method, param = candidate
+                    for record in decisions:
+                        if (normalize(record.get("command") or "") != normalize(command)
+                                or normalize(record.get("subcommand") or "")
+                                != normalize(sub or "")
+                                or normalize(record.get("flag") or "") != normalize(flag)
+                                or normalize(record.get("service") or "")
+                                != normalize(service.get("service_name") or "")
+                                or normalize(record.get("method") or "")
+                                != normalize(method.get("name") or "")
+                                or normalize(record.get("param") or "")
+                                != normalize(param.get("name") or "")):
+                            continue
+                        chosen = candidate
+                        break
+                    if chosen is not None:
+                        break
+            if chosen is None:
+                if log is not None:
+                    shown = f"[--{flag}]" if bracketed else f"--{flag}"
+                    candidates = ", ".join(
+                        f"{service.get('service_name')}.{method.get('name')}"
+                        f"({param.get('name')}: {param.get('type')})"
+                        for service, method, param in candidates)
+                    log.write(
+                        f"[!] step components: {command} {sub or ''} lacks "
+                        f"'{shown}' but several methods can satisfy it "
+                        f"({candidates}); record one in "
+                        f"{FLAG_DECISIONS_NAME} before generation")
                 continue
-            _service, _method, param = candidates[0]
+            _service, _method, param = chosen
             option_type = _option_type(param.get("type"))
             leaf.setdefault("options", []).append({
                 "name": f"--{flag}",
@@ -3338,10 +3396,11 @@ def repair_missing_method_flags(components, requirements, services, log=None):
             })
             if log is not None:
                 shown = f"[--{flag}]" if bracketed else f"--{flag}"
+                source = "human decision" if len(candidates) > 1 else "requirements"
                 log.write(
                     f"[ok] step components: {command} {sub or ''} lacked "
                     f"'{shown}' the requirements pass — added as {option_type} "
-                    f"(typed from {_service.get('service_name')}."
+                    f"({source}: {_service.get('service_name')}. "
                     f"{_method.get('name')})")
     return components
 

@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,252 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,255 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,252 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,255 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -106,7 +106,7 @@ than being assigned a mechanical body.
   parent FK is refused.
 
 **Regression tests:** `CreateDefaultTests` and
-`tests/test_collection_creation.py`. The full suite is **1,252 passed**.
+`tests/test_collection_creation.py`. The full suite is **1,255 passed**.
 
 ### 6. ✅ Bodies are not judged by their own writer (done 2026-11-19)
 
@@ -121,7 +121,7 @@ than being assigned a mechanical body.
   its existing tests; it is simply no longer invoked by `fill_stubs()`.
 
 **Regression tests:** `tests/test_guard_equivalence.py`, including alias
-acceptance and different-field refusal. The full suite is **1,252 passed**.
+acceptance and different-field refusal. The full suite is **1,255 passed**.
 
 ## P1 — validation and review
 
@@ -211,14 +211,20 @@ attended-review work rather than being implied by a sidecar.
 **Regression tests:** `tests/test_review_queue.py`. The full suite is
 **1,252 passed**.
 
-### 10. Ambiguous flags need review, not a fuzzy choice
+### 10. ✅ Ambiguous method-backed flags have a review record (done 2026-11-19)
 
-`repair_missing_method_flags` abstains when several methods can satisfy one
-flag. The `--year` case is the reference example: three candidate methods/types
-exist, so the flag/route must be chosen by a reviewer or a stronger rule.
+`repair_missing_method_flags` still refuses to choose between several matching
+methods. It now logs every candidate and points to `flag_decisions.json`;
+`review_flags.py` presents the candidates and records the chosen service,
+method, parameter and option type. A later repair run applies that record and
+adds the flag; without a record the flag stays open.
 
-**Next:** surface those candidates as a review question and record the chosen
-service, method, parameter and option type.
+The `--year` pattern is covered by both a no-decision test (flag remains
+absent) and a recorded-decision test (service/method/parameter/type add the
+flag). `scripts/review_queue.py` includes these questions under `flags`.
+
+**Regression tests:** `tests/test_review_flags.py`. The full suite is
+**1,255 passed**.
 
 ## P1/P2 — performance and extraction
 

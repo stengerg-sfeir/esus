@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import review_aliases  # noqa: E402
+import review_flags  # noqa: E402
 import review_contracts  # noqa: E402
 import review_grounding  # noqa: E402
 import review_slots  # noqa: E402
@@ -51,6 +52,7 @@ def _review_command(group):
         "aliases": "python review_aliases.py PROMPT_DIR",
         "grounding": "python review_grounding.py PROMPT_DIR",
         "contracts": "python review_contracts.py PROMPT_DIR",
+        "flags": "python review_flags.py PROMPT_DIR",
     }.get(group, "")
 
 
@@ -104,6 +106,14 @@ def collect_for_directory(directory, prompt=None):
         items.append(_item(
             prompt, "grounding", question.get("holder") or question.get("kind"),
             question, question.get("methods")))
+
+    flag_questions, _context = review_flags.collect_questions(str(directory))
+    for question in flag_questions:
+        items.append(_item(
+            prompt, "flags",
+            f"{question.get('command')} {question.get('subcommand') or ''} "
+            f"--{question.get('flag')}".strip(),
+            question, question.get("candidates")))
 
     contracts, _context = review_contracts.collect_contracts(str(directory))
     for proposal in contracts:
