@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,237 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,241 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,237 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,241 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -106,7 +106,7 @@ than being assigned a mechanical body.
   parent FK is refused.
 
 **Regression tests:** `CreateDefaultTests` and
-`tests/test_collection_creation.py`. The full suite is **1,237 passed**.
+`tests/test_collection_creation.py`. The full suite is **1,241 passed**.
 
 ### 6. ✅ Bodies are not judged by their own writer (done 2026-11-19)
 
@@ -121,19 +121,41 @@ than being assigned a mechanical body.
   its existing tests; it is simply no longer invoked by `fill_stubs()`.
 
 **Regression tests:** `tests/test_guard_equivalence.py`, including alias
-acceptance and different-field refusal. The full suite is **1,237 passed**.
+acceptance and different-field refusal. The full suite is **1,241 passed**.
 
 ## P1 — validation and review
 
-### 7. Independent acceptance oracle and requirement traceability
+### 7. ✅ Requirement traceability report (done 2026-11-19)
 
-The current harness is data-driven and runs all 66 projects, but its scenarios
-and fixtures are derived from extracted documents and reviewed contracts. It
-can pass a coherent misunderstanding.
+`scripts/requirement_trace.py` splits every `requirements.txt` into sentences
+and command examples, indexes the extracted models, fields, commands, options,
+methods, errors, invariants, contracts, adapters and components, and reports:
 
-**Next:** add a requirements-to-artifact-to-test traceability matrix. A green
-run should report coverage separately from harness success. Do not treat
-internal consistency as business truth.
+- `mapped_tested`: a clause maps to an artifact that a runtime check names;
+- `mapped_untested`: design evidence exists but no check names it;
+- `partial`: only a weak lexical overlap;
+- `unmapped`: no significant token overlap.
+
+`scripts/run_bench_acceptance.py` now writes `coverage.json` and adds a
+separate `coverage` block to `summary.json`; the pass/fail verdict is
+unchanged. On the stored v8 extraction the standalone report covers 345
+clauses: 297 mapped-but-untested, 37 unmapped and 11 partial. Those gaps are
+now visible instead of being implied by a green acceptance run.
+
+**Regression tests:** `tests/test_requirement_trace.py`. The full suite is
+**1,241 passed**.
+
+### 7b. Independent behavioral oracle (open)
+
+The trace is lexical. The acceptance harness still derives scenarios and
+fixtures from extracted documents and reviewed contracts, so a coherent
+misunderstanding can remain green. A true oracle needs independently authored
+behavioral requirements and tests, or a different model/process that does not
+share the extraction's interpretation.
+
+**Next:** add a small independently authored behavior suite for requirements
+where the trace is `mapped_untested` or `unmapped`, starting with the highest
+risk business rules.
 
 ### 8. Semantic scenarios are still sparse
 

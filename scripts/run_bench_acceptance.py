@@ -23,7 +23,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 WORKER = ROOT / "tests" / "runtime" / "worker.py"
 sys.path.insert(0, str(WORKER.parent))
+sys.path.insert(0, str(ROOT / "scripts"))
 
+import requirement_trace  # noqa: E402
 import worker  # noqa: E402
 
 
@@ -79,17 +81,25 @@ def main(argv=None):
         for check in payload["checks"]:
             if check.get("status") == "failed":
                 print(f"  - {check['name']}: {check.get('reason', '')}", flush=True)
+    traces = [requirement_trace.trace_project(prompt, payload["checks"])
+              for prompt, payload in zip(prompts, results)]
+    (output / "coverage.json").write_text(
+        json.dumps({"root": str(root),
+                    "summary": requirement_trace.summarize(traces),
+                    "projects": traces}, indent=2) + "\n",
+        encoding="utf-8")
     summary = {
         "root": str(root),
         "status": "passed" if all(item["status"] == "passed" for item in results)
                   else "failed",
         "counts": dict(Counter(item["status"] for item in results)),
+        "coverage": requirement_trace.summarize(traces),
         "results": results,
     }
     (output / "summary.json").write_text(
         json.dumps(summary, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: v for k, v in summary.items() if k != "results"},
-                     indent=2))
+    print(json.dumps({k: v for k, v in summary.items()
+                      if k not in ("results",)}, indent=2))
     return 0 if summary["status"] == "passed" else 1
 
 

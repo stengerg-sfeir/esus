@@ -21,11 +21,16 @@ the current generator:
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,203 unit tests passed**
+- **1,241 unit tests passed**
 
 The two state-effect checks that previously reported `not_applicable` now have
 semantic scenarios: `OrderService.cancel_order` and
 `LibraryService.return_book`.
+
+The acceptance summary now also carries a separate `coverage` block produced
+by `scripts/requirement_trace.py`. It maps each requirement clause to design
+evidence and says whether a check names it; it is not part of the pass/fail
+verdict.
 
 ## Goal
 

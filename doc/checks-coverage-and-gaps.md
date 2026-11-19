@@ -4,7 +4,7 @@ This guide complements [How the ESUS agent works](how-the-agent-works.md). It ex
 
 ## The short answer
 
-It is not accurate to say that ESUS checks only whether its files are well formed. Some checks compare parts of the extracted design with the original requirements, others check whether related design documents agree, and the generator checks every body the model writes against the confirmed method contract. The generic runtime harness also runs every generated project against a real database; the current 66-project run passes 1,073 checks with no failures or `not_applicable` state checks.
+It is not accurate to say that ESUS checks only whether its files are well formed. Some checks compare parts of the extracted design with the original requirements, others check whether related design documents agree, and the generator checks every body the model writes against the confirmed method contract. The generic runtime harness also runs every generated project against a real database; the stored v8 artifact passes 1,073 checks with no failures or `not_applicable` state checks. A separate requirement trace now reports the clauses that are mapped to design evidence, mapped but untested, only partially matched, or unmapped.
 
 Those checks cover specific cases. A clean result means **the checks ESUS knows how to make found no blocking problem**. It does not prove that ESUS captured every requirement or that the generated program behaves as the user intended.
 
@@ -82,9 +82,35 @@ ESUS can check that the extracted command includes `--sku` and `--name`, and tha
 
 But those checks do not prove that the generated program rejects a second product with the same SKU. To establish that, a test must run the generated program twice with the same SKU and check that the second attempt is rejected as required. For the library prompt the acceptance test does exactly this for ISBN and email: it adds a second book or member with the same value, expects a failure with an explanation, and checks that no partial row was stored.
 
+## Requirement coverage report
+
+Run:
+
+```text
+python scripts/requirement_trace.py out/validation/kaggle-v8
+```
+
+or let the acceptance runner produce it:
+
+```text
+python scripts/run_bench_acceptance.py out/validation/kaggle-v8
+```
+
+The report separates four statuses:
+
+- **mapped_tested**: a clause shares evidence with an artifact that a runtime
+  check names;
+- **mapped_untested**: design evidence exists but no current check names it;
+- **partial**: only one weak token overlaps;
+- **unmapped**: no artifact shares a significant token.
+
+A mapped row is a lead for review, not proof. The trace cannot detect a
+coherent misunderstanding, and it deliberately does not treat a lexical match
+as behavioral coverage.
+
 ## What is still missing
 
-- **A full link from every sentence to the design.** The current command-line checks cover a narrow, recognizable part of the request; there is no general check that every requirement has a matching design item.
+- **Meaning-preserving requirement coverage.** `scripts/requirement_trace.py` now produces a clause-by-clause trace, but its matching is lexical. It makes omissions and untested mappings visible; it does not prove that a mapped artifact preserves the sentence's meaning.
 - **Broad checks of meaning.** Intentions and most free-text rules can be checked for basic content and duplicates, but the checker cannot judge their complete meaning. It may miss implied behavior, edge cases, or a rule described in different words.
 - **A guarantee from internal agreement.** The model can leave a requirement out of several documents in a consistent way. Those documents may agree with each other while still missing the user's intent.
 - **Behavior tests for each request.** Readiness checks inspect the extracted design. The generic acceptance harness now runs all 66 generated projects and includes CLI and semantic scenarios (including state-effect scenarios for order cancellation and library return). It is still scenario-driven: a passing run covers only the paths it exercises, not every statement, error and edge case in the model-written bodies.
@@ -113,3 +139,4 @@ That mapping would make omissions easier to see and provide stronger evidence th
 - `kernel/pattern_shapes.py` rejects a pattern claim that cannot fit a method's return type.
 - `tests/e2e_library_acceptance.py` runs the generated library program against a real database.
 - `scripts/run_bench_acceptance.py` and `tests/runtime/worker.py` implement the generic 66-project acceptance harness; `tests/runtime/scenarios/` holds CLI and semantic fixtures.
+- `scripts/requirement_trace.py` writes `coverage.json` and adds a separate `coverage` block to the acceptance summary; statuses are `mapped_tested`, `mapped_untested`, `partial`, and `unmapped`.
