@@ -1507,6 +1507,16 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "contained-name filter")
                 continue
+            check_stock = _repo_check_stock_body(ctx, entity, model_cls, method)
+            if check_stock is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical stock check]"""']
+                lines.extend("        " + line if line else "" for line in check_stock)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "stock check")
+                continue
             cancel_stock = _repo_cancel_stock_body(ctx, entity, model_cls, method)
             if cancel_stock is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -1759,6 +1769,47 @@ def _repo_cancel_stock_body(ctx, entity, model_cls, method):
     if normalize(method.get("return_type") or "") in ("bool", "boolean"):
         lines.append("return True")
     return lines
+
+
+def _repo_check_stock_body(ctx, entity, model_cls, method):
+    """Check a product-id collection for positive stock.
+
+    The same method is reached from a CLI with a comma-separated string and
+    from a service with a list of ids. Accept both shapes instead of letting
+    the model choose one and call `.split()` on the other.
+    """
+    name = normalize(method.get("name") or "")
+    if "check" not in name or "stock" not in name:
+        return None
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1 or not normalize(params[0].get("name") or "").endswith("ids"):
+        return None
+    stock = next((name for name, field in fields_of(ctx, entity)
+                  if isinstance(field, dict)
+                  and "stock" in normalize(name)), None)
+    if stock is None:
+        return None
+    ids = codegen.sanitize(params[0].get("name"), "ids")
+    product_error = _registered_error(ctx, entity) or "ProductNotFoundError"
+    stock_error = next((error.get("name") for error in ctx.get("errors") or []
+                        if isinstance(error, dict)
+                        and "stock" in normalize(error.get("name") or "")
+                        and "quantity" in normalize(error.get("description") or "")),
+                       "ProductStockQuantityError")
+    return [
+        f"if isinstance({ids}, str):",
+        f"    {ids} = [item for item in {ids}.split(',') if item.strip()]",
+        f"for product_id in {ids} or []:",
+        f"    product = self._store.get(self.ENTITY, self.PK, int(product_id), "
+        f"error=errors.{codegen.sanitize(product_error)})",
+        f"    if product.get({stock!r}) is None:",
+        f"        raise errors.{codegen.sanitize(stock_error)}("
+        f"f\"Product with id {{product_id}} has no stock quantity\")",
+        f"    if product.get({stock!r}) <= 0:",
+        f"        raise errors.{codegen.sanitize(stock_error)}("
+        f"f\"Product with id {{product_id}} has insufficient stock quantity\")",
+    ]
 
 
 def _repo_low_stock_body(ctx, entity, model_cls, method):
@@ -3655,6 +3706,179 @@ def _is_date_type(declared):
     return str(declared or "").strip().lower() in ("date", "datetime", "timestamp")
 
 
+def _service_place_order_body(ctx, method, params, returns):
+    """Mechanical order placement: validate, create parent/lines, decrement stock.
+
+    This is the recurring shape of `place_order(customer_id, order_items)`.
+    Every name below comes from the extracted model/repository graph; if a
+    required relation or stock field is absent, the method stays a stub.
+    """
+    return_text = method.get("return_type") or returns or ""
+    if "place" not in normalize(method.get("name") or "") \
+            or "order" not in normalize(str(return_text)):
+        return None
+    entity_names = ctx.get("entity_names") or []
+    order = next((name for name in entity_names
+                  if normalize(name) in normalize(str(return_text))), None)
+    if order is None:
+        return None
+    order_model = model_of(ctx, order)
+    order_pk = primary_key_of(ctx, order)
+    order_repo = next((repo for repo in ctx.get("repositories") or []
+                       if isinstance(repo, dict)
+                       and normalize(repo.get("entity") or "") == normalize(order)), None)
+    if order_model is None or order_repo is None:
+        return None
+    create_order = next((m for m in order_repo.get("methods") or []
+                         if isinstance(m, dict)
+                         and normalize(m.get("name") or "") == "create"), None)
+    if create_order is None:
+        return None
+    customer = next((name for name in entity_names
+                     if any(normalize(p.get("name") or "") == normalize(name) + "id"
+                            or normalize(p.get("name") or "") == normalize(name)
+                            for p in method.get("params") or []
+                            if isinstance(p, dict))), None)
+    if customer is None:
+        return None
+    customer_repo = next((repo for repo in ctx.get("repositories") or []
+                          if isinstance(repo, dict)
+                          and normalize(repo.get("entity") or "") == normalize(customer)), None)
+    if customer_repo is None:
+        return None
+    customer_read = next((m for m in customer_repo.get("methods") or []
+                          if isinstance(m, dict)
+                          and normalize(m.get("name") or "") == "readone"), None)
+    line_model = None
+    for candidate in ctx.get("models") or []:
+        if not isinstance(candidate, dict) or not candidate.get("name"):
+            continue
+        fields = [f for f in candidate.get("fields") or [] if isinstance(f, dict)]
+        if any(isinstance(f.get("foreign_key"), dict)
+               and normalize(f["foreign_key"].get("target_entity") or "") == normalize(order)
+               for f in fields) and any(
+                   normalize(f.get("name") or "").endswith("productid") for f in fields) \
+                and any(normalize(f.get("name") or "") == "quantity" for f in fields):
+            line_model = candidate
+            break
+    if line_model is None:
+        return None
+    line_pk = primary_key_of(ctx, line_model["name"])
+    line_repo = next((repo for repo in ctx.get("repositories") or []
+                      if isinstance(repo, dict)
+                      and normalize(repo.get("entity") or "") == normalize(line_model["name"])), None)
+    if line_repo is None:
+        return None
+    create_line = next((m for m in line_repo.get("methods") or []
+                        if isinstance(m, dict)
+                        and normalize(m.get("name") or "") == "create"), None)
+    if create_line is None:
+        return None
+    product_fk = next((f for f in line_model.get("fields") or []
+                       if isinstance(f, dict)
+                       and normalize(f.get("name") or "").endswith("productid")), None)
+    product_name = None
+    if product_fk and isinstance(product_fk.get("foreign_key"), dict):
+        product_name = product_fk["foreign_key"].get("target_entity")
+    if product_name is None:
+        return None
+    product_model = model_of(ctx, product_name)
+    product_repo = next((repo for repo in ctx.get("repositories") or []
+                         if isinstance(repo, dict)
+                         and normalize(repo.get("entity") or "") == normalize(product_name)), None)
+    if product_model is None or product_repo is None:
+        return None
+    product_pk = primary_key_of(ctx, product_name)
+    stock = next((name for name, field in fields_of(ctx, product_name)
+                  if isinstance(field, dict) and "stock" in normalize(name)), None)
+    if stock is None:
+        return None
+    product_read = next((m for m in product_repo.get("methods") or []
+                         if isinstance(m, dict)
+                         and normalize(m.get("name") or "") == "readone"), None)
+    product_update = next((m for m in product_repo.get("methods") or []
+                           if isinstance(m, dict)
+                           and normalize(m.get("name") or "") == "update"), None)
+    if product_read is None or product_update is None:
+        return None
+    customer_param = next((p.get("name") for p in method.get("params") or []
+                           if isinstance(p, dict)
+                           and (normalize(p.get("name") or "") == normalize(customer) + "id"
+                                or normalize(p.get("name") or "") == normalize(customer))), None)
+    items_param = next((p.get("name") for p in method.get("params") or []
+                        if isinstance(p, dict)
+                        and "item" in normalize(p.get("name") or "")), None)
+    if customer_param is None or items_param is None:
+        return None
+    customer_read_params = [p.get("name") for p in customer_read.get("params") or []
+                            if isinstance(p, dict) and p.get("name")]
+    if not customer_read_params:
+        return None
+    order_create_params = {p.get("name") for p in create_order.get("params") or []
+                           if isinstance(p, dict) and p.get("name")}
+    line_create_params = {p.get("name") for p in create_line.get("params") or []
+                          if isinstance(p, dict) and p.get("name")}
+    product_read_params = [p.get("name") for p in product_read.get("params") or []
+                           if isinstance(p, dict) and p.get("name")]
+    product_update_params = {p.get("name") for p in product_update.get("params") or []
+                             if isinstance(p, dict) and p.get("name")}
+    if not product_read_params:
+        return None
+    customer_error = _registered_error(ctx, customer) or "CustomerNotFoundError"
+    product_error = _registered_error(ctx, product_name) or "ProductNotFoundError"
+    stock_error = next((error.get("name") for error in ctx.get("errors") or []
+                        if isinstance(error, dict)
+                        and ("stock" in normalize(error.get("name") or "")
+                             or "insufficient" in normalize(error.get("name") or ""))),
+                       "InsufficientStockError")
+    order_call = [
+        f"{codegen.sanitize(k, 'kw')}={codegen.sanitize(customer_param, 'param')}"
+        for k in order_create_params if normalize(k) == normalize(customer) + "id"]
+    if any(normalize(k) in ("orderdate", "createdat", "date") for k in order_create_params):
+        date_key = next(k for k in order_create_params
+                        if normalize(k) in ("orderdate", "createdat", "date"))
+        order_call.append(f"{codegen.sanitize(date_key, 'kw')}=datetime.datetime.now()")
+    lines = [
+        f"{codegen.sanitize(customer_param, 'param')} = {codegen.sanitize(customer_param, 'param')}",
+        f"{codegen.sanitize(customer, 'customer')} = self._repos[{codegen.sanitize(customer_repo.get('interface_name') or customer, 'Repository')!r}].{codegen.sanitize(customer_read['name'], 'method')}({codegen.sanitize(customer_read_params[0], 'param')}={codegen.sanitize(customer_param, 'param')})",
+        f"if {codegen.sanitize(customer, 'customer')} is None:",
+        f"    raise errors.{codegen.sanitize(customer_error)}",
+        f"items = {codegen.sanitize(items_param, 'param')} or []",
+        "for item in items:",
+        f"    product_id = item.get({product_fk['name']!r})",
+        "    quantity = item.get('quantity')",
+        "    if product_id is None or quantity is None:",
+        "        continue",
+        f"    product = self._repos[{codegen.sanitize(product_repo.get('interface_name') or product_name, 'Repository')!r}].{codegen.sanitize(product_read['name'], 'method')}({codegen.sanitize(product_read_params[0], 'param')}=product_id)",
+        f"    if product is None:",
+        f"        raise errors.{codegen.sanitize(product_error)}",
+        f"    if product.{stock} is None or product.{stock} < quantity:",
+        f"        raise errors.{codegen.sanitize(stock_error)}",
+        f"order = self._repos[{codegen.sanitize(order_repo.get('interface_name') or order, 'Repository')!r}].{codegen.sanitize(create_order['name'], 'method')}({', '.join(order_call)})",
+        "for item in items:",
+        f"    product_id = item.get({product_fk['name']!r})",
+        "    quantity = item.get('quantity')",
+        "    if product_id is None or quantity is None:",
+        "        continue",
+        f"    self._repos[{codegen.sanitize(line_repo.get('interface_name') or line_model['name'], 'Repository')!r}].{codegen.sanitize(create_line['name'], 'method')}(" + ", ".join(
+            f"{codegen.sanitize(k, 'kw')}=" + (
+                f"order.{codegen.sanitize(order_pk, 'param')}"
+                if normalize(k) == normalize(order) + "id"
+                else "product_id" if normalize(k) == normalize(product_fk["name"])
+                else "quantity")
+            for k in line_create_params
+            if normalize(k) in (normalize(order) + "id", normalize(product_fk["name"]), "quantity")) + ")",
+        f"    product = self._repos[{codegen.sanitize(product_repo.get('interface_name') or product_name, 'Repository')!r}].{codegen.sanitize(product_read['name'], 'method')}({codegen.sanitize(product_read_params[0], 'param')}=product_id)",
+        f"    self._repos[{codegen.sanitize(product_repo.get('interface_name') or product_name, 'Repository')!r}].{codegen.sanitize(product_update['name'], 'method')}(" + ", ".join(
+            [f"{codegen.sanitize(k, 'kw')}=product_id" for k in product_update_params if normalize(k) == normalize(product_pk)] + [f"{codegen.sanitize(stock, 'kw')}=product.{stock} - quantity"] ) + ")",
+        "return order",
+    ]
+    # Remove a leading no-op assignment for readability.
+    if lines and lines[0].count(" = ") == 1 and lines[0].split(" = ")[0] == lines[0].split(" = ")[1]:
+        lines = lines[1:]
+    return lines
+
+
 def _service_aggregate_body(ctx, service_name, method, plan):
     """A service-level aggregate from an extraction-side plan."""
     entity = plan.get("entity")
@@ -3817,6 +4041,16 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "closed-contract", True,
                             compile_reason)
                     continue
+            place_order = _service_place_order_body(ctx, method, params, returns)
+            if place_order is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical order placement]"""']
+                lines.extend("        " + line if line else "" for line in place_order)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "order placement")
+                continue
             wrapper = _service_crud_wrapper(
                 ctx, name, method, params, returns)
             if wrapper is not None:
