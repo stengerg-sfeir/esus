@@ -15,8 +15,6 @@
             "value1",
             "--isbn",
             "value1",
-            "--publication-year",
-            "2",
             "--created-at",
             "2024-01-01T00:00:00",
             "--updated-at",
@@ -44,11 +42,17 @@
             "--genre",
             "value1",
             "--isbn",
-            "value1",
-            "--publication-year",
-            "2"
+            "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "genre": "value1",
+            "isbn": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -62,17 +66,7 @@
             "Book",
             "delete",
             "--id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--genre",
-            "value1",
-            "--isbn",
-            "value1",
-            "--publication-year",
-            "2"
+            "1"
           ],
           [
             "Book",

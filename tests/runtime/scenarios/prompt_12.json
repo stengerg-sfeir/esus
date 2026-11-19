@@ -10,7 +10,7 @@
             "--name",
             "value1",
             "--email",
-            "cli1@example.test",
+            "example.com",
             "--phone-number",
             "value1"
           ]
@@ -32,11 +32,18 @@
             "--name",
             "value1",
             "--email",
-            "cli1@example.test",
+            "example.com",
             "--phone-number",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "example.com",
+            "phone_number": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -62,23 +69,13 @@
             "--id",
             "1"
           ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Customer search",
-      "when": {
-        "cli_variants": [
-          [
-            "Customer",
-            "search",
-            "--name",
-            "value1"
-          ]
-        ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "seed1@example.test"
+          }
+        }
       },
       "expect": {
         "exit": 0

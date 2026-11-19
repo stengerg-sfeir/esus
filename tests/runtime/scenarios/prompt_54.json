@@ -32,7 +32,13 @@
             "--end-time",
             "2024-01-01T00:00:00"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Appointment": {
+            "start_time": "2024-01-01T00:00:00",
+            "end_time": "2024-01-01T00:00:00"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -58,7 +64,13 @@
             "--id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Appointment": {
+            "start_time": "2024-01-01T00:00:00",
+            "end_time": "2024-01-01T00:00:00"
+          }
+        }
       },
       "expect": {
         "exit": 0

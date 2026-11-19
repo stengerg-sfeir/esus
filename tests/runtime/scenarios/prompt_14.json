@@ -1,15 +1,12 @@
 {
   "scenarios": [
     {
-      "name": "cli:Project add",
+      "name": "cli:create",
       "when": {
         "cli_variants": [
           [
-            "Project",
-            "add",
+            "create",
             "--name",
-            "value1",
-            "--description",
             "value1",
             "--status",
             "value1"
@@ -21,35 +18,11 @@
       }
     },
     {
-      "name": "cli:Project update",
+      "name": "cli:list",
       "when": {
         "cli_variants": [
           [
-            "Project",
-            "update",
-            "--project-id",
-            "1",
-            "--name",
-            "value1",
-            "--description",
-            "value1",
-            "--status",
-            "value1",
-            "--is-deleted"
-          ],
-          [
-            "Project",
-            "update",
-            "--project-id",
-            "1",
-            "--name",
-            "value1",
-            "--description",
-            "value1",
-            "--status",
-            "value1",
-            "--is-deleted",
-            "true"
+            "list"
           ]
         ]
       },
@@ -58,31 +31,11 @@
       }
     },
     {
-      "name": "cli:Project list",
+      "name": "cli:update",
       "when": {
         "cli_variants": [
           [
-            "Project",
-            "list",
-            "--name",
-            "value1",
-            "--description",
-            "value1",
-            "--status",
-            "value1",
-            "--is-deleted"
-          ],
-          [
-            "Project",
-            "list",
-            "--name",
-            "value1",
-            "--description",
-            "value1",
-            "--status",
-            "value1",
-            "--is-deleted",
-            "true"
+            "update"
           ]
         ]
       },
@@ -91,22 +44,11 @@
       }
     },
     {
-      "name": "cli:Project delete",
+      "name": "cli:delete",
       "when": {
         "cli_variants": [
           [
-            "Project",
-            "delete",
-            "--project-id",
-            "1",
-            "--is-deleted",
-            "false"
-          ],
-          [
-            "Project",
-            "delete",
-            "--project-id",
-            "1"
+            "delete"
           ]
         ]
       },

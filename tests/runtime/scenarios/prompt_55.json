@@ -7,10 +7,10 @@
           [
             "Product",
             "add",
+            "--stock",
+            "2",
             "--name",
-            "value1",
-            "--stock-quantity",
-            "2"
+            "value1"
           ]
         ]
       },
@@ -25,10 +25,85 @@
           [
             "Product",
             "update",
-            "--id",
-            "1",
-            "--stock-quantity",
-            "2"
+            "--stock",
+            "2",
+            "--name",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User add",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User update",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "update",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ],
+        "seed_overrides": {
+          "User": {
+            "name": "value1",
+            "email": "cli1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User delete",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "delete"
           ]
         ]
       },

@@ -27,27 +27,6 @@
       }
     },
     {
-      "name": "cli:Order confirm",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "confirm",
-            "--order-id",
-            "1"
-          ]
-        ],
-        "seed_overrides": {
-          "Order": {
-            "state": "pending"
-          }
-        }
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Order ship",
       "when": {
         "cli_variants": [
@@ -60,7 +39,7 @@
         ],
         "seed_overrides": {
           "Order": {
-            "state": "confirmed"
+            "status": "confirmed"
           }
         }
       },
@@ -81,9 +60,25 @@
         ],
         "seed_overrides": {
           "Order": {
-            "state": "confirmed"
+            "status": "confirmed"
           }
         }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--status",
+            "value1"
+          ]
+        ]
       },
       "expect": {
         "exit": 0
@@ -96,10 +91,37 @@
           [
             "Order",
             "update",
-            "--order-id",
+            "--id",
             "1",
-            "--state",
+            "--status",
             "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--id",
+            "1"
           ]
         ]
       },

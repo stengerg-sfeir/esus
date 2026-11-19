@@ -70,7 +70,13 @@
             "--id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "description": "value1",
+            "is_completed": false
+          }
+        }
       },
       "expect": {
         "exit": 0

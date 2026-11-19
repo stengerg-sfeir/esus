@@ -44,7 +44,15 @@
             "--address",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "phone": "value1",
+            "address": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0

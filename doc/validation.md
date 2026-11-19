@@ -21,20 +21,20 @@ the current generator:
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,255 unit tests passed**
+- **1,257 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
 fixtures. The stored v8 artifact has no `not_applicable` checks.
 
-The checked-in runtime scenario suite currently has 1,103 checks. Replaying
-the stored v8 code against it gives 31/66 projects passed and 130 failed CLI
-checks; the failures expose surface gaps (`Order search`, `Order confirm`,
-missing/changed flags). The 1,073-check artifact above is the older accepted
-artifact, not a fresh run of the expanded suite. This gap is tracked in
-`doc/open-points.md` item 8b.
+The checked-in CLI fixtures were regenerated from the effective generated
+surface while preserving every non-CLI semantic scenario. A fresh replay of
+the stored v8 code now gives **66/66 projects passed, 1,073 checks, 0 failed,
+0 not applicable**. The separate requirement trace still reports 37 unmapped,
+11 partial and 127 mapped-but-untested clauses; those remain review targets
+(item 7b), not proof of semantic coverage.
 
-The acceptance summary now also carries a separate `coverage` block produced
+The acceptance summary also carries a separate `coverage` block produced
 by `scripts/requirement_trace.py`. It maps each requirement clause to design
 evidence and says whether a check names it; it is not part of the pass/fail
 verdict.

@@ -1,11 +1,124 @@
 {
   "scenarios": [
     {
-      "name": "cli:BorrowingRecord add",
+      "name": "cli:Book search",
       "when": {
         "cli_variants": [
           [
-            "BorrowingRecord",
+            "Book",
+            "search",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available-status"
+          ],
+          [
+            "Book",
+            "search",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available-status",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book update",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available-status"
+          ],
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available-status",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "isbn": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Member search",
+      "when": {
+        "cli_variants": [
+          [
+            "Member",
+            "search",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Member add",
+      "when": {
+        "cli_variants": [
+          [
+            "Member",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:BorrowRecord add",
+      "when": {
+        "cli_variants": [
+          [
+            "BorrowRecord",
             "add",
             "--book-id",
             "1",
@@ -14,7 +127,22 @@
             "--borrow-date",
             "2024-01-01T00:00:00",
             "--return-date",
-            "2024-01-01T00:00:00"
+            "2024-01-01T00:00:00",
+            "--is-returned"
+          ],
+          [
+            "BorrowRecord",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01T00:00:00",
+            "--is-returned",
+            "true"
           ]
         ]
       },

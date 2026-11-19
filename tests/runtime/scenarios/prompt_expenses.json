@@ -1,0 +1,326 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:expense category add",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "category",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--budget",
+            "2",
+            "--icon",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense category list",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "category",
+            "list"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense category update",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "category",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--budget",
+            "2",
+            "--icon",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Category": {
+            "name": "value1",
+            "description": "value1",
+            "icon": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense category delete",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "category",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "expense",
+            "category",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense add",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "add",
+            "--amount",
+            "2",
+            "--description",
+            "value1",
+            "--category",
+            "1",
+            "--expense-date",
+            "2024-01-01",
+            "--method",
+            "cash",
+            "--recurring"
+          ],
+          [
+            "expense",
+            "add",
+            "--amount",
+            "2",
+            "--description",
+            "value1",
+            "--category",
+            "1",
+            "--expense-date",
+            "2024-01-01",
+            "--method",
+            "cash",
+            "--recurring",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense list",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "list",
+            "--category",
+            "1",
+            "--from-date",
+            "2024-01-01",
+            "--to-date",
+            "2024-01-01",
+            "--method",
+            "cash"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense report monthly",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "report",
+            "monthly",
+            "--month",
+            "2024-01"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense report yearly",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "report",
+            "yearly",
+            "--year",
+            "2",
+            "--month",
+            "2024-01"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense export",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "export",
+            "--from-date",
+            "2024-01-01",
+            "--to-date",
+            "2024-01-01",
+            "--output",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:expense recurring detect",
+      "when": {
+        "cli_variants": [
+          [
+            "expense",
+            "recurring",
+            "detect"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:budget list",
+      "when": {
+        "cli_variants": [
+          [
+            "budget",
+            "list",
+            "--category",
+            "1",
+            "--month",
+            "2024-01"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:budget add",
+      "when": {
+        "cli_variants": [
+          [
+            "budget",
+            "add",
+            "--category-id",
+            "1",
+            "--month",
+            "2024-01",
+            "--amount",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:budget update",
+      "when": {
+        "cli_variants": [
+          [
+            "budget",
+            "update",
+            "--category-id",
+            "1",
+            "--month",
+            "2024-01",
+            "--amount",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Budget": {
+            "category_id": 1,
+            "month": "2024-01"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:budget delete",
+      "when": {
+        "cli_variants": [
+          [
+            "budget",
+            "delete",
+            "--category-id",
+            "1",
+            "--month",
+            "value1"
+          ],
+          [
+            "budget",
+            "delete",
+            "--category-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Budget": {
+            "category_id": 1,
+            "month": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

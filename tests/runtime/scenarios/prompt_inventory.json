@@ -1,0 +1,235 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:product add",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "add",
+            "--sku",
+            "value1",
+            "--name",
+            "value1",
+            "--category",
+            "1",
+            "--price",
+            "2",
+            "--stock",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:product list",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "list",
+            "--category",
+            "1",
+            "--low-only"
+          ],
+          [
+            "product",
+            "list",
+            "--category",
+            "1",
+            "--low-only",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:product update",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--category",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "category_id": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "product",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:product restock",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "restock",
+            "--id",
+            "1",
+            "--qty",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:product report low-stock",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "report",
+            "low-stock"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:product report value",
+      "when": {
+        "cli_variants": [
+          [
+            "product",
+            "report",
+            "value"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:category add",
+      "when": {
+        "cli_variants": [
+          [
+            "category",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--threshold",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:category list",
+      "when": {
+        "cli_variants": [
+          [
+            "category",
+            "list"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:category update",
+      "when": {
+        "cli_variants": [
+          [
+            "category",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--threshold",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Category": {
+            "name": "value1",
+            "description": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:category delete",
+      "when": {
+        "cli_variants": [
+          [
+            "category",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "category",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

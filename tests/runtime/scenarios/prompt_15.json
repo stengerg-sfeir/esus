@@ -56,7 +56,14 @@
             "--quantity",
             "2"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0,
+            "quantity": 2
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -84,7 +91,14 @@
             "--product-id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0,
+            "quantity": 2
+          }
+        }
       },
       "expect": {
         "exit": 0

@@ -33,6 +33,13 @@ class StateStartTests(unittest.TestCase):
             {"invariants": []}, "Order", "status", "cancelled", {}))
 
 
+class FieldNameTests(unittest.TestCase):
+    def test_state_and_status_are_the_same_fixture_field(self):
+        model = {"fields": [{"name": "status", "type": "string"}]}
+        self.assertEqual(worker._model_field_name(model, "state"), "status")
+        self.assertEqual(worker._model_field_name(model, "status"), "status")
+
+
 class InvalidPreconditionTests(unittest.TestCase):
     def test_equality_flips_according_to_raise_when(self):
         self.assertEqual(

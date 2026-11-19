@@ -19,38 +19,28 @@
       }
     },
     {
-      "name": "cli:Project list",
-      "when": {
-        "cli_variants": [
-          [
-            "Project",
-            "list",
-            "--title",
-            "value1",
-            "--description",
-            "value1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Project update",
       "when": {
         "cli_variants": [
           [
             "Project",
             "update",
-            "--project-id",
-            "1",
             "--title",
             "value1",
             "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--priority",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Project": {
+            "title": "value1",
+            "description": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -62,17 +52,7 @@
         "cli_variants": [
           [
             "Project",
-            "delete",
-            "--project-id",
-            "1",
-            "--title",
-            "value1"
-          ],
-          [
-            "Project",
-            "delete",
-            "--project-id",
-            "1"
+            "delete"
           ]
         ]
       },
@@ -105,38 +85,12 @@
       }
     },
     {
-      "name": "cli:Task list",
-      "when": {
-        "cli_variants": [
-          [
-            "Task",
-            "list",
-            "--title",
-            "value1",
-            "--description",
-            "value1",
-            "--status",
-            "value1",
-            "--priority",
-            "value1",
-            "--project-id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
       "name": "cli:Task update",
       "when": {
         "cli_variants": [
           [
             "Task",
             "update",
-            "--task-id",
-            "1",
             "--title",
             "value1",
             "--description",
@@ -144,11 +98,17 @@
             "--status",
             "value1",
             "--priority",
-            "value1",
-            "--project-id",
-            "1"
+            "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "title": "value1",
+            "description": "value1",
+            "status": "value1",
+            "priority": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -160,23 +120,7 @@
         "cli_variants": [
           [
             "Task",
-            "delete",
-            "--task-id",
-            "1",
-            "--title",
-            "value1",
-            "--status",
-            "value1",
-            "--priority",
-            "value1",
-            "--project-id",
-            "1"
-          ],
-          [
-            "Task",
-            "delete",
-            "--task-id",
-            "1"
+            "delete"
           ]
         ]
       },

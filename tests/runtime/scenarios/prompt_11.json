@@ -62,7 +62,15 @@
             "--publication-year",
             "2"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "isbn": "value1",
+            "publication_year": 2
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -92,7 +100,15 @@
             "--id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "isbn": "value1",
+            "publication_year": 2
+          }
+        }
       },
       "expect": {
         "exit": 0

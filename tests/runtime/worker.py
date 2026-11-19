@@ -14,6 +14,7 @@ import csv
 import datetime
 import importlib
 import json
+import os
 import re
 import sqlite3
 import subprocess
@@ -115,9 +116,32 @@ def _load_package(out_dir):
 _NON_NULL = object()
 
 
+def _model_field_name(model, wanted):
+    """The model's spelling of a field, recognizing state/status synonyms."""
+    if not isinstance(model, dict) or not wanted:
+        return wanted
+    names = {str(field.get("name")) for field in model.get("fields") or []
+             if isinstance(field, dict) and field.get("name")}
+    if wanted in names:
+        return wanted
+    normalized = {normalize(name): name for name in names}
+    if normalize(wanted) in normalized:
+        return normalized[normalize(wanted)]
+    if normalize(wanted) in ("state", "status"):
+        for alias in ("state", "status"):
+            if alias in normalized:
+                return normalized[alias]
+    return wanted
+
+
 def _seed(store, model, number=1, overrides=None):
     pk = next((field.get("name") for field in model.get("fields") or []
                if field.get("primary_key")), "id")
+    overrides = dict(overrides or {})
+    for key, value in list(overrides.items()):
+        field_name = _model_field_name(model, key)
+        if field_name != key:
+            overrides.setdefault(field_name, value)
     values = {}
     for field in model.get("fields") or []:
         if not isinstance(field, dict) or not field.get("name"):
@@ -755,6 +779,7 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
         except Exception as error:  # noqa: BLE001
             return {"name": name, "status": "failed",
                     "reason": f"cannot read {entity}: {error}"}
+        field = _model_field_name(model_by_entity.get(entity), field)
         if current.get(field) != expected:
             return {"name": name, "status": "failed",
                     "reason": f"{target_name} is {current.get(field)!r}, expected {expected!r}"}
@@ -821,6 +846,11 @@ def _option_field(docs, key):
 def _cli_value(docs, name, declared, number):
     """A type-aware fixture for one required CLI option."""
     key = str(name or "").lstrip("-").replace("-", "_")
+    if key.endswith("ids"):
+        # A collection option may be a comma-separated string or a typed
+        # list; one integer id is valid for both shapes. Check this before
+        # the adjacent model field (`id`) fixes the scalar type.
+        return "1"
     fields = _option_field(docs, key)
     if not fields:
         wanted = normalize(key)
@@ -1328,6 +1358,11 @@ def _run_cli_command(cli, docs, cli_path, path, node, variant):
 def _scenario_path(out_dir):
     # The checked-in/generated suite is the complete one; a local
     # scenarios.json may be an older subset.
+    override = os.environ.get("ESUS_SCENARIOS_DIR")
+    if override:
+        candidate = Path(override) / (Path(out_dir).name + ".json")
+        if candidate.is_file():
+            return candidate
     fallback = Path(__file__).resolve().parent / "scenarios" / (
         Path(out_dir).name + ".json")
     if fallback.is_file():

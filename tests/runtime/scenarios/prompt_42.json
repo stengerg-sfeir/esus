@@ -1,3 +1,40 @@
 {
-  "scenarios": []
+  "scenarios": [
+    {
+      "name": "cli:Purchase search",
+      "when": {
+        "cli_variants": [
+          [
+            "Purchase",
+            "search",
+            "--customer-id",
+            "1",
+            "--start-date",
+            "2024-01-01",
+            "--end-date",
+            "2024-01-01"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer report",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "report",
+            "--customer-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
 }

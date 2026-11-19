@@ -1,36 +1,39 @@
 {
   "scenarios": [
     {
-      "name": "cli:User add",
+      "name": "cli:Order cancel",
       "when": {
         "cli_variants": [
           [
-            "User",
-            "add",
-            "--email",
-            "cli1@example.test",
-            "--password-hash",
-            "value1",
-            "--role",
-            "administrator"
+            "Order",
+            "cancel",
+            "--order-id",
+            "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "confirmed"
+          }
+        }
       },
       "expect": {
         "exit": 0
       }
     },
     {
-      "name": "cli:User update",
+      "name": "cli:Order add",
       "when": {
         "cli_variants": [
           [
-            "User",
-            "update",
+            "Order",
+            "add",
             "--user-id",
             "1",
-            "--new-role",
-            "administrator"
+            "--order-date",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
           ]
         ]
       },
@@ -74,6 +77,35 @@
             "--description",
             "value1"
           ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0,
+            "description": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
         ]
       },
       "expect": {
@@ -81,18 +113,58 @@
       }
     },
     {
-      "name": "cli:Order add",
+      "name": "cli:User add",
       "when": {
         "cli_variants": [
           [
-            "Order",
+            "User",
             "add",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--role",
+            "administrator"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User update",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "update",
             "--user-id",
             "1",
-            "--order-date",
-            "2024-01-01T00:00:00",
-            "--status",
-            "value1"
+            "--new-role",
+            "administrator"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User delete",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1"
+          ],
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1"
           ]
         ]
       },

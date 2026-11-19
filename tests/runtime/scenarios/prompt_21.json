@@ -32,7 +32,13 @@
             "--email",
             "cli1@example.test"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -94,7 +100,13 @@
             "--status",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "order_date": "2024-01-01T00:00:00",
+            "status": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0

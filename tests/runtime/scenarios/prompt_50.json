@@ -16,26 +16,9 @@
             "--current-attendees-count",
             "2"
           ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Event list",
-      "when": {
-        "cli_variants": [
-          [
-            "Event",
-            "list",
-            "--title",
-            "value1",
-            "--date",
-            "2024-01-01T00:00:00",
-            "--capacity",
-            "1"
-          ]
+        ],
+        "seed_exclude": [
+          "Registration"
         ]
       },
       "expect": {

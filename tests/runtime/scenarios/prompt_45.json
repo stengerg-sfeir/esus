@@ -1,22 +1,123 @@
 {
   "scenarios": [
     {
+      "name": "cli:Room add",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--room-type",
+            "value1",
+            "--price-per-night",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room update",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "update",
+            "--room-id",
+            "1",
+            "--room-number",
+            "value1",
+            "--room-type",
+            "value1",
+            "--price-per-night",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_number": "value1",
+            "room_type": "value1",
+            "price_per_night": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Room delete",
       "when": {
         "cli_variants": [
           [
             "Room",
             "delete",
-            "--room-type",
-            "value1",
-            "--capacity",
+            "--room-id",
             "1"
+          ],
+          [
+            "Room",
+            "delete",
+            "--room-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest add",
+      "when": {
+        "cli_variants": [
+          [
+            "Guest",
+            "add",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest update",
+      "when": {
+        "cli_variants": [
+          [
+            "Guest",
+            "update",
+            "--guest-id",
+            "1",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
           ]
         ],
         "seed_overrides": {
-          "Room": {
-            "room_type": "value1",
-            "capacity": 1
+          "Guest": {
+            "first_name": "value1",
+            "last_name": "value1",
+            "email": "cli1@example.test",
+            "phone_number": "value1"
           }
         }
       },
@@ -31,21 +132,40 @@
           [
             "Guest",
             "delete",
-            "--name",
-            "value1",
-            "--email",
-            "seed1@example.test",
-            "--phone",
+            "--guest-id",
+            "1"
+          ],
+          [
+            "Guest",
+            "delete",
+            "--guest-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Booking add",
+      "when": {
+        "cli_variants": [
+          [
+            "Booking",
+            "add",
+            "--guest-id",
+            "1",
+            "--room-id",
+            "1",
+            "--check-in-date",
+            "2024-01-01",
+            "--check-out-date",
+            "2024-01-01",
+            "--status",
             "value1"
           ]
-        ],
-        "seed_overrides": {
-          "Guest": {
-            "name": "value1",
-            "email": "seed1@example.test",
-            "phone": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -58,16 +178,18 @@
           [
             "Booking",
             "update",
-            "--room-id",
+            "--booking-id",
             "1",
-            "--guest-id",
-            "1"
+            "--check-in-date",
+            "2024-01-01",
+            "--check-out-date",
+            "2024-01-01"
           ]
         ],
         "seed_overrides": {
           "Booking": {
-            "room_id": 1,
-            "guest_id": 1
+            "check_in_date": "2024-01-01",
+            "check_out_date": "2024-01-01"
           }
         }
       },
@@ -82,30 +204,16 @@
           [
             "Booking",
             "delete",
-            "--room-id",
-            "1",
-            "--guest-id",
-            "1",
-            "--start-date",
-            "2024-01-01",
-            "--end-date",
-            "2024-01-01"
+            "--booking-id",
+            "1"
           ],
           [
             "Booking",
             "delete",
-            "--room-id",
+            "--booking-id",
             "1"
           ]
-        ],
-        "seed_overrides": {
-          "Booking": {
-            "room_id": 1,
-            "guest_id": 1,
-            "start_date": "2024-01-01",
-            "end_date": "2024-01-01"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

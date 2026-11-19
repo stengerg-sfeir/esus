@@ -7,14 +7,18 @@
           [
             "Customer",
             "add",
-            "--first-name",
-            "value1",
-            "--last-name",
+            "--name",
             "value1",
             "--email",
             "cli1@example.test",
             "--phone",
-            "value1"
+            "value1",
+            "--address",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -31,16 +35,24 @@
             "update",
             "--customer-id",
             "1",
-            "--first-name",
-            "value1",
-            "--last-name",
+            "--name",
             "value1",
             "--email",
             "cli1@example.test",
             "--phone",
+            "value1",
+            "--address",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "phone": "value1",
+            "address": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -61,6 +73,24 @@
             "delete",
             "--customer-id",
             "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer list",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "list",
+            "--page-number",
+            "2",
+            "--page-size",
+            "2"
           ]
         ]
       },

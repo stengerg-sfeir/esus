@@ -1,6 +1,72 @@
 {
   "scenarios": [
     {
+      "name": "return_active_loan",
+      "setup": [
+        {
+          "entity": "Author",
+          "as": "author",
+          "values": {
+            "name": "Ada"
+          }
+        },
+        {
+          "entity": "Book",
+          "as": "book",
+          "values": {
+            "title": "Widget",
+            "isbn": "isbn-1",
+            "published_year": 2020,
+            "available_copies": 1,
+            "author_id": {
+              "ref": "author.id"
+            }
+          }
+        },
+        {
+          "entity": "Member",
+          "as": "member",
+          "values": {
+            "name": "Grace",
+            "email": "grace@example.test",
+            "membership_date": "2024-01-01",
+            "is_active": true
+          }
+        },
+        {
+          "entity": "Loan",
+          "as": "loan",
+          "values": {
+            "book_id": {
+              "ref": "book.id"
+            },
+            "member_id": {
+              "ref": "member.id"
+            },
+            "loan_date": "2024-01-01",
+            "due_date": "2024-01-15",
+            "return_date": null,
+            "status": "active"
+          }
+        }
+      ],
+      "when": {
+        "service": "LibraryService",
+        "method": "return_book",
+        "args": [
+          {
+            "ref": "loan.id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "loan.status": "returned",
+          "book.available_copies": 2
+        }
+      }
+    },
+    {
       "name": "cli:book add",
       "when": {
         "cli_variants": [
@@ -75,7 +141,9 @@
             "--name",
             "value1",
             "--email",
-            "cli1@example.test"
+            "cli1@example.test",
+            "--membership-date",
+            "2024-01-01"
           ]
         ]
       },
@@ -183,72 +251,6 @@
       },
       "expect": {
         "exit": 0
-      }
-    },
-    {
-      "name": "return_active_loan",
-      "setup": [
-        {
-          "entity": "Author",
-          "as": "author",
-          "values": {
-            "name": "Ada"
-          }
-        },
-        {
-          "entity": "Book",
-          "as": "book",
-          "values": {
-            "title": "Widget",
-            "isbn": "isbn-1",
-            "published_year": 2020,
-            "available_copies": 1,
-            "author_id": {
-              "ref": "author.id"
-            }
-          }
-        },
-        {
-          "entity": "Member",
-          "as": "member",
-          "values": {
-            "name": "Grace",
-            "email": "grace@example.test",
-            "membership_date": "2024-01-01",
-            "is_active": true
-          }
-        },
-        {
-          "entity": "Loan",
-          "as": "loan",
-          "values": {
-            "book_id": {
-              "ref": "book.id"
-            },
-            "member_id": {
-              "ref": "member.id"
-            },
-            "loan_date": "2024-01-01",
-            "due_date": "2024-01-15",
-            "return_date": null,
-            "status": "active"
-          }
-        }
-      ],
-      "when": {
-        "service": "LibraryService",
-        "method": "return_book",
-        "args": [
-          {
-            "ref": "loan.id"
-          }
-        ]
-      },
-      "expect": {
-        "fields": {
-          "loan.status": "returned",
-          "book.available_copies": 2
-        }
       }
     }
   ]

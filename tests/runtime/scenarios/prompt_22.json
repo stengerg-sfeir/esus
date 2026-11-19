@@ -7,24 +7,14 @@
           [
             "Order",
             "add",
-            "--created-at",
-            "2024-01-01T00:00:00",
-            "--updated-at",
-            "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Order list",
-      "when": {
-        "cli_variants": [
-          [
-            "Order",
-            "list"
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2",
+            "--order-id",
+            "1"
           ]
         ]
       },
@@ -41,8 +31,12 @@
             "update",
             "--order-id",
             "1",
-            "--updated-at",
-            "2024-01-01T00:00:00"
+            "--product-id",
+            "1",
+            "--new-quantity",
+            "2",
+            "--new-unit-price",
+            "2"
           ]
         ]
       },
@@ -59,8 +53,8 @@
             "delete",
             "--order-id",
             "1",
-            "--created-at",
-            "2024-01-01T00:00:00"
+            "--product-id",
+            "1"
           ],
           [
             "Order",
@@ -75,20 +69,16 @@
       }
     },
     {
-      "name": "cli:OrderItem add",
+      "name": "cli:Product add",
       "when": {
         "cli_variants": [
           [
-            "OrderItem",
+            "Product",
             "add",
-            "--order-id",
-            "1",
-            "--product-id",
-            "1",
-            "--quantity",
-            "2",
-            "--unit-price",
-            "2"
+            "--name",
+            "value1",
+            "--description",
+            "value1"
           ]
         ]
       },
@@ -97,44 +87,18 @@
       }
     },
     {
-      "name": "cli:OrderItem list",
+      "name": "cli:Product update",
       "when": {
         "cli_variants": [
           [
-            "OrderItem",
-            "list",
-            "--order-id",
-            "1",
-            "--product-id",
-            "1",
-            "--quantity",
-            "2",
-            "--unit-price",
-            "2"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:OrderItem update",
-      "when": {
-        "cli_variants": [
-          [
-            "OrderItem",
+            "Product",
             "update",
-            "--order-item-id",
-            "1",
-            "--order-id",
-            "1",
             "--product-id",
             "1",
-            "--quantity",
-            "2",
-            "--unit-price",
-            "2"
+            "--new-name",
+            "value1",
+            "--new-description",
+            "value1"
           ]
         ]
       },
@@ -143,27 +107,19 @@
       }
     },
     {
-      "name": "cli:OrderItem delete",
+      "name": "cli:Product delete",
       "when": {
         "cli_variants": [
           [
-            "OrderItem",
+            "Product",
             "delete",
-            "--order-item-id",
-            "1",
-            "--order-id",
-            "1",
             "--product-id",
-            "1",
-            "--quantity",
-            "2",
-            "--unit-price",
-            "2.0"
+            "1"
           ],
           [
-            "OrderItem",
+            "Product",
             "delete",
-            "--order-item-id",
+            "--product-id",
             "1"
           ]
         ]

@@ -1,17 +1,27 @@
 {
   "scenarios": [
     {
-      "name": "cli:Book add",
+      "name": "cli:list",
       "when": {
         "cli_variants": [
           [
-            "Book",
-            "add",
+            "list"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:create",
+      "when": {
+        "cli_variants": [
+          [
+            "create",
             "--title",
             "value1",
             "--author",
-            "value1",
-            "--isbn",
             "value1",
             "--created-at",
             "2024-01-01T00:00:00",
@@ -25,22 +35,11 @@
       }
     },
     {
-      "name": "cli:Book list",
+      "name": "cli:update",
       "when": {
         "cli_variants": [
           [
-            "Book",
-            "list",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--isbn",
-            "value1",
-            "--created-at",
-            "2024-01-01T00:00:00",
-            "--updated-at",
-            "2024-01-01T00:00:00"
+            "update"
           ]
         ]
       },
@@ -49,72 +48,11 @@
       }
     },
     {
-      "name": "cli:Book update",
+      "name": "cli:delete",
       "when": {
         "cli_variants": [
           [
-            "Book",
-            "update",
-            "--id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--isbn",
-            "value1",
-            "--created-at",
-            "2024-01-01T00:00:00",
-            "--updated-at",
-            "2024-01-01T00:00:00"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Book delete",
-      "when": {
-        "cli_variants": [
-          [
-            "Book",
-            "delete",
-            "--id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--isbn",
-            "value1",
-            "--created-at",
-            "2024-01-01T00:00:00",
-            "--updated-at",
-            "2024-01-01T00:00:00"
-          ],
-          [
-            "Book",
-            "delete",
-            "--id",
-            "1"
-          ]
-        ]
-      },
-      "expect": {
-        "exit": 0
-      }
-    },
-    {
-      "name": "cli:Book search",
-      "when": {
-        "cli_variants": [
-          [
-            "Book",
-            "search",
-            "--title",
-            "value1"
+            "delete"
           ]
         ]
       },

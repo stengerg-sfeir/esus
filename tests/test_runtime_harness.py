@@ -94,6 +94,11 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(worker._composite_unique_fields(docs, "Budget"),
                          {"category_id", "month"})
 
+    def test_plural_id_option_gets_a_scalar_id_fixture(self):
+        docs = {"models": [{"name": "Product", "fields": [
+            {"name": "id", "type": "int", "primary_key": True}]}]}
+        self.assertEqual(worker._cli_value(docs, "--product-ids", "str", 1), "1")
+
     def test_option_resolves_entity_to_foreign_key(self):
         docs = {"models": [{"name": "Expense", "fields": [
             {"name": "category_id", "type": "int",

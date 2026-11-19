@@ -17,6 +17,22 @@
       }
     },
     {
+      "name": "cli:Order list",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "list",
+            "--status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
       "name": "cli:Order update",
       "when": {
         "cli_variants": [
@@ -28,7 +44,12 @@
             "--status",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0

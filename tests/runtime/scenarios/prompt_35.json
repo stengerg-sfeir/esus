@@ -36,7 +36,14 @@
             "--stock-quantity",
             "2"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "category": "value1",
+            "stock_quantity": 2
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -62,7 +69,13 @@
             "--product-id",
             "1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "category": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0

@@ -35,7 +35,13 @@
             "--email",
             "cli1@example.test"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Author": {
+            "name": "value1",
+            "email": "cli1@example.test"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -100,7 +106,13 @@
             "--content",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Post": {
+            "title": "value1",
+            "content": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0
@@ -135,10 +147,8 @@
           [
             "Tag",
             "add",
-            "--post-id",
-            "1",
-            "--tag-id",
-            "1"
+            "--name",
+            "value1"
           ]
         ],
         "seed_exclude": [
@@ -161,7 +171,12 @@
             "--name",
             "value1"
           ]
-        ]
+        ],
+        "seed_overrides": {
+          "Tag": {
+            "name": "value1"
+          }
+        }
       },
       "expect": {
         "exit": 0

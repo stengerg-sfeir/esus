@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from collections import Counter
@@ -29,10 +30,13 @@ import requirement_trace  # noqa: E402
 import worker  # noqa: E402
 
 
-def run_one(prompt_dir: Path, output_dir: Path) -> dict:
+def run_one(prompt_dir: Path, output_dir: Path, scenarios: str | None = None) -> dict:
+    env = os.environ.copy()
+    if scenarios:
+        env["ESUS_SCENARIOS_DIR"] = scenarios
     result = subprocess.run(
         [sys.executable, str(WORKER), str(prompt_dir)],
-        cwd=str(ROOT), capture_output=True, text=True)
+        cwd=str(ROOT), capture_output=True, text=True, env=env)
     try:
         payload = json.loads(result.stdout)
     except ValueError:
@@ -55,6 +59,8 @@ def main(argv=None):
                         help="result directory (default: <root>/acceptance)")
     parser.add_argument("--only", default=None,
                         help="comma-separated prompt names")
+    parser.add_argument("--scenarios", default=None,
+                        help="directory overriding tests/runtime/scenarios")
     args = parser.parse_args(argv)
     root = Path(args.root)
     output = Path(args.output) if args.output else root / "acceptance"
@@ -67,7 +73,7 @@ def main(argv=None):
         return 2
     results = []
     for prompt in prompts:
-        payload = run_one(prompt, output)
+        payload = run_one(prompt, output, scenarios=args.scenarios)
         results.append(payload)
         passed = sum(1 for check in payload["checks"]
                      if check.get("status") == "passed")
