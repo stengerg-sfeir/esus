@@ -1936,6 +1936,8 @@ def repair_contract_write_methods(contracts, repositories, models, log=None):
                 "params": params,
                 "return_type": entity,
                 "raises": [],
+                "provenance": "contract_write",
+                "review_required": True,
             })
             if log is not None:
                 log.write(

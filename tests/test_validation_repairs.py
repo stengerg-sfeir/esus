@@ -176,6 +176,38 @@ class EmptyDomainTests(unittest.TestCase):
                 "application as a package."), [])
 
 
+class ContractWriteProvenanceTests(unittest.TestCase):
+    def test_an_added_update_keeps_its_contract_provenance(self):
+        models = [{"name": "Order", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "status", "type": "string"}]}]
+        repositories = [{"entity": "Order", "interface_name": "OrderRepository",
+                         "methods": []}]
+        contracts = [{"holder": "OrderService", "method": "cancel_order",
+                      "effects": [{"target": "order.status", "op": "set",
+                                   "write": "OrderRepository.update"}]}]
+        repairs.repair_contract_write_methods(contracts, repositories, models)
+        update = repositories[0]["methods"][0]
+        self.assertEqual(update["provenance"], "contract_write")
+        self.assertTrue(update["review_required"])
+
+    def test_an_unrelated_entity_gets_no_update(self):
+        models = [{"name": "Order", "fields": [
+            {"name": "id", "type": "int", "primary_key": True}]},
+                  {"name": "Product", "fields": [
+            {"name": "id", "type": "int", "primary_key": True}]}]
+        repositories = [{"entity": "Order", "interface_name": "OrderRepository",
+                         "methods": []},
+                        {"entity": "Product", "interface_name": "ProductRepository",
+                         "methods": []}]
+        contracts = [{"holder": "OrderService", "method": "cancel_order",
+                      "effects": [{"target": "order.status", "op": "set",
+                                   "write": "OrderRepository.update"}]}]
+        repairs.repair_contract_write_methods(contracts, repositories, models)
+        self.assertEqual(len(repositories[0]["methods"]), 1)
+        self.assertEqual(repositories[1]["methods"], [])
+
+
 class CapabilityAdapterTests(unittest.TestCase):
     def test_a_search_action_gets_a_filter_method_and_retargets(self):
         models = [{"name": "Product", "fields": [

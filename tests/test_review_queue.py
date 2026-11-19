@@ -42,6 +42,16 @@ class ReviewQueueTests(unittest.TestCase):
             report = review_queue.collect_for_directory(directory)
         self.assertEqual(report, [])
 
+    def test_an_inferred_artifact_enters_the_provenance_queue(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data_models.json").write_text(
+                '{"data_models": [{"name": "The", '
+                '"status": "inferred from prose", "review_required": true}]}')
+            report = review_queue.collect_for_directory(root)
+        self.assertEqual(report[0]["group"], "provenance")
+        self.assertEqual(report[0]["source"], "The")
+
 
 if __name__ == "__main__":
     unittest.main()

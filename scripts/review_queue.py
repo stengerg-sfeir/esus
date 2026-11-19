@@ -53,7 +53,59 @@ def _review_command(group):
         "grounding": "python review_grounding.py PROMPT_DIR",
         "contracts": "python review_contracts.py PROMPT_DIR",
         "flags": "python review_flags.py PROMPT_DIR",
+        "provenance": "review the inferred artifact and record a decision",
     }.get(group, "")
+
+
+def _provenance_questions(directory):
+    """Artifacts marked inferred/review-required by extraction repairs."""
+    questions = []
+    for filename, key, label_key in (
+            ("data_models.json", "data_models", "name"),
+            ("interaction_adapters.json", "interaction_adapters", "action_name"),
+            ("persistence_ports.json", "persistence_ports", None)):
+        payload = _read_json(directory / filename)
+        records = payload.get(key) if isinstance(payload, dict) else None
+        if key == "persistence_ports":
+            records = (records or {}).get("repositories") if isinstance(records, dict) else []
+        for record in records or []:
+            if not isinstance(record, dict) or not record.get("review_required"):
+                continue
+            if key == "persistence_ports":
+                for method in record.get("methods") or []:
+                    if isinstance(method, dict) and method.get("review_required"):
+                        questions.append({
+                            "kind": "inferred method",
+                            "artifact": f"{record.get('interface_name') or record.get('entity')}.{method.get('name')}",
+                            "provenance": method.get("provenance"),
+                            "review_required": True,
+                        })
+                continue
+            questions.append({
+                "kind": "inferred artifact",
+                "artifact": record.get(label_key) or record.get("name"),
+                "provenance": record.get("provenance"),
+                "review_required": True,
+            })
+    components = _read_json(directory / "components.json").get("components") or {}
+    for key in ("persistence", "facade"):
+        value = components.get(key)
+        if isinstance(value, dict) and value.get("review_required"):
+            questions.append({
+                "kind": "inferred component",
+                "artifact": key,
+                "provenance": value.get("provenance"),
+                "review_required": True,
+            })
+    for service in components.get("crud_services") or []:
+        if isinstance(service, dict) and service.get("review_required"):
+            questions.append({
+                "kind": "inferred component",
+                "artifact": f"crud:{service.get('entity')}",
+                "provenance": service.get("provenance"),
+                "review_required": True,
+            })
+    return questions
 
 
 def collect_for_directory(directory, prompt=None):
@@ -114,6 +166,10 @@ def collect_for_directory(directory, prompt=None):
             f"{question.get('command')} {question.get('subcommand') or ''} "
             f"--{question.get('flag')}".strip(),
             question, question.get("candidates")))
+
+    for question in _provenance_questions(directory):
+        items.append(_item(
+            prompt, "provenance", question.get("artifact"), question))
 
     contracts, _context = review_contracts.collect_contracts(str(directory))
     for proposal in contracts:

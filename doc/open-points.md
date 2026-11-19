@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,257 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,268 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -242,26 +242,32 @@ extraction still pays model calls when the first derivation declines.
 of the extraction pipeline, or retry it before asking the model. Measure
 whether the resulting adapter set is equal or better in acceptance.
 
-### 12. Inferred write methods need provenance
+### 12. ✅ Inferred write methods have provenance (done 2026-11-19)
 
-`repair_contract_write_methods` can add a repository `update` method that a
-contract names but the extraction omitted.
+`repair_contract_write_methods` still adds a repository `update` method that a
+contract names but the extraction omitted; the method now carries
+`provenance: contract_write` and `review_required: true`. The review queue
+reports inferred artifacts and inferred methods under `provenance`, and
+negative tests prove an unrelated entity receives no update.
 
-**Next:** mark the method as inferred, expose it in the probe/review, and add
-negative tests ensuring it is not added to unrelated entities.
+**Regression tests:** `tests/test_validation_repairs.py` and
+`tests/test_review_queue.py`. The full suite is **1,268 passed**.
 
-### 13. Mechanical order placement needs holdout coverage
+### 13. ✅ Mechanical order placement has holdout coverage (done 2026-11-19)
 
-The new order-placement/stock-check bodies are generic over the extracted
-model graph, but currently exercised mainly by `prompt_53`.
+`tests/test_order_placement.py` exercises a synthetic model graph independent
+of `prompt_53`:
 
-**Next:** add positive and negative tests for:
+- complete customer/product/order/line graph emits the placement body;
+- missing customer repository, product line relation, stock field or primary
+  key returns a stub;
+- an empty item collection stays an empty loop;
+- insufficient stock is an explicit `InsufficientStockError` branch;
+- a selected placement body is wrapped in `store.transaction()`, so a failure
+  after the order/line writes rolls back through the existing store contract.
 
-- missing customer/product/line relations;
-- missing stock field or primary key;
-- insufficient stock;
-- no line items;
-- transaction rollback.
+`_service_place_order_body` now requires declared primary keys instead of
+falling back to `id`.
 
 ## P2 — longer-term
 

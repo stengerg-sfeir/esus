@@ -674,6 +674,17 @@ def primary_key_of(ctx, entity):
     return "id"
 
 
+def _declared_primary_key(ctx, entity):
+    """The model's declared primary-key field, or None (no `id` fallback)."""
+    model = model_of(ctx, entity)
+    if not isinstance(model, dict):
+        return None
+    field = next((item for item in model.get("fields") or []
+                  if isinstance(item, dict) and item.get("primary_key")
+                  and item.get("name")), None)
+    return field["name"] if field else None
+
+
 def fields_of(ctx, entity):
     """The `(name, field)` pairs of a model, or [] for unknown entities."""
     model = model_of(ctx, entity)
@@ -3769,11 +3780,11 @@ def _service_place_order_body(ctx, method, params, returns):
     if order is None:
         return None
     order_model = model_of(ctx, order)
-    order_pk = primary_key_of(ctx, order)
+    order_pk = _declared_primary_key(ctx, order)
     order_repo = next((repo for repo in ctx.get("repositories") or []
                        if isinstance(repo, dict)
                        and normalize(repo.get("entity") or "") == normalize(order)), None)
-    if order_model is None or order_repo is None:
+    if order_model is None or order_repo is None or order_pk is None:
         return None
     create_order = next((m for m in order_repo.get("methods") or []
                          if isinstance(m, dict)
@@ -3809,11 +3820,11 @@ def _service_place_order_body(ctx, method, params, returns):
             break
     if line_model is None:
         return None
-    line_pk = primary_key_of(ctx, line_model["name"])
+    line_pk = _declared_primary_key(ctx, line_model["name"])
     line_repo = next((repo for repo in ctx.get("repositories") or []
                       if isinstance(repo, dict)
                       and normalize(repo.get("entity") or "") == normalize(line_model["name"])), None)
-    if line_repo is None:
+    if line_repo is None or line_pk is None:
         return None
     create_line = next((m for m in line_repo.get("methods") or []
                         if isinstance(m, dict)
@@ -3832,9 +3843,9 @@ def _service_place_order_body(ctx, method, params, returns):
     product_repo = next((repo for repo in ctx.get("repositories") or []
                          if isinstance(repo, dict)
                          and normalize(repo.get("entity") or "") == normalize(product_name)), None)
-    if product_model is None or product_repo is None:
+    product_pk = _declared_primary_key(ctx, product_name)
+    if product_model is None or product_repo is None or product_pk is None:
         return None
-    product_pk = primary_key_of(ctx, product_name)
     stock = next((name for name, field in fields_of(ctx, product_name)
                   if isinstance(field, dict) and "stock" in normalize(name)), None)
     if stock is None:
@@ -4034,6 +4045,7 @@ def emit_services(ctx, repo_index, stats):
                   '    return value.isoformat() if hasattr(value, "isoformat") else value',
                   ""]
     emitted = set()
+    atomic_extra = {}
     for service in ctx["services"]:
         name = service.get("service_name")
         if normalize(name) in port_names \
@@ -4096,6 +4108,9 @@ def emit_services(ctx, repo_index, stats):
                 stats["implemented"] += 1
                 _record(stats, name, method["name"], strategy, True,
                         "order placement")
+                # Placement writes an order, its lines and product stock;
+                # wrap it in the store transaction like a multi-write contract.
+                atomic_extra.setdefault(cls, []).append(fname)
                 continue
             wrapper = _service_crud_wrapper(
                 ctx, name, method, params, returns)
@@ -4413,7 +4428,7 @@ def emit_services(ctx, repo_index, stats):
             stats["stubs"] += 1
             stats["stub_reasons"].append(f"{cls}.{fname}: {detail}")
             _record(stats, name, method["name"], strategy, False, detail)
-    atomic = {}
+    atomic = {holder: list(names) for holder, names in atomic_extra.items()}
     for contract in ctx.get("contracts") or []:
         if not isinstance(contract, dict):
             continue
