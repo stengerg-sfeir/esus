@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,223 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,229 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,223 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,229 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -78,14 +78,20 @@ than being assigned a mechanical body.
 **Regression tests:** `tests/test_generator.py::PlanTests`. The full suite is
 **1,223 passed**.
 
-### 4. Negation is lost in invariant parsing
+### 4. ✅ Invariant parsing preserves negation (done 2026-11-19)
 
-- **F-11:** “must not be positive” is parsed as a positive numeric bound.
-- **F-12:** “must not be greater than” is parsed as a greater-than relation.
+- **F-11:** “must not be positive” was parsed as `> 0`. It now produces no
+  numeric bound, while “must be positive” still produces `> 0`. The schema
+  invariant collector applies the same rule, so it no longer emits a
+  positive schema line from a negated sentence.
+- **F-12:** “must not be greater than” was parsed as `>`. Comparison parsing
+  now recognizes negated forms first: “not greater than”, “no more than” and
+  “at most” become `<=`; “not less than”, “no less than” and “at least”
+  become `>=`. The same parser drives the deterministic price guard.
 
-**Next:** represent negation and operator scope explicitly, and test positive
-and negative minimal pairs. Do not generate a rule from a sentence the parser
-does not understand.
+**Regression tests:** `NumericBoundTests`, `FieldRelationTests`,
+`test_schema_invariants.py` and `test_mechanical_reports.py`. The full suite is
+**1,229 passed**.
 
 ### 5. Formula and relationship inference
 

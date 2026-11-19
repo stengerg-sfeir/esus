@@ -319,6 +319,17 @@ class LibraryGuiMechanicalTests(unittest.TestCase):
         self.assertIsNotNone(body)
         self.assertIn("selling_price > cost_price", "\n".join(body))
 
+    def test_a_negated_price_comparison_keeps_its_negation(self):
+        body = generator._service_price_guard_body(
+            self.ctx(), "WineInventoryService",
+            method("validate_wine_pricing", [("cost_price", "float"),
+                                             ("selling_price", "float")],
+                   "bool", description="Selling price must not be greater than cost price."),
+            [("cost_price", "cost_price", "float"),
+             ("selling_price", "selling_price", "float")], "bool")
+        self.assertIsNotNone(body)
+        self.assertIn("selling_price <= cost_price", "\n".join(body))
+
     def test_repository_utilization_uses_capacity_and_children_stock(self):
         body = generator._repo_utilization_body(
             self.ctx(), "StorageLocation",

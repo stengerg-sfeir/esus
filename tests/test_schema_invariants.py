@@ -58,6 +58,14 @@ class SchemaInvariantTests(unittest.TestCase):
             "Budget must have a unique constraint on (category_id, month)", texts)
         self.assertIn("Budget.amount_limit_cents must be non-negative", texts)
 
+    def test_a_negated_positive_bound_is_not_inverted(self):
+        self.assertIsNone(schema_invariants._numeric_bound(
+            "Product", "price", "price must not be positive"))
+        self.assertEqual(
+            schema_invariants._numeric_bound(
+                "Product", "price", "price must be positive"),
+            ("positive", "1"))
+
     def test_a_slash_vocabulary_becomes_a_schema_invariant(self):
         documents = {"data_models": [{"name": "Expense", "fields": [
             {"name": "payment_method", "type": "string", "nullable": False}]}]}

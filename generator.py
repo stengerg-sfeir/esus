@@ -2145,13 +2145,34 @@ def _service_negative_stock_body(ctx, service_name, method, params, returns):
     ]
 
 
+def _comparison_phrase(text):
+    """`(operator, phrase)` for a documented numeric comparison, or `(None, None)`.
+
+    Negated forms are parsed before their positive counterparts: "must not be
+    greater than" is `<=`, not `>`. "Not greater than" and "no more than" are
+    the same constraint; "not less than" and "at least" are `>=`.
+    """
+    patterns = (
+        (r"\b(?:not\s+(?:be\s+)?greater\s+than|"
+         r"no\s+(?:more|greater)\s+than|at\s+most)\b", "<="),
+        (r"\b(?:not\s+(?:be\s+)?less\s+than|"
+         r"no\s+less\s+than|at\s+least)\b", ">="),
+        (r"\b(?:strictly\s+)?greater\s+than\b", ">"),
+        (r"\b(?:strictly\s+)?less\s+than\b", "<"),
+    )
+    for pattern, operator in patterns:
+        match = re.search(pattern, text, re.I)
+        if match:
+            return operator, match.group(0)
+    return None, None
+
+
 def _service_price_guard_body(ctx, service_name, method, params, returns):
     """A bool guard comparing two numeric model fields named in the description."""
     if normalize(returns) not in ("bool", "boolean"):
         return None
     description = str(method.get("description") or "").lower()
-    comparator = next((word for word in ("greater than", "less than")
-                       if word in description), None)
+    operator, comparator = _comparison_phrase(description)
     if comparator is None:
         return None
     entity = _entity_for_service(ctx, service_name)
@@ -2181,7 +2202,6 @@ def _service_price_guard_body(ctx, service_name, method, params, returns):
     error = _error_named(ctx, "pricing", "price", "invalidpricing")
     if error is None:
         return None
-    operator = ">" if comparator == "greater than" else "<"
     return [
         f"if not ({left[1]} {operator} {right[1]}):",
         f"    raise {error}('invalid price comparison')",
@@ -2967,16 +2987,30 @@ def _numeric_bounds(ctx, entity):
                                     "number", "real"):
                     continue
                 bound = None
-                if re.search(r"\bnon-?negative\b", clause, re.I) \
-                        or re.search(r"\bnot\s+be\s+negative\b", clause, re.I) \
-                        or re.search(r"\b(?:below|under)\s+zero\b", clause, re.I):
+                negated = re.search(
+                    r"\b(?:not|never|no)\b[^.\n]*?"
+                    r"\b(?:positive|non-?negative)\b", clause, re.I)
+                if re.search(r"\bnot\s+(?:be\s+)?positive\b",
+                             clause, re.I):
+                    # "must not be positive" is not "must be positive".
+                    # The exact opposite bound is not stated; leave it for
+                    # review instead of emitting an inverted rule.
+                    bound = None
+                elif re.search(r"\bnon-?negative\b", clause, re.I) \
+                        or re.search(r"\bnot\s+(?:be\s+)?negative\b",
+                                     clause, re.I) \
+                        or re.search(r"\b(?:below|under)\s+zero\b",
+                                     clause, re.I):
                     bound = (">=", "0")
-                elif re.search(r"\bpositive\b", clause, re.I):
+                elif re.search(r"\bpositive\b", clause, re.I) \
+                        and not negated:
                     bound = (">", "0")
                 else:
                     match = re.search(r"(>=|>)\s*(-?\d+(?:\.\d+)?)",
                                       clause)
-                    if match:
+                    if match and not re.search(
+                            r"\b(?:not|never|no)\b", clause[:match.start()],
+                            re.I):
                         bound = (match.group(1), match.group(2))
                 if bound is not None and (name,) + bound not in found:
                     found.append((name,) + bound)
@@ -3012,14 +3046,7 @@ def _field_relations(ctx, entity):
             if len(mentioned) < 2:
                 continue
             mentioned.sort(key=lambda field: flat.find(normalize(field["name"])))
-            operator = None
-            if re.search(r"\b(?:strictly\s+)?greater\s+than\b", clause, re.I):
-                operator = ">"
-            elif re.search(r"\b(?:at\s+least|no\s+less\s+than)\b",
-                           clause, re.I):
-                operator = ">="
-            elif re.search(r"\b(?:strictly\s+)?less\s+than\b", clause, re.I):
-                operator = "<"
+            operator, _phrase = _comparison_phrase(clause)
             if operator is None:
                 match = re.search(r"(>=|>|<=|<)", clause)
                 operator = match.group(1) if match else None

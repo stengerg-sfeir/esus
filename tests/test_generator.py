@@ -4532,6 +4532,54 @@ class NumericBoundTests(unittest.TestCase):
         }
         self.assertEqual(generator._numeric_bounds(ctx, "Book"), [])
 
+    def test_a_negated_positive_is_not_read_as_positive(self):
+        ctx = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "price", "type": "float"}]}],
+            "errors": [],
+            "invariants": [{"text": "Product.price must not be positive."}],
+        }
+        self.assertEqual(generator._numeric_bounds(ctx, "Product"), [])
+        ctx["invariants"] = [{"text": "Product.price must be positive."}]
+        self.assertEqual(generator._numeric_bounds(ctx, "Product"),
+                         [("price", ">", "0")])
+
+
+class FieldRelationTests(unittest.TestCase):
+    def ctx(self, text):
+        return {
+            "models": [{"name": "Product", "fields": [
+                {"name": "selling_price", "type": "float"},
+                {"name": "cost_price", "type": "float"}]}],
+            "invariants": [{"text": text}],
+        }
+
+    def test_a_negated_greater_than_becomes_at_most(self):
+        self.assertEqual(
+            generator._field_relations(
+                self.ctx("selling price must not be greater than cost price"),
+                "Product"),
+            [("selling_price", "<=", "cost_price")])
+
+    def test_a_negated_less_than_becomes_at_least(self):
+        self.assertEqual(
+            generator._field_relations(
+                self.ctx("selling price must not be less than cost price"),
+                "Product"),
+            [("selling_price", ">=", "cost_price")])
+
+    def test_the_positive_forms_keep_their_direction(self):
+        self.assertEqual(
+            generator._field_relations(
+                self.ctx("selling price must be greater than cost price"),
+                "Product"),
+            [("selling_price", ">", "cost_price")])
+        self.assertEqual(
+            generator._field_relations(
+                self.ctx("cost price must be less than selling price"),
+                "Product"),
+            [("cost_price", "<", "selling_price")])
+
 
 
 

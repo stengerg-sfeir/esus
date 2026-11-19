@@ -83,19 +83,34 @@ def _enum_values(field_name, requirements):
     return []
 
 def _numeric_bound(entity_name, field_name, requirements):
-    """`(word, value)` for a documented non-negative/positive bound, or None."""
+    """`(word, value)` for a documented non-negative/positive bound, or None.
+
+    A negated predicate is never read as its positive form. In particular
+    "must not be positive" has no mechanical non-negative bound; leaving it
+    unresolved is safer than emitting the opposite invariant.
+    """
     if not isinstance(requirements, str):
         return None
     field = re.escape(field_name)
-    patterns = (
-        (rf"\b{field}\b[^.\n]*?\bnon-negative\b", ("non-negative", "0")),
-        (rf"\b{field}\b[^.\n]*?\bpositive\b", ("positive", "1")),
-        (rf"\b{field}\b[^.\n]*?>=\s*0\b", (">=", "0")),
-        (rf"\b{field}\b[^.\n]*?>\s*0\b", (">", "0")),
-    )
-    for pattern, bound in patterns:
-        if re.search(pattern, requirements, re.I):
-            return bound
+    match = re.search(rf"\b{field}\b([^.\n]*)", requirements, re.I)
+    if match is None:
+        return None
+    tail = match.group(1)
+    if re.search(r"\bnot\s+(?:be\s+)?positive\b", tail, re.I) \
+            or re.search(r"\bnot\s+(?:be\s+)?non-?negative\b", tail, re.I):
+        return None
+    if re.search(r"\bnon-negative\b", tail, re.I) \
+            or re.search(r"\bnot\s+(?:be\s+)?negative\b", tail, re.I) \
+            or re.search(r"\b(?:below|under)\s+zero\b", tail, re.I):
+        return ("non-negative", "0")
+    if re.search(r"\bpositive\b", tail, re.I) \
+            and not re.search(r"\b(?:not|never|no)\b[^.\n]*?\bpositive\b",
+                              tail, re.I):
+        return ("positive", "1")
+    if re.search(r"(?<!not\s)(?<!not\sbe\s)>=\s*0\b", tail, re.I):
+        return (">=", "0")
+    if re.search(r"(?<!not\s)(?<!not\sbe\s)>\s*0\b", tail, re.I):
+        return (">", "0")
     return None
 
 
