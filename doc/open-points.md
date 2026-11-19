@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,249 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,252 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,249 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,252 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -106,7 +106,7 @@ than being assigned a mechanical body.
   parent FK is refused.
 
 **Regression tests:** `CreateDefaultTests` and
-`tests/test_collection_creation.py`. The full suite is **1,249 passed**.
+`tests/test_collection_creation.py`. The full suite is **1,252 passed**.
 
 ### 6. ✅ Bodies are not judged by their own writer (done 2026-11-19)
 
@@ -121,7 +121,7 @@ than being assigned a mechanical body.
   its existing tests; it is simply no longer invoked by `fill_stubs()`.
 
 **Regression tests:** `tests/test_guard_equivalence.py`, including alias
-acceptance and different-field refusal. The full suite is **1,249 passed**.
+acceptance and different-field refusal. The full suite is **1,252 passed**.
 
 ## P1 — validation and review
 
@@ -191,18 +191,25 @@ missing requirement-backed command/flag, or the scenario fixture is stale and
 must be regenerated from the effective surface. Do not delete a requirement
 check merely to make the run green.
 
-### 9. Ambiguous review decisions need a real queue
+### 9. ✅ Attended-review queue is explicit (done 2026-11-19)
 
-`scripts/answer_reviews.py` is now conservative:
+`scripts/review_queue.py` collects every unresolved tie, slot, surface route,
+field alias, grounding question and method contract into one JSON and optional
+Markdown queue. Each item names:
 
-- it answers only singleton slot candidates;
-- ambiguous ties, routes, contracts and free-form conditions stay open;
-- it never drops a requirement flag or upstream gap just to make the probe
-  green.
+- the prompt and source;
+- the question and candidate evidence;
+- the review script and command that resolves it;
+- its provenance in the extracted documents.
 
-**Next:** provide a clear attended-review queue with candidate evidence and
-provenance. The current 66/66 replay uses evidence-backed review sidecars; it
-is not an entirely unattended path for genuinely ambiguous cases.
+It never answers or drops a question. `scripts/answer_reviews.py` remains
+conservative (singleton slots only; ambiguous ties, routes, contracts and
+free-form conditions stay open). On the stored v8 tree the queue contains
+**11 open grounding questions**; those are now visible as the remaining
+attended-review work rather than being implied by a sidecar.
+
+**Regression tests:** `tests/test_review_queue.py`. The full suite is
+**1,252 passed**.
 
 ### 10. Ambiguous flags need review, not a fuzzy choice
 

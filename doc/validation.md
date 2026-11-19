@@ -123,9 +123,12 @@ Extraction still runs unreviewed first. When a local replay is wanted,
 - it never drops an upstream gap or a flag just to make the probe green;
 - it does not invent a state value or a free-form precondition.
 
-The remaining questions are the required attended review. The review sidecars
-are `decisions.json`, `method_slots.json`, `surface_decisions.json`,
-`method_contracts.json`, and `grounding_decisions.json`. After those decisions
+The remaining questions are the required attended review. Run
+`python scripts/review_queue.py OUT_ROOT` to write `review_queue.json` (and
+optionally Markdown) with every open question, its source, candidates and
+resolver. The review sidecars are `decisions.json`, `method_slots.json`,
+`surface_decisions.json`, `method_contracts.json`, and
+`grounding_decisions.json`. After those decisions
 are written, `extract_arch.py --repair` re-applies the deterministic document
 and adapter repairs; it makes no model calls and does not answer review
 questions.

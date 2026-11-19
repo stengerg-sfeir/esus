@@ -72,6 +72,10 @@ A question that does not fit (a flag the answer would delete although the requir
 
 ### Unattended review and archived repair
 
+`scripts/review_queue.py` collects the unresolved questions into
+`review_queue.json` (and optional Markdown), with the source, candidates and
+resolver for each item. It never answers anything.
+
 `scripts/answer_reviews.py` is the conservative unattended policy used by the
 66-prompt validation replay. It answers only a **singleton** slot candidate;
 it leaves ambiguous ties, route choices, multi-choice contracts and free-form
