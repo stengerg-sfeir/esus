@@ -11591,24 +11591,28 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
 
 
 def repair_invented_state_guards(files, ctx):
-    """Remove a reviewed body's state guard the contract never declared.
+    """Remove a state guard only when a human-confirmed contract says so.
 
-    A body that says `if order.status != 'pending': raise
-    InvalidOrderStatusError` invents a precondition when the reviewed contract
-    has none (a cancel operation allowed from confirmed orders). Preconditions
-    that the contract does declare are preserved exactly.
+    A missing or inferred contract is not evidence that a guard is invented;
+    it may simply be an incomplete extraction. Preserve the guard unless a
+    contract for the same holder/method was reviewed by a human and declares
+    no preconditions at all. A reviewed contract with any precondition keeps
+    the guard as well.
     """
     contracts = ctx.get("contracts") or []
+    trusted = set()
     declared = set()
     for contract in contracts:
         if not isinstance(contract, dict):
             continue
-        if any(str(item.get("check") or "").find(".status") >= 0
-               or str(item.get("check") or "").find(".state") >= 0
-               for item in contract.get("preconditions") or []
-               if isinstance(item, dict)):
-            declared.add((str(contract.get("holder") or ""),
-                          str(contract.get("method") or "")))
+        key = (str(contract.get("holder") or ""),
+               str(contract.get("method") or ""))
+        if str(contract.get("decided_by") or "").lower() in (
+                "user", "human", "reviewed", "confirmed"):
+            trusted.add(key)
+        if any(isinstance(item, dict) and item.get("check")
+               for item in contract.get("preconditions") or []):
+            declared.add(key)
     pattern = re.compile(
         r"(?m)^(?P<indent>[ \t]*)if\s+\w+\.(?:status|state)\s*!=\s*"
         r"(['\"]).*?\2\s*:\s*\n"
@@ -11628,9 +11632,10 @@ def repair_invented_state_guards(files, ctx):
                     current_method = None
                 elif stripped.startswith("def ") and "(" in stripped:
                     current_method = stripped[4:].split("(")[0].strip()
-            if (current_holder, current_method) not in declared:
-                return ""
-            return match.group(0)
+            key = (current_holder, current_method)
+            if key not in trusted or key in declared:
+                return match.group(0)
+            return ""
 
         updated = pattern.sub(repl, text)
         if updated != text:

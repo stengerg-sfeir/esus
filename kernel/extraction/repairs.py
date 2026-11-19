@@ -1175,6 +1175,7 @@ _PORT_TYPES = {"string": "str", "text": "str", "integer": "int",
 _DOMAIN_STOPWORDS = frozenset({
     "python", "application", "system", "program", "tool", "simple", "basic",
     "management", "manager", "service", "services", "data", "model",
+    "the", "a", "an", "this", "that", "these", "those", "its", "their",
 })
 
 
@@ -1233,7 +1234,9 @@ def repair_empty_domain(models, requirements, intentions=None, log=None):
                        "primary_key": False, "nullable": False, "unique": False,
                        "foreign_key": None, "status": "inferred"})
     model = {"name": name, "fields": fields,
-             "status": "inferred from prose"}
+             "status": "inferred from prose",
+             "provenance": "empty_domain_repair",
+             "review_required": True}
     if log is not None:
         log.write(
             f"[ok] step data_models: no model was extracted; inferred "
@@ -1259,6 +1262,8 @@ def repair_empty_domain_components(components, models, log=None):
         # on it if the persistence step is skipped. The prose named no database,
         # so SQLite is the generator's default store.
         persistence["required"] = True
+        persistence["provenance"] = "empty_domain_repair"
+        persistence["review_required"] = True
         if str(persistence.get("technology") or "").strip().lower() in (
                 "none", "null", ""):
             persistence["technology"] = "sqlite"
@@ -1290,6 +1295,8 @@ def repair_empty_domain_components(components, models, log=None):
         components.setdefault("crud_services", []).append({
             "entity": model["name"],
             "operations": ["create", "read_one", "read_all", "update"],
+            "provenance": "empty_domain_repair",
+            "review_required": True,
         })
         added.append(model["name"])
     if added and log is not None:
@@ -1465,7 +1472,8 @@ def repair_create_missing_fields(ports, models, log):
                 declared = str(field.get("type") or "").strip()
                 params.append({
                     "name": name,
-                    "type": _PORT_TYPES.get(declared.lower(), declared)})
+                    "type": _PORT_TYPES.get(declared.lower(), declared),
+                    "status": _field_status(field)})
                 taken.add(normalize(name))
                 if log is not None:
                     log.write(
@@ -1484,6 +1492,12 @@ def _is_mapping_type(type_name):
         return False
     normalized = normalize(type_name)
     return normalized.endswith(("data", "request", "input", "dto", "payload"))
+
+
+def _field_status(field):
+    """The provenance to carry when a model field is propagated."""
+    status = field.get("status") if isinstance(field, dict) else None
+    return status if isinstance(status, str) and status else "explicit"
 
 
 def repair_required_create_fields(ports, models, log=None):
@@ -1528,7 +1542,8 @@ def repair_required_create_fields(ports, models, log=None):
                 declared = str(field.get("type") or "").strip()
                 params.append({
                     "name": name,
-                    "type": _PORT_TYPES.get(declared.lower(), declared)})
+                    "type": _PORT_TYPES.get(declared.lower(), declared),
+                    "status": _field_status(field)})
                 taken.add(normalize(name))
                 if log is not None:
                     log.write(
@@ -1603,6 +1618,7 @@ def repair_mapping_create_params(services, models, log=None):
                     replacement.append({
                         "name": field["name"],
                         "type": _PORT_TYPES.get(declared.lower(), declared),
+                        "status": _field_status(field),
                     })
                 changed += 1
             method["params"] = replacement
@@ -1910,6 +1926,7 @@ def repair_contract_write_methods(contracts, repositories, models, log=None):
                         "date": "datetime.date", "datetime": "datetime.datetime",
                         "timestamp": "datetime.datetime",
                     }.get(str(field.get("type") or "").strip().lower(), "str"),
+                    "status": _field_status(field),
                 })
             methods.append({
                 "name": "update",
@@ -2747,6 +2764,8 @@ def _add_capability_method(service, name, adapter, entity, verb, models, log):
         "params": fields,
         "return_type": returns,
         "raises": [],
+        "provenance": "capability_adapter",
+        "review_required": True,
     }
     service.setdefault("methods", []).append(method)
     if log is not None:
@@ -2864,6 +2883,8 @@ def repair_capability_adapters(components, services, adapters, models,
         "action_name": action,
         "target_service": service_name,
         "target_method": action,
+        "provenance": "capability_adapter",
+        "review_required": True,
         "input_fields": [{
             "field_name": "file_path",
             "target_param": "file_path",
@@ -3842,6 +3863,7 @@ def repair_create_adapter_fields(adapters, services, models, log=None):
                 "transform": transform,
                 "lookup_entity": lookup,
                 "required": True,
+                "status": _field_status(field),
             })
             mapped.add(normalize(name))
             changed += 1

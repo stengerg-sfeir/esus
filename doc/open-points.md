@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,213 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,221 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -36,18 +36,30 @@ gate produced no new complaints and fixed the valid
 `renew_membership` expression case; the remaining complaints are pre-existing
 stub/delegation/derive gaps tracked elsewhere.
 
-### 2. Repairs can be destructive or over-broad
+### 2. ✅ Repairs are non-destructive and provenance-aware (done 2026-11-19)
 
-- **F-04:** a missing contract can cause a real state guard to be removed.
-- **F-05:** an empty extraction can become an inferred persisted domain.
-- **F-06:** capability adapters can add service behavior without proving all
-  of its semantics.
-- **F-07:** inferred fields can propagate through several layers and become
-  indistinguishable from confirmed fields.
+- **F-04:** a missing contract caused a real state guard to be removed.
+  `repair_invented_state_guards` now removes a guard only when the same
+  holder/method has a human-confirmed contract with no preconditions. Missing,
+  inferred, auto and other-method contracts preserve the guard.
+- **F-05:** an empty extraction could become a persisted domain from the
+  article "the". Domain-candidate extraction now rejects articles and
+  demonstratives, so "the application" is not a `The` entity. Inferred models,
+  persistence and CRUD components carry `provenance: empty_domain_repair` and
+  `review_required: true`.
+- **F-06:** capability-derived methods and adapters are marked
+  `provenance: capability_adapter` and `review_required: true`. Remaining
+  semantic choices such as duplicate policy, atomicity and error behavior are
+  therefore explicit review candidates rather than silent extraction facts.
+- **F-07:** model fields propagated into create ports, mapping parameters and
+  adapter fields carry the original `status` (`explicit`, `inferred from
+  prose`, and so on), so a later layer cannot silently promote an inference.
 
-**Next:** distinguish `quoted`, `extracted`, `inferred`, `human-confirmed` and
-`unknown`. Never promote inferred data to confirmed data without a review.
-A repair must preserve its provenance and justification.
+**Regression tests:** `tests/test_state_guard_repair.py` and
+`tests/test_validation_repairs.py`. The full suite is **1,221 passed**.
+
+**Follow-up:** the review queue in item 9 must consume `review_required` and
+present the unresolved capability semantics before final acceptance.
 
 ### 3. Lexical heuristics still misclassify
 

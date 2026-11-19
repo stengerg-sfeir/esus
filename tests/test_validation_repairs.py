@@ -130,6 +130,19 @@ class RequiredCreateFieldTests(unittest.TestCase):
         repairs.repair_required_create_fields(ports, models)
         self.assertEqual(len(ports["repositories"][0]["methods"][0]["params"]), 1)
 
+    def test_an_inferred_field_keeps_its_provenance_in_the_port(self):
+        models = [{"name": "Loan", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "due_date", "type": "datetime", "nullable": False,
+             "status": "inferred from prose"},
+        ]}]
+        ports = {"repositories": [{"entity": "Loan", "methods": [{
+            "name": "create", "params": []}]}]}
+        repairs.repair_required_create_fields(ports, models)
+        param = ports["repositories"][0]["methods"][0]["params"][-1]
+        self.assertEqual(param["name"], "due_date")
+        self.assertEqual(param["status"], "inferred from prose")
+
 
 class EmptyDomainTests(unittest.TestCase):
     def test_an_order_application_gets_an_inferred_model_and_crud(self):
@@ -138,16 +151,29 @@ class EmptyDomainTests(unittest.TestCase):
         models = repairs.repair_empty_domain([], requirements)
         self.assertEqual(models[0]["name"], "Order")
         self.assertEqual(models[0]["fields"][1]["name"], "status")
+        self.assertEqual(models[0]["provenance"], "empty_domain_repair")
+        self.assertTrue(models[0]["review_required"])
         components = {"persistence": {"required": False, "technology": "none"},
                       "crud_services": []}
         repairs.repair_empty_domain_components(components, models)
         self.assertEqual(components["crud_services"][0]["entity"], "Order")
+        self.assertEqual(components["crud_services"][0]["provenance"],
+                         "empty_domain_repair")
+        self.assertTrue(components["crud_services"][0]["review_required"])
         self.assertTrue(components["persistence"]["required"])
         self.assertEqual(components["persistence"]["technology"], "sqlite")
+        self.assertEqual(components["persistence"]["provenance"],
+                         "empty_domain_repair")
+        self.assertTrue(components["persistence"]["review_required"])
 
     def test_a_statement_without_an_application_noun_stays_empty(self):
         self.assertEqual(
             repairs.repair_empty_domain([], "Print hello world."), [])
+
+    def test_an_article_before_the_word_application_is_not_a_domain(self):
+        self.assertEqual(repairs.repair_empty_domain(
+            [], "Create a Python application that prints Hello. Organize the "
+                "application as a package."), [])
 
 
 class CapabilityAdapterTests(unittest.TestCase):
@@ -168,6 +194,8 @@ class CapabilityAdapterTests(unittest.TestCase):
         method = next(m for m in services[0]["methods"]
                       if m["name"] == "search_products_by_category")
         self.assertEqual(method["return_type"], "list[Product]")
+        self.assertEqual(method["provenance"], "capability_adapter")
+        self.assertTrue(method["review_required"])
         self.assertEqual(adapters[0]["target_method"],
                          "search_products_by_category")
 
@@ -191,8 +219,10 @@ class CapabilityAdapterTests(unittest.TestCase):
                    for m in service.get("methods") or []}
         self.assertIn("export_contacts_to_csv", methods)
         self.assertIn("import_contacts_from_csv", methods)
-        self.assertTrue(any(a["action_name"] == "import_contacts_from_csv"
-                            for a in adapters))
+        imported = next(a for a in adapters
+                        if a["action_name"] == "import_contacts_from_csv")
+        self.assertEqual(imported["provenance"], "capability_adapter")
+        self.assertTrue(imported["review_required"])
         self.assertIn("import", [sub["name"] for sub in
                                  components["facade"]["invocation"]
                                  ["commands"][0]["subcommands"]])
@@ -220,6 +250,26 @@ class CapabilityOwnershipTests(unittest.TestCase):
 
 
 class DeterministicAdapterRepairTests(unittest.TestCase):
+    def test_an_inferred_create_field_keeps_its_provenance_in_the_adapter(self):
+        models = [{"name": "Loan", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "quantity", "type": "int", "nullable": False,
+             "status": "inferred from prose"},
+        ]}]
+        services = [{"service_name": "LoanRepository", "methods": [{
+            "name": "create_loan",
+            "params": [{"name": "id", "type": "int"},
+                       {"name": "quantity", "type": "int"}],
+            "return_type": "Loan"}]}]
+        adapters = [{"action_name": "loan_add",
+                     "target_service": "LoanRepository",
+                     "target_method": "create_loan",
+                     "input_fields": []}]
+        repairs.repair_create_adapter_fields(adapters, services, models)
+        field = adapters[0]["input_fields"][-1]
+        self.assertEqual(field["field_name"], "quantity")
+        self.assertEqual(field["status"], "inferred from prose")
+
     def test_unknown_lookup_entity_resolves_from_method_name(self):
         adapters = [{"action_name": "product_delete",
                      "target_service": "InventoryService",
