@@ -2947,14 +2947,33 @@ def _create_defaults(ctx, entity):
         else:
             defaults[name] = "datetime.date.today()"
     # A line total is the one arithmetic field the schema commonly makes NOT
-    # NULL while the create signature carries only its inputs. Derive it from
-    # the two fields whose semantics define it instead of inserting NULL.
+    # NULL while the create signature carries only its inputs. Only an
+    # invariant that states the multiplication is evidence; the three field
+    # names alone do not prove the business formula (taxes, discounts and
+    # rounding may belong in it).
     names = {name for name, _field in fields_of(ctx, entity)}
     if {"quantity", "unit_price", "line_total"} <= names \
-            and "line_total" not in defaults:
+            and "line_total" not in defaults \
+            and _has_line_total_formula(ctx):
         defaults["line_total"] = (
             "values.get('quantity', 0) * values.get('unit_price', 0)")
     return defaults
+
+
+def _has_line_total_formula(ctx):
+    """True when an invariant explicitly states line_total = quantity * price."""
+    for invariant in ctx.get("invariants") or []:
+        text = invariant.get("text") if isinstance(invariant, dict) else None
+        if not isinstance(text, str):
+            continue
+        flat = normalize(text)
+        if "linetotal" not in flat or "quantity" not in flat \
+                or "unitprice" not in flat:
+            continue
+        if re.search(r"\b(?:multipl(?:y|ied|ication)|times|product\s+of)\b",
+                     text, re.I) or "*" in text or "×" in text:
+            return True
+    return False
 
 
 def _numeric_bounds(ctx, entity):

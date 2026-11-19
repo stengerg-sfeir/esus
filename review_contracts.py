@@ -646,8 +646,34 @@ def _stock_reservation_effect(ctx, role, text):
     return None
 
 
-def _collection_create(ctx, method):
-    """A collection parameter's related entity, when the model names it."""
+def _collection_parent(ctx, holder, method):
+    """The entity that owns a collection parameter, when the model proves it."""
+    returns = str(method.get("return_type") or "")
+    by_return = [item for item in ctx.get("entity_names") or []
+                 if normalize(item) in normalize(returns)]
+    if by_return:
+        return by_return[0]
+    owner = normalize(holder or "")
+    for suffix in ("service", "repository", "manager"):
+        if owner.endswith(suffix):
+            owner = owner[:-len(suffix)]
+            break
+    candidates = [item for item in ctx.get("entity_names") or []
+                  if normalize(item) in owner]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda item: len(normalize(item)))
+
+
+def _collection_create(ctx, method, holder=None):
+    """A collection parameter's related entity, only with a proven relation.
+
+    A plural parameter name alone is not enough: the related entity must have
+    a foreign key to the method's owning entity and carry at least one payload
+    field. `order_items` on `OrderService.place_order` proves this; `tags` on
+    a service whose Tag model has no parent FK does not.
+    """
+    parent = _collection_parent(ctx, holder, method)
     for param in method.get("params") or []:
         if not isinstance(param, dict) or not param.get("name"):
             continue
@@ -655,9 +681,26 @@ def _collection_create(ctx, method):
         if not name.endswith("s") or len(name) < 4:
             continue
         singular = name[:-1].rstrip("_")
-        entity = next((item for item in ctx.get("entity_names") or []
-                       if normalize(item) == normalize(singular)), None)
-        if not entity:
+        matches = [item for item in ctx.get("entity_names") or []
+                   if normalize(item) == normalize(singular)]
+        if len(matches) != 1:
+            continue
+        entity = matches[0]
+        model = next((item for item in ctx.get("models") or []
+                      if isinstance(item, dict)
+                      and normalize(item.get("name")) == normalize(entity)), None)
+        if model is None or parent is None:
+            continue
+        fields = [field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")]
+        related = any(isinstance(field.get("foreign_key"), dict)
+                      and normalize(field["foreign_key"].get("target_entity"))
+                      == normalize(parent)
+                      for field in fields)
+        payload = any(not field.get("primary_key")
+                      and not isinstance(field.get("foreign_key"), dict)
+                      for field in fields)
+        if not related or not payload:
             continue
         call = _create_call(ctx, entity, "service")
         if call:
@@ -734,7 +777,7 @@ def add_inferred_collection_creates(output_dir):
         for method in service.get("methods") or []:
             if not isinstance(method, dict) or not method.get("name"):
                 continue
-            create = _collection_create(ctx, method)
+            create = _collection_create(ctx, method, holder)
             if not create:
                 continue
             record = next((item for item in records

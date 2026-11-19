@@ -4545,6 +4545,29 @@ class NumericBoundTests(unittest.TestCase):
                          [("price", ">", "0")])
 
 
+class CreateDefaultTests(unittest.TestCase):
+    def ctx(self, invariants):
+        return {
+            "models": [{"name": "InvoiceLine", "fields": [
+                {"name": "quantity", "type": "int"},
+                {"name": "unit_price", "type": "float"},
+                {"name": "line_total", "type": "float"}]}],
+            "invariants": [{"text": text} for text in invariants],
+        }
+
+    def test_line_total_is_not_invented_from_field_names(self):
+        self.assertEqual(
+            generator._create_defaults(self.ctx([]), "InvoiceLine"), {})
+
+    def test_an_explicit_formula_invariant_enables_line_total(self):
+        defaults = generator._create_defaults(self.ctx([
+            "The line total of an invoice line must equal the quantity "
+            "multiplied by the unit price."]), "InvoiceLine")
+        self.assertIn("line_total", defaults)
+        self.assertIn("quantity", defaults["line_total"])
+        self.assertIn("unit_price", defaults["line_total"])
+
+
 class FieldRelationTests(unittest.TestCase):
     def ctx(self, text):
         return {

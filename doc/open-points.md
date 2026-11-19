@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,229 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,235 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,229 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,235 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -93,15 +93,20 @@ than being assigned a mechanical body.
 `test_schema_invariants.py` and `test_mechanical_reports.py`. The full suite is
 **1,229 passed**.
 
-### 5. Formula and relationship inference
+### 5. ✅ Formulas and collection creates require evidence (done 2026-11-19)
 
-- **F-13:** `line_total = quantity * unit_price` can be inferred from field
-  names without an explicit formula contract.
-- **F-14:** collection creation can be inferred from a plural parameter name
-  without proving the relation or item shape.
+- **F-13:** `line_total = quantity * unit_price` was derived from three field
+  names. It is now derived only when an invariant explicitly states the
+  multiplication (“multiplied by”, “times”, “product of” or `*`). With no such
+  rule the value is left unresolved rather than guessed.
+- **F-14:** a plural parameter such as `order_items` is no longer enough to
+  create records. The related model must have a foreign key to the method’s
+  owning entity and at least one payload field. `place_order(order_items)` on
+  `OrderService` still resolves; `tags` on a service whose `Tag` model has no
+  parent FK is refused.
 
-**Next:** require an explicit or reviewed formula/relationship contract.
-Otherwise leave the value unresolved and report the missing rule.
+**Regression tests:** `CreateDefaultTests` and
+`tests/test_collection_creation.py`. The full suite is **1,235 passed**.
 
 ### 6. The same LLM writes and judges bodies
 
