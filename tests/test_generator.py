@@ -595,6 +595,20 @@ class PlanTests(unittest.TestCase):
         self.assertEqual(codegen.match_param(["id"], "id"), ("id", "eq"))
         self.assertIsNone(codegen.match_param(["name"], "total"))
 
+    def test_read_all_is_not_a_substring_match(self):
+        self.assertIsNone(codegen.classify_crud("get_small_businesses"))
+        self.assertIsNone(codegen.classify_crud("blacklist_user"))
+        self.assertEqual(codegen.classify_crud("read_all"), "read_all")
+        self.assertEqual(codegen.classify_crud("get_all_customers"), "read_all")
+        self.assertEqual(codegen.classify_crud("list_products"), "read_all")
+
+    def test_a_range_prefix_needs_a_word_boundary(self):
+        self.assertIsNone(codegen.match_param(["stage"], "min_age"))
+        self.assertEqual(codegen.match_param(["stage"], "min_stage"),
+                         ("stage", "ge"))
+        self.assertEqual(codegen.match_param(["expense_date"], "start_date"),
+                         ("expense_date", "ge"))
+
     def test_match_param_reads_pk_aliases_and_bound_prefixes(self):
         """`author_id` names the own `id`; `min_`/`max_` are range bounds.
 

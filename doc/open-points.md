@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,221 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,223 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,21 +56,27 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,221 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,223 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
 
-### 3. Lexical heuristics still misclassify
+### 3. ✅ Lexical classification uses whole words (done 2026-11-19)
 
-- **F-09:** `classify_crud` still matches substrings such as `all` and `list`.
-  Current examples: `get_small_businesses` and `blacklist_user` classify as
-  `read_all`.
-- **F-10:** `match_param` can map a range prefix to the wrong field. Current
-  example: `match_param(["stage"], "min_age")` returns `("stage", "ge")`.
+- **F-09:** `classify_crud` matched substrings such as `all` and `list`, so
+  `get_small_businesses` and `blacklist_user` became `read_all`. Read-all is
+  now recognized only by a whole prefix (`read_all`) or whole word
+  (`get_all_customers`, `list_products`).
+- **F-10:** `match_param(["stage"], "min_age")` returned `("stage", "ge")`
+  because the range remainder was a substring. A range remainder must now
+  equal the field or end on a complete field-word suffix: `min_stage` matches
+  `stage`, `start_date` matches `expense_date`, `min_age` matches nothing.
 
-**Next:** classify on normalized tokens and exact entity/verb structure.
-When no exact mapping exists, leave the method as a stub or ask for review.
+Ambiguous names still fall through to the stub/parameter-shape path rather
+than being assigned a mechanical body.
+
+**Regression tests:** `tests/test_generator.py::PlanTests`. The full suite is
+**1,223 passed**.
 
 ### 4. Negation is lost in invariant parsing
 

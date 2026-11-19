@@ -44,7 +44,8 @@ MODEL_TYPES = {
 # stay stubs unless their pattern entry says otherwise.
 CREATE_PREFIXES = ("create", "add", "insert", "save", "register", "make", "new", "record")
 READ_ONE_MARKERS = ("readone", "byid", "byemail", "byname", "bysku", "byisbn", "bycode")
-READ_ALL_MARKERS = ("readall", "all", "list")
+READ_ALL_PREFIXES = ("readall", "getall", "findall", "listall", "browseall",
+                     "list", "browse")
 UPDATE_PREFIXES = ("update", "edit")
 DELETE_PREFIXES = ("delete", "remove", "drop", "destroy")
 FILTER_PREFIXES = ("find", "filter", "search", "query", "history")
@@ -90,6 +91,29 @@ def map_type(spelling, entity_names=()):
     return "Any"
 
 
+def _name_words(name):
+    """Lower-case words in a camelCase or snake_case name."""
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str(name or ""))
+    return [normalize(part) for part in re.split(r"[^A-Za-z0-9]+", text)
+            if part]
+
+
+def _is_range_suffix(field, remainder):
+    """True when a range remainder names a complete field or word suffix.
+
+    `min_age` against `stage` is not a range on `stage`: `age` is only a
+    substring. `start_date` against `expense_date` is, because `date` is a
+    whole word of the field name.
+    """
+    field_name = normalize(field)
+    if field_name == remainder:
+        return True
+    remainder_words = _name_words(remainder)
+    field_words = _name_words(field)
+    return bool(remainder_words) and len(remainder_words) <= len(field_words) \
+        and field_words[-len(remainder_words):] == remainder_words
+
+
 def match_param(field_names, param):
     """Map a filter parameter to `(field, operator)` or None.
 
@@ -115,8 +139,7 @@ def match_param(field_names, param):
         if wanted.startswith(prefix) and len(wanted) > len(prefix):
             rest = wanted[len(prefix):]
             candidates = [field for field in field_names
-                          if rest and (rest in normalize(field)
-                                       or normalize(field) in rest)]
+                          if rest and _is_range_suffix(field, rest)]
             if len(candidates) == 1:
                 return (candidates[0], operator)
     raw = str(param or "").strip().lower()
@@ -200,7 +223,13 @@ def is_dto_type(text):
 
 
 def classify_crud(method_name):
-    """The mechanical CRUD kind of a method name, or None when ambiguous."""
+    """The mechanical CRUD kind of a method name, or None when ambiguous.
+
+    Read-all markers are whole prefixes or whole words, never substrings:
+    `get_small_businesses` is not an `all` read and `blacklist_user` is not a
+    `list` read. A false read-all would return every record instead of the
+    filtered set the name asks for.
+    """
     name = normalize(method_name or "")
     if not name:
         return None
@@ -214,7 +243,11 @@ def classify_crud(method_name):
         return "read_one"
     if name.startswith(FILTER_PREFIXES):
         return "filter"
-    if any(marker in name for marker in READ_ALL_MARKERS):
+    words = _name_words(method_name)
+    if name.startswith(READ_ALL_PREFIXES) \
+            or (words and words[0] in ("all", "list", "browse")) \
+            or (words and "all" in words and words[0] in (
+                "read", "get", "find", "list", "browse", "search")):
         return "read_all"
     return None
 
