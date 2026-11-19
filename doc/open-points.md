@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,270 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,271 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -228,19 +228,28 @@ flag). `scripts/review_queue.py` includes these questions under `flags`.
 
 ## P1/P2 — performance and extraction
 
-### 11. Adapter model calls are still expensive
+### 11. ◐ Adapter retry implemented; measurement incomplete
 
-v8 still made **63 adapter model calls across 45 prompts**:
+v8 made **63 adapter model calls across 45 prompts** (**861 s**, **50,369**
+output tokens). The extraction pipeline now applies deterministic surface and
+flag repairs after the first mechanical adapter derivation declines, then
+retries the derivation before asking the model. A synthetic test proves the
+repair → retry path (`AdapterRetryTests`).
 
-- **861 s** of extraction wall time;
-- **50,369** output tokens.
+Measurement status:
 
-The post-repair mechanical derivation helps local replay, but the Kaggle
-extraction still pays model calls when the first derivation declines.
+- A full one-slot Mac run was started; **42/66** prompts were checkpointed
+  before the server degraded to ~0.2 tok/s and prompt 42 took 96 minutes.
+  That partial run predates the retry change.
+- On a fresh server, `prompt_01` after the change made **0** adapter calls
+  versus **1** in v8.
+- A representative retry subset could not be completed reliably on this host;
+  the full 66-prompt measurement is still required on a stable/Kaggle server.
 
-**Next:** run mechanical adapter derivation again after surface repairs as part
-of the extraction pipeline, or retry it before asking the model. Measure
-whether the resulting adapter set is equal or better in acceptance.
+**Next:** rerun the 66 prompts on the standard two-slot Kaggle server and
+compare `[interaction_adapters]` calls/tokens/time plus acceptance. The retry
+does not change the adapter semantics when the documents already proved a
+mapping.
 
 ### 12. ✅ Inferred write methods have provenance (done 2026-11-19)
 

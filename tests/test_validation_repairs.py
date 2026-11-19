@@ -6,10 +6,34 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from kernel.extraction import repairs  # noqa: E402
+from kernel.extraction import adapters_mechanical, repairs  # noqa: E402
 from kernel.extraction.pipeline import (  # noqa: E402
     COMPONENTS, PERSISTENCE_PORTS, Pipeline,
 )
+
+
+class AdapterRetryTests(unittest.TestCase):
+    def test_surface_repairs_enable_the_mechanical_retry(self):
+        components = {"facade": {"invocation": {"commands": []}}}
+        models = [{"name": "Order", "fields": [
+            {"name": "order_id", "type": "int", "primary_key": True},
+            {"name": "customer_id", "type": "int"}]}]
+        services = [{"service_name": "OrderService", "methods": [{
+            "name": "create_order",
+            "params": [{"name": "customer_id", "type": "int"}],
+            "return_type": "models.Order"}]}]
+        requirements = "`app order add --customer-id`"
+        first, _reason = adapters_mechanical.derive_adapters(
+            components, services, models, requirements, allow_prose=True)
+        self.assertIsNone(first)
+        repairs.repair_missing_surface(
+            components, requirements, models, None)
+        retried, reason = adapters_mechanical.derive_adapters(
+            components, services, models, requirements, allow_prose=True)
+        self.assertIsNone(reason)
+        self.assertEqual(retried[0]["target_service"], "OrderService")
+        self.assertEqual(retried[0]["input_fields"][0]["field_name"],
+                         "customer_id")
 
 
 class PersistenceRepairTests(unittest.TestCase):

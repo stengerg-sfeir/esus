@@ -847,16 +847,14 @@ class Pipeline:
         block = prompts.combined_block(vocab)
         grammar = grammar_builders.adapters(vocab)
         body = None
+        components = self.documents.get(COMPONENTS)
+        services = self.documents.get(SERVICE_CONTRACTS)
+        models = self.documents.get(DATA_MODELS)
         if MECHANICAL_ADAPTERS:
             explicit_surface = bool(
                 command_lines.extract_command_lines(requirements))
             derived, reason = adapters_mechanical.derive_adapters(
-                self.documents.get(COMPONENTS),
-                self.documents.get(SERVICE_CONTRACTS),
-                self.documents.get(DATA_MODELS),
-                requirements,
-                allow_prose=True,
-            )
+                components, services, models, requirements, allow_prose=True)
             if derived is not None:
                 self.documents[INTERACTION_ADAPTERS] = derived
                 source = "explicit surface" if explicit_surface \
@@ -867,10 +865,29 @@ class Pipeline:
                 )
                 body = derived
             else:
-                self.log.write(
-                    f"[!] step adapters: mechanical derivation declined "
-                    f"({reason}) — asking the model"
-                )
+                # Surface and flag repairs are deterministic. Try them before
+                # paying for a model call: the post-repair re-derivation was
+                # previously only reached after the model had already run.
+                repairs.repair_missing_surface(
+                    components, requirements, models, self.log)
+                repairs.repair_missing_method_flags(
+                    components, requirements, services, self.log)
+                retried, retry_reason = adapters_mechanical.derive_adapters(
+                    components, services, models, requirements,
+                    allow_prose=True)
+                if retried is not None:
+                    self.documents[INTERACTION_ADAPTERS] = retried
+                    self.log.write(
+                        f"[ok] step adapters: {len(retried)} adapter(s) "
+                        "re-derived after surface repairs"
+                    )
+                    body = retried
+                else:
+                    self.log.write(
+                        f"[!] step adapters: mechanical derivation declined "
+                        f"({reason}); retry after surface repairs declined "
+                        f"({retry_reason}) — asking the model"
+                    )
         if body is None:
             self._generate(
                 INTERACTION_ADAPTERS,
