@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,268 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,270 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -251,7 +251,7 @@ reports inferred artifacts and inferred methods under `provenance`, and
 negative tests prove an unrelated entity receives no update.
 
 **Regression tests:** `tests/test_validation_repairs.py` and
-`tests/test_review_queue.py`. The full suite is **1,268 passed**.
+`tests/test_review_queue.py`. The full suite is **1,270 passed**.
 
 ### 13. ✅ Mechanical order placement has holdout coverage (done 2026-11-19)
 
@@ -269,6 +269,17 @@ of `prompt_53`:
 `_service_place_order_body` now requires declared primary keys instead of
 falling back to `id`.
 
+### 14. ✅ State vocabulary normalization (done 2026-11-19)
+
+`normalize_state_spellings` now handles both directions of
+`canceled`/`cancelled` and `cancelation`/`cancellation`. If the documents use
+both spellings, it leaves them untouched for review instead of silently
+choosing half the vocabulary. Runtime fixtures also resolve `state`/`status`
+field synonyms when the extracted model uses the other spelling.
+
+**Regression tests:** `tests/test_generator.py`. The full suite is
+**1,270 passed**.
+
 ## P2 — longer-term
 
 - **Type hints:** the fixed store/CLI templates and generated helpers still
@@ -281,8 +292,6 @@ falling back to `id`.
   review question.
 - **Caching:** cache extraction and body answers by prompt/fixture so unchanged
   reruns do not repeat model calls.
-- **State vocabularies:** normalize `canceled`/`cancelled` and similar terms
-  from document evidence, with a test for conflicting vocabularies.
 
 ## Definition of done for the next milestone
 

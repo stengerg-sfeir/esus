@@ -11778,10 +11778,17 @@ def normalize_state_spellings(files, ctx):
                  for item in ctx.get("invariants") or [] if isinstance(item, dict)),
     ]).lower()
     replacements = {}
-    if "cancelled" in document_text:
-        replacements["canceled"] = "cancelled"
-    if "cancelled" in document_text and "cancelation" in document_text:
-        replacements["cancelation"] = "cancellation"
+    for variants in (("canceled", "cancelled"),
+                     ("cancelation", "cancellation")):
+        present = [variant for variant in variants
+                   if re.search(rf"\b{re.escape(variant)}\b", document_text)]
+        # Conflicting vocabularies are not resolved by picking one; leave the
+        # text untouched for review instead of rewriting half the documents.
+        if len(present) == 1:
+            chosen = present[0]
+            for variant in variants:
+                if variant != chosen:
+                    replacements[variant] = chosen
     if not replacements:
         return files
     for filename, text in list(files.items()):

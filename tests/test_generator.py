@@ -952,6 +952,20 @@ class ServiceCompositionTests(unittest.TestCase):
         self.assertIn('"cancelled"', files["services.py"])
         self.assertNotIn('"canceled"', files["services.py"])
 
+    def test_the_other_spelling_wins_when_the_documents_use_it(self):
+        files = {"services.py": 'status = "cancelled"'}
+        ctx = {"requirements": "A canceled order stays canceled."}
+        generator.normalize_state_spellings(files, ctx)
+        self.assertIn('"canceled"', files["services.py"])
+        self.assertNotIn('"cancelled"', files["services.py"])
+
+    def test_conflicting_vocabularies_are_left_for_review(self):
+        files = {"services.py": 'status = "cancelled"\nother = "canceled"'}
+        ctx = {"requirements": "A cancelled order and a canceled order."}
+        before = files["services.py"]
+        generator.normalize_state_spellings(files, ctx)
+        self.assertEqual(files["services.py"], before)
+
     def test_scoring_prefers_the_command_own_entity(self):
         """`budget add` reaches the budget creator, not `add_category`."""
         from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
