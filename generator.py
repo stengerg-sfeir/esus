@@ -10773,6 +10773,49 @@ def _same_expression(left, right):
             == ast.dump(right, include_attributes=False))
 
 
+def _alias_expression(node):
+    """Render an expression with attribute roots replaced by one alias.
+
+    `event.status == 'pending'` and `registration.status == 'pending'` are
+    the same guard over two local names. Only the root of an attribute chain
+    is erased; field paths, operators and literals still have to match.
+    """
+    if node is None:
+        return None
+
+    class Alias(ast.NodeTransformer):
+        def visit_Attribute(self, attribute):
+            self.generic_visit(attribute)
+            root = attribute
+            while isinstance(root, ast.Attribute):
+                root = root.value
+            if isinstance(root, ast.Name):
+                replacement = ast.Name(id="_alias", ctx=ast.Load())
+                base = replacement
+                chain = []
+                current = attribute
+                while isinstance(current, ast.Attribute):
+                    chain.append(current.attr)
+                    current = current.value
+                for attr in reversed(chain):
+                    base = ast.Attribute(value=base, attr=attr,
+                                         ctx=ast.Load())
+                return ast.copy_location(base, attribute)
+            return attribute
+
+    try:
+        tree = ast.parse(ast.unparse(node), mode="eval").body
+        return ast.dump(Alias().visit(tree), include_attributes=False)
+    except (SyntaxError, ValueError):
+        return None
+
+
+def _same_expression_ignoring_alias(left, right):
+    """True when two conditions differ only by their local object names."""
+    alias_left, alias_right = _alias_expression(left), _alias_expression(right)
+    return alias_left is not None and alias_left == alias_right
+
+
 def _negated_expression(node):
     """The condition's negation, flipping comparisons instead of wrapping."""
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
@@ -10877,11 +10920,14 @@ def _precondition_match(precondition, tree):
 def _guard_satisfies(guard, expected, target, assigned):
     """True when `guard` is the contract condition, allowing the assigned
     temporary (`now > due` for `field = now; field > due`)."""
-    if _same_expression(guard, expected):
+    if _same_expression(guard, expected) \
+            or _same_expression_ignoring_alias(guard, expected):
         return True
     if target is None:
         return False
     return any(_same_expression(guard, _with_assignment(expected, target, value))
+               or _same_expression_ignoring_alias(
+                   guard, _with_assignment(expected, target, value))
                for value in assigned)
 
 
@@ -10918,9 +10964,10 @@ def _raise_when_complaints(tree, precondition, judge=None, body_text=""):
             f"the confirmed contract raises it when the condition is "
             f"{precondition['raise_when']}"]
     # A guard that is not the contract's text may still mean the same thing
-    # (a loop for `any(...)`, a local for a repeated read). The structural
-    # comparison cannot tell; the judge, when there is one, reads the whole
-    # body against the confirmed condition. Anything but a clear yes refuses.
+    # (a loop for `any(...)`, a local for a repeated read). Alias-equivalent
+    # conditions are accepted structurally. Anything else is refused; the
+    # body-writing model is never used as its own judge. An external,
+    # independent `judge` may be supplied by the caller if one exists.
     reason = None
     if judge is not None:
         equivalent, reason = judge(precondition, body_text)
@@ -11320,6 +11367,10 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     answering (see the runner). An answer that is still truncated after one
     retry with the whole room is never spliced — it is kept as `truncated`
     in the dump, because a cut-off body compiles and can still be wrong.
+    The body-writing model is never asked to judge its own answer. Alternate
+    guards are accepted only by deterministic structural equivalence; a
+    caller may pass an independent judge elsewhere, but this pass does not
+    synthesize one from the writer.
     `context` controls what the ask shows besides the task rules, the
     requirements and the module text. `contracts` are the human-confirmed
     method records loaded from `method_contracts.json`; a matching record
@@ -11374,38 +11425,6 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
     out(f"llm: {todo} refused stub(s) — {model_name} writes them body "
         f"by body ({framing_name})")
     rows, dumped = [], []
-    judgements, judged = {}, {}
-
-    def judge_for(label):
-        """The equivalence judge for one method's body, with its record."""
-        def judge(precondition, body_text):
-            key = (precondition.get("error"), precondition.get("check"),
-                   precondition.get("raise_when"), body_text)
-            if key not in judged:
-                try:
-                    reply = framing(
-                        llm, _equivalence_prompt(precondition, body_text),
-                        f"equivalence:{label}",
-                        temperature=FALLBACK_TEMPERATURE,
-                        seed=FALLBACK_SEED, max_new_tokens=160)
-                    if reply.truncated:
-                        verdict = (False, "the judge answer was cut off")
-                    else:
-                        verdict = _parse_equivalence(reply.text)
-                    raw = reply.text
-                except Exception as error:  # a failed judge refuses
-                    verdict, raw = (False, f"the judge failed ({error})"), None
-                judged[key] = verdict
-                judgements.setdefault(label, []).append({
-                    "error": precondition.get("error"),
-                    "condition": precondition.get("check"),
-                    "raise_when": precondition.get("raise_when"),
-                    "equivalent": verdict[0], "reason": verdict[1],
-                    "raw": raw})
-                out(f"llm: {label} equivalence of `{precondition.get('check')}`"
-                    f" -> {'YES' if verdict[0] else 'NO'} ({verdict[1]})")
-            return judged[key]
-        return judge
 
     for filename, spans in targets:
         text = files[filename]
@@ -11466,8 +11485,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                                         store_names, model_names, error_names)
                 problems = [refusal] if refusal else _body_complaints(
                     body, info, text, files.get("repositories.py") or "",
-                    files, requirement=requirement, contract=method_contract,
-                    judge=judge_for(label))
+                    files, requirement=requirement, contract=method_contract)
                 if _answer_continued(raw):
                     problems.insert(
                         0, "the answer continued after the body with "
@@ -11623,8 +11641,6 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
         files[filename] = text
     for entry in dumped:
         entry["context"] = context
-        if entry.get("label") in judgements:
-            entry["equivalence_judgements"] = judgements[entry["label"]]
     if dump_path and dumped:
         archived = _archive_previous_dump(dump_path)
         if archived:

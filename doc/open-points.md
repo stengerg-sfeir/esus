@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,235 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,237 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,235 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,237 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -106,16 +106,22 @@ than being assigned a mechanical body.
   parent FK is refused.
 
 **Regression tests:** `CreateDefaultTests` and
-`tests/test_collection_creation.py`. The full suite is **1,235 passed**.
+`tests/test_collection_creation.py`. The full suite is **1,237 passed**.
 
-### 6. The same LLM writes and judges bodies
+### 6. ✅ Bodies are not judged by their own writer (done 2026-11-19)
 
-- **F-08:** `fill_stubs()` uses the same model for body generation and the
-  equivalence judge.
+- **F-08:** `fill_stubs()` used the same loaded model for body generation and
+  for the equivalence judge. The body pass no longer synthesizes that judge.
+  Alternate guards are accepted only by deterministic structural equivalence,
+  including local aliases (`event.status` vs `registration.status`); anything
+  else is refused and left as a review gap.
+- `_raise_when_complaints` still accepts an optional judge for an external
+  independent consumer, but the writer never supplies itself as that judge.
+- The old equivalence-prompt parser remains as a utility and is covered by
+  its existing tests; it is simply no longer invoked by `fill_stubs()`.
 
-**Next:** separate generation and judgment, or replace the judge with a
-deterministic check plus independent behavioral tests. Keep LLM verdicts as
-evidence, not proof.
+**Regression tests:** `tests/test_guard_equivalence.py`, including alias
+acceptance and different-field refusal. The full suite is **1,237 passed**.
 
 ## P1 — validation and review
 

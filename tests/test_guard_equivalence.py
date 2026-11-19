@@ -55,9 +55,32 @@ def complaints(body, judge=None):
         ast.parse(body), PRECONDITION, judge, body)
 
 
+ALIASED_PRECONDITION = {
+    "check": "event.status == 'pending'",
+    "error": "ValueError",
+    "raise_when": "false",
+}
+
+ALIASED_BODY = (
+    "if registration.status != 'pending':\n"
+    "    raise ValueError('registration is not pending')\n")
+
+
 class GuardEquivalenceTests(unittest.TestCase):
-    def test_without_a_judge_a_different_guard_is_refused(self):
+    def test_a_different_guard_is_refused_without_a_judge(self):
         self.assertEqual(len(complaints(EQUAL_BODY)), 1)
+
+    def test_a_local_alias_is_accepted_without_a_judge(self):
+        found = generator._raise_when_complaints(
+            ast.parse(ALIASED_BODY), ALIASED_PRECONDITION, None, ALIASED_BODY)
+        self.assertEqual(found, [])
+
+    def test_an_alias_does_not_hide_a_different_field(self):
+        body = ("if registration.state != 'pending':\n"
+                "    raise ValueError('registration is not pending')\n")
+        found = generator._raise_when_complaints(
+            ast.parse(body), ALIASED_PRECONDITION, None, body)
+        self.assertEqual(len(found), 1)
 
     def test_a_judge_yes_accepts_the_different_guard(self):
         judge = Judge((True, "same truth value"))
