@@ -21,11 +21,18 @@ the current generator:
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,241 unit tests passed**
+- **1,249 unit tests passed**
 
-The two state-effect checks that previously reported `not_applicable` now have
-semantic scenarios: `OrderService.cancel_order` and
-`LibraryService.return_book`.
+State effects and invalid preconditions are now derived from the confirmed
+contracts, so ordinary state transitions no longer need prompt-specific
+fixtures. The stored v8 artifact has no `not_applicable` checks.
+
+The checked-in runtime scenario suite currently has 1,103 checks. Replaying
+the stored v8 code against it gives 31/66 projects passed and 130 failed CLI
+checks; the failures expose surface gaps (`Order search`, `Order confirm`,
+missing/changed flags). The 1,073-check artifact above is the older accepted
+artifact, not a fresh run of the expanded suite. This gap is tracked in
+`doc/open-points.md` item 8b.
 
 The acceptance summary now also carries a separate `coverage` block produced
 by `scripts/requirement_trace.py`. It maps each requirement clause to design

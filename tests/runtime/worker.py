@@ -226,7 +226,74 @@ def _precondition_values(contract, binding_name):
             items = re.findall(r"['\"](.*?)['\"]", raw)
             if items:
                 values[match.group(1)] = items[0]
+            continue
+        match = re.match(
+            rf"{prefix}\s*(==|!=|>=|<=|>|<)\s*(-?\d+(?:\.\d+)?)",
+            check)
+        if match:
+            field_name, operator, raw = match.group(1), match.group(2), match.group(3)
+            number = float(raw) if "." in raw else int(raw)
+            # A valid fixture satisfies the comparison; a `raise_when=true`
+            # check describes the forbidden state, so satisfy its negation.
+            truth = not forbidden
+            value = _comparison_value(operator, number, truth)
+            if value is not None:
+                values[field_name] = value
     return values
+
+
+def _comparison_value(operator, number, truth):
+    """A value that makes `field <operator> number` true or false."""
+    if truth:
+        return {">": number + 1, ">=": number, "<": number - 1,
+                "<=": number, "==": number, "!=": number + 1}[operator]
+    return {">": number, ">=": number - 1, "<": number + 1,
+            "<=": number + 1, "==": number + 1, "!=": number}[operator]
+
+
+def _invalid_precondition(check, raise_when):
+    """`(binding, field, value)` that triggers a documented precondition."""
+    prefix = r"(\w+)\.(\w+)"
+    bad_truth = str(raise_when) == "true"
+    match = re.match(
+        rf"{prefix}\s*(==|!=|>=|<=|>|<)\s*(?P<quote>['\"])(.*?)(?P=quote)", check)
+    if match:
+        binding, field, operator, _quote, literal = match.groups()
+        if operator == "==":
+            value = literal if bad_truth else "not-" + literal
+        elif operator == "!=":
+            value = "not-" + literal if bad_truth else literal
+        else:
+            try:
+                number = float(literal)
+                if number.is_integer():
+                    number = int(number)
+            except ValueError:
+                return None
+            value = _comparison_value(operator, number, bad_truth)
+        return binding, field, value
+    match = re.match(
+        rf"{prefix}\s*(==|!=|>=|<=|>|<)\s*(-?\d+(?:\.\d+)?)",
+        check)
+    if match:
+        binding, field, operator, raw = match.groups()
+        number = float(raw) if "." in raw else int(raw)
+        return binding, field, _comparison_value(operator, number, bad_truth)
+    match = re.match(rf"{prefix}\s+is\s+(not\s+)?None", check)
+    if match:
+        binding, field, negated = match.groups()
+        value = None if bad_truth else _NON_NULL
+        if negated:
+            value = _NON_NULL if bad_truth else None
+        return binding, field, value
+    match = re.match(rf"{prefix}\s+in\s*\(([^)]*)\)", check)
+    if match:
+        binding, field, raw = match.groups()
+        items = re.findall(r"['\"](.*?)['\"]", raw)
+        if items:
+            return binding, field, ("__not_documented__" if bad_truth
+                                    else items[0])
+    return None
 
 
 def _allowed_values(docs, entity, field):
@@ -262,6 +329,22 @@ def _allowed_values(docs, entity, field):
             if all(re.fullmatch(r"[A-Za-z0-9_.-]+", value) for value in values):
                 return values
     return []
+
+
+def _state_start_value(docs, entity, field, target, method):
+    """A documented starting state that differs from the effect target.
+
+    A cancel method sets `status = cancelled`; its valid fixture starts at
+    `confirmed` or `pending`, not at an arbitrary seeded value. Prefer a value
+    named in the method description, then the first documented alternative.
+    """
+    allowed = _allowed_values(docs, entity, field)
+    candidates = [value for value in allowed if str(value) != str(target)]
+    description = str((method or {}).get("description") or "").lower()
+    for value in candidates:
+        if str(value).lower() in description:
+            return value
+    return candidates[0] if candidates else None
 
 
 def _composite_unique_fields(docs, entity):
@@ -329,16 +412,29 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
                 "status": "passed" if (holder, method_name) in (covered or set())
                 else "not_applicable",
                 "reason": "collection covered by a scenario"}
-    if any(str(effect.get("target") or "").endswith((".status", ".state"))
-           for effect in effects) and not any(
-               str(item.get("check") or "").split(".")[-1].startswith(("status", "state"))
-               for item in preconditions if isinstance(item, dict)):
-        return {"name": f"contract:{holder}.{method_name}",
-                "status": "passed" if (holder, method_name) in (covered or set())
-                else "not_applicable",
-                "reason": "state effect covered by a scenario"}
     model_by_entity = {m.get("name"): m for m in docs["models"]}
     by_lower = {str(name).lower(): name for name in model_by_entity}
+    state_starts = {}
+    for effect in effects:
+        target_name = str(effect.get("target") or "")
+        variable, _, field = target_name.partition(".")
+        if effect.get("op") != "set" or field not in ("status", "state"):
+            continue
+        entity = next((name for name in model_by_entity
+                       if name.lower() == variable.lower()), None)
+        if entity is None:
+            continue
+        target = effect.get("value")
+        try:
+            target = ast.literal_eval(target) if isinstance(target, str) else target
+        except (ValueError, SyntaxError):
+            pass
+        start = _state_start_value(docs, entity, field, target, method)
+        if start is None:
+            return {"name": f"contract:{holder}.{method_name}",
+                    "status": "not_applicable",
+                    "reason": "state effect has no documented starting state"}
+        state_starts[variable] = {field: start}
     binding_records = {}
     # A contract may name an effect on `product.stock_quantity` without a
     # separate read binding. Seed the entity named by the effect variable.
@@ -351,7 +447,8 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
         model = model_by_entity.get(entity)
         if model is None:
             continue
-        record, pk = _seed(store, model, sequence)
+        record, pk = _seed(store, model, sequence,
+                           state_starts.get(variable))
         record["__entity__"] = entity
         binding_records[variable] = (record, pk)
     for binding_index, binding in enumerate(bindings):
@@ -362,7 +459,10 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
         if model is None:
             return {"name": f"contract:{holder}.{method_name}", "status": "skipped",
                     "reason": f"unknown binding entity {entity!r}"}
-        overrides = _precondition_values(contract, binding.get("name") or "")
+        overrides = dict(state_starts.get(
+            binding.get("name") or "", {}))
+        overrides.update(_precondition_values(
+            contract, binding.get("name") or ""))
         record, pk = _seed(store, model, sequence + 1000 + binding_index * 10,
                            overrides)
         record["__entity__"] = entity
@@ -419,7 +519,21 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
         record, pk = binding_records[variable]
         current = store.get(record.get("__entity__", variable), pk, record.get(pk))
         expected = effect.get("value")
-        if isinstance(expected, str) and expected in param_values:
+        if effect.get("op") in ("increment", "decrement"):
+            by = effect.get("by")
+            delta = param_values.get(by) if isinstance(by, str) else None
+            if delta is None:
+                try:
+                    delta = float(by)
+                except (TypeError, ValueError):
+                    continue
+            base = before.get((variable, field))
+            if isinstance(base, (int, float)) and not isinstance(base, bool):
+                expected = base + delta if effect.get("op") == "increment" \
+                    else base - delta
+            else:
+                continue
+        elif isinstance(expected, str) and expected in param_values:
             expected = param_values[expected]
         elif effect.get("op") == "set" and isinstance(expected, str):
             if expected.startswith("literal:"):
@@ -443,10 +557,10 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
     for precondition in preconditions:
         check = str(precondition.get("check") or "")
         error = precondition.get("error")
-        match = re.match(r"(\w+)\.(\w+)\s*==\s*['\"](.*?)['\"]", check)
-        if not error or not match:
+        invalid = _invalid_precondition(check, precondition.get("raise_when"))
+        if not error or invalid is None:
             continue
-        binding_name, field_name, expected = match.groups()
+        binding_name, field_name, bad_value = invalid
         binding = next((item for item in bindings if item.get("name") == binding_name), None)
         if binding is None:
             continue
@@ -455,8 +569,6 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
         model = model_by_entity.get(repo.get("entity") if repo else None)
         if model is None:
             continue
-        raise_when = precondition.get("raise_when")
-        bad_value = expected if raise_when == "true" else "definitely-not-" + expected
         overrides = _precondition_values(contract, binding_name)
         overrides[field_name] = bad_value
         bad_record, bad_pk = _seed(store, model, sequence + 100, overrides)

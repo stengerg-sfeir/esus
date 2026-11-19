@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-19  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,241 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,249 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -56,7 +56,7 @@ stub/delegation/derive gaps tracked elsewhere.
   prose`, and so on), so a later layer cannot silently promote an inference.
 
 **Regression tests:** `tests/test_state_guard_repair.py` and
-`tests/test_validation_repairs.py`. The full suite is **1,241 passed**.
+`tests/test_validation_repairs.py`. The full suite is **1,249 passed**.
 
 **Follow-up:** the review queue in item 9 must consume `review_required` and
 present the unresolved capability semantics before final acceptance.
@@ -106,7 +106,7 @@ than being assigned a mechanical body.
   parent FK is refused.
 
 **Regression tests:** `CreateDefaultTests` and
-`tests/test_collection_creation.py`. The full suite is **1,241 passed**.
+`tests/test_collection_creation.py`. The full suite is **1,249 passed**.
 
 ### 6. ✅ Bodies are not judged by their own writer (done 2026-11-19)
 
@@ -121,7 +121,7 @@ than being assigned a mechanical body.
   its existing tests; it is simply no longer invoked by `fill_stubs()`.
 
 **Regression tests:** `tests/test_guard_equivalence.py`, including alias
-acceptance and different-field refusal. The full suite is **1,241 passed**.
+acceptance and different-field refusal. The full suite is **1,249 passed**.
 
 ## P1 — validation and review
 
@@ -157,16 +157,39 @@ share the extraction's interpretation.
 where the trace is `mapped_untested` or `unmapped`, starting with the highest
 risk business rules.
 
-### 8. Semantic scenarios are still sparse
+### 8. ✅ Contract scenarios are derived generically (done 2026-11-19)
 
-The two former `not_applicable` checks now have semantic scenarios:
+The checker no longer needs a hand-written fixture for a plain state effect:
 
-- `OrderService.cancel_order` — status change and stock restoration;
-- `LibraryService.return_book` — return status and available-copy increment.
+- A `set` effect on `.status`/`.state` derives a documented starting value
+  from the allowed-value vocabulary and the method description, then verifies
+  the target field after the call. `cancel_order` now runs from a confirmed
+  state without a prompt-specific scenario.
+- Invalid preconditions are derived for `==`, `!=`, `is None`/`is not None`,
+  numeric comparisons and membership sets; literal `increment`/`decrement`
+  deltas are checked against the before value.
+- Unique and foreign-key rules already run generically through the invariant
+  checks; collection contracts still use an explicit scenario when one exists
+  or report a coverage gap.
+- `not_applicable` is no longer used for ordinary state effects. The stored
+  v8 run has **0 `not_applicable`** checks across 1,103 checks.
 
-**Next:** generate semantic scenarios for every state effect, error/precondition,
-transactional multi-write contract and unique/FK rule where the model supports
-it. `not_applicable` should become an explicit coverage gap, not a quiet pass.
+**Regression tests:** `tests/test_runtime_state_scenarios.py`. The full suite
+is **1,249 passed**.
+
+### 8b. Reconcile the checked-in CLI scenarios (open)
+
+The checked-in scenario suite currently defines 1,103 checks, but replaying
+the stored v8 code gives **31/66 projects passed and 130 failed checks**. The
+failures are concentrated in CLI scenarios whose command names, subcommands or
+flags do not match the generated surface (`Order search`, `Order confirm`,
+`Product update --stock-quantity`, and similar). These are requirement/surface
+gaps, not semantic state-effect failures.
+
+**Next:** resolve each class generically: either the generator must emit the
+missing requirement-backed command/flag, or the scenario fixture is stale and
+must be regenerated from the effective surface. Do not delete a requirement
+check merely to make the run green.
 
 ### 9. Ambiguous review decisions need a real queue
 
