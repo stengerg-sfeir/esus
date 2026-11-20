@@ -32,6 +32,14 @@ class OracleSummaryTests(unittest.TestCase):
         self.assertEqual(counts["coverage_gap: missing action"], 1)
         self.assertEqual(counts["coverage_gap: ambiguous action"], 1)
 
+    def test_missing_primary_key_is_a_case_defect(self):
+        self.assertEqual(
+            summarize_oracle.category({
+                "status": "unbound",
+                "reason": "update/delete case supplies no primary-key argument",
+            }),
+            "case_defect: setup")
+
     def test_markdown_names_each_finding(self):
         text = summarize_oracle.markdown(self.report())
         self.assertIn("prompt_x", text)

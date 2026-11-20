@@ -150,6 +150,39 @@ class OracleBinderTests(unittest.TestCase):
             "name": "Alice", "email": "alice@example.com",
             "age": 30, "salary": 1000})
 
+    def test_an_update_without_a_row_key_is_unbound(self):
+        docs = {
+            "models": [{"name": "Contact", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "email"}, {"name": "phone"}]}],
+            "services": [{"service_name": "ContactService", "methods": [{
+                "name": "update", "params": [
+                    {"name": "id"}, {"name": "email"}, {"name": "phone"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update",
+                       "args": ["alice@example.com", "555-1234"]},
+                 given={"contact": {"email": "alice@example.com"}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("primary-key", reason)
+
+    def test_an_update_with_a_key_reference_is_bound(self):
+        docs = {
+            "models": [{"name": "Contact", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "email"}, {"name": "phone"}]}],
+            "services": [{"service_name": "ContactService", "methods": [{
+                "name": "update", "params": [
+                    {"name": "id"}, {"name": "email"}, {"name": "phone"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update", "args": ["contact.id"]},
+                 given={"contact": {"email": "alice@example.com"}}), docs)
+        self.assertIsNone(reason)
+        self.assertIsNotNone(scenario)
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

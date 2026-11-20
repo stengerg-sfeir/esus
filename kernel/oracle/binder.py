@@ -91,6 +91,29 @@ def _setup_fields(setup):
     return fields
 
 
+def _has_row_identity(method, args):
+    """True when an update/delete call supplies its key or a key reference."""
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return False
+    first = normalize(params[0])
+    if isinstance(args, dict):
+        return any(normalize(key) in ("id", first) for key in args)
+    values = args if isinstance(args, list) else [args]
+    if not values:
+        return False
+    for value in values:
+        if isinstance(value, dict) and isinstance(value.get("ref"), str)                 and value["ref"].split(".")[-1] in ("id", first):
+            return True
+        if isinstance(value, str) and "." in value                 and value.split(".")[-1] in ("id", first):
+            return True
+    if first in ("id", "key") or first.endswith("id"):
+        return isinstance(values[0], (int, float)) or (
+            isinstance(values[0], str) and values[0].isdigit())
+    return False
+
+
 def _complete_create_args(method, args, setup):
     """For a create, take its values from the case setup, not from positional noise."""
     if codegen.classify_crud(method.get("name") or "") != "create":
@@ -353,11 +376,15 @@ def bind_case(case, docs):
     if bound is None:
         return None, reason
     holder, method = bound
+    args = _complete_create_args(
+        method, _service_args(case_when.get("args") or [], setup), setup)
+    kind = codegen.classify_crud(method.get("name") or "")
+    if kind in ("update", "delete") and not _has_row_identity(method, args):
+        return None, "update/delete case supplies no primary-key argument"
     when = {
         "service": holder,
         "method": method.get("name"),
-        "args": _complete_create_args(
-            method, _service_args(case_when.get("args") or [], setup), setup),
+        "args": args,
     }
     return _scenario(case, setup, when), None
 
