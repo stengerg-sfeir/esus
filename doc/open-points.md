@@ -185,64 +185,37 @@ entity-name checks, but still exposed model-quality limits:
 - `prompt_library_system`: the answer was truncated/non-JSON.
 
 Qwen is now the verifier model. On the four-prompt sample it produced 27
-cases (16 confirmed); the full 66-prompt builder produced **204 valid cases**
-(87 confirmed), with only `prompt_53` failing JSON generation.
+cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 
-Execution of the 87 confirmed cases, after CRUD-action aliasing and
-service-over-repository preference:
+The current execution result is:
 
+- **83 executed**
 - **4 passed**
-- **45 failed**
-- **22 unbound**
+- **47 failed**
+- **32 unbound**
 
-The failures are informative, not a green light:
+Triage of the findings:
 
-- real disagreements: `prompt_32` pending transitions and `prompt_60`
-  cancellation stock expectations;
-- incomplete setup: missing customer/member/product rows, often causing
-  `*NotFoundError` before the action;
-- non-domain actions: `list_books`, `read_employee`, `sell_product`;
-- unresolved action ambiguity: service and repository both expose the same
-  operation.
+- **20 behavior cases** in **15 behavior groups**;
+- **32 case defects** (missing/duplicate setup, malformed arguments);
+- **27 coverage gaps** (missing or ambiguous generated actions).
 
-The runner and binder are doing their job by refusing or failing incomplete
-cases. A two-pass builder risks recreating `extract_arch.py`, so the boundary
-stays: prompt-only cases, no extracted documents, human review for setup gaps.
+Most failures are case-construction defects: the verifier uses positional
+arguments or aliases the generated method does not accept, omits related rows,
+or asks for an action that does not exist. The behavior groups that remain are
+the ones worth review: state transitions, error semantics, row counts and
+parameterized stock behavior.
 
-Execution now writes a per-project `oracle_report.json`, marks failed/unbound
-cases `needs_review`, and feeds them into `review_queue.py`. The current v8
-queue collapses oracle findings into **16 behavior groups + 10 contradiction
-groups**, plus 11 grounding questions: **37 review items total**, not one per
-candidate case. The candidate assumptions stay in `oracle_cases.json` and do
-not consume the human queue until execution produces evidence.
+Execution writes per-project `oracle_report.json`, marks behavior findings
+`needs_review`, and feeds the review queue. The current queue has **32 items:
+15 behavior groups, 10 contradiction groups and 7 grounding questions**.
+Candidate assumptions stay in `oracle_cases.json` and do not consume the human
+queue until execution produces evidence.
 
-Human-confirmed decisions are now collected into `oracle_spec.json` and fed to
-the verifier without exposing extracted documents. On the 22 prompts that have
-user decisions, the rerun moved from 1→2 passed, but also 22→24 failed and
-4→8 unbound. The decision block alone did not reduce the error count; cases
-still need deterministic completeness checks and review.
-
-`scripts/summarize_oracle.py` groups the findings:
-
-- 18 unbound: missing action;
-- 5 unbound: ambiguous action;
-- 4 unbound: other (including missing related setup);
-- 1 unbound: setup entity;
-- 9 failed: missing setup row;
-- 19 failed: wrong error;
-- 7 failed: state value;
-- 7 failed: row count;
-- 3 failed: harness/setup shape;
-- 3 passed.
-
-Cases whose expected error class is not named by the prompt are now
-`assumed`, not confirmed; a Qwen-invented `InvalidEmailError` no longer looks
-like a requirement gap. The setup-rule rerun reduced duplicate setup from 9 to
-3, but the overall pass count moved from 4 to 3 and failures rose; the builder
-is still not stable enough to scale.
-
-The next decision is review triage, not more generation: classify each group as
-case defect, extraction/generation defect, or real requirement disagreement.
+Human-confirmed decisions are collected into `oracle_spec.json` and fed to the
+verifier without exposing extracted documents. Only 22 prompts currently have
+such decisions, and the decision block alone did not reduce the failure count;
+the builder still needs setup completeness and better action/argument binding.
 
 Phi-4-mini-instruct Q4_K_M was also tested. It produced only 3 valid cases on
 the same sample, with poor source fidelity and entity confusion (it used
