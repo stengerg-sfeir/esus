@@ -190,14 +190,14 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **83 executed**
-- **4 passed**
-- **37 failed**
-- **42 unbound**
+- **5 passed**
+- **39 failed**
+- **39 unbound**
 
 Triage of the findings:
 
-- **18 behavior cases** in **13 behavior groups**;
-- **34 case defects** (missing/duplicate setup, malformed arguments);
+- **20 behavior cases** in **15 behavior groups**;
+- **31 case defects** (missing/duplicate setup, malformed arguments);
 - **27 coverage gaps** (missing or ambiguous generated actions).
 
 Most failures are case-construction defects: the verifier uses positional
@@ -207,8 +207,8 @@ the ones worth review: state transitions, error semantics, row counts and
 parameterized stock behavior.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **30 items:
-13 behavior groups, 10 contradiction groups and 7 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **32 items:
+15 behavior groups, 10 contradiction groups and 7 grounding questions**.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
 

@@ -45,7 +45,7 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertEqual(scenario["setup"][0]["entity"], "Order")
         self.assertEqual(scenario["when"]["service"], "OrderService")
-        self.assertEqual(scenario["when"]["args"], [{"ref": "order.id"}])
+        self.assertEqual(scenario["when"]["args"], {"order_id": {"ref": "order.id"}})
         self.assertEqual(scenario["expect"]["fields"],
                          {"order.status": "cancelled"})
 
@@ -182,6 +182,30 @@ class OracleBinderTests(unittest.TestCase):
                  given={"contact": {"email": "alice@example.com"}}), docs)
         self.assertIsNone(reason)
         self.assertIsNotNone(scenario)
+
+    def test_relationship_ids_come_from_seeded_entities(self):
+        docs = {
+            "models": [
+                {"name": "Book", "fields": [
+                    {"name": "book_id", "primary_key": True},
+                    {"name": "title"}]},
+                {"name": "Member", "fields": [
+                    {"name": "member_id", "primary_key": True}]},
+            ],
+            "services": [{"service_name": "BorrowService", "methods": [{
+                "name": "borrow_book",
+                "params": [{"name": "book_id"}, {"name": "member_id"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "borrow_book",
+                       "args": ["book.title", "member.id"]},
+                 given={"book": {"title": "Book"}, "member": {}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {
+            "book_id": {"ref": "book.id"},
+            "member_id": {"ref": "member.id"},
+        })
 
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(

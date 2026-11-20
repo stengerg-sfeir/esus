@@ -114,6 +114,35 @@ def _has_row_identity(method, args):
     return False
 
 
+def _complete_id_args(method, args, setup):
+    """Fill `<entity>_id` parameters from the matching seeded aliases."""
+    aliases = {normalize(step.get("as") or ""): step for step in setup}
+    kwargs = {}
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            continue
+        name = normalize(param["name"])
+        if not name.endswith("id"):
+            continue
+        base = name[:-2]
+        step = aliases.get(base)
+        if step is not None:
+            kwargs[param["name"]] = {"ref": f"{step.get('as')}.id"}
+    if not kwargs:
+        return args
+    if isinstance(args, dict):
+        kwargs.update(args)
+        return kwargs
+    # If the method only needs IDs, ignore the case's noisy positional values.
+    ids = [param for param in method.get("params") or []
+           if isinstance(param, dict) and normalize(param.get("name") or "").endswith("id")]
+    non_ids = [param for param in method.get("params") or []
+               if isinstance(param, dict) and not normalize(param.get("name") or "").endswith("id")]
+    if not non_ids and len(kwargs) == len(ids):
+        return kwargs
+    return args
+
+
 def _complete_create_args(method, args, setup):
     """For a create, take its values from the case setup, not from positional noise."""
     if codegen.classify_crud(method.get("name") or "") != "create":
@@ -376,8 +405,9 @@ def bind_case(case, docs):
     if bound is None:
         return None, reason
     holder, method = bound
-    args = _complete_create_args(
+    args = _complete_id_args(
         method, _service_args(case_when.get("args") or [], setup), setup)
+    args = _complete_create_args(method, args, setup)
     kind = codegen.classify_crud(method.get("name") or "")
     if kind in ("update", "delete") and not _has_row_identity(method, args):
         return None, "update/delete case supplies no primary-key argument"
