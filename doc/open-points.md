@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,290 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,291 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -171,12 +171,22 @@ Implemented:
 - `scripts/review_oracle.py` lets a human confirm an assumed/ambiguous case;
   `scripts/review_queue.py` includes the pending cases under `oracle`.
 
-A synthetic v8 `prompt_60` cancel/stock case passed end-to-end. The model
-builder has **not** been run yet, so no prompt-derived cases are committed.
+A synthetic v8 `prompt_60` cancel/stock case passed end-to-end. A first
+Ministral sample over `prompt_32`, `prompt_53`, `prompt_60` and
+`prompt_library_system` produced **20 cases**: **13 confirmed**, 5 assumed and
+2 ambiguous. Running the 13 confirmed cases gave **10 unbound and 3 failed,
+0 passed**.
 
-**Next:** start Ministral, run the builder on a small sample, review the
-assumptions, then expand to the 66 prompts. The oracle remains extraction-
-independent, not model-independent.
+The failures are useful: the model wrote nested domain objects
+(`order.products`, `product_stock`), placeholder values (`"today"`,
+`"None"`) and CLI paths where the binder expected service methods. That is a
+builder/binder alignment problem, not a reason to relax the oracle. The model
+output is not committed because the cases are not reviewable yet.
+
+**Next:** tighten the builder schema to flat entity aliases and scalar fields,
+add CLI-path binding or require service actions, and reject placeholder
+values. Then rerun the sample and review before scaling to 66.
+The oracle remains extraction-independent, not model-independent.
 
 ### 8. ✅ Contract scenarios are derived generically (done 2026-11-19)
 
