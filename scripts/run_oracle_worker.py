@@ -28,6 +28,9 @@ def run(project, include_assumed=False):
     raw_cases = case_rules.load_cases(case_path)
     all_cases, _errors = case_rules.validate_cases(
         raw_cases, docs.get("requirements") or "")
+    case_rules.save_cases(
+        case_path, all_cases,
+        prompt_sha=(all_cases[0].get("prompt_sha") if all_cases else None))
     selected = [case for case in all_cases
                 if case.get("status") in ("confirmed", "unbound")
                 or (include_assumed and case.get("status") == "assumed")]

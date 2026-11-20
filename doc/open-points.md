@@ -191,14 +191,14 @@ The current execution result is:
 
 - **83 executed**
 - **5 passed**
-- **35 failed**
-- **43 unbound**
+- **33 failed**
+- **41 unbound**
 
 Triage of the findings:
 
-- **23 behavior cases** in **17 behavior groups**;
-- **34 case defects** (missing/duplicate setup, malformed arguments);
-- **21 coverage gaps** (missing or ambiguous generated actions).
+- **21 behavior cases** in **15 behavior groups**;
+- **33 case defects** (missing/duplicate setup, malformed arguments);
+- **20 coverage gaps** (missing or ambiguous generated actions).
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
@@ -207,8 +207,8 @@ the ones worth review: state transitions, error semantics, row counts and
 parameterized stock behavior.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **34 items:
-17 behavior groups, 10 contradiction groups and 7 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **25 items:
+15 behavior groups, 3 contradiction groups and 7 grounding questions**.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
 

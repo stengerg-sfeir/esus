@@ -177,13 +177,18 @@ def validate_cases(raw, requirements, prompt_sha=None):
                        if _known(x)]
         then, status = _normalise_then(
             then, status, ambiguities, requirements)
+        base_status = item.get("base_status") or (
+            "assumed" if assumptions or ambiguities else status)
+        if base_status == "contradictory":
+            base_status = "assumed"
         case = {
             "id": case_id,
             "source": " ".join(source.split()),
             "given": given,
             "when": when,
             "then": then,
-            "status": status,
+            "status": base_status,
+            "base_status": base_status,
             "assumptions": assumptions,
             "ambiguities": ambiguities,
         }
@@ -191,13 +196,19 @@ def validate_cases(raw, requirements, prompt_sha=None):
             case["prompt_sha"] = prompt_sha
         cases.append(case)
 
-    # Opposite outcomes for the same action and setup are a contradiction,
-    # not two independent tests.
+    # Opposite outcomes for the same action, setup and arguments are a
+    # contradiction, not two independent tests. Start from the recoverable
+    # base status so stale contradictions clear on revalidation.
+    for case in cases:
+        case["status"] = case["base_status"]
     for left in cases:
         for right in cases:
             if left is right or left["when"].get("action") != right["when"].get("action"):
                 continue
             if not _same(left["given"], right["given"]):
+                continue
+            # Different arguments are different scenarios, not contradictions.
+            if not _same(left["when"].get("args"), right["when"].get("args")):
                 continue
             if not _same(left["then"], right["then"]):
                 left["status"] = "contradictory"

@@ -53,6 +53,24 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(valid, [])
         self.assertIn("unknown status", errors[0])
 
+    def test_a_stale_contradiction_can_clear_on_revalidation(self):
+        first = self.case(status="contradictory", base_status="confirmed")
+        second = self.case(id="other", status="contradictory",
+                           base_status="assumed",
+                           when={"action": "cancel_order", "args": ["other.id"]})
+        valid, _errors = cases.validate_cases([first, second], REQUIREMENTS)
+        self.assertEqual({case["status"] for case in valid},
+                         {"confirmed", "assumed"})
+
+    def test_different_arguments_are_not_a_contradiction(self):
+        first = self.case()
+        second = self.case(id="different_amount",
+                           when={"action": "cancel_order",
+                                 "args": ["order.id", 0]})
+        valid, errors = cases.validate_cases([first, second], REQUIREMENTS)
+        self.assertEqual(errors, [])
+        self.assertEqual({case["status"] for case in valid}, {"confirmed"})
+
     def test_opposite_outcomes_are_marked_contradictory(self):
         first = self.case()
         second = self.case(id="cancel_keeps_stock",
