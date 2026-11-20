@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,371 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,372 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -190,16 +190,16 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **22 passed**
-- **8 failed**
+- **24 passed**
+- **6 failed**
 - **49 unbound**
 
 Triage of the findings:
 
-- **4 behavior cases** in **2 behavior groups**;
+- **2 behavior cases** in **1 behavior group**;
 - **30 case defects** (missing/duplicate setup, malformed arguments);
 - **23 coverage gaps** (missing or ambiguous generated actions);
-- **22 passed**.
+- **24 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
@@ -229,8 +229,8 @@ missing surface/method pieces, and `prompt_58` has an empty persistence
 document.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **5 items:
-2 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **4 items:
+1 behavior group, 1 grouped uniqueness decision and 2 grounding questions**.
 Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
@@ -246,19 +246,19 @@ python scripts/review_queue.py out/validation/kaggle-v8 \
   --output /tmp/review-exclude7.json
 ```
 
-That scope has **59 projects**, **62 cases**, **19 passed**, **4 failed** and
-**39 unbound**. Triage: **2 behavior cases in 1 group**, **23 case
-defects**, **18 coverage gaps** and **19 passed**. Its review queue is
-**3 items** (1 behavior group, 1 grounding question and 1 uniqueness
-decision). This is the useful verifier scope until the seven documents are
-re-extracted; it is not a claim that those seven are correct.
+That scope has **59 projects**, **62 cases**, **21 passed**, **2 failed** and
+**39 unbound**. Triage: **23 case defects**, **18 coverage gaps** and
+**21 passed**; no behavior group remains. Its review queue is **2 items**
+(1 grounding question and 1 uniqueness decision). This is the useful verifier
+scope until the seven documents are re-extracted; it is not a claim that those
+seven are correct.
 
 The binder now handles flat and named update arguments, mapping payloads,
 lookup values, missing new values, create payloads that must not be pre-seeded,
 entity aliases (`Audit` -> `AuditLog`), field aliases (`phone` ->
 `phone_number`, `stock_quantity` -> `stock_qty`), boolean availability
 vocabulary, and row-count deltas from setup. These changes moved the excluded
-scope from 4 passed / 24 failed / 34 unbound to 19 passed / 4 failed / 39
+scope from 4 passed / 24 failed / 34 unbound to 21 passed / 2 failed / 39
 unbound. The unbound count rose because incomplete update/create cases are now
 reported as case defects instead of being executed as if their missing values
 were supplied.
@@ -403,7 +403,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,371 passed**.
+is **1,372 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -423,8 +423,14 @@ prompt name or project-specific branch. Acceptance remains **66/66 complete,
 1,023 checks, 0 stubs**, and the verifier's soft-delete/audit behavior groups
 are gone.
 
+The same pass now reads explicit transition evidence such as “starts in
+`pending` and can become `confirmed`, `shipped` or `cancelled`” when it
+synthesizes state-transition contracts. `prompt_32`'s pending-to-shipped and
+pending-to-cancelled cases now pass; the conventional source state remains the
+fallback when the requirements state no transition.
+
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,371 passed**.
+suite is **1,372 passed**.
 
 ## P1/P2 — performance and extraction
 

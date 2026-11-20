@@ -2134,6 +2134,38 @@ def repair_ungrounded_methods(documents, requirements, intentions=None, log=None
     return drops
 
 
+def _transition_evidence(requirements):
+    """`(entity, target) -> source states` stated by the requirements.
+
+    A prompt can say "An order starts in pending and can become confirmed,
+    shipped or cancelled." The extraction has no structured transition table,
+    so the sentence is read here. A missing sentence leaves the method's
+    conventional source state as the fallback.
+    """
+    evidence = {}
+    text = requirements if isinstance(requirements, str) else ""
+    for sentence in re.split(r"[.;\n]", text):
+        match = re.search(
+            r"\b([A-Za-z_][A-Za-z0-9_]*)\s+starts?\s+in\s+"
+            r"(?:the\s+)?`?([A-Za-z_][A-Za-z0-9_]*)`?\s+(?:state\s+)?"
+            r"and\s+can\s+become\s+([^.;\n]+)",
+            sentence, re.IGNORECASE)
+        if not match:
+            continue
+        entity = normalize(match.group(1))
+        source = match.group(2).lower()
+        targets = []
+        for quoted, single, bare in re.findall(
+                r"`([^`]+)`|'([^']+)'|\b([A-Za-z_][A-Za-z0-9_]*)\b",
+                match.group(3)):
+            word = (quoted or single or bare).strip().lower()
+            if word and word not in ("or", "and", "the", "state", "states"):
+                targets.append(word)
+        for target in targets:
+            evidence.setdefault((entity, normalize(target)), set()).add(source)
+    return evidence
+
+
 def repair_contracts(contracts, services, repositories, models, requirements="",
                      log=None):
     """Repair generic contract holes the model can infer from the prompt.
@@ -2187,6 +2219,7 @@ def repair_contracts(contracts, services, repositories, models, requirements="",
         "cancel": ("cancelled", "confirmed"),
         "return": ("returned", None),
     }
+    transition_evidence = _transition_evidence(requirements)
     for service in services or []:
         if not isinstance(service, dict):
             continue
@@ -2216,6 +2249,10 @@ def repair_contracts(contracts, services, repositories, models, requirements="",
             if interface is None:
                 continue
             value, expected = state_verbs[verb]
+            sources = transition_evidence.get(
+                (normalize(entity), normalize(value)), set()).copy()
+            if expected:
+                sources.add(expected)
             binding_name = normalize(entity)
             error = next((item.get("name") for item in models or []
                           if isinstance(item, dict)
@@ -2238,9 +2275,16 @@ def repair_contracts(contracts, services, repositories, models, requirements="",
                     "write": f"{interface}.update",
                 }],
             }
-            if expected:
+            if sources:
+                ordered_sources = sorted(sources)
+                if len(ordered_sources) == 1:
+                    check = (f"{binding_name}.status == "
+                             f"'{ordered_sources[0]}'")
+                else:
+                    check = (f"{binding_name}.status in "
+                             "{" + ", ".join(repr(item) for item in ordered_sources) + "}")
                 record["preconditions"] = [{
-                    "check": f"{binding_name}.status == '{expected}'",
+                    "check": check,
                     "raise_when": "false",
                     "error": error,
                 }]

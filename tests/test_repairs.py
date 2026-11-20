@@ -232,6 +232,35 @@ class ContractRepairTests(unittest.TestCase):
         self.assertEqual(contracts[0]["preconditions"][0]["check"],
                          "order.status == 'confirmed'")
 
+    def test_a_stated_transition_extends_the_conventional_source_state(self):
+        services = [{"service_name": "OrderService", "methods": [
+            {"name": "ship_order",
+             "params": [{"name": "order_id", "type": "int"}],
+             "return_type": "None"},
+            {"name": "cancel_order",
+             "params": [{"name": "order_id", "type": "int"}],
+             "return_type": "None"}]}]
+        repositories = [{"entity": "Order", "interface_name": "OrderRepository",
+                         "methods": [
+                             {"name": "read_one", "params": [
+                                 {"name": "order_id", "type": "int"}]},
+                             {"name": "update", "params": [
+                                 {"name": "order_id", "type": "int"},
+                                 {"name": "status", "type": "str"}]}]}]
+        models = [{"name": "Order", "fields": [
+            {"name": "order_id", "type": "int", "primary_key": True},
+            {"name": "status", "type": "str"}]}]
+        contracts = []
+        repairs.repair_contracts(
+            contracts, services, repositories, models,
+            "An order starts in the `pending` state and can become "
+            "`confirmed`, `shipped` or `cancelled`.")
+        checks = {record["method"]: record["preconditions"][0]["check"]
+                  for record in contracts}
+        self.assertIn("'pending'", checks["ship_order"])
+        self.assertIn("'confirmed'", checks["ship_order"])
+        self.assertIn("'pending'", checks["cancel_order"])
+
     def test_a_param_named_after_the_entity_adds_the_missing_binding(self):
         services = [{"service_name": "LibraryService", "methods": [{
             "name": "borrow_book",
