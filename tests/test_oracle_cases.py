@@ -71,6 +71,16 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual({case["status"] for case in valid}, {"confirmed"})
 
+    def test_assumed_alternative_is_not_promoted_to_contradiction(self):
+        first = self.case()
+        second = self.case(id="alternative", status="assumed",
+                           base_status="assumed",
+                           then={"error": "DuplicateError"})
+        valid, errors = cases.validate_cases([first, second], REQUIREMENTS)
+        self.assertEqual(errors, [])
+        self.assertEqual({case["status"] for case in valid},
+                         {"confirmed", "assumed"})
+
     def test_opposite_outcomes_are_marked_contradictory(self):
         first = self.case()
         second = self.case(id="cancel_keeps_stock",

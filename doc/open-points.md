@@ -207,8 +207,9 @@ the ones worth review: state transitions, error semantics, row counts and
 parameterized stock behavior.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **25 items:
-15 behavior groups, 3 contradiction groups and 7 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **22 items:
+15 behavior groups and 7 grounding questions**. Assumed/ambiguous alternatives
+are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
 

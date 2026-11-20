@@ -210,6 +210,10 @@ def validate_cases(raw, requirements, prompt_sha=None):
             # Different arguments are different scenarios, not contradictions.
             if not _same(left["when"].get("args"), right["when"].get("args")):
                 continue
+            # Assumed/ambiguous alternatives are candidate readings, not a
+            # proven contradiction. Only two confirmed readings conflict.
+            if {left.get("base_status"), right.get("base_status")} != {"confirmed"}:
+                continue
             if not _same(left["then"], right["then"]):
                 left["status"] = "contradictory"
                 right["status"] = "contradictory"
