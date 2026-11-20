@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,271 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,276 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -146,17 +146,22 @@ now visible instead of being implied by a green acceptance run.
 **Regression tests:** `tests/test_requirement_trace.py`. The full suite is
 **1,241 passed**.
 
-### 7b. Independent behavioral oracle (open)
+### 7b. Independent behavioral oracle (in progress)
 
 The trace is lexical. The acceptance harness still derives scenarios and
 fixtures from extracted documents and reviewed contracts, so a coherent
-misunderstanding can remain green. A true oracle needs independently authored
-behavioral requirements and tests, or a different model/process that does not
-share the extraction's interpretation.
+misunderstanding can remain green. The planned oracle uses Ministral as a
+prompt-only case generator, with Qwen reserved for extraction/generation and
+human review resolving assumptions and contradictions.
 
-**Next:** add a small independently authored behavior suite for requirements
-where the trace is `mapped_untested` or `unmapped`, starting with the highest
-risk business rules.
+`scripts/model_runtime.py` now owns the server lifecycle: one model resident at
+a time, with Mac at **1 slot / 16k total** and Kaggle at **2 slots / 32k
+total**. It starts a role, waits for `/health`, and stops only the child it
+started; no unrelated port owner is killed.
+
+**Next:** implement the prompt-only case schema/builder, binder and runner,
+then add the Ministral verification phase. The oracle remains extraction-
+independent, not model-independent.
 
 ### 8. ✅ Contract scenarios are derived generically (done 2026-11-19)
 
