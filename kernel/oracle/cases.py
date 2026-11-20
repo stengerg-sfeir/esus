@@ -86,6 +86,25 @@ def _invalid_then(then):
     return None
 
 
+def _normalise_then(then, status, ambiguities):
+    """Drop schema placeholders/nulls and flag non-class error names."""
+    then = dict(then)
+    error = then.get("error")
+    if isinstance(error, str):
+        lowered = error.strip().lower()
+        if lowered in ("", "none", "null", "no error", "errorname or omit"):
+            then.pop("error", None)
+        elif not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", error.strip()):
+            ambiguities.append(f"error is not a class name: {error!r}")
+            status = "assumed"
+            then.pop("error", None)
+    rows = then.get("rows")
+    if isinstance(rows, dict):
+        then["rows"] = {key: value for key, value in rows.items()
+                        if value is not None}
+    return then, status
+
+
 def validate_cases(raw, requirements, prompt_sha=None):
     """`(cases, errors)`: valid normalized cases and human-readable refusals."""
     if isinstance(raw, dict):
@@ -144,6 +163,11 @@ def validate_cases(raw, requirements, prompt_sha=None):
         if status not in STATUSES:
             errors.append(f"{label}: unknown status {status!r}")
             continue
+        assumptions = [str(x) for x in item.get("assumptions") or []
+                       if _known(x)]
+        ambiguities = [str(x) for x in item.get("ambiguities") or []
+                       if _known(x)]
+        then, status = _normalise_then(then, status, ambiguities)
         case = {
             "id": case_id,
             "source": " ".join(source.split()),
@@ -151,10 +175,8 @@ def validate_cases(raw, requirements, prompt_sha=None):
             "when": when,
             "then": then,
             "status": status,
-            "assumptions": [str(x) for x in item.get("assumptions") or []
-                            if _known(x)],
-            "ambiguities": [str(x) for x in item.get("ambiguities") or []
-                            if _known(x)],
+            "assumptions": assumptions,
+            "ambiguities": ambiguities,
         }
         if prompt_sha:
             case["prompt_sha"] = prompt_sha

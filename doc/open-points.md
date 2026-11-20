@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,296 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,298 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -184,14 +184,28 @@ entity-name checks, but still exposed model-quality limits:
   cancellation case omitted the order line, so stock was not restored.
 - `prompt_library_system`: the answer was truncated/non-JSON.
 
-The failures are useful: the oracle correctly refuses to treat these as
-verified behavior. They show that a 3B verifier needs a stricter two-step
-builder (entity/action extraction, then cases) or a stronger model; the runner
-and binder are not the problem.
+A Qwen verifier-context test on the same four prompts produced **27 valid
+cases** (16 confirmed) instead of 9. It was much better at JSON and schema
+shape, but execution still gave **1 passed, 14 failed, 1 unbound**:
 
-**Next:** decide whether to use Qwen in a separate verifier context or improve
-Ministral with a structured two-pass builder. The oracle remains extraction-
-independent, not model-independent.
+- `prompt_32` cases used pending→cancel/ship transitions the generated code
+  refuses; this is a real requirement/implementation disagreement.
+- `prompt_53` cases omitted the customer row required by `place_order`.
+- `prompt_60` cancellation still omitted the order line, so stock was unchanged.
+- `prompt_library_system` produced one passing return/already-returned case,
+  plus a missing `list_books` action.
+
+The failures are useful: the oracle correctly refuses to treat these as
+verified behavior. Qwen is a better case generator than Ministral 3B, but it
+still needs relation-complete setup and review; the runner and binder are not
+the problem. A two-pass builder risks recreating `extract_arch.py`, so the
+current boundary stays: prompt-only cases, no extracted documents, human
+review for gaps.
+
+**Next:** improve setup completeness for relational cases and let the review
+queue accept/reject these cases before scaling, rather than building a second
+architecture extractor. The oracle remains extraction-independent, not model-
+independent.
 
 ### 8. ✅ Contract scenarios are derived generically (done 2026-11-19)
 

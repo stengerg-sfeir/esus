@@ -75,6 +75,8 @@ Rules:
 - Do not use placeholder values such as "today", "None", "auto_incremented_int",
   "unknown", or "authenticated". Use a concrete value, or mark the case assumed/
   ambiguous and explain it.
+- `error` must be a single class identifier such as `InsufficientStockError`, or
+  omitted. Do not write a sentence, a status, or "ErrorName or omit".
 - Do not write test code. Output JSON only.
 
 REQUIREMENTS:

@@ -82,6 +82,21 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual(valid[0]["when"]["cli"][0], "order")
 
+    def test_schema_error_placeholders_are_removed(self):
+        case = self.case(then={"state": {"order.status": "cancelled"},
+                               "error": "ErrorName or omit"})
+        valid, errors = cases.validate_cases([case], REQUIREMENTS)
+        self.assertEqual(errors, [])
+        self.assertNotIn("error", valid[0]["then"])
+
+    def test_a_free_text_error_becomes_an_assumed_case(self):
+        case = self.case(then={"state": {"order.status": "cancelled"},
+                               "error": "order cannot be cancelled"})
+        valid, errors = cases.validate_cases([case], REQUIREMENTS)
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["status"], "assumed")
+        self.assertNotIn("error", valid[0]["then"])
+
     def test_assumptions_enter_the_review_queue(self):
         case = self.case(status="assumed", assumptions=["stock starts at 3"])
         valid, _errors = cases.validate_cases([case], REQUIREMENTS)
