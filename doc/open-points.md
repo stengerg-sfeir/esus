@@ -236,20 +236,26 @@ flag repairs after the first mechanical adapter derivation declines, then
 retries the derivation before asking the model. A synthetic test proves the
 repair → retry path (`AdapterRetryTests`).
 
-Measurement status:
+Kaggle measurement (`repro66-20261120-074359`, one decode slot because the
+notebook was still on the single-slot setting; v8 used two slots):
 
-- A full one-slot Mac run was started; **42/66** prompts were checkpointed
-  before the server degraded to ~0.2 tok/s and prompt 42 took 96 minutes.
-  That partial run predates the retry change.
-- On a fresh server, `prompt_01` after the change made **0** adapter calls
-  versus **1** in v8.
-- A representative retry subset could not be completed reliably on this host;
-  the full 66-prompt measurement is still required on a stable/Kaggle server.
+- **43 successful / 23 review / 0 failed** (v8: 42 / 24 / 0);
+- **526 model calls**, 197,685 output tokens, 290,995 prompt tokens;
+- **4,266 s** wall time; this is **not comparable** to v8's 3,596 s because
+  the run used one slot instead of two;
+- **62 adapter calls across 45 prompts**, 50,959 tokens, 1,048.8 s
+  (v8: 63 calls, 50,369 tokens, 861.4 s).
 
-**Next:** rerun the 66 prompts on the standard two-slot Kaggle server and
-compare `[interaction_adapters]` calls/tokens/time plus acceptance. The retry
-does not change the adapter semantics when the documents already proved a
-mapping.
+Adapter call changes were mixed: prompt_01 1→0, prompt_45 1→0, prompt_29
+2→1, but prompt_27 0→1 and prompt_28 0→1. The pre-model retry saved only one
+call net. The common remaining declines are "no CLI leaves", same-entity
+ambiguous create/read_all methods, a leaf verb with no matching method, and a
+flag that maps to no parameter.
+
+**Next:** improve the deterministic tie-breaks for same-entity create/read_all
+methods and rerun the 66 prompts on the two-slot Kaggle server before claiming
+a P2-11 win. The retry does not change adapter semantics when the documents
+already proved a mapping.
 
 ### 12. ✅ Inferred write methods have provenance (done 2026-11-19)
 
