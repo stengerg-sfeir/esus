@@ -1995,6 +1995,29 @@ def ungrounded_methods(services, repositories, models, requirements,
                   if isinstance(field, dict) and field.get("name")}
         if not fields:
             return
+        returns = str(method.get("return_type") or "")
+        known_types = set(model_by_name) | {
+            "list", "dict", "tuple", "set", "optional", "union", "any",
+            "none", "str", "int", "float", "bool", "datetime", "date",
+        }
+        for token in re.findall(r"[A-Z][A-Za-z0-9_]*", returns):
+            key_type = normalize(token)
+            if key_type in known_types or key_type in normalize(requirements):
+                continue
+            reasons[key] = (
+                f"return type {token!r} is not a declared model or prompt type")
+            return
+        # A `..._by_region`/`..._by_dimension` name needs that dimension in
+        # either the prompt or the model. This catches parameterless methods
+        # that a parameter-only check cannot see.
+        for dimension in re.findall(r"_by_([a-z][a-z0-9_]*)",
+                                    str(name).lower()):
+            dimension = normalize(dimension)
+            if dimension not in fields and dimension not in normalize(requirements):
+                reasons[key] = (
+                    f"grouping dimension {dimension!r} is not in the prompt "
+                    f"or {model.get('name')} fields")
+                return
         method_key = normalize(name)
         if method_key.startswith(("create", "read", "update", "delete")):
             return

@@ -308,6 +308,20 @@ class LibraryGuiMechanicalTests(unittest.TestCase):
         self.assertIn("Notification to", "\n".join(body))
         self.assertIn("print(message)", body)
 
+    def test_capacity_guard_uses_child_stock_and_parent_capacity(self):
+        body = generator._service_capacity_guard_body(
+            self.ctx(), "WineInventoryService",
+            method("check_storage_location_capacity",
+                   [("location_id", "str"), ("wine_id", "int")], "bool",
+                   description="Check storage location capacity."),
+            [("location_id", "location_id", "str"),
+             ("wine_id", "wine_id", "int")], "bool")
+        self.assertIsNotNone(body)
+        text = "\n".join(body)
+        self.assertIn("maximum_capacity", text)
+        self.assertIn("stock_quantity", text)
+        self.assertIn("capacity exceeded", text)
+
     def test_negative_stock_guard(self):
         body = generator._service_negative_stock_body(
             self.ctx(), "WineInventoryService",

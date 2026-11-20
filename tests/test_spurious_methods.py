@@ -80,6 +80,39 @@ class SpuriousMethodTests(unittest.TestCase):
             docs, "A task application. Import tasks and validate the input.")
         self.assertEqual(len(docs["service_contracts"][0]["methods"]), 1)
 
+    def test_a_dimension_absent_from_prompt_and_model_is_dropped(self):
+        docs = {
+            "data_models": [{"name": "Customer", "fields": [
+                {"name": "customer_id", "primary_key": True},
+                {"name": "name"}]}],
+            "service_contracts": [{"service_name": "CustomerRepository",
+                                   "methods": [{
+                "name": "get_customer_count_by_region", "params": []}]}],
+            "persistence_ports": {"repositories": []},
+            "interaction_adapters": [],
+            "pattern_matches": [],
+        }
+        repairs.repair_ungrounded_methods(
+            docs, "A shop application. Keep track of customers.")
+        self.assertFalse(docs["service_contracts"])
+
+    def test_an_undeclared_return_dto_is_dropped(self):
+        docs = {
+            "data_models": [{"name": "Order", "fields": [
+                {"name": "order_id", "primary_key": True}]}],
+            "service_contracts": [{"service_name": "OrderRepository",
+                                   "methods": [{
+                "name": "get_orders_with_customer_name",
+                "params": [{"name": "customer_id"}],
+                "return_type": "List[OrderWithCustomerName]"}]}],
+            "persistence_ports": {"repositories": []},
+            "interaction_adapters": [],
+            "pattern_matches": [],
+        }
+        repairs.repair_ungrounded_methods(
+            docs, "A customer and order application.")
+        self.assertFalse(docs["service_contracts"])
+
     def test_a_model_grounded_return_is_kept(self):
         docs = {
             "data_models": [{"name": "Book", "fields": [

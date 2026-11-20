@@ -29,8 +29,8 @@ fixtures. The stored v8 artifact has no `not_applicable` checks.
 
 The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
-the stored v8 code now gives **56/66 complete projects, 1,073 passed checks,
-7 generated stubs, 0 failures**. The separate requirement trace still reports 37 unmapped,
+the stored v8 code now gives **52/66 complete projects, 1,073 passed checks,
+3 generated stubs, 0 failures**. The separate requirement trace still reports 37 unmapped,
 11 partial and 127 mapped-but-untested clauses; those remain review targets
 (item 7b), not proof of semantic coverage.
 
@@ -461,7 +461,7 @@ Final result on `out/validation/bench` (historical 2026-11-16 archive):
 - `python3 -m compileall out/validation/bench` is clean.
 
 The current 66-project v8 result above supersedes these counts: **56/66
-complete, 1,073 passed checks, 7 generated stubs, 0 failures**. The generic harness now includes
+complete, 1,073 passed checks, 3 generated stubs, 0 failures**. The generic harness now includes
 state-effect scenarios for cancellation and return, so the older
 `not_applicable` checks are no longer skipped.
 

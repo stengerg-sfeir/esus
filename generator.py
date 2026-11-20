@@ -1518,6 +1518,17 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "contained-name filter")
                 continue
+            related = _repo_related_collection_body(
+                ctx, entity, model_cls, method)
+            if related is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical parent + children]"""']
+                lines.extend("        " + line if line else "" for line in related)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "parent + children")
+                continue
             check_stock = _repo_check_stock_body(ctx, entity, model_cls, method)
             if check_stock is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -1780,6 +1791,48 @@ def _repo_cancel_stock_body(ctx, entity, model_cls, method):
     if normalize(method.get("return_type") or "") in ("bool", "boolean"):
         lines.append("return True")
     return lines
+
+
+def _repo_related_collection_body(ctx, entity, model_cls, method):
+    """Return a parent and the child rows that point to it.
+
+    The shape is `get_parent_with_children(parent_id) ->
+    tuple[Parent, list[Child]]`; the child FK and both model classes are in
+    the model graph, so the body is mechanical.
+    """
+    returns = str(method.get("return_type") or "")
+    words = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", returns))
+    normalized = {normalize(word) for word in words}
+    child = next((name for name in ctx.get("entity_names") or []
+                  if normalize(name) in normalized
+                  and normalize(name) != normalize(entity)), None)
+    if child is None or "list" not in returns.lower() \
+            or "tuple" not in returns.lower():
+        return None
+    child_model = model_of(ctx, child)
+    if child_model is None:
+        return None
+    foreign = next((field.get("name") for field in child_model.get("fields") or []
+                    if isinstance(field, dict)
+                    and isinstance(field.get("foreign_key"), dict)
+                    and normalize(field["foreign_key"].get("target_entity") or "")
+                    == normalize(entity)), None)
+    if foreign is None:
+        return None
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    key = codegen.sanitize(params[0], "param")
+    error = _registered_error(ctx, entity)
+    parent_error = f"errors.{codegen.sanitize(error)}" if error else "None"
+    parent_cls = model_cls or f"models.{codegen.sanitize(entity)}"
+    child_cls = f"models.{codegen.sanitize(child)}"
+    return [
+        f"parent = self._store.get(self.ENTITY, self.PK, {key}, error={parent_error})",
+        f"rows = self._store.select({child!r}, [({foreign!r}, 'eq', {key})])",
+        f"return ({parent_cls}(**parent), [{child_cls}(**row) for row in rows])",
+    ]
 
 
 def _repo_check_stock_body(ctx, entity, model_cls, method):
@@ -3763,6 +3816,84 @@ def _is_date_type(declared):
     return str(declared or "").strip().lower() in ("date", "datetime", "timestamp")
 
 
+def _service_capacity_guard_body(ctx, service_name, method, params, returns):
+    """A bool guard rejecting a child addition over a parent capacity."""
+    if normalize(returns) not in ("bool", "boolean"):
+        return None
+    text = normalize(str(method.get("name") or "") + " " +
+                     str(method.get("description") or ""))
+    if "capacity" not in text:
+        return None
+    parent = None
+    parent_id = None
+    for raw, ident, _kind in params:
+        base = normalize(raw)
+        if not base.endswith("id"):
+            continue
+        candidate = next((name for name in ctx.get("entity_names") or []
+                          if normalize(name) == base[:-2]
+                          or normalize(name).endswith(base[:-2])
+                          or normalize(name) in base), None)
+        if candidate and any("capacity" in normalize(field.get("name") or "")
+                             for field in (model_of(ctx, candidate) or {}).get("fields") or []):
+            parent, parent_id = candidate, ident
+            break
+    if parent is None:
+        return None
+    child = next((name for name in ctx.get("entity_names") or []
+                  if name != parent
+                  and any(isinstance(field.get("foreign_key"), dict)
+                          and normalize(field["foreign_key"].get("target_entity") or "")
+                          == normalize(parent)
+                          for field in (model_of(ctx, name) or {}).get("fields") or [])
+                  and any("stock" in normalize(field.get("name") or "")
+                          or "quantity" in normalize(field.get("name") or "")
+                          for field in (model_of(ctx, name) or {}).get("fields") or [])),
+                 None)
+    parent_repo = next((repo for repo in ctx.get("repositories") or []
+                        if normalize(repo.get("entity") or "") == normalize(parent)), None)
+    child_repo = next((repo for repo in ctx.get("repositories") or []
+                       if normalize(repo.get("entity") or "") == normalize(child)), None)
+    if child is None or parent_repo is None or child_repo is None:
+        return None
+    capacity = next((field["name"] for field in
+                     (model_of(ctx, parent) or {}).get("fields") or []
+                     if isinstance(field, dict)
+                     and "capacity" in normalize(field.get("name") or "")), None)
+    quantity = next((field["name"] for field in
+                     (model_of(ctx, child) or {}).get("fields") or []
+                     if isinstance(field, dict)
+                     and ("stock" in normalize(field.get("name") or "")
+                          or "quantity" in normalize(field.get("name") or ""))), None)
+    fk = next((field["name"] for field in (model_of(ctx, child) or {}).get("fields") or []
+               if isinstance(field, dict)
+               and isinstance(field.get("foreign_key"), dict)
+               and normalize(field["foreign_key"].get("target_entity") or "")
+               == normalize(parent)), None)
+    if not capacity or not quantity or not fk:
+        return None
+    error = _error_named(ctx, "overcapacity", "capacity", "location")
+    error_expr = error or "ValueError"
+    parent_holder = codegen.sanitize(parent_repo.get("interface_name") or parent, "Repository")
+    child_holder = codegen.sanitize(child_repo.get("interface_name") or child, "Repository")
+    child_read = next((m.get("name") for m in child_repo.get("methods") or []
+                       if isinstance(m, dict) and normalize(m.get("name") or "") == "readall"), None)
+    parent_read = next((m.get("name") for m in parent_repo.get("methods") or []
+                        if isinstance(m, dict) and normalize(m.get("name") or "") == "readone"), None)
+    if not child_read or not parent_read:
+        return None
+    return [
+        f"location = self._repos[{parent_holder!r}].{parent_read}({parent_id})",
+        "if location is None:",
+        f"    raise {error_expr}('location not found')",
+        f"wines = self._repos[{child_holder!r}].{child_read}({fk}={parent_id})",
+        f"used = sum((item.{quantity} or 0) for item in wines)",
+        f"if used + 1 > location.{capacity}:",
+        f"    raise {error_expr}('storage location capacity exceeded')",
+        "return True",
+    ]
+
+
 def _service_notification_body(method, params, returns):
     """Log a notification for a side-effect method the prompt asks to log."""
     text = normalize(str(method.get("name") or "") + " " +
@@ -4124,6 +4255,18 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "closed-contract", True,
                             compile_reason)
                     continue
+            capacity_guard = _service_capacity_guard_body(
+                ctx, name, method, params, returns)
+            if capacity_guard is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical capacity guard]"""']
+                lines.extend("        " + line if line else ""
+                             for line in capacity_guard)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "capacity guard")
+                continue
             notification = _service_notification_body(method, params, returns)
             if notification is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
