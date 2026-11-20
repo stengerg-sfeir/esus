@@ -1,6 +1,6 @@
 # ESUS active backlog
 
-Last updated: 2026-11-19  
+Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
 Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,271 unit tests passed**
 
@@ -9,11 +9,12 @@ This is the active backlog. The older list in
 contains claims that have since been superseded, notably that acceptance exists
 only for the library and expenses prompts.
 
-The stored v8 acceptance artifact is green, but it is not yet an
-independent proof of semantic coverage. The checked-in scenario suite now
-contains additional CLI fixtures beyond that 1,073-check artifact; replaying
-the stored v8 code against them is not green yet and is tracked under item 8.
-The priorities below reflect both distinctions.
+The stored v8 acceptance artifact is green and the checked-in CLI fixtures are
+now aligned with it: **66/66 projects, 1,073 checks, 0 failed, 0 not
+applicable**. This is still not an independent proof of semantic coverage; the
+requirement trace explicitly reports unmapped and untested clauses under item
+7b. The latest Kaggle extraction is `repro66-20261120-074359` (43 successful /
+23 review / 0 failed).
 
 ## P0 — correctness and trust
 
