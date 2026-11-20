@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 
 from kernel.extraction import runner  # noqa: E402
 from kernel.extraction.decisions import requirements_sha  # noqa: E402
-from kernel.oracle import cases as case_rules  # noqa: E402
+from kernel.oracle import cases as case_rules, resolved  # noqa: E402
 
 SCHEMA = """{
   "cases": [
@@ -48,7 +48,7 @@ SCHEMA = """{
 }"""
 
 
-def build_prompt(requirements):
+def build_prompt(requirements, resolved_section=""):
     return f"""You are a requirements analyst. Read only the requirements below.
 Do not use or infer an extracted architecture, database schema, method contract
 or generated code. Produce externally observable behavioral cases.
@@ -88,6 +88,8 @@ Rules:
 
 REQUIREMENTS:
 {requirements}
+
+{resolved_section}
 """
 
 
@@ -147,9 +149,13 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
     except OSError:
         raise SystemExit(f"no requirements.txt in {project}")
+    decisions, sha = resolved.collect(project)
+    (project / "oracle_spec.json").write_text(
+        json.dumps({"requirements_sha": sha, "decisions": decisions},
+                   indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     llm = runner.load_model(model_path, context_size=context, quiet=True)
     framing = runner.generate_chat if runner.has_chat_template(llm) else runner.generate_free
-    prompt = build_prompt(requirements)
+    prompt = build_prompt(requirements, resolved.prompt_section(project))
     result = framing(llm, prompt, f"oracle:{project.name}",
                      temperature=0.0, max_new_tokens=max_new_tokens)
     if result.truncated:
