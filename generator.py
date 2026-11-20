@@ -3816,6 +3816,130 @@ def _is_date_type(declared):
     return str(declared or "").strip().lower() in ("date", "datetime", "timestamp")
 
 
+def _service_validate_collection_body(ctx, service_name, method, params, returns):
+    """Return required-field errors for an imported collection."""
+    text = normalize(str(method.get("name") or "") + " " +
+                     str(method.get("description") or ""))
+    if "list" not in normalize(returns) or not any(
+            word in text for word in ("validat", "import")):
+        return None
+    entity = _entity_for_service(ctx, service_name)
+    if entity is None:
+        return None
+    model = model_of(ctx, entity)
+    if model is None:
+        return None
+    required = [
+        field["name"] for field in model.get("fields") or []
+        if isinstance(field, dict) and field.get("name")
+        and not field.get("primary_key")
+        and field.get("nullable") is False
+        and not normalize(field.get("name") or "").endswith("at")
+    ]
+    collection = next((ident for raw, ident, _kind in params
+                       if "data" in normalize(raw) or "items" in normalize(raw)),
+                      None)
+    if collection is None:
+        return None
+    lines = ["errors = []"]
+    lines += [f"for item in {collection} or []:",
+              "    if not isinstance(item, dict):",
+              "        errors.append('item must be an object')",
+              "        continue"]
+    for field in required:
+        lines += [f"    if not item.get({field!r}):",
+                  f"        errors.append({f'{entity}.{field} is required'!r})"]
+    lines.append("return errors")
+    return lines
+
+
+def _service_return_book_body(ctx, service_name, method, params, returns):
+    """Return a borrowed book: close the active record and make it available."""
+    text = normalize(str(method.get("name") or "") + " " +
+                     str(method.get("description") or ""))
+    if "return" not in text or "book" not in text:
+        return None
+    book = next((name for name in ctx.get("entity_names") or []
+                 if any(isinstance(field, dict)
+                        and ("available" in normalize(field.get("name") or "")
+                             or "status" in normalize(field.get("name") or ""))
+                        for field in (model_of(ctx, name) or {}).get("fields") or [])),
+                None)
+    if book is None:
+        return None
+    record = next((name for name in ctx.get("entity_names") or []
+                   if name != book and any(
+                       isinstance(field.get("foreign_key"), dict)
+                       and normalize(field["foreign_key"].get("target_entity") or "")
+                       == normalize(book)
+                       for field in (model_of(ctx, name) or {}).get("fields") or [])
+                   and any(normalize(field.get("name") or "") in (
+                       "isreturned", "returndate") for field in
+                       (model_of(ctx, name) or {}).get("fields") or [])), None)
+    if record is None:
+        return None
+    record_model = model_of(ctx, record) or {}
+    book_model = model_of(ctx, book) or {}
+    record_pk = primary_key_of(ctx, record)
+    book_pk = primary_key_of(ctx, book)
+    returned = next((field["name"] for field in record_model.get("fields") or []
+                     if isinstance(field, dict)
+                     and normalize(field.get("name") or "") == "isreturned"), None)
+    return_date = next((field["name"] for field in record_model.get("fields") or []
+                        if isinstance(field, dict)
+                        and normalize(field.get("name") or "") in
+                        ("returndate", "returneddate")), None)
+    available = next((field["name"] for field in book_model.get("fields") or []
+                      if isinstance(field, dict)
+                      and "available" in normalize(field.get("name") or "")),
+                     None)
+    if not available or not (returned or return_date):
+        return None
+    record_repo = next((repo for repo in ctx.get("repositories") or []
+                        if normalize(repo.get("entity") or "") == normalize(record)), None)
+    book_repo = next((repo for repo in ctx.get("repositories") or []
+                      if normalize(repo.get("entity") or "") == normalize(book)), None)
+    if record_repo is None or book_repo is None:
+        return None
+    read_all = next((m.get("name") for m in record_repo.get("methods") or []
+                     if isinstance(m, dict) and normalize(m.get("name") or "") == "readall"), None)
+    update_record = next((m.get("name") for m in record_repo.get("methods") or []
+                          if isinstance(m, dict) and normalize(m.get("name") or "") == "update"), None)
+    update_book = next((m.get("name") for m in book_repo.get("methods") or []
+                        if isinstance(m, dict) and normalize(m.get("name") or "") == "update"), None)
+    if not read_all or not update_record or not update_book:
+        return None
+    record_holder = codegen.sanitize(record_repo.get("interface_name") or record, "Repository")
+    book_holder = codegen.sanitize(book_repo.get("interface_name") or book, "Repository")
+    names = {normalize(raw): ident for raw, ident, _kind in params}
+    book_param = next((ident for raw, ident in names.items() if raw.endswith("bookid")), None)
+    member_param = next((ident for raw, ident in names.items() if raw.endswith("memberid")), None)
+    if not book_param:
+        return None
+    criteria = f"{book_param}={book_param}" + (f", {member_param}={member_param}" if member_param else "")
+    if returned:
+        condition = f"getattr(record, {returned!r}, None)"
+        changes = f"{returned}=True"
+        if return_date:
+            changes += f", {return_date}=datetime.datetime.now()"
+    else:
+        condition = f"getattr(record, {return_date!r}, None) is not None"
+        changes = f"{return_date}=datetime.datetime.now()"
+    error = "errors.BorrowRecordNotFoundError" if any(
+        isinstance(item, dict) and "BorrowRecord" in str(item.get("name") or "")
+        for item in ctx.get("errors") or []) else "ValueError"
+    return [
+        f"records = self._repos[{record_holder!r}].{read_all}({criteria})",
+        "for record in records:",
+        f"    if {condition}:",
+        "        continue",
+        f"    self._repos[{record_holder!r}].{update_record}({record_pk}=record.{record_pk}, {changes})",
+        f"    self._repos[{book_holder!r}].{update_book}({book_pk}={book_param}, {available}=True)",
+        "    return",
+        f"raise {error}('borrow record not found')",
+    ]
+
+
 def _service_capacity_guard_body(ctx, service_name, method, params, returns):
     """A bool guard rejecting a child addition over a parent capacity."""
     if normalize(returns) not in ("bool", "boolean"):
@@ -4255,6 +4379,30 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "closed-contract", True,
                             compile_reason)
                     continue
+            validate_collection = _service_validate_collection_body(
+                ctx, name, method, params, returns)
+            if validate_collection is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical collection validation]"""']
+                lines.extend("        " + line if line else ""
+                             for line in validate_collection)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "collection validation")
+                continue
+            return_book = _service_return_book_body(
+                ctx, name, method, params, returns)
+            if return_book is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical return]"""']
+                lines.extend("        " + line if line else ""
+                             for line in return_book)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "return book")
+                continue
             capacity_guard = _service_capacity_guard_body(
                 ctx, name, method, params, returns)
             if capacity_guard is not None:

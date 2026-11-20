@@ -2040,12 +2040,25 @@ def ungrounded_methods(services, repositories, models, requirements,
         holder = service.get("service_name")
         for method in service.get("methods") or []:
             inspect(holder, method)
+    service_high_level = {
+        normalize(method.get("name"))
+        for service in services or [] if isinstance(service, dict)
+        for method in service.get("methods") or []
+        if isinstance(method, dict)
+        and normalize(method.get("name") or "").startswith(("import", "export"))
+    }
     for repo in repositories or []:
         if not isinstance(repo, dict):
             continue
         holder = repo.get("interface_name") or repo.get("entity")
         for method in repo.get("methods") or []:
             inspect(holder, method)
+            name = method.get("name") if isinstance(method, dict) else None
+            if isinstance(name, str) and normalize(name).startswith(
+                    ("import", "export")) \
+                    and normalize(name) in service_high_level:
+                reasons[(holder, name)] = (
+                    "repository duplicates the higher-level service operation")
     return [(holder, method, reason) for (holder, method), reason in reasons.items()]
 
 

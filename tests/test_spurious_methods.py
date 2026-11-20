@@ -113,6 +113,28 @@ class SpuriousMethodTests(unittest.TestCase):
             docs, "A customer and order application.")
         self.assertFalse(docs["service_contracts"])
 
+    def test_a_repository_import_twin_is_dropped(self):
+        docs = {
+            "data_models": [{"name": "Task", "fields": [
+                {"name": "task_id", "primary_key": True}]}],
+            "service_contracts": [
+                {"service_name": "TaskService", "methods": [
+                    {"name": "import_tasks_from_json", "params": []}]},
+                {"service_name": "TaskRepository", "methods": [
+                    {"name": "import_tasks_from_json", "params": []}]},
+            ],
+            "persistence_ports": {"repositories": [{
+                "entity": "Task", "interface_name": "TaskRepository",
+                "methods": [{"name": "import_tasks_from_json", "params": []}]}]},
+            "interaction_adapters": [], "pattern_matches": [],
+        }
+        repairs.repair_ungrounded_methods(
+            docs, "A task application. Import tasks from JSON.")
+        self.assertFalse(any(
+            m.get("name") == "import_tasks_from_json"
+            for repo in docs["persistence_ports"]["repositories"]
+            for m in repo.get("methods") or []))
+
     def test_a_model_grounded_return_is_kept(self):
         docs = {
             "data_models": [{"name": "Book", "fields": [
