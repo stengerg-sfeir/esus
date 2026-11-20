@@ -26,18 +26,19 @@ SCHEMA = """{
   "cases": [
     {
       "id": "short_unique_id",
-      "source": "exact sentence from the requirements",
+      "source": "exact sentence or command example from the requirements",
       "given": {
-        "alias": {"field": "value"}
+        "order": {"status": "pending", "customer_id": 1},
+        "product": {"stock_quantity": 5}
       },
       "when": {
-        "action": "public action or method named by the requirement",
-        "args": ["alias.field or literal"]
+        "action": "cancel_order",
+        "args": ["order.id"]
       },
       "then": {
-        "state": {"alias.field": "expected value"},
+        "state": {"order.status": "cancelled", "product.stock_quantity": 7},
         "error": "ErrorName or omit",
-        "rows": {"Entity": 1}
+        "rows": {"Order": 1}
       },
       "status": "confirmed | assumed | ambiguous | contradictory",
       "assumptions": ["only when status is assumed"],
@@ -57,12 +58,23 @@ Return one JSON object matching this schema:
 
 Rules:
 - `source` must be copied exactly from a sentence or command example in the requirements.
-- Use only behavior the requirements state. If a value or transition is not stated,
-  use status `assumed` or `ambiguous` and explain the gap. Never silently fill it.
+- Use only entities, fields and actions explicitly named in the requirements. Never
+  add an entity because it is common in similar applications.
+- Produce at most 8 cases, choosing the highest-risk behavior.
+- If a required entity, transition or value is not stated, use status `assumed` or
+  `ambiguous` and explain the gap. Never silently fill it.
 - If two requirements contradict, mark the affected cases `contradictory`.
 - Prefer public actions a user can perform; do not invent implementation details.
 - A case with no concrete expected outcome is not a test; leave it out or mark it ambiguous.
-- `given` values are state before the action. `then.state` is state after the action.
+- `given` must be a flat mapping of entity alias -> field -> scalar value. Do not
+  nest domain objects or lists. For multiple rows, use aliases such as `book_1`,
+  `book_2`.
+- `then.state` must be flat `alias.field` -> scalar value. Do not nest objects.
+- `when` is either a service action (`action` + `args`) or a CLI path
+  (`"cli": ["library", "book", "add", "--title=..."]`).
+- Do not use placeholder values such as "today", "None", "auto_incremented_int",
+  "unknown", or "authenticated". Use a concrete value, or mark the case assumed/
+  ambiguous and explain it.
 - Do not write test code. Output JSON only.
 
 REQUIREMENTS:
@@ -119,7 +131,7 @@ def parse_payload(text):
         return None
 
 
-def build_one(project, model_path, context=8192, max_new_tokens=4096,
+def build_one(project, model_path, context=8192, max_new_tokens=8192,
               out=print):
     project = Path(project)
     try:
@@ -160,7 +172,7 @@ def main(argv=None):
     parser.add_argument("--only", default=None,
                         help="comma-separated prompt names")
     parser.add_argument("--context", type=int, default=8192)
-    parser.add_argument("--max-new-tokens", type=int, default=4096)
+    parser.add_argument("--max-new-tokens", type=int, default=8192)
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -173,11 +185,20 @@ def main(argv=None):
     if not projects:
         raise SystemExit(f"no prompt directories under {root}")
     total = 0
+    failed = []
     for project in projects:
-        valid, _errors = build_one(project, args.model, args.context,
-                                   args.max_new_tokens)
+        try:
+            valid, _errors = build_one(project, args.model, args.context,
+                                       args.max_new_tokens)
+        except (SystemExit, RuntimeError, OSError) as error:
+            failed.append(project.name)
+            print(f"{project.name}: oracle build failed ({error})")
+            continue
         total += len(valid)
     print(f"total: {total} oracle case(s)")
+    if failed:
+        print("failed prompts: " + ", ".join(failed))
+        return 1
     return 0
 
 

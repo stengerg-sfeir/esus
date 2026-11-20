@@ -49,6 +49,24 @@ class OracleBinderTests(unittest.TestCase):
         self.assertEqual(scenario["expect"]["fields"],
                          {"order.status": "cancelled"})
 
+    def test_named_service_args_become_kwargs(self):
+        scenario, reason = binder.bind_case(
+            case(when={"action": "cancel_order", "args": ["order_id=1"]}),
+            DOCS)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {"order_id": 1})
+
+    def test_a_cli_path_binds_to_the_generated_surface(self):
+        docs = dict(DOCS)
+        docs["components"] = {"facade": {"invocation": {"commands": [{
+            "name": "order", "subcommands": [{"name": "cancel", "options": []}]
+        }]}}}
+        scenario, reason = binder.bind_case(
+            case(when={"action": "order cancel", "args": ["--order-id=1"]}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["cli"],
+                         ["order", "cancel", "--order-id=1"])
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

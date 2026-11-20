@@ -34,6 +34,12 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual(valid[0]["id"], "cancel_releases_stock")
 
+    def test_backticks_and_terminal_punctuation_do_not_break_the_span(self):
+        valid, errors = cases.validate_cases(
+            [self.case(source="Cancelling a confirmed order releases its reserved stock")],
+            REQUIREMENTS)
+        self.assertEqual(errors, [])
+
     def test_a_source_must_be_an_exact_prompt_span(self):
         valid, errors = cases.validate_cases(
             [self.case(source="The model invented this sentence.")],
@@ -56,6 +62,25 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual({case["status"] for case in valid},
                          {"contradictory"})
         self.assertTrue(all(case["ambiguities"] for case in valid))
+
+    def test_nested_given_and_placeholders_are_rejected(self):
+        valid, errors = cases.validate_cases(
+            [self.case(given={"order": {"products": [{"quantity": 1}]}})],
+            REQUIREMENTS)
+        self.assertEqual(valid, [])
+        self.assertIn("flat value", errors[0])
+        valid, errors = cases.validate_cases(
+            [self.case(given={"order": {"status": "today"}})],
+            REQUIREMENTS)
+        self.assertEqual(valid, [])
+        self.assertIn("placeholder", errors[0])
+
+    def test_a_cli_case_is_valid(self):
+        valid, errors = cases.validate_cases(
+            [self.case(when={"cli": ["order", "cancel", "--id=1"]})],
+            REQUIREMENTS)
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["when"]["cli"][0], "order")
 
     def test_assumptions_enter_the_review_queue(self):
         case = self.case(status="assumed", assumptions=["stock starts at 3"])

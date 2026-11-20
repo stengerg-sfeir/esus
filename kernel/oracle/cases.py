@@ -10,8 +10,14 @@ import json
 import re
 from pathlib import Path
 
+from kernel.consistency.naming import normalize
+
 STATUSES = ("confirmed", "assumed", "ambiguous", "contradictory", "unbound")
 CASES_NAME = "oracle_cases.json"
+PLACEHOLDERS = frozenset({
+    "today", "tomorrow", "now", "none", "null", "auto_incremented_int",
+    "unknown", "authenticated", "auto", "tbd", "n/a",
+})
 
 
 def _known(value):
@@ -23,9 +29,61 @@ def _same(a, b):
 
 
 def _source_present(source, requirements):
-    wanted = " ".join(str(source or "").split())
-    haystack = " ".join(str(requirements or "").split())
+    def clean(value):
+        text = str(value or "").replace("`", "").replace("*", "")
+        text = re.sub(r"\s+", " ", text).strip().casefold()
+        return text.rstrip(" .;:")
+
+    wanted = clean(source)
+    haystack = clean(requirements)
     return bool(wanted) and wanted in haystack
+
+
+def _placeholder(value):
+    return isinstance(value, str) and value.strip().lower() in PLACEHOLDERS
+
+
+def _entity_named(alias, requirements):
+    token = re.sub(r"_?\d+$", "", normalize(alias))
+    if not token:
+        return False
+    words = {re.sub(r"s$", "", word) for word in
+             re.findall(r"[a-z][a-z0-9_]*", str(requirements).lower())}
+    return token in words or token + "s" in words
+
+
+def _invalid_given(given, requirements):
+    for alias, values in given.items():
+        if not _entity_named(alias, requirements):
+            return f"given.{alias} is not an entity named in the requirements"
+        if not isinstance(values, dict) or not values:
+            return f"given.{alias} must be a non-empty field mapping"
+        for field, value in values.items():
+            if isinstance(value, dict):
+                if set(value) != {"ref"} or not _known(value.get("ref")):
+                    return f"given.{alias}.{field} is nested; use a flat value or ref"
+                continue
+            if isinstance(value, (list, dict)):
+                return f"given.{alias}.{field} is composite; use a flat value"
+            if _placeholder(value):
+                return f"given.{alias}.{field} is a placeholder {value!r}"
+    return None
+
+
+def _invalid_then(then):
+    state = then.get("state")
+    if state is not None:
+        if not isinstance(state, dict):
+            return "then.state must be a flat mapping"
+        for key, value in state.items():
+            if isinstance(value, (dict, list)):
+                return f"then.state.{key} is nested; expected a scalar"
+            if _placeholder(value):
+                return f"then.state.{key} is a placeholder {value!r}"
+    rows = then.get("rows")
+    if rows is not None and not isinstance(rows, dict):
+        return "then.rows must be a mapping"
+    return None
 
 
 def validate_cases(raw, requirements, prompt_sha=None):
@@ -58,17 +116,29 @@ def validate_cases(raw, requirements, prompt_sha=None):
             errors.append(f"{label}: source is not a prompt span")
             continue
         given = item.get("given")
-        if not isinstance(given, (dict, list)) or not given:
-            errors.append(f"{label}: given must be a non-empty object or list")
+        if not isinstance(given, dict) or not given:
+            errors.append(f"{label}: given must be a non-empty alias mapping")
+            continue
+        bad_given = _invalid_given(given, requirements)
+        if bad_given:
+            errors.append(f"{label}: {bad_given}")
             continue
         when = item.get("when")
-        if not isinstance(when, dict) or not _known(when.get("action")):
-            errors.append(f"{label}: when.action is required")
+        if not isinstance(when, dict):
+            errors.append(f"{label}: when must be an object")
+            continue
+        if not _known(when.get("action")) and not (
+                isinstance(when.get("cli"), list) and when["cli"]):
+            errors.append(f"{label}: when needs action or cli")
             continue
         then = item.get("then")
         if not isinstance(then, dict) or not any(
                 key in then for key in ("state", "error", "rows")):
             errors.append(f"{label}: then needs state, error or rows")
+            continue
+        bad_then = _invalid_then(then)
+        if bad_then:
+            errors.append(f"{label}: {bad_then}")
             continue
         status = str(item.get("status") or "assumed")
         if status not in STATUSES:

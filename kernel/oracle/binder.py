@@ -7,6 +7,8 @@ coverage gap, never a guessed test.
 
 from __future__ import annotations
 
+import re
+
 from kernel.consistency.naming import normalize
 
 
@@ -17,7 +19,7 @@ def _models(docs):
 
 
 def _entity_for(alias, models):
-    wanted = normalize(alias)
+    wanted = normalize(re.sub(r"_?\d+$", "", str(alias)))
     if wanted in models:
         return models[wanted]["name"]
     # `order_items` should still reach OrderItem when the alias is plural.
@@ -39,6 +41,81 @@ def _field_name(model, name):
             if alias in fields:
                 return fields[alias]
     return name
+
+
+def _leaf_paths(components):
+    invocation = ((components or {}).get("facade") or {}).get("invocation") or {}
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+
+    def walk(nodes, prefix=()):
+        for node in nodes or []:
+            if not isinstance(node, dict) or not isinstance(node.get("name"), str):
+                continue
+            path = prefix + tuple(node["name"].split())
+            subs = node.get("subcommands")
+            if isinstance(subs, list) and subs:
+                yield from walk(subs, path)
+            else:
+                yield path
+
+    return list(walk(commands))
+
+
+def _cli_path(action, docs):
+    words = [normalize(word) for word in str(action or "").split() if word]
+    if not words:
+        return None
+    leaves = _leaf_paths(docs.get("components"))
+    exact = [path for path in leaves
+             if [normalize(word) for word in path] == words]
+    if len(exact) == 1:
+        return list(exact[0])
+    for length in range(len(words), 0, -1):
+        tail = words[-length:]
+        suffix = [path for path in leaves
+                  if [normalize(word) for word in path[-length:]] == tail]
+        if len(suffix) == 1:
+            return list(suffix[0])
+    return None
+
+
+def _service_args(raw, setup):
+    if isinstance(raw, dict):
+        return raw
+    values = raw if isinstance(raw, list) else [raw]
+    if values and all(isinstance(value, str) and "=" in value
+                      for value in values):
+        parsed = {}
+        for value in values:
+            key, _, text = value.partition("=")
+            try:
+                text = int(text)
+            except ValueError:
+                try:
+                    text = float(text)
+                except ValueError:
+                    pass
+            parsed[key.strip()] = text
+        return parsed
+    aliases = {step["as"] for step in setup}
+    out = []
+    for value in values:
+        if isinstance(value, str) and value in aliases:
+            out.append({"ref": value})
+            continue
+        if isinstance(value, str) and "." in value:
+            head, _, _field = value.partition(".")
+            if head in aliases:
+                out.append({"ref": value})
+                continue
+        out.append(value)
+    return out
+
+
+def _cli_args(raw):
+    if isinstance(raw, dict):
+        return [f"--{key.replace('_', '-')}={value}" for key, value in raw.items()]
+    return [str(value) for value in (raw if isinstance(raw, list) else [raw])]
 
 
 def _setup(case, docs, models):
@@ -122,6 +199,19 @@ def bind_case(case, docs):
     setup, reason = _setup(case, docs, models)
     if setup is None:
         return None, reason
+    case_when = case.get("when") or {}
+    cli = case_when.get("cli")
+    if isinstance(cli, list) and cli:
+        scenario_when = {"cli": [str(item) for item in cli]}
+        return _scenario(case, setup, scenario_when), None
+    if not case_when.get("action"):
+        return None, "case has no action or cli"
+    if " " in str(case_when.get("action")):
+        path = _cli_path(case_when.get("action"), docs)
+        if path is None:
+            return None, f"no generated CLI path for {case_when.get('action')!r}"
+        scenario_when = {"cli": path + _cli_args(case_when.get("args") or [])}
+        return _scenario(case, setup, scenario_when), None
     bound, reason = _method(docs, case)
     if bound is None:
         return None, reason
@@ -129,19 +219,27 @@ def bind_case(case, docs):
     when = {
         "service": holder,
         "method": method.get("name"),
-        "args": _args(case, setup),
+        "args": _service_args(case_when.get("args") or [], setup),
     }
+    return _scenario(case, setup, when), None
+
+
+def _scenario(case, setup, when):
     expect = {}
     then = case.get("then") or {}
     if isinstance(then.get("state"), dict):
         expect["fields"] = dict(then["state"])
     if isinstance(then.get("rows"), dict):
         expect["rows"] = dict(then["rows"])
-    if then.get("error"):
-        expect["error"] = str(then["error"])
+    error = then.get("error")
+    if isinstance(error, str) and error.strip().lower() in (
+            "", "none", "null", "no error"):
+        error = None
+    if error:
+        expect["error"] = str(error)
     return {
         "name": f"oracle:{case.get('id')}",
         "setup": setup,
         "when": when,
         "expect": expect,
-    }, None
+    }
