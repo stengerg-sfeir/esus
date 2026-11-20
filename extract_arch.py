@@ -407,6 +407,11 @@ def repair_existing(output_dir):
             models, log)
         repairs.repair_create_missing_fields(ports, models, log)
         repairs.repair_required_create_fields(ports, models, log)
+    repairs.repair_ungrounded_methods(
+        documents, requirements, documents.get(pipeline_module.INTENTIONS), log)
+    services = documents.get(pipeline_module.SERVICE_CONTRACTS) or []
+    ports = documents.get(pipeline_module.PERSISTENCE_PORTS) or {}
+    adapters = documents.get(pipeline_module.INTERACTION_ADAPTERS) or []
     if isinstance(adapters, list):
         repairs.repair_capability_adapters(
             components, services, adapters, models, requirements, log)

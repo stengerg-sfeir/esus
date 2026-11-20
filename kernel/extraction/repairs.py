@@ -1946,6 +1946,158 @@ def repair_contract_write_methods(contracts, repositories, models, log=None):
     return repositories
 
 
+def ungrounded_methods(services, repositories, models, requirements,
+                       intentions=None):
+    """`[(holder, method, reason)]` for methods with no prompt/model evidence.
+
+    Two safe signals are used: the existing grounding report (verb has no
+    requirement support) and a method parameter that names a field the owning
+    model does not declare. Standard CRUD wrappers and special transport
+    parameters are exempt.
+    """
+    from kernel.extraction import grounding
+
+    reasons = {}
+    report = grounding.report(requirements or "", intentions or [], services or [])
+    for item in report.get("extra_methods") or []:
+        reasons[(item.get("holder"), item.get("method"))] = item.get("reason")
+
+    special = {
+        "id", "ids", "page", "pagesize", "limit", "offset", "query", "data",
+        "payload", "json", "jsondata", "file", "filepath", "path", "output",
+        "start", "startdate", "end", "enddate", "from", "fromdate", "to",
+        "todate", "month", "year", "sort", "order", "filter",
+    }
+    model_by_name = {normalize(model.get("name")): model
+                     for model in models or []
+                     if isinstance(model, dict) and model.get("name")}
+
+    def model_for(holder):
+        base = normalize(holder or "")
+        for suffix in ("repository", "service", "manager"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        return model_by_name.get(base)
+
+    def inspect(holder, method):
+        if not isinstance(method, dict) or not isinstance(method.get("name"), str):
+            return
+        name = method.get("name")
+        key = (holder, name)
+        if key in reasons:
+            return
+        model = model_for(holder)
+        if model is None:
+            return
+        fields = {normalize(field.get("name"))
+                  for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")}
+        if not fields:
+            return
+        method_key = normalize(name)
+        if method_key.startswith(("create", "read", "update", "delete")):
+            return
+        for param in method.get("params") or []:
+            if not isinstance(param, dict) or not param.get("name"):
+                continue
+            raw = str(param["name"])
+            key_name = normalize(raw)
+            if key_name in fields or key_name in special \
+                    or key_name.endswith(("id", "ids", "data", "payload",
+                                          "request", "input", "dto")):
+                continue
+            reasons[key] = (
+                f"parameter {raw!r} names no {model.get('name')} field")
+            return
+
+    for service in services or []:
+        if not isinstance(service, dict):
+            continue
+        holder = service.get("service_name")
+        for method in service.get("methods") or []:
+            inspect(holder, method)
+    for repo in repositories or []:
+        if not isinstance(repo, dict):
+            continue
+        holder = repo.get("interface_name") or repo.get("entity")
+        for method in repo.get("methods") or []:
+            inspect(holder, method)
+    return [(holder, method, reason) for (holder, method), reason in reasons.items()]
+
+
+def repair_ungrounded_methods(documents, requirements, intentions=None, log=None):
+    """Remove methods with no prompt/model evidence and cascade references."""
+    services = documents.get("service_contracts") or []
+    ports = documents.get("persistence_ports") or {}
+    repositories = ports.get("repositories") if isinstance(ports, dict) else []
+    models = documents.get("data_models") or []
+    drops = ungrounded_methods(services, repositories, models, requirements,
+                               intentions)
+    if not drops:
+        return []
+    dropped = {(normalize(holder), normalize(method))
+               for holder, method, _reason in drops}
+
+    def keep_method(holder, method):
+        return (normalize(holder or ""), normalize(method or "")) not in dropped
+
+    kept_services = []
+    for service in services:
+        methods = [m for m in service.get("methods") or []
+                   if isinstance(m, dict)
+                   and keep_method(service.get("service_name"), m.get("name"))]
+        if methods:
+            service = dict(service)
+            service["methods"] = methods
+            kept_services.append(service)
+    documents["service_contracts"] = kept_services
+
+    if isinstance(ports, dict):
+        kept_repos = []
+        for repo in repositories:
+            methods = [m for m in repo.get("methods") or []
+                       if isinstance(m, dict)
+                       and keep_method(repo.get("interface_name") or repo.get("entity"),
+                                       m.get("name"))]
+            if methods:
+                repo = dict(repo)
+                repo["methods"] = methods
+                kept_repos.append(repo)
+        ports = dict(ports)
+        ports["repositories"] = kept_repos
+        documents["persistence_ports"] = ports
+
+    available = {
+        (normalize(service.get("service_name")), normalize(m.get("name")))
+        for service in kept_services for m in service.get("methods") or []
+        if isinstance(m, dict)
+    }
+    available.update({
+        (normalize(repo.get("interface_name") or repo.get("entity")),
+         normalize(m.get("name")))
+        for repo in (ports.get("repositories") if isinstance(ports, dict) else [])
+        for m in repo.get("methods") or [] if isinstance(m, dict)
+    })
+    adapters = [adapter for adapter in documents.get("interaction_adapters") or []
+                if isinstance(adapter, dict)
+                and (normalize(adapter.get("target_service")),
+                     normalize(adapter.get("target_method"))) in available]
+    documents["interaction_adapters"] = adapters
+    matches = []
+    for match in documents.get("pattern_matches") or []:
+        source = str(match.get("source") or "") if isinstance(match, dict) else ""
+        source = source.removeprefix("contract:")
+        holder, _, method = source.partition(".")
+        if keep_method(holder, method):
+            matches.append(match)
+    documents["pattern_matches"] = matches
+    if log is not None:
+        for holder, method, reason in drops:
+            log.write(f"[ok] step grounding: dropped {holder}.{method} — {reason}")
+    return drops
+
+
 def repair_contracts(contracts, services, repositories, models, requirements="",
                      log=None):
     """Repair generic contract holes the model can infer from the prompt.

@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **57/66 complete acceptance projects**, **9 incomplete**, **1,073 checks passed**, **13 generated stubs**, **0 failed**, **1,309 unit tests passed**
+Stored v8 replay: **66/66 generated**, **57/66 complete acceptance projects**, **9 incomplete**, **1,073 checks passed**, **13 generated stubs**, **0 failed**, **1,312 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -324,6 +324,28 @@ flag). `scripts/review_queue.py` includes these questions under `flags`.
 
 **Regression tests:** `tests/test_review_flags.py`. The full suite is
 **1,255 passed**.
+
+### 15. ✅ Spurious extraction methods are removed (done 2026-11-20)
+
+`extract_arch.py --repair` now calls a deterministic grounding pass after
+persistence repairs. It removes a non-CRUD method only when both the existing
+grounding report and the owning model agree there is no evidence:
+
+- no requirement/intention evidence for the method verb; or
+- a parameter names a field the owning model does not declare.
+
+Special transport parameters (`data`, `payload`, `*_data`, `*_id`, pagination
+and dates) are exempt. Standard CRUD wrappers are never removed. Drops cascade
+to adapters, pattern matches and the rebuilt surface.
+
+Offline repair on the stored v8 documents removed the spurious
+`confirm_order`/`cancel_order` pairs and the unsupported status/email/region
+queries. After regeneration with reviewed bodies preserved, `prompt_26`,
+`prompt_50` and `prompt_59` became complete. `prompt_19` and `prompt_24` remain
+incomplete for one real required stub each.
+
+**Regression tests:** `tests/test_spurious_methods.py`. The full suite is
+**1,312 passed**.
 
 ## P1/P2 — performance and extraction
 
