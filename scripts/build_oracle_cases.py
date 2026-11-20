@@ -70,6 +70,38 @@ REQUIREMENTS:
 """
 
 
+def _strip_json_comments(raw):
+    """Remove // comments outside strings, a common small-model habit."""
+    out = []
+    in_string = False
+    escaped = False
+    index = 0
+    while index < len(raw):
+        char = raw[index]
+        if in_string:
+            out.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+        if char == '"':
+            in_string = True
+            out.append(char)
+            index += 1
+            continue
+        if char == "/" and index + 1 < len(raw) and raw[index + 1] == "/":
+            while index < len(raw) and raw[index] not in "\r\n":
+                index += 1
+            continue
+        out.append(char)
+        index += 1
+    return "".join(out)
+
+
 def parse_payload(text):
     """Extract the first JSON object from a model reply."""
     raw = str(text or "").strip()
@@ -79,8 +111,10 @@ def parse_payload(text):
     start, end = raw.find("{"), raw.rfind("}")
     if start < 0 or end <= start:
         return None
+    candidate = _strip_json_comments(raw[start:end + 1])
+    candidate = re.sub(r",\s*([}\]])", r"\1", candidate)
     try:
-        return json.loads(raw[start:end + 1])
+        return json.loads(candidate)
     except ValueError:
         return None
 
@@ -102,7 +136,7 @@ def build_one(project, model_path, context=8192, max_new_tokens=4096,
     payload = parse_payload(result.text)
     if payload is None:
         (project / "oracle_build.err").write_text(
-            result.text[-2000:], encoding="utf-8")
+            result.text, encoding="utf-8")
         raise SystemExit(f"{project.name}: oracle answer was not JSON")
     sha = requirements_sha(requirements)
     valid, errors = case_rules.validate_cases(payload, requirements, sha)

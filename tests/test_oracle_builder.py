@@ -22,6 +22,11 @@ class OracleBuilderTests(unittest.TestCase):
             '```json\n{"cases": [{"id": "x"}]}\n```')
         self.assertEqual(payload["cases"][0]["id"], "x")
 
+    def test_json_comments_and_trailing_commas_are_tolerated(self):
+        payload = build_oracle_cases.parse_payload(
+            '{"cases": [{"id": "x", // note\n "status": "assumed",},]}')
+        self.assertEqual(payload["cases"][0]["id"], "x")
+
     def test_non_json_is_refused(self):
         self.assertIsNone(build_oracle_cases.parse_payload("I think it works."))
 
