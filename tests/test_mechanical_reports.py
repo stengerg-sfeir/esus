@@ -297,6 +297,17 @@ class LibraryGuiMechanicalTests(unittest.TestCase):
         self.assertIsNotNone(body)
         self.assertIn("search_by_name(query)", "\n".join(body))
 
+    def test_notification_side_effect_is_logged(self):
+        body = generator._service_notification_body(
+            method("send_notification", [("recipient", "str"),
+                                         ("message", "str")], "None",
+                   description="Log a notification instead of sending it."),
+            [("recipient", "recipient", "str"),
+             ("message", "message", "str")], "None")
+        self.assertIsNotNone(body)
+        self.assertIn("Notification to", "\n".join(body))
+        self.assertIn("print(message)", body)
+
     def test_negative_stock_guard(self):
         body = generator._service_negative_stock_body(
             self.ctx(), "WineInventoryService",

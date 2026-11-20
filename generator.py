@@ -3763,6 +3763,31 @@ def _is_date_type(declared):
     return str(declared or "").strip().lower() in ("date", "datetime", "timestamp")
 
 
+def _service_notification_body(method, params, returns):
+    """Log a notification for a side-effect method the prompt asks to log."""
+    text = normalize(str(method.get("name") or "") + " " +
+                     str(method.get("description") or ""))
+    if "notif" not in text or normalize(returns) not in (
+            "none", "void", "", "nonetype"):
+        return None
+    names = {normalize(raw): ident for raw, ident, _kind in params}
+    recipient = next((ident for raw, ident in names.items()
+                      if "recipient" in raw or raw in ("to", "email")), None)
+    message = next((ident for raw, ident in names.items()
+                    if "message" in raw or "body" in raw or "text" in raw), None)
+    if recipient and message:
+        return [
+            f"message = f\"Notification to {{{recipient}}}: "
+            f"{{{message}}}\"",
+            "print(message)",
+        ]
+    if recipient:
+        return [f"print(f\"Notification sent to {{{recipient}}}\")"]
+    if message:
+        return [f"print(f\"Notification: {{{message}}}\")"]
+    return ['print("Notification sent")']
+
+
 def _service_place_order_body(ctx, method, params, returns):
     """Mechanical order placement: validate, create parent/lines, decrement stock.
 
@@ -4099,6 +4124,17 @@ def emit_services(ctx, repo_index, stats):
                     _record(stats, name, method["name"], "closed-contract", True,
                             compile_reason)
                     continue
+            notification = _service_notification_body(method, params, returns)
+            if notification is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical notification log]"""']
+                lines.extend("        " + line if line else ""
+                             for line in notification)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "notification log")
+                continue
             place_order = _service_place_order_body(ctx, method, params, returns)
             if place_order is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
