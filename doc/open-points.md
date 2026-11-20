@@ -202,6 +202,12 @@ the problem. A two-pass builder risks recreating `extract_arch.py`, so the
 current boundary stays: prompt-only cases, no extracted documents, human
 review for gaps.
 
+Phi-4-mini-instruct Q4_K_M was also tested. It produced only 3 valid cases on
+the same sample, with poor source fidelity and entity confusion (it used
+`order` for the library prompt); 5 and 7 cases were rejected on `prompt_32`
+and `prompt_53`, and all 8 library cases were rejected. It is not a better
+verifier than Qwen on this task.
+
 **Next:** improve setup completeness for relational cases and let the review
 queue accept/reject these cases before scaling, rather than building a second
 architecture extractor. The oracle remains extraction-independent, not model-
