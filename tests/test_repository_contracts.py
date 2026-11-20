@@ -149,6 +149,35 @@ class MergeCustomMethodsTests(unittest.TestCase):
         )
         self.assertEqual(len(ports["repositories"][0]["methods"]), 2)
 
+    def test_merge_before_unify_preserves_a_grounded_search_method(self):
+        services = [{
+            "service_name": "ProductRepository",
+            "methods": [
+                {"name": "read_all", "params": [], "return_type": "list[Product]"},
+                {"name": "read_one", "params": [], "return_type": "Product"},
+            ],
+        }]
+        ports = {
+            "repositories": [{
+                "entity": "Product",
+                "interface_name": "ProductRepository",
+                "methods": [
+                    {"name": "read_all", "params": [],
+                     "return_type": "list[Product]"},
+                    {"name": "read_one", "params": [],
+                     "return_type": "Product"},
+                    {"name": "search_products", "params": [],
+                     "return_type": "list[Product]"},
+                ],
+            }],
+        }
+        merged = interfaces.merge_repository_methods(services, ports)
+        unified = interfaces.unify_repository_interfaces(ports, merged, None)
+        self.assertEqual(
+            [method["name"] for method in
+             unified["repositories"][0]["methods"]],
+            ["read_all", "read_one", "search_products"])
+
 
 if __name__ == "__main__":
     unittest.main()

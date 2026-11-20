@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,073 checks passed**, **0 generated stubs**, **0 failed**, **1,358 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,073 checks passed**, **0 generated stubs**, **0 failed**, **1,359 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -189,22 +189,33 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 
 The current execution result is:
 
-- **83 executed**
-- **5 passed**
+- **79 executed**
+- **4 passed**
 - **33 failed**
-- **41 unbound**
+- **42 unbound**
 
 Triage of the findings:
 
 - **21 behavior cases** in **15 behavior groups**;
 - **33 case defects** (missing/duplicate setup, malformed arguments);
-- **20 coverage gaps** (missing or ambiguous generated actions).
+- **21 coverage gaps** (missing or ambiguous generated actions);
+- **4 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
 or asks for an action that does not exist. The behavior groups that remain are
 the ones worth review: state transitions, error semantics, row counts and
 parameterized stock behavior.
+
+One previously passing `prompt_17` search case became unbound after the offline
+archive repair. The old `ProductRepository` document held `search_products`,
+but the narrower service contract was adopted during repair, and the generated
+code still contains the method while the documents no longer bind it. The
+repair now merges step H's custom repository methods before unification, so a
+future repair keeps them; recovering this archived prompt needs re-extraction,
+not hand-editing. The generated programs are also still the pre-uniqueness
+build, so the duplicate-email failures include guards the new generator would
+no longer emit for inferred fields.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue has **18 items:
@@ -353,7 +364,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,358 passed**.
+is **1,359 passed**.
 
 ## P1/P2 — performance and extraction
 

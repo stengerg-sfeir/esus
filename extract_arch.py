@@ -456,6 +456,13 @@ def repair_existing(output_dir):
                 f"[!] step adapters: mechanical re-derivation declined "
                 f"({reason}) — keeping the existing adapters")
         if isinstance(ports, dict):
+            # Step H can discover a custom repository method that step E did
+            # not write; merge it before unification, as the live pipeline
+            # does. Without this, repairing an archive narrows the interface
+            # to E's method set and drops a grounded search/filter method.
+            services = interfaces.merge_repository_methods(
+                services, ports, log)
+            documents[pipeline_module.SERVICE_CONTRACTS] = services
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
     repositories = (ports.get("repositories")
