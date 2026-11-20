@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,366 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,371 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -190,16 +190,16 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **16 passed**
-- **10 failed**
-- **53 unbound**
+- **22 passed**
+- **8 failed**
+- **49 unbound**
 
 Triage of the findings:
 
-- **7 behavior cases** in **4 behavior groups**;
-- **29 case defects** (missing/duplicate setup, malformed arguments);
+- **4 behavior cases** in **2 behavior groups**;
+- **30 case defects** (missing/duplicate setup, malformed arguments);
 - **23 coverage gaps** (missing or ambiguous generated actions);
-- **16 passed**.
+- **22 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
@@ -229,8 +229,8 @@ missing surface/method pieces, and `prompt_58` has an empty persistence
 document.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **7 items:
-4 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **5 items:
+2 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
 Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
@@ -246,10 +246,10 @@ python scripts/review_queue.py out/validation/kaggle-v8 \
   --output /tmp/review-exclude7.json
 ```
 
-That scope has **59 projects**, **62 cases**, **13 passed**, **7 failed** and
-**42 unbound**. Triage: **5 behavior cases in 3 groups**, **23 case
-defects**, **21 coverage gaps** and **13 passed**. Its review queue is
-**5 items** (3 behavior groups, 1 grounding question and 1 uniqueness
+That scope has **59 projects**, **62 cases**, **19 passed**, **4 failed** and
+**39 unbound**. Triage: **2 behavior cases in 1 group**, **23 case
+defects**, **18 coverage gaps** and **19 passed**. Its review queue is
+**3 items** (1 behavior group, 1 grounding question and 1 uniqueness
 decision). This is the useful verifier scope until the seven documents are
 re-extracted; it is not a claim that those seven are correct.
 
@@ -258,7 +258,7 @@ lookup values, missing new values, create payloads that must not be pre-seeded,
 entity aliases (`Audit` -> `AuditLog`), field aliases (`phone` ->
 `phone_number`, `stock_quantity` -> `stock_qty`), boolean availability
 vocabulary, and row-count deltas from setup. These changes moved the excluded
-scope from 4 passed / 24 failed / 34 unbound to 13 passed / 7 failed / 42
+scope from 4 passed / 24 failed / 34 unbound to 19 passed / 4 failed / 39
 unbound. The unbound count rose because incomplete update/create cases are now
 reported as case defects instead of being executed as if their missing values
 were supplied.
@@ -403,7 +403,28 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,366 passed**.
+is **1,371 passed**.
+
+### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
+
+Two verifier behavior findings were generator gaps, not case defects.
+
+- When the requirements say **soft delete** and the entity declares a boolean
+  `is_deleted`/`deleted`/`is_archived` field, the generated repository delete
+  now sets that flag instead of removing the row, and normal `read_all` calls
+  exclude deleted rows unless the caller asks for them explicitly.
+- When the requirements name an **audit** record and a model with a foreign
+  key to the changed entity exists, create/update/delete now insert an audit
+  row with the operation, entity key and timestamp. For hard deletes the audit
+  row is written before the foreign-key target is removed.
+
+Both effects are derived from the requirements and data model; there is no
+prompt name or project-specific branch. Acceptance remains **66/66 complete,
+1,023 checks, 0 stubs**, and the verifier's soft-delete/audit behavior groups
+are gone.
+
+**Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
+suite is **1,371 passed**.
 
 ## P1/P2 — performance and extraction
 

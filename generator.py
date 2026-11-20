@@ -2944,7 +2944,7 @@ def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_n
         lookup_err = err if _read_one_names_entity_error(ctx, method, entity) else None
         return _read_one_body(params, entity, model_cls, field_names, pk, lookup_err)
     if kind in ("read_all", "filter"):
-        return _select_body(params, entity, model_cls, field_names, table=table)
+        return _select_body(params, entity, model_cls, field_names, table=table, ctx=ctx)
     if kind == "update":
         return _update_body(ctx, method, params, entity, model_cls, field_names, err)
     if kind == "delete":
@@ -3498,6 +3498,7 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
                      f"f\"{entity} with {{unique_field}}={{value!r}} already exists\")")
     lines.append(f"record = self._store.add(self.ENTITY, self.PK, values, check_fk={fk_literal})")
     lines.extend(_create_effect_lines(ctx, contract, params, entity))
+    lines.extend(_audit_lines(ctx, entity, "create", "record[self.PK]"))
     declared = str(method.get("return_type") or "").strip().lower()
     if re.search(r"\b(?:int|integer|bool|boolean)\b", declared):
         # A port may declare `create(...) -> int`: returning the dataclass
@@ -3590,8 +3591,17 @@ def _read_one_body(params, entity, model_cls, field_names, pk, err):
     return lines
 
 
-def _select_body(params, entity, model_cls, field_names, table="self.ENTITY"):
+def _select_body(params, entity, model_cls, field_names, table="self.ENTITY", ctx=None):
     lines = _criteria_block(params, field_names)
+    soft = _soft_delete_field(ctx, entity) if ctx is not None else None
+    if soft is not None:
+        parameter = next((item for item in params
+                          if normalize(item[0]) == normalize(soft)), None)
+        if parameter is not None:
+            lines.append(f"if {parameter[1]} is None:")
+            lines.append(f"    criteria.append(({soft!r}, 'eq', False))")
+        else:
+            lines.append(f"criteria.append(({soft!r}, 'eq', False))")
     lines.append(f"found = self._store.select({table}, criteria)")
     if model_cls is None:
         lines.append("return [dict(r) for r in found]")
@@ -3626,6 +3636,15 @@ def _repo_pagination_body(ctx, entity, model_cls, method):
         lines = _criteria_block(params, field_names) if params else ["criteria = []"]
     except _Unmappable:
         return None
+    soft = _soft_delete_field(ctx, entity)
+    if soft is not None:
+        parameter = next((item for item in params
+                          if normalize(item[0]) == normalize(soft)), None)
+        if parameter is not None:
+            lines += [f"if {parameter[1]} is None:",
+                      f"    criteria.append(({soft!r}, 'eq', False))"]
+        else:
+            lines.append(f"criteria.append(({soft!r}, 'eq', False))")
     lines += [
         "records = self._store.select(self.ENTITY, criteria)",
         "total = len(records)",
@@ -3766,8 +3785,81 @@ def _update_body(ctx, method, params, entity, model_cls, field_names, err):
         lines.append(f"        raise {unique_error}("
                      f"f\"{entity} with {{unique_field}}={{value!r}} already exists\")")
     lines.append(f"record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error={err})")
+    lines.extend(_audit_lines(ctx, entity, "update", "record[self.PK]"))
     lines.append(_result_wrap(model_cls))
     return lines
+
+
+def _soft_delete_field(ctx, entity):
+    """The boolean flag that implements a requirements-declared soft delete."""
+    text = str((ctx or {}).get("requirements") or "")
+    if not re.search(r"soft[\s-]*delete", text, re.IGNORECASE):
+        return None
+    for name, field in fields_of(ctx, entity):
+        if str(field.get("type") or "").lower() not in ("bool", "boolean"):
+            continue
+        if normalize(name) in ("isdeleted", "deleted", "isarchived", "archived"):
+            return name
+    return None
+
+
+def _audit_target(ctx, entity):
+    """The audit model and fields for create/update/delete side effects.
+
+    Only a stated audit requirement enables this; the audit model must carry
+    a foreign key to the changed entity, an operation field and a timestamp.
+    A required field the generated code cannot fill makes the effect
+    unrepresentable, so it is skipped rather than producing a failing insert.
+    """
+    text = str((ctx or {}).get("requirements") or "")
+    if not re.search(r"\baudit\b", text, re.IGNORECASE):
+        return None
+    for model in (ctx or {}).get("models") or []:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        audit_name = model["name"]
+        flat = normalize(audit_name)
+        if audit_name == entity or ("audit" not in flat and not flat.endswith("log")):
+            continue
+        fields = {field.get("name"): field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")}
+        foreign = next((name for name, field in fields.items()
+                        if isinstance(field.get("foreign_key"), dict)
+                        and normalize(field["foreign_key"].get("target_entity") or "")
+                        == normalize(entity)), None)
+        operation = next((name for name in fields
+                          if normalize(name) in ("operation", "action", "event",
+                                                 "operationtype")), None)
+        timestamp = next((name for name in fields
+                          if normalize(name) in ("timestamp", "createdat", "createddate")
+                          or str(fields[name].get("type") or "").lower()
+                          in ("datetime", "timestamp")), None)
+        if foreign is None or operation is None or timestamp is None:
+            continue
+        filled = {foreign, operation, timestamp}
+        required = {name for name, field in fields.items()
+                    if not field.get("primary_key")
+                    and field.get("nullable") is False
+                    and field.get("default") is None}
+        if not required <= filled:
+            continue
+        pk = next((name for name, field in fields.items()
+                   if field.get("primary_key")), "id")
+        return {"entity": audit_name, "pk": pk, "foreign": foreign,
+                "operation": operation, "timestamp": timestamp}
+    return None
+
+
+def _audit_lines(ctx, entity, operation, key_expression):
+    target = _audit_target(ctx, entity)
+    if target is None:
+        return []
+    return [
+        f"self._store.add({target['entity']!r}, {target['pk']!r}, "
+        f"{{{target['operation']!r}: {operation!r}, "
+        f"{target['foreign']!r}: {key_expression}, "
+        f"{target['timestamp']!r}: datetime.datetime.now()}}, check_fk=[])",
+    ]
 
 
 def _delete_body(params, entity, field_names, err, ctx=None):
@@ -3786,10 +3878,21 @@ def _delete_body(params, entity, field_names, err, ctx=None):
               f"    raise {err}(f\"{entity} delete matched no records\")"]
     if ctx is not None:
         lines += _delete_in_use_guard(ctx, entity)
-    lines += [
-        "for record in found:",
-        "    self._store.delete(self.ENTITY, self.PK, record[self.PK])",
-        "return None"]
+    soft = _soft_delete_field(ctx, entity) if ctx is not None else None
+    lines += ["for record in found:"]
+    if ctx is not None:
+        # The audit row references the entity, so it must be written before a
+        # hard delete removes the foreign-key target.
+        lines += ["    " + line for line in _audit_lines(
+            ctx, entity, "delete", "record[self.PK]")]
+    if soft is not None:
+        lines += [
+            f"    self._store.update(self.ENTITY, self.PK, record[self.PK], "
+            f"{{{soft!r}: True}})",
+        ]
+    else:
+        lines += ["    self._store.delete(self.ENTITY, self.PK, record[self.PK])"]
+    lines += ["return None"]
     return lines
 
 

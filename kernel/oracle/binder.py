@@ -719,12 +719,19 @@ def _create_value_error(create_target, docs, method, args):
         return None
     params = {normalize(param.get("name")) for param in method.get("params") or []
               if isinstance(param, dict) and param.get("name")}
+    auto_defaults = {
+        "created_at", "created_date", "updated_at", "updated_date",
+        "modified_at", "generated_at", "registration_date",
+        "membership_date", "joined_date", "is_deleted", "deleted",
+        "is_archived", "archived",
+    }
     for field in model.get("fields") or []:
         if not isinstance(field, dict) or not field.get("name"):
             continue
         name = field["name"]
         if (field.get("primary_key") or field.get("nullable") is not False
-                or field.get("default") is not None):
+                or field.get("default") is not None
+                or normalize(name) in {normalize(item) for item in auto_defaults}):
             continue
         if normalize(name) in params and name not in args:
             return (f"create case supplies no value for required field "
