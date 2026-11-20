@@ -21,7 +21,7 @@ the current generator:
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,357 unit tests passed**
+- **1,358 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific

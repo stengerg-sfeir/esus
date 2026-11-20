@@ -192,7 +192,8 @@ def unreviewed_warning(interactive, explicit_chat):
         reason = "chat review is off"
     return (
         f"warning: {reason}; no human review will run (ties, pattern slots, "
-        "surface duplicates/flags, field aliases, method contracts). "
+        "surface duplicates/flags, field aliases, method contracts, "
+        "inferred uniqueness). "
         "A clean probe only means the generator can run; the generated code "
         "may be incomplete or wrong. Run from a terminal with "
         "--requirements PATH for the default chat review."
@@ -254,13 +255,15 @@ def print_quiet_results(log, out_fn=print):
 
 
 def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
-              surface_runner=None, slot_runner=None, contract_runner=None):
+              surface_runner=None, slot_runner=None, contract_runner=None,
+              unique_runner=None):
     """Probe, ask, re-probe: the attended tail of an extraction run.
 
     Runs the probe over `output_dir`; when ties need a human, runs the tie
     review, pattern slots get the slot review, surface duplicates/flags the
-    surface review, field pairs the alias review, and method behavior facts
-    the contract review. Slots run before the surface review because a
+    surface review, field pairs the alias review, method behavior facts the
+    contract review, and inferred uniqueness the uniqueness review. Slots
+    run before the surface review because a
     parameterless filter (`find_active_members`) is only a routable surface
     candidate once its slot answer says what it filters. Structural blockers
     (missing commands, uncovered fields, unknown model fields) are reported,
@@ -276,6 +279,13 @@ def chat_flow(output_dir, out_fn=print, tie_runner=None, alias_runner=None,
     import review_slots
     import review_surface
     import review_ties
+    import review_uniqueness
+
+    unique_questions, _ = review_uniqueness.collect_questions(str(output_dir))
+    if unique_questions:
+        out_fn(f"{len(unique_questions)} uniqueness question(s) need a human — "
+               f"starting the uniqueness review")
+        (unique_runner or review_uniqueness.run_review)(str(output_dir))
 
     name = os.path.basename(str(output_dir).rstrip(os.sep))
     blockers, _, _ = probe_readiness.check_prompt(name, str(output_dir))
@@ -862,7 +872,8 @@ def report_verdict(output_dir, out_fn=print, reviewed=True):
 
 def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
               tie_runner=None, alias_runner=None, surface_runner=None,
-              slot_runner=None, contract_runner=None, reviewed=True):
+              slot_runner=None, contract_runner=None, unique_runner=None,
+              reviewed=True):
     """Probe, review, resume — until clean, stuck, or out of rounds.
 
     `rerun(start)` performs one model round from `start` (raising on crash).
@@ -881,6 +892,7 @@ def chat_loop(output_dir, rerun, out_fn=print, max_rounds=ROUND_LIMIT,
             "alias_runner": alias_runner,
             "surface_runner": surface_runner,
             "slot_runner": slot_runner,
+            "unique_runner": unique_runner,
         }
         if contract_runner is not None:
             flow_kwargs["contract_runner"] = contract_runner

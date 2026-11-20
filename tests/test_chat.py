@@ -100,6 +100,7 @@ class ChatModeDefaultTests(unittest.TestCase):
         text = extract_arch.unreviewed_warning(False, None)
         self.assertIn("no human review", text)
         self.assertIn("method contracts", text)
+        self.assertIn("inferred uniqueness", text)
         self.assertIn("may be incomplete or wrong", text)
 
     def test_explicit_chat_on_a_pipe_warns_about_eof(self):
@@ -110,7 +111,7 @@ class ChatFlowTests(unittest.TestCase):
     def flow(self, directory, ties=0, pairs=(), blockers=(), tie_run=None,
              alias_run=None, contracts=(), contract_run=None,
              duplicates=(), routes=(), slots=(), slot_run=None,
-             surface_run=None):
+             surface_run=None, uniques=(), unique_run=None):
         from kernel.consistency.report import Finding
 
         lines = []
@@ -120,7 +121,8 @@ class ChatFlowTests(unittest.TestCase):
              mock.patch("review_contracts.collect_contracts") as contract_collected, \
              mock.patch("review_slots.collect_slots") as slot_collected, \
              mock.patch("review_surface.collect_duplicates") as duplicate_collected, \
-             mock.patch("review_surface.collect_routes") as route_collected:
+             mock.patch("review_surface.collect_routes") as route_collected, \
+             mock.patch("review_uniqueness.collect_questions") as unique_collected:
             checked.return_value = (
                 [Finding("warning", "uncovered_field", b) for b in blockers], [], None)
             opened.return_value = ties
@@ -129,11 +131,12 @@ class ChatFlowTests(unittest.TestCase):
             slot_collected.return_value = (list(slots), {})
             duplicate_collected.return_value = (list(duplicates), {})
             route_collected.return_value = (list(routes), {})
+            unique_collected.return_value = (list(uniques), {})
             remaining = extract_arch.chat_flow(
                 directory, out_fn=lines.append,
                 tie_runner=tie_run, alias_runner=alias_run,
                 slot_runner=slot_run, surface_runner=surface_run,
-                contract_runner=contract_run)
+                contract_runner=contract_run, unique_runner=unique_run)
         return remaining, lines
 
     def test_a_clean_output_asks_nothing(self):
@@ -227,6 +230,24 @@ class ChatFlowTests(unittest.TestCase):
             self.assertEqual(asked, [("contracts", directory)])
             self.assertEqual(remaining, [])
             self.assertTrue(any("method contract(s) need a human" in line
+                                for line in lines))
+
+    def test_uniqueness_questions_run_the_uniqueness_review(self):
+        asked = []
+
+        def run_uniqueness(path):
+            asked.append(("uniqueness", path))
+            return 1, 1
+
+        with tempfile.TemporaryDirectory() as directory:
+            remaining, lines = self.flow(
+                directory,
+                uniques=[{"kind": "inferred_unique", "fields": [
+                    {"entity": "Contact", "field": "email"}]}],
+                unique_run=run_uniqueness)
+            self.assertEqual(asked, [("uniqueness", directory)])
+            self.assertEqual(remaining, [])
+            self.assertTrue(any("uniqueness question(s) need a human" in line
                                 for line in lines))
 
     def test_structural_blockers_are_reported_never_asked(self):
