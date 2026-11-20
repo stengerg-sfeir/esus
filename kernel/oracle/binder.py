@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 
+from kernel import codegen
 from kernel.consistency.naming import normalize
 
 
@@ -146,8 +147,17 @@ def _setup(case, docs, models):
     return steps, None
 
 
+def _action_words(raw):
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str(raw or ""))
+    return {normalize(word) for word in re.split(r"[^A-Za-z0-9]+", text)
+            if word and normalize(word) not in (
+                "add", "create", "list", "read", "all", "search", "filter",
+                "get", "update", "delete", "remove", "the")}
+
+
 def _method(docs, case):
-    action = normalize(case.get("when", {}).get("action") or "")
+    raw_action = case.get("when", {}).get("action") or ""
+    action = normalize(raw_action)
     if not action:
         return None, "case has no action"
     service = case.get("when", {}).get("service")
@@ -165,13 +175,59 @@ def _method(docs, case):
                 if (isinstance(method, dict)
                         and normalize(method.get("name") or "") == action):
                     candidates.append((holder_name, method))
+    candidates = _dedupe(candidates)
     if not candidates:
-        return None, f"no generated method named {case['when'].get('action')!r}"
+        # The prompt often uses a domain verb (`add_task`, `list_books`) while
+        # the generated surface uses CRUD names (`create_task`, `read_all`).
+        # This is a naming alias, not a semantic guess: both sides classify to
+        # the same CRUD kind and share the action noun.
+        kind = codegen.classify_crud(action)
+        if kind is not None:
+            words = _action_words(raw_action)
+            for group_key, name_key in (("services", "service_name"),
+                                        ("repos", "interface_name")):
+                for holder in docs.get(group_key) or []:
+                    if not isinstance(holder, dict):
+                        continue
+                    holder_name = holder.get(name_key)
+                    if wanted_service and normalize(holder_name or "") != wanted_service:
+                        continue
+                    for method in holder.get("methods") or []:
+                        if not isinstance(method, dict):
+                            continue
+                        if codegen.classify_crud(method.get("name") or "") != kind:
+                            continue
+                        flat = normalize(str(method.get("name") or "") + " " +
+                                         str(holder_name or ""))
+                        if words and not any(word in flat for word in words):
+                            continue
+                        candidates.append((holder_name, method))
+        candidates = _dedupe(candidates)
+    if not candidates:
+        return None, f"no generated method matches {case['when'].get('action')!r}"
+    services = [item for item in candidates
+                if item[0] and any(item[0] == holder.get("service_name")
+                                   for holder in docs.get("services") or []
+                                   if isinstance(holder, dict))]
+    if services:
+        candidates = services
     if len(candidates) > 1:
         names = ", ".join(f"{holder}.{method['name']}"
                           for holder, method in candidates[:5])
         return None, f"ambiguous action binding: {names}"
     return candidates[0], None
+
+
+def _dedupe(candidates):
+    seen = set()
+    out = []
+    for holder, method in candidates:
+        key = (holder, method.get("name"))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((holder, method))
+    return out
 
 
 def _args(case, setup):

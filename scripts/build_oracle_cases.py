@@ -61,6 +61,10 @@ Rules:
 - Use only entities, fields and actions explicitly named in the requirements. Never
   add an entity because it is common in similar applications.
 - Produce at most 8 cases, choosing the highest-risk behavior.
+- For each action, include every setup row the action needs, including related
+  entities named by the prompt (for example an order also needs its customer
+  and line items when the prompt says so). If a needed row is not stated, mark
+  the case `assumed` or `ambiguous`.
 - If a required entity, transition or value is not stated, use status `assumed` or
   `ambiguous` and explain the gap. Never silently fill it.
 - If two requirements contradict, mark the affected cases `contradictory`.

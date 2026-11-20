@@ -184,23 +184,30 @@ entity-name checks, but still exposed model-quality limits:
   cancellation case omitted the order line, so stock was not restored.
 - `prompt_library_system`: the answer was truncated/non-JSON.
 
-A Qwen verifier-context test on the same four prompts produced **27 valid
-cases** (16 confirmed) instead of 9. It was much better at JSON and schema
-shape, but execution still gave **1 passed, 14 failed, 1 unbound**:
+Qwen is now the verifier model. On the four-prompt sample it produced 27
+cases (16 confirmed); the full 66-prompt builder produced **204 valid cases**
+(87 confirmed), with only `prompt_53` failing JSON generation.
 
-- `prompt_32` cases used pending→cancel/ship transitions the generated code
-  refuses; this is a real requirement/implementation disagreement.
-- `prompt_53` cases omitted the customer row required by `place_order`.
-- `prompt_60` cancellation still omitted the order line, so stock was unchanged.
-- `prompt_library_system` produced one passing return/already-returned case,
-  plus a missing `list_books` action.
+Execution of the 87 confirmed cases, after CRUD-action aliasing and
+service-over-repository preference:
 
-The failures are useful: the oracle correctly refuses to treat these as
-verified behavior. Qwen is a better case generator than Ministral 3B, but it
-still needs relation-complete setup and review; the runner and binder are not
-the problem. A two-pass builder risks recreating `extract_arch.py`, so the
-current boundary stays: prompt-only cases, no extracted documents, human
-review for gaps.
+- **3 passed**
+- **51 failed**
+- **33 unbound**
+
+The failures are informative, not a green light:
+
+- real disagreements: `prompt_32` pending transitions and `prompt_60`
+  cancellation stock expectations;
+- incomplete setup: missing customer/member/product rows, often causing
+  `*NotFoundError` before the action;
+- non-domain actions: `list_books`, `read_employee`, `sell_product`;
+- unresolved action ambiguity: service and repository both expose the same
+  operation.
+
+The runner and binder are doing their job by refusing or failing incomplete
+cases. A two-pass builder risks recreating `extract_arch.py`, so the boundary
+stays: prompt-only cases, no extracted documents, human review for setup gaps.
 
 Phi-4-mini-instruct Q4_K_M was also tested. It produced only 3 valid cases on
 the same sample, with poor source fidelity and entity confusion (it used

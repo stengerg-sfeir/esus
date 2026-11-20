@@ -27,7 +27,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_STATE = ROOT / "out" / "runtime"
 DEFAULT_MODEL_ROOT = Path.home() / "Documents" / "models"
 WRITER_MODEL = "Qwen3-4B-Instruct-2507-Q4_K_M.gguf"
-VERIFIER_MODEL = "Ministral-3-3B-Instruct-2512-Q4_K_M.gguf"
+# Qwen is also the verifier: the same weights in a separate prompt-only
+# context. It is extraction-independent, but not model-independent.
+VERIFIER_MODEL = WRITER_MODEL
 
 MAC_PROFILE = {"slots": 1, "context": 16384}
 KAGGLE_PROFILE = {"slots": 2, "context": 32768}
