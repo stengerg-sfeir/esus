@@ -252,11 +252,16 @@ def main(argv=None):
                         help="JSON output (default: <root>/review_queue.json)")
     parser.add_argument("--markdown", default=None,
                         help="optional Markdown output path")
+    parser.add_argument("--exclude", default=None,
+                        help="comma-separated prompt names to leave out")
     parser.add_argument("--fail-on-open", action="store_true",
                         help="exit 1 when the queue is non-empty")
     args = parser.parse_args(argv)
     root = Path(args.root)
-    directories = sorted(path for path in root.glob("prompt_*") if path.is_dir())
+    excluded = {item.strip() for item in args.exclude.split(",") if item.strip()} \
+        if args.exclude else set()
+    directories = [path for path in sorted(root.glob("prompt_*"))
+                   if path.is_dir() and path.name not in excluded]
     prompts = []
     unique_fields = []
     for directory in directories:

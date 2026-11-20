@@ -235,6 +235,24 @@ Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
 
+The seven projects awaiting re-extraction can be excluded explicitly:
+
+```bash
+python scripts/run_oracle.py out/validation/kaggle-v8 \
+  --exclude prompt_16,prompt_17,prompt_39,prompt_58,prompt_60,prompt_expenses,prompt_library_system \
+  --output /tmp/oracle-exclude7.json
+python scripts/review_queue.py out/validation/kaggle-v8 \
+  --exclude prompt_16,prompt_17,prompt_39,prompt_58,prompt_60,prompt_expenses,prompt_library_system \
+  --output /tmp/review-exclude7.json
+```
+
+That scope has **59 projects**, **62 cases**, **4 passed**, **24 failed** and
+**34 unbound**. Triage: **17 behavior cases in 12 groups**, **23 case
+defects**, **18 coverage gaps** and **4 passed**. Its review queue is
+**14 items** (12 behavior groups, 1 grounding question and 1 uniqueness
+decision). This is the useful verifier scope until the seven documents are
+re-extracted; it is not a claim that those seven are correct.
+
 Human-confirmed decisions are collected into `oracle_spec.json` and fed to the
 verifier without exposing extracted documents. Only 22 prompts currently have
 such decisions, and the decision block alone did not reduce the failure count;

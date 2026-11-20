@@ -21,6 +21,8 @@ def main(argv=None):
     parser.add_argument("root", help="root containing prompt_* project directories")
     parser.add_argument("--only", default=None,
                         help="comma-separated prompt names")
+    parser.add_argument("--exclude", default=None,
+                        help="comma-separated prompt names to leave out")
     parser.add_argument("--include-assumed", action="store_true",
                         help="run assumed cases as advisory checks")
     parser.add_argument("--output", default=None,
@@ -29,8 +31,11 @@ def main(argv=None):
     root = Path(args.root)
     wanted = {item.strip() for item in args.only.split(",") if item.strip()} \
         if args.only else None
+    excluded = {item.strip() for item in args.exclude.split(",") if item.strip()} \
+        if args.exclude else set()
     projects = [path for path in sorted(root.glob("prompt_*"))
                 if path.is_dir() and (path / case_rules.CASES_NAME).is_file()
+                and path.name not in excluded
                 and (wanted is None or path.name in wanted)]
     results = []
     for project in projects:
