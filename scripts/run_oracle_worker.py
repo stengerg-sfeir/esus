@@ -25,9 +25,11 @@ def run(project, include_assumed=False):
     project = Path(project)
     docs = worker._documents(project)
     case_path = project / case_rules.CASES_NAME
-    all_cases = case_rules.load_cases(case_path)
+    raw_cases = case_rules.load_cases(case_path)
+    all_cases, _errors = case_rules.validate_cases(
+        raw_cases, docs.get("requirements") or "")
     selected = [case for case in all_cases
-                if case.get("status") == "confirmed"
+                if case.get("status") in ("confirmed", "unbound")
                 or (include_assumed and case.get("status") == "assumed")]
     if not selected:
         return {"prompt": project.name, "results": [], "counts": {}}

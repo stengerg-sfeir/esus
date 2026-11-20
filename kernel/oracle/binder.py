@@ -205,12 +205,17 @@ def _method(docs, case):
         candidates = _dedupe(candidates)
     if not candidates:
         return None, f"no generated method matches {case['when'].get('action')!r}"
-    services = [item for item in candidates
-                if item[0] and any(item[0] == holder.get("service_name")
-                                   for holder in docs.get("services") or []
-                                   if isinstance(holder, dict))]
-    if services:
-        candidates = services
+    real_services = [item for item in candidates
+                     if item[0] and normalize(str(item[0])).endswith("service")]
+    if real_services:
+        candidates = real_services
+    else:
+        services = [item for item in candidates
+                    if item[0] and any(item[0] == holder.get("service_name")
+                                       for holder in docs.get("services") or []
+                                       if isinstance(holder, dict))]
+        if services:
+            candidates = services
     if len(candidates) > 1:
         names = ", ".join(f"{holder}.{method['name']}"
                           for holder, method in candidates[:5])

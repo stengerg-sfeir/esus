@@ -92,7 +92,8 @@ def _normalise_then(then, status, ambiguities):
     error = then.get("error")
     if isinstance(error, str):
         lowered = error.strip().lower()
-        if lowered in ("", "none", "null", "no error", "errorname or omit"):
+        if lowered in ("", "none", "null", "no error", "omit", "omitted",
+                       "errorname or omit"):
             then.pop("error", None)
         elif not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", error.strip()):
             ambiguities.append(f"error is not a class name: {error!r}")

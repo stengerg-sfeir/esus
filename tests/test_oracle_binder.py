@@ -67,6 +67,20 @@ class OracleBinderTests(unittest.TestCase):
         self.assertEqual(scenario["when"]["cli"],
                          ["order", "cancel", "--order-id=1"])
 
+    def test_a_service_beats_a_repository_entry_in_the_contract_list(self):
+        docs = dict(DOCS)
+        docs["services"] = [
+            {"service_name": "OrderService", "methods": [{
+                "name": "cancel_order", "params": []}]},
+            {"service_name": "OrderRepository", "methods": [{
+                "name": "cancel_order", "params": []}]},
+        ]
+        docs["repos"] = [{"interface_name": "OrderRepository", "methods": [{
+            "name": "cancel_order", "params": []}]}]
+        scenario, reason = binder.bind_case(case(), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["service"], "OrderService")
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

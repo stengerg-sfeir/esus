@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,300 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,301 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -191,9 +191,9 @@ cases (16 confirmed); the full 66-prompt builder produced **204 valid cases**
 Execution of the 87 confirmed cases, after CRUD-action aliasing and
 service-over-repository preference:
 
-- **3 passed**
-- **51 failed**
-- **33 unbound**
+- **5 passed**
+- **52 failed**
+- **30 unbound**
 
 The failures are informative, not a green light:
 
@@ -216,16 +216,16 @@ queue has **11 grounding questions + 202 oracle findings** requiring triage.
 `scripts/summarize_oracle.py` groups the findings:
 
 - 24 unbound: missing action;
-- 8 unbound: ambiguous action;
+- 5 unbound: ambiguous action;
 - 1 unbound: setup entity;
 - 11 failed: missing setup row;
 - 9 failed: duplicate setup;
 - 11 failed: wrong error;
-- 6 failed: expected error missing;
-- 3 failed: state value;
-- 3 failed: row count;
+- 3 failed: expected error missing;
+- 6 failed: state value;
+- 4 failed: row count;
 - 8 failed: harness/setup shape;
-- 3 passed.
+- 5 passed.
 
 The next decision is review triage, not more generation: classify each group as
 case defect, extraction/generation defect, or real requirement disagreement.
