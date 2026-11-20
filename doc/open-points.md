@@ -341,16 +341,11 @@ to adapters, pattern matches and the rebuilt surface.
 Offline repair on the stored v8 documents removed the spurious
 `confirm_order`/`cancel_order` pairs and the unsupported status/email/region
 queries. After regeneration with reviewed bodies preserved, the acceptance
-state moved to **64/66 complete, 0 incomplete, 0 stubs**.
+state moved to **66/66 complete, 0 stubs**.
 
-Remaining stubs:
-
-- `prompt_19`: `validate_imported_tasks`, `import_tasks_from_json`
-- `prompt_24`: `get_project_with_tasks`
-- `prompt_29`: `get_orders_with_customer_name`
-- `prompt_44`: `get_customer_count_by_region`
-- `prompt_52`: `return_book`
-- `prompt_gui`: `check_storage_location_capacity`
+`prompt_19` now validates imported rows and drops the redundant repository
+import/export twins. `prompt_52` now uses a mechanical return-book body that
+closes the active borrow record and restores book availability.
 
 **Regression tests:** `tests/test_spurious_methods.py`. The full suite is
 **1,312 passed**.

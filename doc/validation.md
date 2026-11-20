@@ -17,7 +17,7 @@ Local replay from that extraction, using the conservative review sidecars and
 the current generator:
 
 - **66/66 generated**
-- **66/66 acceptance projects passed**
+- **66/66 complete acceptance projects**
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
