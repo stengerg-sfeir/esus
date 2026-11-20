@@ -26,7 +26,7 @@ review policy, post-repair adapter re-derivation, grounded repository
 filtering, and mechanical order-placement/stock-check bodies.
 
 Local generation from the v8 extraction took **1,161 s** and produced **66/66**
-projects. The generic acceptance harness passed **66/66 projects, 1,073 checks,
+projects. The generic acceptance harness passed **66/66 projects, 1,023 checks,
 0 failed, 0 not applicable**; the two former state-effect gaps
 (`OrderService.cancel_order`, `LibraryService.return_book`) now have semantic
 scenarios. Unit tests: **1,203 passed**.

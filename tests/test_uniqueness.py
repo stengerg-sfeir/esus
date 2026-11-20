@@ -1,5 +1,6 @@
 """Uniqueness provenance, decisions, and invariant alignment."""
 
+import importlib.util
 import json
 import sys
 import tempfile
@@ -184,6 +185,32 @@ class GeneratorTests(unittest.TestCase):
         email = next(field for field in namespace["SCHEMA"]["Contact"]["fields"]
                      if field["name"] == "email")
         self.assertTrue(email["unique"])
+
+
+def _runtime_worker():
+    path = ROOT / "tests" / "runtime" / "worker.py"
+    spec = importlib.util.spec_from_file_location(
+        "esus_runtime_worker_under_test", path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+class AcceptancePolicyTests(unittest.TestCase):
+    def test_inferred_uniqueness_is_not_asserted_either_way(self):
+        worker = _runtime_worker()
+        self.assertIsNone(worker._unique_asserted(
+            {"unique": True, "unique_status": "inferred"}))
+        self.assertIsNone(worker._unique_asserted(
+            {"unique": False, "unique_status": "inferred"}))
+
+    def test_explicit_and_rejected_uniqueness_are_asserted(self):
+        worker = _runtime_worker()
+        self.assertTrue(worker._unique_asserted(
+            {"unique": True, "unique_status": "explicit"}))
+        self.assertFalse(worker._unique_asserted(
+            {"unique": False, "unique_status": "rejected"}))
 
 
 class SidecarTests(unittest.TestCase):

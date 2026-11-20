@@ -70,6 +70,32 @@ def discover_projects(root):
 _UNIQUE_COUNTER = 1
 
 
+def _unique_enforced(field):
+    """Whether a model field's uniqueness is part of the accepted schema.
+
+    `inferred` is a model naming guess awaiting review; `rejected` was
+    explicitly removed. The generated schema stores neither as unique.
+    """
+    if not isinstance(field, dict) or not field.get("unique"):
+        return False
+    return field.get("unique_status") not in ("inferred", "rejected")
+
+
+def _unique_asserted(field):
+    """The schema uniqueness acceptance may assert, or None when inferred.
+
+    An inferred unique field is an open policy question. A generated program
+    may enforce it or not; neither choice is an acceptance defect until the
+    review confirms or rejects it. Explicit/confirmed must be unique;
+    rejected must not be.
+    """
+    if not isinstance(field, dict):
+        return None
+    if field.get("unique_status") == "inferred":
+        return None
+    return _unique_enforced(field)
+
+
 def _sample(field, number):
     global _UNIQUE_COUNTER
     name = str(field.get("name") or "")
@@ -1023,7 +1049,9 @@ def _check_schema(docs, deps):
                 problems.append(f"{entity}.{name} primary-key flag differs")
             if bool(declared.get("nullable")) != bool(field.get("nullable")):
                 problems.append(f"{entity}.{name} nullability differs")
-            if bool(declared.get("unique")) != bool(field.get("unique")):
+            asserted = _unique_asserted(field)
+            if (asserted is not None
+                    and bool(declared.get("unique")) != asserted):
                 problems.append(f"{entity}.{name} uniqueness differs")
             source_fk = field.get("foreign_key") or {}
             target_fk = declared.get("foreign_key") or {}
@@ -1188,7 +1216,7 @@ def _check_invariants(docs, deps, number):
             if field.get("primary_key"):
                 continue
             name = field["name"]
-            if field.get("unique"):
+            if _unique_asserted(field) is True:
                 try:
                     record, pk = _seed(store, model, number + 5000)
                     values = {key: value for key, value in record.items()

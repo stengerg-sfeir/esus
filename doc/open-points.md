@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,073 checks passed**, **0 generated stubs**, **0 failed**, **1,359 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,361 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -10,7 +10,7 @@ contains claims that have since been superseded, notably that acceptance exists
 only for the library and expenses prompts.
 
 The stored v8 acceptance artifact is green and the checked-in CLI fixtures are
-now aligned with it: **66/66 complete projects, 1,073 passed checks,
+now aligned with it: **66/66 complete projects, 1,023 passed checks,
 0 generated stubs, 0 failures**. This is still not an independent proof of semantic coverage; the
 requirement trace explicitly reports unmapped and untested clauses under item
 7b. The latest Kaggle extraction is `repro66-20261120-074359` (43 successful /
@@ -190,16 +190,16 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **4 passed**
-- **33 failed**
+- **5 passed**
+- **32 failed**
 - **42 unbound**
 
 Triage of the findings:
 
-- **21 behavior cases** in **15 behavior groups**;
-- **33 case defects** (missing/duplicate setup, malformed arguments);
+- **23 behavior cases** in **16 behavior groups**;
+- **30 case defects** (missing/duplicate setup, malformed arguments);
 - **21 coverage gaps** (missing or ambiguous generated actions);
-- **4 passed**.
+- **5 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
@@ -213,13 +213,24 @@ but the narrower service contract was adopted during repair, and the generated
 code still contains the method while the documents no longer bind it. The
 repair now merges step H's custom repository methods before unification, so a
 future repair keeps them; recovering this archived prompt needs re-extraction,
-not hand-editing. The generated programs are also still the pre-uniqueness
-build, so the duplicate-email failures include guards the new generator would
-no longer emit for inferred fields.
+not hand-editing.
+
+Thirty projects with inferred uniqueness were regenerated mechanically with
+`--reuse-reviewed-bodies` and no model call. The generated schema now omits
+those inferred constraints; the acceptance harness treats an unreviewed
+inferred constraint as neither required nor forbidden, so it checks neither
+the schema flag nor a duplicate insertion. That removes the inferred-unique
+checks from the harness count (1,073 -> 1,023) without hiding a failure. The
+remaining projects keep their existing generated code. The five projects that
+still fail mechanical regeneration plus `prompt_17` and `prompt_58` need
+re-extraction before their documents and code are aligned; `prompt_16`,
+`prompt_39`, `prompt_60`, `prompt_expenses` and `prompt_library_system` are
+missing surface/method pieces, and `prompt_58` has an empty persistence
+document.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **18 items:
-15 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **19 items:
+16 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
 Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
@@ -364,7 +375,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,359 passed**.
+is **1,361 passed**.
 
 ## P1/P2 — performance and extraction
 

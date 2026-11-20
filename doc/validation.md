@@ -18,18 +18,24 @@ the current generator:
 
 - **66/66 generated**
 - **66/66 complete acceptance projects**
-- **1,073 checks passed**
+- **1,023 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,359 unit tests passed**
+- **1,361 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
 fixtures. The stored v8 artifact has no `not_applicable` checks.
 
+Unreviewed inferred unique fields are not asserted by the runtime harness:
+they are neither required nor forbidden until `review_uniqueness.py` records
+a decision. Explicit and confirmed constraints are still checked, and rejected
+ones must not be enforced. This removes the old count of inferred-unique
+checks (1,073 -> 1,023) rather than hiding a defect.
+
 The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
-the stored v8 code now gives **66/66 complete projects, 1,073 passed checks,
+the stored v8 code now gives **66/66 complete projects, 1,023 passed checks,
 0 generated stubs, 0 failures**. The separate requirement trace still reports 37 unmapped,
 11 partial and 127 mapped-but-untested clauses; those remain review targets
 (item 7b), not proof of semantic coverage.
@@ -463,7 +469,7 @@ Final result on `out/validation/bench` (historical 2026-11-16 archive):
 - `python3 -m compileall out/validation/bench` is clean.
 
 The current 66-project v8 result above supersedes these counts: **56/66
-complete, 1,073 passed checks, 0 generated stubs, 0 failures**. The generic harness now includes
+complete, 1,023 passed checks, 0 generated stubs, 0 failures**. The generic harness now includes
 state-effect scenarios for cancellation and return, so the older
 `not_applicable` checks are no longer skipped.
 
