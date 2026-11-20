@@ -12,39 +12,11 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from kernel.oracle import triage
+
 
 def category(result):
-    status = result.get("status")
-    reason = str(result.get("reason") or "").lower()
-    if status == "passed":
-        return "passed"
-    if status == "unbound":
-        if "ambiguous action binding" in reason:
-            return "unbound: ambiguous action"
-        if "cannot resolve given entity" in reason or "is not a mapping" in reason:
-            return "unbound: setup entity"
-        if "no generated method" in reason or "no generated cli path" in reason:
-            return "unbound: missing action"
-        return "unbound: other"
-    if status != "failed":
-        return f"{status}: other"
-    if "notfounderror" in reason or "not found" in reason:
-        return "failed: missing setup row"
-    if "already exists" in reason:
-        return "failed: duplicate setup"
-    if "expected" in reason and "no error was raised" in reason:
-        return "failed: expected error missing"
-    if reason.startswith("raised ") and "expected" in reason:
-        return "failed: wrong error"
-    if "row count is" in reason:
-        return "failed: row count"
-    if "is " in reason and ", expected " in reason:
-        return "failed: state value"
-    if any(word in reason for word in ("keyerror", "unknown scenario reference",
-                                       "lookup", "matched 0 records",
-                                       "takes from", "unexpected keyword")):
-        return "failed: harness/setup shape"
-    return "failed: other"
+    return triage.classify(result.get("status"), result.get("reason"))
 
 
 def summarize(report):

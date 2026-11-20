@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,306 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,307 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -211,7 +211,10 @@ stays: prompt-only cases, no extracted documents, human review for setup gaps.
 
 Execution now writes a per-project `oracle_report.json`, marks failed/unbound
 cases `needs_review`, and feeds them into `review_queue.py`. The current v8
-queue has **11 grounding questions + oracle findings** requiring triage.
+queue collapses oracle findings into **16 behavior groups + 10 contradiction
+groups**, plus 11 grounding questions: **37 review items total**, not one per
+candidate case. The candidate assumptions stay in `oracle_cases.json` and do
+not consume the human queue until execution produces evidence.
 
 Human-confirmed decisions are now collected into `oracle_spec.json` and fed to
 the verifier without exposing extracted documents. On the 22 prompts that have

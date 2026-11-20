@@ -42,15 +42,30 @@ class ReviewQueueTests(unittest.TestCase):
             report = review_queue.collect_for_directory(directory)
         self.assertEqual(report, [])
 
-    def test_an_assumed_oracle_case_enters_the_queue(self):
+    def test_an_assumed_oracle_case_stays_out_of_the_human_queue(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "oracle_cases.json").write_text(
                 '{"cases": [{"id": "stock_case", "status": "assumed", '
                 '"assumptions": ["stock starts at 3"]}]}')
             report = review_queue.collect_for_directory(root)
+        self.assertEqual(report, [])
+
+    def test_a_behavior_finding_enters_the_queue_as_one_group(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "oracle_cases.json").write_text(
+                '{"cases": [{"id": "a", "status": "confirmed", '
+                '"triage": "behavior: state value", "needs_review": true, '
+                '"execution": {"status": "failed", "reason": "x"}}, '
+                '{"id": "b", "status": "confirmed", '
+                '"triage": "behavior: state value", "needs_review": true, '
+                '"execution": {"status": "failed", "reason": "y"}}]}')
+            report = review_queue.collect_for_directory(root)
+        self.assertEqual(len(report), 1)
         self.assertEqual(report[0]["group"], "oracle")
-        self.assertEqual(report[0]["source"], "stock_case")
+        self.assertEqual(report[0]["source"], "behavior: state value")
+        self.assertEqual(len(report[0]["candidates"]), 2)
 
     def test_an_inferred_artifact_enters_the_provenance_queue(self):
         with tempfile.TemporaryDirectory() as directory:

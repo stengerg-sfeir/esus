@@ -173,13 +173,30 @@ def collect_for_directory(directory, prompt=None):
         items.append(_item(
             prompt, "provenance", question.get("artifact"), question))
 
+    oracle_groups = {}
     for case in oracle_cases.open_questions(
             oracle_cases.load_cases(directory / oracle_cases.CASES_NAME)):
+        triage = str(case.get("triage") or "")
+        if triage.startswith("behavior"):
+            key = (prompt, triage)
+        elif case.get("status") == "contradictory":
+            key = (prompt, "contradictory")
+        else:
+            # Candidate assumptions are not human questions until execution
+            # produces evidence. They stay in oracle_cases.json.
+            continue
+        oracle_groups.setdefault(key, []).append(case)
+    for (prompt_name, kind), cases in sorted(oracle_groups.items()):
         items.append(_item(
-            prompt, "oracle", case.get("id"), case,
-            {"status": case.get("status"),
-             "assumptions": case.get("assumptions"),
-             "ambiguities": case.get("ambiguities")}))
+            prompt_name, "oracle", kind,
+            {
+                "kind": kind,
+                "cases": [
+                    {"id": case.get("id"), "execution": case.get("execution")}
+                    for case in cases
+                ],
+            },
+            [case.get("id") for case in cases]))
 
     contracts, _context = review_contracts.collect_contracts(str(directory))
     for proposal in contracts:

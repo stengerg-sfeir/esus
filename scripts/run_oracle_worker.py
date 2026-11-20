@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests" / "runtime"))
 
 import worker  # noqa: E402
-from kernel.oracle import binder, cases as case_rules  # noqa: E402
+from kernel.oracle import binder, cases as case_rules, triage  # noqa: E402
 
 
 def run(project, include_assumed=False):
@@ -50,7 +50,8 @@ def run(project, include_assumed=False):
             outcome = {"name": case["id"], "status": "unbound",
                        "reason": reason}
             case["status"] = "unbound"
-            case["needs_review"] = True
+            case["triage"] = triage.classify("unbound", reason)
+            case["needs_review"] = False
             case["execution"] = {"status": "unbound", "reason": reason}
             results.append(outcome)
             continue
@@ -67,10 +68,9 @@ def run(project, include_assumed=False):
             "status": outcome.get("status"),
             "reason": outcome.get("reason", ""),
         }
-        if outcome.get("status") == "failed":
-            case["needs_review"] = True
-        elif outcome.get("status") == "passed":
-            case["needs_review"] = False
+        kind = triage.classify(outcome.get("status"), outcome.get("reason"))
+        case["triage"] = kind
+        case["needs_review"] = kind.startswith("behavior")
         results.append(outcome)
     payload = {"prompt_sha": case_by_id.get(
         selected[0].get("id"), {}).get("prompt_sha"), "cases": all_cases}

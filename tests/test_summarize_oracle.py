@@ -27,15 +27,15 @@ class OracleSummaryTests(unittest.TestCase):
     def test_categories_are_separated(self):
         counts, groups = summarize_oracle.summarize(self.report())
         self.assertEqual(counts["passed"], 1)
-        self.assertEqual(counts["failed: missing setup row"], 1)
-        self.assertEqual(counts["failed: expected error missing"], 1)
-        self.assertEqual(counts["unbound: missing action"], 1)
-        self.assertEqual(counts["unbound: ambiguous action"], 1)
+        self.assertEqual(counts["case_defect: setup"], 1)
+        self.assertEqual(counts["behavior: expected error missing"], 1)
+        self.assertEqual(counts["coverage_gap: missing action"], 1)
+        self.assertEqual(counts["coverage_gap: ambiguous action"], 1)
 
     def test_markdown_names_each_finding(self):
         text = summarize_oracle.markdown(self.report())
         self.assertIn("prompt_x", text)
-        self.assertIn("missing setup row", text)
+        self.assertIn("case_defect: setup", text)
         self.assertIn("sell_product", text)
 
 
