@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,298 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,300 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -212,6 +212,23 @@ stays: prompt-only cases, no extracted documents, human review for setup gaps.
 Execution now writes a per-project `oracle_report.json`, marks failed/unbound
 cases `needs_review`, and feeds them into `review_queue.py`. The current v8
 queue has **11 grounding questions + 202 oracle findings** requiring triage.
+
+`scripts/summarize_oracle.py` groups the findings:
+
+- 24 unbound: missing action;
+- 8 unbound: ambiguous action;
+- 1 unbound: setup entity;
+- 11 failed: missing setup row;
+- 9 failed: duplicate setup;
+- 11 failed: wrong error;
+- 6 failed: expected error missing;
+- 3 failed: state value;
+- 3 failed: row count;
+- 8 failed: harness/setup shape;
+- 3 passed.
+
+The next decision is review triage, not more generation: classify each group as
+case defect, extraction/generation defect, or real requirement disagreement.
 
 Phi-4-mini-instruct Q4_K_M was also tested. It produced only 3 valid cases on
 the same sample, with poor source fidelity and entity confusion (it used
