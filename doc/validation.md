@@ -21,7 +21,7 @@ the current generator:
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,298 unit tests passed**
+- **1,317 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
@@ -29,7 +29,7 @@ fixtures. The stored v8 artifact has no `not_applicable` checks.
 
 The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
-the stored v8 code now gives **52/66 complete projects, 1,073 passed checks,
+the stored v8 code now gives **64/66 complete projects, 1,073 passed checks,
 3 generated stubs, 0 failures**. The separate requirement trace still reports 37 unmapped,
 11 partial and 127 mapped-but-untested clauses; those remain review targets
 (item 7b), not proof of semantic coverage.

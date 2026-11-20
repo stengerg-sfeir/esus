@@ -4,7 +4,7 @@ This guide complements [How the ESUS agent works](how-the-agent-works.md). It ex
 
 ## The short answer
 
-It is not accurate to say that ESUS checks only whether its files are well formed. Some checks compare parts of the extracted design with the original requirements, others check whether related design documents agree, and the generator checks every body the model writes against the confirmed method contract. The generic runtime harness also runs every generated project against a real database; the stored v8 artifact has **57/66 complete projects**, 1,073 passed checks and **13 generated stubs**; those 10 projects are reported as incomplete, not passed. State effects and invalid preconditions are now derived from confirmed contracts rather than prompt-specific fixtures. A separate requirement trace reports clauses that are mapped to design evidence, mapped but untested, only partially matched, or unmapped.
+It is not accurate to say that ESUS checks only whether its files are well formed. Some checks compare parts of the extracted design with the original requirements, others check whether related design documents agree, and the generator checks every body the model writes against the confirmed method contract. The generic runtime harness also runs every generated project against a real database; the stored v8 artifact has **64/66 complete projects**, 1,073 passed checks and **3 generated stubs**; those 2 projects are reported as incomplete, not passed. State effects and invalid preconditions are now derived from confirmed contracts rather than prompt-specific fixtures. A separate requirement trace reports clauses that are mapped to design evidence, mapped but untested, only partially matched, or unmapped.
 
 Those checks cover specific cases. A clean result means **the checks ESUS knows how to make found no blocking problem**. It does not prove that ESUS captured every requirement or that the generated program behaves as the user intended.
 
@@ -71,7 +71,7 @@ These checks are structural. They do not prove that a body behaves correctly, wh
 | Agreement between design documents | They can catch selected contradictions and disconnected parts. |
 | Explicit CLI examples | They can catch some missing commands and flags when the examples use the formats they recognize. |
 | Free-form business requirements | They are not checked comprehensively against the extracted design. |
-| Generated behavior | The readiness probe does not run the generated program. `scripts/run_bench_acceptance.py` does: one fresh interpreter per project, CLI parsing, schema/store round-trips, CRUD, constraints, contract effects and data-driven CLI/semantic scenarios. Current v8: 57/66 complete projects, 9 incomplete due to generated stubs, 1,073 passed checks, 0 failures. |
+| Generated behavior | The readiness probe does not run the generated program. `scripts/run_bench_acceptance.py` does: one fresh interpreter per project, CLI parsing, schema/store round-trips, CRUD, constraints, contract effects and data-driven CLI/semantic scenarios. Current v8: 64/66 complete projects, 2 incomplete due to generated stubs, 1,073 passed checks, 0 failures. |
 | Model-written bodies | Checked against the confirmed contract and the store's API; behavior is only verified on the paths an acceptance test runs. |
 
 ## Example: a uniqueness rule
