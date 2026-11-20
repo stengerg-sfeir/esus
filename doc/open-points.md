@@ -196,8 +196,8 @@ The current execution result is:
 
 Triage of the findings:
 
-- **20 behavior cases** in **15 behavior groups**;
-- **32 case defects** (missing/duplicate setup, malformed arguments);
+- **19 behavior cases** in **15 behavior groups**;
+- **33 case defects** (missing/duplicate setup, malformed arguments);
 - **27 coverage gaps** (missing or ambiguous generated actions).
 
 Most failures are case-construction defects: the verifier uses positional
