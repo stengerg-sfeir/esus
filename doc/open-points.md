@@ -209,6 +209,10 @@ The runner and binder are doing their job by refusing or failing incomplete
 cases. A two-pass builder risks recreating `extract_arch.py`, so the boundary
 stays: prompt-only cases, no extracted documents, human review for setup gaps.
 
+Execution now writes a per-project `oracle_report.json`, marks failed/unbound
+cases `needs_review`, and feeds them into `review_queue.py`. The current v8
+queue has **11 grounding questions + 202 oracle findings** requiring triage.
+
 Phi-4-mini-instruct Q4_K_M was also tested. It produced only 3 valid cases on
 the same sample, with poor source fidelity and entity confusion (it used
 `order` for the library prompt); 5 and 7 cases were rejected on `prompt_32`

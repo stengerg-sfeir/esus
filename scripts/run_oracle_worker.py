@@ -41,11 +41,16 @@ def run(project, include_assumed=False):
     store = deps.get("store")
     cli_path = project / "generated" / "cli.py"
     results = []
+    case_by_id = {case.get("id"): case for case in all_cases}
     for index, case in enumerate(selected, start=1):
         scenario, reason = binder.bind_case(case, docs)
         if scenario is None:
-            results.append({"name": case["id"], "status": "unbound",
-                            "reason": reason})
+            outcome = {"name": case["id"], "status": "unbound",
+                       "reason": reason}
+            case["status"] = "unbound"
+            case["needs_review"] = True
+            case["execution"] = {"status": "unbound", "reason": reason}
+            results.append(outcome)
             continue
         try:
             outcome = worker._run_scenario(
@@ -56,7 +61,19 @@ def run(project, include_assumed=False):
             outcome = {"name": scenario["name"], "status": "failed",
                        "reason": f"harness error: {type(error).__name__}: {error}"}
         outcome["case"] = case["id"]
+        case["execution"] = {
+            "status": outcome.get("status"),
+            "reason": outcome.get("reason", ""),
+        }
+        if outcome.get("status") == "failed":
+            case["needs_review"] = True
+        elif outcome.get("status") == "passed":
+            case["needs_review"] = False
         results.append(outcome)
+    payload = {"prompt_sha": case_by_id.get(
+        selected[0].get("id"), {}).get("prompt_sha"), "cases": all_cases}
+    case_rules.save_cases(case_path, all_cases,
+                          prompt_sha=payload.get("prompt_sha"))
     counts = {}
     for result in results:
         status = result.get("status")

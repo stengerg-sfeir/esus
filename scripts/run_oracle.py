@@ -46,6 +46,9 @@ def main(argv=None):
                        "results": [{"name": "worker", "status": "failed",
                                     "reason": (process.stderr or process.stdout)[-1000:]}],
                        "counts": {"failed": 1}}
+        (project / "oracle_report.json").write_text(
+            json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8")
         results.append(payload)
     counts = {}
     for payload in results:

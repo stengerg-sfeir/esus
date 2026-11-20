@@ -70,6 +70,7 @@ def run_review(output_dir, input_fn=input, out_fn=print):
         if status == "confirmed":
             # A human has resolved the listed assumptions/ambiguities.
             case["human_confirmed"] = True
+            case["needs_review"] = False
             case["assumptions"] = []
             case["ambiguities"] = []
         answered += 1

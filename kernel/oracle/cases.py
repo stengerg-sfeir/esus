@@ -222,4 +222,5 @@ def open_questions(cases):
     """Cases a human must resolve before they can become behavioral proof."""
     return [case for case in cases
             if case.get("status") != "confirmed"
-            or case.get("assumptions") or case.get("ambiguities")]
+            or case.get("assumptions") or case.get("ambiguities")
+            or case.get("needs_review")]
