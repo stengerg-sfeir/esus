@@ -155,6 +155,43 @@ def _action_words(raw):
                 "get", "update", "delete", "remove", "the")}
 
 
+def _missing_setup(case, docs, setup):
+    """A related row a create/update case needs but never seeds."""
+    action = (case.get("when") or {}).get("action") or ""
+    if codegen.classify_crud(action) not in ("create", "update"):
+        # Reads/searches and domain actions do not necessarily read every FK.
+        return None
+    if (case.get("then") or {}).get("error"):
+        # An expected error may be exactly the missing relation.
+        return None
+    by_entity = {normalize(step["entity"]): step for step in setup}
+    for step in setup:
+        model = next((model for model in docs.get("models") or []
+                      if isinstance(model, dict)
+                      and normalize(model.get("name")) == normalize(step["entity"])),
+                     None)
+        if model is None:
+            continue
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            value = (step.get("values") or {}).get(field["name"])
+            if value is None:
+                continue
+            foreign = field.get("foreign_key")
+            target = (foreign.get("target_entity")
+                      if isinstance(foreign, dict) else None)
+            if target and normalize(target) not in by_entity:
+                return (f"setup needs a {target} row for "
+                        f"{step['entity']}.{field['name']}")
+            if target and isinstance(value, dict) and "ref" in value:
+                head = str(value["ref"]).partition(".")[0]
+                if normalize(head) not in {normalize(step["as"]) for step in setup}:
+                    return (f"setup reference {value['ref']!r} has no "
+                            f"{head} row")
+    return None
+
+
 def _method(docs, case):
     raw_action = case.get("when", {}).get("action") or ""
     action = normalize(raw_action)
@@ -260,6 +297,9 @@ def bind_case(case, docs):
     setup, reason = _setup(case, docs, models)
     if setup is None:
         return None, reason
+    missing = _missing_setup(case, docs, setup)
+    if missing:
+        return None, missing
     case_when = case.get("when") or {}
     cli = case_when.get("cli")
     if isinstance(cli, list) and cli:

@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,302 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,304 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -217,13 +217,13 @@ queue has **11 grounding questions + 202 oracle findings** requiring triage.
 
 - 18 unbound: missing action;
 - 5 unbound: ambiguous action;
+- 4 unbound: other (including missing related setup);
 - 1 unbound: setup entity;
 - 9 failed: missing setup row;
-- 3 failed: duplicate setup;
 - 19 failed: wrong error;
 - 7 failed: state value;
-- 6 failed: row count;
-- 5 failed: harness/setup shape;
+- 7 failed: row count;
+- 3 failed: harness/setup shape;
 - 3 passed.
 
 Cases whose expected error class is not named by the prompt are now

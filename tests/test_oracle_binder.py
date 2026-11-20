@@ -81,6 +81,53 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["service"], "OrderService")
 
+    def test_missing_related_setup_is_unbound_for_a_success_case(self):
+        docs = {
+            "models": [
+                {"name": "Customer", "fields": [
+                    {"name": "id", "primary_key": True}]},
+                {"name": "Order", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "customer_id", "foreign_key": {
+                        "target_entity": "Customer", "target_field": "id"}}]},
+            ],
+            "services": [{"service_name": "OrderService", "methods": [{
+                "name": "create_order", "params": []}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "create_order"}, given={
+                "order": {"status": "confirmed", "customer_id": 1}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("Customer row", reason)
+        scenario, reason = binder.bind_case(
+            case(when={"action": "create_order"}, given={
+                "customer": {"id": 1},
+                "order": {"status": "confirmed",
+                          "customer_id": {"ref": "customer.id"}}}), docs)
+        self.assertIsNone(reason)
+        self.assertIsNotNone(scenario)
+
+    def test_an_expected_error_may_use_a_missing_relation(self):
+        docs = {
+            "models": [
+                {"name": "Customer", "fields": [
+                    {"name": "id", "primary_key": True}]},
+                {"name": "Order", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "customer_id", "foreign_key": {
+                        "target_entity": "Customer", "target_field": "id"}}]},
+            ],
+            "services": [{"service_name": "OrderService", "methods": [{
+                "name": "cancel_order", "params": []}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(given={"order": {"status": "confirmed", "customer_id": 99}},
+                 then={"error": "OrderNotFoundError"}), docs)
+        self.assertIsNone(reason)
+        self.assertIsNotNone(scenario)
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)
