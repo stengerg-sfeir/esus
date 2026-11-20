@@ -10,7 +10,8 @@ def classify(status, reason):
     if status == "unbound":
         if "ambiguous action binding" in text:
             return "coverage_gap: ambiguous action"
-        if ("primary-key" in text
+        if ("expected state" in text
+                or "primary-key" in text
                 or "cannot resolve given entity" in text
                 or "is not an entity named" in text
                 or "is not a mapping" in text

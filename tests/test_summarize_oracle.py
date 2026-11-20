@@ -32,6 +32,14 @@ class OracleSummaryTests(unittest.TestCase):
         self.assertEqual(counts["coverage_gap: missing action"], 1)
         self.assertEqual(counts["coverage_gap: ambiguous action"], 1)
 
+    def test_an_undeclared_expected_field_is_a_case_defect(self):
+        self.assertEqual(
+            summarize_oracle.category({
+                "status": "unbound",
+                "reason": "expected state field 'product.quantity' is not declared",
+            }),
+            "case_defect: setup")
+
     def test_missing_primary_key_is_a_case_defect(self):
         self.assertEqual(
             summarize_oracle.category({

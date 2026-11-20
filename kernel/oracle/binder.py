@@ -143,6 +143,74 @@ def _complete_id_args(method, args, setup):
     return args
 
 
+def _complete_update_args(method, args, setup):
+    """Build update kwargs from setup lookup values plus explicit changes."""
+    if codegen.classify_crud(method.get("name") or "") != "update":
+        return args
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return args
+    param_keys = {normalize(name): name for name in params}
+    setup_fields = _setup_fields(setup)
+    aliases = {normalize(step.get("as") or ""): step for step in setup}
+    kwargs = {}
+    for name in params:
+        key = normalize(name)
+        if key in setup_fields:
+            kwargs[name] = setup_fields[key][1]
+        elif key == "id":
+            step = next(iter(aliases.values()), None)
+            if step:
+                kwargs[name] = {"ref": f"{step.get('as')}.id"}
+        elif key.endswith("id"):
+            step = aliases.get(key[:-2])
+            if step:
+                kwargs[name] = {"ref": f"{step.get('as')}.id"}
+    raw = args if isinstance(args, list) else [args]
+    positional = []
+    index = 0
+    while index < len(raw):
+        value = raw[index]
+        if isinstance(value, dict) or (
+                isinstance(value, str) and "." in value
+                and value.split(".")[0] in aliases):
+            index += 1
+            continue
+        if isinstance(value, str) and "=" in value:
+            key, _, text = value.partition("=")
+            key = key.strip()
+            target = param_keys.get(normalize(key))
+            if target:
+                kwargs[target] = text
+                index += 1
+                continue
+        if isinstance(value, str) and index + 1 < len(raw):
+            target = param_keys.get(normalize(value))
+            following = raw[index + 1]
+            if target and not (isinstance(following, str)
+                               and normalize(following) in param_keys):
+                kwargs[target] = following
+                index += 2
+                continue
+        if value not in {v for _a, v in setup_fields.values()}:
+            positional.append(value)
+        index += 1
+    for value in positional:
+        # Prefer an email-shaped parameter for values containing '@'.
+        candidates = [name for name in params
+                      if name not in kwargs and not normalize(name).endswith("id")]
+        if isinstance(value, str) and "@" in value:
+            email = next((name for name in candidates
+                          if "email" in normalize(name)), None)
+            if email:
+                kwargs[email] = value
+                continue
+        if candidates:
+            kwargs[candidates[0]] = value
+    return kwargs or args
+
+
 def _complete_create_args(method, args, setup):
     """For a create, take its values from the case setup, not from positional noise."""
     if codegen.classify_crud(method.get("name") or "") != "create":
@@ -379,6 +447,26 @@ def _args(case, setup):
     return out
 
 
+def _state_field_error(case, docs, models):
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return None
+    for target in state:
+        alias, _, field = str(target).partition(".")
+        if not alias or not field:
+            continue
+        entity = _entity_for(alias, models)
+        model = next((item for item in docs.get("models") or []
+                      if isinstance(item, dict) and item.get("name") == entity), None)
+        if model is None:
+            continue
+        fields = {normalize(item.get("name")) for item in model.get("fields") or []
+                  if isinstance(item, dict) and item.get("name")}
+        if normalize(field) not in fields and normalize(field) not in ("state", "status"):
+            return (f"expected state field {target!r} is not declared on {entity}")
+    return None
+
+
 def bind_case(case, docs):
     """`(scenario, reason)` for the existing worker scenario DSL."""
     models = _models(docs)
@@ -388,6 +476,9 @@ def bind_case(case, docs):
     missing = _missing_setup(case, docs, setup)
     if missing:
         return None, missing
+    state_error = _state_field_error(case, docs, models)
+    if state_error:
+        return None, state_error
     case_when = case.get("when") or {}
     cli = case_when.get("cli")
     if isinstance(cli, list) and cli:
@@ -408,6 +499,7 @@ def bind_case(case, docs):
     args = _complete_id_args(
         method, _service_args(case_when.get("args") or [], setup), setup)
     args = _complete_create_args(method, args, setup)
+    args = _complete_update_args(method, args, setup)
     kind = codegen.classify_crud(method.get("name") or "")
     if kind in ("update", "delete") and not _has_row_identity(method, args):
         return None, "update/delete case supplies no primary-key argument"

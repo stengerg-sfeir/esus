@@ -150,23 +150,6 @@ class OracleBinderTests(unittest.TestCase):
             "name": "Alice", "email": "alice@example.com",
             "age": 30, "salary": 1000})
 
-    def test_an_update_without_a_row_key_is_unbound(self):
-        docs = {
-            "models": [{"name": "Contact", "fields": [
-                {"name": "id", "primary_key": True},
-                {"name": "email"}, {"name": "phone"}]}],
-            "services": [{"service_name": "ContactService", "methods": [{
-                "name": "update", "params": [
-                    {"name": "id"}, {"name": "email"}, {"name": "phone"}]}]}],
-            "repos": [],
-        }
-        scenario, reason = binder.bind_case(
-            case(when={"action": "update",
-                       "args": ["alice@example.com", "555-1234"]},
-                 given={"contact": {"email": "alice@example.com"}}), docs)
-        self.assertIsNone(scenario)
-        self.assertIn("primary-key", reason)
-
     def test_an_update_with_a_key_reference_is_bound(self):
         docs = {
             "models": [{"name": "Contact", "fields": [
@@ -206,6 +189,44 @@ class OracleBinderTests(unittest.TestCase):
             "book_id": {"ref": "book.id"},
             "member_id": {"ref": "member.id"},
         })
+
+    def test_update_uses_setup_lookup_and_explicit_changes(self):
+        docs = {
+            "models": [{"name": "Contact", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "name"}, {"name": "email"}, {"name": "phone"}]}],
+            "services": [{"service_name": "ContactService", "methods": [{
+                "name": "update", "params": [
+                    {"name": "id"}, {"name": "name"},
+                    {"name": "email"}, {"name": "phone"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update",
+                       "args": ["alice@example.com", "phone", "555-5678"]},
+                 given={"contact": {"name": "Alice",
+                                     "email": "alice@example.com",
+                                     "phone": "555-1234"}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"]["phone"], "555-5678")
+        self.assertEqual(scenario["when"]["args"]["email"], "alice@example.com")
+        self.assertEqual(scenario["when"]["args"]["id"], {"ref": "contact.id"})
+
+    def test_an_undeclared_expected_field_is_unbound(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "stock_quantity"}]}],
+            "services": [{"service_name": "ProductService", "methods": [{
+                "name": "update", "params": [{"name": "id"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update", "args": ["product.id"]},
+                 given={"product": {"stock_quantity": 5}},
+                 then={"state": {"product.quantity": 7}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("not declared", reason)
 
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
