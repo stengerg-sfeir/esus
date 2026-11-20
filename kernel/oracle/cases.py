@@ -86,7 +86,7 @@ def _invalid_then(then):
     return None
 
 
-def _normalise_then(then, status, ambiguities):
+def _normalise_then(then, status, ambiguities, requirements=""):
     """Drop schema placeholders/nulls and flag non-class error names."""
     then = dict(then)
     error = then.get("error")
@@ -99,6 +99,13 @@ def _normalise_then(then, status, ambiguities):
             ambiguities.append(f"error is not a class name: {error!r}")
             status = "assumed"
             then.pop("error", None)
+        elif normalize(error) not in normalize(requirements):
+            # The prompt describes the failure, but does not name this class.
+            # Keeping it as confirmed would make an implementation choice look
+            # like a requirement.
+            ambiguities.append(
+                f"error class {error!r} is not named in the requirements")
+            status = "assumed"
     rows = then.get("rows")
     if isinstance(rows, dict):
         then["rows"] = {key: value for key, value in rows.items()
@@ -168,7 +175,8 @@ def validate_cases(raw, requirements, prompt_sha=None):
                        if _known(x)]
         ambiguities = [str(x) for x in item.get("ambiguities") or []
                        if _known(x)]
-        then, status = _normalise_then(then, status, ambiguities)
+        then, status = _normalise_then(
+            then, status, ambiguities, requirements)
         case = {
             "id": case_id,
             "source": " ".join(source.split()),

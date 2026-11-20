@@ -89,6 +89,14 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertNotIn("error", valid[0]["then"])
 
+    def test_an_error_class_not_named_in_the_prompt_is_assumed(self):
+        case = self.case(then={"state": {"order.status": "cancelled"},
+                               "error": "InvalidOrderError"})
+        valid, errors = cases.validate_cases([case], REQUIREMENTS)
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["status"], "assumed")
+        self.assertIn("not named", valid[0]["ambiguities"][0])
+
     def test_a_free_text_error_becomes_an_assumed_case(self):
         case = self.case(then={"state": {"order.status": "cancelled"},
                                "error": "order cannot be cancelled"})
