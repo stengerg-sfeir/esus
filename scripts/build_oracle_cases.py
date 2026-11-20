@@ -65,6 +65,9 @@ Rules:
   entities named by the prompt (for example an order also needs its customer
   and line items when the prompt says so). If a needed row is not stated, mark
   the case `assumed` or `ambiguous`.
+- Setup rows must use distinct ids and must not repeat a unique-looking value
+  (email, isbn, sku, code, title) unless the case explicitly tests duplicate
+  rejection.
 - If a required entity, transition or value is not stated, use status `assumed` or
   `ambiguous` and explain the gap. Never silently fill it.
 - If two requirements contradict, mark the affected cases `contradictory`.

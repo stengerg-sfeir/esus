@@ -215,20 +215,22 @@ queue has **11 grounding questions + 202 oracle findings** requiring triage.
 
 `scripts/summarize_oracle.py` groups the findings:
 
-- 16 unbound: missing action;
+- 18 unbound: missing action;
 - 5 unbound: ambiguous action;
 - 1 unbound: setup entity;
 - 9 failed: missing setup row;
-- 9 failed: duplicate setup;
-- 10 failed: wrong error;
-- 6 failed: state value;
-- 4 failed: row count;
-- 7 failed: harness/setup shape;
-- 4 passed.
+- 3 failed: duplicate setup;
+- 19 failed: wrong error;
+- 7 failed: state value;
+- 6 failed: row count;
+- 5 failed: harness/setup shape;
+- 3 passed.
 
 Cases whose expected error class is not named by the prompt are now
 `assumed`, not confirmed; a Qwen-invented `InvalidEmailError` no longer looks
-like a requirement gap.
+like a requirement gap. The setup-rule rerun reduced duplicate setup from 9 to
+3, but the overall pass count moved from 4 to 3 and failures rose; the builder
+is still not stable enough to scale.
 
 The next decision is review triage, not more generation: classify each group as
 case defect, extraction/generation defect, or real requirement disagreement.
