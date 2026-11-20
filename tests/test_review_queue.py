@@ -1,5 +1,8 @@
 """The review queue exposes unresolved questions without answering them."""
 
+import contextlib
+import io
+import json
 import sys
 import tempfile
 import unittest
@@ -66,6 +69,45 @@ class ReviewQueueTests(unittest.TestCase):
         self.assertEqual(report[0]["group"], "oracle")
         self.assertEqual(report[0]["source"], "behavior: state value")
         self.assertEqual(len(report[0]["candidates"]), 2)
+
+    def test_an_inferred_unique_field_enters_the_uniqueness_queue(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data_models.json").write_text(
+                '{"data_models": [{"name": "Contact", "fields": ['
+                '{"name": "email", "unique": true, '
+                '"unique_status": "inferred"}]}]}')
+            (root / "requirements.txt").write_text("A contact has an email.")
+            report = review_queue.collect_for_directory(root)
+        self.assertEqual(report[0]["group"], "uniqueness")
+        self.assertEqual(report[0]["source"], "Contact.email")
+        self.assertIn("review_uniqueness.py", report[0]["review_command"])
+
+    def test_main_groups_unique_fields_under_one_root_question(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("prompt_a", "prompt_b"):
+                prompt = root / name
+                prompt.mkdir()
+                (prompt / "data_models.json").write_text(
+                    '{"data_models": [{"name": "Contact", "fields": ['
+                    '{"name": "email", "unique": true, '
+                    '"unique_status": "inferred"}]}]}')
+                (prompt / "requirements.txt").write_text(
+                    "A contact has an email.")
+            output = root / "queue.json"
+            with contextlib.redirect_stdout(io.StringIO()):
+                review_queue.main([str(root), "--output", str(output)])
+            report = json.loads(output.read_text())
+        groups = [item["group"] for prompt in report["prompts"]
+                  for item in prompt["items"]]
+        self.assertEqual(groups.count("uniqueness"), 1)
+        self.assertEqual(report["summary"]["groups"]["uniqueness"], 1)
+        unique = next(item for prompt in report["prompts"]
+                      for item in prompt["items"]
+                      if item["group"] == "uniqueness")
+        self.assertTrue(all(not candidate.startswith("None:")
+                            for candidate in unique["candidates"]))
 
     def test_an_inferred_artifact_enters_the_provenance_queue(self):
         with tempfile.TemporaryDirectory() as directory:

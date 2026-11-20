@@ -37,7 +37,7 @@ from pathlib import Path
 from kernel.extraction import adapters_mechanical
 from kernel.extraction import generation_plans
 from kernel.extraction import pipeline as pipeline_module
-from kernel.extraction import runner, triage, writer
+from kernel.extraction import runner, triage, uniqueness, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
 from kernel.extraction.server_backend import ServerError
 from kernel.extraction.decisions import apply_decisions, load_decisions
@@ -464,6 +464,13 @@ def repair_existing(output_dir):
         if decisions:
             documents[pipeline_module.COMPONENTS] = apply_surface_decisions(
                 components, decisions, log, requirements_text=requirements)
+    if isinstance(models, list) and isinstance(
+            documents.get(pipeline_module.INVARIANTS), list):
+        models, invariants = uniqueness.finalize(
+            models, documents[pipeline_module.INVARIANTS],
+            directory, requirements, log)
+        documents[pipeline_module.DATA_MODELS] = models
+        documents[pipeline_module.INVARIANTS] = invariants
     for path in writer.write_documents(directory, documents):
         print(f"[write] {path}")
     return 0
@@ -667,6 +674,15 @@ def run(args):
             documents[pipeline_module.COMPONENTS], dropped, log,
             requirements_text=requirements,
         )
+
+    models = documents.get(pipeline_module.DATA_MODELS)
+    if isinstance(models, list) and isinstance(
+            documents.get(pipeline_module.INVARIANTS), list):
+        models, invariants = uniqueness.finalize(
+            models, documents[pipeline_module.INVARIANTS],
+            output_dir, requirements, log)
+        documents[pipeline_module.DATA_MODELS] = models
+        documents[pipeline_module.INVARIANTS] = invariants
 
     plan_path, plan = generation_plans.write(output_dir, documents, requirements)
     log.write(f"[write] {plan_path}")

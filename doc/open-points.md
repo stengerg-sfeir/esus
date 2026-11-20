@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,073 checks passed**, **0 generated stubs**, **0 failed**, **1,322 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,073 checks passed**, **0 generated stubs**, **0 failed**, **1,357 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -207,9 +207,9 @@ the ones worth review: state transitions, error semantics, row counts and
 parameterized stock behavior.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **22 items:
-15 behavior groups and 7 grounding questions**. Assumed/ambiguous alternatives
-are no longer promoted to contradictions.
+`needs_review`, and feeds the review queue. The current queue has **18 items:
+15 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
+Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
 
@@ -323,6 +323,37 @@ closes the active borrow record and restores book availability.
 
 **Regression tests:** `tests/test_spurious_methods.py`. The full suite is
 **1,312 passed**.
+
+### 16. ✅ Inferred uniqueness has provenance and a review decision (done 2026-11-20)
+
+The data model used to treat every `unique=true` flag as an explicit schema
+fact. For `Contact.email` and `Note.title` the model had guessed from the field
+name; schema-invariant generation then promoted the guess, and the generator
+enforced it as if the prompt had required it. No deterministic repair added
+those flags — the model did.
+
+Every non-key unique field now carries `unique_status` in `data_models.json`:
+
+- `explicit` when the requirements state the field is unique;
+- `inferred` when the model supplied it without prompt evidence;
+- `confirmed` or `rejected` after human review.
+
+Only `explicit` and `confirmed` fields reach the generated schema, create/update
+guards and schema invariants. Inferred fields stay in the document as evidence
+but are not enforced. `review_uniqueness.py` groups them by policy class
+(conventional identifiers, display names, other) and writes
+`unique_decisions.json` per prompt or `unique_policy.json` at a validation
+root. `scripts/review_queue.py` presents the grouped decision once and names
+the resolver; the verifier receives confirmed field/policy decisions through
+`oracle_spec.json`.
+
+Offline repair of the stored v8 documents classified **41 inferred fields**
+and **143 explicit fields**, including primary keys. No model call was made.
+
+**Regression tests:** `tests/test_uniqueness.py`,
+`tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
+`tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
+is **1,357 passed**.
 
 ## P1/P2 — performance and extraction
 

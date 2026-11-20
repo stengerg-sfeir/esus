@@ -66,6 +66,7 @@ With `--chat`, the tool runs the readiness probe and asks a person about what no
 4. **Aliases** (`review_aliases.py`): which model field an action's input feeds.
 5. **Contracts** (`review_contracts.py`): what a method that changes data must do. It proposes effects (a field set, incremented or decremented), the record a method creates, preconditions implied by declared errors, a related model's field a search must read, and a value the returned records carry without being saved (an overdue status derived on read). The person confirms or drops each proposal and answers what the text cannot settle: the amount, the value, the order, and the condition behind an error. A condition is a Python expression that is pasted into the generated code, so it may only use names that exist in that method (a service reaches data through `self._repos[...]`, a repository through `self._store`); `skip` allows the operation with no check.
 6. **Flags** (`review_flags.py`): when a required flag such as `--year` could be supplied by several service methods, the person chooses the service, method, parameter and option type; the answer is stored in `flag_decisions.json` and applied by `extract_arch.py --repair`.
+7. **Uniqueness** (`review_uniqueness.py`): a `unique=true` field the model guessed from its name is recorded as `inferred` and is not enforced. The review groups inferred fields by policy class (conventional identifiers, display names, other) and records confirmations or rejections in `unique_decisions.json`; a validation root can share grouped decisions through `unique_policy.json`.
 
 The loop then resumes the relevant extraction step when that can help. It keeps a rerun only when the blocker count improves; otherwise it restores the previous documents.
 
@@ -255,7 +256,7 @@ For a Sfeir.dev article, a concise way to describe the approach is: **use the mo
 - `kernel/extraction/` contains the prompts, grammars, model runner, and extraction pipeline.
 - `kernel/consistency/` contains checks over the saved architecture documents.
 - `probe_readiness.py` decides whether the documents are ready for code generation.
-- `review_*.py` contains the interactive human-review steps (ties, slots, surface, aliases, contracts).
+- `review_*.py` contains the interactive human-review steps (ties, slots, surface, aliases, contracts, flags, uniqueness).
 - `kernel/extraction/contracts.py` defines the confirmed method-contract record (effects, creates, preconditions, reads, derives).
 - `kernel/repo_patterns/` and `kernel/service_patterns/` hold the pattern catalogues the classifier chooses from.
 - `generator.py` writes the generated Python application and checks the model's bodies; `kernel/codegen.py` plans each method.

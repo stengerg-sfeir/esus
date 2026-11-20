@@ -23,6 +23,7 @@ import review_grounding  # noqa: E402
 import review_slots  # noqa: E402
 import review_surface  # noqa: E402
 import review_ties  # noqa: E402
+import review_uniqueness  # noqa: E402
 from kernel.extraction.decisions import load_decisions  # noqa: E402
 from kernel.oracle import cases as oracle_cases  # noqa: E402
 
@@ -54,6 +55,7 @@ def _review_command(group):
         "grounding": "python review_grounding.py PROMPT_DIR",
         "contracts": "python review_contracts.py PROMPT_DIR",
         "flags": "python review_flags.py PROMPT_DIR",
+        "uniqueness": "python review_uniqueness.py PROMPT_DIR",
         "provenance": "review the inferred artifact and record a decision",
         "oracle": "python scripts/review_oracle.py PROMPT_DIR",
     }.get(group, "")
@@ -173,6 +175,20 @@ def collect_for_directory(directory, prompt=None):
         items.append(_item(
             prompt, "provenance", question.get("artifact"), question))
 
+    unique_questions, _unique_context = review_uniqueness.collect_questions(
+        str(directory))
+    for question in unique_questions:
+        fields = question.get("fields") or []
+        for field in fields:
+            field.setdefault("prompt", prompt)
+        items.append(_item(
+            prompt, "uniqueness",
+            ", ".join(f"{field.get('entity')}.{field.get('field')}"
+                      for field in fields),
+            question,
+            [f"{field.get('entity')}.{field.get('field')}"
+             for field in fields]))
+
     oracle_groups = {}
     for case in oracle_cases.open_questions(
             oracle_cases.load_cases(directory / oracle_cases.CASES_NAME)):
@@ -242,13 +258,36 @@ def main(argv=None):
     root = Path(args.root)
     directories = sorted(path for path in root.glob("prompt_*") if path.is_dir())
     prompts = []
+    unique_fields = []
     for directory in directories:
-        prompts.append({"prompt": directory.name,
-                        "items": collect_for_directory(directory)})
+        items = collect_for_directory(directory)
+        kept = []
+        for item in items:
+            if item["group"] == "uniqueness":
+                unique_fields.extend(
+                    (item.get("question") or {}).get("fields") or [])
+            else:
+                kept.append(item)
+        prompts.append({"prompt": directory.name, "items": kept})
+    if unique_fields:
+        policies = {}
+        for field in unique_fields:
+            policies[field.get("policy")] = policies.get(
+                field.get("policy"), 0) + 1
+        global_item = _item(
+            str(root), "uniqueness", f"{len(unique_fields)} inferred field(s)",
+            {"kind": "inferred_unique", "fields": unique_fields,
+             "policy_counts": policies},
+            [f"{field.get('prompt')}:{field.get('entity')}.{field.get('field')}"
+             for field in unique_fields])
+        global_item["review_command"] = (
+            f"python review_uniqueness.py --root {root}")
+        prompts.append({"prompt": f"{root.name} (all prompts)",
+                        "items": [global_item]})
     report = {
         "root": str(root),
         "summary": {
-            "prompts": len(prompts),
+            "prompts": len(directories),
             "open": sum(len(item["items"]) for item in prompts),
             "groups": {},
         },

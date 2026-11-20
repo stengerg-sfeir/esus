@@ -66,6 +66,22 @@ class SchemaInvariantTests(unittest.TestCase):
                 "Product", "price", "price must be positive"),
             ("positive", "1"))
 
+    def test_inferred_uniqueness_is_not_a_schema_fact(self):
+        documents = {"data_models": [{"name": "Contact", "fields": [
+            {"name": "email", "type": "string", "unique": True,
+             "unique_status": "inferred"}]}]}
+        texts = [entry["text"] for entry in
+                 schema_invariants.schema_invariants(documents, "")]
+        self.assertNotIn("Contact.email must be unique", texts)
+
+    def test_explicit_uniqueness_stays_a_schema_fact(self):
+        documents = {"data_models": [{"name": "Contact", "fields": [
+            {"name": "email", "type": "string", "unique": True,
+             "unique_status": "explicit"}]}]}
+        texts = [entry["text"] for entry in
+                 schema_invariants.schema_invariants(documents, "")]
+        self.assertIn("Contact.email must be unique", texts)
+
     def test_a_slash_vocabulary_becomes_a_schema_invariant(self):
         documents = {"data_models": [{"name": "Expense", "fields": [
             {"name": "payment_method", "type": "string", "nullable": False}]}]}

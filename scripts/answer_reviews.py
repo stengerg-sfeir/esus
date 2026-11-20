@@ -28,6 +28,7 @@ import review_grounding  # noqa: E402
 import review_slots  # noqa: E402
 import review_surface  # noqa: E402
 import review_ties  # noqa: E402
+import review_uniqueness  # noqa: E402
 
 
 
@@ -137,6 +138,14 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
         str(directory), input_fn=lambda _prompt: "skip")
 
     counts["contracts"] = _answer_contracts(directory)
+    uniqueness_questions, _context = review_uniqueness.collect_questions(
+        str(directory))
+    if uniqueness_questions:
+        # A uniqueness guess is a business decision; never answer it
+        # automatically, but report it so the unattended run shows the work.
+        counts["uniqueness"] = (
+            sum(len(question.get("groups") or [])
+                for question in uniqueness_questions), 0)
     inferred = review_contracts.add_inferred_stock_effects(directory)
     if inferred:
         counts["inferred-stock-effects"] = (inferred, inferred)

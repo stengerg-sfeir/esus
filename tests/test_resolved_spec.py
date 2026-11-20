@@ -33,16 +33,28 @@ class ResolvedSpecTests(unittest.TestCase):
                 "decided_by": "user", "requirements_sha": sha,
                 "effects": [{"target": "order.status", "op": "set",
                              "value": "'cancelled'"}]}]}), encoding="utf-8")
+        (root / "unique_decisions.json").write_text(json.dumps({
+            "decisions": [{
+                "entity": "Order", "field": "reference", "unique": True,
+                "decided_by": "user", "requirements_sha": sha}]}),
+            encoding="utf-8")
+        (root / "unique_policy.json").write_text(json.dumps({
+            "policies": [{"policy": "conventional", "unique": False,
+                          "decided_by": "user"}]}), encoding="utf-8")
         return root, sha
 
     def test_only_current_user_decisions_are_included(self):
         with tempfile.TemporaryDirectory() as directory:
             root, _sha = self.project(directory)
             decisions, _ = resolved.collect(root)
-        self.assertEqual(len(decisions), 2)
+        self.assertEqual(len(decisions), 4)
         self.assertTrue(all("inferred" not in json.dumps(item)
                             for item in decisions))
         self.assertTrue(any(item["kind"] == "method_contract"
+                            for item in decisions))
+        self.assertTrue(any(item["kind"] == "unique_constraint"
+                            for item in decisions))
+        self.assertTrue(any(item["kind"] == "unique_policy"
                             for item in decisions))
 
     def test_prompt_section_names_the_decisions(self):

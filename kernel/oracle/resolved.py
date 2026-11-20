@@ -71,6 +71,34 @@ def collect(project):
             "provenance": "method_contracts.json",
         })
 
+    for record in _records(_read(project / "unique_decisions.json"),
+                           "decisions"):
+        if not isinstance(record, dict) or not current(record):
+            continue
+        if not isinstance(record.get("unique"), bool):
+            continue
+        decisions.append({
+            "kind": "unique_constraint",
+            "source": f"{record.get('entity')}.{record.get('field')}",
+            "chosen": {"unique": record["unique"]},
+            "provenance": "unique_decisions.json",
+        })
+
+    policies = _read(project / "unique_policy.json")
+    if not policies and project.parent.is_dir():
+        policies = _read(project.parent / "unique_policy.json")
+    for record in _records(policies, "policies"):
+        if not isinstance(record, dict) or not current(record):
+            continue
+        if not isinstance(record.get("unique"), bool):
+            continue
+        decisions.append({
+            "kind": "unique_policy",
+            "source": record.get("policy"),
+            "chosen": {"unique": record["unique"]},
+            "provenance": "unique_policy.json",
+        })
+
     for filename, keys in (
             ("surface_decisions.json", ("decisions",)),
             ("grounding_decisions.json", ("decisions",)),

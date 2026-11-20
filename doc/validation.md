@@ -21,7 +21,7 @@ the current generator:
 - **1,073 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,322 unit tests passed**
+- **1,357 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
@@ -128,7 +128,9 @@ The remaining questions are the required attended review. Run
 optionally Markdown) with every open question, its source, candidates and
 resolver. The review sidecars are `decisions.json`, `method_slots.json`,
 `surface_decisions.json`, `method_contracts.json`, `grounding_decisions.json`,
-and `flag_decisions.json` for ambiguous method-backed flags. After those decisions
+`unique_decisions.json` for confirmed/rejected inferred unique fields,
+`unique_policy.json` for grouped decisions at a validation root, and
+`flag_decisions.json` for ambiguous method-backed flags. After those decisions
 are written, `extract_arch.py --repair` re-applies the deterministic document
 and adapter repairs; it makes no model calls and does not answer review
 questions.

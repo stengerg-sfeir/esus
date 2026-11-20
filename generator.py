@@ -3274,13 +3274,24 @@ def _unique_fields(ctx, entity):
     mark a descriptive field (`Book.title`) unique while the requirements
     only make `isbn` unique. When the invariants name unique fields for the
     entity, they win; otherwise the model's `unique` flags are the fallback.
-    A field in a composite key (`UNIQUE(category_id, month)`) is not unique
+    A field recorded as inferred or rejected is excluded: a model guess is
+    review evidence, not a requirement. A field in a composite key
+    (`UNIQUE(category_id, month)`) is not unique
     on its own, so it is removed from the per-field list; the table-level
     constraint lives in `_unique_groups`.
     """
-    fields = [name for name, field in fields_of(ctx, entity)
+    by_name = {name: field for name, field in fields_of(ctx, entity)}
+    fields = [name for name, field in by_name.items()
               if not field.get("primary_key")]
     grouped = {name for group in _unique_groups(ctx, entity) for name in group}
+
+    def enforced(name):
+        # A model guess recorded as `inferred` is evidence for review, not a
+        # requirement. Only explicit/confirmed constraints reach the schema
+        # and the create/update guards.
+        return by_name.get(name, {}).get("unique_status") not in (
+            "inferred", "rejected")
+
     invariant_fields = set()
     wanted = normalize(entity)
     for invariant in ctx.get("invariants") or []:
@@ -3291,10 +3302,11 @@ def _unique_fields(ctx, entity):
             if normalize(match.group(1)) == wanted:
                 invariant_fields.add(match.group(2))
     if invariant_fields:
-        return [name for name in fields if name in invariant_fields]
-    return [name for name, field in fields_of(ctx, entity)
-            if field.get("unique") and not field.get("primary_key")
-            and name not in grouped]
+        return [name for name in fields
+                if name in invariant_fields and enforced(name)]
+    return [name for name in fields
+            if by_name[name].get("unique") and not by_name[name].get("primary_key")
+            and name not in grouped and enforced(name)]
 
 
 def _unique_groups(ctx, entity):

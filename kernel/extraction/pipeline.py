@@ -36,6 +36,7 @@ from kernel.extraction import (
     runner,
     schema_invariants,
     service_contracts,
+    uniqueness,
     vocabulary,
 )
 
@@ -394,6 +395,7 @@ class Pipeline:
             repairs.repair_primary_key_uniqueness(body, self.log)
             repairs.repair_primary_key_foreign_keys(body, self.log)
             repairs.repair_primary_key_foreign_key_names(body, self.log)
+            uniqueness.classify_unique_fields(body, requirements, self.log)
             self.documents[DATA_MODELS] = body
         return body
 
@@ -460,6 +462,10 @@ class Pipeline:
             repairs.repair_period_field_types(
                 models, requirements, self.log,
                 body if isinstance(body, list) else None)
+            if isinstance(body, list):
+                body = uniqueness.filter_invariants(models, body, self.log)
+                body = uniqueness.ensure_invariants(models, body, self.log)
+                self.documents[INVARIANTS] = body
             self.documents[DATA_MODELS] = models
 
     def _step_components(self, requirements):

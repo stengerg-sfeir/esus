@@ -145,7 +145,8 @@ def schema_invariants(documents, requirements=""):
                 add(f"{entity_name}.{name} must be {article} {type_word}")
             if not field.get("primary_key") and field.get("nullable") is False:
                 add(f"{entity_name}.{name} must not be null")
-            if not field.get("primary_key") and field.get("unique"):
+            if (not field.get("primary_key") and field.get("unique")
+                    and field.get("unique_status") not in ("inferred", "rejected")):
                 add(f"{entity_name}.{name} must be unique")
             enum_values = _enum_values(name, requirements)
             if enum_values:
