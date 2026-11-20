@@ -35,6 +35,7 @@ class OracleReviewTests(unittest.TestCase):
         self.assertEqual(case["status"], "confirmed")
         self.assertTrue(case["human_confirmed"])
         self.assertEqual(case["assumptions"], [])
+        self.assertFalse(case["needs_review"])
 
 
 if __name__ == "__main__":

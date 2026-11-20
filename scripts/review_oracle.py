@@ -24,6 +24,11 @@ def _describe(index, total, case):
     for key in ("assumptions", "ambiguities"):
         if case.get(key):
             lines.append(f"{key}: " + "; ".join(case[key]))
+    execution = case.get("execution")
+    if isinstance(execution, dict):
+        lines.append(
+            f"execution: {execution.get('status')} — "
+            f"{execution.get('reason') or 'no reason recorded'}")
     lines.append("given: " + json.dumps(case.get("given"), ensure_ascii=False))
     lines.append("when: " + json.dumps(case.get("when"), ensure_ascii=False))
     lines.append("then: " + json.dumps(case.get("then"), ensure_ascii=False))
