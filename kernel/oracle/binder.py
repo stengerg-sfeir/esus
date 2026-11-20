@@ -80,6 +80,42 @@ def _cli_path(action, docs):
     return None
 
 
+def _setup_fields(setup):
+    """`{normalized field: (alias, value)}` from flat setup rows."""
+    fields = {}
+    for step in setup:
+        alias = step.get("as") or step.get("entity")
+        for key, value in (step.get("values") or {}).items():
+            if not isinstance(value, dict) or "ref" not in value:
+                fields.setdefault(normalize(key), (alias, value))
+    return fields
+
+
+def _complete_create_args(method, args, setup):
+    """For a create, take its values from the case setup, not from positional noise."""
+    if codegen.classify_crud(method.get("name") or "") != "create":
+        return args
+    fields = _setup_fields(setup)
+    kwargs = {}
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            continue
+        name = normalize(param["name"])
+        if name in fields:
+            kwargs[param["name"]] = fields[name][1]
+            continue
+        if name.endswith("id"):
+            base = name[:-2]
+            alias = next((step.get("as") for step in setup
+                          if normalize(step.get("as") or "") == base), None)
+            if alias:
+                kwargs[param["name"]] = {"ref": f"{alias}.id"}
+    if isinstance(args, dict):
+        for key, value in args.items():
+            kwargs.setdefault(key, value)
+    return kwargs or args
+
+
 def _service_args(raw, setup):
     if isinstance(raw, dict):
         return raw
@@ -320,7 +356,8 @@ def bind_case(case, docs):
     when = {
         "service": holder,
         "method": method.get("name"),
-        "args": _service_args(case_when.get("args") or [], setup),
+        "args": _complete_create_args(
+            method, _service_args(case_when.get("args") or [], setup), setup),
     }
     return _scenario(case, setup, when), None
 

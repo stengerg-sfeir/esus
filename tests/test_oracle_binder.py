@@ -128,6 +128,28 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertIsNotNone(scenario)
 
+    def test_a_create_uses_the_seeded_fields_as_kwargs(self):
+        docs = {
+            "models": [{"name": "Employee", "fields": [
+                {"name": "employee_id", "primary_key": True},
+                {"name": "name"}, {"name": "email"},
+                {"name": "age"}, {"name": "salary"}]}],
+            "services": [{"service_name": "EmployeeService", "methods": [{
+                "name": "create_employee", "params": [
+                    {"name": "name"}, {"name": "email"},
+                    {"name": "age"}, {"name": "salary"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "create_employee",
+                       "args": ["alice@example.com"]},
+                 given={"employee": {"name": "Alice", "email": "alice@example.com",
+                                     "age": 30, "salary": 1000}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {
+            "name": "Alice", "email": "alice@example.com",
+            "age": 30, "salary": 1000})
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)
