@@ -212,6 +212,93 @@ class OracleBinderTests(unittest.TestCase):
         self.assertEqual(scenario["when"]["args"]["email"], "alice@example.com")
         self.assertEqual(scenario["when"]["args"]["id"], {"ref": "contact.id"})
 
+    def test_flat_update_args_supply_changed_values(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "product_id", "primary_key": True},
+                {"name": "name"}, {"name": "category"},
+                {"name": "price"}, {"name": "quantity"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "update", "params": [
+                    {"name": "product_id"}, {"name": "name"},
+                    {"name": "category"}, {"name": "price"},
+                    {"name": "quantity"}]}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update_product",
+                       "args": ["Mouse", "electronics", 25.0, 15]},
+                 given={"product": {"name": "Mouse", "category": "electronics",
+                                     "price": 25.0, "quantity": 5}},
+                 then={"state": {"product.quantity": 15}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"]["quantity"], 15)
+        self.assertEqual(scenario["when"]["args"]["product_id"],
+                         {"ref": "product.id"})
+
+    def test_an_update_that_supplies_no_new_value_is_unbound(self):
+        docs = {
+            "models": [{"name": "Project", "fields": [
+                {"name": "project_id", "primary_key": True},
+                {"name": "description"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProjectRepository", "methods": [{
+                "name": "update", "params": [
+                    {"name": "project_id"}, {"name": "description"}]}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update_project",
+                       "args": ["project.id", "project.description"]},
+                 given={"project": {"description": "An existing project"}},
+                 then={"state": {
+                     "project.description": "An updated description"}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("supplies no new value", reason)
+
+    def test_a_create_target_is_payload_not_an_existing_row(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "primary_key": True}, {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "create", "params": [{"name": "name"}]}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "create_product", "args": ["Mouse"]},
+                 given={"product": {"name": "Mouse"}},
+                 then={"rows": {"Product": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["setup"][0]["seed"], False)
+        self.assertEqual(scenario["result"],
+                         {"alias": "product", "entity": "Product"})
+        self.assertEqual(scenario["expect"]["rows"], {"Product": 1})
+
+    def test_row_counts_are_deltas_and_entity_aliases_are_canonical(self):
+        docs = {
+            "models": [
+                {"name": "Customer", "fields": [
+                    {"name": "customer_id", "primary_key": True},
+                    {"name": "email"}]},
+                {"name": "AuditLog", "fields": [
+                    {"name": "id", "primary_key": True}]},
+            ],
+            "services": [{"service_name": "CustomerService", "methods": [{
+                "name": "update_customer", "params": [
+                    {"name": "customer_id"}, {"name": "email"}]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update_customer",
+                       "args": ["customer.id", "new@example.com"]},
+                 given={"customer": {"email": "old@example.com"}},
+                 then={"state": {"customer.id": 1},
+                       "rows": {"Customer": 1, "Audit": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["rows"],
+                         {"Customer": 0, "AuditLog": 1})
+        self.assertEqual(scenario["expect"]["fields"],
+                         {"customer.customer_id": 1})
+
     def test_an_undeclared_expected_field_is_unbound(self):
         docs = {
             "models": [{"name": "Product", "fields": [
@@ -224,7 +311,7 @@ class OracleBinderTests(unittest.TestCase):
         scenario, reason = binder.bind_case(
             case(when={"action": "update", "args": ["product.id"]},
                  given={"product": {"stock_quantity": 5}},
-                 then={"state": {"product.quantity": 7}}), docs)
+                 then={"state": {"product.nonexistent": 7}}), docs)
         self.assertIsNone(scenario)
         self.assertIn("not declared", reason)
 

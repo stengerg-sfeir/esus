@@ -20,7 +20,8 @@ from kernel.oracle import triage
 
 
 def category(result):
-    return triage.classify(result.get("status"), result.get("reason"))
+    return triage.classify(result.get("status"), result.get("reason"),
+                           result.get("source"))
 
 
 def summarize(report):

@@ -51,9 +51,10 @@ def run(project, include_assumed=False):
         scenario, reason = binder.bind_case(case, docs)
         if scenario is None:
             outcome = {"name": case["id"], "status": "unbound",
-                       "reason": reason}
+                       "reason": reason, "source": case.get("source")}
             case["status"] = "unbound"
-            case["triage"] = triage.classify("unbound", reason)
+            case["triage"] = triage.classify(
+                "unbound", reason, case.get("source"))
             case["needs_review"] = False
             case["execution"] = {"status": "unbound", "reason": reason}
             results.append(outcome)
@@ -67,11 +68,14 @@ def run(project, include_assumed=False):
             outcome = {"name": scenario["name"], "status": "failed",
                        "reason": f"harness error: {type(error).__name__}: {error}"}
         outcome["case"] = case["id"]
+        outcome["source"] = case.get("source")
         case["execution"] = {
             "status": outcome.get("status"),
             "reason": outcome.get("reason", ""),
         }
-        kind = triage.classify(outcome.get("status"), outcome.get("reason"))
+        kind = triage.classify(
+            outcome.get("status"), outcome.get("reason"),
+            outcome.get("source"))
         case["triage"] = kind
         case["needs_review"] = kind.startswith("behavior")
         results.append(outcome)

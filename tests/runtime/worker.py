@@ -160,6 +160,23 @@ def _model_field_name(model, wanted):
     return wanted
 
 
+def _result_record(value, entity, docs):
+    """A created record as the scenario refs expect it."""
+    model = next((item for item in docs.get("models") or []
+                  if isinstance(item, dict) and item.get("name") == entity), {})
+    pk = next((field.get("name") for field in model.get("fields") or []
+               if isinstance(field, dict) and field.get("primary_key")), "id")
+    if isinstance(value, dict):
+        record = dict(value)
+    elif hasattr(value, "__dict__"):
+        record = dict(vars(value))
+    else:
+        record = {}
+    if pk not in record and isinstance(value, int):
+        record[pk] = value
+    return record
+
+
 def _seed(store, model, number=1, overrides=None):
     pk = next((field.get("name") for field in model.get("fields") or []
                if field.get("primary_key")), "id")
@@ -719,6 +736,10 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
         if model is None:
             return {"name": name, "status": "skipped",
                     "reason": f"unknown setup entity {entity!r}"}
+        if step.get("seed") is False:
+            # A create case describes the row its action creates; it is a
+            # payload, not an existing row. The result ref is filled below.
+            continue
         values = {key: _resolve(value, refs)
                   for key, value in (step.get("values") or {}).items()}
         try:
@@ -779,17 +800,26 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
     raw_args = _resolve(when.get("args") or [], refs)
     try:
         if isinstance(raw_args, dict):
-            method(**raw_args)
+            result = method(**raw_args)
         elif isinstance(raw_args, list):
-            method(*raw_args)
+            result = method(*raw_args)
         else:
-            method(raw_args)
+            result = method(raw_args)
     except Exception as error:  # noqa: BLE001
         expected = (scenario.get("expect") or {}).get("error")
         if expected and type(error).__name__ == expected:
             return {"name": name, "status": "passed"}
         return {"name": name, "status": "failed",
                 "reason": f"raised {type(error).__name__}: {error}; expected {expected!r}"}
+    result_spec = scenario.get("result") or {}
+    if result_spec.get("alias"):
+        record = _result_record(result, result_spec.get("entity"), docs)
+        record["__entity__"] = result_spec.get("entity")
+        refs[result_spec["alias"]] = record
+        refs[f"{result_spec['alias']}.id"] = record.get(
+            next((field.get("name") for field in model_by_entity.get(
+                result_spec.get("entity"), {}).get("fields", [])
+                if field.get("primary_key")), "id"))
     expect = scenario.get("expect") or {}
     if expect.get("error"):
         return {"name": name, "status": "failed",

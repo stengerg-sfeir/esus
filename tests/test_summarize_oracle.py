@@ -40,6 +40,16 @@ class OracleSummaryTests(unittest.TestCase):
             }),
             "case_defect: setup")
 
+    def test_a_soft_delete_case_that_cannot_read_the_row_is_a_behavior_finding(self):
+        self.assertEqual(
+            summarize_oracle.category({
+                "status": "failed",
+                "reason": "cannot read Project: 'not found'",
+                "source": ("Deleting a project must be implemented as a soft "
+                           "delete: the project remains in the database"),
+            }),
+            "behavior: soft delete")
+
     def test_missing_primary_key_is_a_case_defect(self):
         self.assertEqual(
             summarize_oracle.category({

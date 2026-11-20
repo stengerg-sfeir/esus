@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,361 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,366 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -190,16 +190,16 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **5 passed**
-- **32 failed**
-- **42 unbound**
+- **16 passed**
+- **10 failed**
+- **53 unbound**
 
 Triage of the findings:
 
-- **23 behavior cases** in **16 behavior groups**;
-- **30 case defects** (missing/duplicate setup, malformed arguments);
-- **21 coverage gaps** (missing or ambiguous generated actions);
-- **5 passed**.
+- **7 behavior cases** in **4 behavior groups**;
+- **29 case defects** (missing/duplicate setup, malformed arguments);
+- **23 coverage gaps** (missing or ambiguous generated actions);
+- **16 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
@@ -229,8 +229,8 @@ missing surface/method pieces, and `prompt_58` has an empty persistence
 document.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **19 items:
-16 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **7 items:
+4 behavior groups, 1 grouped uniqueness decision and 2 grounding questions**.
 Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
@@ -246,12 +246,22 @@ python scripts/review_queue.py out/validation/kaggle-v8 \
   --output /tmp/review-exclude7.json
 ```
 
-That scope has **59 projects**, **62 cases**, **4 passed**, **24 failed** and
-**34 unbound**. Triage: **17 behavior cases in 12 groups**, **23 case
-defects**, **18 coverage gaps** and **4 passed**. Its review queue is
-**14 items** (12 behavior groups, 1 grounding question and 1 uniqueness
+That scope has **59 projects**, **62 cases**, **13 passed**, **7 failed** and
+**42 unbound**. Triage: **5 behavior cases in 3 groups**, **23 case
+defects**, **21 coverage gaps** and **13 passed**. Its review queue is
+**5 items** (3 behavior groups, 1 grounding question and 1 uniqueness
 decision). This is the useful verifier scope until the seven documents are
 re-extracted; it is not a claim that those seven are correct.
+
+The binder now handles flat and named update arguments, mapping payloads,
+lookup values, missing new values, create payloads that must not be pre-seeded,
+entity aliases (`Audit` -> `AuditLog`), field aliases (`phone` ->
+`phone_number`, `stock_quantity` -> `stock_qty`), boolean availability
+vocabulary, and row-count deltas from setup. These changes moved the excluded
+scope from 4 passed / 24 failed / 34 unbound to 13 passed / 7 failed / 42
+unbound. The unbound count rose because incomplete update/create cases are now
+reported as case defects instead of being executed as if their missing values
+were supplied.
 
 Human-confirmed decisions are collected into `oracle_spec.json` and fed to the
 verifier without exposing extracted documents. Only 22 prompts currently have
@@ -393,7 +403,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,361 passed**.
+is **1,366 passed**.
 
 ## P1/P2 — performance and extraction
 

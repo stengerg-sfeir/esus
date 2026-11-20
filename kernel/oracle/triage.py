@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 
-def classify(status, reason):
+def classify(status, reason, source=None):
     text = str(reason or "").lower()
+    requirement = str(source or "").lower()
     if status == "passed":
         return "passed"
     if status == "unbound":
@@ -22,6 +23,11 @@ def classify(status, reason):
         return "coverage_gap: other"
     if status != "failed":
         return f"{status}: other"
+    if ("cannot read" in text
+            and "soft delete" in requirement
+            and any(word in requirement for word in
+                    ("remains in the database", "still exists", "not removed"))):
+        return "behavior: soft delete"
     if any(word in text for word in (
             "matched 0 records", "matched no records", "notfounderror",
             "not found", "already exists", "unknown scenario reference",
