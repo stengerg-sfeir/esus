@@ -42,6 +42,16 @@ class ReviewQueueTests(unittest.TestCase):
             report = review_queue.collect_for_directory(directory)
         self.assertEqual(report, [])
 
+    def test_an_assumed_oracle_case_enters_the_queue(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "oracle_cases.json").write_text(
+                '{"cases": [{"id": "stock_case", "status": "assumed", '
+                '"assumptions": ["stock starts at 3"]}]}')
+            report = review_queue.collect_for_directory(root)
+        self.assertEqual(report[0]["group"], "oracle")
+        self.assertEqual(report[0]["source"], "stock_case")
+
     def test_an_inferred_artifact_enters_the_provenance_queue(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

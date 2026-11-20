@@ -24,6 +24,7 @@ import review_slots  # noqa: E402
 import review_surface  # noqa: E402
 import review_ties  # noqa: E402
 from kernel.extraction.decisions import load_decisions  # noqa: E402
+from kernel.oracle import cases as oracle_cases  # noqa: E402
 
 
 def _read_json(path):
@@ -54,6 +55,7 @@ def _review_command(group):
         "contracts": "python review_contracts.py PROMPT_DIR",
         "flags": "python review_flags.py PROMPT_DIR",
         "provenance": "review the inferred artifact and record a decision",
+        "oracle": "python scripts/review_oracle.py PROMPT_DIR",
     }.get(group, "")
 
 
@@ -170,6 +172,14 @@ def collect_for_directory(directory, prompt=None):
     for question in _provenance_questions(directory):
         items.append(_item(
             prompt, "provenance", question.get("artifact"), question))
+
+    for case in oracle_cases.open_questions(
+            oracle_cases.load_cases(directory / oracle_cases.CASES_NAME)):
+        items.append(_item(
+            prompt, "oracle", case.get("id"), case,
+            {"status": case.get("status"),
+             "assumptions": case.get("assumptions"),
+             "ambiguities": case.get("ambiguities")}))
 
     contracts, _context = review_contracts.collect_contracts(str(directory))
     for proposal in contracts:

@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,276 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 acceptance projects**, **1,073 checks passed**, **0 failed**, **0 not applicable**, **1,290 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -154,13 +154,28 @@ misunderstanding can remain green. The planned oracle uses Ministral as a
 prompt-only case generator, with Qwen reserved for extraction/generation and
 human review resolving assumptions and contradictions.
 
-`scripts/model_runtime.py` now owns the server lifecycle: one model resident at
-a time, with Mac at **1 slot / 16k total** and Kaggle at **2 slots / 32k
-total**. It starts a role, waits for `/health`, and stops only the child it
-started; no unrelated port owner is killed.
+Implemented:
 
-**Next:** implement the prompt-only case schema/builder, binder and runner,
-then add the Ministral verification phase. The oracle remains extraction-
+- `scripts/model_runtime.py` owns the server lifecycle: one model resident at
+  a time, Mac **1 slot / 16k total**, Kaggle **2 slots / 32k total**. It starts
+  a role, waits for `/health`, and stops only the child it started.
+- `scripts/build_oracle_cases.py` is the prompt-only Ministral builder. It
+  sends the requirements and a generic schema; it never sends extracted
+  documents.
+- `kernel/oracle/cases.py` validates exact prompt spans, statuses and
+  contradictory outcomes.
+- `kernel/oracle/binder.py` binds cases to public generated services without
+  taking expected values from extraction.
+- `scripts/run_oracle_worker.py` / `scripts/run_oracle.py` execute confirmed
+  cases through the existing scenario DSL and write `oracle_report.json`.
+- `scripts/review_oracle.py` lets a human confirm an assumed/ambiguous case;
+  `scripts/review_queue.py` includes the pending cases under `oracle`.
+
+A synthetic v8 `prompt_60` cancel/stock case passed end-to-end. The model
+builder has **not** been run yet, so no prompt-derived cases are committed.
+
+**Next:** start Ministral, run the builder on a small sample, review the
+assumptions, then expand to the 66 prompts. The oracle remains extraction-
 independent, not model-independent.
 
 ### 8. ✅ Contract scenarios are derived generically (done 2026-11-19)

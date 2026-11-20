@@ -73,6 +73,12 @@ A question that does not fit (a flag the answer would delete although the requir
 
 ### Unattended review and archived repair
 
+For prompt-derived behavior, `scripts/build_oracle_cases.py` uses a separate
+verifier model to turn the requirements into `oracle_cases.json`. The model
+sees no extracted documents. Assumed or ambiguous cases go through
+`scripts/review_oracle.py`; only confirmed cases run via `scripts/run_oracle.py`.
+The model runtime starts one server at a time with `scripts/model_runtime.py`.
+
 `scripts/review_queue.py` collects the unresolved questions into
 `review_queue.json` (and optional Markdown), with the source, candidates and
 resolver for each item. It never answers anything.

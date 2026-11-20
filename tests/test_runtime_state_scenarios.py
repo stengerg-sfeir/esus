@@ -33,6 +33,12 @@ class StateStartTests(unittest.TestCase):
             {"invariants": []}, "Order", "status", "cancelled", {}))
 
 
+class ReferenceResolutionTests(unittest.TestCase):
+    def test_a_flat_alias_id_reference_resolves_to_its_pk(self):
+        refs = {"order": {"order_id": 7}, "order.id": 7}
+        self.assertEqual(worker._resolve({"ref": "order.id"}, refs), 7)
+
+
 class FieldNameTests(unittest.TestCase):
     def test_state_and_status_are_the_same_fixture_field(self):
         model = {"fields": [{"name": "status", "type": "string"}]}

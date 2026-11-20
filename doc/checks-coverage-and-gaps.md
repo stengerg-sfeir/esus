@@ -108,6 +108,28 @@ A mapped row is a lead for review, not proof. The trace cannot detect a
 coherent misunderstanding, and it deliberately does not treat a lexical match
 as behavioral coverage.
 
+## Prompt-derived behavioral cases
+
+A separate verification path now exists beside the extracted-document harness:
+
+```text
+requirements.txt
+  → Ministral case builder (prompt only)
+  → oracle_cases.json
+  → human review for assumptions/ambiguities
+  → black-box scenario runner
+  → oracle_report.json
+```
+
+- `scripts/build_oracle_cases.py` never reads extracted JSON or generated code.
+- `kernel/oracle/cases.py` requires each `source` to be an exact prompt span and
+  marks opposite outcomes for the same action/setup as contradictory.
+- Confirmed cases run through `scripts/run_oracle.py`; cases with assumptions,
+  ambiguities or contradictions are skipped until reviewed.
+- `scripts/review_oracle.py` records human confirmation in the case sidecar.
+- The oracle is independent of extraction, not of the model. Report it as
+  model-assisted evidence, not proof.
+
 ## What is still missing
 
 - **Meaning-preserving requirement coverage.** `scripts/requirement_trace.py` now produces a clause-by-clause trace, but its matching is lexical. It makes omissions and untested mappings visible; it does not prove that a mapped artifact preserves the sentence's meaning.

@@ -616,8 +616,11 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
 
 def _resolve(value, refs):
     if isinstance(value, dict) and "ref" in value:
+        reference = str(value["ref"])
+        if reference in refs:
+            return refs[reference]
         current = refs
-        for part in str(value["ref"]).split("."):
+        for part in reference.split("."):
             current = current[part]
         return current
     if isinstance(value, list):
