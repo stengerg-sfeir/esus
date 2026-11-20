@@ -963,6 +963,34 @@ def _required_cli_args(node, number):
     return args
 
 
+def _stub_checks(out_dir):
+    """Report generated methods that still raise NotImplementedError."""
+    checks = []
+    generated = Path(out_dir) / "generated"
+    for filename in ("services.py", "repositories.py", "app.py"):
+        path = generated / filename
+        if not path.is_file():
+            continue
+        try:
+            tree = ast.parse(path.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError):
+            continue
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            raises = [item for item in ast.walk(node)
+                      if isinstance(item, ast.Raise)
+                      and isinstance(item.exc, ast.Call)
+                      and getattr(item.exc.func, "id", "") == "NotImplementedError"]
+            if raises:
+                checks.append({
+                    "name": f"stub:{node.name}",
+                    "status": "skipped",
+                    "reason": "generated method still raises NotImplementedError",
+                })
+    return checks
+
+
 def _check_schema(docs, deps):
     store = deps.get("store")
     schema = getattr(store, "_schema", None)
@@ -1421,6 +1449,7 @@ def run(out_dir):
                             "reason": f"{type(error).__name__}: {error}"}],
                 "traceback": traceback.format_exc()}
     checks.append({"name": "import", "status": "passed"})
+    checks.extend(_stub_checks(out_dir))
     if cli_path.is_file():
         import subprocess
         result = subprocess.run([sys.executable, str(cli_path), "--db", str(db), "--help"],
@@ -1511,9 +1540,11 @@ def run(out_dir):
                                        cli_path=cli_path, db=db,
                                        cli_module=cli))
             sequence += 1
-    return {"prompt": Path(out_dir).name,
-            "status": "passed" if all(c["status"] != "failed" for c in checks) else "failed",
-            "checks": checks}
+    failed = any(c["status"] == "failed" for c in checks)
+    stubbed = any(c["status"] == "skipped"
+                  and str(c["name"]).startswith("stub:") for c in checks)
+    status = "failed" if failed else "incomplete" if stubbed else "passed"
+    return {"prompt": Path(out_dir).name, "status": status, "checks": checks}
 
 
 if __name__ == "__main__":

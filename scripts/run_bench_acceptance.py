@@ -94,11 +94,16 @@ def main(argv=None):
                     "summary": requirement_trace.summarize(traces),
                     "projects": traces}, indent=2) + "\n",
         encoding="utf-8")
+    counts = dict(Counter(item["status"] for item in results))
+    failed = counts.get("failed", 0)
+    incomplete = counts.get("incomplete", 0)
+    overall = "failed" if failed else "incomplete" if incomplete else "passed"
     summary = {
         "root": str(root),
-        "status": "passed" if all(item["status"] == "passed" for item in results)
-                  else "failed",
-        "counts": dict(Counter(item["status"] for item in results)),
+        "status": overall,
+        "counts": counts,
+        "stubs": sum(1 for item in results for check in item["checks"]
+                     if str(check.get("name", "")).startswith("stub:")),
         "coverage": requirement_trace.summarize(traces),
         "results": results,
     }

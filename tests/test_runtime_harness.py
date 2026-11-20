@@ -94,6 +94,24 @@ class FixtureTests(unittest.TestCase):
         self.assertEqual(worker._composite_unique_fields(docs, "Budget"),
                          {"category_id", "month"})
 
+    def test_generated_not_implemented_methods_are_reported(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "generated").mkdir()
+            (root / "generated" / "services.py").write_text(
+                "class Service:\n"
+                "    def done(self):\n"
+                "        return 1\n"
+                "    def missing(self):\n"
+                "        raise NotImplementedError('work')\n",
+                encoding="utf-8")
+            checks = worker._stub_checks(root)
+        self.assertEqual(checks, [{
+            "name": "stub:missing",
+            "status": "skipped",
+            "reason": "generated method still raises NotImplementedError",
+        }])
+
     def test_plural_id_option_gets_a_scalar_id_fixture(self):
         docs = {"models": [{"name": "Product", "fields": [
             {"name": "id", "type": "int", "primary_key": True}]}]}
