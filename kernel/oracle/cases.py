@@ -52,6 +52,34 @@ def _entity_named(alias, requirements):
     return token in words or token + "s" in words
 
 
+def _is_app_case(when):
+    return isinstance(when, dict) and when.get("app") is True
+
+
+def _invalid_when(when):
+    if not isinstance(when, dict):
+        return "when must be an object"
+    if _is_app_case(when):
+        args = when.get("args")
+        if args is not None and not isinstance(args, list):
+            return "when.args must be a list"
+        stdin = when.get("stdin")
+        if stdin is not None and not isinstance(stdin, str):
+            return "when.stdin must be a string"
+        files = when.get("files")
+        if files is not None:
+            if not isinstance(files, dict):
+                return "when.files must be a mapping"
+            for name, content in files.items():
+                if not isinstance(name, str) or not isinstance(content, str):
+                    return "when.files entries must be string paths and content"
+        return None
+    if not _known(when.get("action")) and not (
+            isinstance(when.get("cli"), list) and when["cli"]):
+        return "when needs action, cli or app"
+    return None
+
+
 def _invalid_given(given, requirements):
     for alias, values in given.items():
         if not _entity_named(alias, requirements):
@@ -83,6 +111,12 @@ def _invalid_then(then):
     rows = then.get("rows")
     if rows is not None and not isinstance(rows, dict):
         return "then.rows must be a mapping"
+    stdout = then.get("stdout_contains")
+    if stdout is not None and not isinstance(stdout, str):
+        return "then.stdout_contains must be a string"
+    code = then.get("exit_code")
+    if code is not None and (isinstance(code, bool) or not isinstance(code, int)):
+        return "then.exit_code must be an integer"
     return None
 
 
@@ -142,26 +176,27 @@ def validate_cases(raw, requirements, prompt_sha=None):
         if not _source_present(source, requirements):
             errors.append(f"{label}: source is not a prompt span")
             continue
+        when = item.get("when")
+        bad_when = _invalid_when(when)
+        if bad_when:
+            errors.append(f"{label}: {bad_when}")
+            continue
         given = item.get("given")
-        if not isinstance(given, dict) or not given:
+        if not isinstance(given, dict):
+            errors.append(f"{label}: given must be an alias mapping")
+            continue
+        if not given and not _is_app_case(when):
             errors.append(f"{label}: given must be a non-empty alias mapping")
             continue
         bad_given = _invalid_given(given, requirements)
         if bad_given:
             errors.append(f"{label}: {bad_given}")
             continue
-        when = item.get("when")
-        if not isinstance(when, dict):
-            errors.append(f"{label}: when must be an object")
-            continue
-        if not _known(when.get("action")) and not (
-                isinstance(when.get("cli"), list) and when["cli"]):
-            errors.append(f"{label}: when needs action or cli")
-            continue
         then = item.get("then")
         if not isinstance(then, dict) or not any(
-                key in then for key in ("state", "error", "rows")):
-            errors.append(f"{label}: then needs state, error or rows")
+                key in then for key in ("state", "error", "rows",
+                                        "stdout_contains", "exit_code")):
+            errors.append(f"{label}: then needs an observable outcome")
             continue
         bad_then = _invalid_then(then)
         if bad_then:
@@ -203,7 +238,9 @@ def validate_cases(raw, requirements, prompt_sha=None):
         case["status"] = case["base_status"]
     for left in cases:
         for right in cases:
-            if left is right or left["when"].get("action") != right["when"].get("action"):
+            if left is right or _is_app_case(left["when"]) \
+                    or _is_app_case(right["when"]) \
+                    or left["when"].get("action") != right["when"].get("action"):
                 continue
             if not _same(left["given"], right["given"]):
                 continue

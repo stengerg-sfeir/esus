@@ -1072,6 +1072,14 @@ def bind_case(case, docs):
     if isinstance(cli, list) and cli:
         scenario_when = {"cli": [str(item) for item in cli]}
         return _scenario(case, setup, scenario_when, models, create_target), None
+    if case_when.get("app") is True:
+        when = {"app": True,
+                "args": [str(item) for item in case_when.get("args") or []],
+                "stdin": case_when.get("stdin") or ""}
+        if isinstance(case_when.get("files"), dict):
+            when["files"] = {str(key): str(value)
+                             for key, value in case_when["files"].items()}
+        return _scenario(case, setup, when, models), None
     if not case_when.get("action"):
         return None, "case has no action or cli"
     if " " in str(case_when.get("action")):
@@ -1186,6 +1194,12 @@ def _scenario(case, setup, when, models=None, create_target=None,
                         normalize(entity), 0)
             rows = canonical
         expect["rows"] = rows
+    stdout = then.get("stdout_contains")
+    if isinstance(stdout, str) and stdout:
+        expect["stdout_contains"] = stdout
+    if isinstance(then.get("exit_code"), int) and not isinstance(
+            then.get("exit_code"), bool):
+        expect["exit_code"] = then["exit_code"]
     error = then.get("error")
     if isinstance(error, str) and error.strip().lower() in (
             "", "none", "null", "no error"):

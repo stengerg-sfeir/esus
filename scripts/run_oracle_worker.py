@@ -36,15 +36,18 @@ def run(project, include_assumed=False, cases_name=None):
                 or (include_assumed and case.get("status") == "assumed")]
     if not selected:
         return {"prompt": project.name, "results": [], "counts": {}}
-    try:
-        cli, deps, db = worker._load_package(project)
-    except Exception as error:  # noqa: BLE001
-        return {"prompt": project.name, "status": "failed",
-                "results": [{"status": "failed", "name": "import",
-                             "reason": f"{type(error).__name__}: {error}"}],
-                "counts": {"failed": 1}}
-    store = deps.get("store")
     cli_path = project / "generated" / "cli.py"
+    if cli_path.is_file():
+        try:
+            cli, deps, db = worker._load_package(project)
+        except Exception as error:  # noqa: BLE001
+            return {"prompt": project.name, "status": "failed",
+                    "results": [{"status": "failed", "name": "import",
+                                 "reason": f"{type(error).__name__}: {error}"}],
+                    "counts": {"failed": 1}}
+        store = deps.get("store")
+    else:
+        cli, deps, db, store = None, {}, None, None
     results = []
     case_by_id = {case.get("id"): case for case in all_cases}
     for index, case in enumerate(selected, start=1):
@@ -63,7 +66,8 @@ def run(project, include_assumed=False, cases_name=None):
             outcome = worker._run_scenario(
                 docs, deps, store, scenario, index,
                 cli_path=cli_path if cli_path.is_file() else None,
-                db=db, cli_module=cli)
+                db=db, cli_module=cli,
+                app_path=project / "generated" / "app.py")
         except Exception as error:  # noqa: BLE001
             outcome = {"name": scenario["name"], "status": "failed",
                        "reason": f"harness error: {type(error).__name__}: {error}"}

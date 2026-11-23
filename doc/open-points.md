@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,387 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,389 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -228,6 +228,11 @@ re-extraction before their documents and code are aligned; `prompt_16`,
 missing surface/method pieces, and `prompt_58` has an empty persistence
 document.
 
+Verifier cases also support stateless `app` programs: empty setup, process
+arguments/stdin, optional relative input files, and stdout/exit-code
+expectations. This mirrors the extractor's single-file fallback without
+pretending the program has a domain model.
+
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
 case defects; the uniqueness policy is recorded as “reject all inferred” and
@@ -412,7 +417,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,387 passed**.
+is **1,389 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -439,7 +444,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,387 passed**.
+suite is **1,389 passed**.
 
 ## P1/P2 — performance and extraction
 

@@ -733,7 +733,7 @@ def _clear_store(store):
 
 
 def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
-                  cli_module=None):
+                  cli_module=None, app_path=None):
     name = f"scenario:{scenario.get('name') or 'unnamed'}"
     if scenario.get("setup"):
         _clear_store(store)
@@ -764,6 +764,39 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
     row_baseline = {entity: len(store.all(entity))
                     for entity in model_by_entity}
     when = scenario.get("when") or {}
+    if when.get("app") is True:
+        if app_path is None or not Path(app_path).is_file():
+            return {"name": name, "status": "skipped",
+                    "reason": "standalone app.py unavailable"}
+        args = [str(item) for item in when.get("args") or []]
+        stdin = when.get("stdin") or ""
+        import tempfile
+        with tempfile.TemporaryDirectory(prefix="esus-app-") as work:
+            workdir = Path(work)
+            for relative, content in (when.get("files") or {}).items():
+                target = workdir / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(content, encoding="utf-8")
+            try:
+                run = subprocess.run(
+                    [sys.executable, str(app_path), *args],
+                    input=stdin, capture_output=True, text=True,
+                    timeout=15, cwd=str(workdir))
+            except subprocess.TimeoutExpired:
+                return {"name": name, "status": "failed",
+                        "reason": "standalone app timed out"}
+        expect = scenario.get("expect") or {}
+        expected_code = expect.get("exit_code", 0)
+        if run.returncode != expected_code:
+            return {"name": name, "status": "failed",
+                    "reason": (f"exit code {run.returncode}, expected "
+                               f"{expected_code}; stderr={run.stderr[-300:]}")}
+        expected_text = expect.get("stdout_contains")
+        if isinstance(expected_text, str) and expected_text not in run.stdout:
+            return {"name": name, "status": "failed",
+                    "reason": f"stdout does not contain {expected_text!r}: "
+                              f"{run.stdout[-300:]!r}"}
+        return {"name": name, "status": "passed"}
     if "cli" in when or "cli_variants" in when:
         if cli_path is None or db is None:
             return {"name": name, "status": "skipped",
@@ -1679,9 +1712,10 @@ def run(out_dir):
         except ValueError:
             scenarios = {}
         for scenario in (scenarios.get("scenarios") or []):
-            checks.append(_run_scenario(docs, deps, store, scenario, sequence,
-                                       cli_path=cli_path, db=db,
-                                       cli_module=cli))
+            checks.append(_run_scenario(
+                docs, deps, store, scenario, sequence,
+                cli_path=cli_path, db=db, cli_module=cli,
+                app_path=Path(out_dir) / "generated" / "app.py"))
             sequence += 1
     failed = any(c["status"] == "failed" for c in checks)
     stubbed = any(c["status"] == "skipped"

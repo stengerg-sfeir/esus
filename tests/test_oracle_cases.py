@@ -47,6 +47,18 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(valid, [])
         self.assertIn("source is not a prompt span", errors[0])
 
+    def test_an_app_case_may_have_no_domain_setup(self):
+        requirements = "The calculator prints the result."
+        valid, errors = cases.validate_cases([{
+            "id": "adds", "source": "The calculator prints the result.",
+            "given": {},
+            "when": {"app": True, "args": ["2", "+", "3"]},
+            "then": {"stdout_contains": "5", "exit_code": 0},
+            "status": "confirmed",
+        }], requirements)
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["then"]["stdout_contains"], "5")
+
     def test_an_unknown_status_is_rejected(self):
         valid, errors = cases.validate_cases(
             [self.case(status="maybe")], REQUIREMENTS)

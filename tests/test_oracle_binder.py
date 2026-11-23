@@ -477,6 +477,16 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(scenario)
         self.assertIn("hard-deleted row", reason)
 
+    def test_a_standalone_app_case_binds_with_empty_setup(self):
+        docs = {"models": [], "services": [], "repos": []}
+        scenario, reason = binder.bind_case(
+            case(given={}, when={"app": True, "args": ["2", "+", "3"]},
+                 then={"stdout_contains": "5", "exit_code": 0}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["setup"], [])
+        self.assertEqual(scenario["when"]["args"], ["2", "+", "3"])
+        self.assertEqual(scenario["expect"]["stdout_contains"], "5")
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

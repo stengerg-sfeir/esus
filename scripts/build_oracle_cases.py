@@ -18,7 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from kernel.extraction import runner  # noqa: E402
+from kernel.extraction import runner, triage  # noqa: E402
 from kernel.extraction.decisions import requirements_sha  # noqa: E402
 from kernel.oracle import cases as case_rules, resolved  # noqa: E402
 
@@ -89,6 +89,11 @@ Rules:
   nest domain objects or lists. For multiple rows, use aliases such as `book_1`,
   `book_2`.
 - `then.state` must be flat `alias.field` -> scalar value. Do not nest objects.
+- A simple program with no stored entity or CLI file protocol may use an app
+  case instead: `"given": {{}}`, `"when": {{"app": true, "args": ["2", "+", "3"],
+  "stdin": ""}}`, and `"then": {{"stdout_contains": "5", "exit_code": 0}}`.
+  Use `app` only for a standalone generated script, never as a substitute for
+  a domain action.
 - For list/filter/search cases, seed enough rows to produce the expected result,
   including every parent row the filter reads (for example a product filter by
   category also needs its category row).
@@ -159,10 +164,14 @@ Return JSON matching:
 Rules:
 - `source` must be copied exactly from a sentence or command example in the requirements.
 - `setup_entities` must include the action target and every related row the
-  action reads. Use prompt entity nouns only.
+  action reads. Use prompt entity nouns only. For a simple standalone program
+  with no stored entity, use `"when": {{"app": true, "args": [...]}}`,
+  `"setup_entities": []`, and `"expect": {{"stdout_contains": "...",
+  "exit_code": 0}}` instead.
 - `expect.state` lists observable `alias.field` paths, without values.
   `expect.rows` lists expected row counts by entity. `expect.error` names an
-  error only when the requirements name or clearly describe it.
+  error only when the requirements name or clearly describe it. App plans use
+  `expect.stdout_contains` and `expect.exit_code` instead.
 - Do not plan a case with no observable outcome.
 - Do not invent sort options, file abstractions, statuses or payload shapes.
 - `status` is `confirmed` only when the requirement states the behavior;
@@ -199,6 +208,46 @@ REQUIREMENTS:
 """
 
 
+def build_app_prompt(requirements, coverage=None):
+    coverage_section = ""
+    if coverage:
+        listed = "\n".join(f"- {clause}" for clause in coverage)
+        coverage_section = (
+            "\nTARGET CLAUSES:\n" + listed + "\n"
+            "Return only app cases for these clauses.\n")
+    return f"""You are a requirements analyst for a stateless one-file program.
+The program has no stored entities or domain records. Do not invent entities,
+tables, repositories or setup rows. Test it as a process.
+
+Return JSON:
+{{"cases": [
+  {{
+    "id": "short_unique_id",
+    "source": "exact sentence from the requirements",
+    "given": {{}},
+    "when": {{"app": true, "args": ["..."], "stdin": "",
+              "files": {{"test.csv": "header1,header2\nvalue1,value2\n"}}}},
+    "then": {{"stdout_contains": "...", "exit_code": 0}},
+    "status": "confirmed | assumed | ambiguous"
+  }}
+]}}
+
+Rules:
+- `source` must be copied exactly from the requirements.
+- Use `args` only for arguments named or clearly implied by the requirements.
+  If the exact CLI argument syntax is not stated, mark the case `assumed`.
+- When the program reads a file named by an argument, provide a small
+  `when.files` fixture for that relative path.
+- Assert observable stdout text and/or the process exit code.
+- Do not use state, rows, entities, files or placeholders.
+- At most 5 cases; choose the highest-risk behaviors.
+
+REQUIREMENTS:
+{requirements}
+{coverage_section}
+"""
+
+
 def build_materialize_prompt(requirements, plans, resolved_section=""):
     plan_json = json.dumps({"plans": plans}, indent=2, ensure_ascii=False)
     return f"""You are a requirements analyst. Read only the requirements and the
@@ -222,6 +271,8 @@ Rules:
   Do not invent sort options, file abstractions or payload shapes.
 - `given` is flat alias -> field -> scalar. Use `book_1`, `book_2` for multiple rows.
 - `then.state` is flat `alias.field` -> scalar.
+- A simple standalone program may use `"given": {{}}`, `"when": {{"app": true,
+  "args": [...]}}, and `"then": {{"stdout_contains": "...", "exit_code": 0}}`.
 - For a create case, every expected field value must equal the supplied value
   unless the requirements say it is computed or defaulted.
 - For a delete case, assert the resulting row count; do not read fields from the
@@ -289,7 +340,7 @@ def parse_payload(text):
 
 def build_one(project, model_path, context=8192, max_new_tokens=8192,
               out=print, coverage=None, append=False, cases_name=None,
-              two_stage=False, repair_attempts=0):
+              two_stage=False, repair_attempts=0, triage_simple=False):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -302,7 +353,13 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
     llm = runner.load_model(model_path, context_size=context, quiet=True)
     framing = runner.generate_chat if runner.has_chat_template(llm) else runner.generate_free
     resolved_section = resolved.prompt_section(project)
-    if two_stage:
+    simple_app = False
+    if triage_simple:
+        simple_app = triage.classify(llm, requirements).answer == "N"
+    if simple_app:
+        prompt = build_app_prompt(requirements, coverage=coverage)
+        label = f"oracle-app:{project.name}"
+    elif two_stage:
         plan_prompt = build_plan_prompt(requirements, resolved_section,
                                         coverage=coverage)
         plan_result = framing(llm, plan_prompt, f"oracle-plan:{project.name}",
@@ -390,6 +447,8 @@ def main(argv=None):
                         help="plan case intents first, then materialize values")
     parser.add_argument("--repair-attempts", type=int, default=0,
                         help="same-model repair attempts after case validation")
+    parser.add_argument("--triage-simple", action="store_true",
+                        help="use the extractor's domain triage for app-only cases")
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -418,7 +477,8 @@ def main(argv=None):
                 project, args.model, args.context, args.max_new_tokens,
                 coverage=coverage.get(project.name), append=args.append,
                 cases_name=args.cases_name, two_stage=args.two_stage,
-                repair_attempts=args.repair_attempts)
+                repair_attempts=args.repair_attempts,
+                triage_simple=args.triage_simple)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: oracle build failed ({error})")
