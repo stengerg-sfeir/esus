@@ -135,6 +135,19 @@ class SpuriousMethodTests(unittest.TestCase):
             for repo in docs["persistence_ports"]["repositories"]
             for m in repo.get("methods") or []))
 
+    def test_a_missing_repository_list_is_treated_as_empty(self):
+        docs = {
+            "data_models": [],
+            "service_contracts": [{"service_name": "S", "methods": [
+                {"name": "invented", "params": []}]}],
+            "persistence_ports": {"repositories": None},
+            "interaction_adapters": [],
+            "pattern_matches": [],
+        }
+        drops = repairs.repair_ungrounded_methods(
+            docs, "Create things.", None)
+        self.assertEqual(len(drops), 1)
+
     def test_a_model_grounded_return_is_kept(self):
         docs = {
             "data_models": [{"name": "Book", "fields": [

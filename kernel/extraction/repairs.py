@@ -2066,7 +2066,8 @@ def repair_ungrounded_methods(documents, requirements, intentions=None, log=None
     """Remove methods with no prompt/model evidence and cascade references."""
     services = documents.get("service_contracts") or []
     ports = documents.get("persistence_ports") or {}
-    repositories = ports.get("repositories") if isinstance(ports, dict) else []
+    repositories = ((ports.get("repositories") if isinstance(ports, dict) else [])
+                    or [])
     models = documents.get("data_models") or []
     drops = ungrounded_methods(services, repositories, models, requirements,
                                intentions)
