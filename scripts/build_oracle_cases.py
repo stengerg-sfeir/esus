@@ -55,9 +55,11 @@ def build_prompt(requirements, resolved_section="", coverage=None):
         coverage_section = (
             "\nUNCOVERED REQUIREMENT CLAUSES TO TARGET:\n"
             f"{listed}\n"
-            "Generate additional cases specifically for these clauses. Do not "
-            "duplicate an action/setup already covered by the requirements. "
-            "Keep the same prompt-only, observable-behavior rules.\n"
+            "Return ONLY cases whose `source` is one of these clauses. Do not "
+            "return cases for other requirements, do not duplicate an existing "
+            "action/setup, and keep the same prompt-only observable-behavior "
+            "rules. If a clause has no concrete observable behavior, return no "
+            "case for it.\n"
         )
     return f"""You are a requirements analyst. Read only the requirements below.
 Do not use or infer an extracted architecture, database schema, method contract
