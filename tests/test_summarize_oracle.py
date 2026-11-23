@@ -50,6 +50,18 @@ class OracleSummaryTests(unittest.TestCase):
             }),
             "behavior: soft delete")
 
+    def test_incomplete_case_payloads_are_case_defects(self):
+        for reason in (
+                "update case supplies no new value for 'user.role'",
+                "create case supplies no value for required field Order.order_date",
+                "case passes parameter name 'query' as a literal value",
+                "list case expects fewer rows than its setup but performs no delete"):
+            with self.subTest(reason=reason):
+                self.assertEqual(
+                    summarize_oracle.category({
+                        "status": "unbound", "reason": reason}),
+                    "case_defect: setup")
+
     def test_missing_primary_key_is_a_case_defect(self):
         self.assertEqual(
             summarize_oracle.category({
