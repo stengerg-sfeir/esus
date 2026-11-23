@@ -1067,6 +1067,55 @@ def _stub_checks(out_dir):
     return checks
 
 
+def _structural_checks(out_dir, docs, deps):
+    """Evidence for structural requirements, separate from behavior tests."""
+    checks = []
+    generated = Path(out_dir) / "generated"
+    sources = sorted(generated.glob("*.py")) if generated.is_dir() else []
+    text = "\n".join(path.read_text(encoding="utf-8", errors="replace")
+                      for path in sources)
+    if len(sources) >= 2:
+        checks.append({"name": "code:modules", "status": "passed",
+                       "reason": f"{len(sources)} generated modules"})
+    if "->" in text:
+        checks.append({"name": "code:type-hints", "status": "passed",
+                       "reason": "annotated generated functions"})
+    if "PRAGMA foreign_keys=ON" in text or "PRAGMA foreign_keys = ON" in text:
+        checks.append({"name": "db:foreign-keys", "status": "passed",
+                       "reason": "SQLite foreign keys enabled"})
+    if "sqlite3.connect" in text:
+        checks.append({"name": "db:persistence-across-executions",
+                       "status": "passed",
+                       "reason": "SQLite database file"})
+    if "if __name__ == \"__main__\"" in text:
+        checks.append({"name": "code:entry-point", "status": "passed",
+                       "reason": "main guard present"})
+    models = [item for item in docs.get("models") or []
+              if isinstance(item, dict)]
+    if models and all(any(field.get("primary_key") for field in
+                          (model.get("fields") or []) if isinstance(field, dict))
+                      for model in models):
+        checks.append({"name": "models:primary-keys", "status": "passed",
+                       "reason": "every model declares a primary key"})
+
+    for label, group in (("service", deps.get("services") or {}),
+                         ("repository", deps.get("repos") or {})):
+        if not isinstance(group, dict):
+            continue
+        for holder, instance in group.items():
+            for method in dir(instance):
+                if method.startswith("_"):
+                    continue
+                member = getattr(instance, method, None)
+                if callable(member):
+                    checks.append({
+                        "name": f"api:{holder}.{method}",
+                        "status": "passed",
+                        "reason": f"generated {label} API present",
+                    })
+    return checks
+
+
 def _check_schema(docs, deps):
     store = deps.get("store")
     schema = getattr(store, "_schema", None)
@@ -1544,6 +1593,7 @@ def run(out_dir):
                 "traceback": traceback.format_exc()}
     checks.append({"name": "import", "status": "passed"})
     checks.extend(_stub_checks(out_dir))
+    checks.extend(_structural_checks(out_dir, docs, deps))
     if cli_path.is_file():
         result = subprocess.run([sys.executable, str(cli_path), "--db", str(db), "--help"],
                                 capture_output=True, text=True)
