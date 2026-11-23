@@ -895,6 +895,33 @@ def _argument_shape_error(case, method, kind):
     return None
 
 
+def _unknown_argument_error(method, args):
+    if not isinstance(args, dict):
+        return None
+    params = {normalize(param.get("name")) for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")}
+    payload = _payload_param(method)
+    for key in args:
+        if normalize(key) in params or key == payload:
+            continue
+        return f"case supplies unknown argument {key!r}"
+    return None
+
+
+def _unknown_state_error(case, setup, create_target=None):
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return None
+    aliases = {normalize(step.get("as") or "") for step in setup}
+    if create_target is not None:
+        aliases.add(normalize(create_target.get("as") or ""))
+    for target in state:
+        alias, _, _field = str(target).partition(".")
+        if alias and normalize(alias) not in aliases:
+            return f"expected state references unseeded alias {alias!r}"
+    return None
+
+
 def _create_expected_error(case, setup, models, method):
     if codegen.classify_crud(method.get("name") or "") != "create":
         return None
@@ -1066,6 +1093,12 @@ def bind_case(case, docs):
     shape_error = _argument_shape_error(case, method, kind)
     if shape_error:
         return None, shape_error
+    unknown_arg = _unknown_argument_error(method, args)
+    if unknown_arg:
+        return None, unknown_arg
+    unknown_state = _unknown_state_error(case, setup, create_target)
+    if unknown_state:
+        return None, unknown_state
     missing_row = _missing_error_rows(case, docs, setup, method)
     if missing_row:
         return None, missing_row

@@ -145,7 +145,8 @@ class OracleBinderTests(unittest.TestCase):
             case(when={"action": "create_employee",
                        "args": ["alice@example.com"]},
                  given={"employee": {"name": "Alice", "email": "alice@example.com",
-                                     "age": 30, "salary": 1000}}), docs)
+                                     "age": 30, "salary": 1000}},
+                 then={}), docs)
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"], {
             "name": "Alice", "email": "alice@example.com",
@@ -163,7 +164,8 @@ class OracleBinderTests(unittest.TestCase):
         }
         scenario, reason = binder.bind_case(
             case(when={"action": "update", "args": ["contact.id"]},
-                 given={"contact": {"email": "alice@example.com"}}), docs)
+                 given={"contact": {"email": "alice@example.com"}},
+                 then={}), docs)
         self.assertIsNone(reason)
         self.assertIsNotNone(scenario)
 
@@ -184,7 +186,8 @@ class OracleBinderTests(unittest.TestCase):
         scenario, reason = binder.bind_case(
             case(when={"action": "borrow_book",
                        "args": ["book.title", "member.id"]},
-                 given={"book": {"title": "Book"}, "member": {}}), docs)
+                 given={"book": {"title": "Book"}, "member": {}},
+                 then={}), docs)
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"], {
             "book_id": {"ref": "book.id"},
@@ -207,7 +210,8 @@ class OracleBinderTests(unittest.TestCase):
                        "args": ["alice@example.com", "phone", "555-5678"]},
                  given={"contact": {"name": "Alice",
                                      "email": "alice@example.com",
-                                     "phone": "555-1234"}}), docs)
+                                     "phone": "555-1234"}},
+                 then={}), docs)
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"]["phone"], "555-5678")
         self.assertEqual(scenario["when"]["args"]["email"], "alice@example.com")
