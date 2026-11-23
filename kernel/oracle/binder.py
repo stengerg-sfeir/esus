@@ -879,6 +879,80 @@ def _read_result_error(case, kind, setup, models, args):
     return None
 
 
+def _argument_shape_error(case, method, kind):
+    raw = (case.get("when") or {}).get("args")
+    if isinstance(raw, list) and any(
+            isinstance(value, str) and value.startswith("--") for value in raw):
+        return "CLI flag passed as a service argument"
+    if isinstance(raw, list) and any(isinstance(value, dict) for value in raw):
+        params = [param for param in method.get("params") or []
+                  if isinstance(param, dict) and param.get("name")]
+        if not any(codegen.is_mapping_type(param.get("type"))
+                   or codegen.is_entity_type(param.get("type"), [])
+                   or "dict" in str(param.get("type") or "").lower()
+                   for param in params):
+            return "object payload passed to a scalar method"
+    return None
+
+
+def _create_expected_error(case, setup, models, method):
+    if codegen.classify_crud(method.get("name") or "") != "create":
+        return None
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return None
+    by_alias = {normalize(step.get("as") or ""): step for step in setup}
+    for target, expected in state.items():
+        alias, _, field = str(target).partition(".")
+        step = by_alias.get(normalize(alias))
+        if step is None:
+            continue
+        model = models.get(normalize(step.get("entity")))
+        if model is None:
+            continue
+        canonical = _field_name(model, field)
+        current = (step.get("values") or {}).get(canonical)
+        if current is not None and expected != current:
+            return (f"create case expects {target} = {expected!r} but supplies "
+                    f"{current!r}")
+    return None
+
+
+def _read_expected_error(case, kind, setup, models):
+    if kind not in ("read_all", "filter", "read_one"):
+        return None
+    rows = (case.get("then") or {}).get("rows")
+    if not isinstance(rows, dict):
+        return None
+    seeded = {normalize(step.get("entity")) for step in setup
+              if step.get("seed") is not False}
+    for alias, count in rows.items():
+        entity = _entity_for(alias, models) or alias
+        if int(count) > 0 and normalize(entity) not in seeded:
+            return (f"read case expects {entity} rows but seeds no {entity}")
+    if any(int(count) > 0 for count in rows.values()):
+        for step in setup:
+            model = models.get(normalize(step.get("entity")))
+            if model is None:
+                continue
+            values = step.get("values") or {}
+            for field in model.get("fields") or []:
+                if not isinstance(field, dict) or not field.get("name"):
+                    continue
+                foreign = field.get("foreign_key")
+                if not isinstance(foreign, dict) or not foreign.get("target_entity"):
+                    continue
+                if field.get("nullable") is not False:
+                    continue
+                if values.get(field["name"]) is not None:
+                    continue
+                target = foreign["target_entity"]
+                if normalize(target) not in seeded:
+                    return (f"setup needs a {target} row for "
+                            f"{step.get('entity')}.{field['name']}")
+    return None
+
+
 def _update_value_error(case, docs, models, setup, method, args):
     """Reject an update case that expects a change it never supplies.
 
@@ -988,10 +1062,13 @@ def bind_case(case, docs):
     args = _complete_create_args(method, args, setup)
     args = _complete_update_args(method, args, setup)
     args = _coerce_args(method, args)
+    kind = codegen.classify_crud(method.get("name") or "")
+    shape_error = _argument_shape_error(case, method, kind)
+    if shape_error:
+        return None, shape_error
     missing_row = _missing_error_rows(case, docs, setup, method)
     if missing_row:
         return None, missing_row
-    kind = codegen.classify_crud(method.get("name") or "")
     literal_error = _literal_param_error(case, method, kind)
     if literal_error:
         return None, literal_error
@@ -1011,6 +1088,12 @@ def bind_case(case, docs):
             create_target, docs, method, args, holder)
         if create_error:
             return None, create_error
+        expected_error = _create_expected_error(case, setup, models, method)
+        if expected_error:
+            return None, expected_error
+    read_error = _read_expected_error(case, kind, setup, models)
+    if read_error:
+        return None, read_error
     read_error = _read_result_error(case, kind, setup, models, args)
     if read_error:
         return None, read_error

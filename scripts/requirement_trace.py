@@ -367,11 +367,29 @@ def artifacts(project, checks=None):
         if item:
             found.append(item)
 
+    report = _read_json(project / "oracle_report.json") or {}
+    report_cases = {}
+    cases_payload = _read_json(project / "oracle_cases.json") or {}
+    for case in cases_payload.get("cases") or []:
+        if isinstance(case, dict) and case.get("id"):
+            report_cases[case["id"]] = case
+    for result in report.get("results") or []:
+        if not isinstance(result, dict) or result.get("status") != "passed":
+            continue
+        case = report_cases.get(result.get("case")) or {}
+        source = case.get("source")
+        if not isinstance(source, str) or not source.strip():
+            continue
+        item = _artifact("oracle", f"oracle:{result.get('case')}", source,
+                         f"oracle:{result.get('case')}")
+        if item:
+            found.append(item)
+
     check_text = "\n".join(
         str(check.get("name") or "") + " " + str(check.get("reason") or "")
         for check in checks or [] if isinstance(check, dict))
     for item in found:
-        item["tested"] = bool(
+        item["tested"] = item["kind"] == "oracle" or bool(
             item["label"].strip("`") in check_text
             or item["id"].split(":", 1)[-1] in check_text)
     for item in found:

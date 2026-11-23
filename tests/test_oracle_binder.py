@@ -104,7 +104,8 @@ class OracleBinderTests(unittest.TestCase):
             case(when={"action": "create_order"}, given={
                 "customer": {"id": 1},
                 "order": {"status": "confirmed",
-                          "customer_id": {"ref": "customer.id"}}}), docs)
+                          "customer_id": {"ref": "customer.id"}}},
+                 then={"rows": {"Order": 1}}), docs)
         self.assertIsNone(reason)
         self.assertIsNotNone(scenario)
 
@@ -409,7 +410,8 @@ class OracleBinderTests(unittest.TestCase):
         }
         scenario, reason = binder.bind_case(
             case(when={"action": "list_books", "args": ["author"]},
-                 given={"author": {"name": "A"}},
+                 given={"author": {"name": "A"},
+                        "book": {"title": "B"}},
                  then={"rows": {"Book": 1}}), docs)
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"],

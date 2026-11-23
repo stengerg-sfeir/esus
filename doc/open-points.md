@@ -140,7 +140,7 @@ methods, errors, invariants, contracts, adapters and components, and reports:
 `scripts/run_bench_acceptance.py` now writes `coverage.json` and adds a
 separate `coverage` block to `summary.json`; the pass/fail verdict is
 unchanged. On the stored v8 extraction the standalone report covers 345
-clauses: 36 mapped-but-untested. Those gaps are
+clauses: 35 mapped-but-untested. Those gaps are
 now visible instead of being implied by a green acceptance run.
 
 **Regression tests:** `tests/test_requirement_trace.py`. The full suite is
@@ -190,15 +190,15 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **26 passed**
+- **25 passed**
 - **0 failed**
-- **53 unbound**
+- **54 unbound**
 
 Triage of the findings:
 
 - **0 behavior groups**;
-- **33 case defects** (missing/duplicate setup, malformed arguments);
-- **20 coverage gaps** (12 missing actions, 3 other, 5 ambiguous action bindings);
+- **32 case defects** (missing/duplicate setup, malformed arguments);
+- **22 coverage gaps** (12 missing actions, 5 other, 5 ambiguous action bindings);
 - **25 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
@@ -254,9 +254,9 @@ python scripts/review_queue.py out/validation/kaggle-v8 \
   --output /tmp/review-exclude7.json
 ```
 
-That scope has **59 projects**, **62 cases**, **22 passed**, **0 failed** and
-**40 unbound**. Triage: **24 case defects**, **16 coverage gaps** and
-**22 passed**; no behavior group remains and the review queue is **empty**.
+That scope has **59 projects**, **62 cases**, **21 passed**, **0 failed** and
+**41 unbound**. Triage: **23 case defects**, **18 coverage gaps** and
+**21 passed**; no behavior group remains and the review queue is **empty**.
 This is the current accepted verifier scope; it is not a claim that the seven
 excluded projects are correct.
 
@@ -317,8 +317,8 @@ checks, 0 generated stubs, 0 failures**. A project with a stub is reported as
 `incomplete`, not passed.
 
 This does not make the missing surface requirements disappear: the separate
-requirement trace reports **0 unmapped clauses, 0 partial clauses, 36
-mapped-but-untested clauses and 292 mapped-and-tested clauses**. Those are the
+requirement trace reports **0 unmapped clauses, 0 partial clauses, 35
+mapped-but-untested clauses and 293 mapped-and-tested clauses**. Those are the
 review targets for item 7b; a green harness is not treated as semantic proof.
 
 ### 9. ✅ Attended-review queue is explicit (done 2026-11-19)

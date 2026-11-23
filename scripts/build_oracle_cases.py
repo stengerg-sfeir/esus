@@ -48,7 +48,17 @@ SCHEMA = """{
 }"""
 
 
-def build_prompt(requirements, resolved_section=""):
+def build_prompt(requirements, resolved_section="", coverage=None):
+    coverage_section = ""
+    if coverage:
+        listed = "\n".join(f"- {clause}" for clause in coverage)
+        coverage_section = (
+            "\nUNCOVERED REQUIREMENT CLAUSES TO TARGET:\n"
+            f"{listed}\n"
+            "Generate additional cases specifically for these clauses. Do not "
+            "duplicate an action/setup already covered by the requirements. "
+            "Keep the same prompt-only, observable-behavior rules.\n"
+        )
     return f"""You are a requirements analyst. Read only the requirements below.
 Do not use or infer an extracted architecture, database schema, method contract
 or generated code. Produce externally observable behavioral cases.
@@ -90,6 +100,7 @@ REQUIREMENTS:
 {requirements}
 
 {resolved_section}
+{coverage_section}
 """
 
 
@@ -143,7 +154,7 @@ def parse_payload(text):
 
 
 def build_one(project, model_path, context=8192, max_new_tokens=8192,
-              out=print):
+              out=print, coverage=None, append=False):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -155,7 +166,8 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
                    indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     llm = runner.load_model(model_path, context_size=context, quiet=True)
     framing = runner.generate_chat if runner.has_chat_template(llm) else runner.generate_free
-    prompt = build_prompt(requirements, resolved.prompt_section(project))
+    prompt = build_prompt(requirements, resolved.prompt_section(project),
+                          coverage=coverage)
     result = framing(llm, prompt, f"oracle:{project.name}",
                      temperature=0.0, max_new_tokens=max_new_tokens)
     if result.truncated:
@@ -167,6 +179,10 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
         raise SystemExit(f"{project.name}: oracle answer was not JSON")
     sha = requirements_sha(requirements)
     valid, errors = case_rules.validate_cases(payload, requirements, sha)
+    if append:
+        existing = case_rules.load_cases(project / case_rules.CASES_NAME)
+        valid = case_rules.validate_cases(
+            {"cases": list(existing) + list(valid)}, requirements, sha)[0]
     path = case_rules.save_cases(project / case_rules.CASES_NAME, valid,
                                  prompt_sha=sha)
     out(f"{project.name}: {len(valid)} case(s) -> {path}")
@@ -188,6 +204,10 @@ def main(argv=None):
                         help="comma-separated prompt names")
     parser.add_argument("--context", type=int, default=8192)
     parser.add_argument("--max-new-tokens", type=int, default=8192)
+    parser.add_argument("--coverage", default=None,
+                        help="coverage.json: target mapped-but-untested clauses")
+    parser.add_argument("--append", action="store_true",
+                        help="append new cases instead of replacing the sidecar")
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -199,12 +219,22 @@ def main(argv=None):
                 if path.is_dir() and (wanted is None or path.name in wanted)]
     if not projects:
         raise SystemExit(f"no prompt directories under {root}")
+    coverage = {}
+    if args.coverage:
+        payload = json.loads(Path(args.coverage).read_text(encoding="utf-8"))
+        for item in payload.get("projects") or []:
+            coverage[item.get("project")] = [
+                row.get("text") for row in item.get("rows") or []
+                if row.get("status") == "mapped_untested"
+                and isinstance(row.get("text"), str)
+            ]
     total = 0
     failed = []
     for project in projects:
         try:
-            valid, _errors = build_one(project, args.model, args.context,
-                                       args.max_new_tokens)
+            valid, _errors = build_one(
+                project, args.model, args.context, args.max_new_tokens,
+                coverage=coverage.get(project.name), append=args.append)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: oracle build failed ({error})")
