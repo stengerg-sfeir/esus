@@ -236,6 +236,31 @@ class OracleBinderTests(unittest.TestCase):
         self.assertEqual(scenario["when"]["args"]["product_id"],
                          {"ref": "product.id"})
 
+    def test_a_create_without_its_target_row_is_checked_from_the_holder(self):
+        docs = {
+            "models": [
+                {"name": "User", "fields": [
+                    {"name": "user_id", "primary_key": True},
+                    {"name": "role"}]},
+                {"name": "Order", "fields": [
+                    {"name": "order_id", "primary_key": True},
+                    {"name": "user_id", "nullable": False},
+                    {"name": "order_date", "nullable": False},
+                    {"name": "status", "nullable": False}]},
+            ],
+            "services": [{"service_name": "OrderService", "methods": [{
+                "name": "create_order", "params": [
+                    {"name": "user_id"}, {"name": "order_date"},
+                    {"name": "status"}], "return_type": "None"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "create_order", "args": ["user.id"]},
+                 given={"user": {"user_id": 1, "role": "normal_user"}},
+                 then={"rows": {"Order": 1}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("Order.order_date", reason)
+
     def test_an_update_that_supplies_no_new_value_is_unbound(self):
         docs = {
             "models": [{"name": "Project", "fields": [

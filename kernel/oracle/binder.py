@@ -708,13 +708,27 @@ def _args(case, setup):
     return out
 
 
-def _create_value_error(create_target, docs, method, args):
-    """Reject a create whose given row omits a required method field."""
-    if create_target is None or not isinstance(args, dict):
+def _create_value_error(create_target, docs, method, args, holder=None):
+    """Reject a create whose case omits a required method field."""
+    if not isinstance(args, dict):
         return None
-    entity = create_target.get("entity")
-    model = next((item for item in docs.get("models") or []
-                  if isinstance(item, dict) and item.get("name") == entity), None)
+    entity = create_target.get("entity") if create_target else None
+    models = [item for item in docs.get("models") or []
+              if isinstance(item, dict) and item.get("name")]
+    if entity is None:
+        returned = normalize(method.get("return_type") or "")
+        entity = next((item["name"] for item in models
+                       if normalize(item["name"]) in returned
+                       and normalize(item["name"]) not in ("none", "void")), None)
+    if entity is None and holder:
+        base = normalize(holder)
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        entity = next((item["name"] for item in models
+                       if normalize(item["name"]) == base), None)
+    model = next((item for item in models if item["name"] == entity), None)
     if model is None:
         return None
     params = {normalize(param.get("name")) for param in method.get("params") or []
@@ -860,7 +874,7 @@ def bind_case(case, docs):
             return None, update_error
     if kind == "create":
         create_error = _create_value_error(
-            create_target, docs, method, args)
+            create_target, docs, method, args, holder)
         if create_error:
             return None, create_error
     when = {
