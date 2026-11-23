@@ -64,6 +64,15 @@ class RemovesTheObservedLoop(unittest.TestCase):
             "the genuine prefix survives untouched, in order",
         )
 
+    def test_identifier_case_and_underscores_are_the_same_name(self):
+        document = ports([repository("Booking", [
+            method("get_bookings_by_guest_id"),
+            method("getBookingsByGuestId")])])
+        cleaned, removed = dedupe.deduplicate("persistence_ports", document)
+        self.assertEqual(removed, 1)
+        self.assertEqual([m["name"] for m in cleaned["repositories"][0]["methods"]],
+                         ["get_bookings_by_guest_id"])
+
     def test_untouched_repository_is_not_modified(self):
         document = ports([repository("orders", [method("save"), method("findById")])])
         cleaned, removed = dedupe.deduplicate("persistence_ports", document)

@@ -19,6 +19,9 @@ methods — the model enumerating the other entities of the names block and neve
 deciding to stop. Duplicates appeared only there, in one of seven prompts.
 """
 
+from kernel.consistency.naming import normalize
+
+
 def deduplicate(key, body):
     """Drop exact duplicate names from `body`, returning (body, removed count).
 
@@ -118,7 +121,7 @@ def _deduplicate_services(services):
             merged.append(service)
             continue
         name = service.get("service_name")
-        key = name.strip().lower() if isinstance(name, str) else None
+        key = normalize(name) if isinstance(name, str) else None
         if key is not None and key in opened:
             existing = opened[key]
             combined = (existing.get("methods") or []) + (service.get("methods") or [])
@@ -175,7 +178,7 @@ def _deduplicate_named(methods):
             continue
         name = method.get("name")
         if isinstance(name, str):
-            key = name.strip().lower()
+            key = normalize(name)
             if key in seen:
                 removed += 1
                 continue
