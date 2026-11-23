@@ -86,6 +86,19 @@ class ReviewTests(unittest.TestCase):
                          uniqueness.REJECTED)
         self.assertFalse(models[0]["fields"][1]["unique"])
 
+    def test_a_recorded_policy_removes_the_question(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            write_prompt(
+                root,
+                {"name": "email", "type": "string", "unique": True,
+                 "unique_status": "inferred"})
+            uniqueness.save_policies(root, [{
+                "policy": "conventional", "unique": False,
+                "decided_by": "user"}])
+            questions, _context = review_uniqueness.collect_questions(root)
+        self.assertEqual(questions, [])
+
     def test_a_root_policy_decides_all_prompts_at_once(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

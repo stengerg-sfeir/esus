@@ -46,7 +46,11 @@ def _requirements(output_dir):
 def collect_questions(output_dir):
     """One prompt-level question, split into policy groups."""
     directory = Path(output_dir)
-    fields = uniqueness.inferred_fields(_read_models(directory))
+    decided = {record.get("policy") for record in
+               uniqueness.load_policies(directory)}
+    fields = [field for field in
+              uniqueness.inferred_fields(_read_models(directory))
+              if field.get("policy") not in decided]
     if not fields:
         return [], {"requirements_sha": requirements_sha(_requirements(directory))}
     groups = []
@@ -67,11 +71,14 @@ def collect_questions(output_dir):
 def collect_root_questions(root):
     """One grouped question for every inferred field under a validation root."""
     root = Path(root)
+    decided = {record.get("policy") for record in
+               uniqueness.load_policies(root)}
     fields = []
     for directory in sorted(path for path in root.glob("prompt_*")
                             if path.is_dir()):
         for field in uniqueness.inferred_fields(_read_models(directory)):
-            fields.append({**field, "prompt": directory.name})
+            if field.get("policy") not in decided:
+                fields.append({**field, "prompt": directory.name})
     if not fields:
         return []
     groups = []

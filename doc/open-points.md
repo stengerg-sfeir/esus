@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,376 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,377 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -229,11 +229,19 @@ missing surface/method pieces, and `prompt_58` has an empty persistence
 document.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **4 items:
-1 behavior group, 1 grouped uniqueness decision and 2 grounding questions**.
+`needs_review`, and feeds the review queue. The current queue has **1 item**: the row-count behavior group in the excluded
+`prompt_library_system`. The uniqueness policy is recorded as “reject all inferred”
+and the aggregate policy as “omit empty groups”.
 Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
+
+A model-backed re-extraction of all seven was attempted on the Mac profile
+(one slot, 16k context). It produced new unresolved contract/surface questions
+and would have broken six of the seven generated projects. The stable
+pre-reextraction documents were restored; the new extraction is kept at
+`/tmp/esus-reextract-new-20261123-094400` for a later attended pass. The seven
+remain excluded.
 
 The seven projects awaiting re-extraction can be excluded explicitly:
 
@@ -248,10 +256,9 @@ python scripts/review_queue.py out/validation/kaggle-v8 \
 
 That scope has **59 projects**, **62 cases**, **22 passed**, **2 failed** and
 **38 unbound**. Triage: **23 case defects**, **17 coverage gaps** and
-**22 passed**; no behavior group remains. Its review queue is **2 items**
-(1 grounding question and 1 uniqueness decision). This is the useful verifier
-scope until the seven documents are re-extracted; it is not a claim that those
-seven are correct.
+**22 passed**; no behavior group remains and the review queue is **empty**.
+This is the current accepted verifier scope; it is not a claim that the seven
+excluded projects are correct.
 
 The binder now handles flat and named update arguments, mapping payloads,
 lookup values, missing new values, create payloads that must not be pre-seeded,
@@ -390,7 +397,9 @@ Every non-key unique field now carries `unique_status` in `data_models.json`:
 
 Only `explicit` and `confirmed` fields reach the generated schema, create/update
 guards and schema invariants. Inferred fields stay in the document as evidence
-but are not enforced. `review_uniqueness.py` groups them by policy class
+but are not enforced. The human decision is recorded at the validation root as
+“reject all inferred” for conventional, display and other policy classes.
+`review_uniqueness.py` groups them by policy class
 (conventional identifiers, display names, other) and writes
 `unique_decisions.json` per prompt or `unique_policy.json` at a validation
 root. `scripts/review_queue.py` presents the grouped decision once and names
@@ -403,7 +412,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,376 passed**.
+is **1,377 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -430,7 +439,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,376 passed**.
+suite is **1,377 passed**.
 
 ## P1/P2 — performance and extraction
 
