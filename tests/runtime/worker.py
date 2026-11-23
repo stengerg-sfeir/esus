@@ -1513,12 +1513,28 @@ def run(out_dir):
     cli_path = Path(out_dir) / "generated" / "cli.py"
     if not cli_path.is_file():
         app_path = Path(out_dir) / "generated" / "app.py"
+        checks = [{"name": "app-fallback",
+                   "status": "passed" if app_path.is_file() else "failed",
+                   "reason": "no cli.py; standalone app.py" if app_path.is_file()
+                             else "no cli.py or app.py"}]
+        if app_path.is_file():
+            try:
+                run = subprocess.run([sys.executable, str(app_path)],
+                                     capture_output=True, text=True,
+                                     timeout=10)
+                output = (run.stdout + run.stderr).strip()
+                checks.append({
+                    "name": "app-run",
+                    "status": "passed" if run.returncode == 0 else "skipped",
+                    "reason": (output[-500:] if output
+                               else f"exit {run.returncode}"),
+                })
+            except subprocess.TimeoutExpired:
+                checks.append({"name": "app-run", "status": "skipped",
+                               "reason": "standalone app did not exit in 10s"})
         return {"prompt": Path(out_dir).name,
                 "status": "passed" if app_path.is_file() else "failed",
-                "checks": [{"name": "app-fallback",
-                            "status": "passed" if app_path.is_file() else "failed",
-                            "reason": "no cli.py; standalone app.py" if app_path.is_file()
-                                      else "no cli.py or app.py"}]}
+                "checks": checks}
     try:
         cli, deps, db = _load_package(out_dir)
     except Exception as error:  # noqa: BLE001
@@ -1529,7 +1545,6 @@ def run(out_dir):
     checks.append({"name": "import", "status": "passed"})
     checks.extend(_stub_checks(out_dir))
     if cli_path.is_file():
-        import subprocess
         result = subprocess.run([sys.executable, str(cli_path), "--db", str(db), "--help"],
                                 capture_output=True, text=True)
         checks.append({"name": "cli-help",

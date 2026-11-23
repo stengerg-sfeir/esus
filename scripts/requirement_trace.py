@@ -374,6 +374,10 @@ def artifacts(project, checks=None):
         item["tested"] = bool(
             item["label"].strip("`") in check_text
             or item["id"].split(":", 1)[-1] in check_text)
+    for item in found:
+        if item["id"] == "component:codebase" and (
+                "import" in check_text or "app-run" in check_text):
+            item["tested"] = True
     return found
 
 
@@ -416,12 +420,14 @@ def trace_project(project, checks=None):
             if design is not None and design not in matches:
                 matches.append(design)
         structural = any(item["id"] == "component:codebase" for item in items)
-        if (not _words(clause) or (
-                best < 2
-                and structural
-                and re.match(r"^(?:create|build|develop)\b",
-                             clause, re.IGNORECASE))):
-            status = "non_runtime"
+        structural_tested = any(
+            item["id"] == "component:codebase" and item["tested"]
+            for item in items)
+        if (structural_tested and re.match(
+                r"^(?:create|build|develop)\b", clause, re.IGNORECASE)):
+            status = "mapped_tested"
+        elif not _words(clause) and structural:
+            status = "mapped_untested"
         elif best >= 2:
             status = ("mapped_tested" if any(
                 item["tested"] and score >= max(2, best - 1)
