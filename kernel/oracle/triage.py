@@ -22,7 +22,8 @@ def classify(status, reason, source=None):
             return "coverage_gap: missing action"
         if any(marker in text for marker in (
                 "supplies no new value", "supplies no value for required field",
-                "passes parameter name", "list case expects fewer rows")):
+                "passes parameter name", "list case expects fewer rows",
+                "supplies unknown argument")):
             return "case_defect: setup"
         return "coverage_gap: other"
     if status != "failed":
