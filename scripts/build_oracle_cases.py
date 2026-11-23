@@ -48,8 +48,10 @@ SCHEMA = """{
 }"""
 
 
-def build_prompt(requirements, resolved_section="", coverage=None):
+def build_prompt(requirements, resolved_section="", coverage=None,
+                 domain_schema=None):
     coverage_section = ""
+    schema_section = _schema_section(domain_schema)
     if coverage:
         listed = "\n".join(f"- {clause}" for clause in coverage)
         coverage_section = (
@@ -112,6 +114,7 @@ Rules:
   omitted. Do not write a sentence, a status, or "ErrorName or omit".
 - Do not write test code. Output JSON only.
 
+{schema_section}
 REQUIREMENTS:
 {requirements}
 
@@ -141,7 +144,108 @@ PLAN_SCHEMA = """{
 }"""
 
 
-def build_plan_prompt(requirements, resolved_section="", coverage=None):
+DOMAIN_SCHEMA_PROMPT = """You are a requirements analyst. Read only the
+requirements. Do not use or infer an extracted architecture, method contract or
+generated code.
+
+Extract only the neutral domain shape needed to plan test setup: entity names,
+field names, scalar types, required/nullable, and foreign-key relationships.
+Do not include services, methods, commands, state transitions, expected values,
+implementation choices or test cases.
+
+Return JSON:
+{{"entities": [
+  {{"name": "Product", "fields": [
+    {{"name": "name", "type": "string", "required": true}},
+    {{"name": "category_id", "type": "integer", "required": true,
+      "references": "Category.id"}}
+  ]}}
+]}}
+
+Rules:
+- Use only entity and field nouns named in the requirements.
+- Do not invent relationships the requirements do not imply.
+- `type` is one of string, integer, number, boolean, date, datetime.
+- `references` is optional and names another entity's field.
+
+REQUIREMENTS:
+{requirements}
+"""
+
+
+def build_schema_prompt(requirements):
+    return DOMAIN_SCHEMA_PROMPT.format(requirements=requirements)
+
+
+def validate_schema(payload):
+    if not isinstance(payload, dict):
+        return None, ["schema is not an object"]
+    entities = payload.get("entities")
+    if not isinstance(entities, list) or not entities:
+        return None, ["schema has no entities"]
+    normalized = []
+    for entity in entities:
+        if not isinstance(entity, dict) or not isinstance(entity.get("name"), str):
+            continue
+        fields = []
+        for field in entity.get("fields") or []:
+            if not isinstance(field, dict) or not isinstance(field.get("name"), str):
+                continue
+            item = {"name": field["name"], "type": field.get("type") or "string"}
+            if field.get("required") is True:
+                item["required"] = True
+            if isinstance(field.get("references"), str):
+                item["references"] = field["references"]
+            fields.append(item)
+        if fields:
+            normalized.append({"name": entity["name"], "fields": fields})
+    if not normalized:
+        return None, ["schema has no usable entities"]
+    return {"entities": normalized}, []
+
+
+def extracted_schema(project):
+    """1b: neutral schema copied from the extracted data models.
+
+    This is intentionally extraction-coupled and must be documented as such;
+    it is a diagnostic fallback, not the prompt-only verifier.
+    """
+    project = Path(project)
+    try:
+        payload = json.loads(
+            (project / "data_models.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    entities = []
+    for model in payload.get("data_models") or []:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        fields = []
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            item = {"name": field["name"], "type": field.get("type") or "string"}
+            if field.get("nullable") is False:
+                item["required"] = True
+            foreign = field.get("foreign_key")
+            if isinstance(foreign, dict) and foreign.get("target_entity"):
+                item["references"] = (f"{foreign['target_entity']}."
+                                      f"{foreign.get('target_field') or 'id'}")
+            fields.append(item)
+        entities.append({"name": model["name"], "fields": fields})
+    return {"entities": entities} if entities else None
+
+
+def _schema_section(domain_schema):
+    if not domain_schema:
+        return ""
+    return ("\nDOMAIN SCHEMA (nouns and setup structure only; no behavior, "
+            "methods or expected values):\n"
+            + json.dumps(domain_schema, indent=2, ensure_ascii=False) + "\n")
+
+
+def build_plan_prompt(requirements, resolved_section="", coverage=None,
+                      domain_schema=None):
     coverage_section = ""
     if coverage:
         listed = "\n".join(f"- {clause}" for clause in coverage)
@@ -150,6 +254,7 @@ def build_plan_prompt(requirements, resolved_section="", coverage=None):
             f"{listed}\n"
             "Plan only cases whose `source` is one of these clauses.\n"
         )
+    schema_section = _schema_section(domain_schema)
     return f"""You are a requirements analyst. Read only the requirements below.
 Do not use or infer an extracted architecture, method contract, database
 schema or generated code.
@@ -177,6 +282,7 @@ Rules:
 - `status` is `confirmed` only when the requirement states the behavior;
   otherwise `assumed` or `ambiguous`.
 
+{schema_section}
 REQUIREMENTS:
 {requirements}
 
@@ -331,8 +437,10 @@ REQUIREMENTS:
 """
 
 
-def build_materialize_prompt(requirements, plans, resolved_section=""):
+def build_materialize_prompt(requirements, plans, resolved_section="",
+                             domain_schema=None):
     plan_json = json.dumps({"plans": plans}, indent=2, ensure_ascii=False)
+    schema_section = _schema_section(domain_schema)
     return f"""You are a requirements analyst. Read only the requirements and the
 approved case plan below. Do not use or infer an extracted architecture,
 method contract, database schema or generated code.
@@ -364,7 +472,7 @@ Rules:
 
 CASE PLAN:
 {plan_json}
-
+{schema_section}
 REQUIREMENTS:
 {requirements}
 
@@ -423,7 +531,8 @@ def parse_payload(text):
 
 def build_one(project, model_path, context=8192, max_new_tokens=8192,
               out=print, coverage=None, append=False, cases_name=None,
-              two_stage=False, repair_attempts=0, triage_simple=False):
+              two_stage=False, repair_attempts=0, triage_simple=False,
+              schema_aware=False, extracted_schema_mode=False):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -439,12 +548,39 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
     simple_app = False
     if triage_simple:
         simple_app = triage.classify(llm, requirements).answer == "N"
+    domain_schema = None
+    if extracted_schema_mode and not simple_app:
+        domain_schema = extracted_schema(project)
+        if domain_schema:
+            (project / "oracle_domain_schema.json").write_text(
+                json.dumps(domain_schema, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8")
+    if schema_aware and not simple_app and not domain_schema:
+        schema_result = framing(
+            llm, build_schema_prompt(requirements),
+            f"oracle-schema:{project.name}",
+            temperature=0.0, max_new_tokens=max_new_tokens)
+        if schema_result.truncated:
+            raise SystemExit(f"{project.name}: oracle schema was truncated")
+        schema_payload = parse_payload(schema_result.text)
+        if schema_payload is None:
+            (project / "oracle_schema.err").write_text(
+                schema_result.text, encoding="utf-8")
+            raise SystemExit(f"{project.name}: oracle schema was not JSON")
+        domain_schema, schema_errors = validate_schema(schema_payload)
+        (project / "oracle_domain_schema.json").write_text(
+            json.dumps(domain_schema or {}, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8")
+        if schema_errors:
+            out(f"{project.name}: schema rejected: {'; '.join(schema_errors)}")
+            domain_schema = None
     if simple_app:
         prompt = build_app_prompt(requirements, coverage=coverage)
         label = f"oracle-app:{project.name}"
     elif two_stage:
         plan_prompt = build_plan_prompt(requirements, resolved_section,
-                                        coverage=coverage)
+                                        coverage=coverage,
+                                        domain_schema=domain_schema)
         plan_result = framing(llm, plan_prompt, f"oracle-plan:{project.name}",
                               temperature=0.0, max_new_tokens=max_new_tokens)
         if plan_result.truncated:
@@ -476,11 +612,12 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
         (project / "oracle_case_plans.json").write_text(
             json.dumps({"plans": plans}, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8")
-        prompt = build_materialize_prompt(requirements, plans, resolved_section)
+        prompt = build_materialize_prompt(requirements, plans, resolved_section,
+                                           domain_schema=domain_schema)
         label = f"oracle-materialize:{project.name}"
     else:
         prompt = build_prompt(requirements, resolved_section,
-                              coverage=coverage)
+                              coverage=coverage, domain_schema=domain_schema)
         label = f"oracle:{project.name}"
     result = framing(llm, prompt, label,
                      temperature=0.0, max_new_tokens=max_new_tokens)
@@ -549,6 +686,10 @@ def main(argv=None):
                         help="same-model repair attempts after case validation")
     parser.add_argument("--triage-simple", action="store_true",
                         help="use the extractor's domain triage for app-only cases")
+    parser.add_argument("--schema-aware", action="store_true",
+                        help="plan from a prompt-derived neutral domain schema")
+    parser.add_argument("--extracted-schema", action="store_true",
+                        help="1b diagnostic: use extracted data_models as schema")
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -578,7 +719,9 @@ def main(argv=None):
                 coverage=coverage.get(project.name), append=args.append,
                 cases_name=args.cases_name, two_stage=args.two_stage,
                 repair_attempts=args.repair_attempts,
-                triage_simple=args.triage_simple)
+                triage_simple=args.triage_simple,
+                schema_aware=args.schema_aware,
+                extracted_schema_mode=args.extracted_schema)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: oracle build failed ({error})")

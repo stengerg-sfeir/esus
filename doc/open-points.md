@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,391 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,393 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -233,6 +233,13 @@ arguments/stdin, optional relative input files, and stdout/exit-code
 expectations. This mirrors the extractor's single-file fallback without
 pretending the program has a domain model.
 
+An opt-in schema-aware path was tested in two forms. **1a** derives a neutral
+entity/field/relationship schema from the requirements only; on a four-prompt
+trial it produced 2 passing cases and 9 unbound, with no behavior findings.
+**1b** uses extracted `data_models.json` as the schema; it produced 2 passing,
+2 failed and 8 unbound cases and is extraction-coupled, so it is documented as
+a rejected diagnostic. The default verifier remains prompt-only.
+
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
 case defects; the uniqueness policy is recorded as “reject all inferred” and
@@ -417,7 +424,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,391 passed**.
+is **1,393 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -444,7 +451,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,391 passed**.
+suite is **1,393 passed**.
 
 ## P1/P2 — performance and extraction
 

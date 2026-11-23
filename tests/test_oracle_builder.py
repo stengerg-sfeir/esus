@@ -27,6 +27,21 @@ class OracleBuilderTests(unittest.TestCase):
             '{"cases": [{"id": "x", // note\n "status": "assumed",},]}')
         self.assertEqual(payload["cases"][0]["id"], "x")
 
+    def test_schema_validation_keeps_only_nouns_and_relationships(self):
+        schema, errors = build_oracle_cases.validate_schema({
+            "entities": [{"name": "Product", "fields": [
+                {"name": "name", "type": "string", "required": True},
+                {"name": "category_id", "type": "int", "required": True,
+                 "references": "Category.id"}]}]})
+        self.assertEqual(errors, [])
+        self.assertEqual(schema["entities"][0]["fields"][1]["references"],
+                         "Category.id")
+
+    def test_schema_prompt_excludes_behavior_and_code(self):
+        prompt = build_oracle_cases.build_schema_prompt("Products have a name.")
+        self.assertIn("Do not include services, methods", prompt)
+        self.assertIn("Products have a name.", prompt)
+
     def test_plan_validation_rejects_unseeded_references(self):
         plans, errors = build_oracle_cases.validate_plans({
             "plans": [{
