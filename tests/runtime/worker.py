@@ -719,6 +719,15 @@ def _clear_store(store):
         for entity in schema:
             db.execute('DELETE FROM "' + str(entity).replace('"', '""') + '"')
         db.commit()
+        # `all` and duplicate-key checks read the store's cache, not the
+        # connection. Without this refresh the rows are gone from SQLite but
+        # still visible to the next scenario as a phantom primary key.
+        records = getattr(store, "_records", None)
+        if isinstance(records, dict):
+            records.clear()
+        reload = getattr(store, "_load_schema", None)
+        if callable(reload):
+            reload()
     except Exception:
         pass
 

@@ -433,6 +433,44 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(scenario)
         self.assertIn("parameter name 'query'", reason)
 
+    def test_numeric_literal_arguments_follow_the_parameter_types(self):
+        docs = {
+            "models": [{"name": "Account", "fields": [
+                {"name": "account_id", "primary_key": True}]},
+                       {"name": "Customer", "fields": [
+                {"name": "customer_id", "primary_key": True}]}],
+            "services": [{"service_name": "AccountService", "methods": [{
+                "name": "withdraw", "params": [
+                    {"name": "amount", "type": "int"}],
+                "return_type": "None"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "withdraw", "args": ["5"]},
+                 given={"customer": {"customer_id": 1}},
+                 then={"rows": {"Account": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], [5])
+
+    def test_delete_state_on_a_hard_deleted_row_is_unbound(self):
+        docs = {
+            "models": [{"name": "Customer", "fields": [
+                {"name": "customer_id", "primary_key": True},
+                {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "CustomerRepository", "methods": [{
+                "name": "delete", "params": [
+                    {"name": "customer_id", "type": "int"}],
+                "return_type": "None"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "delete_customer", "args": ["1"]},
+                 given={"customer": {"customer_id": 1}},
+                 then={"state": {"customer.name": "x"},
+                       "rows": {"Customer": 0}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("hard-deleted row", reason)
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

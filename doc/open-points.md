@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,384 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,386 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -190,15 +190,15 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **25 passed**
-- **4 failed**
-- **50 unbound**
+- **26 passed**
+- **0 failed**
+- **53 unbound**
 
 Triage of the findings:
 
 - **0 behavior groups**;
-- **37 case defects** (missing/duplicate setup, malformed arguments);
-- **17 coverage gaps** (12 missing actions, 5 ambiguous action bindings);
+- **33 case defects** (missing/duplicate setup, malformed arguments);
+- **20 coverage gaps** (12 missing actions, 3 other, 5 ambiguous action bindings);
 - **25 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
@@ -254,8 +254,8 @@ python scripts/review_queue.py out/validation/kaggle-v8 \
   --output /tmp/review-exclude7.json
 ```
 
-That scope has **59 projects**, **62 cases**, **22 passed**, **2 failed** and
-**38 unbound**. Triage: **23 case defects**, **17 coverage gaps** and
+That scope has **59 projects**, **62 cases**, **22 passed**, **0 failed** and
+**40 unbound**. Triage: **24 case defects**, **16 coverage gaps** and
 **22 passed**; no behavior group remains and the review queue is **empty**.
 This is the current accepted verifier scope; it is not a claim that the seven
 excluded projects are correct.
@@ -265,7 +265,7 @@ lookup values, missing new values, create payloads that must not be pre-seeded,
 entity aliases (`Audit` -> `AuditLog`), field aliases (`phone` ->
 `phone_number`, `stock_quantity` -> `stock_qty`), boolean availability
 vocabulary, and row-count deltas from setup. These changes moved the excluded
-scope from 4 passed / 24 failed / 34 unbound to 22 passed / 2 failed / 38
+scope from 4 passed / 24 failed / 34 unbound to 22 passed / 0 failed / 40
 unbound. The unbound count rose because incomplete update/create cases are now
 reported as case defects instead of being executed as if their missing values
 were supplied.
@@ -412,7 +412,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,384 passed**.
+is **1,386 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -439,7 +439,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,384 passed**.
+suite is **1,386 passed**.
 
 ## P1/P2 — performance and extraction
 

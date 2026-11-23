@@ -187,6 +187,75 @@ def _has_row_identity(method, args):
     return False
 
 
+def _coerce_value(value, declared):
+    if not isinstance(value, str) or value.startswith("{"):
+        return value
+    kind = str(declared or "").lower()
+    if any(token in kind for token in ("int", "integer")):
+        try:
+            return int(value)
+        except ValueError:
+            return value
+    if kind in ("float", "double", "decimal", "money", "number"):
+        try:
+            return float(value)
+        except ValueError:
+            return value
+    if kind in ("bool", "boolean"):
+        if value.strip().lower() in ("true", "false"):
+            return value.strip().lower() == "true"
+    return value
+
+
+def _coerce_args(method, args):
+    """Literal CLI values are strings in cases; generated methods are typed."""
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    by_name = {normalize(param["name"]): param.get("type") for param in params}
+    if isinstance(args, dict):
+        return {key: _coerce_value(value, by_name.get(normalize(key)))
+                for key, value in args.items()}
+    if isinstance(args, list):
+        return [_coerce_value(value,
+                              params[index].get("type")
+                              if index < len(params) else None)
+                for index, value in enumerate(args)]
+    return args
+
+
+def _has_soft_delete(model, requirements):
+    text = str(requirements or "").lower()
+    if "soft delete" not in text and "soft-delete" not in text:
+        return False
+    fields = {normalize(field.get("name")): field for field in model.get("fields") or []
+              if isinstance(field, dict) and field.get("name")}
+    return any(name in fields and str(fields[name].get("type") or "").lower()
+               in ("bool", "boolean")
+               for name in ("isdeleted", "deleted", "isarchived", "archived"))
+
+
+def _delete_state_error(case, docs, setup, method, requirements):
+    if codegen.classify_crud(method.get("name") or "") != "delete":
+        return None
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict) or not state:
+        return None
+    by_alias = {normalize(step.get("as") or ""): step for step in setup}
+    for target in state:
+        alias, _, _field = str(target).partition(".")
+        step = by_alias.get(normalize(alias))
+        if step is None:
+            continue
+        model = next((item for item in docs.get("models") or []
+                      if isinstance(item, dict)
+                      and item.get("name") == step.get("entity")), None)
+        if model is None or _has_soft_delete(model, requirements):
+            continue
+        return (f"delete case expects state on deleted {model.get('name')}; "
+                "a hard-deleted row has no state to read")
+    return None
+
+
 def _complete_id_args(method, args, setup):
     """Fill `<entity>_id` parameters from the matching seeded aliases."""
     aliases = {normalize(step.get("as") or ""): step for step in setup}
@@ -918,6 +987,7 @@ def bind_case(case, docs):
         method, _service_args(case_when.get("args") or [], setup), setup)
     args = _complete_create_args(method, args, setup)
     args = _complete_update_args(method, args, setup)
+    args = _coerce_args(method, args)
     missing_row = _missing_error_rows(case, docs, setup, method)
     if missing_row:
         return None, missing_row
@@ -925,6 +995,10 @@ def bind_case(case, docs):
     literal_error = _literal_param_error(case, method, kind)
     if literal_error:
         return None, literal_error
+    delete_error = _delete_state_error(
+        case, docs, setup, method, docs.get("requirements") or "")
+    if delete_error:
+        return None, delete_error
     if kind in ("update", "delete") and not _has_row_identity(method, args):
         return None, "update/delete case supplies no primary-key argument"
     if kind == "update":
