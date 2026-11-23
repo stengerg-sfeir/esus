@@ -21,10 +21,10 @@ import worker  # noqa: E402
 from kernel.oracle import binder, cases as case_rules, triage  # noqa: E402
 
 
-def run(project, include_assumed=False):
+def run(project, include_assumed=False, cases_name=None):
     project = Path(project)
     docs = worker._documents(project)
-    case_path = project / case_rules.CASES_NAME
+    case_path = project / (cases_name or case_rules.CASES_NAME)
     raw_cases = case_rules.load_cases(case_path)
     all_cases, _errors = case_rules.validate_cases(
         raw_cases, docs.get("requirements") or "")
@@ -94,8 +94,10 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("project")
     parser.add_argument("--include-assumed", action="store_true")
+    parser.add_argument("--cases", default=None,
+                        help="case sidecar filename (default: oracle_cases.json)")
     args = parser.parse_args(argv)
-    print(json.dumps(run(args.project, args.include_assumed), indent=2))
+    print(json.dumps(run(args.project, args.include_assumed, args.cases), indent=2))
     return 0
 
 

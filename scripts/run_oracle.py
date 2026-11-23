@@ -27,6 +27,10 @@ def main(argv=None):
                         help="run assumed cases as advisory checks")
     parser.add_argument("--output", default=None,
                         help="report path (default: <root>/oracle_report.json)")
+    parser.add_argument("--cases", default=None,
+                        help="case sidecar filename (default: oracle_cases.json)")
+    parser.add_argument("--report-name", default=None,
+                        help="per-project report filename (default: oracle_report.json)")
     args = parser.parse_args(argv)
     root = Path(args.root)
     wanted = {item.strip() for item in args.only.split(",") if item.strip()} \
@@ -42,6 +46,8 @@ def main(argv=None):
         command = [sys.executable, str(WORKER), str(project)]
         if args.include_assumed:
             command.append("--include-assumed")
+        if args.cases:
+            command.extend(["--cases", args.cases])
         process = subprocess.run(command, cwd=str(ROOT), capture_output=True,
                                  text=True)
         try:
@@ -51,7 +57,7 @@ def main(argv=None):
                        "results": [{"name": "worker", "status": "failed",
                                     "reason": (process.stderr or process.stdout)[-1000:]}],
                        "counts": {"failed": 1}}
-        (project / "oracle_report.json").write_text(
+        (project / (args.report_name or "oracle_report.json")).write_text(
             json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8")
         results.append(payload)

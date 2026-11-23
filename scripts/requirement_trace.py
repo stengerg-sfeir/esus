@@ -367,23 +367,26 @@ def artifacts(project, checks=None):
         if item:
             found.append(item)
 
-    report = _read_json(project / "oracle_report.json") or {}
     report_cases = {}
-    cases_payload = _read_json(project / "oracle_cases.json") or {}
-    for case in cases_payload.get("cases") or []:
-        if isinstance(case, dict) and case.get("id"):
-            report_cases[case["id"]] = case
-    for result in report.get("results") or []:
-        if not isinstance(result, dict) or result.get("status") != "passed":
-            continue
-        case = report_cases.get(result.get("case")) or {}
-        source = case.get("source")
-        if not isinstance(source, str) or not source.strip():
-            continue
-        item = _artifact("oracle", f"oracle:{result.get('case')}", source,
-                         f"oracle:{result.get('case')}")
-        if item:
-            found.append(item)
+    for filename in ("oracle_cases.json", "oracle_cases_coverage.json"):
+        cases_payload = _read_json(project / filename) or {}
+        for case in cases_payload.get("cases") or []:
+            if isinstance(case, dict) and case.get("id"):
+                report_cases[case["id"]] = case
+    for filename in ("oracle_report.json", "oracle_coverage_report.json"):
+        report = _read_json(project / filename) or {}
+        for result in report.get("results") or []:
+            if not isinstance(result, dict) or result.get("status") != "passed":
+                continue
+            case_id = result.get("case")
+            case = report_cases.get(case_id) or {}
+            source = case.get("source")
+            if not isinstance(source, str) or not source.strip():
+                continue
+            item = _artifact("oracle", f"oracle:{case_id}", source,
+                             f"oracle:{case_id}")
+            if item:
+                found.append(item)
 
     check_text = "\n".join(
         str(check.get("name") or "") + " " + str(check.get("reason") or "")
