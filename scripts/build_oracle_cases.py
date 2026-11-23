@@ -115,6 +115,129 @@ REQUIREMENTS:
 """
 
 
+PLAN_SCHEMA = """{
+  "plans": [
+    {
+      "id": "short_unique_id",
+      "source": "exact sentence or command example from the requirements",
+      "when": {"action": "cancel_order", "args": ["order.id"]},
+      "setup_entities": [
+        {"alias": "order", "entity": "Order", "role": "target"},
+        {"alias": "customer", "entity": "Customer", "role": "setup"}
+      ],
+      "expect": {
+        "state": ["order.status"],
+        "rows": {"Order": 1},
+        "error": "ErrorName or omitted"
+      },
+      "status": "confirmed | assumed | ambiguous"
+    }
+  ]
+}"""
+
+
+def build_plan_prompt(requirements, resolved_section="", coverage=None):
+    coverage_section = ""
+    if coverage:
+        listed = "\n".join(f"- {clause}" for clause in coverage)
+        coverage_section = (
+            "\nUNCOVERED REQUIREMENT CLAUSES TO TARGET:\n"
+            f"{listed}\n"
+            "Plan only cases whose `source` is one of these clauses.\n"
+        )
+    return f"""You are a requirements analyst. Read only the requirements below.
+Do not use or infer an extracted architecture, method contract, database
+schema or generated code.
+
+First produce a CASE PLAN, not concrete test values. For every planned case,
+name the observable action and the complete graph of entities the action needs.
+Do not invent entities or arguments the requirements do not name.
+
+Return JSON matching:
+{PLAN_SCHEMA}
+
+Rules:
+- `source` must be copied exactly from a sentence or command example in the requirements.
+- `setup_entities` must include the action target and every related row the
+  action reads. Use prompt entity nouns only.
+- `expect.state` lists observable `alias.field` paths, without values.
+  `expect.rows` lists expected row counts by entity. `expect.error` names an
+  error only when the requirements name or clearly describe it.
+- Do not plan a case with no observable outcome.
+- Do not invent sort options, file abstractions, statuses or payload shapes.
+- `status` is `confirmed` only when the requirement states the behavior;
+  otherwise `assumed` or `ambiguous`.
+
+REQUIREMENTS:
+{requirements}
+
+{resolved_section}
+{coverage_section}
+"""
+
+
+def build_repair_prompt(requirements, payload, errors, resolved_section=""):
+    return f"""You are repairing a prompt-derived verifier case set. The cases
+below were rejected by the case validator. Correct every listed error and return
+the complete corrected JSON object matching the schema. Preserve valid cases.
+Do not add test code. Do not use extracted architecture, contracts or generated
+code.
+
+SCHEMA:
+{SCHEMA}
+
+VALIDATION ERRORS:
+{chr(10).join(f"- {error}" for error in errors)}
+
+CURRENT CASES:
+{json.dumps(payload, indent=2, ensure_ascii=False)}
+
+REQUIREMENTS:
+{requirements}
+
+{resolved_section}
+"""
+
+
+def build_materialize_prompt(requirements, plans, resolved_section=""):
+    plan_json = json.dumps({"plans": plans}, indent=2, ensure_ascii=False)
+    return f"""You are a requirements analyst. Read only the requirements and the
+approved case plan below. Do not use or infer an extracted architecture,
+method contract, database schema or generated code.
+
+Materialize every plan into one concrete behavioral case. Preserve the plan's
+source, action, setup entities and expected outcome. Fill concrete values and
+all required setup rows. Do not add a case for any other requirement.
+
+Return JSON matching:
+{SCHEMA}
+
+Rules:
+- `source` must be copied exactly from the requirements.
+- For every entity in a plan's `setup_entities`, create a concrete setup row
+  with a distinct alias and concrete field values.
+- For list/filter/search cases, seed enough rows to produce the expected count,
+  including every parent row the filter reads.
+- Use only actions, fields, entities and arguments named in the requirements.
+  Do not invent sort options, file abstractions or payload shapes.
+- `given` is flat alias -> field -> scalar. Use `book_1`, `book_2` for multiple rows.
+- `then.state` is flat `alias.field` -> scalar.
+- For a create case, every expected field value must equal the supplied value
+  unless the requirements say it is computed or defaulted.
+- For a delete case, assert the resulting row count; do not read fields from the
+  deleted row.
+- Do not use placeholders. Never emit test code.
+
+CASE PLAN:
+{plan_json}
+
+REQUIREMENTS:
+{requirements}
+
+{resolved_section}
+"""
+
+
 def _strip_json_comments(raw):
     """Remove // comments outside strings, a common small-model habit."""
     out = []
@@ -165,7 +288,8 @@ def parse_payload(text):
 
 
 def build_one(project, model_path, context=8192, max_new_tokens=8192,
-              out=print, coverage=None, append=False, cases_name=None):
+              out=print, coverage=None, append=False, cases_name=None,
+              two_stage=False, repair_attempts=0):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -177,9 +301,31 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
                    indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     llm = runner.load_model(model_path, context_size=context, quiet=True)
     framing = runner.generate_chat if runner.has_chat_template(llm) else runner.generate_free
-    prompt = build_prompt(requirements, resolved.prompt_section(project),
-                          coverage=coverage)
-    result = framing(llm, prompt, f"oracle:{project.name}",
+    resolved_section = resolved.prompt_section(project)
+    if two_stage:
+        plan_prompt = build_plan_prompt(requirements, resolved_section,
+                                        coverage=coverage)
+        plan_result = framing(llm, plan_prompt, f"oracle-plan:{project.name}",
+                              temperature=0.0, max_new_tokens=max_new_tokens)
+        if plan_result.truncated:
+            raise SystemExit(f"{project.name}: oracle plan was truncated")
+        plan_payload = parse_payload(plan_result.text)
+        if plan_payload is None:
+            (project / "oracle_plan.err").write_text(
+                plan_result.text, encoding="utf-8")
+            raise SystemExit(f"{project.name}: oracle plan was not JSON")
+        plans = [plan for plan in plan_payload.get("plans") or []
+                 if isinstance(plan, dict) and plan.get("source")]
+        (project / "oracle_case_plans.json").write_text(
+            json.dumps({"plans": plans}, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8")
+        prompt = build_materialize_prompt(requirements, plans, resolved_section)
+        label = f"oracle-materialize:{project.name}"
+    else:
+        prompt = build_prompt(requirements, resolved_section,
+                              coverage=coverage)
+        label = f"oracle:{project.name}"
+    result = framing(llm, prompt, label,
                      temperature=0.0, max_new_tokens=max_new_tokens)
     if result.truncated:
         raise SystemExit(f"{project.name}: oracle answer was truncated")
@@ -190,6 +336,25 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
         raise SystemExit(f"{project.name}: oracle answer was not JSON")
     sha = requirements_sha(requirements)
     valid, errors = case_rules.validate_cases(payload, requirements, sha)
+    attempts = 0
+    while errors and attempts < repair_attempts:
+        attempts += 1
+        repair_prompt = build_repair_prompt(
+            requirements, payload, errors, resolved_section)
+        repaired = framing(llm, repair_prompt,
+                           f"oracle-repair:{project.name}:{attempts}",
+                           temperature=0.0, max_new_tokens=max_new_tokens)
+        if repaired.truncated:
+            break
+        repaired_payload = parse_payload(repaired.text)
+        if repaired_payload is None:
+            break
+        candidate, candidate_errors = case_rules.validate_cases(
+            repaired_payload, requirements, sha)
+        if len(candidate) > len(valid):
+            valid, errors, payload = candidate, candidate_errors, repaired_payload
+        else:
+            errors = candidate_errors or errors
     if append:
         existing = case_rules.load_cases(project / case_rules.CASES_NAME)
         valid = case_rules.validate_cases(
@@ -221,6 +386,10 @@ def main(argv=None):
                         help="append new cases instead of replacing the sidecar")
     parser.add_argument("--cases-name", default=None,
                         help="output case sidecar filename (default: oracle_cases.json)")
+    parser.add_argument("--two-stage", action="store_true",
+                        help="plan case intents first, then materialize values")
+    parser.add_argument("--repair-attempts", type=int, default=0,
+                        help="same-model repair attempts after case validation")
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -248,7 +417,8 @@ def main(argv=None):
             valid, _errors = build_one(
                 project, args.model, args.context, args.max_new_tokens,
                 coverage=coverage.get(project.name), append=args.append,
-                cases_name=args.cases_name)
+                cases_name=args.cases_name, two_stage=args.two_stage,
+                repair_attempts=args.repair_attempts)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: oracle build failed ({error})")
