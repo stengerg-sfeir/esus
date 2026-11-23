@@ -87,6 +87,15 @@ Rules:
   nest domain objects or lists. For multiple rows, use aliases such as `book_1`,
   `book_2`.
 - `then.state` must be flat `alias.field` -> scalar value. Do not nest objects.
+- For list/filter/search cases, seed enough rows to produce the expected result,
+  including every parent row the filter reads (for example a product filter by
+  category also needs its category row).
+- Do not invent an argument that the requirements do not name, such as a sort
+  option or a payload shape that no listed action accepts.
+- For a delete case, assert the resulting row count; do not read fields from the
+  row after it has been deleted.
+- On a create case, every expected field value must equal the value supplied in
+  `given` unless the requirement explicitly says it is computed or defaulted.
 - `when` is either a service action (`action` + `args`) or a CLI path
   (`"cli": ["library", "book", "add", "--title=..."]`).
 - Do not use placeholder values such as "today", "None", "auto_incremented_int",
@@ -154,7 +163,7 @@ def parse_payload(text):
 
 
 def build_one(project, model_path, context=8192, max_new_tokens=8192,
-              out=print, coverage=None, append=False):
+              out=print, coverage=None, append=False, cases_name=None):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -183,8 +192,8 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
         existing = case_rules.load_cases(project / case_rules.CASES_NAME)
         valid = case_rules.validate_cases(
             {"cases": list(existing) + list(valid)}, requirements, sha)[0]
-    path = case_rules.save_cases(project / case_rules.CASES_NAME, valid,
-                                 prompt_sha=sha)
+    path = case_rules.save_cases(project / (cases_name or case_rules.CASES_NAME),
+                                 valid, prompt_sha=sha)
     out(f"{project.name}: {len(valid)} case(s) -> {path}")
     if errors:
         out(f"{project.name}: {len(errors)} rejected case(s)")
@@ -208,6 +217,8 @@ def main(argv=None):
                         help="coverage.json: target mapped-but-untested clauses")
     parser.add_argument("--append", action="store_true",
                         help="append new cases instead of replacing the sidecar")
+    parser.add_argument("--cases-name", default=None,
+                        help="output case sidecar filename (default: oracle_cases.json)")
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -234,7 +245,8 @@ def main(argv=None):
         try:
             valid, _errors = build_one(
                 project, args.model, args.context, args.max_new_tokens,
-                coverage=coverage.get(project.name), append=args.append)
+                coverage=coverage.get(project.name), append=args.append,
+                cases_name=args.cases_name)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: oracle build failed ({error})")
