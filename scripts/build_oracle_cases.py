@@ -529,10 +529,91 @@ def parse_payload(text):
         return None
 
 
+def _build_per_clause(project, llm, framing, requirements, resolved_section,
+                      coverage, domain_schema, max_new_tokens,
+                      candidates, candidate_temperature, repair_attempts,
+                      cases_name=None, out=print):
+    selected = []
+    plans_written = []
+    for clause in coverage:
+        plan_prompt = build_plan_prompt(
+            requirements, resolved_section, coverage=[clause],
+            domain_schema=domain_schema)
+        plan_result = framing(llm, plan_prompt, f"oracle-plan:{project.name}",
+                              temperature=0.0, max_new_tokens=max_new_tokens)
+        if plan_result.truncated:
+            continue
+        plan_payload = parse_payload(plan_result.text)
+        if plan_payload is None:
+            continue
+        plans, _plan_errors = validate_plans(plan_payload, requirements)
+        plans = [plan for plan in plans
+                 if plan.get("source") == clause
+                 or _source_in_requirements(clause, plan.get("source") or "")]
+        if not plans:
+            continue
+        plan = plans[0]
+        plans_written.append(plan)
+        best = None
+        for candidate in range(max(1, candidates)):
+            prompt = build_materialize_prompt(
+                requirements, [plan], resolved_section,
+                domain_schema=domain_schema)
+            result = framing(
+                llm, prompt,
+                f"oracle-materialize:{project.name}:{candidate}",
+                temperature=candidate_temperature if candidate else 0.0,
+                max_new_tokens=max_new_tokens)
+            if result.truncated:
+                continue
+            payload = parse_payload(result.text)
+            if payload is None:
+                continue
+            valid, errors = case_rules.validate_cases(
+                payload, requirements, requirements_sha(requirements))
+            attempts = 0
+            while errors and attempts < repair_attempts:
+                attempts += 1
+                repaired = framing(
+                    llm, build_repair_prompt(requirements, payload, errors,
+                                             resolved_section),
+                    f"oracle-case-repair:{project.name}:{candidate}:{attempts}",
+                    temperature=0.0, max_new_tokens=max_new_tokens)
+                if repaired.truncated:
+                    break
+                repaired_payload = parse_payload(repaired.text)
+                if repaired_payload is None:
+                    break
+                candidate_valid, candidate_errors = case_rules.validate_cases(
+                    repaired_payload, requirements,
+                    requirements_sha(requirements))
+                if len(candidate_valid) > len(valid):
+                    valid, errors, payload = (candidate_valid, candidate_errors,
+                                              repaired_payload)
+                else:
+                    errors = candidate_errors or errors
+            if valid:
+                score = (len(valid[0].get("given") or {})
+                         + len((valid[0].get("then") or {}).get("state") or {})
+                         + len((valid[0].get("then") or {}).get("rows") or {}))
+                if best is None or score > best[0]:
+                    best = (score, valid[0])
+        if best is not None:
+            selected.append(best[1])
+    path = case_rules.save_cases(
+        project / (cases_name or case_rules.CASES_NAME), selected,
+        prompt_sha=requirements_sha(requirements))
+    (project / "oracle_case_plans.json").write_text(
+        json.dumps({"plans": plans_written}, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8")
+    return selected, path
+
+
 def build_one(project, model_path, context=8192, max_new_tokens=8192,
               out=print, coverage=None, append=False, cases_name=None,
               two_stage=False, repair_attempts=0, triage_simple=False,
-              schema_aware=False, extracted_schema_mode=False):
+              schema_aware=False, extracted_schema_mode=False,
+              per_clause=False, candidates=1, candidate_temperature=0.3):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -574,6 +655,13 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
         if schema_errors:
             out(f"{project.name}: schema rejected: {'; '.join(schema_errors)}")
             domain_schema = None
+    if per_clause and coverage:
+        selected, path = _build_per_clause(
+            project, llm, framing, requirements, resolved_section, coverage,
+            domain_schema, max_new_tokens, candidates, candidate_temperature,
+            repair_attempts, cases_name=cases_name, out=out)
+        out(f"{project.name}: {len(selected)} case(s) -> {path}")
+        return selected, []
     if simple_app:
         prompt = build_app_prompt(requirements, coverage=coverage)
         label = f"oracle-app:{project.name}"
@@ -690,6 +778,11 @@ def main(argv=None):
                         help="plan from a prompt-derived neutral domain schema")
     parser.add_argument("--extracted-schema", action="store_true",
                         help="1b diagnostic: use extracted data_models as schema")
+    parser.add_argument("--per-clause", action="store_true",
+                        help="one plan, multiple candidates and repairs per clause")
+    parser.add_argument("--candidates", type=int, default=1,
+                        help="materialization candidates per clause")
+    parser.add_argument("--candidate-temperature", type=float, default=0.3)
     args = parser.parse_args(argv)
     if args.server_url:
         import os
@@ -721,7 +814,10 @@ def main(argv=None):
                 repair_attempts=args.repair_attempts,
                 triage_simple=args.triage_simple,
                 schema_aware=args.schema_aware,
-                extracted_schema_mode=args.extracted_schema)
+                extracted_schema_mode=args.extracted_schema,
+                per_clause=args.per_clause,
+                candidates=args.candidates,
+                candidate_temperature=args.candidate_temperature)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: oracle build failed ({error})")

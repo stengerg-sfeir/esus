@@ -238,7 +238,10 @@ entity/field/relationship schema from the requirements only; on a four-prompt
 trial it produced 2 passing cases and 9 unbound, with no behavior findings.
 **1b** uses extracted `data_models.json` as the schema; it produced 2 passing,
 2 failed and 8 unbound cases and is extraction-coupled, so it is documented as
-a rejected diagnostic. The default verifier remains prompt-only.
+a rejected diagnostic. The default verifier remains prompt-only. A per-clause trial (one plan,
+three materializations, per-case repair) produced 9 selected cases with zero
+passes on five target clauses, so process strength alone did not overcome the
+model's case-construction errors.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
