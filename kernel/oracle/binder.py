@@ -213,6 +213,13 @@ def _complete_id_args(method, args, setup):
                if isinstance(param, dict) and not normalize(param.get("name") or "").endswith("id")]
     if not non_ids and len(kwargs) == len(ids):
         return kwargs
+    # `list_books` may say `["author"]`; the method expects `author_id`.
+    # A bare alias is a row reference, so use the FK when the method has one.
+    bare = [value for value in args if isinstance(value, dict)
+            and isinstance(value.get("ref"), str)
+            and "." not in value["ref"]]
+    if kwargs and bare and len(bare) == len(args):
+        return kwargs
     return args
 
 
@@ -617,6 +624,26 @@ def _missing_error_rows(case, docs, setup, method):
     return None
 
 
+def _literal_param_error(case, method, kind):
+    """Reject a read case that passes a parameter name as its value.
+
+    `search_books("query")` is not a search for the word "query"; it is the
+    builder naming the slot instead of supplying a value. The same applies to
+    other read/list cases whose arguments are bare parameter identifiers.
+    """
+    if kind not in ("read_all", "filter", "read_one"):
+        return None
+    params = {normalize(param.get("name")) for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")}
+    raw = (case.get("when") or {}).get("args")
+    for value in raw if isinstance(raw, list) else [raw]:
+        if not isinstance(value, str) or "." in value or "=" in value:
+            continue
+        if normalize(value) in params:
+            return f"case passes parameter name {value!r} as a literal value"
+    return None
+
+
 def _method(docs, case):
     raw_action = case.get("when", {}).get("action") or ""
     action = normalize(raw_action)
@@ -895,6 +922,9 @@ def bind_case(case, docs):
     if missing_row:
         return None, missing_row
     kind = codegen.classify_crud(method.get("name") or "")
+    literal_error = _literal_param_error(case, method, kind)
+    if literal_error:
+        return None, literal_error
     if kind in ("update", "delete") and not _has_row_identity(method, args):
         return None, "update/delete case supplies no primary-key argument"
     if kind == "update":

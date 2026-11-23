@@ -391,6 +391,48 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertTrue(scenario["rows_as_result"])
 
+    def test_a_bare_author_alias_becomes_the_foreign_key(self):
+        docs = {
+            "models": [
+                {"name": "Author", "fields": [
+                    {"name": "author_id", "primary_key": True},
+                    {"name": "name"}]},
+                {"name": "Book", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "author_id"}]},
+            ],
+            "services": [],
+            "repos": [{"interface_name": "BookRepository", "methods": [{
+                "name": "read_all", "params": [
+                    {"name": "author_id"}],
+                "return_type": "List[Book]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_books", "args": ["author"]},
+                 given={"author": {"name": "A"}},
+                 then={"rows": {"Book": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"],
+                         {"author_id": {"ref": "author.id"}})
+
+    def test_a_parameter_name_used_as_a_literal_is_unbound(self):
+        docs = {
+            "models": [{"name": "Book", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "title"}]}],
+            "services": [{"service_name": "LibraryService", "methods": [{
+                "name": "search_books",
+                "params": [{"name": "query"}],
+                "return_type": "List[Book]"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "search_books", "args": ["query"]},
+                 given={"book": {"title": "T"}},
+                 then={"rows": {"Book": 1}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("parameter name 'query'", reason)
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

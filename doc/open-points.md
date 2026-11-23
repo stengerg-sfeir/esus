@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,380 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,382 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -190,16 +190,16 @@ cases (16 confirmed); the full 66-prompt builder produced **215 valid cases**.
 The current execution result is:
 
 - **79 executed**
-- **24 passed**
-- **6 failed**
-- **49 unbound**
+- **25 passed**
+- **4 failed**
+- **50 unbound**
 
 Triage of the findings:
 
-- **2 behavior cases** in **1 behavior group**;
+- **0 behavior groups**;
 - **30 case defects** (missing/duplicate setup, malformed arguments);
-- **23 coverage gaps** (missing or ambiguous generated actions);
-- **24 passed**.
+- **24 coverage gaps** (missing or ambiguous generated actions);
+- **25 passed**.
 
 Most failures are case-construction defects: the verifier uses positional
 arguments or aliases the generated method does not accept, omits related rows,
@@ -229,9 +229,9 @@ missing surface/method pieces, and `prompt_58` has an empty persistence
 document.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
-`needs_review`, and feeds the review queue. The current queue has **1 item**: the row-count behavior group in the excluded
-`prompt_library_system`. The uniqueness policy is recorded as “reject all inferred”
-and the aggregate policy as “omit empty groups”.
+`needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
+case defects; the uniqueness policy is recorded as “reject all inferred” and
+the aggregate policy as “omit empty groups”.
 Assumed/ambiguous alternatives are no longer promoted to contradictions.
 Candidate assumptions stay in `oracle_cases.json` and do not consume the human
 queue until execution produces evidence.
@@ -412,7 +412,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,380 passed**.
+is **1,382 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -439,7 +439,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,380 passed**.
+suite is **1,382 passed**.
 
 ## P1/P2 — performance and extraction
 
