@@ -32,6 +32,10 @@ def classify(status, reason, source=None):
             and any(word in requirement for word in
                     ("remains in the database", "still exists", "not removed"))):
         return "behavior: soft delete"
+    if ("is datetime.datetime" in text and "expected '" in text) \
+            or "datatype mismatch" in text \
+            or (".id is " in text and "expected 1" in text):
+        return "case_defect: setup"
     if any(word in text for word in (
             "matched 0 records", "matched no records", "notfounderror",
             "not found", "already exists", "unknown scenario reference",

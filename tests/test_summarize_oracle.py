@@ -62,6 +62,16 @@ class OracleSummaryTests(unittest.TestCase):
                         "status": "unbound", "reason": reason}),
                     "case_defect: setup")
 
+    def test_type_and_auto_id_mismatches_are_case_defects(self):
+        for reason in (
+                "note.creation_date is datetime.datetime(2023, 10, 1), expected '2023-10-01'",
+                "note.id is 3, expected 1",
+                "setup Product raised IntegrityError: datatype mismatch"):
+            with self.subTest(reason=reason):
+                self.assertEqual(
+                    summarize_oracle.category({"status": "failed", "reason": reason}),
+                    "case_defect: setup")
+
     def test_missing_primary_key_is_a_case_defect(self):
         self.assertEqual(
             summarize_oracle.category({
