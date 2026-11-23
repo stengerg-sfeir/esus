@@ -208,6 +208,89 @@ REQUIREMENTS:
 """
 
 
+def validate_plans(payload, requirements):
+    """Mechanical checks on the case plan before values are materialized."""
+    plans = payload.get("plans") if isinstance(payload, dict) else None
+    if not isinstance(plans, list):
+        return [], ["plan payload has no 'plans' list"]
+    valid, errors = [], []
+    for index, plan in enumerate(plans, start=1):
+        errors_before = len(errors)
+        if not isinstance(plan, dict):
+            errors.append(f"plan {index}: not an object")
+            continue
+        source = plan.get("source")
+        if not isinstance(source, str) or not source.strip():
+            errors.append(f"plan {index}: missing source")
+            continue
+        if not _source_in_requirements(source, requirements):
+            errors.append(f"plan {index}: source is not a prompt span")
+            continue
+        when = plan.get("when")
+        if not isinstance(when, dict):
+            errors.append(f"plan {index}: missing when")
+            continue
+        setup = plan.get("setup_entities")
+        if not isinstance(setup, list):
+            errors.append(f"plan {index}: setup_entities must be a list")
+            continue
+        aliases = set()
+        for step in setup:
+            if not isinstance(step, dict) or not step.get("alias") or not step.get("entity"):
+                errors.append(f"plan {index}: setup entity needs alias and entity")
+                continue
+            if step["alias"] in aliases:
+                errors.append(f"plan {index}: duplicate setup alias {step['alias']!r}")
+            aliases.add(step["alias"])
+        if when.get("app") is True:
+            if setup:
+                errors.append(f"plan {index}: app plan must not seed entities")
+        else:
+            action = when.get("action")
+            cli = when.get("cli")
+            if not action and not cli:
+                errors.append(f"plan {index}: when needs action, cli or app")
+                continue
+            refs = list(when.get("args") or [])
+            expect = plan.get("expect") or {}
+            refs += list(expect.get("state") or [])
+            for ref in refs:
+                if isinstance(ref, str) and "." in ref:
+                    head = ref.split(".", 1)[0]
+                    if head not in aliases:
+                        errors.append(
+                            f"plan {index}: reference {ref!r} has no setup alias")
+            if action and (expect.get("rows") or expect.get("state")) and not setup:
+                errors.append(f"plan {index}: action has no setup entities")
+        if len(errors) == errors_before:
+            valid.append(plan)
+    return valid, errors
+
+
+def _source_in_requirements(source, requirements):
+    def clean(value):
+        text = str(value or "").replace("`", "").replace("*", "")
+        return " ".join(text.split()).strip().casefold().rstrip(" .;:")
+    wanted = clean(source)
+    return bool(wanted) and wanted in clean(requirements)
+
+
+def build_plan_repair_prompt(requirements, payload, errors):
+    return f"""Correct this verifier CASE PLAN. Return the complete corrected
+JSON object with the same plan schema. Preserve valid plans. Do not invent
+entities, arguments, statuses or file abstractions.
+
+VALIDATION ERRORS:
+{chr(10).join(f"- {error}" for error in errors)}
+
+CURRENT PLAN:
+{json.dumps(payload, indent=2, ensure_ascii=False)}
+
+REQUIREMENTS:
+{requirements}
+"""
+
+
 def build_app_prompt(requirements, coverage=None):
     coverage_section = ""
     if coverage:
@@ -371,8 +454,25 @@ def build_one(project, model_path, context=8192, max_new_tokens=8192,
             (project / "oracle_plan.err").write_text(
                 plan_result.text, encoding="utf-8")
             raise SystemExit(f"{project.name}: oracle plan was not JSON")
-        plans = [plan for plan in plan_payload.get("plans") or []
-                 if isinstance(plan, dict) and plan.get("source")]
+        plans, plan_errors = validate_plans(plan_payload, requirements)
+        plan_attempts = 0
+        while plan_errors and plan_attempts < repair_attempts:
+            plan_attempts += 1
+            repaired = framing(llm, build_plan_repair_prompt(
+                requirements, plan_payload, plan_errors),
+                f"oracle-plan-repair:{project.name}:{plan_attempts}",
+                temperature=0.0, max_new_tokens=max_new_tokens)
+            if repaired.truncated:
+                break
+            repaired_payload = parse_payload(repaired.text)
+            if repaired_payload is None:
+                break
+            candidate, candidate_errors = validate_plans(
+                repaired_payload, requirements)
+            if len(candidate) > len(plans):
+                plans, plan_errors, plan_payload = candidate, candidate_errors, repaired_payload
+            else:
+                plan_errors = candidate_errors or plan_errors
         (project / "oracle_case_plans.json").write_text(
             json.dumps({"plans": plans}, indent=2, ensure_ascii=False) + "\n",
             encoding="utf-8")

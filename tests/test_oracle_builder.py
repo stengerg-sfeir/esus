@@ -27,6 +27,29 @@ class OracleBuilderTests(unittest.TestCase):
             '{"cases": [{"id": "x", // note\n "status": "assumed",},]}')
         self.assertEqual(payload["cases"][0]["id"], "x")
 
+    def test_plan_validation_rejects_unseeded_references(self):
+        plans, errors = build_oracle_cases.validate_plans({
+            "plans": [{
+                "id": "x", "source": "A counter must increment.",
+                "when": {"action": "increment", "args": ["counter.id"]},
+                "setup_entities": [],
+                "expect": {"rows": {"Counter": 1}},
+            }]}, "A counter must increment.")
+        self.assertEqual(plans, [])
+        self.assertTrue(any("no setup alias" in error for error in errors))
+        self.assertTrue(any("no setup entities" in error for error in errors))
+
+    def test_plan_validation_accepts_app_plans(self):
+        plans, errors = build_oracle_cases.validate_plans({
+            "plans": [{
+                "id": "hello", "source": "It prints hello.",
+                "when": {"app": True, "args": []},
+                "setup_entities": [],
+                "expect": {"stdout_contains": "hello", "exit_code": 0},
+            }]}, "It prints hello.")
+        self.assertEqual(errors, [])
+        self.assertEqual(len(plans), 1)
+
     def test_non_json_is_refused(self):
         self.assertIsNone(build_oracle_cases.parse_payload("I think it works."))
 
