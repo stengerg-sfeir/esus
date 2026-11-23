@@ -76,6 +76,11 @@ def _clauses(text):
         stripped = line.strip()
         if not stripped:
             continue
+        # Markdown headings and labels are structure, not runtime predicates.
+        if stripped.startswith("#") or stripped.endswith(":"):
+            continue
+        if stripped.startswith("**") and stripped.endswith("**"):
+            continue
         # Keep command examples and explicit bullets as their own clause.
         if stripped.startswith(("-", "*")) or "`" in stripped:
             add(stripped)
@@ -273,6 +278,48 @@ def artifacts(project, checks=None):
             if item:
                 found.append(item)
 
+    for check in checks or []:
+        if not isinstance(check, dict) or not check.get("name"):
+            continue
+        name = str(check["name"])
+        item = _artifact("check", name, name + " " + str(check.get("reason") or ""),
+                         f"check:{name}")
+        if item:
+            found.append(item)
+
+    generated = project / "generated"
+    source_files = sorted(generated.glob("*.py")) if generated.is_dir() else []
+    source_text = "\n".join(path.read_text(encoding="utf-8", errors="replace")
+                            for path in source_files)
+    if source_files:
+        item = _artifact(
+            "component", "application codebase",
+            "application cli main entry point modules separate layers "
+            "clean architecture separation of concerns easy maintain split "
+            "appropriate modules",
+            "component:codebase")
+        if item:
+            found.append(item)
+    if "->" in source_text:
+        item = _artifact("component", "type hints",
+                         "type hints annotations return annotations",
+                         "component:type-hints")
+        if item:
+            found.append(item)
+    if "PRAGMA foreign_keys=ON" in source_text or "PRAGMA foreign_keys = ON" in source_text:
+        item = _artifact("component", "sqlite foreign keys",
+                         "sqlite foreign keys enabled pragma constraints",
+                         "component:foreign-keys")
+        if item:
+            found.append(item)
+    if "sqlite3.connect" in source_text or "sqlite3" in source_text:
+        item = _artifact("component", "sqlite persistence",
+                         "sqlite persistence across sessions database file "
+                         "remember information between executions",
+                         "component:persistence-sessions")
+        if item:
+            found.append(item)
+
     check_text = "\n".join(
         str(check.get("name") or "") + " " + str(check.get("reason") or "")
         for check in checks or [] if isinstance(check, dict))
@@ -313,7 +360,22 @@ def trace_project(project, checks=None):
             key=lambda pair: (-pair[0], pair[1]["id"]))
         best = scored[0][0] if scored else 0
         matches = [item for score, item in scored if score == best and best > 0]
-        if best >= 4:
+        if matches and all(item["kind"] == "check" for item in matches):
+            # A check can outrank the design artifact it exercises. Keep one
+            # design item in the evidence so the trace still says what the
+            # clause is mapped to, not only that a check exists.
+            design = next((item for score, item in scored
+                           if score > 0 and item["kind"] != "check"), None)
+            if design is not None and design not in matches:
+                matches.append(design)
+        structural = any(item["id"] == "component:codebase" for item in items)
+        if (not _words(clause) or (
+                best < 2
+                and structural
+                and re.match(r"^(?:create|build|develop)\b",
+                             clause, re.IGNORECASE))):
+            status = "non_runtime"
+        elif best >= 4:
             status = "mapped_tested" if any(
                 item["tested"] for item in matches) else "mapped_untested"
         elif best >= 2:

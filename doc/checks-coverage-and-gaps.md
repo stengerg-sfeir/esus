@@ -161,4 +161,4 @@ That mapping would make omissions easier to see and provide stronger evidence th
 - `kernel/pattern_shapes.py` rejects a pattern claim that cannot fit a method's return type.
 - `tests/e2e_library_acceptance.py` runs the generated library program against a real database.
 - `scripts/run_bench_acceptance.py` and `tests/runtime/worker.py` implement the generic 66-project acceptance harness; `tests/runtime/scenarios/` holds CLI and semantic fixtures.
-- `scripts/requirement_trace.py` writes `coverage.json` and adds a separate `coverage` block to the acceptance summary; statuses are `mapped_tested`, `mapped_untested`, `partial`, and `unmapped`.
+- `scripts/requirement_trace.py` writes `coverage.json` and adds a separate `coverage` block to the acceptance summary; statuses are `mapped_tested`, `mapped_untested`, `partial`, `unmapped`, and `non_runtime`.
