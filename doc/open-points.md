@@ -140,7 +140,7 @@ methods, errors, invariants, contracts, adapters and components, and reports:
 `scripts/run_bench_acceptance.py` now writes `coverage.json` and adds a
 separate `coverage` block to `summary.json`; the pass/fail verdict is
 unchanged. On the stored v8 extraction the standalone report covers 345
-clauses: 119 mapped-but-untested, 2 unmapped, 5 partial and 16 non-runtime. Those gaps are
+clauses: 100 mapped-but-untested and 11 non-runtime. Those gaps are
 now visible instead of being implied by a green acceptance run.
 
 **Regression tests:** `tests/test_requirement_trace.py`. The full suite is
@@ -317,8 +317,8 @@ checks, 0 generated stubs, 0 failures**. A project with a stub is reported as
 `incomplete`, not passed.
 
 This does not make the missing surface requirements disappear: the separate
-requirement trace reports **2 unmapped clauses, 5 partial clauses, 119
-mapped-but-untested clauses, 186 mapped-and-tested clauses and 16 non-runtime
+requirement trace reports **0 unmapped clauses, 0 partial clauses, 100
+mapped-but-untested clauses, 217 mapped-and-tested clauses and 11 non-runtime
 clauses**. Those are the
 review targets for item 7b; a green harness is not treated as semantic proof.
 

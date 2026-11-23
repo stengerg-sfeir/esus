@@ -36,8 +36,8 @@ checks (1,073 -> 1,023) rather than hiding a defect.
 The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
 the stored v8 code now gives **66/66 complete projects, 1,023 passed checks,
-0 generated stubs, 0 failures**. The separate requirement trace now reports 2 unmapped,
-5 partial and 119 mapped-but-untested clauses; those remain review targets
+0 generated stubs, 0 failures**. The separate requirement trace now reports 0 unmapped,
+0 partial and 100 mapped-but-untested clauses; those remain review targets
 (item 7b), not proof of semantic coverage.
 
 The acceptance summary also carries a separate `coverage` block produced

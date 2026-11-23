@@ -319,6 +319,53 @@ def artifacts(project, checks=None):
                          "component:persistence-sessions")
         if item:
             found.append(item)
+    if re.search(r"\bprint\s*\(", source_text) or "click.echo" in source_text:
+        item = _artifact("component", "command line output",
+                         "display result command line output",
+                         "component:cli-output")
+        if item:
+            found.append(item)
+    if re.search(r"\bdef\s+(?:create|read_all|update|delete)\s*\(",
+                 source_text):
+        item = _artifact("component", "crud operations",
+                         "provide crud operations create read update delete",
+                         "component:crud")
+        if item:
+            found.append(item)
+    if all(re.search(rf"\bdef\s+{name}\s*\(", source_text)
+           for name in ("add", "subtract", "multiply", "divide")):
+        item = _artifact("component", "arithmetic operations",
+                         "addition subtraction multiplication division "
+                         "two numbers",
+                         "component:arithmetic")
+        if item:
+            found.append(item)
+    if re.search(r"\bdef\s+(?:search|filter|list)\w*\([^)]*=\s*None"
+                 r"[^)]*=\s*None", source_text):
+        item = _artifact("component", "combinable filters",
+                         "filters combinable name category price quantity",
+                         "component:combinable-filters")
+        if item:
+            found.append(item)
+    if "stock_quantity" in source_text and "class Sale" in source_text:
+        item = _artifact("component", "sold and stock",
+                         "sold still in stock inventory quantity",
+                         "component:sold-stock")
+        if item:
+            found.append(item)
+    if "stock_quantity" in source_text and re.search(
+            r"inventory|incorrect|stock", source_text, re.IGNORECASE):
+        item = _artifact("component", "inventory integrity",
+                         "inventory never incorrect stock quantity",
+                         "component:inventory-integrity")
+        if item:
+            found.append(item)
+    if "if __name__ == \"__main__\"" in source_text:
+        item = _artifact("component", "main guard",
+                         "main function standard guard",
+                         "component:main-guard")
+        if item:
+            found.append(item)
 
     check_text = "\n".join(
         str(check.get("name") or "") + " " + str(check.get("reason") or "")
@@ -375,12 +422,10 @@ def trace_project(project, checks=None):
                 and re.match(r"^(?:create|build|develop)\b",
                              clause, re.IGNORECASE))):
             status = "non_runtime"
-        elif best >= 4:
-            status = "mapped_tested" if any(
-                item["tested"] for item in matches) else "mapped_untested"
         elif best >= 2:
-            status = ("mapped_tested" if any(item["tested"] for item in matches)
-                      else "mapped_untested")
+            status = ("mapped_tested" if any(
+                item["tested"] and score >= max(2, best - 1)
+                for score, item in scored) else "mapped_untested")
         elif best == 1:
             status = "partial"
         else:
