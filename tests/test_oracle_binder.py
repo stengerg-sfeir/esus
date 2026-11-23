@@ -340,6 +340,57 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(scenario)
         self.assertIn("not declared", reason)
 
+    def test_a_plural_list_action_binds_to_read_all(self):
+        docs = {
+            "models": [{"name": "Project", "fields": [
+                {"name": "project_id", "primary_key": True},
+                {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProjectRepository", "methods": [{
+                "name": "read_all", "params": [],
+                "return_type": "List[Project]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_projects", "args": []},
+                 given={"project": {"name": "P"}},
+                 then={"rows": {"Project": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["method"], "read_all")
+
+    def test_a_list_without_a_mutation_cannot_expect_fewer_rows(self):
+        docs = {
+            "models": [{"name": "Project", "fields": [
+                {"name": "project_id", "primary_key": True},
+                {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProjectRepository", "methods": [{
+                "name": "read_all", "params": [],
+                "return_type": "List[Project]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_projects", "args": []},
+                 given={"project": {"name": "P"}},
+                 then={"rows": {"Project": 0}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("performs no delete or filter", reason)
+
+    def test_a_list_rows_expectation_compares_the_returned_count(self):
+        docs = {
+            "models": [{"name": "Project", "fields": [
+                {"name": "project_id", "primary_key": True},
+                {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProjectRepository", "methods": [{
+                "name": "read_all", "params": [],
+                "return_type": "List[Project]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_projects", "args": []},
+                 given={"project": {"name": "P"}},
+                 then={"rows": {"Project": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertTrue(scenario["rows_as_result"])
+
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(
             case(when={"action": "invented_action"}), DOCS)

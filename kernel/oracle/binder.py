@@ -534,10 +534,18 @@ def _setup(case, docs, models):
 
 def _action_words(raw):
     text = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", str(raw or ""))
-    return {normalize(word) for word in re.split(r"[^A-Za-z0-9]+", text)
-            if word and normalize(word) not in (
+    words = []
+    for word in re.split(r"[^A-Za-z0-9]+", text):
+        token = normalize(word)
+        if not token or token in (
                 "add", "create", "list", "read", "all", "search", "filter",
-                "get", "update", "delete", "remove", "the")}
+                "get", "update", "delete", "remove", "the"):
+            continue
+        # `list_projects` should match ProjectRepository's `read_all`.
+        if token.endswith("s") and not token.endswith("ss") and len(token) > 3:
+            token = token[:-1]
+        words.append(token)
+    return set(words)
 
 
 def _mark_create_target(case, setup):
@@ -753,6 +761,28 @@ def _create_value_error(create_target, docs, method, args, holder=None):
     return None
 
 
+def _read_result_error(case, kind, setup, models, args):
+    """A list case cannot return fewer rows than setup when it changes nothing."""
+    if kind not in ("read_all", "filter"):
+        return None
+    rows = (case.get("then") or {}).get("rows")
+    if not isinstance(rows, dict) or args:
+        return None
+    expected = 0
+    counted = set()
+    for alias, count in rows.items():
+        entity = _entity_for(alias, models) or alias
+        expected += int(count)
+        counted.add(normalize(entity))
+    seeded = sum(1 for step in setup
+                 if normalize(step.get("entity")) in counted
+                 and step.get("seed") is not False)
+    if expected < seeded:
+        return ("list case expects fewer rows than its setup but performs "
+                "no delete or filter action")
+    return None
+
+
 def _update_value_error(case, docs, models, setup, method, args):
     """Reject an update case that expects a change it never supplies.
 
@@ -877,15 +907,21 @@ def bind_case(case, docs):
             create_target, docs, method, args, holder)
         if create_error:
             return None, create_error
+    read_error = _read_result_error(case, kind, setup, models, args)
+    if read_error:
+        return None, read_error
     when = {
         "service": holder,
         "method": method.get("name"),
         "args": args,
     }
-    return _scenario(case, setup, when, models, create_target), None
+    rows_as_result = kind in ("read_all", "filter", "read_one")
+    return _scenario(case, setup, when, models, create_target,
+                     rows_as_result), None
 
 
-def _scenario(case, setup, when, models=None, create_target=None):
+def _scenario(case, setup, when, models=None, create_target=None,
+              rows_as_result=False):
     expect = {}
     then = case.get("then") or {}
     if isinstance(then.get("state"), dict):
@@ -919,9 +955,15 @@ def _scenario(case, setup, when, models=None, create_target=None):
             canonical = {}
             for alias, count in rows.items():
                 entity = _entity_for(alias, models) or alias
-                # The model states absolute row counts after the action; the
-                # worker compares deltas from the setup baseline.
-                canonical[entity] = count - setup_counts.get(normalize(entity), 0)
+                if rows_as_result:
+                    # A read/list result count is already the returned count,
+                    # not a table delta from setup.
+                    canonical[entity] = count
+                else:
+                    # The model states absolute row counts after the action;
+                    # the worker compares deltas from the setup baseline.
+                    canonical[entity] = count - setup_counts.get(
+                        normalize(entity), 0)
             rows = canonical
         expect["rows"] = rows
     error = then.get("error")
@@ -941,4 +983,6 @@ def _scenario(case, setup, when, models=None, create_target=None):
             "alias": create_target.get("as"),
             "entity": create_target.get("entity"),
         }
+    if rows_as_result and isinstance(expect.get("rows"), dict):
+        scenario["rows_as_result"] = True
     return scenario

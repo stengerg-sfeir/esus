@@ -842,7 +842,18 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
         if current.get(field) != expected:
             return {"name": name, "status": "failed",
                     "reason": f"{target_name} is {current.get(field)!r}, expected {expected!r}"}
-    for entity, expected in (expect.get("rows") or {}).items():
+    rows = expect.get("rows") or {}
+    if scenario.get("rows_as_result"):
+        expected = sum(int(value) for value in rows.values())
+        if isinstance(result, (list, tuple, set)):
+            count = len(result)
+        else:
+            count = 0 if result is None else 1
+        if count != expected:
+            return {"name": name, "status": "failed",
+                    "reason": f"result row count is {count}, expected {expected}"}
+        return {"name": name, "status": "passed"}
+    for entity, expected in rows.items():
         if entity not in model_by_entity:
             return {"name": name, "status": "failed",
                     "reason": f"unknown expected entity {entity!r}"}
