@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from kernel.extraction import adapters_mechanical, repairs  # noqa: E402
+from kernel.extraction import adapters_mechanical, pipeline as pipeline_module, repairs  # noqa: E402
 from kernel.extraction.pipeline import (  # noqa: E402
     COMPONENTS, PERSISTENCE_PORTS, Pipeline,
 )
@@ -46,6 +46,26 @@ class PersistenceRepairTests(unittest.TestCase):
         components = {"persistence": {"required": True, "technology": "sqlite"}}
         repairs.repair_persistence_consistency(components)
         self.assertTrue(components["persistence"]["required"])
+
+
+class RetrySettlementTests(unittest.TestCase):
+    def test_a_sparser_adapter_retry_does_not_replace_the_full_set(self):
+        first = [{"action_name": "a"}, {"action_name": "b"}, {"action_name": "c"}]
+        second = [{"action_name": "a"}]
+        kept, misses = pipeline_module._settle_retry(
+            "interaction_adapters", first, ["x", "y"], second, ["x"],
+            _Log(), unit="unreachable field(s)", prefer_richer=True)
+        self.assertIs(kept, first)
+        self.assertEqual(len(misses), 2)
+
+    def test_a_same_size_retry_that_heals_a_miss_is_kept(self):
+        first = [{"action_name": "a"}, {"action_name": "b"}]
+        second = [{"action_name": "a"}, {"action_name": "b"}]
+        kept, misses = pipeline_module._settle_retry(
+            "interaction_adapters", first, ["x"], second, [],
+            _Log(), unit="unreachable field(s)", prefer_richer=True)
+        self.assertIs(kept, second)
+        self.assertEqual(misses, [])
 
 
 class _Log:

@@ -943,7 +943,7 @@ class Pipeline:
                 retry, retry_misses = None, list(unknown)
             kept, _ = _settle_retry(
                 INTERACTION_ADAPTERS, first, unknown, retry, retry_misses,
-                self.log, unit="unreachable field(s)",
+                self.log, unit="unreachable field(s)", prefer_richer=True,
             )
             # _generate stores every attempt: point the document back at the
             # kept one, or a degrading retry silently replaces good content.
@@ -1338,17 +1338,32 @@ def persistence_required(components):
     return isinstance(persistence, dict) and persistence.get("required") is True
 
 
-def _settle_retry(step, first_body, first_misses, second_body, second_misses, log, unit="item(s)"):
+def _settle_retry(step, first_body, first_misses, second_body, second_misses,
+                  log, unit="item(s)", prefer_richer=False):
     """Keep the retry iff it strictly reduces the misses; ties keep the first.
 
     A coverage retry that returns a fragment (expenses' adapters came back as
     one action) must not replace a fuller document with the same miss count.
     An unusable retry always loses. The outcome is logged either way, naming
     both counts, so a degraded retry is visible rather than silent.
+
+    `prefer_richer` protects adapter coverage: a retry that fixes one missed
+    field by deleting nine actions is not an improvement. The first adapter
+    set is kept; the remaining misses stay visible to the probe.
     """
     if second_body is None:
         log.write(f"[!] step {step} retry is unusable — kept first attempt")
         return first_body, first_misses
+    if prefer_richer:
+        first_size = len(first_body) if isinstance(first_body, (list, dict)) else 0
+        second_size = len(second_body) if isinstance(second_body, (list, dict)) else 0
+        if second_size < first_size:
+            log.write(
+                f"[!] step {step} retry has {second_size} item(s) versus "
+                f"{first_size} in the first attempt — kept the fuller first "
+                f"attempt; its {len(first_misses)} {unit} stay reported"
+            )
+            return first_body, first_misses
     if len(second_misses) < len(first_misses):
         log.write(f"[ok] step {step} retry healed "
                   f"{len(first_misses)}->{len(second_misses)} {unit}")
