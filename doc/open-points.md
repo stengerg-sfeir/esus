@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-24
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **3,057 checks passed (2 skipped)**, **0 generated stubs**, **0 failed**, **1,481 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **3,057 checks passed (2 skipped)**, **0 generated stubs**, **0 failed**, **1,484 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -143,7 +143,7 @@ methods, errors, invariants, contracts, adapters and components, and reports:
 `scripts/run_bench_acceptance.py` now writes `coverage.json` and adds a
 separate `coverage` block to `summary.json`; the pass/fail verdict is
 unchanged. The current report covers 328 clauses with zero unknown untested
-clauses: 302 tested, 9 assumed-only, 12 under-specified and 5 blocked by
+clauses: 303 tested, 10 assumed-only, 13 under-specified and 2 blocked by
 generation.
 
 **Regression tests:** `tests/test_requirement_trace.py`. The full suite is
@@ -261,20 +261,20 @@ worker. Across the 35 mapped-but-untested clauses it generated 65 intents and
 planned 63 cases: **38 passed, 20 assumed-only failures, 5 mechanically
 unbound, 0 confirmed behavior findings**. Twenty-five confirmed intent passes are
 used by the canonical merged verifier. The frozen trace has zero unknown
-clauses: **302 tested, 9 assumed-only, 12 under-specified and 5 blocked by
+clauses: **303 tested, 10 assumed-only, 13 under-specified and 2 blocked by
 generation**.
 
 `scripts/build_verifier_cases.py` merges previously passing cases with confirmed
 intent cases. `scripts/run_verifier.py` is the canonical path: it reports
-**50 passed, 0 failed and 0 unbound**. The 54 retired unbound cases are not
+**51 passed, 0 failed and 0 unbound**. The 54 retired unbound cases are not
 deleted; they are recorded in `oracle_cases_retired.json` with their last
 status and reason. The green merged run does not resolve those cases or the
-26-clause backlog; it stops treating non-evidence as a rerun queue.
+25-clause backlog; it stops treating non-evidence as a rerun queue.
 Assumed intent cases stay advisory. The old 79-case set is archived and is not
 part of current reporting.
 
 `scripts/classify_coverage.py` explains the remaining blocked/assumed
-clauses: 9 assumed_only, 12 under_specified and 5 blocked_generation. No clause is left as `mapped_untested`.
+clauses: 10 assumed_only, 13 under_specified and 2 blocked_generation. No clause is left as `mapped_untested`.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
@@ -365,8 +365,8 @@ checks, 0 generated stubs, 0 failures**. A project with a stub is reported as
 `incomplete`, not passed.
 
 This does not make the missing surface requirements disappear: the separate
-requirement trace reports **302 tested clauses, zero unknown untested
-clauses, 9 assumed-only, 12 under-specified, 5 blocked-generation and
+requirement trace reports **303 tested clauses, zero unknown untested
+clauses, 10 assumed-only, 13 under-specified, 5 blocked-generation and
 4 blocked-extraction clauses**. Those blockers are the next repair targets;
 a green harness is not treated as semantic proof.
 
@@ -461,7 +461,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,481 passed**.
+is **1,484 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -488,7 +488,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,481 passed**.
+suite is **1,484 passed**.
 
 ## P1/P2 — performance and extraction
 

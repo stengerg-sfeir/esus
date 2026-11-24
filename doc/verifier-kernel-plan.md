@@ -143,7 +143,7 @@ execution status and assumption list. The trial separates:
 oracle. The confirmed intent set closes 5 mapped-but-untested clauses:
 
 - before: **293 tested / 35 untested**;
-- after: **302 tested / 0 unknown; 26 classified blockers**.
+- after: **303 tested / 0 unknown; 25 classified blockers**.
 
 Assumed intent cases are kept in the advisory sidecar, not promoted into the
 main trace. The confirmed-only report is produced with:
@@ -170,12 +170,12 @@ Retired unbound cases are not silently deleted; they are written to
 
 Current canonical result:
 
-- **50 passed / 0 failed / 0 unbound**;
+- **51 passed / 0 failed / 0 unbound**;
 - 54 retired unbound cases in the audit sidecar;
-- requirement trace remains **302 tested / 0 unknown; 26 classified blockers**.
+- requirement trace remains **303 tested / 0 unknown; 25 classified blockers**.
 
 The merged verifier is green because retired cases are not evidence. The
-26 classified blockers are the remaining coverage backlog.
+25 classified blockers are the remaining coverage backlog.
 
 The backlog is classified with:
 
@@ -184,11 +184,11 @@ python scripts/classify_coverage.py out/validation/kaggle-v8 \
   --coverage out/validation/kaggle-v8/acceptance/coverage.json
 ```
 
-Current 26-clause classification:
+Current 25-clause classification:
 
-- 9 assumed-only;
-- 12 under-specified;
-- 5 blocked by generation;
+- 10 assumed-only;
+- 13 under-specified;
+- 2 blocked by generation;
 - 0 blocked by extraction;
 - 0 unknown / `mapped_untested`.
 
@@ -203,11 +203,11 @@ Across the 35 mapped-untested clauses:
 - 65 intents generated;
 - 63 intent cases planned;
 - 38 passed;
-- 19 assumed-only failures;
+- 110 assumed-only failures;
 - 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
 - 25 confirmed intent passes are used by the merged verifier;
-- the merged verifier closes 5 clauses: **302 tested / 0 unknown; 26 classified blockers**.
+- the merged verifier closes 5 clauses: **303 tested / 0 unknown; 25 classified blockers**.
 
 The verifier-side hardening in this pass:
 

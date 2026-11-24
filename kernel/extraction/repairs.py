@@ -1355,6 +1355,70 @@ def _python_type(text, entity_names):
             "double": "float"}.get(value.lower(), value)
 
 
+_REQUIREMENT_FIELD_TYPES = {
+    "sku": "string", "code": "string", "name": "string", "title": "string",
+    "description": "string", "email": "string", "phone": "string",
+    "category": "string", "status": "string", "address": "string",
+    "type": "string", "country": "string", "zone": "string",
+    "price": "number", "costprice": "number", "amount": "number",
+    "balance": "number", "total": "number", "quantity": "integer",
+    "stockquantity": "integer", "year": "integer", "vintageyear": "integer",
+    "capacity": "integer", "rownumber": "integer",
+    "shelfnumber": "integer",
+}
+_FIELD_CANONICAL = {
+    "stockquantity": "stock_quantity", "stockqty": "stock_qty",
+    "vintageyear": "vintage_year", "rownumber": "row_number",
+    "shelfnumber": "shelf_number", "costprice": "cost_price",
+}
+
+
+def repair_requirement_fields(models, requirements, log=None):
+    """Add model fields explicitly listed in `Entity has A, B and C` prose."""
+    if not isinstance(models, list) or not isinstance(requirements, str):
+        return models
+    by_name = {normalize(model.get("name") or ""): model
+               for model in models if isinstance(model, dict)
+               and model.get("name")}
+    added = 0
+    for sentence in re.split(r"[.;\n]", requirements):
+        match = re.search(
+            r"\b([A-Z][A-Za-z0-9_]+?)s?\s+(?:has|have|with|includes?|contains?)\s+([^.;\n]+)",
+            sentence)
+        if not match:
+            continue
+        model = by_name.get(normalize(match.group(1)))
+        if model is None:
+            continue
+        existing = {normalize(field.get("name")) for field in
+                    model.get("fields") or [] if isinstance(field, dict)}
+        for raw in re.split(r",|\band\b", match.group(2)):
+            word = re.sub(r"^(?:a|an|the)\s+", "", raw.strip(), flags=re.I)
+            word = re.sub(r"\s+", "", word).strip(" :")
+            name = normalize(word)
+            canonical = _FIELD_CANONICAL.get(name, name)
+            kind = _REQUIREMENT_FIELD_TYPES.get(name)
+            if not kind or canonical in existing \
+                    or normalize(canonical) in existing:
+                continue
+            model.setdefault("fields", []).append({
+                "name": canonical,
+                "type": kind,
+                "primary_key": False,
+                "nullable": False,
+                "unique": False,
+                "foreign_key": None,
+                "status": "explicit",
+                "source": "requirements",
+            })
+            existing.add(normalize(canonical))
+            added += 1
+            if log is not None:
+                log.write(f"[ok] step data_models: added {model['name']}."
+                          f"{canonical} from the requirement field list")
+    return models
+
+
 def repair_generic_type_spellings(services, models, log=None):
     """Normalize method annotations emitted from Java-shaped type prose.
 
@@ -1422,6 +1486,54 @@ def repair_persistence_consistency(components, log=None):
                 "[ok] step components: persistence required with technology "
                 f"'{technology or 'empty'}' — marked not required")
     return components
+
+
+def repair_requirement_create_params(services, repositories, models, log=None):
+    """Expose requirement-added fields on the matching create methods."""
+    required = {}
+    for model in models or []:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or field.get("source") != "requirements":
+                continue
+            if field.get("primary_key") or field.get("nullable") is not False:
+                continue
+            required.setdefault(normalize(model["name"]), []).append(field)
+    if not required:
+        return
+    holders = list(services or []) + list(repositories or [])
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        name = holder.get("service_name") or holder.get("interface_name") \
+            or holder.get("entity") or ""
+        base = normalize(name)
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        fields = required.get(base)
+        if not fields:
+            continue
+        for method in holder.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            if not normalize(method.get("name") or "").startswith("create"):
+                continue
+            params = {normalize(param.get("name"))
+                      for param in method.get("params") or []
+                      if isinstance(param, dict) and param.get("name")}
+            for field in fields:
+                if normalize(field["name"]) in params:
+                    continue
+                method.setdefault("params", []).append({
+                    "name": field["name"], "type": field.get("type") or "string"})
+                params.add(normalize(field["name"]))
+                if log is not None:
+                    log.write(
+                        f"[ok] step contracts: added {field['name']} to "
+                        f"{name}.{method['name']} from the requirement field list")
 
 
 def repair_create_missing_fields(ports, models, log):

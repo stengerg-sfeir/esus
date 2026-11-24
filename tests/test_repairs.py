@@ -116,6 +116,41 @@ class ContradictoryRaiseTests(unittest.TestCase):
         self.assertEqual(repaired[0]["methods"][0]["raises"], ["ProductNotFoundError"])
 
 
+class RequirementFieldRepairTests(unittest.TestCase):
+    def test_fields_named_in_an_entity_sentence_are_added(self):
+        models = [{"name": "Product", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "name", "type": "string"}]}]
+        repairs.repair_requirement_fields(
+            models,
+            "Products have a SKU, name, category, price and stock quantity.")
+        fields = {field["name"]: field["type"]
+                  for field in models[0]["fields"]}
+        self.assertEqual(fields["sku"], "string")
+        self.assertEqual(fields["price"], "number")
+        self.assertEqual(fields["stock_quantity"], "integer")
+        self.assertEqual(fields["name"], "string")
+
+    def test_unrelated_prose_does_not_add_fields(self):
+        models = [{"name": "Product", "fields": [
+            {"name": "id", "type": "int", "primary_key": True}]}]
+        repairs.repair_requirement_fields(
+            models, "The application should never allow bad inventory.")
+        self.assertEqual([field["name"] for field in models[0]["fields"]],
+                         ["id"])
+
+    def test_a_requirement_added_field_is_exposed_on_create(self):
+        models = [{"name": "Product", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "sku", "type": "string", "nullable": False,
+             "source": "requirements"}]}]
+        services = [{"service_name": "ProductRepository", "methods": [
+            {"name": "create", "params": []}]}]
+        repairs.repair_requirement_create_params(services, [], models)
+        self.assertEqual(services[0]["methods"][0]["params"],
+                         [{"name": "sku", "type": "string"}])
+
+
 class UngroundedMethodRepairTests(unittest.TestCase):
     def test_a_paginated_wrapper_return_is_not_ungrounded(self):
         services = [{"service_name": "CustomerRepository", "methods": [{

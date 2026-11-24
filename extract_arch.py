@@ -361,6 +361,8 @@ def repair_existing(output_dir):
     adapters = documents.get(pipeline_module.INTERACTION_ADAPTERS)
     services = documents.get(pipeline_module.SERVICE_CONTRACTS)
     if isinstance(models, list):
+        models = repairs.repair_requirement_fields(models, requirements, log)
+        documents[pipeline_module.DATA_MODELS] = models
         repairs.repair_primary_key_uniqueness(models, log)
         repairs.repair_primary_key_foreign_keys(models, log)
         repairs.repair_primary_key_foreign_key_names(models, log)
@@ -421,6 +423,11 @@ def repair_existing(output_dir):
         documents, requirements, documents.get(pipeline_module.INTENTIONS), log)
     services = documents.get(pipeline_module.SERVICE_CONTRACTS) or []
     ports = documents.get(pipeline_module.PERSISTENCE_PORTS) or {}
+    if isinstance(services, list) and isinstance(ports, dict):
+        repairs.repair_requirement_create_params(
+            services, ports.get("repositories") or [], models, log)
+        documents[pipeline_module.SERVICE_CONTRACTS] = services
+        documents[pipeline_module.PERSISTENCE_PORTS] = ports
     adapters = documents.get(pipeline_module.INTERACTION_ADAPTERS) or []
     if isinstance(adapters, list):
         repairs.repair_capability_adapters(
