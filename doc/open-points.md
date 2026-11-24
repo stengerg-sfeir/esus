@@ -16,6 +16,76 @@ requirement trace explicitly classifies blocked, assumed and under-specified
 clauses under item 7b. The latest Kaggle extraction is `repro66-20261120-074359` (43 successful /
 23 review / 0 failed).
 
+## Current assessment (2026-11-24)
+
+The generator is highly reliable on this benchmark, but the result is not a
+formal correctness proof.
+
+| Measurement | Current result |
+|---|---:|
+| Prompts | 66 |
+| Acceptance | **66/66 projects**, 3,057 checks passed, 2 skipped, 0 stubs |
+| Canonical prompt-derived verifier | **51 cases, 51 passed, 0 failed/unbound** |
+| Requirement clauses | 328 |
+| Confirmed tested clauses | **303** |
+| Assumed-only clauses | 10 |
+| Under-specified clauses | 15 |
+| Blocked extraction/generation | **0** |
+| Unknown untested | **0** |
+
+`354 tests` is not a current metric. The current figures are 51 canonical
+verifier cases and 328 traced requirement clauses; 3,057 is the acceptance
+check count, not the number of prompt-derived behavioral tests.
+
+### What each layer proves
+
+**Acceptance** is a consistency and runtime harness. It checks schema/API
+shape, CLI commands, contracts, invariants and execution against the extracted
+documents. It is not purely behavioral, and it is not independent of
+extraction: a wrong extraction can still pass acceptance. `prompt_16` and
+`prompt_17` showed this directly when generated code had methods the extracted
+contracts omitted.
+
+**The prompt-derived verifier** generates expectations from the prompt and
+executes them against generated code. Its expected values do not come from the
+generated implementation. Binding and setup still use extracted documents, and
+the same model family currently writes both extraction and verifier intents.
+
+### Reliability verdict
+
+On this 66-prompt benchmark, the generator is reliable under the acceptance
+suite, and 51 prompt-derived confirmed cases pass. No confirmed behavioral
+failures remain. The verifier also detected real extraction and generation
+defects:
+
+- missing pagination/search methods in extraction;
+- a SKU missing from a generated model;
+- method signatures/types that did not match generated behavior;
+- verifier actions invented from behavior nouns and later reclassified.
+
+It also correctly retired the old unbound cases rather than treating them as
+evidence. The 54 retired cases remain in the audit sidecar, not in the proof.
+
+### Remaining limits
+
+Same-model verification is the largest independence limit, but not the only
+one:
+
+1. **Correlated blind spots** — extractor and verifier share weights and priors.
+2. **Acceptance is extraction-relative** — wrong extraction can still be green.
+3. **Prompt ambiguity** — 15 clauses cannot produce a confirmed test without a
+   product decision.
+4. **Incomplete semantic coverage** — 10 clauses are assumed-only.
+5. **No held-out/adversarial suite** — the 66 prompts are curated.
+6. **No mutation study** — detection of injected defects is not measured.
+7. **No formal specification** — cases are executable English
+   interpretations, not a proof system.
+
+To strengthen the claim: use a different model family for the verifier, blind
+to extraction and generated code; add mutation testing and a held-out prompt
+set; compare independent extractors; and record explicit decisions for the 15
+under-specified clauses.
+
 ## P0 — correctness and trust
 
 ### 1. ✅ Contract checks are proof-based (done 2026-11-19)
