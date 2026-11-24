@@ -160,6 +160,26 @@ def _model_field_name(model, wanted):
     return wanted
 
 
+def _same_value(actual, expected):
+    """Compare stored dates/datetimes with their prompt spelling.
+
+    Prompt fixtures use ISO-8601 strings. A generated SQLite-backed store may
+    return `date` or `datetime` objects for the same value, so a raw `!=`
+    would report a false behavior finding.
+    """
+    if actual == expected:
+        return True
+    if isinstance(expected, str) and hasattr(actual, "isoformat"):
+        text = actual.isoformat()
+        return (text == expected or text.startswith(expected + "T")
+                or text.startswith(expected + " "))
+    if isinstance(actual, str) and hasattr(expected, "isoformat"):
+        text = expected.isoformat()
+        return (text == actual or text.startswith(actual + "T")
+                or text.startswith(actual + " "))
+    return False
+
+
 def _result_record(value, entity, docs):
     """A created record as the scenario refs expect it."""
     model = next((item for item in docs.get("models") or []
@@ -881,7 +901,7 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
             return {"name": name, "status": "failed",
                     "reason": f"cannot read {entity}: {error}"}
         field = _model_field_name(model_by_entity.get(entity), field)
-        if current.get(field) != expected:
+        if not _same_value(current.get(field), expected):
             return {"name": name, "status": "failed",
                     "reason": f"{target_name} is {current.get(field)!r}, expected {expected!r}"}
     rows = expect.get("rows") or {}

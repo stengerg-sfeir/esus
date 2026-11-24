@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,406 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,446 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -250,6 +250,16 @@ three materializations, per-case repair) produced 9 selected cases with zero
 passes on five target clauses, so process strength alone did not overcome the
 model's case-construction errors.
 
+The intent kernel is now implemented through P3 in `doc/verifier-kernel-plan.md`.
+Test intents are validated in `kernel/oracle/intents.py`, planned into
+FK-complete case fixtures by `kernel/oracle/fixtures.py`, and executed through
+the existing binder and worker. On the 35 mapped-but-untested clauses it
+generated 58 intents and planned 32 cases: **18 passed, 14 assumed-only
+failures, 0 confirmed behavior findings**. Ten clauses now have at least one
+passing intent case and four have a confirmed passing case. The intent sidecar
+is not merged into the main verifier yet, so the main result remains 25 passed,
+0 failed and 54 unbound.
+
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
 case defects; the uniqueness policy is recorded as “reject all inferred” and
@@ -434,7 +444,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,406 passed**.
+is **1,446 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -461,7 +471,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,406 passed**.
+suite is **1,446 passed**.
 
 ## P1/P2 — performance and extraction
 

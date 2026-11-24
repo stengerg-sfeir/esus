@@ -93,7 +93,7 @@ def run(project, include_assumed=False, cases_name=None):
                 docs, deps, store, scenario, index,
                 cli_path=cli_path if cli_path.is_file() else None,
                 db=db, cli_module=cli,
-                app_path=project / "generated" / "app.py")
+                app_path=(project / "generated" / "app.py").resolve())
         except Exception as error:  # noqa: BLE001
             outcome = {"name": scenario["name"], "status": "failed",
                        "reason": f"harness error: {type(error).__name__}: {error}"}

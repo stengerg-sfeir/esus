@@ -169,6 +169,53 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertIsNotNone(scenario)
 
+    def test_a_key_reference_is_not_an_object_payload(self):
+        scenario, reason = binder.bind_case(
+            case(when={"action": "cancel_order",
+                       "args": [{"ref": "order.id"}]}), DOCS)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"],
+                         {"order_id": {"ref": "order.id"}})
+
+    def test_an_invalid_id_error_does_not_require_a_missing_row(self):
+        docs = {
+            "models": [
+                {"name": "Book", "fields": [
+                    {"name": "id", "primary_key": True}]},
+                {"name": "Loan", "fields": [
+                    {"name": "id", "primary_key": True}]},
+            ],
+            "services": [{"service_name": "LibraryService", "methods": [{
+                "name": "borrow_book",
+                "params": [{"name": "book_id", "type": "int"}],
+                "raises": ["InvalidLoanBookIDError"]}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "borrow_book", "args": ["book.id"]},
+                 given={"book": {"id": 1}}, then={}), docs)
+        self.assertIsNone(reason)
+        self.assertIsNotNone(scenario)
+
+    def test_a_delete_binds_a_generic_primary_key(self):
+        docs = {
+            "models": [{"name": "Note", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "title"}, {"name": "content"}]}],
+            "services": [],
+            "repos": [{"interface_name": "NoteRepository", "methods": [{
+                "name": "delete", "params": [
+                    {"name": "id"}, {"name": "title"},
+                    {"name": "content"}]}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "delete", "args": ["Meeting Notes"]},
+                 given={"note": {"title": "Meeting Notes"}},
+                 then={"rows": {"Note": 0}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"],
+                         {"id": {"ref": "note.id"}})
+
     def test_relationship_ids_come_from_seeded_entities(self):
         docs = {
             "models": [

@@ -63,7 +63,7 @@ Statuses:
 Use it before binding. A naming alias is rewritten to the canonical extracted
 name; it is not reported as a coverage defect.
 
-## P1 — Test intent schema
+## P1 — Test intent schema ✅ implemented
 
 The model emits an intent, not a complete case:
 
@@ -73,73 +73,97 @@ The model emits an intent, not a complete case:
   "kind": "create | update | delete | list | aggregate | error | cli | app",
   "entity": "Product",
   "action": "add_product",
-  "lookup": ["Product.sku"],
-  "changes": {"stock_qty": 3},
+  "setup_entities": [
+    {"alias": "product", "entity": "Product", "role": "target"}
+  ],
+  "setup_values": {"product.stock_qty": 5},
+  "lookup": ["product.sku"],
+  "where": {"product.category": "tools"},
+  "args": ["product.sku", 3],
+  "changes": {"product.stock_qty": 3},
   "expect": {
+    "state": {"product.stock_qty": 8},
     "rows": {"Product": 1},
-    "state": ["Product.stock_qty"],
     "error": null
   }
 }
 ```
 
 The intent contains no concrete IDs, no full setup rows and no fixture graph.
+`kernel/oracle/intents.py` validates it, rejects non-class error sentences and
+operation/input mismatches, and downgrades a `confirmed` intent when its error,
+date, argument or stdout is not grounded in the target clause.
 
-## P2 — Fixture planner
+`scripts/build_test_intents.py` generates intents prompt-only, one target clause
+at a time.
 
-Given an intent and `data_models.json`:
+## P2 — Fixture planner ✅ implemented
+
+`kernel/oracle/fixtures.py` and `scripts/build_intent_cases.py`:
 
 - topologically seed FK parents;
 - respect required/nullable fields;
-- generate unique IDs and unique values;
+- generate deterministic unique values;
 - use intent values for fields the assertion depends on;
-- use safe defaults only for unasserted referential fields;
-- reject missing semantic values rather than inventing them.
+- canonicalize prompt field spellings to extracted field names;
+- seed missing method-parameter entities (`borrow_book` needs a `Member`),
+  while never filling a row whose not-found error is the expected rejection;
+- reject ungrounded actions, unknown fields and cyclic required foreign keys;
+- use safe defaults only for unasserted referential fields.
 
-## P3 — Test emitters
+Every synthetic row is recorded in `oracle_intent_plans.json`. No synthetic row
+is allowed to supply an asserted semantic value.
 
-Pre-created emitters for:
+## P3 — Test emitters ✅ reused
 
-- create;
-- update;
-- delete / soft delete;
+The existing binder and runtime worker are the emitters:
+
+- create / update / delete;
 - list / filter / search;
 - aggregate;
 - error / precondition;
 - CLI;
 - app;
-- invariant boundary.
+- the existing scenario DSL and sandbox.
 
-Each emitter produces the existing scenario DSL and uses the existing runtime
-worker. No second sandbox.
+No second execution path was added.
 
-## P4 — Diagnostics and trace
+## P4 — Diagnostics and trace — partial
 
-Every intent records:
+Every planned intent records its source, canonical aliases, synthetic fixtures,
+execution status and assumption list. The trial now separates:
 
-- alignment status and canonical names;
-- fixture graph;
-- emitter used;
-- assertion result;
-- prompt clause.
+- confirmed passes;
+- assumed passes and failures;
+- plan rejections from ungrounded actions or fields;
+- true confirmed behavior findings.
 
-Diagnostics distinguish:
+The intent sidecar is not yet merged into the main oracle or requirement trace.
 
-- naming mismatch / alias;
-- real extraction/generation coverage gap;
-- verifier invention;
-- ambiguous requirement;
-- emitter coverage gap;
-- actual behavior finding.
+## Trial result
+
+Across the 35 mapped-untested clauses:
+
+- 58 intents generated;
+- 32 intent cases planned;
+- 18 passed;
+- 14 assumed-only failures;
+- **0 confirmed behavior findings**;
+- 10 clauses have at least one passing intent case;
+- 4 clauses have a confirmed passing case.
+
+The main verifier remains at **25 passed / 0 failed / 54 unbound**, and the
+stable acceptance result remains **66/66, 1,023 checks, 0 stubs**.
 
 ## Order
 
-1. P0 alignment + tests.
-2. P1 intent schema + extractor.
-3. P2 fixture planner.
-4. P3 emitters, starting with create/update/delete/list.
+1. ✅ P0 alignment + tests.
+2. ✅ P1 intent schema + extractor.
+3. ✅ P2 fixture planner.
+4. ✅ P3 emitters, reusing binder + worker.
 5. P4 diagnostics and trace integration.
-6. Re-run the 54 unbound cases and the 35 untested clauses.
+6. Run the 54 unbound cases and 35 untested clauses through the intent kernel
+   as the primary verifier path.
 
 ## Non-goals
 

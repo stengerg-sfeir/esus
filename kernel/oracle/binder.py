@@ -264,6 +264,12 @@ def _complete_id_args(method, args, setup):
         if not isinstance(param, dict) or not param.get("name"):
             continue
         name = normalize(param["name"])
+        if name == "id":
+            candidates = [step for step in setup if step.get("seed") is not False] \
+                or list(setup)
+            if len(candidates) == 1:
+                kwargs[param["name"]] = {"ref": f"{candidates[0].get('as')}.id"}
+            continue
         if not name.endswith("id"):
             continue
         base = name[:-2]
@@ -288,6 +294,10 @@ def _complete_id_args(method, args, setup):
             and isinstance(value.get("ref"), str)
             and "." not in value["ref"]]
     if kwargs and bare and len(bare) == len(args):
+        return kwargs
+    if kwargs and codegen.classify_crud(method.get("name") or "") == "delete":
+        # A delete is identified by its primary key. Remaining positional
+        # values are lookup data, not fields to write.
         return kwargs
     return args
 
@@ -682,6 +692,11 @@ def _missing_error_rows(case, docs, setup, method):
         if not isinstance(name, str):
             continue
         flat = normalize(name)
+        if "notfound" not in flat and "missing" not in flat:
+            # `InvalidLoanBookIDError` can name an entity without requiring a
+            # pre-existing row; only explicit not-found errors describe a
+            # missing related record.
+            continue
         for model in docs.get("models") or []:
             if not isinstance(model, dict) or not model.get("name"):
                 continue
@@ -884,7 +899,10 @@ def _argument_shape_error(case, method, kind):
     if isinstance(raw, list) and any(
             isinstance(value, str) and value.startswith("--") for value in raw):
         return "CLI flag passed as a service argument"
-    if isinstance(raw, list) and any(isinstance(value, dict) for value in raw):
+    if isinstance(raw, list) and any(
+            isinstance(value, dict)
+            and not (set(value) == {"ref"} and isinstance(value.get("ref"), str))
+            for value in raw):
         params = [param for param in method.get("params") or []
                   if isinstance(param, dict) and param.get("name")]
         if not any(codegen.is_mapping_type(param.get("type"))

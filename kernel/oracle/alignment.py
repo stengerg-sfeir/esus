@@ -206,11 +206,24 @@ def _methods(docs):
     return found
 
 
+def _dedupe_methods(items):
+    seen = set()
+    out = []
+    for holder, method in items:
+        key = (holder, method.get("name"))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append((holder, method))
+    return out
+
+
 def align_action(action, source, requirements, docs):
     if not isinstance(action, str) or not action.strip():
         return Alignment("under_specified", None, 0.0, ["empty action"])
-    exact = [(holder, method) for holder, method in _methods(docs)
-             if normalize(method["name"]) == normalize(action)]
+    exact = _dedupe_methods(
+        (holder, method) for holder, method in _methods(docs)
+        if normalize(method["name"]) == normalize(action))
     if len(exact) == 1:
         holder, method = exact[0]
         return Alignment("aligned", f"{holder}.{method['name']}", 10.0,
@@ -225,6 +238,7 @@ def align_action(action, source, requirements, docs):
         if words and not any(word in flat for word in words):
             continue
         candidates.append((holder, method))
+    candidates = _dedupe_methods(candidates)
     if len(candidates) == 1:
         holder, method = candidates[0]
         return Alignment("alias", f"{holder}.{method['name']}", 8.0,
