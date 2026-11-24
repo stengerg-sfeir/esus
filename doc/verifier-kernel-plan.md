@@ -187,14 +187,14 @@ python scripts/classify_coverage.py out/validation/kaggle-v8 \
 Current 25-clause classification:
 
 - 10 assumed-only;
-- 13 under-specified;
-- 2 blocked by generation;
+- 15 under-specified;
+- 0 blocked by generation;
 - 0 blocked by extraction;
 - 0 unknown / `mapped_untested`.
 
-`assumed_only` and `under_specified` are verifier/specification work;
-`blocked_extraction` and `blocked_generation` are product fixes. Assumed
-passes still need prompt evidence before they can be promoted.
+All remaining clauses are `assumed_only` or `under_specified`; no blocked
+extraction or generation clauses remain. Assumed passes still need prompt
+evidence before they can be promoted.
 
 ## Trial result
 

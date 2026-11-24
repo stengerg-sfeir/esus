@@ -471,10 +471,10 @@ class FixturePlannerTests(unittest.TestCase):
             ]}],
         }
         exercise = intent(action="withdraw",
-                          source="Withdrawals decrease the balance.")
+                          source="Users can withdraw money.")
         with self.assertRaises(fixtures.PlanError) as caught:
             fixtures.plan_case(
-                exercise, docs, "Withdrawals decrease the balance.")
+                exercise, docs, "Users can withdraw money.")
         self.assertIn("coverage_gap", str(caught.exception))
 
 

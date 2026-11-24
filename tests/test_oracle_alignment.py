@@ -142,6 +142,19 @@ class ActionAlignmentTests(unittest.TestCase):
         self.assertEqual(result.status, "alias")
         self.assertEqual(result.canonical, "ProductRepository.search_products")
 
+    def test_a_behavior_noun_does_not_create_an_operation(self):
+        docs = {"models": [], "services": [], "repos": []}
+        result = alignment.align_action(
+            "deposit", "Deposits increase the balance.", "", docs)
+        self.assertEqual(result.status, "invented")
+
+    def test_an_explicit_operation_with_no_method_is_a_coverage_gap(self):
+        docs = {"models": [], "services": [], "repos": []}
+        result = alignment.align_action(
+            "deposit", "Users can deposit money.", "Users can deposit money.",
+            docs)
+        self.assertEqual(result.status, "coverage_gap")
+
     def test_pagination_source_prefers_the_paginated_method(self):
         docs = {
             "models": [],

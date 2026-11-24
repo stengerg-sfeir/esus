@@ -92,6 +92,27 @@ def _prompt_mentions(term, text):
     return any(token and token in tokens for token in _tokens(term))
 
 
+def operation_evidence(action, text):
+    """True when the prompt exposes the action as an operation, not a noun.
+
+    `Deposits increase the balance` is a behavior statement. It does not
+    expose `deposit(account_id, amount)`. `Users can deposit money` or a
+    command example does.
+    """
+    if not isinstance(action, str) or not action.strip() \
+            or not isinstance(text, str):
+        return False
+    lowered = text.lower()
+    for phrase in {action.strip().lower(),
+                   action.strip().lower().replace("_", " ")}:
+        if not phrase:
+            continue
+        pattern = r"(?<![a-z0-9])" + re.escape(phrase) + r"(?![a-z0-9])"
+        if re.search(pattern, lowered):
+            return True
+    return False
+
+
 def _name_score(alias, model_name):
     left, right = normalize(alias), normalize(model_name)
     if left == right:
@@ -344,12 +365,12 @@ def align_action(action, source, requirements, docs):
                          float(best_score),
                          ["several generated methods have the same action score"],
                          [f"{h}.{m['name']}" for _score, h, m in scored[:4]])
-    if _prompt_mentions(action, source) or _prompt_mentions(
+    if operation_evidence(action, source) or operation_evidence(
             action, requirements):
         return Alignment("coverage_gap", None, 0.0,
-                         ["prompt names the action", "no generated method matches"])
+                         ["prompt exposes the action", "no generated method matches"])
     return Alignment("invented", None, 0.0,
-                     ["no prompt evidence for the action",
+                     ["action is not exposed as an operation by the prompt",
                       "no generated method matches"])
 
 

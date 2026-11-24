@@ -160,9 +160,10 @@ def classify_source(project, source):
                 return "under_specified"
             return ("blocked_extraction" if _generated_has_field(project, field)
                     else "blocked_generation")
+        if "invented" in errors.lower() or "under_specified" in errors.lower():
+            return "under_specified"
         if "no generated method" in errors.lower() \
-                or "coverage_gap" in errors.lower() \
-                or "invented" in errors.lower():
+                or "coverage_gap" in errors.lower():
             if action and not _mentions(action, requirements):
                 return "under_specified"
             return ("blocked_extraction"
