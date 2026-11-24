@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-20  
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,393 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,406 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -238,7 +238,14 @@ entity/field/relationship schema from the requirements only; on a four-prompt
 trial it produced 2 passing cases and 9 unbound, with no behavior findings.
 **1b** uses extracted `data_models.json` as the schema; it produced 2 passing,
 2 failed and 8 unbound cases and is extraction-coupled, so it is documented as
-a rejected diagnostic. The default verifier remains prompt-only. A per-clause trial (one plan,
+a rejected diagnostic. The verifier now has a concept-alignment layer
+(`kernel/oracle/alignment.py`) that distinguishes exact names, aliases,
+ambiguous matches, prompt-grounded coverage gaps and invented references
+before a case is called defective. Current annotation across the 79 cases:
+232 aligned, 22 aliases, 51 ambiguous, 9 coverage gaps and 24 invented
+references. The implementation plan is in `doc/verifier-kernel-plan.md`.
+
+The default verifier remains prompt-only. A per-clause trial (one plan,
 three materializations, per-case repair) produced 9 selected cases with zero
 passes on five target clauses, so process strength alone did not overcome the
 model's case-construction errors.
@@ -427,7 +434,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,393 passed**.
+is **1,406 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -454,7 +461,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,393 passed**.
+suite is **1,406 passed**.
 
 ## P1/P2 — performance and extraction
 

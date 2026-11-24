@@ -18,7 +18,30 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tests" / "runtime"))
 
 import worker  # noqa: E402
-from kernel.oracle import binder, cases as case_rules, triage  # noqa: E402
+from kernel.oracle import alignment, binder, cases as case_rules, triage  # noqa: E402
+
+
+def _alignment_dict(result):
+    if result is None:
+        return None
+    return {
+        "status": result.status,
+        "canonical": result.canonical,
+        "score": result.score,
+        "evidence": result.evidence,
+        "alternatives": result.alternatives,
+    }
+
+
+def _case_alignment(case, docs, requirements):
+    result = alignment.align_case(case, docs, requirements)
+    return {
+        "entities": {key: _alignment_dict(value)
+                     for key, value in result["entities"].items()},
+        "fields": {key: _alignment_dict(value)
+                   for key, value in result["fields"].items()},
+        "action": _alignment_dict(result["action"]),
+    }
 
 
 def run(project, include_assumed=False, cases_name=None):
@@ -51,10 +74,13 @@ def run(project, include_assumed=False, cases_name=None):
     results = []
     case_by_id = {case.get("id"): case for case in all_cases}
     for index, case in enumerate(selected, start=1):
+        case["alignment"] = _case_alignment(
+            case, docs, docs.get("requirements") or "")
         scenario, reason = binder.bind_case(case, docs)
         if scenario is None:
             outcome = {"name": case["id"], "status": "unbound",
-                       "reason": reason, "source": case.get("source")}
+                       "reason": reason, "source": case.get("source"),
+                       "alignment": case.get("alignment")}
             case["status"] = "unbound"
             case["triage"] = triage.classify(
                 "unbound", reason, case.get("source"))
@@ -73,6 +99,7 @@ def run(project, include_assumed=False, cases_name=None):
                        "reason": f"harness error: {type(error).__name__}: {error}"}
         outcome["case"] = case["id"]
         outcome["source"] = case.get("source")
+        outcome["alignment"] = case.get("alignment")
         case["execution"] = {
             "status": outcome.get("status"),
             "reason": outcome.get("reason", ""),
