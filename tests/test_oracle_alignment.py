@@ -157,7 +157,7 @@ class ActionAlignmentTests(unittest.TestCase):
         self.assertEqual(result.canonical,
                          "WineInventoryService.assign_wine_to_location")
 
-    def test_equally_specific_methods_remain_ambiguous(self):
+    def test_holder_entity_aliases_remain_ambiguous_when_equally_specific(self):
         docs = {
             "models": [],
             "services": [{"service_name": "OrderRepository", "methods": [
@@ -166,7 +166,8 @@ class ActionAlignmentTests(unittest.TestCase):
                     {"name": "create"}]}],
             "repos": [],
         }
-        result = alignment.align_action("create_order", "", "", docs)
+        result = alignment.align_action(
+            "create_order", "Create an order.", "Create an order.", docs)
         self.assertEqual(result.status, "ambiguous")
 
 

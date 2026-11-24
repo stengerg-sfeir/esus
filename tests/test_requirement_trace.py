@@ -87,6 +87,32 @@ class RequirementTraceTests(unittest.TestCase):
                       if item["id"] == "oracle:cancel_order")
         self.assertTrue(oracle["tested"])
 
+    def test_an_exact_intent_source_beats_a_generic_design_artifact(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            (project / "requirements.txt").write_text(
+                "Provide CRUD operations.\n", encoding="utf-8")
+            (project / "data_models.json").write_text(json.dumps({
+                "data_models": [{"name": "Product", "fields": [
+                    {"name": "id", "type": "int", "primary_key": True}]}]}),
+                encoding="utf-8")
+            (project / "generated").mkdir()
+            (project / "generated" / "repositories.py").write_text(
+                "def create(values):\n    return values\n", encoding="utf-8")
+            (project / "oracle_cases_intents.json").write_text(json.dumps({
+                "cases": [{
+                    "id": "create_product",
+                    "source": "Provide CRUD operations.",
+                    "status": "confirmed",
+                }]}), encoding="utf-8")
+            (project / "oracle_report_intents.json").write_text(json.dumps({
+                "results": [{"case": "create_product", "status": "passed"}]}),
+                encoding="utf-8")
+            trace = requirement_trace.trace_project(project)
+        crud = next(row for row in trace["rows"]
+                    if row["text"] == "Provide CRUD operations.")
+        self.assertEqual(crud["status"], "mapped_tested")
+
     def test_an_assumed_intent_pass_does_not_count_as_trace_coverage(self):
         with tempfile.TemporaryDirectory() as directory:
             project = self.project(directory)

@@ -428,6 +428,10 @@ def _score(clause, item):
     return score
 
 
+def _norm_text(value):
+    return " ".join(str(value or "").split()).strip().casefold().rstrip(" .;:")
+
+
 def trace_project(project, checks=None):
     """Return a JSON-ready trace for one project directory."""
     project = Path(project)
@@ -440,7 +444,16 @@ def trace_project(project, checks=None):
             key=lambda pair: (-pair[0], pair[1]["id"]))
         best = scored[0][0] if scored else 0
         matches = [item for score, item in scored if score == best and best > 0]
-        if matches and all(item["kind"] == "check" for item in matches):
+        exact_oracle = any(
+            item["kind"] == "oracle" and item["tested"]
+            and _norm_text(item["text"]) == _norm_text(clause)
+            for item in items)
+        if exact_oracle:
+            # A confirmed passed case whose source is the clause itself is
+            # stronger evidence than a generic design artifact that shares
+            # more lexical tokens.
+            status = "mapped_tested"
+        elif matches and all(item["kind"] == "check" for item in matches):
             # A check can outrank the design artifact it exercises. Keep one
             # design item in the evidence so the trace still says what the
             # clause is mapped to, not only that a check exists.
@@ -465,6 +478,8 @@ def trace_project(project, checks=None):
             status = "partial"
         else:
             status = "unmapped"
+        if exact_oracle:
+            status = "mapped_tested"
         rows.append({
             "index": index,
             "text": clause,

@@ -140,11 +140,11 @@ execution status and assumption list. The trial separates:
 
 `scripts/requirement_trace.py` now reads confirmed intent reports
 (`oracle_cases_intents.json` / `oracle_report_intents.json`) alongside the main
-oracle. A confirmed-only intent report adds 6 passing cases and closes 3 more
+oracle. A confirmed-only intent report adds 7 passing cases and closes 4 more
 mapped-but-untested clauses:
 
 - before: **293 tested / 35 untested**;
-- after: **296 tested / 32 untested**.
+- after: **297 tested / 31 untested**.
 
 Assumed intent cases are kept in the advisory sidecar, not promoted into the
 main trace. The confirmed-only report is produced with:
@@ -162,9 +162,9 @@ Run the acceptance bench after that report is present to regenerate the trace.
 Across the 35 mapped-untested clauses:
 
 - 62 intents generated;
-- 38 intent cases planned;
-- 18 passed;
-- 16 assumed-only failures;
+- 34 intent cases planned;
+- 16 passed;
+- 14 assumed-only failures;
 - 4 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
 - 9 clauses have at least one passing intent case;

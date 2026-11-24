@@ -226,6 +226,27 @@ def _dedupe_methods(items):
     return out
 
 
+_ACTION_STOP = frozenset({
+    "add", "create", "list", "read", "all", "search", "filter", "get",
+    "update", "delete", "remove", "view", "check", "the", "on", "to", "of",
+    "for", "by", "with",
+})
+
+
+def _last_action_token(action):
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", str(action or ""))
+    tokens = [normalize(word) for word in re.split(r"[^A-Za-z0-9]+", text)
+              if normalize(word) and normalize(word) not in _ACTION_STOP]
+    return tokens[-1] if tokens else ""
+
+
+def _method_mentions(method, token):
+    if not token:
+        return True
+    name = normalize(method.get("name"))
+    return token in name or _singular(token) in name
+
+
 def _action_score(action, holder, method):
     """Rank a method by how specifically its name matches the action."""
     action_tokens = _tokens(action)
@@ -254,10 +275,21 @@ def align_action(action, source, requirements, docs):
                          ["exact generated method"])
     kind = codegen.classify_crud(action)
     words = _tokens(action)
+    last_token = _last_action_token(action)
     candidates = []
     for holder, method in _methods(docs):
         if kind is not None and codegen.classify_crud(method["name"]) != kind:
             continue
+        if not _method_mentions(method, last_token):
+            # A CRUD operation may use the entity from its holder
+            # (`create_product` -> ProductRepository.create), but a domain
+            # operation such as `get_stock_status` may not drift to an
+            # unrelated method that only shares its holder.
+            holder_ok = (kind is not None and last_token
+                         and last_token in normalize(str(holder))
+                         and codegen.classify_crud(method["name"]) == kind)
+            if not holder_ok:
+                continue
         flat = normalize(str(method["name"]) + " " + str(holder))
         if words and not any(word in flat for word in words):
             continue
