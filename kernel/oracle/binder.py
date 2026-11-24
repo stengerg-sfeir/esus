@@ -597,6 +597,22 @@ def _cli_args(raw):
     return [str(value) for value in (raw if isinstance(raw, list) else [raw])]
 
 
+def _normalise_cli_path(cli, docs):
+    """Drop a program-name prefix before the generated leaf path.
+
+    Requirements often write `library borrow --loan-id`; the generated
+    click/Jinja CLI is invoked as `cli.py borrow --loan-id`, so `library` is
+    the program name, not a command.
+    """
+    values = [str(item) for item in cli]
+    leaves = sorted(_leaf_paths(docs.get("components")), key=len, reverse=True)
+    for index in (0, 1):
+        for path in leaves:
+            if values[index:index + len(path)] == list(path):
+                return values[index:]
+    return values
+
+
 def _setup(case, docs, models):
     given = case.get("given")
     steps = []
@@ -1120,7 +1136,7 @@ def bind_case(case, docs):
     case_when = case.get("when") or {}
     cli = case_when.get("cli")
     if isinstance(cli, list) and cli:
-        scenario_when = {"cli": [str(item) for item in cli]}
+        scenario_when = {"cli": _normalise_cli_path(cli, docs)}
         return _scenario(case, setup, scenario_when, models, create_target), None
     if case_when.get("app") is True:
         when = {"app": True,

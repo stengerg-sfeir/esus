@@ -822,7 +822,7 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
                     "reason": "CLI path/database unavailable"}
         raw_variants = when.get("cli_variants")
         if not raw_variants:
-            raw_variants = [[when.get("cli") or []]]
+            raw_variants = [when.get("cli") or []]
         cli_variants = []
         for variant in raw_variants:
             resolved = _resolve(variant, refs)

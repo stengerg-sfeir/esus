@@ -369,13 +369,14 @@ def artifacts(project, checks=None):
 
     report_cases = {}
     for filename in ("oracle_cases.json", "oracle_cases_coverage.json",
-                     "oracle_cases_intents.json"):
+                     "oracle_cases_intents.json", "oracle_cases_merged.json"):
         cases_payload = _read_json(project / filename) or {}
         for case in cases_payload.get("cases") or []:
             if isinstance(case, dict) and case.get("id"):
                 report_cases[case["id"]] = case
     for filename in ("oracle_report.json", "oracle_coverage_report.json",
-                     "oracle_report_intents.json"):
+                     "oracle_report_intents.json",
+                     "oracle_report_merged.json"):
         report = _read_json(project / filename) or {}
         for result in report.get("results") or []:
             if not isinstance(result, dict) or result.get("status") != "passed":

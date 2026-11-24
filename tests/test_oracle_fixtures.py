@@ -351,6 +351,29 @@ class FixturePlannerTests(unittest.TestCase):
         self.assertEqual(len(plan.diagnostics["replicated_rows"]), 2)
         self.assertEqual(plan.case["status"], "assumed")
 
+    def test_a_primary_key_with_the_wrong_type_is_rejected(self):
+        docs = {"models": [
+            model("Customer", [field("id", "int", pk=True),
+                               field("name", required=True)]),
+        ]}
+        exercise = {
+            "id": "create_customer",
+            "source": "Customers can be created.",
+            "kind": "create",
+            "entity": "Customer",
+            "action": "create_customer",
+            "setup_entities": [
+                {"alias": "customer", "entity": "Customer", "role": "target"},
+            ],
+            "setup_values": {"customer.id": "C123",
+                             "customer.name": "Ada"},
+            "expect": {"state": {"customer.id": "C123"}},
+            "status": "confirmed",
+        }
+        with self.assertRaises(fixtures.PlanError) as caught:
+            fixtures.plan_case(exercise, docs, "Customers can be created.")
+        self.assertIn("primary key", str(caught.exception))
+
     def test_app_intent_has_no_fixtures(self):
         app = {
             "id": "calculator",

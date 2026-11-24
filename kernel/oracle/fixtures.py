@@ -158,6 +158,26 @@ def _required(field):
             and normalize(field.get("name")) not in _AUTO_FIELDS)
 
 
+def _type_compatible(field, value):
+    kind = str(field.get("type") or "").lower()
+    if "int" in kind:
+        return (isinstance(value, int) and not isinstance(value, bool)) or (
+            isinstance(value, str) and value.lstrip("-").isdigit())
+    if any(token in kind for token in ("float", "double", "decimal", "money")):
+        if isinstance(value, bool):
+            return False
+        if isinstance(value, (int, float)):
+            return True
+        try:
+            float(value)
+            return True
+        except (TypeError, ValueError):
+            return False
+    if "bool" in kind:
+        return isinstance(value, bool)
+    return True
+
+
 def _sample(field, alias):
     name = normalize(field.get("name"))
     kind = str(field.get("type") or "").lower()
@@ -487,6 +507,25 @@ def plan_case(intent, docs, requirements=""):
     for target, value in intent["setup_values"].items():
         head, _, field_name = target.partition(".")
         setup_values.setdefault(head, {})[field_name] = value
+    for alias, values in setup_values.items():
+        model = _model(docs, pairs[alias]["entity"])
+        for field_name, value in values.items():
+            field = _field(model, field_name)
+            if field is not None and field.get("primary_key") \
+                    and not _type_compatible(field, value):
+                raise PlanError(
+                    f"primary key {alias}.{field_name} value {value!r} does "
+                    f"not match type {field.get('type')!r}")
+    for target, value in (intent["expect"].get("state") or {}).items():
+        alias, _, field_name = target.partition(".")
+        if alias not in pairs:
+            continue
+        field = _field(_model(docs, pairs[alias]["entity"]), field_name)
+        if field is not None and field.get("primary_key") \
+                and not _type_compatible(field, value):
+            raise PlanError(
+                f"expected primary key {target}={value!r} does not match "
+                f"type {field.get('type')!r}")
 
     planned = {}
     order = []

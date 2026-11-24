@@ -67,6 +67,18 @@ class OracleBinderTests(unittest.TestCase):
         self.assertEqual(scenario["when"]["cli"],
                          ["order", "cancel", "--order-id=1"])
 
+    def test_a_cli_program_name_is_stripped_before_the_command(self):
+        docs = dict(DOCS)
+        docs["components"] = {"facade": {"invocation": {"commands": [{
+            "name": "order", "subcommands": [{"name": "cancel", "options": []}]
+        }]}}}
+        scenario, reason = binder.bind_case(
+            case(when={"cli": ["library", "order", "cancel",
+                               "--order-id=1"]}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["cli"],
+                         ["order", "cancel", "--order-id=1"])
+
     def test_a_service_beats_a_repository_entry_in_the_contract_list(self):
         docs = dict(DOCS)
         docs["services"] = [

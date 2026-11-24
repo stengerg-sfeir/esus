@@ -157,18 +157,39 @@ python scripts/run_oracle.py out/validation/kaggle-v8 \
 
 Run the acceptance bench after that report is present to regenerate the trace.
 
+## P5 — Canonical merged verifier ✅ implemented
+
+`scripts/build_verifier_cases.py` builds `oracle_cases_merged.json` from:
+
+- legacy cases whose last execution passed;
+- confirmed intent cases.
+
+Legacy unbound cases are not silently deleted; they are written to
+`oracle_cases_retired.json` with their last status and reason.
+
+`scripts/run_verifier.py` runs that merged path end to end.
+
+Current canonical result:
+
+- **41 passed / 0 failed / 0 unbound**;
+- 54 legacy unbound cases retired into the audit sidecar;
+- requirement trace remains **297 tested / 31 untested**.
+
+The merged verifier is green because retired cases are not evidence. The
+31-clause trace is the remaining coverage backlog.
+
 ## Trial result
 
 Across the 35 mapped-untested clauses:
 
 - 62 intents generated;
-- 34 intent cases planned;
-- 16 passed;
-- 14 assumed-only failures;
-- 4 unbound by a mechanical preflight;
+- 50 intent cases planned;
+- 27 passed;
+- 18 assumed-only failures;
+- 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
-- 9 clauses have at least one passing intent case;
-- 4 clauses have a confirmed passing case.
+- 16 confirmed intent passes are used by the merged verifier;
+- the merged verifier closes 4 clauses: **297 tested / 31 untested**.
 
 The verifier-side hardening in this pass:
 
@@ -195,8 +216,10 @@ stable acceptance result remains **66/66 projects, 1,023 checks, 0 stubs**.
 3. ✅ P2 fixture planner.
 4. ✅ P3 emitters, reusing binder + worker.
 5. ✅ P4 diagnostics and confirmed-intent trace integration.
-6. Continue with the 54 unbound cases: separate true coverage gaps from
-   assumed-only intent cases, then expand the confirmed set.
+6. ✅ P5 canonical merged verifier with retired-case audit.
+7. Classify the remaining 31 clauses as confirmed coverage, extraction
+   gap, generation gap, or under-specified; expand intents only where the
+   prompt supports a confirmed assertion.
 
 ## Non-goals
 
