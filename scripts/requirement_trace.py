@@ -408,6 +408,9 @@ def artifacts(project, checks=None):
         if item["id"] == "component:codebase" and (
                 "import" in check_text or "app-run" in check_text):
             item["tested"] = True
+        if item["id"] == "component:main-guard" and "app-run" in check_text:
+            # Running the script as a process exercises the module guard.
+            item["tested"] = True
     return found
 
 

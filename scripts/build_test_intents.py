@@ -77,6 +77,10 @@ Rules:
 - The target entity is the subject of the operation. When the clause describes
   an effect (`when an order is created ...`), test the operation that creates
   the order, not an invented helper such as `decrease_stock`.
+- For a state-transition clause (`cancelling a confirmed order`, `returning a
+  loan`), target the object being transitioned, seed its pre-action status from
+  the clause, and assert the related stock/copy effect separately. Do not make
+  the affected stock row the target.
 - Use the exact action named or directly implied by the full requirements. If
   the requirements say `place orders`, use `place_order`; do not invent a
   different operation.

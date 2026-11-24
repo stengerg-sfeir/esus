@@ -140,11 +140,10 @@ execution status and assumption list. The trial separates:
 
 `scripts/requirement_trace.py` now reads confirmed intent reports
 (`oracle_cases_intents.json` / `oracle_report_intents.json`) alongside the main
-oracle. A confirmed-only intent report adds 7 passing cases and closes 4 more
-mapped-but-untested clauses:
+oracle. The confirmed intent set closes 5 mapped-but-untested clauses:
 
 - before: **293 tested / 35 untested**;
-- after: **297 tested / 31 untested**.
+- after: **298 tested / 30 untested**.
 
 Assumed intent cases are kept in the advisory sidecar, not promoted into the
 main trace. The confirmed-only report is produced with:
@@ -173,10 +172,10 @@ Current canonical result:
 
 - **44 passed / 0 failed / 0 unbound**;
 - 54 legacy unbound cases retired into the audit sidecar;
-- requirement trace remains **297 tested / 31 untested**.
+- requirement trace remains **298 tested / 30 untested**.
 
 The merged verifier is green because retired cases are not evidence. The
-31-clause trace is the remaining coverage backlog.
+30-clause trace is the remaining coverage backlog.
 
 The backlog is classified with:
 
@@ -185,13 +184,13 @@ python scripts/classify_coverage.py out/validation/kaggle-v8 \
   --coverage out/validation/kaggle-v8/acceptance/coverage.json
 ```
 
-Current 31-clause classification:
+Current 30-clause classification:
 
 - 6 assumed failures;
 - 3 other plan rejections;
-- 3 missing fields;
+- 4 missing fields;
 - 6 missing actions;
-- 5 assumed passes;
+- 3 assumed passes;
 - 2 unbound;
 - 2 generation rejections;
 - 1 mechanical argument rejection;
@@ -206,13 +205,13 @@ still need prompt evidence before they can be promoted.
 Across the 35 mapped-untested clauses:
 
 - 65 intents generated;
-- 58 intent cases planned;
-- 33 passed;
+- 56 intent cases planned;
+- 32 passed;
 - 19 assumed-only failures;
 - 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
 - 19 confirmed intent passes are used by the merged verifier;
-- the merged verifier closes 4 clauses: **297 tested / 31 untested**.
+- the merged verifier closes 5 clauses: **298 tested / 30 untested**.
 
 The verifier-side hardening in this pass:
 
@@ -240,7 +239,7 @@ stable acceptance result remains **66/66 projects, 1,023 checks, 0 stubs**.
 4. ✅ P3 emitters, reusing binder + worker.
 5. ✅ P4 diagnostics and confirmed-intent trace integration.
 6. ✅ P5 canonical merged verifier with retired-case audit.
-7. Classify the remaining 31 clauses as confirmed coverage, extraction
+7. Classify the remaining 30 clauses as confirmed coverage, extraction
    gap, generation gap, or under-specified; expand intents only where the
    prompt supports a confirmed assertion.
 

@@ -255,23 +255,23 @@ The intent kernel is now implemented through P5 in
 `kernel/oracle/intents.py`, planned into FK-complete case fixtures by
 `kernel/oracle/fixtures.py`, and executed through the existing binder and
 worker. Across the 35 mapped-but-untested clauses it generated 65 intents and
-planned 58 cases: **33 passed, 19 assumed-only failures, 5 mechanically
+planned 56 cases: **32 passed, 19 assumed-only failures, 5 mechanically
 unbound, 0 confirmed behavior findings**. Nineteen confirmed intent passes are
 used by the canonical merged verifier, and `requirement_trace` closes 4
-clauses: **297 tested / 31 untested** (from 293 / 35).
+clauses: **298 tested / 30 untested** (from 293 / 35).
 
 `scripts/build_verifier_cases.py` merges legacy passing cases with confirmed
 intent cases. `scripts/run_verifier.py` is the canonical path: it reports
 **44 passed, 0 failed and 0 unbound**. The 54 legacy unbound cases are not
 deleted; they are recorded in `oracle_cases_retired.json` with their last
 status and reason. The green merged run does not resolve those cases or the
-31-clause trace backlog; it stops treating non-evidence as a rerun queue.
+30-clause trace backlog; it stops treating non-evidence as a rerun queue.
 Assumed intent cases stay advisory. The legacy main verifier remains 25
 passed, 0 failed and 54 unbound when run directly.
 
-`scripts/classify_coverage.py` explains the remaining 31 untested clauses:
-6 assumed failures, 3 other plan rejections, 3 missing fields, 6 missing
-actions, 5 assumed passes, 2 unbound, 2 generation rejections, 1 mechanical
+`scripts/classify_coverage.py` explains the remaining 30 untested clauses:
+6 assumed failures, 3 other plan rejections, 4 missing fields, 6 missing
+actions, 3 assumed passes, 2 unbound, 2 generation rejections, 1 mechanical
 argument rejection and 3 with no intent.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
