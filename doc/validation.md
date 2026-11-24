@@ -21,7 +21,7 @@ the current generator:
 - **1,023 checks passed**
 - **0 failed**
 - **0 not applicable**
-- **1,446 unit tests passed**
+- **1,448 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
@@ -37,7 +37,7 @@ The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
 the stored v8 code now gives **66/66 complete projects, 1,023 passed checks,
 0 generated stubs, 0 failures**. The separate requirement trace now reports 0 unmapped,
-0 partial and 35 mapped-but-untested clauses; those remain review targets
+0 partial and 32 mapped-but-untested clauses; those remain review targets
 (item 7b), not proof of semantic coverage.
 
 The acceptance summary also carries a separate `coverage` block produced

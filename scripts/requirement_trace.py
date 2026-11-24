@@ -368,18 +368,26 @@ def artifacts(project, checks=None):
             found.append(item)
 
     report_cases = {}
-    for filename in ("oracle_cases.json", "oracle_cases_coverage.json"):
+    for filename in ("oracle_cases.json", "oracle_cases_coverage.json",
+                     "oracle_cases_intents.json"):
         cases_payload = _read_json(project / filename) or {}
         for case in cases_payload.get("cases") or []:
             if isinstance(case, dict) and case.get("id"):
                 report_cases[case["id"]] = case
-    for filename in ("oracle_report.json", "oracle_coverage_report.json"):
+    for filename in ("oracle_report.json", "oracle_coverage_report.json",
+                     "oracle_report_intents.json"):
         report = _read_json(project / filename) or {}
         for result in report.get("results") or []:
             if not isinstance(result, dict) or result.get("status") != "passed":
                 continue
             case_id = result.get("case")
             case = report_cases.get(case_id) or {}
+            if (filename == "oracle_report_intents.json"
+                    and case.get("status") not in (None, "confirmed")):
+                # Assumed intent cases are advisory evidence, never trace
+                # coverage. Main oracle reports keep their historical status
+                # handling.
+                continue
             source = case.get("source")
             if not isinstance(source, str) or not source.strip():
                 continue

@@ -66,6 +66,43 @@ class RequirementTraceTests(unittest.TestCase):
                             for item in cli["evidence"]))
         self.assertEqual(trace["requirements"], 4)
 
+    def test_an_intent_case_report_marks_its_clause_tested(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = self.project(directory)
+            (project / "oracle_cases_intents.json").write_text(json.dumps({
+                "cases": [{
+                    "id": "cancel_order",
+                    "source": "Orders can be cancelled.",
+                    "status": "confirmed",
+                }]}), encoding="utf-8")
+            (project / "oracle_report_intents.json").write_text(json.dumps({
+                "results": [{"case": "cancel_order", "status": "passed"}]}),
+                encoding="utf-8")
+            trace = requirement_trace.trace_project(project)
+            items = requirement_trace.artifacts(project)
+        cancel = next(row for row in trace["rows"]
+                      if row["text"] == "Orders can be cancelled.")
+        self.assertEqual(cancel["status"], "mapped_tested")
+        oracle = next(item for item in items
+                      if item["id"] == "oracle:cancel_order")
+        self.assertTrue(oracle["tested"])
+
+    def test_an_assumed_intent_pass_does_not_count_as_trace_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = self.project(directory)
+            (project / "oracle_cases_intents.json").write_text(json.dumps({
+                "cases": [{
+                    "id": "cancel_order",
+                    "source": "Orders can be cancelled.",
+                    "status": "assumed",
+                }]}), encoding="utf-8")
+            (project / "oracle_report_intents.json").write_text(json.dumps({
+                "results": [{"case": "cancel_order", "status": "passed"}]}),
+                encoding="utf-8")
+            items = requirement_trace.artifacts(project)
+        self.assertFalse(any(item["id"] == "oracle:cancel_order"
+                             for item in items))
+
     def test_an_unrelated_sentence_stays_unmapped(self):
         with tempfile.TemporaryDirectory() as directory:
             project = self.project(directory)

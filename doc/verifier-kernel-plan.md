@@ -128,17 +128,34 @@ The existing binder and runtime worker are the emitters:
 
 No second execution path was added.
 
-## P4 — Diagnostics and trace — partial
+## P4 — Diagnostics and trace ✅ implemented for confirmed evidence
 
 Every planned intent records its source, canonical aliases, synthetic fixtures,
-execution status and assumption list. The trial now separates:
+execution status and assumption list. The trial separates:
 
 - confirmed passes;
 - assumed passes and failures;
 - plan rejections from ungrounded actions or fields;
 - true confirmed behavior findings.
 
-The intent sidecar is not yet merged into the main oracle or requirement trace.
+`scripts/requirement_trace.py` now reads confirmed intent reports
+(`oracle_cases_intents.json` / `oracle_report_intents.json`) alongside the main
+oracle. A confirmed-only intent report adds 6 passing cases and closes 3 more
+mapped-but-untested clauses:
+
+- before: **293 tested / 35 untested**;
+- after: **296 tested / 32 untested**.
+
+Assumed intent cases are kept in the advisory sidecar, not promoted into the
+main trace. The confirmed-only report is produced with:
+
+```bash
+python scripts/run_oracle.py out/validation/kaggle-v8 \
+  --cases oracle_cases_intents.json \
+  --report-name oracle_report_intents.json
+```
+
+Run the acceptance bench after that report is present to regenerate the trace.
 
 ## Trial result
 
@@ -152,8 +169,8 @@ Across the 35 mapped-untested clauses:
 - 10 clauses have at least one passing intent case;
 - 4 clauses have a confirmed passing case.
 
-The main verifier remains at **25 passed / 0 failed / 54 unbound**, and the
-stable acceptance result remains **66/66, 1,023 checks, 0 stubs**.
+The main verifier remains at **25 passed / 0 failed / 54 unbound**. The
+stable acceptance result remains **66/66 projects, 1,023 checks, 0 stubs**.
 
 ## Order
 
@@ -161,9 +178,9 @@ stable acceptance result remains **66/66, 1,023 checks, 0 stubs**.
 2. ✅ P1 intent schema + extractor.
 3. ✅ P2 fixture planner.
 4. ✅ P3 emitters, reusing binder + worker.
-5. P4 diagnostics and trace integration.
-6. Run the 54 unbound cases and 35 untested clauses through the intent kernel
-   as the primary verifier path.
+5. ✅ P4 diagnostics and confirmed-intent trace integration.
+6. Continue with the 54 unbound cases: separate true coverage gaps from
+   assumed-only intent cases, then expand the confirmed set.
 
 ## Non-goals
 

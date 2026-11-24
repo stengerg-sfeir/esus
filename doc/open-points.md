@@ -1,8 +1,8 @@
 # ESUS active backlog
 
-Last updated: 2026-11-20  
+Last updated: 2026-11-24
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,446 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,448 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -140,7 +140,7 @@ methods, errors, invariants, contracts, adapters and components, and reports:
 `scripts/run_bench_acceptance.py` now writes `coverage.json` and adds a
 separate `coverage` block to `summary.json`; the pass/fail verdict is
 unchanged. On the stored v8 extraction the standalone report covers 345
-clauses: 35 mapped-but-untested. Those gaps are
+clauses: 32 mapped-but-untested. Those gaps are
 now visible instead of being implied by a green acceptance run.
 
 **Regression tests:** `tests/test_requirement_trace.py`. The full suite is
@@ -256,9 +256,10 @@ FK-complete case fixtures by `kernel/oracle/fixtures.py`, and executed through
 the existing binder and worker. On the 35 mapped-but-untested clauses it
 generated 58 intents and planned 32 cases: **18 passed, 14 assumed-only
 failures, 0 confirmed behavior findings**. Ten clauses now have at least one
-passing intent case and four have a confirmed passing case. The intent sidecar
-is not merged into the main verifier yet, so the main result remains 25 passed,
-0 failed and 54 unbound.
+passing intent case and four have a confirmed passing case. `requirement_trace`
+now reads confirmed intent reports, closing 3 clauses: **296 tested / 32
+untested** (from 293 / 35). Assumed intent cases stay advisory. The main
+verifier remains 25 passed, 0 failed and 54 unbound.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
@@ -349,8 +350,8 @@ checks, 0 generated stubs, 0 failures**. A project with a stub is reported as
 `incomplete`, not passed.
 
 This does not make the missing surface requirements disappear: the separate
-requirement trace reports **0 unmapped clauses, 0 partial clauses, 35
-mapped-but-untested clauses and 293 mapped-and-tested clauses**. Those are the
+requirement trace reports **0 unmapped clauses, 0 partial clauses, 32
+mapped-but-untested clauses and 296 mapped-and-tested clauses**. Those are the
 review targets for item 7b; a green harness is not treated as semantic proof.
 
 ### 9. ✅ Attended-review queue is explicit (done 2026-11-19)
@@ -444,7 +445,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,446 passed**.
+is **1,448 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -471,7 +472,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,446 passed**.
+suite is **1,448 passed**.
 
 ## P1/P2 — performance and extraction
 

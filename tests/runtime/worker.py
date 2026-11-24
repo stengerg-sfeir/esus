@@ -790,7 +790,6 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
                     "reason": "standalone app.py unavailable"}
         args = [str(item) for item in when.get("args") or []]
         stdin = when.get("stdin") or ""
-        import tempfile
         with tempfile.TemporaryDirectory(prefix="esus-app-") as work:
             workdir = Path(work)
             for relative, content in (when.get("files") or {}).items():
