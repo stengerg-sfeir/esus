@@ -31,7 +31,7 @@ mkdir -p /tmp/esus-code-bundle
 cd /path/to/esus
 zip -qr /tmp/esus-code-bundle/esus-code.bundle . \
   -x 'out/*' '.git/*' '__pycache__/*' '*.pyc' \
-     'esus/*' 'llama.cpp/*' 'session.json'
+     'llama.cpp/*' 'session.json'
 cat > /tmp/esus-code-bundle/dataset-metadata.json <<'JSON'
 {
   "title": "ESUS code bundle",
