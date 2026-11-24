@@ -116,6 +116,34 @@ class ContradictoryRaiseTests(unittest.TestCase):
         self.assertEqual(repaired[0]["methods"][0]["raises"], ["ProductNotFoundError"])
 
 
+class UngroundedMethodRepairTests(unittest.TestCase):
+    def test_a_paginated_wrapper_return_is_not_ungrounded(self):
+        services = [{"service_name": "CustomerRepository", "methods": [{
+            "name": "read_all_paginated",
+            "params": [{"name": "page_number", "type": "int"},
+                       {"name": "page_size", "type": "int"}],
+            "return_type": "PaginatedCustomerList"}]}]
+        models = [{"name": "Customer", "fields": [
+            {"name": "id", "type": "int"}]}]
+        leftover = repairs.ungrounded_methods(
+            services, [], models, "The caller specifies page and page size.")
+        self.assertEqual(leftover, [])
+
+    def test_min_max_filter_parameters_are_grounded_by_their_base_field(self):
+        services = [{"service_name": "ProductRepository", "methods": [{
+            "name": "search_products",
+            "params": [{"name": "max_price", "type": "float"},
+                       {"name": "min_quantity", "type": "int"}],
+            "return_type": "list[Product]"}]}]
+        models = [{"name": "Product", "fields": [
+            {"name": "price", "type": "float"},
+            {"name": "quantity", "type": "int"}]}]
+        leftover = repairs.ungrounded_methods(
+            services, [], models,
+            "Search products by maximum price and minimum quantity.")
+        self.assertEqual(leftover, [])
+
+
 class PaginatedPatternRepairTests(unittest.TestCase):
     def test_a_page_parameter_read_is_not_a_one_record_lookup(self):
         services = [{"service_name": "CustomerRepository", "methods": [{

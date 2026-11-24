@@ -23,6 +23,13 @@ def models(**field):
 
 
 class ProvenanceTests(unittest.TestCase):
+    def test_a_rejected_unique_flag_is_cleared(self):
+        body = models(unique=True, unique_status="rejected")
+        uniqueness.classify_unique_fields(body, "")
+        field = body[0]["fields"][1]
+        self.assertFalse(field["unique"])
+        self.assertEqual(field["unique_status"], "rejected")
+
     def test_a_prompt_statement_is_explicit(self):
         body = models()
         uniqueness.classify_unique_fields(

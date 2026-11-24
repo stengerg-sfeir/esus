@@ -1995,6 +1995,10 @@ def ungrounded_methods(services, repositories, models, requirements,
                   if isinstance(field, dict) and field.get("name")}
         if not fields:
             return
+        if pagination_params(method) is not None:
+            # A paginated read returns a page wrapper, not an entity; its
+            # page/page_size parameters are the decisive evidence.
+            return
         returns = str(method.get("return_type") or "")
         known_types = set(model_by_name) | {
             "list", "dict", "tuple", "set", "optional", "union", "any",
@@ -2007,17 +2011,18 @@ def ungrounded_methods(services, repositories, models, requirements,
             reasons[key] = (
                 f"return type {token!r} is not a declared model or prompt type")
             return
-        # A `..._by_region`/`..._by_dimension` name needs that dimension in
-        # either the prompt or the model. This catches parameterless methods
-        # that a parameter-only check cannot see.
-        for dimension in re.findall(r"_by_([a-z][a-z0-9_]*)",
-                                    str(name).lower()):
-            dimension = normalize(dimension)
-            if dimension not in fields and dimension not in normalize(requirements):
-                reasons[key] = (
-                    f"grouping dimension {dimension!r} is not in the prompt "
-                    f"or {model.get('name')} fields")
-                return
+        # A parameterless `..._by_region`/`..._by_dimension` name needs that
+        # dimension in the prompt or model. Methods with parameters are
+        # checked parameter by parameter below.
+        if not method.get("params"):
+            for dimension in re.findall(r"_by_([a-z][a-z0-9_]*)",
+                                        str(name).lower()):
+                dimension = normalize(dimension)
+                if dimension not in fields and dimension not in normalize(requirements):
+                    reasons[key] = (
+                        f"grouping dimension {dimension!r} is not in the prompt "
+                        f"or {model.get('name')} fields")
+                    return
         method_key = normalize(name)
         if method_key.startswith(("create", "read", "update", "delete")):
             return
@@ -2029,6 +2034,14 @@ def ungrounded_methods(services, repositories, models, requirements,
             if key_name in fields or key_name in special \
                     or key_name.endswith(("id", "ids", "data", "payload",
                                           "request", "input", "dto")):
+                continue
+            base_name = next(
+                (key_name[len(prefix):] for prefix in
+                 ("max", "min", "from", "to", "start", "end")
+                 if key_name.startswith(prefix)
+                 and key_name[len(prefix):] in fields),
+                None)
+            if base_name is not None:
                 continue
             reasons[key] = (
                 f"parameter {raw!r} names no {model.get('name')} field")

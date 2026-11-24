@@ -170,6 +170,12 @@ def classify_unique_fields(models, requirements, log=None):
                 field["unique_status"] = EXPLICIT
                 counts[EXPLICIT] += 1
                 continue
+            if field_status(field) == REJECTED:
+                # A human removed the inferred constraint. The legacy
+                # `unique=true` evidence must not survive as an active flag.
+                field["unique"] = False
+                changed += 1
+                continue
             entity = model.get("name") or ""
             status = (EXPLICIT if has_explicit_evidence(
                 entity, field.get("name"), requirements) else INFERRED)
