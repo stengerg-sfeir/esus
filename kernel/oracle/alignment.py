@@ -233,11 +233,20 @@ _ACTION_STOP = frozenset({
 })
 
 
+def _singular_token(token):
+    if token.endswith("ies") and len(token) > 4:
+        return token[:-3] + "y"
+    if token.endswith("s") and not token.endswith(("ss", "us", "is")) \
+            and len(token) > 3:
+        return token[:-1]
+    return token
+
+
 def _last_action_token(action):
     text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", str(action or ""))
     tokens = [normalize(word) for word in re.split(r"[^A-Za-z0-9]+", text)
               if normalize(word) and normalize(word) not in _ACTION_STOP]
-    return tokens[-1] if tokens else ""
+    return _singular_token(tokens[-1]) if tokens else ""
 
 
 def _method_mentions(method, token):

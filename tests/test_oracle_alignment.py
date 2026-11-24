@@ -116,6 +116,18 @@ class ActionAlignmentTests(unittest.TestCase):
             "teleport", "Orders have a status.", "Orders have a status.", DOCS)
         self.assertEqual(result.status, "invented")
 
+    def test_a_plural_operation_noun_maps_to_a_crud_read(self):
+        docs = {
+            "models": [],
+            "services": [],
+            "repos": [{"interface_name": "CustomerRepository", "methods": [
+                {"name": "read_all"}]}],
+        }
+        result = alignment.align_action(
+            "list_customers", "The caller specifies page number.", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical, "CustomerRepository.read_all")
+
     def test_the_most_specific_method_name_wins(self):
         docs = {
             "models": [],

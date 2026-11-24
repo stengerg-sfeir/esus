@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-24
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,471 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,474 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -254,20 +254,25 @@ The intent kernel is now implemented through P5 in
 `doc/verifier-kernel-plan.md`. Test intents are validated in
 `kernel/oracle/intents.py`, planned into FK-complete case fixtures by
 `kernel/oracle/fixtures.py`, and executed through the existing binder and
-worker. Across the 35 mapped-but-untested clauses it generated 62 intents and
-planned 50 cases: **27 passed, 18 assumed-only failures, 5 mechanically
-unbound, 0 confirmed behavior findings**. Sixteen confirmed intent passes are
+worker. Across the 35 mapped-but-untested clauses it generated 65 intents and
+planned 58 cases: **33 passed, 19 assumed-only failures, 5 mechanically
+unbound, 0 confirmed behavior findings**. Nineteen confirmed intent passes are
 used by the canonical merged verifier, and `requirement_trace` closes 4
 clauses: **297 tested / 31 untested** (from 293 / 35).
 
 `scripts/build_verifier_cases.py` merges legacy passing cases with confirmed
 intent cases. `scripts/run_verifier.py` is the canonical path: it reports
-**41 passed, 0 failed and 0 unbound**. The 54 legacy unbound cases are not
+**44 passed, 0 failed and 0 unbound**. The 54 legacy unbound cases are not
 deleted; they are recorded in `oracle_cases_retired.json` with their last
 status and reason. The green merged run does not resolve those cases or the
 31-clause trace backlog; it stops treating non-evidence as a rerun queue.
 Assumed intent cases stay advisory. The legacy main verifier remains 25
 passed, 0 failed and 54 unbound when run directly.
+
+`scripts/classify_coverage.py` explains the remaining 31 untested clauses:
+6 assumed failures, 3 other plan rejections, 3 missing fields, 6 missing
+actions, 5 assumed passes, 2 unbound, 2 generation rejections, 1 mechanical
+argument rejection and 3 with no intent.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
@@ -453,7 +458,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,471 passed**.
+is **1,474 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -480,7 +485,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,471 passed**.
+suite is **1,474 passed**.
 
 ## P1/P2 — performance and extraction
 

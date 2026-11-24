@@ -171,24 +171,47 @@ Legacy unbound cases are not silently deleted; they are written to
 
 Current canonical result:
 
-- **41 passed / 0 failed / 0 unbound**;
+- **44 passed / 0 failed / 0 unbound**;
 - 54 legacy unbound cases retired into the audit sidecar;
 - requirement trace remains **297 tested / 31 untested**.
 
 The merged verifier is green because retired cases are not evidence. The
 31-clause trace is the remaining coverage backlog.
 
+The backlog is classified with:
+
+```bash
+python scripts/classify_coverage.py out/validation/kaggle-v8 \
+  --coverage out/validation/kaggle-v8/acceptance/coverage.json
+```
+
+Current 31-clause classification:
+
+- 6 assumed failures;
+- 3 other plan rejections;
+- 3 missing fields;
+- 6 missing actions;
+- 5 assumed passes;
+- 2 unbound;
+- 2 generation rejections;
+- 1 mechanical argument rejection;
+- 3 with no intent.
+
+Only the first two groups are possible verifier work; missing fields/actions
+and generation rejections are product/extraction gaps, and assumed passes
+still need prompt evidence before they can be promoted.
+
 ## Trial result
 
 Across the 35 mapped-untested clauses:
 
-- 62 intents generated;
-- 50 intent cases planned;
-- 27 passed;
-- 18 assumed-only failures;
+- 65 intents generated;
+- 58 intent cases planned;
+- 33 passed;
+- 19 assumed-only failures;
 - 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
-- 16 confirmed intent passes are used by the merged verifier;
+- 19 confirmed intent passes are used by the merged verifier;
 - the merged verifier closes 4 clauses: **297 tested / 31 untested**.
 
 The verifier-side hardening in this pass:

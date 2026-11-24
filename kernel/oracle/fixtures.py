@@ -544,6 +544,16 @@ def plan_case(intent, docs, requirements=""):
     # setup graph mechanically, but record every synthetic row.
     method = _method_for_action(
         docs, action_result.canonical if action_result else None)
+    if intent.get("kind") in ("list", "filter", "aggregate") \
+            and ("page" in normalize(intent.get("source"))
+                 or "paginat" in normalize(intent.get("source"))):
+        params = {normalize(param.get("name")) for param in
+                  (method or {}).get("params") or []
+                  if isinstance(param, dict) and param.get("name")}
+        if not params & {"page", "pagesize", "perpage", "limit", "offset"}:
+            raise PlanError(
+                "clause requires pagination but the generated method has no "
+                "page/page_size/limit/offset parameter")
     for param in (method or {}).get("params") or []:
         if not isinstance(param, dict) or not param.get("name"):
             continue

@@ -374,6 +374,35 @@ class FixturePlannerTests(unittest.TestCase):
             fixtures.plan_case(exercise, docs, "Customers can be created.")
         self.assertIn("primary key", str(caught.exception))
 
+    def test_pagination_without_page_parameters_is_rejected(self):
+        docs = {
+            "models": [model("Customer", [
+                field("id", "int", pk=True), field("name", required=True)])],
+            "services": [],
+            "repos": [{"interface_name": "CustomerRepository", "methods": [
+                {"name": "read_all",
+                 "params": [{"name": "name", "type": "str"}]}]}],
+        }
+        exercise = {
+            "id": "list_paged",
+            "source": "The caller specifies page number and page size.",
+            "kind": "list",
+            "entity": "Customer",
+            "action": "list_customers",
+            "setup_entities": [
+                {"alias": "customer", "entity": "Customer", "role": "target"},
+            ],
+            "setup_values": {"customer.name": "Ada"},
+            "args": ["1", "10"],
+            "expect": {"rows": {"Customer": 1}},
+            "status": "confirmed",
+        }
+        with self.assertRaises(fixtures.PlanError) as caught:
+            fixtures.plan_case(
+                exercise, docs,
+                "The caller specifies page number and page size.")
+        self.assertIn("pagination", str(caught.exception))
+
     def test_app_intent_has_no_fixtures(self):
         app = {
             "id": "calculator",
