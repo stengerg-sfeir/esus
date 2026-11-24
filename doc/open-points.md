@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-24
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **3,052 checks passed (2 skipped)**, **0 generated stubs**, **0 failed**, **1,478 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **3,057 checks passed (2 skipped)**, **0 generated stubs**, **0 failed**, **1,481 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -10,7 +10,7 @@ contains claims that have since been superseded, notably that acceptance exists
 only for the library and expenses prompts.
 
 The stored v8 acceptance artifact is green and the checked-in CLI fixtures are
-now aligned with it: **66/66 complete projects, 3,052 passed checks (2 skipped),
+now aligned with it: **66/66 complete projects, 3,057 passed checks (2 skipped),
 0 generated stubs, 0 failures**. This is still not an independent proof of semantic coverage; the
 requirement trace explicitly classifies blocked, assumed and under-specified
 clauses under item 7b. The latest Kaggle extraction is `repro66-20261120-074359` (43 successful /
@@ -269,7 +269,7 @@ intent cases. `scripts/run_verifier.py` is the canonical path: it reports
 **50 passed, 0 failed and 0 unbound**. The 54 retired unbound cases are not
 deleted; they are recorded in `oracle_cases_retired.json` with their last
 status and reason. The green merged run does not resolve those cases or the
-30-clause backlog; it stops treating non-evidence as a rerun queue.
+26-clause backlog; it stops treating non-evidence as a rerun queue.
 Assumed intent cases stay advisory. The old 79-case set is archived and is not
 part of current reporting.
 
@@ -461,7 +461,7 @@ and **143 explicit fields**, including primary keys. No model call was made.
 **Regression tests:** `tests/test_uniqueness.py`,
 `tests/test_review_uniqueness.py`, `tests/test_schema_invariants.py`,
 `tests/test_review_queue.py` and `tests/test_resolved_spec.py`. The full suite
-is **1,478 passed**.
+is **1,481 passed**.
 
 ### 17. ✅ Soft delete and audit side effects are generic generator features (done 2026-11-20)
 
@@ -478,7 +478,7 @@ Two verifier behavior findings were generator gaps, not case defects.
 
 Both effects are derived from the requirements and data model; there is no
 prompt name or project-specific branch. Acceptance remains **66/66 complete,
-3,052 checks passed (2 skipped), 0 stubs**, and the verifier's soft-delete/audit behavior groups
+3,057 checks passed (2 skipped), 0 stubs**, and the verifier's soft-delete/audit behavior groups
 are gone.
 
 The same pass now reads explicit transition evidence such as “starts in
@@ -488,7 +488,7 @@ pending-to-cancelled cases now pass; the conventional source state remains the
 fallback when the requirements state no transition.
 
 **Regression tests:** `tests/test_generator_soft_delete_audit.py`. The full
-suite is **1,478 passed**.
+suite is **1,481 passed**.
 
 ## P1/P2 — performance and extraction
 

@@ -143,7 +143,7 @@ execution status and assumption list. The trial separates:
 oracle. The confirmed intent set closes 5 mapped-but-untested clauses:
 
 - before: **293 tested / 35 untested**;
-- after: **302 tested / 0 unknown; 30 classified blockers**.
+- after: **302 tested / 0 unknown; 26 classified blockers**.
 
 Assumed intent cases are kept in the advisory sidecar, not promoted into the
 main trace. The confirmed-only report is produced with:
@@ -172,10 +172,10 @@ Current canonical result:
 
 - **50 passed / 0 failed / 0 unbound**;
 - 54 retired unbound cases in the audit sidecar;
-- requirement trace remains **302 tested / 0 unknown; 30 classified blockers**.
+- requirement trace remains **302 tested / 0 unknown; 26 classified blockers**.
 
 The merged verifier is green because retired cases are not evidence. The
-30 classified blockers are the remaining coverage backlog.
+26 classified blockers are the remaining coverage backlog.
 
 The backlog is classified with:
 
@@ -184,7 +184,7 @@ python scripts/classify_coverage.py out/validation/kaggle-v8 \
   --coverage out/validation/kaggle-v8/acceptance/coverage.json
 ```
 
-Current 30-clause classification:
+Current 26-clause classification:
 
 - 9 assumed-only;
 - 12 under-specified;
@@ -207,7 +207,7 @@ Across the 35 mapped-untested clauses:
 - 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
 - 25 confirmed intent passes are used by the merged verifier;
-- the merged verifier closes 5 clauses: **302 tested / 0 unknown; 30 classified blockers**.
+- the merged verifier closes 5 clauses: **302 tested / 0 unknown; 26 classified blockers**.
 
 The verifier-side hardening in this pass:
 
@@ -225,7 +225,7 @@ The verifier-side hardening in this pass:
   rejected before execution.
 
 The main verifier remains at **25 passed / 0 failed / 54 unbound**. The
-stable acceptance result remains **66/66 projects, 3,052 checks passed (2 skipped), 0 stubs**.
+stable acceptance result remains **66/66 projects, 3,057 checks passed (2 skipped), 0 stubs**.
 
 ## Order
 

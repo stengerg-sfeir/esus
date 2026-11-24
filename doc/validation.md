@@ -18,10 +18,10 @@ the current generator:
 
 - **66/66 generated**
 - **66/66 complete acceptance projects**
-- **3,052 checks passed (2 skipped)**
+- **3,057 checks passed (2 skipped)**
 - **0 failed**
 - **0 not applicable**
-- **1,478 unit tests passed**
+- **1,481 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
@@ -35,7 +35,7 @@ checks (1,073 -> 1,023) rather than hiding a defect.
 
 The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
-the stored v8 code now gives **66/66 complete projects, 3,052 passed checks
+the stored v8 code now gives **66/66 complete projects, 3,057 passed checks
 (2 skipped), 0 generated stubs, 0 failures**. The separate requirement trace
 now reports 302 tested clauses and zero unknown untested clauses, with the
 remainder classified as assumed-only, under-specified or blocked-generation. Those are repair targets, not proof of semantic coverage.
@@ -469,7 +469,7 @@ Final result on `out/validation/bench` (historical 2026-11-16 archive):
 - `python3 -m compileall out/validation/bench` is clean.
 
 The current 66-project v8 result above supersedes these counts: **56/66
-complete, 3,052 passed checks (2 skipped), 0 generated stubs, 0 failures**. The generic harness now includes
+complete, 3,057 passed checks (2 skipped), 0 generated stubs, 0 failures**. The generic harness now includes
 state-effect scenarios for cancellation and return, so the older
 `not_applicable` checks are no longer skipped.
 
