@@ -128,6 +128,38 @@ class ActionAlignmentTests(unittest.TestCase):
         self.assertEqual(result.status, "alias")
         self.assertEqual(result.canonical, "CustomerRepository.read_all")
 
+    def test_a_filter_noun_may_be_a_method_parameter(self):
+        docs = {
+            "models": [],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [
+                {"name": "search_products",
+                 "params": [{"name": "category"}]}]}],
+        }
+        result = alignment.align_action(
+            "filter_by_category",
+            "Users can filter by category.", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical, "ProductRepository.search_products")
+
+    def test_pagination_source_prefers_the_paginated_method(self):
+        docs = {
+            "models": [],
+            "services": [],
+            "repos": [{"interface_name": "CustomerRepository", "methods": [
+                {"name": "read_all",
+                 "params": [{"name": "name"}]},
+                {"name": "read_all_paginated",
+                 "params": [{"name": "page_number"}, {"name": "page_size"}]},
+            ]}],
+        }
+        result = alignment.align_action(
+            "list_customers",
+            "The caller specifies page number and page size.", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical,
+                         "CustomerRepository.read_all_paginated")
+
     def test_the_most_specific_method_name_wins(self):
         docs = {
             "models": [],

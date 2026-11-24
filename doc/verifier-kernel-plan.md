@@ -143,7 +143,7 @@ execution status and assumption list. The trial separates:
 oracle. The confirmed intent set closes 5 mapped-but-untested clauses:
 
 - before: **293 tested / 35 untested**;
-- after: **298 tested / 0 unknown; 30 classified blockers**.
+- after: **302 tested / 0 unknown; 30 classified blockers**.
 
 Assumed intent cases are kept in the advisory sidecar, not promoted into the
 main trace. The confirmed-only report is produced with:
@@ -170,9 +170,9 @@ Retired unbound cases are not silently deleted; they are written to
 
 Current canonical result:
 
-- **44 passed / 0 failed / 0 unbound**;
+- **50 passed / 0 failed / 0 unbound**;
 - 54 retired unbound cases in the audit sidecar;
-- requirement trace remains **298 tested / 0 unknown; 30 classified blockers**.
+- requirement trace remains **302 tested / 0 unknown; 30 classified blockers**.
 
 The merged verifier is green because retired cases are not evidence. The
 30 classified blockers are the remaining coverage backlog.
@@ -189,7 +189,7 @@ Current 30-clause classification:
 - 9 assumed-only;
 - 12 under-specified;
 - 5 blocked by generation;
-- 4 blocked by extraction.
+- 0 blocked by extraction;
 - 0 unknown / `mapped_untested`.
 
 `assumed_only` and `under_specified` are verifier/specification work;
@@ -201,13 +201,13 @@ passes still need prompt evidence before they can be promoted.
 Across the 35 mapped-untested clauses:
 
 - 65 intents generated;
-- 56 intent cases planned;
-- 32 passed;
+- 63 intent cases planned;
+- 38 passed;
 - 19 assumed-only failures;
 - 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
-- 19 confirmed intent passes are used by the merged verifier;
-- the merged verifier closes 5 clauses: **298 tested / 0 unknown; 30 classified blockers**.
+- 25 confirmed intent passes are used by the merged verifier;
+- the merged verifier closes 5 clauses: **302 tested / 0 unknown; 30 classified blockers**.
 
 The verifier-side hardening in this pass:
 

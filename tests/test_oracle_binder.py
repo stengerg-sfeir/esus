@@ -264,6 +264,46 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(scenario)
         self.assertIn("scalar collection", reason)
 
+    def test_a_filter_action_maps_its_literal_to_the_named_parameter(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "name"}, {"name": "category"}]}],
+            "services": [{"service_name": "ProductService", "methods": [{
+                "name": "search_products",
+                "params": [{"name": "name"}, {"name": "category"}],
+                "return_type": "List[Product]"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "filter_by_category",
+                       "args": ["Electronics"]},
+                 given={"product": {"category": "Electronics"}},
+                 then={"rows": {"Product": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"],
+                         {"category": "Electronics"})
+
+    def test_filter_prefixes_map_price_and_quantity_to_min_max_params(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "price"}, {"name": "quantity"}]}],
+            "services": [{"service_name": "ProductService", "methods": [{
+                "name": "search_products",
+                "params": [{"name": "max_price"}, {"name": "min_quantity"}],
+                "return_type": "List[Product]"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "search_products",
+                       "args": {"price": 1000, "quantity": 5}},
+                 given={"product": {"price": 1000, "quantity": 5}},
+                 then={"rows": {"Product": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"],
+                         {"max_price": 1000, "min_quantity": 5})
+
     def test_a_delete_binds_a_generic_primary_key(self):
         docs = {
             "models": [{"name": "Note", "fields": [

@@ -21,7 +21,7 @@ the current generator:
 - **3,052 checks passed (2 skipped)**
 - **0 failed**
 - **0 not applicable**
-- **1,474 unit tests passed**
+- **1,478 unit tests passed**
 
 State effects and invalid preconditions are now derived from the confirmed
 contracts, so ordinary state transitions no longer need prompt-specific
@@ -37,9 +37,8 @@ The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
 the stored v8 code now gives **66/66 complete projects, 3,052 passed checks
 (2 skipped), 0 generated stubs, 0 failures**. The separate requirement trace
-now reports 298 tested clauses and zero unknown untested clauses, with the
-remainder classified as assumed-only, under-specified, blocked-extraction or
-blocked-generation. Those are repair targets, not proof of semantic coverage.
+now reports 302 tested clauses and zero unknown untested clauses, with the
+remainder classified as assumed-only, under-specified or blocked-generation. Those are repair targets, not proof of semantic coverage.
 
 The acceptance summary also carries a separate `coverage` block produced
 by `scripts/requirement_trace.py`. It maps each requirement clause to design

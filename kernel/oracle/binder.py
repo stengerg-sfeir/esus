@@ -558,6 +558,38 @@ def _complete_create_args(method, args, setup):
     return kwargs or args
 
 
+def _filter_args(method, action, args):
+    """Map filter values to the parameter named by the action."""
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return args
+    by_norm = {normalize(name): name for name in params}
+    if isinstance(args, dict):
+        out = {}
+        for key, value in args.items():
+            normalized = normalize(key)
+            target = by_norm.get(normalized)
+            if target is None:
+                suffixes = [name for norm, name in by_norm.items()
+                            if norm.endswith(normalized)
+                            or norm.endswith("_" + normalized)]
+                if len(suffixes) == 1:
+                    target = suffixes[0]
+            out[target or key] = value
+        return out
+    values = args if isinstance(args, list) else [args]
+    if len(values) != 1 or isinstance(values[0], dict):
+        return args
+    words = _action_words(action)
+    candidates = [name for name in params
+                  if not normalize(name).endswith("id")
+                  and any(word in normalize(name) for word in words)]
+    if len(candidates) == 1:
+        return {candidates[0]: values[0]}
+    return args
+
+
 def _service_args(raw, setup):
     if isinstance(raw, dict):
         return raw
@@ -1164,6 +1196,9 @@ def bind_case(case, docs):
     args = _complete_update_args(method, args, setup)
     args = _coerce_args(method, args)
     kind = codegen.classify_crud(method.get("name") or "")
+    if kind in ("filter", "read_all", "read_one"):
+        args = _filter_args(method, case_when.get("action") or "", args)
+        args = _coerce_args(method, args)
     shape_error = _argument_shape_error(case, method, kind)
     if shape_error:
         return None, shape_error

@@ -253,7 +253,12 @@ def _method_mentions(method, token):
     if not token:
         return True
     name = normalize(method.get("name"))
-    return token in name or _singular(token) in name
+    if token in name or _singular(token) in name:
+        return True
+    params = normalize(" ".join(
+        str(param.get("name") or "") for param in method.get("params") or []
+        if isinstance(param, dict)))
+    return bool(params) and (token in params or _singular(token) in params)
 
 
 def _action_score(action, holder, method):
@@ -299,11 +304,25 @@ def align_action(action, source, requirements, docs):
                          and codegen.classify_crud(method["name"]) == kind)
             if not holder_ok:
                 continue
-        flat = normalize(str(method["name"]) + " " + str(holder))
+        flat = normalize(str(method["name"]) + " " + str(holder) + " " +
+                         " ".join(str(param.get("name") or "")
+                                  for param in method.get("params") or []
+                                  if isinstance(param, dict)))
         if words and not any(word in flat for word in words):
             continue
         candidates.append((holder, method))
     candidates = _dedupe_methods(candidates)
+    if "page" in normalize(source) or "paginat" in normalize(source):
+        paginated = []
+        for holder, method in candidates:
+            names = {normalize(param.get("name"))
+                     for param in method.get("params") or []
+                     if isinstance(param, dict) and param.get("name")}
+            if names & {"page", "pagenumber", "pagesize", "perpage",
+                        "limit", "offset"}:
+                paginated.append((holder, method))
+        if paginated:
+            candidates = paginated
     scored = sorted(
         ((_action_score(action, holder, method), holder, method)
          for holder, method in candidates),
