@@ -134,6 +134,55 @@ class FixturePlannerTests(unittest.TestCase):
             fixtures.plan_case(
                 intent(setup_values={"order.missing": "x"}), DOCS)
 
+    def test_an_unmentioned_auxiliary_lookup_is_replaced_by_the_key(self):
+        docs = {"models": [
+            model("Product", [field("id", "int", pk=True),
+                              field("name", required=True)]),
+        ]}
+        exercise = {
+            "id": "rename_product",
+            "source": "A product can be renamed.",
+            "kind": "update",
+            "entity": "Product",
+            "action": "rename_product",
+            "setup_entities": [
+                {"alias": "product", "entity": "Product", "role": "target"},
+            ],
+            "setup_values": {"product.name": "Old"},
+            "lookup": ["product.sku"],
+            "where": {"product.active": True},
+            "args": ["product.sku"],
+            "changes": {"product.name": "New"},
+            "expect": {"state": {"product.name": "New"}},
+            "status": "confirmed",
+        }
+        plan = fixtures.plan_case(
+            exercise, docs, "A product can be renamed.")
+        self.assertEqual(plan.case["when"]["args"], [{"ref": "product.id"}])
+        self.assertNotIn("where", plan.case["when"])
+
+    def test_a_prompt_named_missing_field_is_not_hidden(self):
+        docs = {"models": [
+            model("Product", [field("id", "int", pk=True),
+                              field("name", required=True)]),
+        ]}
+        exercise = {
+            "id": "unique_sku",
+            "source": "SKUs must be unique.",
+            "kind": "create",
+            "entity": "Product",
+            "action": "create_product",
+            "setup_entities": [
+                {"alias": "product", "entity": "Product", "role": "target"},
+            ],
+            "args": ["product.sku"],
+            "expect": {"rows": {"Product": 1}},
+            "status": "confirmed",
+        }
+        with self.assertRaises(fixtures.PlanError) as caught:
+            fixtures.plan_case(exercise, docs, "SKUs must be unique.")
+        self.assertIn("sku", str(caught.exception))
+
     def test_create_uses_prompt_values_for_asserted_fields(self):
         docs = {"models": [
             model("Product", [
@@ -217,6 +266,91 @@ class FixturePlannerTests(unittest.TestCase):
             exercise, docs, "A member can borrow a book.")
         self.assertNotIn("member", plan.case["given"])
 
+    def test_an_ungrounded_alias_is_renamed_to_the_extracted_entity(self):
+        docs = {"models": [
+            model("Customer", [field("id", "int", pk=True),
+                               field("name", required=True)]),
+        ]}
+        exercise = {
+            "id": "rename_customer",
+            "source": "Customers can be renamed.",
+            "kind": "update",
+            "entity": "Customer",
+            "action": "rename_customer",
+            "setup_entities": [
+                {"alias": "client", "entity": "Customer", "role": "target"},
+            ],
+            "setup_values": {"client.name": "Ada"},
+            "changes": {},
+            "args": ["client.id"],
+            "expect": {"state": {"client.name": "Grace"}},
+            "status": "confirmed",
+        }
+        plan = fixtures.plan_case(
+            exercise, docs, "Customers can be renamed.")
+        self.assertEqual(list(plan.case["given"]), ["customer"])
+        self.assertEqual(plan.case["then"]["state"]["customer.name"], "Grace")
+        self.assertEqual(plan.case["when"]["args"], [{"ref": "customer.id"}])
+
+    def test_a_target_not_used_by_the_action_is_downgraded(self):
+        docs = {
+            "models": [
+                model("Customer", [field("id", "int", pk=True)]),
+                model("Product", [field("id", "int", pk=True),
+                                  field("stock_quantity", "int", required=True)]),
+                model("Order", [field("id", "int", pk=True),
+                                field("customer_id", "int", required=True,
+                                      fk={"target_entity": "Customer",
+                                          "target_field": "id"})]),
+            ],
+            "services": [{"service_name": "OrderService", "methods": [{
+                "name": "cancel_order",
+                "params": [{"name": "order_id", "type": "int"}],
+            }]}],
+        }
+        exercise = intent(
+            entity="Product", action="cancel_order",
+            setup_entities=[
+                {"alias": "product", "entity": "Product", "role": "target"},
+            ],
+            setup_values={"product.stock_quantity": 5},
+            changes={},
+            expect={"state": {"product.stock_quantity": 5}},
+        )
+        plan = fixtures.plan_case(
+            exercise, docs, "Customers can cancel their orders.")
+        self.assertEqual(plan.case["status"], "assumed")
+        self.assertTrue(any("not used by the action"
+                            in item for item in plan.case["ambiguities"]))
+
+    def test_a_list_expectation_replicates_enough_setup_rows(self):
+        docs = {"models": [
+            model("Customer", [field("id", "int", pk=True),
+                               field("name", required=True),
+                               field("email", required=True, unique=True)]),
+        ]}
+        exercise = {
+            "id": "list_customers",
+            "source": "Customers can be listed.",
+            "kind": "list",
+            "entity": "Customer",
+            "action": "list_customers",
+            "setup_entities": [
+                {"alias": "customer", "entity": "Customer", "role": "target"},
+            ],
+            "setup_values": {"customer.name": "Ada"},
+            "expect": {"rows": {"Customer": 3}},
+            "status": "confirmed",
+        }
+        plan = fixtures.plan_case(
+            exercise, docs, "Customers can be listed.")
+        self.assertEqual(len(plan.case["given"]), 3)
+        emails = [row["email"] for row in plan.case["given"].values()]
+        self.assertEqual(len(set(emails)), 3)
+        self.assertEqual(plan.case["given"]["customer"]["name"], "Ada")
+        self.assertEqual(len(plan.diagnostics["replicated_rows"]), 2)
+        self.assertEqual(plan.case["status"], "assumed")
+
     def test_app_intent_has_no_fixtures(self):
         app = {
             "id": "calculator",
@@ -256,6 +390,7 @@ class FixturePlannerTests(unittest.TestCase):
             kind="update", action="deposit",
             args=["account.account_id", 50],
             changes={"account.balance": 150},
+            cli=["account", "deposit"],
             expect={"state": {"account.balance": 150}},
         )
         plan = fixtures.plan_case(

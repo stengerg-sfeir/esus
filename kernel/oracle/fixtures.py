@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 
 from kernel import codegen
 from kernel.consistency.naming import normalize
-from kernel.oracle import alignment
+from kernel.oracle import alignment, cases
 
 _AUTO_FIELDS = frozenset(normalize(name) for name in {
     "created_at", "created_date", "updated_at", "updated_date",
@@ -33,6 +33,9 @@ _FIELD_ALIASES = {
     "availability": ("available_status", "available_copies"),
     "available": ("available_status", "available_copies", "is_available"),
     "isavailable": ("available_status", "available_copies"),
+    "maxcapacity": ("maximum_capacity",),
+    "maximumcapacity": ("max_capacity",),
+    "totalstock": ("stock_quantity",),
     "createdat": ("creation_date", "created_date", "date_created"),
     "creationdate": ("created_at", "created_date", "date_created"),
     "category": ("category_id",),
@@ -216,6 +219,71 @@ def _unique_alias(base, used):
     return f"{candidate}_{number}"
 
 
+def _canonicalize_aliases(intent, pairs, setup_values, requirements):
+    """Use the extracted entity name when the intent alias is not in the prompt."""
+    renames = {}
+    used = set()
+    for alias, item in pairs.items():
+        canonical = item["entity"]
+        new_alias = alias
+        if not cases._entity_named(alias, requirements):
+            base = normalize(canonical) or alias
+            new_alias = base
+            number = 2
+            while new_alias in used:
+                new_alias = f"{base}_{number}"
+                number += 1
+        used.add(new_alias)
+        renames[alias] = new_alias
+    if all(alias == new_alias for alias, new_alias in renames.items()):
+        return intent, pairs, setup_values
+
+    def rename_key(value):
+        if not isinstance(value, str) or "." not in value:
+            return value
+        head, _, rest = value.partition(".")
+        return f"{renames.get(head, head)}.{rest}"
+
+    def rename_value(value):
+        if isinstance(value, str) and "." in value:
+            head = value.split(".", 1)[0]
+            if head in renames:
+                return f"{renames[head]}.{value.split('.', 1)[1]}"
+        return value
+
+    updated = dict(intent)
+    updated["args"] = [rename_value(value) for value in intent.get("args") or []]
+    updated["lookup"] = [rename_value(value) for value in intent.get("lookup") or []]
+    for section in ("setup_values", "changes"):
+        updated[section] = {
+            rename_key(key): value
+            for key, value in (intent.get(section) or {}).items()
+        }
+    updated["where"] = {
+        rename_key(key): rename_value(value)
+        for key, value in (intent.get("where") or {}).items()
+    }
+    expect = dict(intent.get("expect") or {})
+    if isinstance(expect.get("state"), dict):
+        expect["state"] = {
+            rename_key(key): value
+            for key, value in expect["state"].items()
+        }
+    updated["expect"] = expect
+    updated["setup_entities"] = [
+        {**step, "alias": renames.get(step.get("alias"), step.get("alias"))}
+        for step in intent.get("setup_entities") or []
+        if isinstance(step, dict)
+    ]
+    new_pairs = {
+        renames[alias]: item for alias, item in pairs.items()
+    }
+    new_setup_values = {
+        renames[alias]: values for alias, values in setup_values.items()
+    }
+    return updated, new_pairs, new_setup_values
+
+
 def _target_alias(intent, pairs):
     wanted = normalize(intent.get("entity") or "")
     matches = [alias for alias, item in pairs.items()
@@ -239,7 +307,7 @@ def _case_when(intent, target_alias, aliases):
             **({"files": app["files"]} if isinstance(app.get("files"), dict)
                and app["files"] else {}),
         }
-    if intent.get("cli"):
+    if intent.get("kind") == "cli" and intent.get("cli"):
         return {"cli": [str(value) for value in intent["cli"]]}
 
     def ref(value):
@@ -321,6 +389,8 @@ def plan_case(intent, docs, requirements=""):
         alias = _unique_alias(entity, set())
         canonical = _align_entity(entity, [], intent, docs, requirements)
         pairs[alias] = {"entity": canonical, "role": "target"}
+    intent, pairs, setup_values = _canonicalize_aliases(
+        intent, pairs, setup_values, requirements)
     target_alias = _target_alias(intent, pairs)
     if target_alias is None:
         raise PlanError("intent target entity is not in setup_entities")
@@ -338,31 +408,74 @@ def plan_case(intent, docs, requirements=""):
 
     # Prompt spelling and method spelling are allowed to differ, but the
     # fixture must use actual model field names so the worker can resolve
-    # setup references and assert state.
-    def _canonical_key(value):
-        head, _, field_name = str(value).partition(".")
-        if head not in pairs:
-            raise PlanError(f"reference {value!r} has no setup alias")
-        model = _model(docs, pairs[head]["entity"])
+    # setup references and assert state. Auxiliary lookup/filter fields that
+    # the model invented and the prompt never names are removed; an unnamed
+    # identity reference falls back to the target primary key.
+    requirement_text = normalize(requirements)
+
+    def _model_for_alias(alias):
+        if alias not in pairs:
+            raise PlanError(f"reference alias {alias!r} is not in setup")
+        model = _model(docs, pairs[alias]["entity"])
         if model is None:
-            raise PlanError(f"model {pairs[head]['entity']!r} is not extracted")
+            raise PlanError(f"model {pairs[alias]['entity']!r} is not extracted")
+        return model
+
+    def _field_mentioned(field_name):
+        wanted = normalize(field_name)
+        return bool(wanted) and wanted in requirement_text
+
+    def _canonical_key(value, auxiliary=False):
+        head, _, field_name = str(value).partition(".")
+        model = _model_for_alias(head)
+        if _field(model, field_name) is not None:
+            return f"{head}.{_canonical_ref_field(model, field_name, head)}"
+        if auxiliary and not _field_mentioned(field_name):
+            return f"{head}.{_primary_key(model)}"
         return f"{head}.{_canonical_ref_field(model, field_name, head)}"
 
-    def _rewrite(value):
-        if isinstance(value, str) and "." in value:
-            head = value.split(".", 1)[0]
-            if head in pairs:
-                return _canonical_key(value)
-        return value
+    def _rewrite_arg(value):
+        if not isinstance(value, str) or "." not in value:
+            return value
+        head = value.split(".", 1)[0]
+        if head not in pairs:
+            return value
+        return _canonical_key(value, auxiliary=True)
 
     intent = dict(intent)
-    intent["args"] = [_rewrite(value) for value in intent.get("args") or []]
-    intent["lookup"] = [_rewrite(value) for value in intent.get("lookup") or []]
-    for section in ("setup_values", "changes", "where"):
+    intent["args"] = [_rewrite_arg(value) for value in intent.get("args") or []]
+    lookup = []
+    for value in intent.get("lookup") or []:
+        if isinstance(value, str) and "." in value:
+            head, _, field_name = value.partition(".")
+            if head in pairs and _field(_model_for_alias(head), field_name) is None \
+                    and not _field_mentioned(field_name):
+                continue
+        lookup.append(_rewrite_arg(value))
+    intent["lookup"] = lookup
+    for section in ("setup_values", "changes"):
         rewritten = {}
         for target, value in (intent.get(section) or {}).items():
             rewritten[_canonical_key(target)] = value
         intent[section] = rewritten
+    where = {}
+    for target, value in (intent.get("where") or {}).items():
+        head, _, field_name = str(target).partition(".")
+        if head not in pairs:
+            raise PlanError(f"reference {target!r} has no setup alias")
+        model = _model_for_alias(head)
+        if _field(model, field_name) is None:
+            if _field_mentioned(field_name):
+                raise PlanError(
+                    f"filter field {field_name!r} is named by the prompt but "
+                    f"not declared on {model.get('name')}")
+            continue
+        key = _canonical_key(target)
+        if isinstance(value, str) and "." in value \
+                and value.split(".", 1)[0] in pairs:
+            value = {"ref": _canonical_key(value)}
+        where[key] = value
+    intent["where"] = where
     expect = dict(intent.get("expect") or {})
     if isinstance(expect.get("state"), dict):
         expect["state"] = {
@@ -415,6 +528,34 @@ def plan_case(intent, docs, requirements=""):
             "reason": f"required parameter {param['name']}",
         })
         diagnostics["aliases"][alias] = model["name"]
+
+    used_entities = set()
+    for param in (method or {}).get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            continue
+        name = normalize(param["name"])
+        base = ""
+        if name.endswith("ids") and len(name) > 3:
+            base = name[:-3]
+        elif name.endswith("id") and len(name) > 2:
+            base = name[:-2]
+        model = _model_for_parameter(docs, base) if base else None
+        if model is not None:
+            used_entities.add(model["name"])
+    target_used = None
+    target_entity = pairs[target_alias]["entity"]
+    if used_entities:
+        target_used = target_entity in used_entities
+    diagnostics["target_usage"] = {
+        "entity": target_entity,
+        "used_entities": sorted(used_entities),
+        "used": target_used,
+    }
+    target_ambiguity = None
+    if target_used is False:
+        target_ambiguity = (
+            f"target entity {target_entity} is not used by the action; "
+            f"the action uses {', '.join(sorted(used_entities))}")
 
     def ensure(alias):
         if alias in planned:
@@ -507,15 +648,79 @@ def plan_case(intent, docs, requirements=""):
     for alias in setup_values:
         ensure(alias)
 
+    # A list/filter assertion is a returned row count. If the intent names
+    # fewer setup rows than the expected result, replicate mechanically; never
+    # invent the expected count.
+    replicated = []
+    if intent.get("kind") in ("list", "filter"):
+        for row_key, count in ((intent.get("expect") or {}).get("rows") or {}).items():
+            try:
+                wanted = int(count)
+            except (TypeError, ValueError):
+                continue
+            model = _model(docs, row_key)
+            if model is None:
+                continue
+            existing = [alias for alias in order
+                        if normalize(planned[alias]["entity"]) ==
+                        normalize(model["name"])]
+            if not existing:
+                continue
+            template = planned[existing[0]]
+            while len(existing) < wanted:
+                alias = _unique_alias(
+                    f"{model['name']}_{len(existing) + 1}", set(planned))
+                values = {}
+                for field in model.get("fields") or []:
+                    if not isinstance(field, dict) or not field.get("name"):
+                        continue
+                    name = field["name"]
+                    if field.get("primary_key") or field.get("default") is not None:
+                        continue
+                    foreign = _foreign(field)
+                    if foreign is not None:
+                        parent = next(
+                            (value for key, value in template["values"].items()
+                             if normalize(key) == normalize(name)), None)
+                        if isinstance(parent, dict) and "ref" in parent:
+                            values[name] = parent
+                        continue
+                    if field.get("nullable") is not False:
+                        continue
+                    if normalize(name) in _AUTO_FIELDS:
+                        continue
+                    values[name] = _sample(field, alias)
+                planned[alias] = {
+                    "entity": model["name"],
+                    "as": alias,
+                    "values": values,
+                }
+                order.append(alias)
+                existing.append(alias)
+                replicated.append(alias)
+    if replicated:
+        diagnostics["replicated_rows"] = replicated
+
     given = {alias: dict(planned[alias]["values"]) for alias in order}
+    ambiguities = list(intent.get("ambiguities") or [])
+    status = intent.get("status") or "assumed"
+    if target_ambiguity:
+        ambiguities.append(target_ambiguity)
+        if status == "confirmed":
+            status = "assumed"
+    if replicated and status == "confirmed":
+        status = "assumed"
+        ambiguities.append(
+            "expected row count exceeds the named setup; extra rows were "
+            "added mechanically to exercise the list result")
     case = {
         "id": intent["id"],
         "source": intent["source"],
         "given": given,
         "when": _case_when(intent, target_alias, set(given)),
         "then": _case_then(intent),
-        "status": intent.get("status") or "assumed",
+        "status": status,
         "assumptions": list(intent.get("assumptions") or []),
-        "ambiguities": list(intent.get("ambiguities") or []),
+        "ambiguities": ambiguities,
     }
     return Plan(case, diagnostics)

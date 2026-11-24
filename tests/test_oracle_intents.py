@@ -139,19 +139,19 @@ class IntentValidationTests(unittest.TestCase):
         self.assertEqual(valid, [])
         self.assertIn("exception class name", errors[0])
 
-    def test_cli_input_is_only_valid_for_cli_kind(self):
+    def test_domain_intent_may_carry_ignored_cli_scaffolding(self):
         valid, errors = intents.validate_intents(
             {"intents": [domain_intent(cli=["note", "create"])]},
             REQUIREMENTS)
-        self.assertEqual(valid, [])
-        self.assertIn("only valid for kind 'cli'", errors[0])
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["kind"], "update")
 
-    def test_app_input_is_only_valid_for_app_kind(self):
+    def test_domain_intent_may_carry_ignored_app_scaffolding(self):
         valid, errors = intents.validate_intents(
             {"intents": [domain_intent(app={"args": ["2"]})]},
             REQUIREMENTS)
-        self.assertEqual(valid, [])
-        self.assertIn("only valid for kind 'app'", errors[0])
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["kind"], "update")
 
     def test_cli_intent_needs_a_command(self):
         valid, errors = intents.validate_intents(

@@ -65,6 +65,31 @@ class OracleCaseTests(unittest.TestCase):
         self.assertEqual(valid, [])
         self.assertIn("unknown status", errors[0])
 
+    def test_a_plural_entity_name_covers_its_singular_alias(self):
+        requirements = "Categories group products. Products can be listed."
+        valid, errors = cases.validate_cases([{
+            "id": "list_products",
+            "source": "Products can be listed.",
+            "given": {"category": {"name": "Tools"}},
+            "when": {"action": "list_products", "args": []},
+            "then": {"rows": {"Product": 1}},
+            "status": "confirmed",
+        }], requirements)
+        self.assertEqual(errors, [])
+        self.assertEqual(valid[0]["given"]["category"]["name"], "Tools")
+
+    def test_a_multiword_entity_name_covers_a_compact_alias(self):
+        requirements = "A storage location holds wine. Wine can be listed."
+        valid, errors = cases.validate_cases([{
+            "id": "list_wine",
+            "source": "Wine can be listed.",
+            "given": {"storagelocation": {"zone_name": "Cellar"}},
+            "when": {"action": "list_wine", "args": []},
+            "then": {"rows": {"Wine": 1}},
+            "status": "confirmed",
+        }], requirements)
+        self.assertEqual(errors, [])
+
     def test_a_stale_contradiction_can_clear_on_revalidation(self):
         first = self.case(status="contradictory", base_status="confirmed")
         second = self.case(id="other", status="contradictory",

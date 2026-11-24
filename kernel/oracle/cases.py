@@ -47,9 +47,22 @@ def _entity_named(alias, requirements):
     token = re.sub(r"_?\d+$", "", normalize(alias))
     if not token:
         return False
-    words = {re.sub(r"s$", "", word) for word in
-             re.findall(r"[a-z][a-z0-9_]*", str(requirements).lower())}
-    return token in words or token + "s" in words
+    if token in normalize(requirements):
+        return True
+    words = set()
+    for word in re.findall(r"[a-z][a-z0-9_]*", str(requirements).lower()):
+        if word.endswith("ies") and len(word) > 4:
+            word = word[:-3] + "y"
+        elif word.endswith("s") and not word.endswith("ss") and len(word) > 3:
+            word = word[:-1]
+        words.add(word)
+    if token in words or token + "s" in words:
+        return True
+    if token.endswith("ies"):
+        singular = token[:-3] + "y"
+        if singular in words or singular + "s" in words:
+            return True
+    return False
 
 
 def _is_app_case(when):

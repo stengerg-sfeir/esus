@@ -130,12 +130,6 @@ def validate_intents(raw, requirements):
         if not isinstance(setup, list):
             errors.append(f"{label}: setup_entities must be a list")
             continue
-        if item.get("app") and kind != "app":
-            errors.append(f"{label}: app input is only valid for kind 'app'")
-            continue
-        if item.get("cli") and kind != "cli":
-            errors.append(f"{label}: cli input is only valid for kind 'cli'")
-            continue
         entities = {}
         for step in setup:
             if not isinstance(step, dict) or not _known(step.get("alias")) \

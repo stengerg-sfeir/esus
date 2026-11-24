@@ -66,6 +66,15 @@ class EntityAlignmentTests(unittest.TestCase):
             "Client", ["name", "email"], "", "", docs)
         self.assertEqual(result.status, "ambiguous")
 
+    def test_a_field_alias_can_identify_the_entity(self):
+        docs = {"models": [
+            {"name": "Wine", "fields": [{"name": "stock_quantity"}]},
+        ], "services": [], "repos": []}
+        result = alignment.align_entity(
+            "Product", ["stock_qty"], "", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical, "Wine")
+
 
 class FieldAlignmentTests(unittest.TestCase):
     def test_an_exact_field_is_aligned(self):
@@ -106,6 +115,59 @@ class ActionAlignmentTests(unittest.TestCase):
         result = alignment.align_action(
             "teleport", "Orders have a status.", "Orders have a status.", DOCS)
         self.assertEqual(result.status, "invented")
+
+    def test_the_most_specific_method_name_wins(self):
+        docs = {
+            "models": [],
+            "services": [{"service_name": "ProductRepository", "methods": [
+                {"name": "create"}, {"name": "update"},
+                {"name": "bulk_update_stock"}]}],
+            "repos": [],
+        }
+        result = alignment.align_action(
+            "bulk_update_product_stock", "", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical, "ProductRepository.bulk_update_stock")
+
+    def test_a_cancelled_action_matches_cancel_order(self):
+        docs = {
+            "models": [],
+            "services": [{"service_name": "OrderService", "methods": [
+                {"name": "confirm_order"}, {"name": "cancel_order"},
+                {"name": "ship_order"}, {"name": "create_order"}]}],
+            "repos": [],
+        }
+        result = alignment.align_action(
+            "release_reserved_stock_on_cancelled_order", "", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical, "OrderService.cancel_order")
+
+    def test_domain_nouns_may_differ_when_the_operation_matches(self):
+        docs = {
+            "models": [],
+            "services": [{"service_name": "WineInventoryService", "methods": [
+                {"name": "assign_wine_to_location"},
+                {"name": "check_storage_location_capacity"},
+            ]}],
+            "repos": [],
+        }
+        result = alignment.align_action(
+            "assign_bottle_to_location", "", "", docs)
+        self.assertEqual(result.status, "alias")
+        self.assertEqual(result.canonical,
+                         "WineInventoryService.assign_wine_to_location")
+
+    def test_equally_specific_methods_remain_ambiguous(self):
+        docs = {
+            "models": [],
+            "services": [{"service_name": "OrderRepository", "methods": [
+                {"name": "create"}]},
+                {"service_name": "OrderItemRepository", "methods": [
+                    {"name": "create"}]}],
+            "repos": [],
+        }
+        result = alignment.align_action("create_order", "", "", docs)
+        self.assertEqual(result.status, "ambiguous")
 
 
 if __name__ == "__main__":

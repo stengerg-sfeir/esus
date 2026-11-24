@@ -11,6 +11,7 @@ import re
 
 from kernel import codegen
 from kernel.consistency.naming import normalize
+from kernel.oracle import alignment
 
 _MISSING = object()
 
@@ -34,6 +35,13 @@ def _entity_for(alias, models):
                 if name.startswith(wanted) or wanted.startswith(name)]
     if len(prefixes) == 1:
         return models[prefixes[0]]["name"]
+    # A model may be named for its full phrase (`StorageLocation`) while the
+    # prompt and intent use the head noun (`location`). Accept only a unique
+    # suffix match.
+    suffixes = [name for name in models
+                if name.endswith(wanted) or wanted.endswith(name)]
+    if len(suffixes) == 1:
+        return models[suffixes[0]]["name"]
     return None
 
 
@@ -776,6 +784,20 @@ def _method(docs, case):
                             continue
                         candidates.append((holder_name, method))
         candidates = _dedupe(candidates)
+    if not candidates or len(candidates) > 1:
+        resolved = alignment.align_action(
+            raw_action, case.get("source") or "",
+            docs.get("requirements") or "", docs)
+        if resolved.status == "alias" and resolved.canonical:
+            holder_name, _, method_name = resolved.canonical.rpartition(".")
+            for group_key, name_key in (("services", "service_name"),
+                                        ("repos", "interface_name")):
+                for holder in docs.get(group_key) or []:
+                    if not isinstance(holder, dict) or holder.get(name_key) != holder_name:
+                        continue
+                    for method in holder.get("methods") or []:
+                        if isinstance(method, dict) and method.get("name") == method_name:
+                            return (holder_name, method), None
     if not candidates:
         return None, f"no generated method matches {case['when'].get('action')!r}"
     real_services = [item for item in candidates
@@ -877,7 +899,7 @@ def _read_result_error(case, kind, setup, models, args):
     if kind not in ("read_all", "filter"):
         return None
     rows = (case.get("then") or {}).get("rows")
-    if not isinstance(rows, dict) or args:
+    if not isinstance(rows, dict):
         return None
     expected = 0
     counted = set()
@@ -888,6 +910,11 @@ def _read_result_error(case, kind, setup, models, args):
     seeded = sum(1 for step in setup
                  if normalize(step.get("entity")) in counted
                  and step.get("seed") is not False)
+    if expected > seeded:
+        return ("list/filter case expects more rows than its setup seeds; "
+                "the verifier must not invent returned rows")
+    if args:
+        return None
     if expected < seeded:
         return ("list case expects fewer rows than its setup but performs "
                 "no delete or filter action")
@@ -899,12 +926,17 @@ def _argument_shape_error(case, method, kind):
     if isinstance(raw, list) and any(
             isinstance(value, str) and value.startswith("--") for value in raw):
         return "CLI flag passed as a service argument"
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if any(normalize(param["name"]).endswith("ids")
+           and "str" in str(param.get("type") or "").lower()
+           for param in params) and isinstance(raw, list) and any(
+               isinstance(value, dict) for value in raw):
+        return "bulk collection parameter requires a scalar collection"
     if isinstance(raw, list) and any(
             isinstance(value, dict)
             and not (set(value) == {"ref"} and isinstance(value.get("ref"), str))
             for value in raw):
-        params = [param for param in method.get("params") or []
-                  if isinstance(param, dict) and param.get("name")]
         if not any(codegen.is_mapping_type(param.get("type"))
                    or codegen.is_entity_type(param.get("type"), [])
                    or "dict" in str(param.get("type") or "").lower()

@@ -197,6 +197,61 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertIsNotNone(scenario)
 
+    def test_a_model_full_name_resolves_from_a_head_noun_alias(self):
+        docs = {
+            "models": [{"name": "StorageLocation", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "zone_name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "StorageLocationRepository",
+                       "methods": [{"name": "read_all", "params": [],
+                                    "return_type": "List[StorageLocation]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_locations", "args": []},
+                 given={"location": {"zone_name": "Cellar"}},
+                 then={"rows": {"StorageLocation": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["setup"][0]["entity"], "StorageLocation")
+
+    def test_action_alignment_resolves_a_more_specific_method(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "product_id", "primary_key": True}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "bulk_update_stock",
+                "params": [{"name": "product_ids", "type": "str"},
+                           {"name": "stock_quantity", "type": "int"}],
+                "return_type": "None"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "bulk_update_product_stock",
+                       "args": ["1,2", 3]},
+                 given={"product": {"product_id": 1}},
+                 then={}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["method"], "bulk_update_stock")
+
+    def test_a_bulk_collection_parameter_rejects_scalar_refs(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "product_id", "primary_key": True}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "bulk_update_stock",
+                "params": [{"name": "product_ids", "type": "str"},
+                           {"name": "stock_quantity", "type": "int"}],
+                "return_type": "None"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "bulk_update_stock",
+                       "args": [{"ref": "product.product_id"}, 3]},
+                 given={"product": {"product_id": 1}},
+                 then={}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("scalar collection", reason)
+
     def test_a_delete_binds_a_generic_primary_key(self):
         docs = {
             "models": [{"name": "Note", "fields": [
@@ -425,6 +480,23 @@ class OracleBinderTests(unittest.TestCase):
                  then={"rows": {"Project": 0}}), docs)
         self.assertIsNone(scenario)
         self.assertIn("performs no delete or filter", reason)
+
+    def test_a_list_cannot_expect_more_rows_than_its_setup(self):
+        docs = {
+            "models": [{"name": "Project", "fields": [
+                {"name": "project_id", "primary_key": True},
+                {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProjectRepository", "methods": [{
+                "name": "read_all", "params": [],
+                "return_type": "List[Project]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_projects", "args": ["1", "10"]},
+                 given={"project": {"name": "P"}},
+                 then={"rows": {"Project": 10}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("more rows than its setup", reason)
 
     def test_a_list_rows_expectation_compares_the_returned_count(self):
         docs = {

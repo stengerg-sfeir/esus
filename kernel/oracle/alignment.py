@@ -38,6 +38,9 @@ _FIELD_ALIASES = {
     "name": ("title", "description"),
     "title": ("name", "description"),
     "sku": ("code", "product_code"),
+    "maxcapacity": ("maximum_capacity",),
+    "maximumcapacity": ("max_capacity",),
+    "totalstock": ("stock_quantity",),
 }
 
 
@@ -110,15 +113,20 @@ def align_entity(alias, fields, source, requirements, docs):
         return Alignment("under_specified", None, 0.0,
                          ["empty entity alias"])
     fields = {normalize(item) for item in fields or () if isinstance(item, str)}
+    original_count = max(1, len(fields))
+    expanded = set(fields)
+    for name in list(fields):
+        for field_alias in _FIELD_ALIASES.get(name, ()):
+            expanded.add(normalize(field_alias))
     scored = []
     for model in _models(docs):
         name = model["name"]
         score = _name_score(alias, name)
         model_fields = _field_set(model)
         if fields and model_fields:
-            # The verifier supplies the fields its intent uses; a subset of the
-            # model is enough. Extra extracted fields are not a mismatch.
-            overlap = len(fields & model_fields) / len(fields)
+            # Alias expansion only helps matching; it must not dilute the
+            # fraction by adding alternative names to the denominator.
+            overlap = len(expanded & model_fields) / original_count
             score += 4.0 * overlap
         if _prompt_mentions(name, source):
             score += 1.0
@@ -218,6 +226,22 @@ def _dedupe_methods(items):
     return out
 
 
+def _action_score(action, holder, method):
+    """Rank a method by how specifically its name matches the action."""
+    action_tokens = _tokens(action)
+    method_tokens = _tokens(method.get("name"))
+    holder_tokens = _tokens(holder)
+    score = 3 * len(action_tokens & method_tokens)
+    score += len(action_tokens & holder_tokens)
+    for left in action_tokens:
+        for right in method_tokens:
+            if left != right and min(len(left), len(right)) >= 4 and (
+                    left.startswith(right) or right.startswith(left)):
+                # cancelled/cancel, returned/return
+                score += 1
+    return score
+
+
 def align_action(action, source, requirements, docs):
     if not isinstance(action, str) or not action.strip():
         return Alignment("under_specified", None, 0.0, ["empty action"])
@@ -239,15 +263,27 @@ def align_action(action, source, requirements, docs):
             continue
         candidates.append((holder, method))
     candidates = _dedupe_methods(candidates)
-    if len(candidates) == 1:
-        holder, method = candidates[0]
-        return Alignment("alias", f"{holder}.{method['name']}", 8.0,
-                         ["same CRUD kind and noun"])
-    if len(candidates) > 1:
-        return Alignment("ambiguous", candidates[0][0] + "." +
-                         candidates[0][1]["name"], 4.0,
-                         ["several generated methods could satisfy the action"],
-                         [f"{h}.{m['name']}" for h, m in candidates[:4]])
+    scored = sorted(
+        ((_action_score(action, holder, method), holder, method)
+         for holder, method in candidates),
+        key=lambda item: (-item[0], item[1], item[2].get("name") or ""))
+    if len(scored) == 1:
+        score, holder, method = scored[0]
+        return Alignment("alias", f"{holder}.{method['name']}", float(score),
+                         ["same operation with a different name"])
+    if scored:
+        best_score, holder, method = scored[0]
+        runner_up = scored[1][0]
+        alternatives = [f"{h}.{m['name']}" for _score, h, m in scored[1:5]]
+        if best_score > runner_up:
+            return Alignment("alias", f"{holder}.{method['name']}",
+                             float(best_score),
+                             ["highest action-name specificity"],
+                             alternatives)
+        return Alignment("ambiguous", f"{holder}.{method['name']}",
+                         float(best_score),
+                         ["several generated methods have the same action score"],
+                         [f"{h}.{m['name']}" for _score, h, m in scored[:4]])
     if _prompt_mentions(action, source) or _prompt_mentions(
             action, requirements):
         return Alignment("coverage_gap", None, 0.0,

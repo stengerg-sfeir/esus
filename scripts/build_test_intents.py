@@ -32,6 +32,23 @@ def _same_clause(source, clause):
     return bool(left and right) and (left == right or left in right or right in left)
 
 
+def _anchor_source(payload, clause):
+    """Use the target clause when the model returned a larger source span."""
+    if not isinstance(payload, dict):
+        return payload
+    intents = payload.get("intents")
+    if not isinstance(intents, list):
+        return payload
+    wanted = _clean(clause)
+    for intent in intents:
+        if not isinstance(intent, dict):
+            continue
+        source = _clean(intent.get("source"))
+        if source and wanted and (source in wanted or wanted in source):
+            intent["source"] = clause
+    return payload
+
+
 def build_intent_prompt(requirements, clause):
     return f"""You are a requirements analyst. Read only the requirements below.
 Do not use or infer an extracted architecture, database schema, method
@@ -125,7 +142,7 @@ def _select(valid, clause):
 
 
 def build_one(project, model_path, context=8192, max_new_tokens=4096,
-              coverage=None, repair_attempts=1, out=print):
+              coverage=None, repair_attempts=1, append=False, out=print):
     project = Path(project)
     try:
         requirements = (project / "requirements.txt").read_text(encoding="utf-8")
@@ -149,6 +166,7 @@ def build_one(project, model_path, context=8192, max_new_tokens=4096,
             rejected.append({"clause": clause, "errors": ["intent was not JSON"],
                              "text": result.text})
             continue
+        payload = _anchor_source(payload, clause)
         valid, errors = intent_rules.validate_intents(payload, requirements)
         attempts = 0
         while errors and attempts < repair_attempts:
@@ -162,6 +180,7 @@ def build_one(project, model_path, context=8192, max_new_tokens=4096,
             repaired_payload = intent_rules.parse_payload(repaired.text)
             if repaired_payload is None:
                 break
+            repaired_payload = _anchor_source(repaired_payload, clause)
             candidate, candidate_errors = intent_rules.validate_intents(
                 repaired_payload, requirements)
             if len(candidate) > len(valid):
@@ -175,6 +194,24 @@ def build_one(project, model_path, context=8192, max_new_tokens=4096,
             rejected.append({"clause": clause,
                              "errors": errors or ["no intent matched the clause"],
                              "text": result.text})
+    if append:
+        existing = intent_rules.load_intents(project / intent_rules.INTENTS_NAME)
+        replaced = {clause for clause in coverage
+                    if any(_same_clause(item.get("source"), clause)
+                           for item in selected)}
+        selected = [item for item in existing
+                    if not any(_same_clause(item.get("source"), clause)
+                               for clause in replaced)] + selected
+    seen = set()
+    for item in selected:
+        base = str(item.get("id") or "intent")
+        candidate = base
+        number = 2
+        while candidate in seen:
+            candidate = f"{base}_{number}"
+            number += 1
+        item["id"] = candidate
+        seen.add(candidate)
     path = intent_rules.save_intents(
         project / intent_rules.INTENTS_NAME, selected)
     (project / "test_intents_meta.json").write_text(
@@ -214,6 +251,8 @@ def main(argv=None):
     parser.add_argument("--context", type=int, default=8192)
     parser.add_argument("--max-new-tokens", type=int, default=4096)
     parser.add_argument("--repair-attempts", type=int, default=1)
+    parser.add_argument("--append", action="store_true",
+                        help="keep intents for clauses not selected in this run")
     args = parser.parse_args(argv)
     if args.server_url:
         os.environ["LLAMA_SERVER_URL"] = args.server_url
@@ -234,7 +273,8 @@ def main(argv=None):
                 project, args.model, context=args.context,
                 max_new_tokens=args.max_new_tokens,
                 coverage=coverage.get(project.name),
-                repair_attempts=args.repair_attempts)
+                repair_attempts=args.repair_attempts,
+                append=args.append)
         except (SystemExit, RuntimeError, OSError) as error:
             failed.append(project.name)
             print(f"{project.name}: intent build failed ({error})")

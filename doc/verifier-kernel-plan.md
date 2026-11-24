@@ -161,13 +161,29 @@ Run the acceptance bench after that report is present to regenerate the trace.
 
 Across the 35 mapped-untested clauses:
 
-- 58 intents generated;
-- 32 intent cases planned;
+- 62 intents generated;
+- 38 intent cases planned;
 - 18 passed;
-- 14 assumed-only failures;
+- 16 assumed-only failures;
+- 4 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
-- 10 clauses have at least one passing intent case;
+- 9 clauses have at least one passing intent case;
 - 4 clauses have a confirmed passing case.
+
+The verifier-side hardening in this pass:
+
+- over-broad model sources are anchored to the target clause;
+- appended intent runs keep IDs unique;
+- ungrounded aliases are rewritten to extracted entity names;
+- unmentioned auxiliary identity/filter fields are dropped or replaced by
+  the primary key, while prompt-named missing fields stay hard gaps;
+- action matching ranks method-name specificity instead of treating every
+  token overlap as ambiguous;
+- a target not used by the chosen action is downgraded to assumed;
+- list expectations seed additional rows mechanically, but replication also
+  downgrades the case to assumed;
+- bulk collection parameters that cannot be supplied mechanically are
+  rejected before execution.
 
 The main verifier remains at **25 passed / 0 failed / 54 unbound**. The
 stable acceptance result remains **66/66 projects, 1,023 checks, 0 stubs**.
