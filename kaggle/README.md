@@ -51,7 +51,7 @@ The Qwen GGUF is about 2.3 GB:
 
 ```sh
 mkdir -p /tmp/qwen3-4b-dataset
-cp ~/Documents/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf /tmp/qwen3-4b-dataset/
+cp ../models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf /tmp/qwen3-4b-dataset/
 cat > /tmp/qwen3-4b-dataset/dataset-metadata.json <<'JSON'
 {
   "title": "Qwen3 4B Instruct 2507 Q4_K_M",

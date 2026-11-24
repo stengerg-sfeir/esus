@@ -6,6 +6,7 @@
 # Environment (all optional):
 #   MODEL       target model       default: Qwen3-4B-Instruct-2507-Q4_K_M
 #   DRAFT       draft model        default: Qwen3-0.6B-Q4_K_M
+#   MODEL_ROOT  model directory    default: ../models beside the repository
 #   CTX         context size       default: 16384
 #   SLOTS       parallel slots     default: 1
 #   PORT        server port        default: 8080
@@ -24,8 +25,11 @@
 
 set -euo pipefail
 
-MODEL="${MODEL:-$HOME/Documents/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf}"
-DRAFT="${DRAFT:-$HOME/Documents/models/Qwen3-0.6B-Q4_K_M.gguf}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+MODEL_ROOT="${MODEL_ROOT:-$(cd "$ROOT_DIR/.." && pwd)/models}"
+MODEL="${MODEL:-$MODEL_ROOT/Qwen3-4B-Instruct-2507-Q4_K_M.gguf}"
+DRAFT="${DRAFT:-$MODEL_ROOT/Qwen3-0.6B-Q4_K_M.gguf}"
 CTX="${CTX:-16384}"
 SLOTS="${SLOTS:-1}"
 PORT="${PORT:-8080}"
@@ -75,7 +79,7 @@ Draft model not found: $DRAFT
 Download a Qwen3-0.6B GGUF and point DRAFT at it, for example:
 
   huggingface-cli download NANI-Nithin/Qwen3-0.6B-GGUF \
-      Qwen3-0.6B-Q4_K_M.gguf --local-dir "$HOME/Documents/models"
+      Qwen3-0.6B-Q4_K_M.gguf --local-dir "$MODEL_ROOT"
 
 Then run this script again. To start without speculative decoding:
 

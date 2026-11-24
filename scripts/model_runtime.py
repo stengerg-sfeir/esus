@@ -25,7 +25,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_STATE = ROOT / "out" / "runtime"
-DEFAULT_MODEL_ROOT = Path.home() / "Documents" / "models"
+# Models live beside the repository: `<repo-parent>/models`. Override with
+# ESUS_MODEL_ROOT when running from a different layout.
+DEFAULT_MODEL_ROOT = Path(
+    os.environ.get("ESUS_MODEL_ROOT", ROOT.parent / "models")).expanduser()
 WRITER_MODEL = "Qwen3-4B-Instruct-2507-Q4_K_M.gguf"
 # Qwen is also the verifier: the same weights in a separate prompt-only
 # context. It is extraction-independent, but not model-independent.

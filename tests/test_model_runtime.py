@@ -39,6 +39,10 @@ class FakeResponse:
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_default_model_root_is_beside_the_repository(self):
+        self.assertEqual(model_runtime.DEFAULT_MODEL_ROOT,
+                         ROOT.parent / "models")
+
     def profile(self, directory, environment="mac"):
         model = Path(directory) / "model.gguf"
         model.write_bytes(b"fake")
