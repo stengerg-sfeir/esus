@@ -9,7 +9,13 @@ does at least one runtime check exercise that artifact?
 Statuses are deliberately conservative:
 
 - `mapped_tested`   a clause maps to an artifact that a check exercises;
-- `mapped_untested` a clause maps to design evidence but no check names it;
+- `assumed_only`    a case ran but is not confirmed evidence;
+- `under_specified` the prompt does not determine a testable expected behavior;
+- `blocked_extraction` generated code exposes the capability but the extracted
+  contract/docs do not;
+- `blocked_generation` the prompt requires a capability absent from generated
+  code;
+- `mapped_untested` only when classification is explicitly disabled;
 - `partial`         only a weak lexical overlap remains;
 - `unmapped`        no artifact shares a significant token.
 
@@ -26,6 +32,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+import classify_coverage  # noqa: E402
 
 STOPWORDS = frozenset({
     "a", "an", "the", "and", "or", "but", "if", "then", "else", "when",
@@ -368,15 +376,21 @@ def artifacts(project, checks=None):
             found.append(item)
 
     report_cases = {}
-    for filename in ("oracle_cases.json", "oracle_cases_coverage.json",
-                     "oracle_cases_intents.json", "oracle_cases_merged.json"):
+    if (project / "oracle_cases_merged.json").is_file():
+        case_files = ["oracle_cases_merged.json"]
+        report_files = ["oracle_report_merged.json"]
+    elif (project / "oracle_cases_intents.json").is_file():
+        case_files = ["oracle_cases_intents.json"]
+        report_files = ["oracle_report_intents.json"]
+    else:
+        case_files = ["oracle_cases.json", "oracle_cases_coverage.json"]
+        report_files = ["oracle_report.json", "oracle_coverage_report.json"]
+    for filename in case_files:
         cases_payload = _read_json(project / filename) or {}
         for case in cases_payload.get("cases") or []:
             if isinstance(case, dict) and case.get("id"):
                 report_cases[case["id"]] = case
-    for filename in ("oracle_report.json", "oracle_coverage_report.json",
-                     "oracle_report_intents.json",
-                     "oracle_report_merged.json"):
+    for filename in report_files:
         report = _read_json(project / filename) or {}
         for result in report.get("results") or []:
             if not isinstance(result, dict) or result.get("status") != "passed":
@@ -436,7 +450,7 @@ def _norm_text(value):
     return " ".join(str(value or "").split()).strip().casefold().rstrip(" .;:")
 
 
-def trace_project(project, checks=None):
+def trace_project(project, checks=None, classify_untested=True):
     """Return a JSON-ready trace for one project directory."""
     project = Path(project)
     clauses = _clauses(_requirements(project))
@@ -484,6 +498,10 @@ def trace_project(project, checks=None):
             status = "unmapped"
         if exact_oracle:
             status = "mapped_tested"
+        if classify_untested and status == "mapped_untested":
+            classified = classify_coverage.classify_source(project, clause)
+            if classified:
+                status = classified
         rows.append({
             "index": index,
             "text": clause,
@@ -524,11 +542,16 @@ def main(argv=None):
     parser.add_argument("root", help="bench root containing prompt_* directories")
     parser.add_argument("--output", default=None,
                         help="JSON report path (default: <root>/coverage.json)")
+    parser.add_argument("--no-classify", dest="classify_untested",
+                        action="store_false",
+                        help="leave unmapped untested clauses as mapped_untested")
     args = parser.parse_args(argv)
     root = Path(args.root)
     projects = sorted(path for path in root.iterdir()
                       if path.is_dir() and (path / "requirements.txt").is_file())
-    traces = [trace_project(project) for project in projects]
+    traces = [trace_project(project,
+                            classify_untested=args.classify_untested)
+              for project in projects]
     report = {"root": str(root), "summary": summarize(traces),
               "projects": traces}
     output = Path(args.output) if args.output else root / "coverage.json"

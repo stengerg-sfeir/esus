@@ -44,6 +44,8 @@ class CoverageClassifierTests(unittest.TestCase):
             result = classify_coverage.classify(root, root / "coverage.json")
         self.assertEqual(result["counts"]["assumed_pass"], 1)
         self.assertEqual(result["counts"]["missing_action"], 1)
+        self.assertEqual(result["status_counts"]["assumed_only"], 1)
+        self.assertEqual(result["status_counts"]["blocked_generation"], 1)
         by_source = {row["source"]: row["category"] for row in result["rows"]}
         self.assertEqual(by_source["A task can be listed."], "assumed_pass")
         self.assertEqual(by_source["Users can withdraw."], "missing_action")

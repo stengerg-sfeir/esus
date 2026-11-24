@@ -87,8 +87,9 @@ def main(argv=None):
         for check in payload["checks"]:
             if check.get("status") == "failed":
                 print(f"  - {check['name']}: {check.get('reason', '')}", flush=True)
-    traces = [requirement_trace.trace_project(prompt, payload["checks"])
-              for prompt, payload in zip(prompts, results)]
+    traces = [requirement_trace.trace_project(
+        prompt, payload["checks"], classify_untested=True)
+        for prompt, payload in zip(prompts, results)]
     (output / "coverage.json").write_text(
         json.dumps({"root": str(root),
                     "summary": requirement_trace.summarize(traces),

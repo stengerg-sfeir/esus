@@ -142,7 +142,7 @@ class RequirementTraceTests(unittest.TestCase):
             project = self.project(directory)
             trace = requirement_trace.trace_project(project)
         sqlite = next(row for row in trace["rows"] if "SQLite" in row["text"])
-        self.assertIn(sqlite["status"], ("mapped_untested", "mapped_tested"))
+        self.assertNotEqual(sqlite["status"], "unmapped")
         self.assertTrue(any(item["id"].startswith("component:persistence")
                             for item in sqlite["evidence"]))
 

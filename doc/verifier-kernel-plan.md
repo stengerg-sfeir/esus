@@ -143,7 +143,7 @@ execution status and assumption list. The trial separates:
 oracle. The confirmed intent set closes 5 mapped-but-untested clauses:
 
 - before: **293 tested / 35 untested**;
-- after: **298 tested / 30 untested**.
+- after: **298 tested / 0 unknown; 30 classified blockers**.
 
 Assumed intent cases are kept in the advisory sidecar, not promoted into the
 main trace. The confirmed-only report is produced with:
@@ -160,10 +160,10 @@ Run the acceptance bench after that report is present to regenerate the trace.
 
 `scripts/build_verifier_cases.py` builds `oracle_cases_merged.json` from:
 
-- legacy cases whose last execution passed;
+- previously passing cases;
 - confirmed intent cases.
 
-Legacy unbound cases are not silently deleted; they are written to
+Retired unbound cases are not silently deleted; they are written to
 `oracle_cases_retired.json` with their last status and reason.
 
 `scripts/run_verifier.py` runs that merged path end to end.
@@ -171,11 +171,11 @@ Legacy unbound cases are not silently deleted; they are written to
 Current canonical result:
 
 - **44 passed / 0 failed / 0 unbound**;
-- 54 legacy unbound cases retired into the audit sidecar;
-- requirement trace remains **298 tested / 30 untested**.
+- 54 retired unbound cases in the audit sidecar;
+- requirement trace remains **298 tested / 0 unknown; 30 classified blockers**.
 
 The merged verifier is green because retired cases are not evidence. The
-30-clause trace is the remaining coverage backlog.
+30 classified blockers are the remaining coverage backlog.
 
 The backlog is classified with:
 
@@ -186,19 +186,15 @@ python scripts/classify_coverage.py out/validation/kaggle-v8 \
 
 Current 30-clause classification:
 
-- 6 assumed failures;
-- 3 other plan rejections;
-- 4 missing fields;
-- 6 missing actions;
-- 3 assumed passes;
-- 2 unbound;
-- 2 generation rejections;
-- 1 mechanical argument rejection;
-- 3 with no intent.
+- 9 assumed-only;
+- 12 under-specified;
+- 5 blocked by generation;
+- 4 blocked by extraction.
+- 0 unknown / `mapped_untested`.
 
-Only the first two groups are possible verifier work; missing fields/actions
-and generation rejections are product/extraction gaps, and assumed passes
-still need prompt evidence before they can be promoted.
+`assumed_only` and `under_specified` are verifier/specification work;
+`blocked_extraction` and `blocked_generation` are product fixes. Assumed
+passes still need prompt evidence before they can be promoted.
 
 ## Trial result
 
@@ -211,7 +207,7 @@ Across the 35 mapped-untested clauses:
 - 5 unbound by a mechanical preflight;
 - **0 confirmed behavior findings**;
 - 19 confirmed intent passes are used by the merged verifier;
-- the merged verifier closes 5 clauses: **298 tested / 30 untested**.
+- the merged verifier closes 5 clauses: **298 tested / 0 unknown; 30 classified blockers**.
 
 The verifier-side hardening in this pass:
 
@@ -229,7 +225,7 @@ The verifier-side hardening in this pass:
   rejected before execution.
 
 The main verifier remains at **25 passed / 0 failed / 54 unbound**. The
-stable acceptance result remains **66/66 projects, 1,023 checks, 0 stubs**.
+stable acceptance result remains **66/66 projects, 3,052 checks passed (2 skipped), 0 stubs**.
 
 ## Order
 

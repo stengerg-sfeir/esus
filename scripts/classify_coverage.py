@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -70,11 +71,117 @@ def _result_map(project):
     return {}
 
 
+def _generated_text(project):
+    generated = Path(project) / "generated"
+    if not generated.is_dir():
+        return ""
+    return "\n".join(path.read_text(encoding="utf-8", errors="replace")
+                     for path in sorted(generated.glob("*.py")))
+
+
+def _generated_has_action(project, action, source=""):
+    text = _generated_text(project)
+    wanted = str(action or "")
+    if wanted and re.search(rf"\bdef\s+{re.escape(wanted)}\s*\(", text):
+        return True
+    if ("paginat" in _clean(source) or "page" in _clean(source)) \
+            and "paginated" in text.lower():
+        return True
+    if "search" in _clean(source) and "search_products" in text:
+        return True
+    return False
+
+
+def _generated_has_field(project, field):
+    text = "\n".join(path.read_text(encoding="utf-8", errors="replace")
+                     for name in ("models.py", "schema.py", "store.py",
+                                  "repositories.py", "services.py")
+                     for path in [Path(project) / "generated" / name]
+                     if path.is_file())
+    return bool(field) and re.search(
+        rf"\b{re.escape(str(field))}\b", text or "") is not None
+
+
+def _mentions(term, text):
+    wanted = _clean(term)
+    haystack = _clean(text)
+    if not wanted or not haystack:
+        return False
+    if wanted in haystack:
+        return True
+    return any(part and part in haystack
+               for part in wanted.replace("_", " ").split() if len(part) > 3)
+
+
+def classify_source(project, source):
+    """Return a coverage status for one untested clause, or None if tested."""
+    project = Path(project)
+    requirements = ""
+    try:
+        requirements = (project / "requirements.txt").read_text(encoding="utf-8")
+    except OSError:
+        pass
+    intents = (_read(project / "test_intents.json") or {}).get("intents") or []
+    plans = _read(project / "oracle_intent_plans.json") or {}
+    cases = case_rules.load_cases(project / "oracle_cases_intents.json")
+    results = _result_map(project)
+    meta = _read(project / "test_intents_meta.json") or {}
+    matching_intents = [intent for intent in intents
+                        if _same(intent.get("source"), source)]
+    matching_cases = [case for case in cases
+                      if _same(case.get("source"), source)]
+    outcomes = [results.get(case.get("id")) or {} for case in matching_cases]
+    if any(result.get("status") == "passed" and case.get("status") == "confirmed"
+           for case, result in zip(matching_cases, outcomes)):
+        return None
+    if any(result.get("status") == "passed" for result in outcomes) \
+            or any(result.get("status") == "failed" for result in outcomes):
+        return "assumed_only"
+    ids = {intent.get("id") for intent in matching_intents}
+    rejected = [item for item in plans.get("rejected") or []
+                if item.get("id") in ids]
+    if rejected:
+        errors = " ".join(rejected[0].get("errors") or [])
+        if "ambiguous" in errors.lower():
+            return "under_specified"
+        action = next((item.get("action") for item in matching_intents
+                       if item.get("action")), None)
+        if ("pagination" in errors.lower() or "page" in _clean(source)) \
+                and _generated_has_action(project, action, source):
+            return "blocked_extraction"
+        field_match = re.search(r"field '([^']+)'", errors)
+        if field_match:
+            field = field_match.group(1)
+            if not _mentions(field, requirements):
+                return "under_specified"
+            if field.endswith(("_id", "_by")):
+                # The intent invented a direct FK; the real relation may be a
+                # join model (BorrowRecord, OrderItem, ...).
+                return "under_specified"
+            return ("blocked_extraction" if _generated_has_field(project, field)
+                    else "blocked_generation")
+        if "no generated method" in errors.lower() \
+                or "coverage_gap" in errors.lower() \
+                or "invented" in errors.lower():
+            if action and not _mentions(action, requirements):
+                return "under_specified"
+            return ("blocked_extraction"
+                    if _generated_has_action(project, action, source)
+                    else "blocked_generation")
+        return "under_specified"
+    generated = [item for item in meta.get("rejected") or []
+                 if _same(item.get("clause"), source)]
+    if generated or not matching_intents:
+        return "under_specified"
+    return "under_specified"
+
+
 def classify(root, coverage_path):
     root = Path(root)
     coverage = _read(coverage_path) or {}
     rows = []
     counts = {}
+    status_counts = {}
     for project_row in coverage.get("projects") or []:
         project = root / str(project_row.get("project") or "")
         if not project.is_dir():
@@ -123,15 +230,20 @@ def classify(root, coverage_path):
                     elif matching_intents:
                         category = "intent_not_planned"
             counts[category] = counts.get(category, 0) + 1
+            coverage_status = classify_source(project, source) or "mapped_tested"
+            status_counts[coverage_status] = status_counts.get(
+                coverage_status, 0) + 1
             rows.append({
                 "project": project_row.get("project"),
                 "source": source,
                 "category": category,
+                "coverage_status": coverage_status,
                 "detail": detail,
                 "intents": [intent.get("id") for intent in matching_intents],
                 "cases": [case.get("id") for case in matching_cases],
             })
-    return {"root": str(root), "counts": counts, "rows": rows}
+    return {"root": str(root), "counts": counts,
+            "status_counts": status_counts, "rows": rows}
 
 
 def main(argv=None):
@@ -153,7 +265,8 @@ def main(argv=None):
     path.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n",
                     encoding="utf-8")
     print(json.dumps({"untested": len(result["rows"]),
-                      "counts": result["counts"]}, indent=2))
+                      "counts": result["counts"],
+                      "status_counts": result["status_counts"]}, indent=2))
     return 0
 
 

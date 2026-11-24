@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-24
 Baseline: v8 extraction `repro66-20261119-105248`  
-Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **1,023 checks passed**, **0 generated stubs**, **0 failed**, **1,474 unit tests passed**
+Stored v8 replay: **66/66 generated**, **66/66 complete acceptance projects**, **0 incomplete**, **3,052 checks passed (2 skipped)**, **0 generated stubs**, **0 failed**, **1,474 unit tests passed**
 
 This is the active backlog. The older list in
 [`doc/archive/open-points.md`](archive/open-points.md) is historical and still
@@ -10,10 +10,10 @@ contains claims that have since been superseded, notably that acceptance exists
 only for the library and expenses prompts.
 
 The stored v8 acceptance artifact is green and the checked-in CLI fixtures are
-now aligned with it: **66/66 complete projects, 1,023 passed checks,
+now aligned with it: **66/66 complete projects, 3,052 passed checks (2 skipped),
 0 generated stubs, 0 failures**. This is still not an independent proof of semantic coverage; the
-requirement trace explicitly reports unmapped and untested clauses under item
-7b. The latest Kaggle extraction is `repro66-20261120-074359` (43 successful /
+requirement trace explicitly classifies blocked, assumed and under-specified
+clauses under item 7b. The latest Kaggle extraction is `repro66-20261120-074359` (43 successful /
 23 review / 0 failed).
 
 ## P0 — correctness and trust
@@ -133,15 +133,18 @@ and command examples, indexes the extracted models, fields, commands, options,
 methods, errors, invariants, contracts, adapters and components, and reports:
 
 - `mapped_tested`: a clause maps to an artifact that a runtime check names;
-- `mapped_untested`: design evidence exists but no check names it;
+- `assumed_only`: a case ran but is not confirmed evidence;
+- `under_specified`: the prompt does not determine a testable expected behavior;
+- `blocked_extraction`: generated code exposes the capability but the extracted contract does not;
+- `blocked_generation`: the prompt requires a capability absent from generated code;
 - `partial`: only a weak lexical overlap;
 - `unmapped`: no significant token overlap.
 
 `scripts/run_bench_acceptance.py` now writes `coverage.json` and adds a
 separate `coverage` block to `summary.json`; the pass/fail verdict is
-unchanged. On the stored v8 extraction the standalone report covers 345
-clauses: 31 mapped-but-untested. Those gaps are
-now visible instead of being implied by a green acceptance run.
+unchanged. The current report covers 328 clauses with zero unknown untested
+clauses: 298 tested, 9 assumed-only, 12 under-specified, 5 blocked by
+generation and 4 blocked by extraction.
 
 **Regression tests:** `tests/test_requirement_trace.py`. The full suite is
 **1,241 passed**.
@@ -257,22 +260,22 @@ The intent kernel is now implemented through P5 in
 worker. Across the 35 mapped-but-untested clauses it generated 65 intents and
 planned 56 cases: **32 passed, 19 assumed-only failures, 5 mechanically
 unbound, 0 confirmed behavior findings**. Nineteen confirmed intent passes are
-used by the canonical merged verifier, and `requirement_trace` closes 4
-clauses: **298 tested / 30 untested** (from 293 / 35).
+used by the canonical merged verifier. The frozen trace has zero unknown
+clauses: **298 tested, 9 assumed-only, 12 under-specified, 5 blocked by
+generation and 4 blocked by extraction**.
 
-`scripts/build_verifier_cases.py` merges legacy passing cases with confirmed
+`scripts/build_verifier_cases.py` merges previously passing cases with confirmed
 intent cases. `scripts/run_verifier.py` is the canonical path: it reports
-**44 passed, 0 failed and 0 unbound**. The 54 legacy unbound cases are not
+**44 passed, 0 failed and 0 unbound**. The 54 retired unbound cases are not
 deleted; they are recorded in `oracle_cases_retired.json` with their last
 status and reason. The green merged run does not resolve those cases or the
-30-clause trace backlog; it stops treating non-evidence as a rerun queue.
-Assumed intent cases stay advisory. The legacy main verifier remains 25
-passed, 0 failed and 54 unbound when run directly.
+30-clause backlog; it stops treating non-evidence as a rerun queue.
+Assumed intent cases stay advisory. The old 79-case set is archived and is not
+part of current reporting.
 
-`scripts/classify_coverage.py` explains the remaining 30 untested clauses:
-6 assumed failures, 3 other plan rejections, 4 missing fields, 6 missing
-actions, 3 assumed passes, 2 unbound, 2 generation rejections, 1 mechanical
-argument rejection and 3 with no intent.
+`scripts/classify_coverage.py` explains the remaining blocked/assumed
+clauses: 9 assumed_only, 12 under_specified, 5 blocked_generation and
+4 blocked_extraction. No clause is left as `mapped_untested`.
 
 Execution writes per-project `oracle_report.json`, marks behavior findings
 `needs_review`, and feeds the review queue. The current queue is **empty**. The remaining four failures are triaged as
@@ -363,9 +366,10 @@ checks, 0 generated stubs, 0 failures**. A project with a stub is reported as
 `incomplete`, not passed.
 
 This does not make the missing surface requirements disappear: the separate
-requirement trace reports **0 unmapped clauses, 0 partial clauses, 32
-mapped-but-untested clauses and 297 mapped-and-tested clauses**. Those are the
-review targets for item 7b; a green harness is not treated as semantic proof.
+requirement trace reports **298 tested clauses, zero unknown untested
+clauses, 9 assumed-only, 12 under-specified, 5 blocked-generation and
+4 blocked-extraction clauses**. Those blockers are the next repair targets;
+a green harness is not treated as semantic proof.
 
 ### 9. ✅ Attended-review queue is explicit (done 2026-11-19)
 
@@ -475,7 +479,7 @@ Two verifier behavior findings were generator gaps, not case defects.
 
 Both effects are derived from the requirements and data model; there is no
 prompt name or project-specific branch. Acceptance remains **66/66 complete,
-1,023 checks, 0 stubs**, and the verifier's soft-delete/audit behavior groups
+3,052 checks passed (2 skipped), 0 stubs**, and the verifier's soft-delete/audit behavior groups
 are gone.
 
 The same pass now reads explicit transition evidence such as “starts in

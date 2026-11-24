@@ -18,7 +18,7 @@ the current generator:
 
 - **66/66 generated**
 - **66/66 complete acceptance projects**
-- **1,023 checks passed**
+- **3,052 checks passed (2 skipped)**
 - **0 failed**
 - **0 not applicable**
 - **1,474 unit tests passed**
@@ -35,10 +35,11 @@ checks (1,073 -> 1,023) rather than hiding a defect.
 
 The checked-in CLI fixtures were regenerated from the effective generated
 surface while preserving every non-CLI semantic scenario. A fresh replay of
-the stored v8 code now gives **66/66 complete projects, 1,023 passed checks,
-0 generated stubs, 0 failures**. The separate requirement trace now reports 0 unmapped,
-0 partial and 30 mapped-but-untested clauses; those remain review targets
-(item 7b), not proof of semantic coverage.
+the stored v8 code now gives **66/66 complete projects, 3,052 passed checks
+(2 skipped), 0 generated stubs, 0 failures**. The separate requirement trace
+now reports 298 tested clauses and zero unknown untested clauses, with the
+remainder classified as assumed-only, under-specified, blocked-extraction or
+blocked-generation. Those are repair targets, not proof of semantic coverage.
 
 The acceptance summary also carries a separate `coverage` block produced
 by `scripts/requirement_trace.py`. It maps each requirement clause to design
@@ -469,7 +470,7 @@ Final result on `out/validation/bench` (historical 2026-11-16 archive):
 - `python3 -m compileall out/validation/bench` is clean.
 
 The current 66-project v8 result above supersedes these counts: **56/66
-complete, 1,023 passed checks, 0 generated stubs, 0 failures**. The generic harness now includes
+complete, 3,052 passed checks (2 skipped), 0 generated stubs, 0 failures**. The generic harness now includes
 state-effect scenarios for cancellation and return, so the older
 `not_applicable` checks are no longer skipped.
 
