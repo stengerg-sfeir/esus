@@ -27,7 +27,8 @@ def main(argv=None):
         if args.only else None
     projects = [path for path in sorted(root.glob("prompt_*"))
                 if path.is_dir() and (wanted is None or path.name in wanted)
-                and (path / "oracle_cases.json").is_file()]
+                and ((path / "oracle_cases.json").is_file()
+                     or (path / "oracle_cases_intents.json").is_file())]
     if not projects:
         raise SystemExit(f"no projects under {root}")
     for project in projects:
