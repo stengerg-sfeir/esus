@@ -1194,6 +1194,110 @@ def _finalize(proposal, answers, prompt_sha, ctx):
     return record
 
 
+def add_inferred_overlap_preconditions(output_dir):
+    """Derive a standard interval-overlap guard for a create operation.
+
+    The trigger is a prompt that says the same resource must not be booked
+    twice for the same period. The guard is the usual half-open interval
+    overlap: existing_start < new_end and new_start < existing_end.
+    """
+    requirements = load_requirements(str(output_dir))
+    if not re.search(
+            r"\b(?:same|double)[^.;\n]{0,80}\b(?:twice|overlap|period)\b",
+            requirements, re.IGNORECASE):
+        return 0
+    ctx = generator.load_context(str(output_dir))
+    records, _dropped = contract_rules.load_method_contracts(
+        str(output_dir), requirements)
+    proposals, _context = collect_contracts(str(output_dir))
+    if not proposals:
+        return 0
+    changed = 0
+    for proposal in proposals:
+        method_name = str(proposal.get("method") or "")
+        if not normalize(method_name).startswith("create"):
+            continue
+        holder = str(proposal.get("holder") or "")
+        base = normalize(holder)
+        for suffix in ("service", "repository"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        model = generator.model_of(ctx, base.capitalize())
+        if model is None:
+            continue
+        params = [param.get("name") for param in proposal.get("params") or []
+                  if isinstance(param, dict) and param.get("name")]
+        # Fall back to the method's own params when the proposal omits them.
+        if not params:
+            service = next((item for item in ctx.get("services") or []
+                            if item.get("service_name") == holder), None)
+            method = next((item for item in (service or {}).get("methods") or []
+                           if item.get("name") == method_name), None)
+            params = [param.get("name") for param in (method or {}).get("params") or []
+                      if isinstance(param, dict) and param.get("name")]
+        fields = {field.get("name"): field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")}
+        starts = [name for name in fields if normalize(name) in (
+            "checkindate", "startdate", "start", "fromdate", "datefrom")]
+        ends = [name for name in fields if normalize(name) in (
+            "checkoutdate", "enddate", "end", "todate", "dateto")]
+        if not starts or not ends:
+            continue
+        start, end = starts[0], ends[0]
+        start_param = next((name for name in params if normalize(name) == normalize(start)), None)
+        end_param = next((name for name in params if normalize(name) == normalize(end)), None)
+        fk_fields = [name for name, field in fields.items()
+                     if isinstance(field.get("foreign_key"), dict)
+                     and normalize(name) in {normalize(param) for param in params}]
+        resource = re.search(r"\bsame\s+([a-z][a-z0-9_]*)", requirements,
+                             re.IGNORECASE)
+        preferred = normalize(resource.group(1)) if resource else ""
+        fk_field = next((name for name in fk_fields
+                         if normalize(name) == preferred
+                         or normalize(name).startswith(preferred + "id")), None)
+        if fk_field is None:
+            fk_field = fk_fields[0] if fk_fields else None
+        if not (start_param and end_param and fk_field):
+            continue
+        error = next((name for name in proposal.get("open_preconditions") or []
+                      if "conflict" in normalize(name) or "overlap" in normalize(name)),
+                     "RoomConflictError")
+        entity = model.get("name")
+        if proposal.get("role") == "service":
+            repo = base.capitalize() + "Repository"
+            rows_expr = f"self._repos[{repo!r}].read_all()"
+            fk_ref = f"row.{fk_field}"
+            start_ref = f"row.{start}"
+            end_ref = f"row.{end}"
+        else:
+            rows_expr = f"self._store.select({entity!r}, [])"
+            fk_ref = f"row.get({fk_field!r})"
+            start_ref = f"row.get({start!r})"
+            end_ref = f"row.get({end!r})"
+        expr = (
+            f"any(str({fk_ref}) == str({fk_field}) "
+            f"and str({start_ref} or '') < str({end_param}) "
+            f"and str({start_param}) < str({end_ref} or '') "
+            f"for row in {rows_expr})")
+        answers = {
+            "keep_preconditions": "keep",
+            "keep_creates": "keep",
+            f"precondition:{error}": expr,
+        }
+        record = _finalize(proposal, answers, requirements_sha(requirements), ctx)
+        if record is None:
+            continue
+        records = [item for item in records
+                   if (item.get("holder"), item.get("method"))
+                   != (record["holder"], record["method"])]
+        records.append(record)
+        changed += 1
+    if changed:
+        contract_rules.save_method_contracts(str(output_dir), records)
+    return changed
+
+
 def add_inferred_stock_effects(output_dir):
     """Append a stock reservation/decrement effect to existing contracts.
 

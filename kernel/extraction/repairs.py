@@ -2107,6 +2107,25 @@ def ungrounded_methods(services, repositories, models, requirements,
                   if isinstance(field, dict) and field.get("name")}
         if not fields:
             return
+        # A due/overdue/deadline method needs a date/deadline field, or an
+        # explicit temporal statement in the prompt. Otherwise the method
+        # invents a capability the model cannot support.
+        temporal_text = normalize(str(name) + " " + str(method.get("description") or ""))
+        temporal_terms = ("due", "overdue", "deadline", "expired", "expiring",
+                          "expiration", "upcoming", "withinnext", "next24")
+        if any(term in temporal_text for term in temporal_terms):
+            supports_temporal = any(
+                any(marker in normalize(field_name)
+                    for marker in ("due", "deadline", "expire", "expir",
+                                   "schedule"))
+                for field_name in fields)
+            if not supports_temporal and not any(
+                    term in normalize(requirements) for term in temporal_terms):
+                reasons[key] = (
+                    "temporal method names a due/deadline predicate but the "
+                    f"model has no {model.get('name')} date field and the prompt "
+                    "does not state one")
+                return
         if pagination_params(method) is not None:
             # A paginated read returns a page wrapper, not an entity; its
             # page/page_size parameters are the decisive evidence.

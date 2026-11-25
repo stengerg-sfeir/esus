@@ -152,6 +152,33 @@ class RequirementFieldRepairTests(unittest.TestCase):
 
 
 class UngroundedMethodRepairTests(unittest.TestCase):
+    def test_a_temporal_method_without_a_date_field_is_ungrounded(self):
+        services = [{"service_name": "TaskRepository", "methods": [{
+            "name": "get_tasks_due_within_next_24_hours",
+            "description": "Returns tasks due within the next 24 hours.",
+            "params": [],
+            "return_type": "list[Task]"}]}]
+        models = [{"name": "Task", "fields": [
+            {"name": "id", "type": "int"},
+            {"name": "status", "type": "string"}]}]
+        leftover = repairs.ungrounded_methods(
+            services, [], models, "Users should see what needs attention.")
+        self.assertEqual(leftover[0][1],
+                         "get_tasks_due_within_next_24_hours")
+
+    def test_a_temporal_method_with_a_due_field_is_kept(self):
+        services = [{"service_name": "TaskRepository", "methods": [{
+            "name": "get_tasks_due_within_next_24_hours",
+            "description": "Returns tasks due within the next 24 hours.",
+            "params": [],
+            "return_type": "list[Task]"}]}]
+        models = [{"name": "Task", "fields": [
+            {"name": "id", "type": "int"},
+            {"name": "due_date", "type": "date"}]}]
+        leftover = repairs.ungrounded_methods(
+            services, [], models, "Users should see what needs attention.")
+        self.assertEqual(leftover, [])
+
     def test_a_paginated_wrapper_return_is_not_ungrounded(self):
         services = [{"service_name": "CustomerRepository", "methods": [{
             "name": "read_all_paginated",

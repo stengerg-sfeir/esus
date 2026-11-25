@@ -138,6 +138,10 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
         str(directory), input_fn=lambda _prompt: "skip")
 
     counts["contracts"] = _answer_contracts(directory)
+    inferred_overlap = review_contracts.add_inferred_overlap_preconditions(
+        directory)
+    if inferred_overlap:
+        counts["inferred-overlap"] = (inferred_overlap, inferred_overlap)
     uniqueness_questions, _context = review_uniqueness.collect_questions(
         str(directory))
     if uniqueness_questions:

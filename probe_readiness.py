@@ -79,6 +79,16 @@ def check_prompt(name, path):
             blockers.append(note)
         elif note.rule in RISK_RULES:
             risks.append(note)
+    # Empty persistence arrays are expected for an app with no persistence
+    # requirement. The checker reports them as empty sections; they are not a
+    # generator blocker in that case.
+    from kernel.consistency.loader import load_documents
+    documents = load_documents(path, Report("probe"))
+    persistence = ((documents.get("components") or {}).get("persistence") or {})
+    if persistence.get("required") is not True:
+        blockers = [f for f in blockers
+                    if not (f.rule == "empty_section"
+                            and "persistence_ports" in str(f.message))]
     # Deterministic order: severity already split, sort by rule then message.
     blockers.sort(key=lambda f: (f.rule, f.message))
     risks.sort(key=lambda f: (f.rule, f.message))
