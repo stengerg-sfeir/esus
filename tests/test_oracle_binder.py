@@ -499,6 +499,32 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(scenario)
         self.assertIn("not declared", reason)
 
+    def test_a_list_with_a_row_reference_prefers_the_filter_method(self):
+        docs = {
+            "models": [
+                {"name": "Employee", "fields": [
+                    {"name": "employee_id", "primary_key": True},
+                    {"name": "department_id"}]},
+                {"name": "Department", "fields": [
+                    {"name": "department_id", "primary_key": True}]},
+            ],
+            "services": [],
+            "repos": [{"interface_name": "EmployeeRepository", "methods": [
+                {"name": "read_all_employees", "params": [],
+                 "return_type": "List[Employee]"},
+                {"name": "get_employees_by_department_id",
+                 "params": [{"name": "department_id"}],
+                 "return_type": "List[Employee]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_employees",
+                       "args": ["department.id"]},
+                 given={"department": {"department_id": 1}},
+                 then={"rows": {"Employee": 0}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["method"],
+                         "get_employees_by_department_id")
+
     def test_a_plural_list_action_binds_to_read_all(self):
         docs = {
             "models": [{"name": "Project", "fields": [

@@ -45,7 +45,7 @@ def _placeholder(value):
 
 
 def _entity_named(alias, requirements):
-    token = re.sub(r"_?\d+$", "", normalize(alias))
+    token = re.sub(r"(?:\d+|other)$", "", normalize(alias))
     if not token:
         return False
     if token in normalize(requirements):

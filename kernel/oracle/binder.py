@@ -26,12 +26,20 @@ def _models(docs):
 
 
 def _entity_for(alias, models):
-    wanted = normalize(re.sub(r"_?\d+$", "", str(alias)))
+    wanted = re.sub(r"(?:\d+|other)$", "", normalize(str(alias)))
     if wanted in models:
         return models[wanted]["name"]
     # `order_items` should still reach OrderItem when the alias is plural.
     if wanted.endswith("s") and wanted[:-1] in models:
         return models[wanted[:-1]]["name"]
+    # `AuditRecord` and `AuditLog` name the same persistent audit entity.
+    if wanted.endswith(("record", "records")):
+        stem = wanted[:-6] if wanted.endswith("records") else wanted[:-6]
+        matches = [name for name in models
+                   if normalize(name).endswith(("log", "logs"))
+                   and normalize(name).rstrip("s").startswith(stem)]
+        if len(matches) == 1:
+            return models[matches[0]]["name"]
     # The prompt may shorten a model name (`Audit` for `AuditLog`). Accept
     # only an unambiguous prefix match; otherwise the alias stays unresolved.
     prefixes = [name for name in models
@@ -51,7 +59,8 @@ def _entity_for(alias, models):
 _FIELD_ALIASES = {
     "phone": ("phone_number", "phonenumber"),
     "phonenumber": ("phone",),
-    "stockquantity": ("stock_qty", "quantity"),
+    "stockquantity": ("stock_qty", "quantity", "stock"),
+    "stock": ("stock_quantity", "stock_qty"),
     "stockqty": ("stock_quantity", "quantity"),
     "quantity": ("qty", "stock_quantity", "stock_qty"),
     "availability": ("available_status", "available_copies"),
@@ -1301,6 +1310,63 @@ def _file_direction(text):
     return None
 
 
+def _reference_fields(case):
+    raw = (case.get("when") or {}).get("args")
+    values = list(raw.values()) if isinstance(raw, dict) else (
+        raw if isinstance(raw, list) else [raw])
+    fields = set()
+    for value in values:
+        if isinstance(value, str) and "." in value:
+            alias, _, field = value.partition(".")
+            fields.add(normalize(field))
+            fields.add(normalize(alias))
+            fields.add(normalize(alias + field))
+    return fields
+
+
+def _param_candidates(docs, case, wanted_service=None):
+    """Methods whose parameters match the case's row references."""
+    fields = _reference_fields(case)
+    if not fields:
+        return []
+    action = normalize((case.get("when") or {}).get("action") or "")
+    if not action.startswith(("list", "search", "filter", "read", "find")):
+        return []
+    words = _action_words((case.get("when") or {}).get("action") or "")
+    found = []
+    for group_key, name_key in (("services", "service_name"),
+                                ("repos", "interface_name")):
+        for holder in docs.get(group_key) or []:
+            if not isinstance(holder, dict):
+                continue
+            holder_name = holder.get(name_key)
+            if wanted_service and normalize(holder_name or "") != wanted_service:
+                continue
+            for method in holder.get("methods") or []:
+                if not isinstance(method, dict) or not method.get("name"):
+                    continue
+                flat = normalize(str(method["name"]) + " " + str(holder_name or ""))
+                if words and not any(word in flat for word in words):
+                    continue
+                if codegen.classify_crud(method["name"]) in (
+                        "create", "update", "delete"):
+                    continue
+                params = {normalize(param.get("name")) for param in method.get("params") or []
+                          if isinstance(param, dict) and param.get("name")}
+                if not fields & params:
+                    continue
+                # Prefer the method that consumes exactly the referenced
+                # fields; a broad read-all with extra filters is weaker.
+                extra = len(params - fields)
+                found.append((extra, -len(fields & params), holder_name, method))
+    if not found:
+        return []
+    best_extra = min(item[0] for item in found)
+    found = [item for item in found if item[0] == best_extra]
+    found.sort(key=lambda item: (item[1], item[2], item[3]["name"]))
+    return [(holder, method) for _extra, _score, holder, method in found]
+
+
 def _method(docs, case):
     raw_action = case.get("when", {}).get("action") or ""
     action = normalize(raw_action)
@@ -1358,6 +1424,13 @@ def _method(docs, case):
                             continue
                         candidates.append((holder_name, method))
         candidates = _dedupe(candidates)
+        matched = _param_candidates(docs, case, wanted_service)
+        if matched:
+            candidates = _dedupe(matched + candidates)
+            candidates = [item for item in candidates
+                          if normalize(item[1].get("name") or "")
+                          in {normalize(method.get("name") or "")
+                              for _holder, method in matched}]
         prefixed = [item for item in candidates
                     if normalize(item[1].get("name") or "").startswith(action)]
         if prefixed:
@@ -1715,6 +1788,14 @@ def _state_field_error(case, docs, models):
                   if isinstance(item, dict) and item.get("name")}
         if (normalize(canonical) not in fields
                 and normalize(field) not in ("state", "status")):
+            join = next((item.get("name") for item in docs.get("models") or []
+                         if isinstance(item, dict) and item.get("name")
+                         and normalize(item["name"]).startswith(normalize(entity))
+                         and normalize(field).rstrip("s") in normalize(item["name"])),
+                        None)
+            if join is not None:
+                return (f"expected relation {target!r} is represented by "
+                        f"join model {join}")
             return (f"expected state field {target!r} is not declared on {entity}")
     return None
 

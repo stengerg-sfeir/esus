@@ -46,6 +46,8 @@ def classify(status, reason, source=None):
             return "coverage_gap: method signature"
         if "seeded data matches its filter" in text:
             return "case_defect: setup"
+        if "represented by join model" in text:
+            return "under_specified"
         if "unknown expected entity" in text:
             return "coverage_gap: schema"
         if ("expected state" in text

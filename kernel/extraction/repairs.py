@@ -3089,7 +3089,8 @@ def repair_flat_prose_surface(components, services, models, requirements, log=No
         "read_one": "get", "get": "get", "find": "find", "search": "search",
         "update": "update", "delete": "delete", "remove": "delete",
         "confirm": "confirm", "cancel": "cancel", "ship": "ship",
-        "export": "export", "report": "report", "summary": "report",
+        "export": "export", "import": "import",
+        "report": "report", "summary": "report",
         "stock": "stock", "restock": "restock",
     }
 
@@ -3306,6 +3307,78 @@ def _add_capability_method(service, name, adapter, entity, verb, models, log):
     return method
 
 
+def _prose_file_group(commands, models, text):
+    group = next((command for command in commands
+                  if isinstance(command, dict)
+                  and _capability_entity(command.get("name"), models)), None)
+    if group is None:
+        group = next((command for command in commands
+                      if isinstance(command, dict)
+                      and normalize(command.get("name")) in normalize(text)), None)
+    return group
+
+
+def _expose_prose_file_action(components, services, adapters, models,
+                              requirements, verb, log=None):
+    """Expose a prose import/export over CSV/JSON as a real CLI action."""
+    text = requirements or ""
+    if not re.search(rf"\b{verb}\b", text, re.IGNORECASE):
+        return
+    fmt = "json" if re.search(r"\bjson\b", text, re.IGNORECASE) else "csv"
+    if not re.search(rf"\b{fmt}\b", text, re.IGNORECASE):
+        return
+    facade = (components or {}).get("facade") if isinstance(components, dict) else None
+    invocation = (facade or {}).get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return
+    for command in commands:
+        if not isinstance(command, dict):
+            continue
+        if any(isinstance(sub, dict)
+               and normalize(sub.get("name")) == verb
+               for sub in command.get("subcommands") or []):
+            return
+    group = _prose_file_group(commands, models, text)
+    if group is None:
+        return
+    entity = _capability_entity(group.get("name"), models)
+    if entity is None:
+        return
+    service_name = entity + "Service"
+    service = _capability_service(services, service_name)
+    action = f"{verb}_{entity.lower()}s_{'from' if verb == 'import' else 'to'}_{fmt}"
+    adapter = {
+        "action_name": action,
+        "target_service": service_name,
+        "target_method": action,
+        "provenance": "capability_adapter",
+        "review_required": True,
+        "input_fields": [{
+            "field_name": "file_path",
+            "target_param": "file_path",
+            "transform": "DIRECT",
+            "lookup_entity": None,
+            "required": verb == "import",
+        }],
+    }
+    _add_capability_method(service, action, adapter, entity, verb, models, log)
+    adapters.append(adapter)
+    group.setdefault("subcommands", []).append({
+        "name": verb,
+        "options": [{
+            "name": "--file-path",
+            "short": None,
+            "type": "str",
+            "required": verb == "import",
+            "default": None,
+        }],
+    })
+    if log is not None:
+        log.write(f"[ok] step adapters: exposed prose {verb} as "
+                  f"{group.get('name')} {verb}")
+
+
 def repair_capability_adapters(components, services, adapters, models,
                                requirements, log=None):
     """Give capability actions a method and expose import when prose asks for it.
@@ -3372,75 +3445,13 @@ def repair_capability_adapters(components, services, adapters, models,
             entity, verb, models, log)
         adapter["target_method"] = method["name"]
 
-    # A prose import requirement has no action yet. Add the command, method and
-    # adapter together; the command is the surface the prompt asks for.
-    text = requirements or ""
-    if not re.search(r"\bimport\b", text, re.IGNORECASE):
-        return components
-    fmt = "json" if re.search(r"\bjson\b", text, re.IGNORECASE) else "csv"
-    if not re.search(rf"\b{fmt}\b", text, re.IGNORECASE):
-        return components
-    if not isinstance(components, dict):
-        return components
-    facade = components.get("facade")
-    invocation = (facade or {}).get("invocation") if isinstance(facade, dict) else None
-    commands = invocation.get("commands") if isinstance(invocation, dict) else None
-    if not isinstance(commands, list):
-        return components
-    for command in commands:
-        if not isinstance(command, dict):
-            continue
-        for sub in command.get("subcommands") or []:
-            if isinstance(sub, dict) and normalize(sub.get("name")) == "import":
-                return components
-    group = next((command for command in commands
-                  if isinstance(command, dict)
-                  and _capability_entity(command.get("name"), models)), None)
-    if group is None:
-        # Prefer a group the requirements name.
-        group = next((command for command in commands
-                      if isinstance(command, dict)
-                      and normalize(command.get("name")) in normalize(text)), None)
-    if group is None:
-        return components
-    entity = _capability_entity(group.get("name"), models)
-    if entity is None:
-        return components
-    service_name = (entity + "Service")
-    service = _capability_service(services, service_name)
-    action = f"import_{entity.lower()}s_from_{fmt}"
-    adapter = {
-        "action_name": action,
-        "target_service": service_name,
-        "target_method": action,
-        "provenance": "capability_adapter",
-        "review_required": True,
-        "input_fields": [{
-            "field_name": "file_path",
-            "target_param": "file_path",
-            "transform": "DIRECT",
-            "lookup_entity": None,
-            "required": True,
-        }],
-    }
-    _add_capability_method(service, action, adapter, entity, "import",
-                           models, log)
-    adapters.append(adapter)
-    group.setdefault("subcommands", []).append({
-        "name": "import",
-        "options": [{
-            "name": "--file-path",
-            "short": None,
-            "type": "str",
-            "required": True,
-            "default": None,
-        }],
-    })
-    if log is not None:
-        log.write(
-            f"[ok] step adapters: exposed prose import as "
-            f"{group.get('name')} import"
-        )
+    # Prose import/export requirements have no action yet. Add the command,
+    # method and adapter together; the command is the surface the prompt asks
+    # for. Both verbs survive the later surface rebuild.
+    _expose_prose_file_action(components, services, adapters, models,
+                              requirements, "import", log)
+    _expose_prose_file_action(components, services, adapters, models,
+                              requirements, "export", log)
     return components
 
 
@@ -3503,7 +3514,8 @@ def repair_surface_from_adapters(components, adapters, models, services, require
         "read_one": "get", "get": "get", "find": "find", "search": "search",
         "update": "update", "delete": "delete", "remove": "delete",
         "confirm": "confirm", "cancel": "cancel", "ship": "ship",
-        "export": "export", "report": "report", "summary": "report",
+        "export": "export", "import": "import",
+        "report": "report", "summary": "report",
         "stock": "stock", "restock": "restock",
     }
 

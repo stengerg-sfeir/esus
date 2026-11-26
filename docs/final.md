@@ -2,9 +2,9 @@
 
 ## Result
 
-**Acceptance passed; the verifier is clean: 0 behavior findings and 0 case defects. 19 coverage gaps and 14 under-specified cases remain as extract/generator signals.**
+**Acceptance passed; the verifier is clean: 0 behavior findings and 0 case defects. 10 coverage gaps and 21 under-specified cases remain as extract/generator signals.**
 
-The run completed extraction, sidecar/repair/readiness, generation and acceptance. Acceptance is green. The verifier now regenerates prompt-derived cases for all 66 prompts. The fresh case set produced **64 passed, 14 under-specified, and 19 coverage gaps** from 129 accepted cases. No behavior findings or case defects remain. The canonical merged verifier ran cleanly: **81/81 passed**.
+The run completed extraction, sidecar/repair/readiness, generation and acceptance. Acceptance is green. The verifier now regenerates prompt-derived cases for all 66 prompts. The fresh case set produced **66 passed, 21 under-specified, and 10 coverage gaps** from 129 accepted cases. No behavior findings or case defects remain. The canonical merged verifier ran cleanly: **85/85 passed**.
 
 - Run root: `out/validation/runs/mac-final5-20261126`
 - Model: `Qwen3-4B-Instruct-2507-Q4_K_M.gguf`, llama-server under `caffeinate`
@@ -34,12 +34,11 @@ Prompt-derived oracle run:
 
 - Generated cases: **201**; accepted: **129**; executed: **97**
 - Triage:
-  - `passed`: 64
-  - `under_specified`: 14
-  - `coverage_gap: missing action`: 4
-  - `coverage_gap: ambiguous action`: 8
-  - `coverage_gap: method signature`: 4
-  - `coverage_gap: schema`: 3
+  - `passed`: 66
+  - `under_specified`: 21
+  - `coverage_gap: missing action`: 1
+  - `coverage_gap: ambiguous action`: 6
+  - `coverage_gap: method signature`: 3
   - `case_defect`: **0**
   - `behavior:*`: **0**
 
@@ -49,16 +48,15 @@ Prompt-derived oracle run:
 - Undetermined order date field: `prompt_21`.
 - Undetermined order-items payload: `prompt_53`.
 - Invalid-row rejection without an error contract: `prompt_18`.
-- Other invented or vague actions: 9 cases.
+- Other invented or vague actions: 16 cases.
 
 **Coverage gaps (real extraction/generation signals):**
-- 4 missing actions
-- 8 ambiguous action bindings
-- 4 missing sort/signature surfaces
-- 3 schema/model gaps
+- 1 missing action (export, already fixed in the extractor; awaiting regeneration)
+- 6 ambiguous action bindings
+- 3 missing sort/signature surfaces
 
 **Canonical merged verifier:**
-- **81 cases, 81 passed, 0 case defects, 0 behavior findings**
+- **85 cases, 85 passed, 0 case defects, 0 behavior findings**
 - One stale legacy `prompt_14` soft-delete case was retired: it supplied an unsupported `status` filter to `list_projects`.
 - The canonical verifier command exits successfully.
 

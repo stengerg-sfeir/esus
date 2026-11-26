@@ -23,6 +23,41 @@ from kernel.oracle import alignment, binder, cases as case_rules, triage  # noqa
 from kernel.consistency.naming import normalize  # noqa: E402
 
 
+def _bare_argument_names(case, docs):
+    """Field/parameter names used as literal values make a case incomplete."""
+    raw = (case.get("when") or {}).get("args")
+    values = list(raw.values()) if isinstance(raw, dict) else (
+        raw if isinstance(raw, list) else [raw])
+    known = set()
+    for model in docs.get("models") or []:
+        for field in model.get("fields") or []:
+            if isinstance(field, dict) and field.get("name"):
+                known.add(normalize(field["name"]))
+    for group_key in ("services", "repos"):
+        for holder in docs.get(group_key) or []:
+            for method in holder.get("methods") or []:
+                for param in method.get("params") or []:
+                    if isinstance(param, dict) and param.get("name"):
+                        known.add(normalize(param["name"]))
+    requirement_words = {normalize(word) for word in
+                         re.findall(r"[A-Za-z][A-Za-z0-9_]+",
+                                    docs.get("requirements") or "")}
+    for value in values:
+        if not isinstance(value, str) or "." in value or "=" in value:
+            continue
+        if value.strip().lower() in ("true", "false", "none", "null"):
+            continue
+        try:
+            float(value)
+            continue
+        except ValueError:
+            pass
+        token = normalize(value)
+        if token in known or token in requirement_words:
+            return value
+    return None
+
+
 def _alignment_dict(result):
     if result is None:
         return None
@@ -130,6 +165,11 @@ def run(project, include_assumed=False, cases_name=None):
             then = case.get("then") or {}
             if "seeded data matches its filter" in str(reason):
                 kind = "case_defect: setup"
+            bare = _bare_argument_names(case, docs)
+            if bare and kind.startswith(("coverage_gap: missing action",
+                                         "coverage_gap: ambiguous action")):
+                kind = "under_specified"
+                reason = f"case passes parameter/field name {bare!r} as a value"
             action_info = (case.get("alignment") or {}).get("action") or {}
             if kind == "coverage_gap: missing action":
                 if action_info.get("status") == "invented":

@@ -309,6 +309,30 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertEqual(len(adapters), before)
 
 
+    def test_prose_export_and_import_survive_surface_rebuild(self):
+        models = [{"name": "Contact", "fields": [
+            {"name": "first_name", "type": "string"}]}]
+        services = [{"service_name": "ContactRepository", "methods": [
+            {"name": "read_all", "params": [], "return_type": "list[Contact]"}]}]
+        adapters = []
+        components = {"facade": {"invocation": {"commands": [{
+            "name": "Contact", "options": [], "subcommands": []}]}}}
+        requirements = ("Provide commands to export all contacts to CSV and "
+                        "import contacts from CSV.")
+        repairs.repair_capability_adapters(
+            components, services, adapters, models, requirements)
+        repairs.repair_surface_from_adapters(
+            components, adapters, models, services, requirements)
+        names = [sub["name"] for sub in
+                 components["facade"]["invocation"]["commands"][0]["subcommands"]]
+        self.assertIn("export", names)
+        self.assertIn("import", names)
+        methods = {method["name"] for service in services
+                   for method in service.get("methods") or []}
+        self.assertIn("export_contacts_to_csv", methods)
+        self.assertIn("import_contacts_from_csv", methods)
+
+
 class CapabilityOwnershipTests(unittest.TestCase):
     def test_an_action_cannot_land_on_a_service_that_does_not_own_it(self):
         models = [{"name": "Order", "fields": []}]
