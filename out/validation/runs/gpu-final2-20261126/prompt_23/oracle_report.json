@@ -46,16 +46,6 @@
               "Post.author_id exists"
             ],
             "alternatives": []
-          },
-          "post.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Post"
-            ],
-            "alternatives": []
           }
         },
         "action": {
@@ -185,60 +175,6 @@
       "triage": "coverage_gap: ambiguous action"
     },
     {
-      "name": "scenario:oracle:update_post_content",
-      "status": "passed",
-      "case": "update_post_content",
-      "source": "Provide CRUD operations for authors, posts and tags.",
-      "alignment": {
-        "entities": {
-          "post": {
-            "status": "aligned",
-            "canonical": "Post",
-            "score": 13.0,
-            "evidence": [
-              "name/fields match Post",
-              "score 13.0"
-            ],
-            "alternatives": [
-              "PostTag",
-              "Author",
-              "Tag"
-            ]
-          }
-        },
-        "fields": {
-          "post.title": {
-            "status": "aligned",
-            "canonical": "title",
-            "score": 10.0,
-            "evidence": [
-              "Post.title exists"
-            ],
-            "alternatives": []
-          },
-          "post.content": {
-            "status": "aligned",
-            "canonical": "content",
-            "score": 10.0,
-            "evidence": [
-              "Post.content exists"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "alias",
-          "canonical": "PostRepository.update",
-          "score": 4.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "passed"
-    },
-    {
       "name": "scenario:oracle:create_author",
       "status": "passed",
       "case": "create_author",
@@ -337,11 +273,11 @@
   "counts": {
     "unbound": 3,
     "under_specified": 1,
-    "passed": 2
+    "passed": 1
   },
   "triage_counts": {
     "coverage_gap: ambiguous action": 3,
     "under_specified": 1,
-    "passed": 2
+    "passed": 1
   }
 }

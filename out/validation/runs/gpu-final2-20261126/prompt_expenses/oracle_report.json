@@ -96,7 +96,7 @@
     },
     {
       "name": "expense_get_by_id",
-      "status": "case_defect",
+      "status": "under_specified",
       "reason": "case passes parameter name 'id' as a literal value",
       "source": "expense list [--category] [--from-date] [--to-date] [--method]",
       "alignment": {
@@ -181,7 +181,7 @@
           "alternatives": []
         }
       },
-      "triage": "case_defect: setup"
+      "triage": "under_specified"
     },
     {
       "name": "scenario:oracle:budget_add_with_params",
@@ -360,12 +360,13 @@
   ],
   "counts": {
     "passed": 1,
-    "case_defect": 3,
+    "under_specified": 1,
+    "case_defect": 2,
     "failed": 1
   },
   "triage_counts": {
     "passed": 1,
-    "case_defect: setup": 3,
-    "under_specified": 1
+    "under_specified": 2,
+    "case_defect: setup": 2
   }
 }

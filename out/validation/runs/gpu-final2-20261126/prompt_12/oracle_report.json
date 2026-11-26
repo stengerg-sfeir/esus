@@ -38,12 +38,12 @@
             ],
             "alternatives": []
           },
-          "customer.phone": {
-            "status": "alias",
+          "customer.phone_number": {
+            "status": "aligned",
             "canonical": "phone_number",
-            "score": 8.0,
+            "score": 10.0,
             "evidence": [
-              "'phone' aliases 'phone_number'"
+              "Customer.phone_number exists"
             ],
             "alternatives": []
           }
@@ -97,12 +97,12 @@
             ],
             "alternatives": []
           },
-          "customer.phone": {
-            "status": "alias",
+          "customer.phone_number": {
+            "status": "aligned",
             "canonical": "phone_number",
-            "score": 8.0,
+            "score": 10.0,
             "evidence": [
-              "'phone' aliases 'phone_number'"
+              "Customer.phone_number exists"
             ],
             "alternatives": []
           }
@@ -157,12 +157,12 @@
             ],
             "alternatives": []
           },
-          "customer.phone": {
-            "status": "alias",
+          "customer.phone_number": {
+            "status": "aligned",
             "canonical": "phone_number",
-            "score": 8.0,
+            "score": 10.0,
             "evidence": [
-              "'phone' aliases 'phone_number'"
+              "Customer.phone_number exists"
             ],
             "alternatives": []
           }
@@ -179,65 +179,6 @@
         }
       },
       "triage": "under_specified"
-    },
-    {
-      "name": "scenario:oracle:update_customer",
-      "status": "passed",
-      "case": "update_customer",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
-      "alignment": {
-        "entities": {
-          "customer": {
-            "status": "aligned",
-            "canonical": "Customer",
-            "score": 14.0,
-            "evidence": [
-              "name/fields match Customer",
-              "score 14.0"
-            ],
-            "alternatives": []
-          }
-        },
-        "fields": {
-          "customer.name": {
-            "status": "aligned",
-            "canonical": "name",
-            "score": 10.0,
-            "evidence": [
-              "Customer.name exists"
-            ],
-            "alternatives": []
-          },
-          "customer.email": {
-            "status": "aligned",
-            "canonical": "email",
-            "score": 10.0,
-            "evidence": [
-              "Customer.email exists"
-            ],
-            "alternatives": []
-          },
-          "customer.phone": {
-            "status": "alias",
-            "canonical": "phone_number",
-            "score": 8.0,
-            "evidence": [
-              "'phone' aliases 'phone_number'"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "alias",
-          "canonical": "CustomerRepository.update",
-          "score": 4.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "passed"
     },
     {
       "name": "scenario:oracle:delete_customer",
@@ -272,11 +213,11 @@
     }
   ],
   "counts": {
-    "passed": 3,
+    "passed": 2,
     "under_specified": 2
   },
   "triage_counts": {
-    "passed": 3,
+    "passed": 2,
     "under_specified": 2
   }
 }

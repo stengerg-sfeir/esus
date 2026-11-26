@@ -42,18 +42,7 @@
             "alternatives": []
           }
         },
-        "fields": {
-          "event.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Event"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "ambiguous",
           "canonical": "EventRegistrationService.register_for_event",
@@ -140,6 +129,8 @@
       "base_status": "assumed",
       "assumptions": [],
       "ambiguities": [
+        "error class 'RegistrationPrevented' is not named in the requirements",
+        "error class 'RegistrationPrevented' is not named in the requirements",
         "error class 'RegistrationPrevented' is not named in the requirements",
         "error class 'RegistrationPrevented' is not named in the requirements"
       ]

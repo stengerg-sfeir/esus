@@ -75,16 +75,6 @@
               "Post.author_id exists"
             ],
             "alternatives": []
-          },
-          "post.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Post"
-            ],
-            "alternatives": []
           }
         },
         "action": {
@@ -275,89 +265,6 @@
         "status": "unbound",
         "reason": "ambiguous action binding: PostTagRepository.get_post_tags_by_tag_id, PostTagRepository.read_all, TagRepository.read_one"
       }
-    },
-    {
-      "id": "update_post_content",
-      "source": "Provide CRUD operations for authors, posts and tags.",
-      "given": {
-        "post": {
-          "id": 1,
-          "title": "My First Post",
-          "content": "This is the content of my first post.",
-          "status": "draft"
-        }
-      },
-      "when": {
-        "action": "update_post",
-        "args": [
-          "post.id",
-          "post.title",
-          "post.content"
-        ]
-      },
-      "then": {
-        "state": {},
-        "rows": {
-          "Post": 1
-        }
-      },
-      "status": "confirmed",
-      "base_status": "confirmed",
-      "assumptions": [],
-      "ambiguities": [],
-      "alignment": {
-        "entities": {
-          "post": {
-            "status": "aligned",
-            "canonical": "Post",
-            "score": 13.0,
-            "evidence": [
-              "name/fields match Post",
-              "score 13.0"
-            ],
-            "alternatives": [
-              "PostTag",
-              "Author",
-              "Tag"
-            ]
-          }
-        },
-        "fields": {
-          "post.title": {
-            "status": "aligned",
-            "canonical": "title",
-            "score": 10.0,
-            "evidence": [
-              "Post.title exists"
-            ],
-            "alternatives": []
-          },
-          "post.content": {
-            "status": "aligned",
-            "canonical": "content",
-            "score": 10.0,
-            "evidence": [
-              "Post.content exists"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "alias",
-          "canonical": "PostRepository.update",
-          "score": 4.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
-        }
-      },
-      "execution": {
-        "status": "passed",
-        "reason": ""
-      },
-      "triage": "passed",
-      "needs_review": false
     },
     {
       "id": "create_author",

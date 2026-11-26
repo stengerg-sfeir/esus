@@ -163,6 +163,16 @@ def run(project, include_assumed=False, cases_name=None):
             case["status"] = "unbound"
             kind = triage.classify("unbound", reason, case.get("source"))
             then = case.get("then") or {}
+            text = str(reason or "").lower()
+            if kind == "case_defect: setup" and (
+                    "passes parameter name" in text
+                    or ("cannot resolve given entity" in text
+                        and not any(str(alias).lower() == str(reason).split("'")[-2].lower()
+                                    for alias in (case.get("given") or {})))):
+                # A field name used as a value, or an invented scalar
+                # pseudo-entity, is a prompt/case-shape assumption rather than
+                # a generated-code defect.
+                kind = "under_specified"
             if "seeded data matches its filter" in str(reason):
                 kind = "case_defect: setup"
             bare = _bare_argument_names(case, docs)

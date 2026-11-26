@@ -2,18 +2,18 @@
   "root": "out/validation/runs/gpu-final2-20261126",
   "summary": {
     "projects": 65,
-    "cases": 102,
+    "cases": 96,
     "counts": {
-      "passed": 56,
-      "under_specified": 15,
-      "case_defect": 16,
+      "passed": 50,
+      "under_specified": 19,
+      "case_defect": 12,
       "unbound": 7,
       "failed": 8
     },
     "triage_counts": {
-      "passed": 56,
-      "under_specified": 18,
-      "case_defect: setup": 16,
+      "passed": 50,
+      "under_specified": 22,
+      "case_defect: setup": 12,
       "coverage_gap: other": 2,
       "coverage_gap: ambiguous action": 5,
       "behavior: row count": 4,
@@ -52,18 +52,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "task.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Task"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "alias",
               "canonical": "TaskRepository.create",
@@ -106,12 +95,12 @@
               }
             },
             "fields": {
-              "task.name": {
-                "status": "alias",
+              "task.description": {
+                "status": "aligned",
                 "canonical": "description",
-                "score": 8.0,
+                "score": 10.0,
                 "evidence": [
-                  "'name' aliases 'description'"
+                  "Task.description exists"
                 ],
                 "alternatives": []
               }
@@ -177,18 +166,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "task.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Task"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "invented",
               "canonical": null,
@@ -542,81 +520,13 @@
             }
           },
           "triage": "passed"
-        },
-        {
-          "name": "scenario:oracle:update_product",
-          "status": "passed",
-          "case": "update_product",
-          "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
-          "alignment": {
-            "entities": {
-              "product": {
-                "status": "aligned",
-                "canonical": "Product",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 15.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {
-              "product.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product.description": {
-                "status": "aligned",
-                "canonical": "description",
-                "score": 10.0,
-                "evidence": [
-                  "Product.description exists"
-                ],
-                "alternatives": []
-              },
-              "product.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              },
-              "product.quantity": {
-                "status": "aligned",
-                "canonical": "quantity",
-                "score": 10.0,
-                "evidence": [
-                  "Product.quantity exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "ProductRepository.update",
-              "score": 4.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 3
+        "passed": 2
       },
       "triage_counts": {
-        "passed": 3
+        "passed": 2
       }
     },
     {
@@ -976,12 +886,12 @@
                 ],
                 "alternatives": []
               },
-              "customer.phone": {
-                "status": "alias",
+              "customer.phone_number": {
+                "status": "aligned",
                 "canonical": "phone_number",
-                "score": 8.0,
+                "score": 10.0,
                 "evidence": [
-                  "'phone' aliases 'phone_number'"
+                  "Customer.phone_number exists"
                 ],
                 "alternatives": []
               }
@@ -1035,12 +945,12 @@
                 ],
                 "alternatives": []
               },
-              "customer.phone": {
-                "status": "alias",
+              "customer.phone_number": {
+                "status": "aligned",
                 "canonical": "phone_number",
-                "score": 8.0,
+                "score": 10.0,
                 "evidence": [
-                  "'phone' aliases 'phone_number'"
+                  "Customer.phone_number exists"
                 ],
                 "alternatives": []
               }
@@ -1095,12 +1005,12 @@
                 ],
                 "alternatives": []
               },
-              "customer.phone": {
-                "status": "alias",
+              "customer.phone_number": {
+                "status": "aligned",
                 "canonical": "phone_number",
-                "score": 8.0,
+                "score": 10.0,
                 "evidence": [
-                  "'phone' aliases 'phone_number'"
+                  "Customer.phone_number exists"
                 ],
                 "alternatives": []
               }
@@ -1117,65 +1027,6 @@
             }
           },
           "triage": "under_specified"
-        },
-        {
-          "name": "scenario:oracle:update_customer",
-          "status": "passed",
-          "case": "update_customer",
-          "source": "Provide CRUD operations, search by name and filtering by email domain.",
-          "alignment": {
-            "entities": {
-              "customer": {
-                "status": "aligned",
-                "canonical": "Customer",
-                "score": 14.0,
-                "evidence": [
-                  "name/fields match Customer",
-                  "score 14.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {
-              "customer.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.name exists"
-                ],
-                "alternatives": []
-              },
-              "customer.email": {
-                "status": "aligned",
-                "canonical": "email",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.email exists"
-                ],
-                "alternatives": []
-              },
-              "customer.phone": {
-                "status": "alias",
-                "canonical": "phone_number",
-                "score": 8.0,
-                "evidence": [
-                  "'phone' aliases 'phone_number'"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "CustomerRepository.update",
-              "score": 4.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "passed"
         },
         {
           "name": "scenario:oracle:delete_customer",
@@ -1210,11 +1061,11 @@
         }
       ],
       "counts": {
-        "passed": 3,
+        "passed": 2,
         "under_specified": 2
       },
       "triage_counts": {
-        "passed": 3,
+        "passed": 2,
         "under_specified": 2
       }
     },
@@ -1794,65 +1645,6 @@
           "triage": "passed"
         },
         {
-          "name": "scenario:oracle:update_project",
-          "status": "passed",
-          "case": "update_project",
-          "source": "Users can create, update, list and delete projects.",
-          "alignment": {
-            "entities": {
-              "project": {
-                "status": "aligned",
-                "canonical": "Project",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Project",
-                  "score 15.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {
-              "project.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Project.name exists"
-                ],
-                "alternatives": []
-              },
-              "project.description": {
-                "status": "aligned",
-                "canonical": "description",
-                "score": 10.0,
-                "evidence": [
-                  "Project.description exists"
-                ],
-                "alternatives": []
-              },
-              "project.status": {
-                "status": "aligned",
-                "canonical": "status",
-                "score": 10.0,
-                "evidence": [
-                  "Project.status exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "aligned",
-              "canonical": "ProjectRepository.update_project",
-              "score": 10.0,
-              "evidence": [
-                "exact generated method"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "passed"
-        },
-        {
           "name": "scenario:oracle:delete_project_soft",
           "status": "passed",
           "case": "delete_project_soft",
@@ -1885,10 +1677,10 @@
         }
       ],
       "counts": {
-        "passed": 3
+        "passed": 2
       },
       "triage_counts": {
-        "passed": 3
+        "passed": 2
       }
     },
     {
@@ -1896,7 +1688,7 @@
       "results": [
         {
           "name": "list_products_by_name",
-          "status": "case_defect",
+          "status": "under_specified",
           "reason": "case passes parameter name 'name' as a literal value",
           "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
           "alignment": {
@@ -1951,11 +1743,11 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "under_specified"
         },
         {
           "name": "list_products_by_price",
-          "status": "case_defect",
+          "status": "under_specified",
           "reason": "case passes parameter name 'price' as a literal value",
           "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
           "alignment": {
@@ -2010,11 +1802,11 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "under_specified"
         },
         {
           "name": "list_products_by_quantity",
-          "status": "case_defect",
+          "status": "under_specified",
           "reason": "case passes parameter name 'quantity' as a literal value",
           "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
           "alignment": {
@@ -2069,14 +1861,14 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "under_specified"
         }
       ],
       "counts": {
-        "case_defect": 3
+        "under_specified": 3
       },
       "triage_counts": {
-        "case_defect: setup": 3
+        "under_specified": 3
       }
     },
     {
@@ -2100,18 +1892,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "customer.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Customer"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "alias",
               "canonical": "CustomerRepository.create",
@@ -2143,26 +1924,6 @@
               }
             },
             "fields": {
-              "customer.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Customer"
-                ],
-                "alternatives": []
-              },
-              "customer.name": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'name'",
-                  "not declared on Customer"
-                ],
-                "alternatives": []
-              },
               "customer.email": {
                 "status": "aligned",
                 "canonical": "email",
@@ -2184,67 +1945,6 @@
                 "CustomerRepository.delete",
                 "CustomerRepository.update"
               ]
-            }
-          },
-          "triage": "passed"
-        },
-        {
-          "name": "scenario:oracle:update_customer",
-          "status": "passed",
-          "case": "update_customer",
-          "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
-          "alignment": {
-            "entities": {
-              "customer": {
-                "status": "aligned",
-                "canonical": "Customer",
-                "score": 12.0,
-                "evidence": [
-                  "name/fields match Customer",
-                  "score 12.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {
-              "customer.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Customer"
-                ],
-                "alternatives": []
-              },
-              "customer.name": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'name'",
-                  "not declared on Customer"
-                ],
-                "alternatives": []
-              },
-              "customer.email": {
-                "status": "aligned",
-                "canonical": "email",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.email exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "CustomerRepository.update",
-              "score": 4.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
             }
           },
           "triage": "passed"
@@ -2323,11 +2023,11 @@
         }
       ],
       "counts": {
-        "passed": 3,
+        "passed": 2,
         "failed": 1
       },
       "triage_counts": {
-        "passed": 3,
+        "passed": 2,
         "behavior: row count": 1
       }
     },
@@ -2584,58 +2284,6 @@
           "triage": "passed"
         },
         {
-          "name": "scenario:oracle:update_product",
-          "status": "passed",
-          "case": "update_product",
-          "source": "Provide CRUD operations for products and sales.",
-          "alignment": {
-            "entities": {
-              "product": {
-                "status": "aligned",
-                "canonical": "Product",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 15.0"
-                ],
-                "alternatives": [
-                  "SalesRecord"
-                ]
-              }
-            },
-            "fields": {
-              "product.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "ProductRepository.update",
-              "score": 4.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "passed"
-        },
-        {
           "name": "scenario:oracle:delete_product",
           "status": "passed",
           "case": "delete_product",
@@ -2780,11 +2428,11 @@
         }
       ],
       "counts": {
-        "passed": 4,
+        "passed": 3,
         "under_specified": 2
       },
       "triage_counts": {
-        "passed": 4,
+        "passed": 3,
         "under_specified": 2
       }
     },
@@ -2889,16 +2537,6 @@
               }
             },
             "fields": {
-              "order.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              },
               "order.total_amount": {
                 "status": "coverage_gap",
                 "canonical": null,
@@ -2949,16 +2587,6 @@
               }
             },
             "fields": {
-              "order.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              },
               "order.total_amount": {
                 "status": "coverage_gap",
                 "canonical": null,
@@ -3084,16 +2712,6 @@
                 "score": 10.0,
                 "evidence": [
                   "Post.author_id exists"
-                ],
-                "alternatives": []
-              },
-              "post.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Post"
                 ],
                 "alternatives": []
               }
@@ -3225,60 +2843,6 @@
           "triage": "coverage_gap: ambiguous action"
         },
         {
-          "name": "scenario:oracle:update_post_content",
-          "status": "passed",
-          "case": "update_post_content",
-          "source": "Provide CRUD operations for authors, posts and tags.",
-          "alignment": {
-            "entities": {
-              "post": {
-                "status": "aligned",
-                "canonical": "Post",
-                "score": 13.0,
-                "evidence": [
-                  "name/fields match Post",
-                  "score 13.0"
-                ],
-                "alternatives": [
-                  "PostTag",
-                  "Author",
-                  "Tag"
-                ]
-              }
-            },
-            "fields": {
-              "post.title": {
-                "status": "aligned",
-                "canonical": "title",
-                "score": 10.0,
-                "evidence": [
-                  "Post.title exists"
-                ],
-                "alternatives": []
-              },
-              "post.content": {
-                "status": "aligned",
-                "canonical": "content",
-                "score": 10.0,
-                "evidence": [
-                  "Post.content exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "PostRepository.update",
-              "score": 4.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "passed"
-        },
-        {
           "name": "scenario:oracle:create_author",
           "status": "passed",
           "case": "create_author",
@@ -3377,12 +2941,12 @@
       "counts": {
         "unbound": 3,
         "under_specified": 1,
-        "passed": 2
+        "passed": 1
       },
       "triage_counts": {
         "coverage_gap: ambiguous action": 3,
         "under_specified": 1,
-        "passed": 2
+        "passed": 1
       }
     },
     {
@@ -3409,12 +2973,12 @@
               }
             },
             "fields": {
-              "project.name": {
-                "status": "alias",
+              "project.title": {
+                "status": "aligned",
                 "canonical": "title",
-                "score": 8.0,
+                "score": 10.0,
                 "evidence": [
-                  "'name' aliases 'title'"
+                  "Project.title exists"
                 ],
                 "alternatives": []
               }
@@ -3784,18 +3348,7 @@
                 ]
               }
             },
-            "fields": {
-              "loan.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Loan"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "alias",
               "canonical": "LoanRepository.close_loan_by_id",
@@ -3918,18 +3471,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "order.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "aligned",
               "canonical": "OrderService.confirm_order",
@@ -3960,18 +3502,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "order.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "aligned",
               "canonical": "OrderService.ship_order",
@@ -4002,18 +3533,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "order.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "aligned",
               "canonical": "OrderService.cancel_order",
@@ -4145,16 +3665,6 @@
                 ],
                 "alternatives": []
               },
-              "product.description": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'description'",
-                  "not declared on Product"
-                ],
-                "alternatives": []
-              },
               "product.stock_quantity": {
                 "status": "aligned",
                 "canonical": "stock_quantity",
@@ -4202,16 +3712,6 @@
                 "score": 10.0,
                 "evidence": [
                   "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product.description": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'description'",
-                  "not declared on Product"
                 ],
                 "alternatives": []
               },
@@ -4265,16 +3765,6 @@
                 "score": 10.0,
                 "evidence": [
                   "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product.description": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'description'",
-                  "not declared on Product"
                 ],
                 "alternatives": []
               },
@@ -4391,16 +3881,6 @@
               }
             },
             "fields": {
-              "product.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Product"
-                ],
-                "alternatives": []
-              },
               "product.name": {
                 "status": "aligned",
                 "canonical": "name",
@@ -4564,32 +4044,12 @@
               }
             },
             "fields": {
-              "customer.id": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'id'",
-                  "not declared on Customer"
-                ],
-                "alternatives": []
-              },
               "purchase.amount": {
                 "status": "aligned",
                 "canonical": "amount",
                 "score": 10.0,
                 "evidence": [
                   "Purchase.amount exists"
-                ],
-                "alternatives": []
-              },
-              "purchase.date": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'date'",
-                  "not declared on Purchase"
                 ],
                 "alternatives": []
               }
@@ -4730,18 +4190,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "event.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Event"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "ambiguous",
               "canonical": "EventRegistrationService.register_for_event",
@@ -4807,18 +4256,7 @@
                 ]
               }
             },
-            "fields": {
-              "book.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Book"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "alias",
               "canonical": "BorrowRecordRepository.get_borrow_records_by_book_id",
@@ -4855,18 +4293,7 @@
                 "alternatives": []
               }
             },
-            "fields": {
-              "book.status": {
-                "status": "invented",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "no prompt evidence for field 'status'",
-                  "not declared on Book"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "aligned",
               "canonical": "BorrowService.return_book",
@@ -5167,7 +4594,7 @@
         },
         {
           "name": "expense_get_by_id",
-          "status": "case_defect",
+          "status": "under_specified",
           "reason": "case passes parameter name 'id' as a literal value",
           "source": "expense list [--category] [--from-date] [--to-date] [--method]",
           "alignment": {
@@ -5252,7 +4679,7 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "under_specified"
         },
         {
           "name": "scenario:oracle:budget_add_with_params",
@@ -5431,13 +4858,14 @@
       ],
       "counts": {
         "passed": 1,
-        "case_defect": 3,
+        "under_specified": 1,
+        "case_defect": 2,
         "failed": 1
       },
       "triage_counts": {
         "passed": 1,
-        "case_defect: setup": 3,
-        "under_specified": 1
+        "under_specified": 2,
+        "case_defect: setup": 2
       }
     },
     {

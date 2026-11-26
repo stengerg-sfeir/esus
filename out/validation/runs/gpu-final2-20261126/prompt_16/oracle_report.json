@@ -19,18 +19,7 @@
             "alternatives": []
           }
         },
-        "fields": {
-          "customer.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Customer"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "alias",
           "canonical": "CustomerRepository.create",
@@ -62,26 +51,6 @@
           }
         },
         "fields": {
-          "customer.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Customer"
-            ],
-            "alternatives": []
-          },
-          "customer.name": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'name'",
-              "not declared on Customer"
-            ],
-            "alternatives": []
-          },
           "customer.email": {
             "status": "aligned",
             "canonical": "email",
@@ -103,67 +72,6 @@
             "CustomerRepository.delete",
             "CustomerRepository.update"
           ]
-        }
-      },
-      "triage": "passed"
-    },
-    {
-      "name": "scenario:oracle:update_customer",
-      "status": "passed",
-      "case": "update_customer",
-      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
-      "alignment": {
-        "entities": {
-          "customer": {
-            "status": "aligned",
-            "canonical": "Customer",
-            "score": 12.0,
-            "evidence": [
-              "name/fields match Customer",
-              "score 12.0"
-            ],
-            "alternatives": []
-          }
-        },
-        "fields": {
-          "customer.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Customer"
-            ],
-            "alternatives": []
-          },
-          "customer.name": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'name'",
-              "not declared on Customer"
-            ],
-            "alternatives": []
-          },
-          "customer.email": {
-            "status": "aligned",
-            "canonical": "email",
-            "score": 10.0,
-            "evidence": [
-              "Customer.email exists"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "alias",
-          "canonical": "CustomerRepository.update",
-          "score": 4.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
         }
       },
       "triage": "passed"
@@ -242,11 +150,11 @@
     }
   ],
   "counts": {
-    "passed": 3,
+    "passed": 2,
     "failed": 1
   },
   "triage_counts": {
-    "passed": 3,
+    "passed": 2,
     "behavior: row count": 1
   }
 }

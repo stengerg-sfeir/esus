@@ -41,12 +41,12 @@
           }
         },
         "fields": {
-          "task.name": {
-            "status": "alias",
+          "task.description": {
+            "status": "aligned",
             "canonical": "description",
-            "score": 8.0,
+            "score": 10.0,
             "evidence": [
-              "'name' aliases 'description'"
+              "Task.description exists"
             ],
             "alternatives": []
           }
@@ -157,18 +157,7 @@
             "alternatives": []
           }
         },
-        "fields": {
-          "task.status": {
-            "status": "invented",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "no prompt evidence for field 'status'",
-              "not declared on Task"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "invented",
           "canonical": null,
