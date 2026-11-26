@@ -1,0 +1,1039 @@
+{
+  "root": "out/validation/runs/gpu-final2-20261126",
+  "summary": {
+    "projects": 5,
+    "requirements": 50,
+    "counts": {
+      "mapped_tested": 46,
+      "under_specified": 4
+    }
+  },
+  "projects": [
+    {
+      "project": "prompt_33",
+      "requirements": 3,
+      "counts": {
+        "mapped_tested": 3
+      },
+      "rows": [
+        {
+          "index": 1,
+          "text": "Create a Python 3.12 customer management application.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:Customer add",
+              "kind": "check",
+              "label": "cli-leaf:Customer add",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:Customer delete",
+              "kind": "check",
+              "label": "cli-leaf:Customer delete",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:Customer update",
+              "kind": "check",
+              "label": "cli-leaf:Customer update",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:Customer add",
+              "kind": "check",
+              "label": "scenario:cli:Customer add",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:Customer delete",
+              "kind": "check",
+              "label": "scenario:cli:Customer delete",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:Customer update",
+              "kind": "check",
+              "label": "scenario:cli:Customer update",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "text": "Provide CRUD operations for customers.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "component:crud",
+              "kind": "component",
+              "label": "crud operations",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "text": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "invariant:20",
+              "kind": "invariant",
+              "label": "rule 20",
+              "tested": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "prompt_38",
+      "requirements": 3,
+      "counts": {
+        "mapped_tested": 3
+      },
+      "rows": [
+        {
+          "index": 1,
+          "text": "Create a Python 3.12 CLI application managing users and documents.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:Document add",
+              "kind": "check",
+              "label": "cli-leaf:Document add",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:Document delete",
+              "kind": "check",
+              "label": "cli-leaf:Document delete",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:Document update",
+              "kind": "check",
+              "label": "cli-leaf:Document update",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:User add",
+              "kind": "check",
+              "label": "cli-leaf:User add",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:User delete",
+              "kind": "check",
+              "label": "cli-leaf:User delete",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:User update",
+              "kind": "check",
+              "label": "cli-leaf:User update",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "text": "Users must authenticate before accessing documents.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "invariant:16",
+              "kind": "invariant",
+              "label": "rule 16",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "text": "A user can only read, modify or delete their own documents.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "invariant:14",
+              "kind": "invariant",
+              "label": "rule 14",
+              "tested": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "prompt_43",
+      "requirements": 2,
+      "counts": {
+        "mapped_tested": 2
+      },
+      "rows": [
+        {
+          "index": 1,
+          "text": "Build a lightweight project management tool.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:schema:Project",
+              "kind": "check",
+              "label": "schema:Project",
+              "tested": true
+            },
+            {
+              "id": "field:Project.created_at",
+              "kind": "field",
+              "label": "Project.created_at",
+              "tested": false
+            },
+            {
+              "id": "field:Project.description",
+              "kind": "field",
+              "label": "Project.description",
+              "tested": false
+            },
+            {
+              "id": "field:Project.id",
+              "kind": "field",
+              "label": "Project.id",
+              "tested": false
+            },
+            {
+              "id": "field:Project.name",
+              "kind": "field",
+              "label": "Project.name",
+              "tested": false
+            },
+            {
+              "id": "field:Project.updated_at",
+              "kind": "field",
+              "label": "Project.updated_at",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "text": "Projects contain tasks, tasks have priorities and statuses, and users should be able to see what needs attention.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "field:Task.priority",
+              "kind": "field",
+              "label": "Task.priority",
+              "tested": false
+            },
+            {
+              "id": "field:Task.project_id",
+              "kind": "field",
+              "label": "Task.project_id",
+              "tested": true
+            },
+            {
+              "id": "model:Task",
+              "kind": "model",
+              "label": "Task",
+              "tested": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "prompt_45",
+      "requirements": 2,
+      "counts": {
+        "mapped_tested": 2
+      },
+      "rows": [
+        {
+          "index": 1,
+          "text": "Build a simple booking system for a small hotel.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:Booking add",
+              "kind": "check",
+              "label": "cli-leaf:Booking add",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:Booking delete",
+              "kind": "check",
+              "label": "cli-leaf:Booking delete",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:Booking update",
+              "kind": "check",
+              "label": "cli-leaf:Booking update",
+              "tested": true
+            },
+            {
+              "id": "check:invariant:fk:Booking.guest_id",
+              "kind": "check",
+              "label": "invariant:fk:Booking.guest_id",
+              "tested": true
+            },
+            {
+              "id": "check:invariant:fk:Booking.room_id",
+              "kind": "check",
+              "label": "invariant:fk:Booking.room_id",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:Booking add",
+              "kind": "check",
+              "label": "scenario:cli:Booking add",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "text": "Staff should be able to manage rooms, guests and bookings and should not accidentally book the same room twice for the same period.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "field:Booking.guest_id",
+              "kind": "field",
+              "label": "Booking.guest_id",
+              "tested": true
+            },
+            {
+              "id": "field:Booking.room_id",
+              "kind": "field",
+              "label": "Booking.room_id",
+              "tested": true
+            },
+            {
+              "id": "invariant:27",
+              "kind": "invariant",
+              "label": "rule 27",
+              "tested": false
+            },
+            {
+              "id": "invariant:29",
+              "kind": "invariant",
+              "label": "rule 29",
+              "tested": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "project": "prompt_library_system",
+      "requirements": 40,
+      "counts": {
+        "mapped_tested": 36,
+        "under_specified": 4
+      },
+      "rows": [
+        {
+          "index": 1,
+          "text": "**Book model** \u2014 id, title, isbn (unique), published_year, available_copies (default 1)",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Book",
+              "kind": "model",
+              "label": "Book",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "text": "**Author model** \u2014 id, name, birth_year, biography",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Author",
+              "kind": "model",
+              "label": "Author",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "text": "**Member model** \u2014 id, name, email (unique), membership_date, is_active (default True)",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Member",
+              "kind": "model",
+              "label": "Member",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "text": "**Loan model** \u2014 id, book_id (FK), member_id (FK), loan_date, due_date, return_date (nullable), status (active/returned/overdue)",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Loan",
+              "kind": "model",
+              "label": "Loan",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "text": "**BookRepository** \u2014 SQLite storage with CRUD + search by title/author/isbn + filtering by available copies",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "method:BookRepository.search_by_title_or_author_or_isbn",
+              "kind": "method",
+              "label": "BookRepository.search_by_title_or_author_or_isbn",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "text": "**AuthorRepository** \u2014 SQLite storage with CRUD + find books by author",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "method:AuthorRepository.find_books_by_author",
+              "kind": "method",
+              "label": "AuthorRepository.find_books_by_author",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "text": "**MemberRepository** \u2014 SQLite storage with CRUD + find active/inactive members",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "method:MemberRepository.find_active_members",
+              "kind": "method",
+              "label": "MemberRepository.find_active_members",
+              "tested": true
+            },
+            {
+              "id": "method:MemberRepository.find_inactive_members",
+              "kind": "method",
+              "label": "MemberRepository.find_inactive_members",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "text": "**LoanRepository** \u2014 SQLite storage with CRUD + find active loans, overdue loans, member loan history, book loan history",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "contract:LoanRepository.find_active_loans",
+              "kind": "contract",
+              "label": "LoanRepository.find_active_loans",
+              "tested": true
+            },
+            {
+              "id": "method:LoanRepository.find_active_loans",
+              "kind": "method",
+              "label": "LoanRepository.find_active_loans",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "text": "borrow_book(member_id, book_id): checks availability, creates loan, decrements copies",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "contract:LibraryService.borrow_book",
+              "kind": "contract",
+              "label": "LibraryService.borrow_book",
+              "tested": true
+            },
+            {
+              "id": "method:LibraryService.borrow_book",
+              "kind": "method",
+              "label": "LibraryService.borrow_book",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "text": "return_book(loan_id): sets return_date, updates status, increments copies",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "contract:LibraryService.return_book",
+              "kind": "contract",
+              "label": "LibraryService.return_book",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "text": "get_overdue_loans(): returns loans past due_date",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "method:LibraryService.get_overdue_loans",
+              "kind": "method",
+              "label": "LibraryService.get_overdue_loans",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "text": "renew_membership(member_id): toggles is_active",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "method:LibraryService.renew_membership",
+              "kind": "method",
+              "label": "LibraryService.renew_membership",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "text": "search_books(query): searches across title/author/isbn",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "method:LibraryService.search_books",
+              "kind": "method",
+              "label": "LibraryService.search_books",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 14,
+          "text": "`library book add --title --isbn --author-id --published-year --copies`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Book",
+              "kind": "model",
+              "label": "Book",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 15,
+          "text": "`library book list [--author] [--available-only]`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:author list",
+              "kind": "check",
+              "label": "cli-leaf:author list",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:book list",
+              "kind": "check",
+              "label": "cli-leaf:book list",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:author list",
+              "kind": "check",
+              "label": "scenario:cli:author list",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:book list",
+              "kind": "check",
+              "label": "scenario:cli:book list",
+              "tested": true
+            },
+            {
+              "id": "field:Book.author_id",
+              "kind": "field",
+              "label": "Book.author_id",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 16,
+          "text": "`library book search --query`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:book search",
+              "kind": "check",
+              "label": "cli-leaf:book search",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:book search",
+              "kind": "check",
+              "label": "scenario:cli:book search",
+              "tested": true
+            },
+            {
+              "id": "field:Book.author_id",
+              "kind": "field",
+              "label": "Book.author_id",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 17,
+          "text": "`library member add --name --email`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Member",
+              "kind": "model",
+              "label": "Member",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 18,
+          "text": "`library member list [--active-only]`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:member list",
+              "kind": "check",
+              "label": "cli-leaf:member list",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:member list",
+              "kind": "check",
+              "label": "scenario:cli:member list",
+              "tested": true
+            },
+            {
+              "id": "field:Member.email",
+              "kind": "field",
+              "label": "Member.email",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 19,
+          "text": "`library borrow --member-id --book-id`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "adapter:borrow",
+              "kind": "adapter",
+              "label": "borrow",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 20,
+          "text": "`library return --loan-id`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "adapter:return",
+              "kind": "adapter",
+              "label": "return",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 21,
+          "text": "`library overdue`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "adapter:overdue",
+              "kind": "adapter",
+              "label": "overdue",
+              "tested": true
+            },
+            {
+              "id": "check:cli-leaf:overdue",
+              "kind": "check",
+              "label": "cli-leaf:overdue",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:overdue",
+              "kind": "check",
+              "label": "scenario:cli:overdue",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 22,
+          "text": "`library member history --member-id`",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:cli-leaf:member history",
+              "kind": "check",
+              "label": "cli-leaf:member history",
+              "tested": true
+            },
+            {
+              "id": "check:scenario:cli:member history",
+              "kind": "check",
+              "label": "scenario:cli:member history",
+              "tested": true
+            },
+            {
+              "id": "field:Member.email",
+              "kind": "field",
+              "label": "Member.email",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 23,
+          "text": "Use type hints throughout.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:code:type-hints",
+              "kind": "check",
+              "label": "code:type-hints",
+              "tested": true
+            },
+            {
+              "id": "component:type-hints",
+              "kind": "component",
+              "label": "type hints",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 24,
+          "text": "Use SQLite with foreign keys enabled.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:db:foreign-keys",
+              "kind": "check",
+              "label": "db:foreign-keys",
+              "tested": true
+            },
+            {
+              "id": "component:foreign-keys",
+              "kind": "component",
+              "label": "sqlite foreign keys",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 25,
+          "text": "The database schema must enforce referential integrity with CASCADE deletes.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:api:AuthorRepository.delete",
+              "kind": "check",
+              "label": "api:AuthorRepository.delete",
+              "tested": true
+            },
+            {
+              "id": "check:api:AuthorRepository.delete",
+              "kind": "check",
+              "label": "api:AuthorRepository.delete",
+              "tested": true
+            },
+            {
+              "id": "check:api:BookRepository.delete",
+              "kind": "check",
+              "label": "api:BookRepository.delete",
+              "tested": true
+            },
+            {
+              "id": "check:api:BookRepository.delete",
+              "kind": "check",
+              "label": "api:BookRepository.delete",
+              "tested": true
+            },
+            {
+              "id": "check:api:LoanRepository.delete",
+              "kind": "check",
+              "label": "api:LoanRepository.delete",
+              "tested": true
+            },
+            {
+              "id": "check:api:LoanRepository.delete",
+              "kind": "check",
+              "label": "api:LoanRepository.delete",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 26,
+          "text": "Follow clean architecture with proper separation of concerns.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "component:codebase",
+              "kind": "component",
+              "label": "application codebase",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 27,
+          "text": "All IDs must be auto-incremented primary keys that are optional (default None) in the domain models.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "invariant:1",
+              "kind": "invariant",
+              "label": "rule 1",
+              "tested": false
+            },
+            {
+              "id": "invariant:14",
+              "kind": "invariant",
+              "label": "rule 14",
+              "tested": false
+            },
+            {
+              "id": "invariant:20",
+              "kind": "invariant",
+              "label": "rule 20",
+              "tested": false
+            },
+            {
+              "id": "invariant:30",
+              "kind": "invariant",
+              "label": "rule 30",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 28,
+          "text": "Every `Book` has exactly one required `author_id: int` foreign key to `Author.id`. Deleting an author cascades to that author's books; deleting a book cascades to its loans.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "field:Book.author_id",
+              "kind": "field",
+              "label": "Book.author_id",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 29,
+          "text": "Add `library author add --name --birth-year [--biography]` so the CLI can create an author before a book. `--biography` is optional text.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "model:Author",
+              "kind": "model",
+              "label": "Author",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 30,
+          "text": "`library book add --author-id` requires an integer author ID. `--copies` is optional and defaults to one. `library book list --author` accepts an integer author ID and filters on `Book.author_id`.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "field:Book.author_id",
+              "kind": "field",
+              "label": "Book.author_id",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 31,
+          "text": "`--available-only` is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "invariant:48",
+              "kind": "invariant",
+              "label": "rule 48",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 32,
+          "text": "`library book search --query` performs case-insensitive substring matching across book title, author name, and ISBN. Return each book once even if multiple fields match. An ISBN miss returns an empty list.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "invariant:54",
+              "kind": "invariant",
+              "label": "rule 54",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 33,
+          "text": "`Member.membership_date` defaults to today's date when a member is created, so `library member add --name --email` is sufficient. New members start active.",
+          "status": "under_specified",
+          "evidence": [
+            {
+              "id": "field:Member.membership_date",
+              "kind": "field",
+              "label": "Member.membership_date",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 34,
+          "text": "A new loan is due 14 calendar days after its loan date. `LibraryService` computes the due date from a date value and passes it to the repository; the repository must not derive dates from `published_year`.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "contract:LibraryService.return_book",
+              "kind": "contract",
+              "label": "LibraryService.return_book",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 35,
+          "text": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+          "status": "under_specified",
+          "evidence": [
+            {
+              "id": "invariant:52",
+              "kind": "invariant",
+              "label": "rule 52",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 36,
+          "text": "A loan is overdue when `due_date < today` and `return_date is None`. A late loan may still be returned. Returning sets `return_date` to today, sets status to `returned`, and restores exactly one available copy.",
+          "status": "under_specified",
+          "evidence": [
+            {
+              "id": "field:Loan.return_date",
+              "kind": "field",
+              "label": "Loan.return_date",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 37,
+          "text": "Returning an already returned loan raises `AlreadyReturnedLoanError` and changes neither the loan nor inventory. Include that error in the declared error set.",
+          "status": "under_specified",
+          "evidence": [
+            {
+              "id": "error:AlreadyReturnedLoanError",
+              "kind": "error",
+              "label": "AlreadyReturnedLoanError",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 38,
+          "text": "Without a background scheduler, report overdue status as a derived read result while the stored status remains `active` until the loan is returned.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "contract:LoanRepository.find_active_loans",
+              "kind": "contract",
+              "label": "LoanRepository.find_active_loans",
+              "tested": true
+            },
+            {
+              "id": "method:LoanRepository.find_active_loans",
+              "kind": "method",
+              "label": "LoanRepository.find_active_loans",
+              "tested": true
+            }
+          ]
+        },
+        {
+          "index": 39,
+          "text": "Borrowing and returning each perform all related writes in one SQLite transaction. If any write fails, roll back every write in that operation.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "component:crud",
+              "kind": "component",
+              "label": "crud operations",
+              "tested": false
+            },
+            {
+              "id": "component:foreign-keys",
+              "kind": "component",
+              "label": "sqlite foreign keys",
+              "tested": true
+            },
+            {
+              "id": "component:persistence-sessions",
+              "kind": "component",
+              "label": "sqlite persistence",
+              "tested": false
+            }
+          ]
+        },
+        {
+          "index": 40,
+          "text": "When an ID field defaults to `None`, annotate it `int | None`. Preserve SQLite auto-increment for IDs and enforce the declared unique ISBN and email constraints.",
+          "status": "mapped_tested",
+          "evidence": [
+            {
+              "id": "check:invariant:unique:Book.isbn",
+              "kind": "check",
+              "label": "invariant:unique:Book.isbn",
+              "tested": true
+            },
+            {
+              "id": "check:invariant:unique:Member.email",
+              "kind": "check",
+              "label": "invariant:unique:Member.email",
+              "tested": true
+            },
+            {
+              "id": "component:foreign-keys",
+              "kind": "component",
+              "label": "sqlite foreign keys",
+              "tested": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

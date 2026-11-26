@@ -1,0 +1,86 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Loan add",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--due-date",
+            "2024-01-01T00:00:00",
+            "--closed"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book add",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Member add",
+      "when": {
+        "cli_variants": [
+          [
+            "Member",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

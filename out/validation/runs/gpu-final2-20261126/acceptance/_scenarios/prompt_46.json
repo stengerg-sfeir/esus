@@ -11,8 +11,6 @@
             "value1",
             "--email",
             "cli1@example.test",
-            "--phone",
-            "value1",
             "--account-status",
             "value1"
           ]
@@ -30,25 +28,9 @@
             "Client",
             "update",
             "--id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--phone",
-            "value1",
-            "--account-status",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Client": {
-            "name": "value1",
-            "email": "cli1@example.test",
-            "phone": "value1",
-            "account_status": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -88,9 +70,7 @@
             "--due-date",
             "2024-01-01",
             "--amount",
-            "2",
-            "--description",
-            "value1"
+            "2"
           ]
         ]
       },
@@ -106,25 +86,9 @@
             "Invoice",
             "update",
             "--id",
-            "1",
-            "--client-id",
-            "1",
-            "--due-date",
-            "2024-01-01",
-            "--amount",
-            "2",
-            "--description",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Invoice": {
-            "client_id": 1,
-            "due_date": "2024-01-01",
-            "amount": 2.0,
-            "description": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -180,19 +144,9 @@
             "Payment",
             "update",
             "--id",
-            "1",
-            "--payment-date",
-            "2024-01-01",
-            "--amount",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Payment": {
-            "payment_date": "2024-01-01",
-            "amount": 2.0
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

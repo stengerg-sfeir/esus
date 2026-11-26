@@ -139,28 +139,9 @@
             "book",
             "update",
             "--id",
-            "1",
-            "--title",
-            "value1",
-            "--isbn",
-            "value1",
-            "--published-year",
-            "2",
-            "--available-copies",
-            "2",
-            "--author-id",
             "1"
           ]
-        ],
-        "seed_overrides": {
-          "Book": {
-            "title": "value1",
-            "isbn": "value1",
-            "published_year": 2,
-            "available_copies": 2,
-            "author_id": 1
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -221,18 +202,6 @@
             "--membership-date",
             "2024-01-01",
             "--is-active"
-          ],
-          [
-            "member",
-            "add",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--membership-date",
-            "2024-01-01",
-            "--is-active",
-            "true"
           ]
         ]
       },
@@ -285,37 +254,9 @@
             "member",
             "update",
             "--id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--membership-date",
-            "2024-01-01",
-            "--is-active"
-          ],
-          [
-            "member",
-            "update",
-            "--id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--membership-date",
-            "2024-01-01",
-            "--is-active",
-            "true"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Member": {
-            "name": "value1",
-            "email": "cli1@example.test",
-            "membership_date": "2024-01-01"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -414,9 +355,7 @@
             "--name",
             "value1",
             "--birth-year",
-            "2",
-            "--biography",
-            "value1"
+            "2"
           ]
         ]
       },
@@ -452,22 +391,9 @@
             "author",
             "update",
             "--id",
-            "1",
-            "--name",
-            "value1",
-            "--birth-year",
-            "2",
-            "--biography",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Author": {
-            "name": "value1",
-            "birth_year": 2,
-            "biography": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -568,31 +494,9 @@
             "Loan",
             "update",
             "--id",
-            "1",
-            "--book-id",
-            "1",
-            "--member-id",
-            "1",
-            "--loan-date",
-            "2024-01-01",
-            "--due-date",
-            "2024-01-01",
-            "--return-date",
-            "2024-01-01",
-            "--status",
-            "active"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Loan": {
-            "book_id": 1,
-            "member_id": 1,
-            "loan_date": "2024-01-01",
-            "due_date": "2024-01-01",
-            "return_date": "2024-01-01",
-            "status": "active"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

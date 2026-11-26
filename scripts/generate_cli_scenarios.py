@@ -47,7 +47,7 @@ def _seed_arg_value(field):
     if "email" in name:
         return "seed1@example.test"
     if kind in ("int", "integer"):
-        return "1" if "capacity" in name else "2"
+        return "100" if "capacity" in name else "2"
     if kind in ("float", "double", "decimal", "money"):
         return "2.0"
     if kind in ("datetime", "timestamp"):
@@ -80,6 +80,11 @@ def _field_for_option(model, key):
     for field in fields:
         if worker.normalize(field["name"]) == wanted + "id":
             return field
+    suffixes = [field for field in fields
+                if worker.normalize(field["name"]).endswith(wanted)]
+    if len(suffixes) == 1:
+        return suffixes[0]
+    for field in fields:
         foreign = field.get("foreign_key")
         if isinstance(foreign, dict) \
                 and worker.normalize(foreign.get("target_entity") or "") == wanted:
@@ -147,17 +152,93 @@ def _seed_args_from_flags(docs, flags, node=None):
     return args
 
 
-def _args_from_flags(docs, flags, node=None):
+def _args_from_flags(docs, flags, node=None, path=None):
     declared = {}
+    required = set()
     for option in (node or {}).get("options") or []:
         if isinstance(option, dict) and isinstance(option.get("name"), str):
             declared[option["name"]] = str(option.get("type") or "")
+            if option.get("required"):
+                required.add(option["name"])
+    all_flags = list(flags)
+    # A success scenario should exercise the required surface, not every
+    # optional flag. Optional booleans such as --is-deleted otherwise turn a
+    # create into a delete and break the following read.
+    if required:
+        flags = [flag for flag in flags if flag in required]
+
+    model = _model_for_path(docs, path or [])
+    def sort_field():
+        for field in (model or {}).get("fields") or []:
+            if (isinstance(field, dict) and field.get("name")
+                    and not field.get("primary_key")
+                    and not field.get("foreign_key")):
+                return str(field["name"])
+        return "name"
+
     args = []
     for flag in flags:
-        args.append(flag)
-        value = worker._cli_value(docs, flag, declared.get(flag, ""), 1)
+        key = flag.lstrip("-").replace("-", "_")
+        if key in ("is_deleted", "deleted", "is_archived", "archived"):
+            continue
+        if flag == "--sort-by":
+            args += [flag, sort_field()]
+            continue
+        if (str(declared.get(flag, "")).lower() in ("bool", "boolean")
+                or key.startswith(("is_", "has_"))
+                or key in ("closed", "available", "active", "recurring",
+                           "enabled", "disabled", "archived", "paid",
+                           "confirmed", "completed")):
+            args.append(flag)
+            continue
+        field = _field_for_option(model, key) if model else None
+        allowed = []
+        if (field is not None and not field.get("primary_key")
+                and not key.endswith("id")
+                and str(field.get("type") or "").lower() in
+                ("str", "string", "text")):
+            allowed = worker._allowed_values(
+                docs, model.get("name"), field["name"])
+        if flag == "--capacity":
+            value = "100"
+        elif allowed:
+            value = allowed[0]
+        else:
+            value = worker._cli_value(docs, flag, declared.get(flag, ""), 1)
         if value is not None:
-            args.append(value)
+            args += [flag, value]
+    # A model can require a non-null field whose CLI option is optional or
+    # absent. Only create-like commands need those fields; update/sort/delete
+    # commands should exercise their required lookup surface.
+    if not path or str(path[-1]).lower() not in ("add", "create", "register"):
+        return args
+    for field in (model or {}).get("fields") or []:
+        if not isinstance(field, dict) or not field.get("name"):
+            continue
+        key = worker.normalize(field["name"])
+        if (field.get("primary_key") or field.get("nullable") is not False
+                or field.get("default") is not None
+                or key in ("isdeleted", "deleted", "isarchived", "archived")):
+            continue
+        flag = next((item for item in all_flags
+                     if worker.normalize(item.lstrip("-").replace("-", "_")) == key
+                     or key.endswith(worker.normalize(item.lstrip("-").replace("-", "_")))
+                     or worker.normalize(item.lstrip("-").replace("-", "_")) in key),
+                    "--" + field["name"].replace("_", "-"))
+        if flag in args:
+            continue
+        if str(field.get("type") or "").lower() in ("bool", "boolean"):
+            args.append(flag)
+        else:
+            allowed = []
+            if (not field.get("primary_key") and not key.endswith("id")
+                    and str(field.get("type") or "").lower() in
+                    ("str", "string", "text")):
+                allowed = worker._allowed_values(
+                    docs, model.get("name"), field["name"])
+            value = ("100" if key == "capacity"
+                     else allowed[0] if allowed else _seed_arg_value(field))
+            args += [flag, value]
     return args
 
 
@@ -190,7 +271,7 @@ def main(argv=None):
         leaves = worker._leaf_entries(docs.get("components")) if cli_path.is_file() else []
         for number, (path, node) in enumerate(leaves, start=1):
             flags = _help_flags(cli_path, path)
-            args = (_args_from_flags(docs, flags, node) if flags
+            args = (_args_from_flags(docs, flags, node, path) if flags
                     else worker._cli_args(docs, node, 1))
             if str(path[-1]).lower() in ("delete", "remove") and flags:
                 args = _seed_args_from_flags(docs, flags, node)
@@ -216,6 +297,13 @@ def main(argv=None):
             value_variant = list(base)
             for index, item in enumerate(base):
                 if not str(item).startswith("--"):
+                    continue
+                key = str(item).lstrip("-").replace("-", "_")
+                if (key.startswith(("is_", "has_"))
+                        or key in ("closed", "available", "active",
+                                   "recurring", "enabled", "disabled",
+                                   "archived", "paid", "confirmed",
+                                   "completed")):
                     continue
                 following = base[index + 1] if index + 1 < len(base) else None
                 if following is None or str(following).startswith("--"):

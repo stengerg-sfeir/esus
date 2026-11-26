@@ -1,0 +1,62 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Contact add",
+      "when": {
+        "cli_variants": [
+          [
+            "Contact",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Contact update",
+      "when": {
+        "cli_variants": [
+          [
+            "Contact",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Contact delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Contact",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Contact",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

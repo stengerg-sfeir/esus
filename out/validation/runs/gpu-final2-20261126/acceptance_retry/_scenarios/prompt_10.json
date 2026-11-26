@@ -1,0 +1,75 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Note update",
+      "when": {
+        "cli_variants": [
+          [
+            "Note",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Note delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Note",
+            "delete",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--creation-date",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "Note",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Note": {
+            "title": "value1",
+            "content": "value1",
+            "creation_date": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Note add",
+      "when": {
+        "cli_variants": [
+          [
+            "Note",
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--creation-date",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

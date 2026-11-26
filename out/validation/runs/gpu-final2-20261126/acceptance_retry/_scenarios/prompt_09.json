@@ -1,0 +1,64 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Employee add",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--age",
+            "2",
+            "--salary",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee update",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Project add",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "deleted"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project update",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "update",
+            "--project-id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "deleted"
+          ]
+        ],
+        "seed_overrides": {
+          "Project": {
+            "name": "value1",
+            "description": "value1",
+            "status": "deleted"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ],
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

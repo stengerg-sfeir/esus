@@ -67,15 +67,10 @@ class OrderManagementService:
             quantity = item.get('quantity')
             if product_id is None or quantity is None:
                 continue
-            self._repos['OrderItemRepository'].create(order_id=order.id, product_id=product_id, quantity=quantity)
+            self._repos['OrderItemRepository'].create(order_id=order.id, quantity=quantity, product_id=product_id)
             product = self._repos['ProductRepository'].read_one(id=product_id)
             self._repos['ProductRepository'].update(id=product_id, stock_quantity=product.stock_quantity - quantity)
         return order
-
-    def orderconfirm(self, order_id: int = None) -> None:
-        """Orderconfirm. [no pattern entry and an ambiguous method name]"""
-        raise NotImplementedError(
-            "OrderManagementService.orderconfirm: no pattern entry and an ambiguous method name")
 
 
 def _atomic(method):

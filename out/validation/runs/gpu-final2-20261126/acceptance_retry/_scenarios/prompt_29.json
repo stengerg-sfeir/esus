@@ -1,0 +1,115 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--email",
+            "cli1@example.test",
+            "--name",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "email": "cli1@example.test",
+            "name": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "delete"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-items",
+            "value1",
+            "--status",
+            "pending"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--status",
+            "pending"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "pending"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

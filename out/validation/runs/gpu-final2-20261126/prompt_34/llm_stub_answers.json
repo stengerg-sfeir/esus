@@ -2,32 +2,33 @@
   {
     "label": "OrderService.create_order_with_lines",
     "status": "kept",
-    "note": "still refused: raises `InvalidOrderLineError` but not when `any(getattr(line, \"quantity\", 0) <= 0 for line in (getattr(order_data, \"lines\", None) or []))` is true; the confirmed contract requires that branch",
-    "answer": "order_data = order_data or {}\n    lines = getattr(order_data, 'lines', [])\n    for line in lines:\n        if getattr(line, \"quantity\", 0) <= 0:\n            raise errors.InvalidOrderLineError(f'Order line has invalid quantity: {getattr(line, \"quantity\", 0)}')\n        if not getattr(line, \"product_id\"):\n            raise errors.InvalidOrderLineError(f'Order line missing product_id: {line}')\n    created_at = datetime.datetime.now()\n    updated_at = created_at\n    order_id = self._repos['OrderRepository'].create(created_at=created_at, updated_at=updated_at)\n    order = self._repos['OrderRepository'].read_one(order_id=order_id)\n    if not order:\n        raise errors.OrderLineNotFoundError(f'Order not found with id {order_id}')\n    for line in lines:\n        product_id = getattr(line, \"product_id\")\n        quantity = getattr(line, \"quantity\")\n        unit_price = getattr(line, \"unit_price\", 0)\n        total_price = quantity * unit_price\n        self._repos['OrderLineRepository'].create(order_id=order_id, product_id=product_id, quantity=quantity, unit_price=unit_price, total_price=total_price)\n    return order",
-    "first_answer": "order_data = order_data or {}\n        lines = getattr(order_data, \"lines\", [])\n\n        # Validate order lines: check for negative quantity or invalid product ID\n        for line in lines:\n            if line.get(\"quantity\", 0) <= 0:\n                raise errors.InvalidOrderLineError(f\"Order line has invalid quantity: {line.get('quantity')}\")\n            if not line.get(\"product_id\"):\n                raise errors.InvalidOrderLineError(f\"Order line missing product_id: {line}\")\n\n        # Create the order with current timestamp\n        created_at = datetime.datetime.now()\n        updated_at = created_at\n\n        # Create the order\n        order_id = self._repos['OrderRepository'].create(created_at=created_at, updated_at=updated_at)\n\n        # Read the newly created order to get its order_id for order lines\n        order = self._repos['OrderRepository'].read_one(order_id=order_id)\n        if not order:\n            raise errors.OrderLineNotFoundError(f\"Order not found with id {order_id}\")\n\n        # Create each order line with the order_id\n        for line in lines:\n            product_id = line[\"product_id\"]\n            quantity = line[\"quantity\"]\n            unit_price = line.get(\"unit_price\", 0)\n            total_price = quantity * unit_price\n\n            # Create order line\n            self._repos['OrderLineRepository'].create(\n                order_id=order_id,\n                product_id=product_id,\n                quantity=quantity,\n                unit_price=unit_price,\n                total_price=total_price\n            )\n\n        # Return the created order\n        return order",
+    "note": "still refused: the confirmed contract requires `orderline exists` to raise `OrderLineNotFoundError`, but the body never raises it",
+    "answer": "order_data = order_data or {}\norder_lines = order_data.get('order_lines', [])\nif not order_lines:\n    raise ValueError('Order must have at least one order line')\nfor line in order_lines:\n    product_id = line.get('product_id')\n    quantity = line.get('quantity')\n    unit_price = line.get('unit_price')\n    if not product_id:\n        raise ValueError('Product ID is required for each order line')\n    if not quantity or quantity <= 0:\n        raise ValueError('Quantity must be a positive integer')\n    if not unit_price:\n        raise ValueError('Unit price is required for each order line')\n    total_price = quantity * unit_price\n    if total_price <= 0:\n        raise ValueError('Total price must be positive')\ncreated_at = datetime.datetime.now()\nupdated_at = created_at\norder_id = self._repos['OrderRepository'].create(created_at=created_at, updated_at=updated_at)\nfor line in order_lines:\n    product_id = line['product_id']\n    quantity = line['quantity']\n    unit_price = line['unit_price']\n    total_price = quantity * unit_price\n    self._repos['OrderLineRepository'].create(order_id=order_id, product_id=product_id, quantity=quantity, unit_price=unit_price, total_price=total_price)\nreturn self._repos['OrderRepository'].read_one(order_id=order_id)",
+    "first_answer": "order_data = order_data or {}\n        order_lines = order_data.get(\"order_lines\", [])\n\n        # Validate order data\n        if not order_lines:\n            raise ValueError(\"Order must have at least one order line\")\n\n        # Validate each order line\n        for line in order_lines:\n            product_id = line.get(\"product_id\")\n            quantity = line.get(\"quantity\")\n            unit_price = line.get(\"unit_price\")\n\n            if not product_id:\n                raise ValueError(\"Product ID is required for each order line\")\n            if not quantity or quantity <= 0:\n                raise ValueError(\"Quantity must be a positive integer\")\n            if not unit_price or unit_price <= 0:\n                raise ValueError(\"Unit price must be a positive value\")\n\n        # Create the order\n        created_at = datetime.datetime.now()\n        updated_at = created_at\n        order_id = self._repos['OrderRepository'].create(\n            created_at=created_at,\n            updated_at=updated_at\n        )\n\n        # Create order lines\n        for line in order_lines:\n            product_id = line[\"product_id\"]\n            quantity = line[\"quantity\"]\n            unit_price = line[\"unit_price\"]\n            total_price = Decimal(str(quantity * unit_price))\n\n            line_data = {\n                \"order_id\": order_id,\n                \"product_id\": product_id,\n                \"quantity\": quantity,\n                \"unit_price\": unit_price,\n                \"total_price\": total_price\n            }\n\n            self._repos['OrderLineRepository'].create(**line_data)\n\n        # Return the created order\n        return self._repos['OrderRepository'].read_one(order_id)",
     "complaints": [
-      "raises `InvalidOrderLineError` but not when `any(getattr(line, \"quantity\", 0) <= 0 for line in (getattr(order_data, \"lines\", None) or []))` is true; the confirmed contract requires that branch"
+      "uses `Decimal`, which neither the module nor the body binds",
+      "the confirmed contract requires `orderline exists` to raise `OrderLineNotFoundError`, but the body never raises it"
     ],
     "second_complaints": [
-      "raises `InvalidOrderLineError` but not when `any(getattr(line, \"quantity\", 0) <= 0 for line in (getattr(order_data, \"lines\", None) or []))` is true; the confirmed contract requires that branch"
+      "the confirmed contract requires `orderline exists` to raise `OrderLineNotFoundError`, but the body never raises it"
     ],
-    "repairs": 1,
+    "repairs": 2,
     "first_finish_reason": "stop",
     "first_tokens": 331,
     "first_budget": 3584,
     "first_truncated": false,
-    "first_seconds": 2.781709909439087,
-    "first_decode_seconds": 2.251337,
-    "first_prompt_tokens": 2890,
-    "first_cached_tokens": 658,
+    "first_seconds": 2.2518258094787598,
+    "first_decode_seconds": 2.2192489999999996,
+    "first_prompt_tokens": 2804,
+    "first_cached_tokens": 2773,
     "finish_reason": "stop",
-    "tokens": 264,
+    "tokens": 287,
     "budget": 3584,
     "truncated": false,
-    "seconds": 1.8669726848602295,
-    "decode_seconds": 1.809127,
-    "prompt_tokens": 3225,
-    "cached_tokens": 2859,
+    "seconds": 2.0094876289367676,
+    "decode_seconds": 1.948716,
+    "prompt_tokens": 3153,
+    "cached_tokens": 2784,
     "context": "exact"
   }
 ]

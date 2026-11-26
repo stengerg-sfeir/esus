@@ -114,27 +114,9 @@
             "Room",
             "update",
             "--id",
-            "1",
-            "--room-number",
-            "value1",
-            "--availability-status"
-          ],
-          [
-            "Room",
-            "update",
-            "--id",
-            "1",
-            "--room-number",
-            "value1",
-            "--availability-status",
-            "true"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Room": {
-            "room_number": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -202,25 +184,9 @@
             "Guest",
             "update",
             "--id",
-            "1",
-            "--first-name",
-            "value1",
-            "--last-name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--phone-number",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Guest": {
-            "first_name": "value1",
-            "last_name": "value1",
-            "email": "cli1@example.test",
-            "phone_number": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

@@ -843,7 +843,8 @@ class Pipeline:
             self.classifier = self.classifier_factory()
         classifier = self.classifier or self.llm
         matches = classification.classify_documents(classifier, self.documents, self.log)
-        self.documents[PATTERN_MATCHES] = matches
+        self.documents[PATTERN_MATCHES] = (
+            repairs.repair_unsupported_price_margins(matches, self.log))
 
     def _step_adapters(self, requirements):
         """Step G: targets are closed to step E's services and step B's entities.

@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product search",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "search",
+            "--name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

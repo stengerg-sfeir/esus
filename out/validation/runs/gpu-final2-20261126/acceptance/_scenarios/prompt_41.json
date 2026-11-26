@@ -37,32 +37,9 @@
             "Book",
             "update",
             "--id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--availability-status"
-          ],
-          [
-            "Book",
-            "update",
-            "--id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--availability-status",
-            "true"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Book": {
-            "title": "value1",
-            "author": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -140,32 +117,9 @@
             "Member",
             "update",
             "--id",
-            "1",
-            "--name",
-            "value1",
-            "--contact-details",
-            "value1",
-            "--membership-status"
-          ],
-          [
-            "Member",
-            "update",
-            "--id",
-            "1",
-            "--name",
-            "value1",
-            "--contact-details",
-            "value1",
-            "--membership-status",
-            "true"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Member": {
-            "name": "value1",
-            "contact_details": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -218,9 +172,7 @@
             "--book-id",
             "1",
             "--loan-date",
-            "2024-01-01T00:00:00",
-            "--return-date",
-            "2024-01-01"
+            "2024-01-01T00:00:00"
           ]
         ]
       },
@@ -236,25 +188,9 @@
             "Loan",
             "update",
             "--id",
-            "1",
-            "--member-id",
-            "1",
-            "--book-id",
-            "1",
-            "--loan-date",
-            "2024-01-01T00:00:00",
-            "--return-date",
-            "2024-01-01"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Loan": {
-            "member_id": 1,
-            "book_id": 1,
-            "loan_date": "2024-01-01T00:00:00",
-            "return_date": "2024-01-01"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

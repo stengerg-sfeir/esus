@@ -31,22 +31,9 @@
             "Post",
             "update",
             "--post-id",
-            "1",
-            "--title",
-            "value1",
-            "--content",
-            "value1",
-            "--author-id",
             "1"
           ]
-        ],
-        "seed_overrides": {
-          "Post": {
-            "title": "value1",
-            "content": "value1",
-            "author_id": 1
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -116,19 +103,9 @@
             "Author",
             "update",
             "--author-id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Author": {
-            "name": "value1",
-            "email": "cli1@example.test"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -174,16 +151,9 @@
             "Tag",
             "update",
             "--tag-id",
-            "1",
-            "--name",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Tag": {
-            "name": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

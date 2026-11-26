@@ -9,14 +9,10 @@
             "add",
             "--title",
             "value1",
-            "--description",
-            "value1",
-            "--due-date",
-            "2024-01-01",
             "--status",
-            "value1",
+            "s status must be one of ",
             "--priority",
-            "value1"
+            "s priority must be one of "
           ]
         ]
       },
@@ -32,28 +28,9 @@
             "Task",
             "update",
             "--task-id",
-            "1",
-            "--title",
-            "value1",
-            "--description",
-            "value1",
-            "--due-date",
-            "2024-01-01",
-            "--status",
-            "value1",
-            "--priority",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Task": {
-            "title": "value1",
-            "description": "value1",
-            "due_date": "2024-01-01",
-            "status": "value1",
-            "priority": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

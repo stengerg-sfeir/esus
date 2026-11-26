@@ -159,10 +159,6 @@ class InvoiceRepository:
         unknown = [k for k in values if k not in ['id', 'client_id', 'due_date', 'amount', 'description']]
         if unknown:
             raise ValueError(f"cannot create Invoice from {unknown}")
-        value = values.get('id')
-        other = values.get('amount')
-        if value is not None and other is not None and not (value < other):
-            raise ValueError(f"Invoice.id must be < amount, got {value!r} vs {other!r}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("client_id", "Client", "id", errors.ClientNotFoundError)])
         return models.Invoice(**record)
 
@@ -204,10 +200,6 @@ class InvoiceRepository:
             patch['amount'] = amount
         if description is not None and 'description' in ['id', 'client_id', 'due_date', 'amount', 'description']:
             patch['description'] = description
-        value = patch.get('id', found[0].get('id'))
-        other = patch.get('amount', found[0].get('amount'))
-        if value is not None and other is not None and not (value < other):
-            raise ValueError(f"Invoice.id must be < amount, got {value!r} vs {other!r}")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.InvoiceNotFoundError)
         return models.Invoice(**record)
 
@@ -270,10 +262,6 @@ class PaymentRepository:
         unknown = [k for k in values if k not in ['id', 'invoice_id', 'payment_date', 'amount']]
         if unknown:
             raise ValueError(f"cannot create Payment from {unknown}")
-        value = values.get('id')
-        other = values.get('amount')
-        if value is not None and other is not None and not (value < other):
-            raise ValueError(f"Payment.id must be < amount, got {value!r} vs {other!r}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("invoice_id", "Invoice", "id", errors.InvoiceNotFoundError)])
         return models.Payment(**record)
 
@@ -311,10 +299,6 @@ class PaymentRepository:
             patch['payment_date'] = payment_date
         if amount is not None and 'amount' in ['id', 'invoice_id', 'payment_date', 'amount']:
             patch['amount'] = amount
-        value = patch.get('id', found[0].get('id'))
-        other = patch.get('amount', found[0].get('amount'))
-        if value is not None and other is not None and not (value < other):
-            raise ValueError(f"Payment.id must be < amount, got {value!r} vs {other!r}")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.PaymentNotFoundError)
         return models.Payment(**record)
 

@@ -46,9 +46,12 @@ class OrderService:
 
 
     def create_order_with_lines(self, order_data: OrderCreationData = None) -> Any:
-        """Creates an order and all its order lines atomically. If any order line contains invalid data (e.g., negative quantity, invalid product ID), the entire operation fails and neither the order nor any order lines are persisted. [no same-name repository method to delegate to]"""
-        raise NotImplementedError(
-            "OrderService.create_order_with_lines: gap NO_PATTERN_IN_DOMAIN: STOCK_SUFFICIENCY_GUARD refused (STOCK_SUFFICIENCY_GUARD returns boolean/none, but this method returns entity (models.Order)); read-one by parameter shape")
+        """Creates an order and all its order lines atomically. If any order line contains invalid data (e.g., negative quantity, invalid product ID), the entire operation fails and neither the order nor any order lines are persisted. [llm-written by generator-contract-dto-fallback — review]"""
+        if order_data is None:
+            raise ValueError('missing create payload')
+        values = order_data if isinstance(order_data, dict) else vars(order_data)
+        kwargs = {key: value for key, value in values.items() if key in ['created_at', 'updated_at']}
+        return self._repos['OrderRepository'].create(**kwargs)
 
     def read_order_by_id(self, order_id: int = None) -> models.Order | None:
         """Reads one Order by its key. [mechanical standard read]"""

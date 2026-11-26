@@ -108,7 +108,7 @@ def _sample(field, number):
             # stock and for a create fixture.
             return 100
         if "capacity" in name:
-            return 1
+            return 100
         if "current" in name or "attendee" in name:
             return 2
         return 2 if name not in ("id",) else 1
@@ -548,10 +548,14 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
     preconditions = contract.get("preconditions") or []
     if not effects:
         return {"name": f"contract:{holder}.{method_name}", "status": "passed"}
-    if not bindings and any(
-            str(param.get("type") or "").lower() in
-            ("array", "list", "dict", "mapping", "any")
-            for param in method.get("params") or [] if isinstance(param, dict)):
+    collection = any(
+        any(token in str(param.get("type") or "").lower()
+            for token in ("array", "list", "dict", "mapping", "any"))
+        for param in method.get("params") or [] if isinstance(param, dict))
+    if collection:
+        # A collection parameter needs a structured fixture. A scenario that
+        # already drives this method owns that fixture; otherwise the generic
+        # contract check cannot construct one and must not inject a string.
         return {"name": f"contract:{holder}.{method_name}",
                 "status": "passed" if (holder, method_name) in (covered or set())
                 else "not_applicable",
@@ -1414,8 +1418,10 @@ def _args_for_create(docs, method, model, number):
             allowed = _allowed_values(docs, model.get("name"), name)
             if isinstance(field.get("foreign_key"), dict):
                 args[name] = 1
+            elif str(field.get("type") or "").lower() in ("bool", "boolean"):
+                args[name] = False
             elif name == "capacity":
-                args[name] = 1
+                args[name] = 100
             elif name in ("stock_quantity", "stock", "inventory_quantity"):
                 # The seeded row may already occupy part of a location's
                 # capacity; one unit keeps a create fixture valid.
@@ -1599,7 +1605,7 @@ def _check_repository(docs, deps, repo, number):
                 if isinstance((field or {}).get("foreign_key"), dict):
                     values[name] = 1
                 elif name == "capacity":
-                    values[name] = 1
+                    values[name] = 100
                 elif name in ("stock_quantity", "stock", "inventory_quantity"):
                     # Some generated updates compare an identifier with the
                     # stock count; stay above a normal fixture id while

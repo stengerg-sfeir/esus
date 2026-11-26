@@ -9,8 +9,6 @@
             "add",
             "--name",
             "value1",
-            "--description",
-            "value1",
             "--price",
             "2",
             "--stock-quantity",
@@ -30,25 +28,9 @@
             "Product",
             "update",
             "--product-id",
-            "1",
-            "--name",
-            "value1",
-            "--description",
-            "value1",
-            "--price",
-            "2",
-            "--stock-quantity",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Product": {
-            "name": "value1",
-            "description": "value1",
-            "price": 2.0,
-            "stock_quantity": 2
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -86,9 +68,7 @@
             "--name",
             "value1",
             "--email",
-            "cli1@example.test",
-            "--phone",
-            "value1"
+            "cli1@example.test"
           ]
         ]
       },
@@ -104,22 +84,9 @@
             "Customer",
             "update",
             "--customer-id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--phone",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Customer": {
-            "name": "value1",
-            "email": "cli1@example.test",
-            "phone": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

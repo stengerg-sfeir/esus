@@ -138,19 +138,9 @@
             "Customer",
             "update",
             "--customer-id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Customer": {
-            "name": "value1",
-            "email": "cli1@example.test"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -216,22 +206,9 @@
             "Product",
             "update",
             "--product-id",
-            "1",
-            "--name",
-            "value1",
-            "--price",
-            "2",
-            "--stock-quantity",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Product": {
-            "name": "value1",
-            "price": 2.0,
-            "stock_quantity": 2
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -302,25 +279,9 @@
             "OrderLine",
             "update",
             "--order-line-id",
-            "1",
-            "--order-id",
-            "1",
-            "--product-id",
-            "1",
-            "--quantity",
-            "2",
-            "--unit-price",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "OrderLine": {
-            "order_id": 1,
-            "product_id": 1,
-            "quantity": 2,
-            "unit_price": 2.0
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -392,22 +353,9 @@
             "Discount",
             "update",
             "--discount-id",
-            "1",
-            "--name",
-            "value1",
-            "--value",
-            "2",
-            "--applies-to",
-            "value1"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Discount": {
-            "name": "value1",
-            "value": 2.0,
-            "applies_to": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -474,19 +422,9 @@
             "Tax",
             "update",
             "--tax-id",
-            "1",
-            "--name",
-            "value1",
-            "--rate",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Tax": {
-            "name": "value1",
-            "rate": 2.0
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

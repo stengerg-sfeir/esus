@@ -1,0 +1,50 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--project-id",
+            "1",
+            "--priority",
+            "value1",
+            "--status",
+            "completed",
+            "--due-date",
+            "2024-01-01",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

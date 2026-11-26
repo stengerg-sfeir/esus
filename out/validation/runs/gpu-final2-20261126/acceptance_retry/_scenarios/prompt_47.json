@@ -1,0 +1,422 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Project add",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "add",
+            "--name",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project list",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "list",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project update",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Project": {
+            "name": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "delete",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "Project",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Project": {
+            "name": "value1",
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--title",
+            "value1",
+            "--project-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--project-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "title": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--project-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "title": "value1",
+            "description": "value1",
+            "project_id": 1,
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember add",
+      "when": {
+        "cli_variants": [
+          [
+            "TeamMember",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--role",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember list",
+      "when": {
+        "cli_variants": [
+          [
+            "TeamMember",
+            "list",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--role",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember update",
+      "when": {
+        "cli_variants": [
+          [
+            "TeamMember",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--role",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "TeamMember": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "role": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TeamMember delete",
+      "when": {
+        "cli_variants": [
+          [
+            "TeamMember",
+            "delete",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "seed1@example.test",
+            "--role",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "TeamMember",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "TeamMember": {
+            "name": "value1",
+            "email": "seed1@example.test",
+            "role": "value1",
+            "created_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment list",
+      "when": {
+        "cli_variants": [
+          [
+            "TaskAssignment",
+            "list",
+            "--task-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment add",
+      "when": {
+        "cli_variants": [
+          [
+            "TaskAssignment",
+            "add",
+            "--task-id",
+            "1",
+            "--member-id",
+            "1",
+            "--responsibility-type",
+            "value1",
+            "--assigned-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment update",
+      "when": {
+        "cli_variants": [
+          [
+            "TaskAssignment",
+            "update",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:TaskAssignment delete",
+      "when": {
+        "cli_variants": [
+          [
+            "TaskAssignment",
+            "delete",
+            "--id",
+            "1",
+            "--task-id",
+            "1",
+            "--member-id",
+            "1",
+            "--responsibility-type",
+            "value1",
+            "--assigned-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "TaskAssignment",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "TaskAssignment": {
+            "task_id": 1,
+            "member_id": 1,
+            "responsibility_type": "value1",
+            "assigned_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

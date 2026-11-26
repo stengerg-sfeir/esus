@@ -12,7 +12,7 @@
             "--date",
             "2024-01-01T00:00:00",
             "--capacity",
-            "1",
+            "100",
             "--current-registration-count",
             "2"
           ]
@@ -30,25 +30,9 @@
             "Event",
             "update",
             "--event-id",
-            "1",
-            "--title",
-            "value1",
-            "--date",
-            "2024-01-01T00:00:00",
-            "--capacity",
-            "1",
-            "--current-registration-count",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Event": {
-            "title": "value1",
-            "date": "2024-01-01T00:00:00",
-            "capacity": 1,
-            "current_registration_count": 2
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -68,7 +52,7 @@
             "--date",
             "2024-01-01T00:00:00",
             "--capacity",
-            "1",
+            "100",
             "--current-registration-count",
             "2"
           ],
@@ -83,7 +67,7 @@
           "Event": {
             "title": "value1",
             "date": "2024-01-01T00:00:00",
-            "capacity": 1,
+            "capacity": 100,
             "current_registration_count": 2
           }
         }

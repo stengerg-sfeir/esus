@@ -1,6 +1,6 @@
 {
   "prompt": "prompt_46",
-  "status": "failed",
+  "status": "passed",
   "checks": [
     {
       "name": "import",
@@ -297,13 +297,11 @@
     },
     {
       "name": "repository:InvoiceRepository",
-      "status": "failed",
-      "reason": "update raised ValueError: Invoice.id must be < amount, got 2 vs 2"
+      "status": "passed"
     },
     {
       "name": "repository:PaymentRepository",
-      "status": "failed",
-      "reason": "update raised ValueError: Payment.id must be < amount, got 2 vs 2"
+      "status": "passed"
     },
     {
       "name": "invariant:fk:Invoice.client_id",

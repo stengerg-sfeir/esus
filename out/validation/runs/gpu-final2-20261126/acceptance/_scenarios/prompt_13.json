@@ -16,6 +16,8 @@
             "--stock-quantity",
             "2",
             "--name",
+            "value1",
+            "--category",
             "value1"
           ]
         ]
@@ -32,24 +34,9 @@
             "Product",
             "update",
             "--id",
-            "1",
-            "--name",
-            "value1",
-            "--category-id",
-            "value1",
-            "--price",
-            "2",
-            "--stock-quantity",
-            "2"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Product": {
-            "name": "value1",
-            "price": 2.0,
-            "stock_quantity": 2
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

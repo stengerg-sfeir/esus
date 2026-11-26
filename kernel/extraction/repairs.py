@@ -2054,6 +2054,66 @@ def repair_adapter_lookup_entities(adapters, services, repositories, models,
     return adapters
 
 
+def repair_unsupported_price_margins(matches, log=None):
+    """Drop a price-margin guard whose invariant names no price pair.
+
+    A single `amount > 0` invariant is a positivity check, not a
+    selling-price-vs-cost rule. The price-margin emitter otherwise pairs the
+    first two numeric fields (`id` and `amount`) and rejects valid updates.
+    """
+    kept = []
+    for match in matches or []:
+        if not isinstance(match, dict):
+            continue
+        if normalize(match.get("pattern_id") or "") == "pricemarginguard":
+            text = normalize(match.get("text") or "")
+            if not any(word in text for word in
+                       ("price", "cost", "selling", "margin", "discount")):
+                if log is not None:
+                    log.write(
+                        "[ok] step patterns: dropped price-margin guard with "
+                        "no price/cost pair")
+                continue
+        kept.append(match)
+    return kept
+
+
+def repair_orphan_capability_methods(services, adapters, log=None):
+    """Drop an adapter-provenance method no adapter can reach.
+
+    A capability method is added for an adapter. If later surface/adapter
+    repair removes that adapter, the method remains as an unreachable stub and
+    makes an otherwise complete project report a stub. Only methods explicitly
+    marked `capability_adapter` are considered.
+    """
+    targets = {
+        (normalize(item.get("target_service") or ""),
+         normalize(item.get("target_method") or ""))
+        for item in adapters or [] if isinstance(item, dict)
+    }
+    kept = []
+    for service in services or []:
+        if not isinstance(service, dict):
+            continue
+        holder = normalize(service.get("service_name") or "")
+        methods = []
+        for method in service.get("methods") or []:
+            if (isinstance(method, dict)
+                    and method.get("provenance") == "capability_adapter"
+                    and (holder, normalize(method.get("name") or "")) not in targets):
+                if log is not None:
+                    log.write(
+                        f"[ok] step adapters: dropped orphan capability method "
+                        f"{service.get('service_name')}.{method.get('name')}")
+                continue
+            methods.append(method)
+        if methods:
+            service = dict(service)
+            service["methods"] = methods
+            kept.append(service)
+    return kept
+
+
 def repair_paginated_patterns(matches, services, repositories, log=None):
     """Classify a page-parameter read from its signature, not its DTO shape.
 

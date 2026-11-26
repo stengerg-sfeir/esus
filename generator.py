@@ -3337,8 +3337,12 @@ def _field_relations(ctx, entity):
             continue
         for clause in re.split(r"[.;\n]", text):
             flat = normalize(clause)
-            mentioned = [field for field in numeric
-                         if normalize(field["name"]) in flat]
+            mentioned = [
+                field for field in numeric
+                if (normalize(field["name"]) in flat
+                    and (normalize(field["name"]) != "id"
+                         or re.search(r"\bid\b", clause, re.I)))
+            ]
             if len(mentioned) < 2:
                 continue
             mentioned.sort(key=lambda field: flat.find(normalize(field["name"])))
@@ -12366,7 +12370,7 @@ def fill_contract_create_bodies(files, ctx):
     for span in list(find_stub_spans(text)):
         start, end, info = span
         holder, method_name = info.get("cls"), _stub_method(info)
-        if not holder or not method_name.lower().startswith("create"):
+        if not holder or not method_name.lower().startswith(("create", "add")):
             continue
         contract = by_label.get((holder, method_name))
         if not contract or not contract.get("creates"):
@@ -12385,10 +12389,34 @@ def fill_contract_create_bodies(files, ctx):
                          if isinstance(item, dict) and item.get("name") == repo_method), {})
         params = {item.get("name") for item in repo_def.get("params") or []
                   if isinstance(item, dict) and item.get("name")}
-        names = [item.get("name") for item in method.get("params") or []
-                 if isinstance(item, dict) and item.get("name") in params]
-        if len(names) != len([item for item in method.get("params") or []
-                              if isinstance(item, dict) and item.get("name")]):
+        method_params = [item for item in method.get("params") or []
+                         if isinstance(item, dict) and item.get("name")]
+        names = [item.get("name") for item in method_params
+                 if item.get("name") in params]
+        if len(names) != len(method_params):
+            # A create whose single input is a request/DTO object still has a
+            # concrete repository call. Map the object's declared fields to the
+            # repository parameters instead of leaving an unreachable stub.
+            if len(method_params) == 1 and names == []:
+                source = codegen.sanitize(method_params[0]["name"], "param")
+                allowed = sorted(params)
+                lines = [
+                    f"if {source} is None:",
+                    "    raise ValueError('missing create payload')",
+                    f"values = {source} if isinstance({source}, dict) else vars({source})",
+                    f"kwargs = {{key: value for key, value in values.items() if key in {allowed!r}}}",
+                    f"return self._repos[{repo!r}].{repo_method}(**kwargs)",
+                ]
+                candidate = _spliced_candidate(
+                    text, start, end, info, lines,
+                    "generator-contract-dto-fallback")
+                try:
+                    compile(candidate, "services.py", "exec")
+                except SyntaxError:
+                    continue
+                text = candidate
+                replaced.append(f"{holder}.{method_name}")
+                continue
             continue
         lines = []
         valid = True

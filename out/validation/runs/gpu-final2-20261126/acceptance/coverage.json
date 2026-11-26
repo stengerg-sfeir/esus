@@ -4,8 +4,8 @@
     "projects": 66,
     "requirements": 328,
     "counts": {
-      "mapped_tested": 292,
-      "under_specified": 35,
+      "mapped_tested": 291,
+      "under_specified": 36,
       "partial": 1
     }
   },
@@ -5374,12 +5374,6 @@
               "tested": true
             },
             {
-              "id": "check:scenario:cli:Category add",
-              "kind": "check",
-              "label": "scenario:cli:Category add",
-              "tested": true
-            },
-            {
               "id": "component:persistence-sessions",
               "kind": "component",
               "label": "sqlite persistence",
@@ -6338,8 +6332,8 @@
       "project": "prompt_gui",
       "requirements": 14,
       "counts": {
-        "mapped_tested": 9,
-        "under_specified": 5
+        "mapped_tested": 8,
+        "under_specified": 6
       },
       "rows": [
         {
@@ -6351,7 +6345,7 @@
               "id": "error:LocationOverCapacityException",
               "kind": "error",
               "label": "LocationOverCapacityException",
-              "tested": true
+              "tested": false
             },
             {
               "id": "invariant:33",
@@ -6400,7 +6394,7 @@
               "id": "error:LocationOverCapacityException",
               "kind": "error",
               "label": "LocationOverCapacityException",
-              "tested": true
+              "tested": false
             },
             {
               "id": "method:StorageLocationRepository.find_location_by_row_shelf",
@@ -6483,7 +6477,7 @@
               "id": "error:LocationOverCapacityException",
               "kind": "error",
               "label": "LocationOverCapacityException",
-              "tested": true
+              "tested": false
             },
             {
               "id": "invariant:33",
@@ -6586,7 +6580,7 @@
         {
           "index": 14,
           "text": "Raise custom domain exceptions when business constraints are violated, such as NegativeStockError, LocationOverCapacityException, or InvalidPricingException.",
-          "status": "mapped_tested",
+          "status": "under_specified",
           "evidence": [
             {
               "id": "error:InvalidPricingException",
@@ -6598,7 +6592,7 @@
               "id": "error:LocationOverCapacityException",
               "kind": "error",
               "label": "LocationOverCapacityException",
-              "tested": true
+              "tested": false
             },
             {
               "id": "error:NegativeStockError",

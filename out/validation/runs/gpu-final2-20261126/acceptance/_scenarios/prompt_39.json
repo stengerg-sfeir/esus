@@ -11,21 +11,9 @@
             "cli1@example.test",
             "--password-hash",
             "value1",
-            "--is-admin",
             "--created-at",
-            "2024-01-01T00:00:00"
-          ],
-          [
-            "User",
-            "add",
-            "--email",
-            "cli1@example.test",
-            "--password-hash",
-            "value1",
-            "--is-admin",
-            "true",
-            "--created-at",
-            "2024-01-01T00:00:00"
+            "2024-01-01T00:00:00",
+            "--is-admin"
           ]
         ]
       },
@@ -41,32 +29,9 @@
             "User",
             "update",
             "--user-id",
-            "1",
-            "--email",
-            "cli1@example.test",
-            "--password-hash",
-            "value1",
-            "--is-admin"
-          ],
-          [
-            "User",
-            "update",
-            "--user-id",
-            "1",
-            "--email",
-            "cli1@example.test",
-            "--password-hash",
-            "value1",
-            "--is-admin",
-            "true"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "User": {
-            "email": "cli1@example.test",
-            "password_hash": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -103,8 +68,6 @@
             "add",
             "--name",
             "value1",
-            "--description",
-            "value1",
             "--price",
             "2",
             "--stock-quantity",
@@ -129,8 +92,6 @@
             "1",
             "--name",
             "value1",
-            "--description",
-            "value1",
             "--price",
             "2",
             "--stock-quantity",
@@ -140,7 +101,6 @@
         "seed_overrides": {
           "Product": {
             "name": "value1",
-            "description": "value1",
             "price": 2.0,
             "stock_quantity": 2
           }

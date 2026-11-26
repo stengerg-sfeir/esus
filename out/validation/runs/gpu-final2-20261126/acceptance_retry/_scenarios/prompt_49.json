@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Employee list",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "list",
+            "--department-name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

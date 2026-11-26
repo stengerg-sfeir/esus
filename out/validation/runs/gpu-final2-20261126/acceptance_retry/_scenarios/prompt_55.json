@@ -1,0 +1,64 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--stock-quantity",
+            "2",
+            "--price",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--id",
+            "1",
+            "--new-stock-quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Sale add",
+      "when": {
+        "cli_variants": [
+          [
+            "Sale",
+            "add",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--sale-date",
+            "2024-01-01T00:00:00",
+            "--user-id",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

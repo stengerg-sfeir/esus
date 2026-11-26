@@ -1,0 +1,34 @@
+[
+  {
+    "label": "OrderService.create_order_with_lines",
+    "status": "kept",
+    "note": "still refused: the confirmed contract requires `orderline exists` to raise `OrderLineNotFoundError`, but the body never raises it",
+    "answer": "order_data = order_data or {}\norder_lines = order_data.get('order_lines', [])\nif not order_lines:\n    raise ValueError('Order must have at least one order line')\nfor line in order_lines:\n    product_id = line.get('product_id')\n    quantity = line.get('quantity')\n    unit_price = line.get('unit_price')\n    if not product_id:\n        raise ValueError('Product ID is required for each order line')\n    if not quantity or quantity <= 0:\n        raise ValueError('Quantity must be a positive integer')\n    if not unit_price:\n        raise ValueError('Unit price is required for each order line')\n    total_price = quantity * unit_price\n    if total_price <= 0:\n        raise ValueError('Total price must be positive')\ncreated_at = datetime.datetime.now()\nupdated_at = created_at\norder_id = self._repos['OrderRepository'].create(created_at=created_at, updated_at=updated_at)\nfor line in order_lines:\n    product_id = line['product_id']\n    quantity = line['quantity']\n    unit_price = line['unit_price']\n    total_price = quantity * unit_price\n    self._repos['OrderLineRepository'].create(order_id=order_id, product_id=product_id, quantity=quantity, unit_price=unit_price, total_price=total_price)\nreturn self._repos['OrderRepository'].read_one(order_id=order_id)",
+    "first_answer": "order_data = order_data or {}\n        order_lines = order_data.get(\"order_lines\", [])\n\n        # Validate order data\n        if not order_lines:\n            raise ValueError(\"Order must have at least one order line\")\n\n        # Validate each order line\n        for line in order_lines:\n            product_id = line.get(\"product_id\")\n            quantity = line.get(\"quantity\")\n            unit_price = line.get(\"unit_price\")\n\n            if not product_id:\n                raise ValueError(\"Product ID is required for each order line\")\n            if not quantity or quantity <= 0:\n                raise ValueError(\"Quantity must be a positive integer\")\n            if not unit_price or unit_price <= 0:\n                raise ValueError(\"Unit price must be a positive value\")\n\n        # Create the order\n        created_at = datetime.datetime.now()\n        updated_at = created_at\n        order_id = self._repos['OrderRepository'].create(\n            created_at=created_at,\n            updated_at=updated_at\n        )\n\n        # Create order lines\n        for line in order_lines:\n            product_id = line[\"product_id\"]\n            quantity = line[\"quantity\"]\n            unit_price = line[\"unit_price\"]\n            total_price = Decimal(str(quantity * unit_price))\n\n            line_data = {\n                \"order_id\": order_id,\n                \"product_id\": product_id,\n                \"quantity\": quantity,\n                \"unit_price\": unit_price,\n                \"total_price\": total_price\n            }\n\n            self._repos['OrderLineRepository'].create(**line_data)\n\n        # Return the created order\n        return self._repos['OrderRepository'].read_one(order_id)",
+    "complaints": [
+      "uses `Decimal`, which neither the module nor the body binds",
+      "the confirmed contract requires `orderline exists` to raise `OrderLineNotFoundError`, but the body never raises it"
+    ],
+    "second_complaints": [
+      "the confirmed contract requires `orderline exists` to raise `OrderLineNotFoundError`, but the body never raises it"
+    ],
+    "repairs": 2,
+    "first_finish_reason": "stop",
+    "first_tokens": 331,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 2.8039534091949463,
+    "first_decode_seconds": 2.216444,
+    "first_prompt_tokens": 2804,
+    "first_cached_tokens": 658,
+    "finish_reason": "stop",
+    "tokens": 287,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 2.006849527359009,
+    "decode_seconds": 1.9461579999999998,
+    "prompt_tokens": 3153,
+    "cached_tokens": 2784,
+    "context": "exact"
+  }
+]

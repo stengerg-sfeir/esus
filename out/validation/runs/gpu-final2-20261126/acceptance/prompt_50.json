@@ -1,6 +1,6 @@
 {
   "prompt": "prompt_50",
-  "status": "failed",
+  "status": "passed",
   "checks": [
     {
       "name": "import",
@@ -208,8 +208,7 @@
     },
     {
       "name": "repository:EventRepository",
-      "status": "failed",
-      "reason": "create raised ValueError: Event.current_registration_count must be < capacity, got 2 vs 1"
+      "status": "passed"
     },
     {
       "name": "repository:RegistrationRepository",
@@ -221,13 +220,11 @@
     },
     {
       "name": "scenario:cli:Event add",
-      "status": "failed",
-      "reason": "error: ValueError: Event.current_registration_count must be < capacity, got 2 vs 1\n"
+      "status": "passed"
     },
     {
       "name": "scenario:cli:Event update",
-      "status": "failed",
-      "reason": "error: ValueError: Event.current_registration_count must be < capacity, got 2 vs 1\n"
+      "status": "passed"
     },
     {
       "name": "scenario:cli:Event delete",

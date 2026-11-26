@@ -1,0 +1,1610 @@
+{
+  "root": "out/validation/runs/gpu-final2-20261126",
+  "status": "passed",
+  "counts": {
+    "passed": 5
+  },
+  "stubs": 0,
+  "coverage": {
+    "projects": 5,
+    "requirements": 50,
+    "counts": {
+      "mapped_tested": 46,
+      "under_specified": 4
+    }
+  },
+  "results": [
+    {
+      "prompt": "prompt_33",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "import",
+          "status": "passed"
+        },
+        {
+          "name": "code:modules",
+          "status": "passed",
+          "reason": "8 generated modules"
+        },
+        {
+          "name": "code:type-hints",
+          "status": "passed",
+          "reason": "annotated generated functions"
+        },
+        {
+          "name": "db:foreign-keys",
+          "status": "passed",
+          "reason": "SQLite foreign keys enabled"
+        },
+        {
+          "name": "db:persistence-across-executions",
+          "status": "passed",
+          "reason": "SQLite database file"
+        },
+        {
+          "name": "code:entry-point",
+          "status": "passed",
+          "reason": "main guard present"
+        },
+        {
+          "name": "models:primary-keys",
+          "status": "passed",
+          "reason": "every model declares a primary key"
+        },
+        {
+          "name": "api:CustomerRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:CustomerRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:CustomerRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:CustomerRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:CustomerRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuditLogRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuditLogRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuditLogRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:CustomerRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:CustomerRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:CustomerRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:CustomerRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:CustomerRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuditLogRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuditLogRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuditLogRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "cli-help",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Customer add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Customer update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Customer delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:AuditLog add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Customer",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:AuditLog",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "repository:CustomerRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:AuditLogRepository",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:AuditLog.customer_id",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Customer add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Customer update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Customer delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:AuditLog add",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "prompt": "prompt_38",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "import",
+          "status": "passed"
+        },
+        {
+          "name": "code:modules",
+          "status": "passed",
+          "reason": "8 generated modules"
+        },
+        {
+          "name": "code:type-hints",
+          "status": "passed",
+          "reason": "annotated generated functions"
+        },
+        {
+          "name": "db:foreign-keys",
+          "status": "passed",
+          "reason": "SQLite foreign keys enabled"
+        },
+        {
+          "name": "db:persistence-across-executions",
+          "status": "passed",
+          "reason": "SQLite database file"
+        },
+        {
+          "name": "code:entry-point",
+          "status": "passed",
+          "reason": "main guard present"
+        },
+        {
+          "name": "models:primary-keys",
+          "status": "passed",
+          "reason": "every model declares a primary key"
+        },
+        {
+          "name": "api:UserRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:UserRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:UserRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:UserRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:UserRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:DocumentRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:DocumentRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:DocumentRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:DocumentRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:DocumentRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:UserRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:UserRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:UserRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:UserRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:UserRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:DocumentRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:DocumentRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:DocumentRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:DocumentRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:DocumentRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "cli-help",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:User add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:User update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:User delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Document add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Document update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Document delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:User",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Document",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "repository:UserRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:DocumentRepository",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Document.owner_user_id",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:User add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:User update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:User delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Document add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Document update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Document delete",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "prompt": "prompt_43",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "import",
+          "status": "passed"
+        },
+        {
+          "name": "code:modules",
+          "status": "passed",
+          "reason": "8 generated modules"
+        },
+        {
+          "name": "code:type-hints",
+          "status": "passed",
+          "reason": "annotated generated functions"
+        },
+        {
+          "name": "db:foreign-keys",
+          "status": "passed",
+          "reason": "SQLite foreign keys enabled"
+        },
+        {
+          "name": "db:persistence-across-executions",
+          "status": "passed",
+          "reason": "SQLite database file"
+        },
+        {
+          "name": "code:entry-point",
+          "status": "passed",
+          "reason": "main guard present"
+        },
+        {
+          "name": "models:primary-keys",
+          "status": "passed",
+          "reason": "every model declares a primary key"
+        },
+        {
+          "name": "api:ProjectRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:ProjectRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:TaskRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:TaskRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:TaskRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:TaskRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:StatusRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:StatusRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:PriorityRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:PriorityRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:ProjectRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:ProjectRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:TaskRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:TaskRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:TaskRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:TaskRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:StatusRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:StatusRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:PriorityRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:PriorityRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "cli-help",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Task add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Task update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Project",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Task",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Status",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Priority",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "repository:ProjectRepository:store",
+          "status": "passed"
+        },
+        {
+          "name": "repository:TaskRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:StatusRepository:store",
+          "status": "passed"
+        },
+        {
+          "name": "repository:PriorityRepository:store",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Task.project_id",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Task add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Task update",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "prompt": "prompt_45",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "import",
+          "status": "passed"
+        },
+        {
+          "name": "code:modules",
+          "status": "passed",
+          "reason": "8 generated modules"
+        },
+        {
+          "name": "code:type-hints",
+          "status": "passed",
+          "reason": "annotated generated functions"
+        },
+        {
+          "name": "db:foreign-keys",
+          "status": "passed",
+          "reason": "SQLite foreign keys enabled"
+        },
+        {
+          "name": "db:persistence-across-executions",
+          "status": "passed",
+          "reason": "SQLite database file"
+        },
+        {
+          "name": "code:entry-point",
+          "status": "passed",
+          "reason": "main guard present"
+        },
+        {
+          "name": "models:primary-keys",
+          "status": "passed",
+          "reason": "every model declares a primary key"
+        },
+        {
+          "name": "api:RoomRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:RoomRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:RoomRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:RoomRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:RoomRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:GuestRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:GuestRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:GuestRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:GuestRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:GuestRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.findBookingsByRoomAndDateRange",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.findOverlappingBookings",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.check_room_availability",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.create_booking",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.delete_booking",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.read_all_bookings",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.read_booking_by_id",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.update_booking",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookingService.validate_booking_dates",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:RoomRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:RoomRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:RoomRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:RoomRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:RoomRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:GuestRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:GuestRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:GuestRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:GuestRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:GuestRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.findBookingsByRoomAndDateRange",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.findOverlappingBookings",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookingRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "cli-help",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Booking add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Booking update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Booking delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Room add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Room update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Room delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Guest add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Guest update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Guest delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Room",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Guest",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Booking",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "repository:RoomRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:GuestRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:BookingRepository",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Booking.room_id",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Booking.guest_id",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Booking add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Booking update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Booking delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Room add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Room update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Room delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Guest add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Guest update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Guest delete",
+          "status": "passed"
+        }
+      ]
+    },
+    {
+      "prompt": "prompt_library_system",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "import",
+          "status": "passed"
+        },
+        {
+          "name": "code:modules",
+          "status": "passed",
+          "reason": "8 generated modules"
+        },
+        {
+          "name": "code:type-hints",
+          "status": "passed",
+          "reason": "annotated generated functions"
+        },
+        {
+          "name": "db:foreign-keys",
+          "status": "passed",
+          "reason": "SQLite foreign keys enabled"
+        },
+        {
+          "name": "db:persistence-across-executions",
+          "status": "passed",
+          "reason": "SQLite database file"
+        },
+        {
+          "name": "code:entry-point",
+          "status": "passed",
+          "reason": "main guard present"
+        },
+        {
+          "name": "models:primary-keys",
+          "status": "passed",
+          "reason": "every model declares a primary key"
+        },
+        {
+          "name": "api:BookRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.search_by_title_or_author_or_isbn",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuthorRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuthorRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuthorRepository.find_books_by_author",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuthorRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuthorRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:AuthorRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.find_active_members",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.find_inactive_members",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:MemberRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.find_active_loans",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.find_overdue_loans",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.get_book_loan_history",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.get_member_loan_history",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.read_all",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LoanRepository.update",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LibraryService.borrow_book",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LibraryService.get_overdue_loans",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LibraryService.renew_membership",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LibraryService.return_book",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:LibraryService.search_books",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookRepository.search_by_title_or_author_or_isbn",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:BookRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuthorRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuthorRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuthorRepository.find_books_by_author",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuthorRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuthorRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:AuthorRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.find_active_members",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.find_inactive_members",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:MemberRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.find_active_loans",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.find_overdue_loans",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.get_book_loan_history",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.get_member_loan_history",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:LoanRepository.update",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "cli-help",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:book add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:book list",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:book search",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:book update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:book delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:member add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:member list",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:member history",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:member update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:member delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:borrow",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:return",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:overdue",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:author add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:author list",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:author update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:author delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Loan add",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Loan list",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Loan update",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "cli-leaf:Loan delete",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Book",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Author",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Member",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "schema:Loan",
+          "status": "passed",
+          "reason": ""
+        },
+        {
+          "name": "repository:BookRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:AuthorRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:MemberRepository",
+          "status": "passed"
+        },
+        {
+          "name": "repository:LoanRepository",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:unique:Book.isbn",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Book.author_id",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:unique:Member.email",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Loan.book_id",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:Loan.member_id",
+          "status": "passed"
+        },
+        {
+          "name": "contract:LibraryService.borrow_book",
+          "status": "passed"
+        },
+        {
+          "name": "contract:LibraryService.renew_membership",
+          "status": "passed"
+        },
+        {
+          "name": "contract:LoanRepository.find_active_loans",
+          "status": "passed"
+        },
+        {
+          "name": "contract:LoanRepository.find_overdue_loans",
+          "status": "passed"
+        },
+        {
+          "name": "contract:LibraryService.return_book",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:return_active_loan",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:book add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:book list",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:book search",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:book update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:book delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:member add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:member list",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:member history",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:member update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:member delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:borrow",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:return",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:overdue",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:author add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:author list",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:author update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:author delete",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Loan add",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Loan list",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Loan update",
+          "status": "passed"
+        },
+        {
+          "name": "scenario:cli:Loan delete",
+          "status": "passed"
+        }
+      ]
+    }
+  ]
+}

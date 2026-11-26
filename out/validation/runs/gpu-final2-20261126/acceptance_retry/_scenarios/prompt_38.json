@@ -1,0 +1,174 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:User add",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User update",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "update",
+            "--user-id",
+            "1",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "User": {
+            "email": "cli1@example.test",
+            "password_hash": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User delete",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "--password-hash",
+            "value1"
+          ],
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1"
+          ],
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "true",
+            "--password-hash",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "User": {
+            "password_hash": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document add",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--owner-user-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document update",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "update",
+            "--document-id",
+            "1",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--owner-user-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Document": {
+            "title": "value1",
+            "content": "value1",
+            "owner_user_id": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "--title",
+            "value1",
+            "--content",
+            "value1"
+          ],
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "1"
+          ],
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "true",
+            "--title",
+            "value1",
+            "--content",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Document": {
+            "title": "value1",
+            "content": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

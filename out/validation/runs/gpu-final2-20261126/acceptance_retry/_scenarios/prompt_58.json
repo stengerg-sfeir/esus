@@ -1,0 +1,28 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:ExternalServiceResponse add",
+      "when": {
+        "cli_variants": [
+          [
+            "ExternalServiceResponse",
+            "add",
+            "--customer-id",
+            "1",
+            "--additional-info",
+            "value1",
+            "--status",
+            "failed",
+            "--error-message",
+            "s external service response must be marked as successful only if the status is ",
+            "--timestamp",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

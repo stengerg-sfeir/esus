@@ -236,9 +236,12 @@ class CategoryService:
 
 
     def add_category(self, category_id: int = None, name: str = None) -> None:
-        """Adds a new category to the system with a specified name. Throws a CategoryNotFoundError if category already exists (assumed unique). [no same-name repository method to delegate to]"""
-        raise NotImplementedError(
-            "CategoryService.add_category: STANDARD_CRUD")
+        """Adds a new category to the system with a specified name. Throws a CategoryNotFoundError if category already exists (assumed unique). [llm-written by server — review]"""
+        if name is None:
+            raise ValueError('missing required field')
+        if category_id is not None and category_id <= 0:
+            raise errors.InvalidProductIdError('category_id is invalid')
+        self._repos['CategoryRepository'].create(name=name)
 
     def read_all_categories(self) -> list[models.Category]:
         """Lists every Category. [composes CategoryRepository.read_all over READ_ALL]"""

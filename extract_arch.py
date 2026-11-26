@@ -524,9 +524,16 @@ def repair_existing(output_dir):
                 interfaces.unify_repository_interfaces(ports, services, log))
     repositories = (ports.get("repositories")
                     if isinstance(ports, dict) else None) or []
+    documents[pipeline_module.SERVICE_CONTRACTS] = (
+        repairs.repair_orphan_capability_methods(
+            documents.get(pipeline_module.SERVICE_CONTRACTS),
+            documents.get(pipeline_module.INTERACTION_ADAPTERS), log))
     documents[pipeline_module.PATTERN_MATCHES] = repairs.repair_paginated_patterns(
         documents.get(pipeline_module.PATTERN_MATCHES), services,
         repositories, log)
+    documents[pipeline_module.PATTERN_MATCHES] = (
+        repairs.repair_unsupported_price_margins(
+            documents.get(pipeline_module.PATTERN_MATCHES), log))
     contracts, _dropped_contracts = load_method_contracts(
         str(directory), requirements)
     if contracts:

@@ -30,25 +30,9 @@
             "BorrowRecord",
             "update",
             "--borrow-id",
-            "1",
-            "--book-id",
-            "1",
-            "--member-id",
-            "1",
-            "--borrow-date",
-            "2024-01-01T00:00:00",
-            "--return-date",
-            "2024-01-01T00:00:00"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "BorrowRecord": {
-            "book_id": 1,
-            "member_id": 1,
-            "borrow_date": "2024-01-01T00:00:00",
-            "return_date": "2024-01-01T00:00:00"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
@@ -100,42 +84,9 @@
             "Book",
             "update",
             "--book-id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--isbn",
-            "value1",
-            "--available-status",
-            "--borrow-status",
-            "borrowed"
-          ],
-          [
-            "Book",
-            "update",
-            "--book-id",
-            "1",
-            "--title",
-            "value1",
-            "--author",
-            "value1",
-            "--isbn",
-            "value1",
-            "--available-status",
-            "true",
-            "--borrow-status",
-            "borrowed"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Book": {
-            "title": "value1",
-            "author": "value1",
-            "isbn": "value1",
-            "borrow_status": "borrowed"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

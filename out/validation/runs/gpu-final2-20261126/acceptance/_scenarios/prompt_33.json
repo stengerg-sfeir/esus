@@ -11,8 +11,6 @@
             "value1",
             "--email",
             "cli1@example.test",
-            "--phone",
-            "value1",
             "--created-at",
             "2024-01-01T00:00:00",
             "--updated-at",
@@ -32,25 +30,9 @@
             "Customer",
             "update",
             "--id",
-            "1",
-            "--name",
-            "value1",
-            "--email",
-            "cli1@example.test",
-            "--phone",
-            "value1",
-            "--updated-at",
-            "2024-01-01T00:00:00"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Customer": {
-            "name": "value1",
-            "email": "cli1@example.test",
-            "phone": "value1",
-            "updated_at": "2024-01-01T00:00:00"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0

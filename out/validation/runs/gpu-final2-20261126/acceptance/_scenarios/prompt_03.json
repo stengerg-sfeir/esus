@@ -10,14 +10,6 @@
             "--description",
             "value1",
             "--is-completed"
-          ],
-          [
-            "Task",
-            "add",
-            "--description",
-            "value1",
-            "--is-completed",
-            "true"
           ]
         ]
       },
@@ -35,14 +27,6 @@
             "--description",
             "value1",
             "--is-completed"
-          ],
-          [
-            "Task",
-            "list",
-            "--description",
-            "value1",
-            "--is-completed",
-            "true"
           ]
         ]
       },
@@ -87,27 +71,9 @@
             "Task",
             "update",
             "--id",
-            "1",
-            "--description",
-            "value1",
-            "--is-completed"
-          ],
-          [
-            "Task",
-            "update",
-            "--id",
-            "1",
-            "--description",
-            "value1",
-            "--is-completed",
-            "true"
+            "1"
           ]
-        ],
-        "seed_overrides": {
-          "Task": {
-            "description": "value1"
-          }
-        }
+        ]
       },
       "expect": {
         "exit": 0
