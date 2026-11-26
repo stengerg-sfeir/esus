@@ -12,7 +12,8 @@ from pathlib import Path
 
 from kernel.consistency.naming import normalize
 
-STATUSES = ("confirmed", "assumed", "ambiguous", "contradictory", "unbound")
+STATUSES = ("confirmed", "assumed", "ambiguous", "contradictory", "unbound",
+            "under_specified", "case_defect")
 CASES_NAME = "oracle_cases.json"
 PLACEHOLDERS = frozenset({
     "today", "tomorrow", "now", "none", "null", "auto_incremented_int",
@@ -160,6 +161,66 @@ def _normalise_then(then, status, ambiguities, requirements=""):
     return then, status
 
 
+def _invalid_semantics(when, given, then):
+    """Reject cases whose expectations contradict their own setup."""
+    action = str((when or {}).get("action") or "").lower()
+    normalized = "".join(ch for ch in action if ch.isalnum())
+    rows = (then or {}).get("rows")
+    if isinstance(rows, dict):
+        for entity, count in rows.items():
+            try:
+                if int(count) < 0:
+                    return f"row count for {entity} is negative"
+            except (TypeError, ValueError):
+                if str(count).strip() not in (">=0", ">0", "<=0", "<0", "!=0", "==0"):
+                    return f"row count for {entity} is not a count"
+    state = (then or {}).get("state")
+    aliases = set(given) if isinstance(given, dict) else set()
+    if isinstance(state, dict):
+        if "delete" in normalized or "remove" in normalized:
+            return "delete case must assert rows, not state of a deleted row"
+        for target in state:
+            alias, _, field = str(target).partition(".")
+            if alias and aliases and alias not in aliases:
+                return f"expected state references unseeded alias {alias!r}"
+            if not field:
+                return f"expected state target {target!r} is not alias.field"
+    if "update" in normalized and isinstance(state, dict) and isinstance(given, dict):
+        changed = False
+        for target, expected in state.items():
+            alias, _, field = str(target).partition(".")
+            current = (given.get(alias) or {}).get(field)
+            if current != expected:
+                changed = True
+                break
+        if not changed:
+            return "update case supplies no new value"
+    if isinstance(rows, dict) and isinstance(given, dict):
+        args = (when or {}).get("args")
+        if "search" in normalized and not args:
+            return "search case supplies no query or filter argument"
+        if "list" in normalized and not args:
+            for alias, count in rows.items():
+                try:
+                    exact = int(count)
+                except (TypeError, ValueError):
+                    continue
+                entity = normalize(str(alias))
+                seeded = sum(1 for name in given
+                             if normalize(name).startswith(entity))
+                if exact < seeded:
+                    return ("list case expects fewer rows than its setup but "
+                            "performs no delete or filter action")
+    if "create" in normalized and isinstance(state, dict) and isinstance(given, dict):
+        for target, expected in state.items():
+            alias, _, field = str(target).partition(".")
+            current = (given.get(alias) or {}).get(field)
+            if current is not None and expected != current:
+                return (f"create case expects {target} = {expected!r} but "
+                        f"supplies {current!r}")
+    return None
+
+
 def validate_cases(raw, requirements, prompt_sha=None):
     """`(cases, errors)`: valid normalized cases and human-readable refusals."""
     if isinstance(raw, dict):
@@ -214,6 +275,10 @@ def validate_cases(raw, requirements, prompt_sha=None):
         bad_then = _invalid_then(then)
         if bad_then:
             errors.append(f"{label}: {bad_then}")
+            continue
+        bad_semantics = _invalid_semantics(when, given, then)
+        if bad_semantics:
+            errors.append(f"{label}: {bad_semantics}")
             continue
         status = str(item.get("status") or "assumed")
         if status not in STATUSES:

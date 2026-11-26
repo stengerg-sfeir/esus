@@ -32,13 +32,22 @@ class OracleSummaryTests(unittest.TestCase):
         self.assertEqual(counts["coverage_gap: missing action"], 1)
         self.assertEqual(counts["coverage_gap: ambiguous action"], 1)
 
-    def test_an_undeclared_expected_field_is_a_case_defect(self):
+    def test_an_undeclared_expected_field_is_under_specified(self):
         self.assertEqual(
             summarize_oracle.category({
                 "status": "unbound",
                 "reason": "expected state field 'product.quantity' is not declared",
             }),
-            "case_defect: setup")
+            "under_specified")
+
+    def test_an_undeclared_field_named_by_the_prompt_is_a_schema_gap(self):
+        self.assertEqual(
+            summarize_oracle.category({
+                "status": "unbound",
+                "reason": "expected state field 'product.quantity' is not declared",
+                "source": "The product quantity must be updated.",
+            }),
+            "coverage_gap: schema")
 
     def test_a_soft_delete_case_that_cannot_read_the_row_is_a_behavior_finding(self):
         self.assertEqual(
@@ -50,17 +59,23 @@ class OracleSummaryTests(unittest.TestCase):
             }),
             "behavior: soft delete")
 
-    def test_incomplete_case_payloads_are_case_defects(self):
-        for reason in (
-                "update case supplies no new value for 'user.role'",
-                "create case supplies no value for required field Order.order_date",
-                "case passes parameter name 'query' as a literal value",
-                "list case expects fewer rows than its setup but performs no delete"):
+    def test_incomplete_case_payloads_are_classified(self):
+        cases = (
+            ("update case supplies no new value for 'user.role'",
+             "case_defect: setup"),
+            ("create case supplies no value for required field Order.order_date",
+             "under_specified"),
+            ("case passes parameter name 'query' as a literal value",
+             "case_defect: setup"),
+            ("list case expects fewer rows than its setup but performs no delete",
+             "case_defect: setup"),
+        )
+        for reason, expected in cases:
             with self.subTest(reason=reason):
                 self.assertEqual(
                     summarize_oracle.category({
                         "status": "unbound", "reason": reason}),
-                    "case_defect: setup")
+                    expected)
 
     def test_type_and_auto_id_mismatches_are_case_defects(self):
         for reason in (

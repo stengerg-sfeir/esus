@@ -98,11 +98,19 @@ Rules:
   a domain action.
 - For list/filter/search cases, seed enough rows to produce the expected result,
   including every parent row the filter reads (for example a product filter by
-  category also needs its category row).
+  category also needs its category row). A list case that expects fewer rows
+  than it seeds must supply the filter or delete argument that causes the
+  reduction. A search/filter case with no query/filter argument is a list-all.
+- An update case must supply a new value and expect a changed field; an update
+  that leaves every asserted value unchanged is not a test.
+- Do not use scalar pseudo-entities such as `numbers` or `data`. A standalone
+  calculator belongs in an `app` case; a domain case needs a real entity.
 - Do not invent an argument that the requirements do not name, such as a sort
   option or a payload shape that no listed action accepts.
 - For a delete case, assert the resulting row count; do not read fields from the
   row after it has been deleted.
+- For an import/export action, name the file argument. The verifier supplies
+  deterministic file content and a temporary path; do not invent file bytes.
 - On a create case, every expected field value must equal the value supplied in
   `given` unless the requirement explicitly says it is computed or defaulted.
 - `when` is either a service action (`action` + `args`) or a CLI path

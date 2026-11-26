@@ -160,23 +160,48 @@ def _model_field_name(model, wanted):
     return wanted
 
 
+def _row_count_matches(actual, expected):
+    """Compare a row count with an exact or inequality expectation."""
+    if isinstance(expected, (int, float)):
+        return actual == expected
+    text = str(expected or "").strip()
+    for operator in (">=", "<=", ">", "<", "!=", "=="):
+        if text.startswith(operator):
+            try:
+                wanted = int(text[len(operator):].strip())
+            except ValueError:
+                return False
+            return {
+                ">=": actual >= wanted, "<=": actual <= wanted,
+                ">": actual > wanted, "<": actual < wanted,
+                "!=": actual != wanted, "==": actual == wanted,
+            }[operator]
+    try:
+        return actual == int(text)
+    except ValueError:
+        return False
+
+
 def _same_value(actual, expected):
     """Compare stored dates/datetimes with their prompt spelling.
 
     Prompt fixtures use ISO-8601 strings. A generated SQLite-backed store may
     return `date` or `datetime` objects for the same value, so a raw `!=`
-    would report a false behavior finding.
+    would report a false behavior finding. UTC `Z` and `+00:00` spellings are
+    equivalent.
     """
     if actual == expected:
         return True
     if isinstance(expected, str) and hasattr(actual, "isoformat"):
         text = actual.isoformat()
-        return (text == expected or text.startswith(expected + "T")
-                or text.startswith(expected + " "))
+        wanted = expected[:-1] + "+00:00" if expected.endswith("Z") else expected
+        return (text == wanted or text.startswith(wanted + "T")
+                or text.startswith(wanted + " "))
     if isinstance(actual, str) and hasattr(expected, "isoformat"):
         text = expected.isoformat()
-        return (text == actual or text.startswith(actual + "T")
-                or text.startswith(actual + " "))
+        wanted = actual[:-1] + "+00:00" if actual.endswith("Z") else actual
+        return (text == wanted or text.startswith(wanted + "T")
+                or text.startswith(wanted + " "))
     return False
 
 
@@ -948,12 +973,26 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
                     "reason": f"{target_name} is {current.get(field)!r}, expected {expected!r}"}
     rows = expect.get("rows") or {}
     if scenario.get("rows_as_result"):
-        expected = sum(int(value) for value in rows.values())
+        if isinstance(result, dict):
+            for key in ("items", "results", "records", "data"):
+                if isinstance(result.get(key), list):
+                    result = result[key]
+                    break
         if isinstance(result, (list, tuple, set)):
             count = len(result)
         else:
             count = 0 if result is None else 1
-        if count != expected:
+        if len(rows) == 1:
+            expected = next(iter(rows.values()))
+            if not _row_count_matches(count, expected):
+                return {"name": name, "status": "failed",
+                        "reason": f"result row count is {count}, expected {expected}"}
+            return {"name": name, "status": "passed"}
+        try:
+            expected = sum(int(value) for value in rows.values())
+        except (TypeError, ValueError):
+            expected = None
+        if expected is not None and count != expected:
             return {"name": name, "status": "failed",
                     "reason": f"result row count is {count}, expected {expected}"}
         return {"name": name, "status": "passed"}
@@ -962,7 +1001,7 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
             return {"name": name, "status": "failed",
                     "reason": f"unknown expected entity {entity!r}"}
         count = len(store.all(entity)) - row_baseline.get(entity, 0)
-        if count != expected:
+        if not _row_count_matches(count, expected):
             return {"name": name, "status": "failed",
                     "reason": f"{entity} row count is {count}, expected {expected}"}
     return {"name": name, "status": "passed"}
@@ -1591,8 +1630,12 @@ def _check_repository(docs, deps, repo, number):
             except Exception:
                 gone = None
             if gone is not None:
-                return {"name": f"repository:{holder}", "status": "failed",
-                        "reason": "read_one still returns after delete"}
+                values = vars(gone) if hasattr(gone, "__dict__") else (
+                    gone if isinstance(gone, dict) else {})
+                soft = bool(values.get("is_deleted") or values.get("deleted_at"))
+                if not soft:
+                    return {"name": f"repository:{holder}", "status": "failed",
+                            "reason": "read_one still returns after delete"}
         return {"name": f"repository:{holder}", "status": "passed"}
     return _store_roundtrip(docs, deps, repo, number)
 

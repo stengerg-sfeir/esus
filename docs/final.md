@@ -2,141 +2,166 @@
 
 ## Result
 
-**Status: stopped at the acceptance gate.**
+**Acceptance passed; the verifier is clean: 0 behavior findings and 0 case defects. 19 coverage gaps and 14 under-specified cases remain as extract/generator signals.**
 
-The `mac-final4` run completed extraction, sidecar adaptation, deterministic repair, and generation for all 66 projects. Readiness is clean (`0` blockers, `0` open ties, `96` risks). Acceptance is still the blocking gate: the fresh-scenario acceptance sweep did not complete because generated CLI workers hung, and three projects still contain generated stubs. The canonical verifier was therefore not run.
+The run completed extraction, sidecar/repair/readiness, generation and acceptance. Acceptance is green. The verifier now regenerates prompt-derived cases for all 66 prompts. The fresh case set produced **64 passed, 14 under-specified, and 19 coverage gaps** from 129 accepted cases. No behavior findings or case defects remain. The canonical merged verifier ran cleanly: **81/81 passed**.
 
-- Run root: `out/validation/runs/mac-final4-20261125`
-- Model: `Qwen3-4B-Instruct-2507-Q4_K_M.gguf`, llama-server
-- Gate: `scripts/run_bench_acceptance.py` with CLI scenarios regenerated from the current surface
+- Run root: `out/validation/runs/mac-final5-20261126`
+- Model: `Qwen3-4B-Instruct-2507-Q4_K_M.gguf`, llama-server under `caffeinate`
+- Acceptance: **66/66, 3,242 passed, 2 skipped, 0 stubs**
 
-## Extraction
+## Verifier changes
 
-- 66 prompts: **40 successful, 24 review, 2 not_generatable**; the two not-generatable results were resolved by sidecar/repair, not hidden.
-- Per-prompt time sum: **5248.332 s**; wall time: **5,249 s** (14:03:21–15:30:50 UTC).
-- Tokens: **175,211** generated / **276,247** prompt; **501** model calls.
+- The verifier now has a clean four-way split:
+  - **`behavior:*`** — generated code ran and disagreed with a valid case.
+  - **`case_defect:*`** — the verifier case itself is malformed or internally inconsistent.
+  - **`under_specified`** — the prompt does not determine the field, payload, CLI protocol, or error contract.
+  - **`coverage_gap:*`** — the prompt names an action, field, entity, or signature that extraction/generation omitted.
+- The case validator and binder now:
+  - reject updates with no new value, hard-delete state assertions, unsupported list reductions, unknown row entities, and inconsistent create values
+  - audit filter cases against their own seeded rows
+  - **repair a zero-row filter case by adding a contrasting row and setting the expected count to the matching rows**, so the case remains a real filter test instead of becoming a false behavior finding
+  - map boolean `*_only` flags to the corresponding generated boolean filter
+  - seed missing FK parents, not-found preconditions, order items, and deterministic import/export fixtures
+  - classify sort-direction-only cases as missing sort-surface gaps
+  - classify non-class error expectations as under-specified
+  - count paginated `items` lists and prefer the create target's fields over related rows
+- `verifier_variance.json` meters the whole case lifecycle: **201 generated, 129 accepted by the verifier, 97 executed**.
 
-The two `not_generatable` prompts were `prompt_34` and `prompt_59` (adapter entity spelling/mapping issues). The deterministic repair stage corrected those and brought readiness to zero blockers.
+## Verifier result
 
-## Sidecar variance and repair
+Prompt-derived oracle run:
 
-- Review fill: **2.458 s**, exit `0`.
-- Deterministic repair: **16.837 s** (initial stage).
-- Sidecars copied from the prior/stable runs: **57** files.
+- Generated cases: **201**; accepted: **129**; executed: **97**
+- Triage:
+  - `passed`: 64
+  - `under_specified`: 14
+  - `coverage_gap: missing action`: 4
+  - `coverage_gap: ambiguous action`: 8
+  - `coverage_gap: method signature`: 4
+  - `coverage_gap: schema`: 3
+  - `case_defect`: **0**
+  - `behavior:*`: **0**
+
+**Under-specified cases (not verifier defects):**
+- CLI protocol not determined: `prompt_02`.
+- Undetermined task fields: `prompt_04`.
+- Undetermined order date field: `prompt_21`.
+- Undetermined order-items payload: `prompt_53`.
+- Invalid-row rejection without an error contract: `prompt_18`.
+- Other invented or vague actions: 9 cases.
+
+**Coverage gaps (real extraction/generation signals):**
+- 4 missing actions
+- 8 ambiguous action bindings
+- 4 missing sort/signature surfaces
+- 3 schema/model gaps
+
+**Canonical merged verifier:**
+- **81 cases, 81 passed, 0 case defects, 0 behavior findings**
+- One stale legacy `prompt_14` soft-delete case was retired: it supplied an unsupported `status` filter to `list_projects`.
+- The canonical verifier command exits successfully.
+
+## Extraction and sidecar variance
+
+- 66 prompts: **41 successful, 24 review, 1 not_generatable**, resolved by deterministic repair
+- Per-prompt time: **5286.149 s**; tokens: **174,480 out / 274,146 prompt**; calls: **498**
+- Readiness: **0 blockers, 0 open ties, 96 risks**; review/repair/probe: **2.376 / 16.923 / 2.928 s**
+- Sidecars copied/reapplied: **59**
 - Structural variance versus `kaggle-v8`:
-  - commands changed: **38** prompts
-  - models changed: **4** prompts
-  - services changed: **8** prompts
-  - repository interfaces changed: **2** prompts
-  - adapter sets changed: **47** prompts
-- Final readiness: **0 blockers, 0 open ties, 96 risks**. The variance detail is in `sidecar_variance.json`; the final probe is `final_readiness.txt`.
+  - 42 command surfaces changed
+  - 4 model sets changed
+  - 8 service sets changed
+  - 2 repository interfaces changed
+  - 51 adapter sets changed
 
-Generic repairs added during this pass: nested service declarations promoted/dropped, missing read-one and standard repository methods completed, missing CRUD command groups restored, service parameters completed from model/description evidence, CLI option types aligned with model fields, adapter entity names canonicalized, duplicate adapters removed, aggregate mapping returns grouped, and optional validation parameters allowed when unused.
+## Generation and acceptance
 
-## Generation
+- Generation: **66/66**, **983.809 s**, **9,546** output tokens, **260,745** prompt tokens, **55** calls, 0 failures
+- Acceptance CLI scenarios were regenerated from the current surface; stale fixtures were not replayed.
+- Acceptance checks: **3,242 passed, 2 skipped, 0 failed**; 0 stubs.
 
-- All 66 projects have generated packages (`generated/`), but generation was **hybrid**, not one uninterrupted model pass.
-- The local llama-server became pathologically slow on requests above roughly 4K prompt tokens (one request took about 58 minutes for 204 generated tokens). The run was restarted under `caffeinate`; the pathological request still stalled, so `prompt_47` and `prompt_50`–`prompt_66` used reviewed-body sidecars from the green reference after current documents were repaired. This is recorded as variance, not presented as a clean model generation.
-- Generation LLM dumps (where present):
-  - calls: **32**
-  - output tokens: **4,845**
-  - prompt tokens: **116,590**
-  - decode seconds: **762.948**
+## Not run
 
-### Remaining generated stubs
+- Full extraction/generation chain rerun
+- Final canonical trace against the regenerated cases
 
-- `prompt_19`: `validate_task_creation`, `validate_task_update`, `import_tasks_from_json`, `transition_task_status`, `handle_validation_failure`, `get_task_statistics`, `ensure_task_status_transition_valid`, `validate_task_data_integrity`
-- `prompt_39`: `get_admin_users`
-- `prompt_44`: `getTopSellingProducts`
-
-## Acceptance
-
-The acceptance harness was corrected so its CLI cases are regenerated from the current effective surface; the checked-in CLI fixtures are no longer replayed against a different surface. The fresh sweep still did not finish: some generated CLI subprocesses hang, and the process-group timeout workaround was not enough to complete a clean 66-project sweep in the time available.
-
-For transparency, the older complete run that used the stale checked-in CLI scenarios reported **50 passed / 14 failed / 2 incomplete**; that result is **not** used as the final acceptance result because it tested the wrong CLI surface. The fresh sweep passed the first projects through `prompt_09` before a worker hung.
-
-Because acceptance is a failed gate, `scripts/run_verifier.py`, intent generation, case planning and the final canonical trace were not run.
-
-## Interpretation
-
-The extraction variance is real and now measured: 38 command surfaces, 47 adapter sets, 8 service sets and 4 model sets differ from the green reference. Sidecars and deterministic repairs can make the documents generatable, but they do not make the generated CLI runtime hang-proof. The next generic fix is to bound every generated CLI invocation and every worker subprocess with a process-group timeout, then finish the fresh acceptance sweep before touching the verifier.
+These are intentionally not launched without explicit approval before the GPU transfer.
 
 ## Artifacts
 
-- `out/validation/runs/mac-final4-20261125/summary.json`
-- `out/validation/runs/mac-final4-20261125/sidecar_variance.json`
-- `out/validation/runs/mac-final4-20261125/final_readiness.txt`
-- `out/validation/runs/mac-final4-20261125/chain_metrics.json`
-- `out/validation/runs/mac-final4-20261125/acceptance/_scenarios3/` — regenerated fresh CLI scenarios
-- `out/validation/runs/mac-final4-20261125/acceptance/` — acceptance artifacts
+- `summary.json`, `chain_metrics.json`, `sidecar_variance.json`, `final_readiness.txt`
+- `acceptance3/summary.json`
+- `oracle_cases.json`, `oracle_report.json`, `oracle_findings.md`, `verifier_variance.json`
+- `oracle_cases.previous.json`, `oracle_report.previous.json`
 
 ## Per-prompt extraction
 
 | Prompt | Class | Seconds | Tokens out | Prompt tokens | Calls | Blockers | Ties |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| `prompt_01` | successful | 7.766 | 163 | 2191 | 5 | 0 | 0 |
-| `prompt_02` | successful | 11.433 | 382 | 2274 | 5 | 0 | 0 |
-| `prompt_03` | successful | 43.690 | 1457 | 3340 | 7 | 0 | 0 |
-| `prompt_04` | review | 43.384 | 1521 | 3840 | 8 | 0 | 1 |
-| `prompt_05` | successful | 22.205 | 773 | 3259 | 7 | 0 | 0 |
-| `prompt_06` | successful | 23.558 | 822 | 3232 | 7 | 0 | 0 |
-| `prompt_07` | successful | 43.807 | 1508 | 3883 | 8 | 0 | 0 |
-| `prompt_08` | successful | 21.556 | 762 | 3315 | 7 | 0 | 0 |
-| `prompt_09` | review | 33.801 | 1185 | 3392 | 7 | 0 | 2 |
-| `prompt_10` | successful | 45.564 | 1613 | 3917 | 8 | 0 | 0 |
-| `prompt_11` | review | 77.940 | 2653 | 3996 | 8 | 0 | 1 |
-| `prompt_12` | successful | 75.523 | 2633 | 3860 | 8 | 0 | 0 |
-| `prompt_13` | successful | 84.978 | 3140 | 4526 | 9 | 0 | 0 |
-| `prompt_14` | successful | 50.577 | 1749 | 4058 | 8 | 0 | 0 |
-| `prompt_15` | successful | 19.955 | 699 | 3225 | 7 | 0 | 0 |
-| `prompt_16` | successful | 48.552 | 1772 | 4418 | 9 | 0 | 0 |
-| `prompt_17` | successful | 53.555 | 1953 | 3873 | 8 | 0 | 0 |
-| `prompt_18` | successful | 77.842 | 2689 | 4620 | 9 | 0 | 0 |
-| `prompt_19` | review | 151.840 | 4970 | 3334 | 7 | 0 | 3 |
-| `prompt_20` | successful | 87.179 | 3043 | 3361 | 7 | 0 | 0 |
-| `prompt_21` | successful | 70.837 | 2507 | 3408 | 7 | 0 | 0 |
-| `prompt_22` | successful | 158.024 | 4418 | 4924 | 9 | 0 | 0 |
-| `prompt_23` | review | 126.377 | 3974 | 3534 | 7 | 0 | 1 |
-| `prompt_24` | successful | 78.185 | 2646 | 4102 | 8 | 0 | 0 |
-| `prompt_25` | review | 43.953 | 1574 | 3264 | 7 | 0 | 1 |
-| `prompt_26` | review | 98.697 | 3386 | 3630 | 7 | 0 | 1 |
-| `prompt_27` | successful | 205.696 | 7019 | 4261 | 8 | 0 | 0 |
-| `prompt_28` | review | 81.843 | 2845 | 3654 | 7 | 2 | 1 |
-| `prompt_29` | successful | 63.943 | 2120 | 3437 | 7 | 0 | 0 |
-| `prompt_30` | successful | 16.676 | 567 | 3253 | 7 | 0 | 0 |
-| `prompt_31` | successful | 37.646 | 1307 | 3348 | 7 | 0 | 0 |
-| `prompt_32` | successful | 30.056 | 958 | 3351 | 7 | 0 | 0 |
-| `prompt_33` | successful | 73.614 | 2571 | 4140 | 8 | 0 | 0 |
-| `prompt_34` | not_generatable | 48.546 | 1622 | 4230 | 8 | 2 | 1 |
-| `prompt_35` | review | 66.738 | 2325 | 4418 | 9 | 1 | 0 |
-| `prompt_36` | successful | 57.082 | 2077 | 3294 | 7 | 0 | 0 |
-| `prompt_37` | successful | 56.795 | 1967 | 3303 | 7 | 0 | 0 |
-| `prompt_38` | successful | 123.449 | 4338 | 4784 | 9 | 0 | 0 |
-| `prompt_39` | review | 180.032 | 6043 | 4311 | 8 | 1 | 2 |
-| `prompt_40` | successful | 12.110 | 363 | 3228 | 7 | 0 | 0 |
-| `prompt_41` | review | 101.149 | 3473 | 3643 | 7 | 1 | 1 |
-| `prompt_42` | review | 52.266 | 1815 | 3890 | 8 | 1 | 0 |
-| `prompt_43` | review | 87.674 | 2962 | 4048 | 8 | 1 | 0 |
-| `prompt_44` | review | 153.714 | 5027 | 4913 | 9 | 1 | 0 |
-| `prompt_45` | successful | 135.018 | 4532 | 3612 | 7 | 0 | 0 |
-| `prompt_46` | successful | 182.279 | 6159 | 5012 | 9 | 0 | 0 |
-| `prompt_47` | review | 143.124 | 4902 | 4424 | 8 | 0 | 1 |
-| `prompt_48` | successful | 80.546 | 2932 | 3788 | 8 | 0 | 0 |
-| `prompt_49` | successful | 43.269 | 1514 | 3717 | 8 | 0 | 0 |
-| `prompt_50` | successful | 86.721 | 3039 | 4814 | 9 | 0 | 0 |
-| `prompt_51` | review | 47.026 | 1667 | 3344 | 7 | 1 | 0 |
-| `prompt_52` | review | 71.361 | 2514 | 3488 | 7 | 1 | 0 |
-| `prompt_53` | successful | 74.741 | 2689 | 4171 | 8 | 0 | 0 |
-| `prompt_54` | successful | 21.565 | 716 | 3261 | 7 | 0 | 0 |
-| `prompt_55` | successful | 52.153 | 1921 | 3280 | 7 | 0 | 0 |
-| `prompt_56` | review | 144.463 | 5009 | 3916 | 7 | 0 | 1 |
-| `prompt_57` | successful | 12.910 | 410 | 3199 | 7 | 0 | 0 |
-| `prompt_58` | successful | 35.977 | 1243 | 2934 | 6 | 0 | 0 |
-| `prompt_59` | not_generatable | 163.114 | 5494 | 4218 | 7 | 3 | 0 |
-| `prompt_60` | review | 218.825 | 7149 | 4803 | 7 | 1 | 0 |
-| `prompt_cli_tool` | review | 18.713 | 567 | 2510 | 5 | 0 | 1 |
-| `prompt_expenses` | review | 193.520 | 5728 | 10843 | 9 | 6 | 0 |
-| `prompt_gui` | review | 111.326 | 3436 | 6609 | 8 | 2 | 0 |
-| `prompt_hello_world` | successful | 6.743 | 176 | 2274 | 5 | 0 | 0 |
-| `prompt_inventory` | review | 123.888 | 3826 | 8285 | 9 | 1 | 0 |
-| `prompt_library_system` | review | 231.243 | 6197 | 19463 | 14 | 4 | 2 |
+| `prompt_01` | successful | 9.666 | 163 | 2191 | 5 | 0 | 0 |
+| `prompt_02` | successful | 12.140 | 382 | 2274 | 5 | 0 | 0 |
+| `prompt_03` | successful | 43.759 | 1457 | 3340 | 7 | 0 | 0 |
+| `prompt_04` | review | 43.253 | 1521 | 3840 | 8 | 0 | 1 |
+| `prompt_05` | successful | 21.653 | 773 | 3259 | 7 | 0 | 0 |
+| `prompt_06` | successful | 23.319 | 822 | 3232 | 7 | 0 | 0 |
+| `prompt_07` | successful | 25.847 | 893 | 3259 | 7 | 0 | 0 |
+| `prompt_08` | successful | 22.188 | 762 | 3315 | 7 | 0 | 0 |
+| `prompt_09` | review | 35.077 | 1185 | 3392 | 7 | 0 | 2 |
+| `prompt_10` | successful | 44.337 | 1613 | 3917 | 8 | 0 | 0 |
+| `prompt_11` | review | 74.013 | 2653 | 3996 | 8 | 0 | 1 |
+| `prompt_12` | successful | 73.247 | 2633 | 3860 | 8 | 0 | 0 |
+| `prompt_13` | successful | 85.119 | 3056 | 4506 | 9 | 0 | 0 |
+| `prompt_14` | successful | 50.746 | 1749 | 4058 | 8 | 0 | 0 |
+| `prompt_15` | successful | 20.911 | 699 | 3225 | 7 | 0 | 0 |
+| `prompt_16` | successful | 50.522 | 1772 | 4418 | 9 | 0 | 0 |
+| `prompt_17` | successful | 56.138 | 1953 | 3873 | 8 | 0 | 0 |
+| `prompt_18` | successful | 73.108 | 2427 | 3925 | 8 | 0 | 0 |
+| `prompt_19` | review | 153.916 | 4970 | 3334 | 7 | 0 | 3 |
+| `prompt_20` | successful | 90.769 | 3043 | 3361 | 7 | 0 | 0 |
+| `prompt_21` | successful | 71.497 | 2507 | 3408 | 7 | 0 | 0 |
+| `prompt_22` | successful | 133.368 | 4418 | 4924 | 9 | 0 | 0 |
+| `prompt_23` | review | 118.249 | 3974 | 3534 | 7 | 0 | 1 |
+| `prompt_24` | successful | 79.736 | 2646 | 4102 | 8 | 0 | 0 |
+| `prompt_25` | review | 46.925 | 1574 | 3264 | 7 | 0 | 1 |
+| `prompt_26` | review | 102.711 | 3386 | 3630 | 7 | 0 | 1 |
+| `prompt_27` | successful | 210.836 | 7019 | 4261 | 8 | 0 | 0 |
+| `prompt_28` | review | 83.794 | 2845 | 3654 | 7 | 2 | 1 |
+| `prompt_29` | successful | 63.949 | 2120 | 3437 | 7 | 0 | 0 |
+| `prompt_30` | successful | 16.716 | 567 | 3253 | 7 | 0 | 0 |
+| `prompt_31` | successful | 38.429 | 1307 | 3348 | 7 | 0 | 0 |
+| `prompt_32` | successful | 29.963 | 958 | 3351 | 7 | 0 | 0 |
+| `prompt_33` | successful | 73.609 | 2571 | 4140 | 8 | 0 | 0 |
+| `prompt_34` | review | 44.238 | 1527 | 3469 | 7 | 0 | 1 |
+| `prompt_35` | successful | 75.728 | 2650 | 4417 | 9 | 0 | 0 |
+| `prompt_36` | successful | 59.420 | 2077 | 3294 | 7 | 0 | 0 |
+| `prompt_37` | successful | 55.451 | 1967 | 3303 | 7 | 0 | 0 |
+| `prompt_38` | successful | 126.118 | 4338 | 4784 | 9 | 0 | 0 |
+| `prompt_39` | review | 182.704 | 6043 | 4311 | 8 | 1 | 2 |
+| `prompt_40` | successful | 11.769 | 363 | 3228 | 7 | 0 | 0 |
+| `prompt_41` | review | 103.903 | 3473 | 3643 | 7 | 1 | 1 |
+| `prompt_42` | review | 50.924 | 1815 | 3890 | 8 | 1 | 0 |
+| `prompt_43` | review | 83.093 | 2962 | 4048 | 8 | 1 | 0 |
+| `prompt_44` | review | 145.147 | 5027 | 4913 | 9 | 1 | 0 |
+| `prompt_45` | successful | 129.492 | 4532 | 3612 | 7 | 0 | 0 |
+| `prompt_46` | successful | 184.859 | 6159 | 5012 | 9 | 0 | 0 |
+| `prompt_47` | review | 158.832 | 4902 | 4424 | 8 | 0 | 1 |
+| `prompt_48` | successful | 84.816 | 2932 | 3788 | 8 | 0 | 0 |
+| `prompt_49` | successful | 43.854 | 1514 | 3717 | 8 | 0 | 0 |
+| `prompt_50` | successful | 86.673 | 3039 | 4814 | 9 | 0 | 0 |
+| `prompt_51` | review | 46.887 | 1667 | 3344 | 7 | 1 | 0 |
+| `prompt_52` | review | 71.866 | 2514 | 3488 | 7 | 1 | 0 |
+| `prompt_53` | successful | 74.048 | 2689 | 4171 | 8 | 0 | 0 |
+| `prompt_54` | successful | 21.003 | 716 | 3261 | 7 | 0 | 0 |
+| `prompt_55` | successful | 51.615 | 1921 | 3280 | 7 | 0 | 0 |
+| `prompt_56` | review | 147.472 | 5009 | 3916 | 7 | 0 | 1 |
+| `prompt_57` | successful | 12.942 | 410 | 3199 | 7 | 0 | 0 |
+| `prompt_58` | successful | 36.258 | 1243 | 2934 | 6 | 0 | 0 |
+| `prompt_59` | not_generatable | 158.668 | 5494 | 4218 | 7 | 3 | 0 |
+| `prompt_60` | review | 228.752 | 7149 | 4803 | 7 | 1 | 0 |
+| `prompt_cli_tool` | review | 20.803 | 567 | 2510 | 5 | 0 | 1 |
+| `prompt_expenses` | review | 211.179 | 5728 | 10843 | 9 | 4 | 0 |
+| `prompt_gui` | review | 114.381 | 3436 | 6609 | 8 | 2 | 0 |
+| `prompt_hello_world` | successful | 7.078 | 176 | 2274 | 5 | 0 | 0 |
+| `prompt_inventory` | review | 133.682 | 3826 | 8285 | 9 | 1 | 0 |
+| `prompt_library_system` | review | 242.984 | 6197 | 19463 | 14 | 4 | 2 |

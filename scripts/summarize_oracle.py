@@ -20,6 +20,11 @@ from kernel.oracle import triage
 
 
 def category(result):
+    # The worker has already applied case-quality overrides (alignment status,
+    # invented actions, non-class error expectations). Reuse that verdict
+    # instead of reclassifying from the raw reason and losing context.
+    if result.get("triage"):
+        return result["triage"]
     return triage.classify(result.get("status"), result.get("reason"),
                            result.get("source"))
 
@@ -33,7 +38,7 @@ def summarize(report):
             counts[kind] += 1
             groups[kind].append({
                 "prompt": project.get("prompt"),
-                "case": result.get("case"),
+                "case": result.get("case") or result.get("name"),
                 "status": result.get("status"),
                 "reason": result.get("reason"),
             })

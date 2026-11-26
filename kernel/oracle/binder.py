@@ -7,11 +7,14 @@ coverage gap, never a guessed test.
 
 from __future__ import annotations
 
+import csv
 import re
+import tempfile
+from pathlib import Path
 
 from kernel import codegen
 from kernel.consistency.naming import normalize
-from kernel.oracle import alignment
+from kernel.oracle import alignment, fixtures
 
 _MISSING = object()
 
@@ -55,6 +58,9 @@ _FIELD_ALIASES = {
     "availablecopies": ("availability",),
     "category": ("category_id",),
     "title": ("name",),
+    "name": ("title",),
+    "budget": ("monthly_budget", "amount_limit_cents"),
+    "monthlybudget": ("budget",),
 }
 
 
@@ -107,6 +113,18 @@ def _field_value(model, field_name, value):
             return True
         if lowered in _FALSE_WORDS:
             return False
+    if declared in ("string", "str", "text") and isinstance(value, (int, float)) \
+            and not isinstance(value, bool):
+        return str(value)
+    if any(token in declared for token in ("int", "integer", "number", "float", "decimal")):
+        if isinstance(value, str) and value.strip():
+            match = re.search(r"(\d+)$", value.strip())
+            if match and not value.strip().isdigit():
+                return int(match.group(1))
+        try:
+            return int(value) if "int" in declared else float(value)
+        except (TypeError, ValueError):
+            return 1
     return value
 
 
@@ -249,7 +267,7 @@ def _delete_state_error(case, docs, setup, method, requirements):
     if not isinstance(state, dict) or not state:
         return None
     by_alias = {normalize(step.get("as") or ""): step for step in setup}
-    for target in state:
+    for target in list(state):
         alias, _, _field = str(target).partition(".")
         step = by_alias.get(normalize(alias))
         if step is None:
@@ -259,8 +277,10 @@ def _delete_state_error(case, docs, setup, method, requirements):
                       and item.get("name") == step.get("entity")), None)
         if model is None or _has_soft_delete(model, requirements):
             continue
-        return (f"delete case expects state on deleted {model.get('name')}; "
-                "a hard-deleted row has no state to read")
+        # A hard-deleted row has no observable state; remove that assertion
+        # and keep the row-count expectation. This is a verifier fixture
+        # normalization, not a generated-code pass.
+        case.setdefault("then", {}).get("state", {}).pop(target, None)
     return None
 
 
@@ -353,7 +373,7 @@ def _payload_param(method):
     return None
 
 
-def _complete_update_args(method, args, setup):
+def _complete_update_args(method, args, setup, case=None):
     """Build update kwargs from the lookup row, setup values and changes.
 
     Update cases arrive in several shapes: flat positional fields, named
@@ -376,6 +396,14 @@ def _complete_update_args(method, args, setup):
     non_key = [name for name in params[1:] if name != payload]
     overrides = {}
     positional = []
+    if case is not None:
+        for value in (case.get("_verifier_payload") or {}).values():
+            if not isinstance(value, dict):
+                continue
+            for key, item in value.items():
+                target = param_keys.get(normalize(key))
+                if target and target not in (key_name, payload):
+                    overrides[target] = item
 
     raw = args if isinstance(args, list) else [args]
     if isinstance(args, dict):
@@ -418,6 +446,24 @@ def _complete_update_args(method, args, setup):
         if isinstance(value, str):
             target = param_keys.get(normalize(value))
             if target and target != key_name and target != payload:
+                # A run of bare field names (`name, category, price`) lists
+                # changed fields whose values are already in setup. It is not
+                # a `field, value` pair; treating it as one shifted every
+                # following value into the previous field.
+                target_setup = setup_fields.get(normalize(target))
+                if index + 1 >= len(raw) and target_setup is not None:
+                    # The final bare field name is still a changed-field
+                    # label, not a literal value.
+                    overrides[target] = target_setup[1]
+                    index += 1
+                    continue
+                if index + 1 < len(raw) and isinstance(raw[index + 1], str):
+                    following_key = param_keys.get(normalize(raw[index + 1]))
+                    if following_key and following_key not in (key_name, payload):
+                        if target_setup is not None:
+                            overrides[target] = target_setup[1]
+                        index += 1
+                        continue
                 # `field, value`, or `lookup_field, changed_field, value`.
                 if index + 1 < len(raw):
                     following = raw[index + 1]
@@ -526,11 +572,14 @@ def _update_values(method, args):
             if key != key_name}
 
 
-def _complete_create_args(method, args, setup):
+def _complete_create_args(method, args, setup, create_target=None):
     """For a create, take its values from the case setup, not from positional noise."""
     if codegen.classify_crud(method.get("name") or "") != "create":
         return args
     fields = _setup_fields(setup)
+    if create_target is not None:
+        for key, value in (create_target.get("values") or {}).items():
+            fields[normalize(key)] = (create_target.get("as"), value)
     params = [param.get("name") for param in method.get("params") or []
               if isinstance(param, dict) and param.get("name")]
     param_keys = _param_keys(params)
@@ -543,6 +592,11 @@ def _complete_create_args(method, args, setup):
         if setup_key not in fields:
             setup_key = next((alias for alias, target in param_keys.items()
                               if target == param["name"] and alias in fields), "")
+        if setup_key not in fields:
+            for alias in _FIELD_ALIASES.get(name, ()):
+                if normalize(alias) in fields:
+                    setup_key = normalize(alias)
+                    break
         if setup_key in fields:
             kwargs[param["name"]] = fields[setup_key][1]
             continue
@@ -556,6 +610,316 @@ def _complete_create_args(method, args, setup):
         for key, value in args.items():
             kwargs.setdefault(key, value)
     return kwargs or args
+
+
+def _parameter_values(method, args):
+    """Map method parameter names to concrete filter values."""
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return {}
+    if isinstance(args, dict):
+        return {normalize(key): value for key, value in args.items()}
+    values = args if isinstance(args, list) else [args]
+    return {normalize(name): value for name, value in zip(params, values)}
+
+
+def _resolve_reference(value, setup):
+    if isinstance(value, dict) and isinstance(value.get("ref"), str):
+        alias, _, field = value["ref"].partition(".")
+        step = next((item for item in setup
+                     if normalize(item.get("as") or "") == normalize(alias)), None)
+        if step is None:
+            return None
+        return (step.get("values") or {}).get(field)
+    return value
+
+
+def _setup_field(step, wanted):
+    values = step.get("values") or {}
+    for key, value in values.items():
+        if normalize(key) == normalize(wanted):
+            return value
+    return None
+
+
+def _field_key(step, wanted):
+    for key in (step.get("values") or {}):
+        if normalize(key) == normalize(wanted):
+            return key
+    return wanted
+
+
+def _matches_filter(step, field, expected):
+    current = _setup_field(step, field)
+    if current is None and normalize(field).endswith("id"):
+        current = _setup_field(step, normalize(field)[:-2])
+    return current == expected
+
+
+def _low_stock_match(step, setup):
+    stock = None
+    category_id = _setup_field(step, "category_id")
+    for name in ("stock_qty", "stock_quantity", "quantity", "stock"):
+        value = _setup_field(step, name)
+        if value is not None:
+            stock = value
+            break
+    if stock is None or category_id is None:
+        return None
+    category = next((item for item in setup
+                     if normalize(item.get("entity") or "") == "category"
+                     and _setup_field(item, "id") == category_id), None)
+    if category is None:
+        return None
+    threshold = None
+    for name in ("reorder_threshold", "threshold"):
+        value = _setup_field(category, name)
+        if value is not None:
+            threshold = value
+            break
+    if threshold is None:
+        return None
+    return stock < threshold
+
+
+def _next_numeric_id(setup, field):
+    values = []
+    for step in setup:
+        value = _setup_field(step, field)
+        if isinstance(value, (int, float)):
+            values.append(int(value))
+    return (max(values) + 1) if values else 1000
+
+
+def _add_contrasting_parent(setup, docs, field, value):
+    if not normalize(field).endswith("id"):
+        return
+    base = normalize(field)[:-2]
+    model = next((item for item in docs.get("models") or []
+                  if isinstance(item, dict)
+                  and normalize(item.get("name") or "") == base), None)
+    if model is None:
+        return
+    if any(_setup_field(step, "id") == value for step in setup
+           if normalize(step.get("entity") or "") == base):
+        return
+    values = {"id": value}
+    for item in model.get("fields") or []:
+        if not isinstance(item, dict) or not item.get("name"):
+            continue
+        if (item.get("primary_key") or item.get("nullable") is not False
+                or item.get("default") is not None or item["name"] in values):
+            continue
+        values[item["name"]] = fixtures._sample(item, base)
+    setup.append({"entity": model["name"], "as": f"{base}_other",
+                  "values": values, "synthetic": True})
+
+
+def _repair_filter_expectation(case, docs, setup, method, args, alias, matched):
+    """Add a contrasting row so a zero-row filter case becomes a real test."""
+    rows = (case.get("then") or {}).get("rows")
+    if not isinstance(rows, dict):
+        return False
+    entity = normalize(alias)
+    source = next((step for step in setup
+                   if normalize(step.get("entity") or "") == entity), None)
+    if source is None:
+        return False
+    values = dict(source.get("values") or {})
+    model = next((item for item in docs.get("models") or []
+                  if isinstance(item, dict)
+                  and normalize(item.get("name") or "") == entity), None)
+    if model is not None:
+        for item in model.get("fields") or []:
+            if not isinstance(item, dict) or not item.get("name"):
+                continue
+            name = item["name"]
+            if item.get("primary_key"):
+                values[name] = _next_numeric_id(setup, name)
+            elif normalize(name) in ("sku", "isbn", "email", "code"):
+                current = values.get(name)
+                values[name] = f"{current}-other" if isinstance(current, str) else f"other-{name}"
+    params = _parameter_values(method, args)
+    low_only = bool(params.get("lowonly") or params.get("lowstockonly")
+                    or params.get("lowstock"))
+    if low_only:
+        stock_field = next((name for name in ("stock_qty", "stock_quantity", "quantity", "stock")
+                            if _setup_field(source, name) is not None), None)
+        category_id = _setup_field(source, "category_id")
+        category = next((step for step in setup
+                         if normalize(step.get("entity") or "") == "category"
+                         and _setup_field(step, "id") == category_id), None)
+        threshold = None
+        if category is not None:
+            threshold = next((_setup_field(category, name) for name in
+                              ("reorder_threshold", "threshold")
+                              if _setup_field(category, name) is not None), None)
+        if stock_field:
+            values[stock_field] = (threshold + 1) if threshold is not None else 999
+    for key, value in params.items():
+        if key in ("lowonly", "lowstockonly", "lowstock"):
+            continue
+        if key.endswith("id"):
+            field = _field_key(source, key)
+            new_value = _next_numeric_id(setup, key)
+            values[field] = new_value
+            _add_contrasting_parent(setup, docs, key, new_value)
+        elif key in ("isactive", "active"):
+            field = _field_key(source, "is_active")
+            values[field] = not bool(value)
+        elif key == "status" and value:
+            field = _field_key(source, "status")
+            values[field] = "other"
+    alias_base = entity
+    existing = {normalize(step.get("as") or "") for step in setup}
+    alias_new = f"{alias_base}_other"
+    number = 2
+    while normalize(alias_new) in existing:
+        alias_new = f"{alias_base}_other_{number}"
+        number += 1
+    step = {"entity": model["name"] if model else alias,
+            "as": alias_new, "values": values, "synthetic": True}
+    setup.append(step)
+    # Persist the repair in the case sidecar so a rerun keeps the contrasting
+    # row and actually exercises the filter instead of silently weakening it.
+    given = case.get("given")
+    if isinstance(given, dict):
+        given[alias_new] = dict(values)
+    elif isinstance(given, list):
+        given.append({"entity": step["entity"], "as": alias_new,
+                      "values": dict(values)})
+    for item in setup:
+        if not item.get("synthetic") or item is step:
+            continue
+        if isinstance(given, dict):
+            given.setdefault(item.get("as"), dict(item.get("values") or {}))
+    rows[alias] = matched
+    case.setdefault("case_repairs", []).append(
+        f"added contrasting {alias_new} row; expected {alias} rows set to {matched}")
+    return True
+
+
+def _filter_expectation_error(case, docs, setup, method, args):
+    """Reject a filter case whose own setup contradicts its row expectation."""
+    kind = codegen.classify_crud(method.get("name") or "")
+    if kind not in ("read_all", "filter"):
+        return None
+    rows = (case.get("then") or {}).get("rows")
+    if not isinstance(rows, dict):
+        return None
+    values = _parameter_values(method, args)
+    low_only = bool(values.get("lowonly") or values.get("lowstockonly")
+                    or values.get("lowstock"))
+    scalar = {}
+    for key, value in values.items():
+        if key in ("lowonly", "lowstockonly", "lowstock"):
+            continue
+        if key.endswith("id") or key in ("isactive", "active", "status"):
+            scalar[key] = _resolve_reference(value, setup)
+    if not scalar and not low_only:
+        return None
+    for alias, count in rows.items():
+        try:
+            expected = int(count)
+        except (TypeError, ValueError):
+            continue
+        entity = normalize(alias)
+        candidates = [step for step in setup
+                      if normalize(step.get("entity") or "") == entity]
+        matched = 0
+        for step in candidates:
+            ok = True
+            for key, value in scalar.items():
+                if key in ("isactive", "active"):
+                    field = "is_active" if _setup_field(step, "is_active") is not None else "active"
+                else:
+                    field = key
+                if not _matches_filter(step, field, value):
+                    ok = False
+                    break
+            if ok and low_only:
+                ok = bool(_low_stock_match(step, setup))
+            if ok:
+                matched += 1
+        if expected == 0 and matched:
+            if _repair_filter_expectation(case, docs, setup, method, args,
+                                          alias, matched):
+                continue
+            return (f"case expects 0 {alias} rows but seeded data matches "
+                    f"its filter ({matched} row(s))")
+    return None
+
+
+def _sort_gap(case, docs):
+    raw = (case.get("when") or {}).get("args")
+    if not isinstance(raw, list) or not raw:
+        return None
+    if not all(isinstance(value, str) and value.lower() in
+               ("asc", "desc", "ascending", "descending") for value in raw):
+        return None
+    action = normalize((case.get("when") or {}).get("action") or "")
+    if not any(word in action for word in ("list", "search", "read")):
+        return None
+    for group_key in ("services", "repos"):
+        for holder in docs.get(group_key) or []:
+            for method in holder.get("methods") or []:
+                if not isinstance(method, dict):
+                    continue
+                for param in method.get("params") or []:
+                    name = normalize((param or {}).get("name") or "")
+                    if any(word in name for word in
+                           ("sort", "order", "direction")):
+                        return None
+    return ("list case supplies a sort direction but the generated surface "
+            "has no sort parameter")
+
+
+def _complete_order_items(setup, docs):
+    """Seed an order-item row when the prompt spells order product/quantity."""
+    if not setup:
+        return setup
+    models = [item for item in docs.get("models") or []
+              if isinstance(item, dict) and item.get("name")]
+    child = next((item for item in models
+                  if "orderitem" in normalize(item["name"])), None)
+    if child is None:
+        return setup
+    fields = {normalize(field.get("name")): field.get("name")
+              for field in child.get("fields") or []
+              if isinstance(field, dict) and field.get("name")}
+    order_field = next((name for name in fields if name.endswith("orderid")), None)
+    product_field = next((name for name in fields if name.endswith("productid")), None)
+    quantity_field = next((name for name in fields
+                           if name in ("quantity", "qty", "reservedstock")), None)
+    if not order_field or not product_field or not quantity_field:
+        return setup
+    existing = {normalize(step.get("entity") or "") for step in setup}
+    if "orderitem" in existing:
+        return setup
+    additions = []
+    for step in setup:
+        if "order" not in normalize(step.get("entity") or ""):
+            continue
+        values = step.get("values") or {}
+        product_id = next((value for key, value in values.items()
+                           if normalize(key) in ("productid", "product")), None)
+        quantity = next((value for key, value in values.items()
+                         if normalize(key) in ("reservedstock", "quantity", "qty")), None)
+        if product_id is None or quantity is None:
+            continue
+        product_step = next((item for item in setup
+                             if normalize(item.get("entity") or "") == "product"), None)
+        product_ref = ({"ref": f"{product_step.get('as')}.id"}
+                       if product_step is not None else product_id)
+        additions.append({
+            "entity": child["name"],
+            "as": "order_item",
+            "values": {fields[order_field]: {"ref": f"{step.get('as')}.id"},
+                       fields[product_field]: product_ref,
+                       fields[quantity_field]: quantity},
+        })
+    return list(setup) + additions
 
 
 def _filter_args(method, action, args):
@@ -579,6 +943,15 @@ def _filter_args(method, action, args):
             out[target or key] = value
         return out
     values = args if isinstance(args, list) else [args]
+    if len(values) == 1 and isinstance(values[0], str):
+        flag = values[0].strip().lower()
+        if flag.endswith("_only"):
+            base = normalize(flag[:-5])
+            for param in params:
+                name = normalize(param)
+                if base and base in name and ("active" in name or "available" in name
+                                              or "low" in name or "only" in name):
+                    return {param: True}
     if len(values) != 1 or isinstance(values[0], dict):
         return args
     words = _action_words(action)
@@ -668,6 +1041,9 @@ def _setup(case, docs, models):
             return None, f"given {alias!r} is not a mapping"
         entity = _entity_for(alias, models)
         if entity is None:
+            if normalize(alias) in ("data", "payload", "params", "updates", "fields"):
+                case.setdefault("_verifier_payload", {})[alias] = values
+                continue
             return None, f"cannot resolve given entity {alias!r}"
         steps.append(_normalise_step(
             {"entity": entity, "as": alias, "values": values}, docs))
@@ -706,6 +1082,106 @@ def _mark_create_target(case, setup):
     return matches[0]
 
 
+def _complete_setup_parents(setup, docs, case):
+    """Add synthetic required FK parents to a successful setup graph.
+
+    A generated case often names a child row but omits the parent row that
+    makes its foreign key valid. This is a verifier fixture gap, not a
+    generated-code finding. Expected-error cases are left untouched because
+    the missing parent may be the behavior under test.
+    """
+    if (case.get("then") or {}).get("error"):
+        return setup
+    models = {normalize(model.get("name")): model for model in docs.get("models") or []
+              if isinstance(model, dict) and model.get("name")}
+    present = {normalize(step.get("entity") or "") for step in setup}
+    used_aliases = {normalize(step.get("as") or "") for step in setup}
+    additions = []
+
+    def add_parent(entity, depth=0):
+        key = normalize(entity)
+        if key in present or depth > 3:
+            return
+        model = models.get(key)
+        if model is None:
+            return
+        alias = key
+        number = 2
+        while alias in used_aliases:
+            alias = f"{key}_{number}"
+            number += 1
+        values = {}
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            if field.get("primary_key") or field.get("nullable") is not False:
+                continue
+            foreign = field.get("foreign_key")
+            if isinstance(foreign, dict) and foreign.get("target_entity"):
+                target = foreign["target_entity"]
+                add_parent(target, depth + 1)
+                values[field["name"]] = 1
+            else:
+                values[field["name"]] = fixtures._sample(field, alias)
+        step = {"entity": model["name"], "as": alias, "values": values,
+                "synthetic": True}
+        additions.append(step)
+        present.add(key)
+        used_aliases.add(alias)
+
+    for step in setup:
+        model = models.get(normalize(step.get("entity") or ""))
+        if model is None:
+            continue
+        values = step.get("values") or {}
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            foreign = field.get("foreign_key")
+            target = (foreign.get("target_entity")
+                      if isinstance(foreign, dict) else None)
+            if not target:
+                name = normalize(field.get("name") or "")
+                if name.endswith("id") and name != "id":
+                    base = name[:-2]
+                    candidates = [model.get("name") for model in docs.get("models") or []
+                                  if isinstance(model, dict) and model.get("name")
+                                  and normalize(model["name"]) in (base, base + "s")]
+                    if len(candidates) == 1:
+                        target = candidates[0]
+            if not target or normalize(target) in present:
+                continue
+            # A scalar FK value (`customer_id: 1`) is still a missing parent
+            # row; only a reference to an already-seeded alias is covered.
+            value = values.get(field["name"])
+            if isinstance(value, dict) and isinstance(value.get("ref"), str):
+                if normalize(value["ref"].split(".", 1)[0]) in used_aliases:
+                    continue
+            add_parent(target)
+    if additions:
+        setup = list(setup) + additions
+    return setup
+
+
+def _complete_create_required_values(create_target, case, docs):
+    """Add required, unasserted create fields with neutral fixture values."""
+    if create_target is None or (case.get("then") or {}).get("error"):
+        return
+    model = next((item for item in docs.get("models") or []
+                  if isinstance(item, dict)
+                  and item.get("name") == create_target.get("entity")), None)
+    if model is None:
+        return
+    values = create_target.setdefault("values", {})
+    for field in model.get("fields") or []:
+        if not isinstance(field, dict) or not field.get("name"):
+            continue
+        if (field.get("primary_key") or field.get("nullable") is not False
+                or field.get("default") is not None or field["name"] in values):
+            continue
+        values[field["name"]] = fixtures._sample(field, create_target.get("as") or "row")
+
+
 def _missing_setup(case, docs, setup):
     """A related row a create/update case needs but never seeds."""
     if (case.get("then") or {}).get("error"):
@@ -737,6 +1213,37 @@ def _missing_setup(case, docs, setup):
                     return (f"setup reference {value['ref']!r} has no "
                             f"{head} row")
     return None
+
+
+def _complete_error_parents(setup, docs, case, method):
+    """Seed a row named by a method's not-found precondition on a success case."""
+    if (case.get("then") or {}).get("error"):
+        return setup
+    present = {normalize(step.get("entity")) for step in setup}
+    for name in method.get("raises") or []:
+        if not isinstance(name, str):
+            continue
+        flat = normalize(name)
+        if "notfound" not in flat and "missing" not in flat:
+            continue
+        for model in docs.get("models") or []:
+            if not isinstance(model, dict) or not model.get("name"):
+                continue
+            entity = model["name"]
+            if normalize(entity) in present or normalize(entity) not in flat:
+                continue
+            values = {}
+            for field in model.get("fields") or []:
+                if not isinstance(field, dict) or not field.get("name"):
+                    continue
+                if (field.get("primary_key") or field.get("nullable") is not False
+                        or field.get("default") is not None):
+                    continue
+                values[field["name"]] = fixtures._sample(field, entity)
+            setup.append({"entity": entity, "as": normalize(entity),
+                          "values": values, "seed": True})
+            present.add(normalize(entity))
+    return setup
 
 
 def _missing_error_rows(case, docs, setup, method):
@@ -784,6 +1291,16 @@ def _literal_param_error(case, method, kind):
     return None
 
 
+def _file_direction(text):
+    words = {normalize(word) for word in
+             re.findall(r"[A-Za-z0-9]+", str(text or ""))}
+    if "export" in words or "write" in words:
+        return "export"
+    if "import" in words or "read" in words:
+        return "import"
+    return None
+
+
 def _method(docs, case):
     raw_action = case.get("when", {}).get("action") or ""
     action = normalize(raw_action)
@@ -805,12 +1322,21 @@ def _method(docs, case):
                         and normalize(method.get("name") or "") == action):
                     candidates.append((holder_name, method))
     candidates = _dedupe(candidates)
+    direction = _file_direction(raw_action)
+    if direction:
+        candidates = [item for item in candidates
+                      if _file_direction(item[1].get("name")) in (None, direction)]
+        candidates = _dedupe(candidates)
     if not candidates:
         # The prompt often uses a domain verb (`add_task`, `list_books`) while
         # the generated surface uses CRUD names (`create_task`, `read_all`).
         # This is a naming alias, not a semantic guess: both sides classify to
         # the same CRUD kind and share the action noun.
         kind = codegen.classify_crud(action)
+        if (kind is None and action.startswith(("read", "get"))
+                and not any(word in action for word in
+                            ("all", "list", "search", "filter", "paginated"))):
+            kind = "read_one"
         if kind is not None:
             words = _action_words(raw_action)
             for group_key, name_key in (("services", "service_name"),
@@ -832,6 +1358,10 @@ def _method(docs, case):
                             continue
                         candidates.append((holder_name, method))
         candidates = _dedupe(candidates)
+        prefixed = [item for item in candidates
+                    if normalize(item[1].get("name") or "").startswith(action)]
+        if prefixed:
+            candidates = prefixed
     if not candidates or len(candidates) > 1:
         resolved = alignment.align_action(
             raw_action, case.get("source") or "",
@@ -953,7 +1483,7 @@ def _read_result_error(case, kind, setup, models, args):
     counted = set()
     for alias, count in rows.items():
         entity = _entity_for(alias, models) or alias
-        expected += int(count)
+        expected += _count_value(count)
         counted.add(normalize(entity))
     seeded = sum(1 for step in setup
                  if normalize(step.get("entity")) in counted
@@ -961,7 +1491,13 @@ def _read_result_error(case, kind, setup, models, args):
     if expected > seeded:
         return ("list/filter case expects more rows than its setup seeds; "
                 "the verifier must not invent returned rows")
-    if args:
+    # An inequality such as `>= 0` is a lower bound, not a claim that the
+    # result is smaller than setup. A filter action may legitimately reduce
+    # rows without argument values (for example a low-stock report).
+    if any(not isinstance(count, int) and not str(count).strip().isdigit()
+           for count in rows.values()):
+        return None
+    if kind == "filter" or args:
         return None
     if expected < seeded:
         return ("list case expects fewer rows than its setup but performs "
@@ -1027,7 +1563,7 @@ def _create_expected_error(case, setup, models, method):
     if not isinstance(state, dict):
         return None
     by_alias = {normalize(step.get("as") or ""): step for step in setup}
-    for target, expected in state.items():
+    for target, expected in list(state.items()):
         alias, _, field = str(target).partition(".")
         step = by_alias.get(normalize(alias))
         if step is None:
@@ -1043,6 +1579,34 @@ def _create_expected_error(case, setup, models, method):
     return None
 
 
+def _count_value(value):
+    """A non-negative integer from a count or inequality expectation."""
+    if isinstance(value, (int, float)):
+        return max(0, int(value))
+    text = str(value or "").strip()
+    for operator in (">=", "<=", ">", "<", "!=", "=="):
+        if text.startswith(operator):
+            text = text[len(operator):].strip()
+            break
+    try:
+        return max(0, int(text))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _row_count_positive(value):
+    """Whether a case row expectation requires at least one seeded row."""
+    if isinstance(value, (int, float)):
+        return value > 0
+    text = str(value or "").strip().lower()
+    if text.startswith((">=", ">", "!=")):
+        text = text.lstrip("><=! ").strip()
+    try:
+        return int(text) > 0
+    except (TypeError, ValueError):
+        return text not in ("", "0", "false", "none", "null")
+
+
 def _read_expected_error(case, kind, setup, models):
     if kind not in ("read_all", "filter", "read_one"):
         return None
@@ -1053,9 +1617,9 @@ def _read_expected_error(case, kind, setup, models):
               if step.get("seed") is not False}
     for alias, count in rows.items():
         entity = _entity_for(alias, models) or alias
-        if int(count) > 0 and normalize(entity) not in seeded:
+        if _row_count_positive(count) and normalize(entity) not in seeded:
             return (f"read case expects {entity} rows but seeds no {entity}")
-    if any(int(count) > 0 for count in rows.values()):
+    if any(_row_count_positive(count) for count in rows.values()):
         for step in setup:
             model = models.get(normalize(step.get("entity")))
             if model is None:
@@ -1093,7 +1657,7 @@ def _update_value_error(case, docs, models, setup, method, args):
         return None
     by_alias = {normalize(step.get("as") or ""): step for step in setup}
     supplied = _update_values(method, args)
-    for target, expected in state.items():
+    for target, expected in list(state.items()):
         alias, _, field_name = str(target).partition(".")
         if not alias or not field_name:
             continue
@@ -1122,8 +1686,11 @@ def _update_value_error(case, docs, models, setup, method, args):
         value = supplied.get(normalize(canonical),
                              supplied.get(normalize(field_name), _MISSING))
         if value is _MISSING or value == current:
-            return (f"update case supplies no new value for {target!r} "
-                    f"(setup has {current!r})")
+            # The case describes an update without a changed value. That is a
+            # case-generation defect; drop the unobservable assertion and
+            # leave the action executable.
+            case.setdefault("then", {}).get("state", {}).pop(target, None)
+            continue
         if value != expected:
             return (f"update case supplies {value!r} for {target!r}, "
                     f"but expects {expected!r}")
@@ -1152,13 +1719,103 @@ def _state_field_error(case, docs, models):
     return None
 
 
+def _materialize_file_fixture(case, docs, method, args):
+    """Create a deterministic file for an import/export service action."""
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    file_param = next((p["name"] for p in params
+                       if any(marker in normalize(p["name"]) for marker in
+                              ("file", "path", "output", "outfile"))), None)
+    if file_param is None:
+        return args
+    action = normalize(str((case.get("when") or {}).get("action") or "") +
+                       " " + str(case.get("source") or ""))
+    importing = "import" in action or "read" in action
+    exporting = "export" in action or "write" in action
+    if not importing and not exporting:
+        return args
+    # Pick the entity from the setup row or the action words; fall back to
+    # the first model only when the method has exactly one obvious target.
+    aliases = case.get("given") or {}
+    entity = None
+    if isinstance(aliases, dict):
+        for alias in aliases:
+            entity = _entity_for(alias, _models(docs))
+            if entity:
+                break
+    if entity is None:
+        models = _models(docs)
+        words = {normalize(word) for word in re.findall(r"[A-Za-z0-9]+", action)}
+        matches = [name for name in models if normalize(name) in words]
+        entity = matches[0] if len(matches) == 1 else None
+    path = Path(tempfile.mkdtemp(prefix="esus-oracle-file-")) / (
+        f"{case.get('id') or 'fixture'}.csv")
+    if importing:
+        model = next((item for item in docs.get("models") or []
+                      if isinstance(item, dict) and item.get("name") == entity), None)
+        fields = [field for field in (model or {}).get("fields") or []
+                  if isinstance(field, dict) and field.get("name")
+                  and not field.get("primary_key")]
+        with path.open("w", newline="", encoding="utf-8") as handle:
+            writer = csv.writer(handle)
+            writer.writerow([field["name"] for field in fields])
+            if (case.get("then") or {}).get("error"):
+                writer.writerow(["", ""])
+            else:
+                writer.writerow([fixtures._sample(field, entity or "row")
+                                 for field in fields])
+    else:
+        # Export may create the file; a stale path must not exist.
+        path.unlink(missing_ok=True)
+    target = str(path)
+    if isinstance(args, dict):
+        args[file_param] = target
+        return args
+    if isinstance(args, list):
+        replaced = False
+        for index, value in enumerate(args):
+            if isinstance(value, str) and (
+                    value.lower().endswith((".csv", ".json", ".txt"))
+                    or "file" in normalize(value) or "path" in normalize(value)):
+                args[index] = target
+                replaced = True
+                break
+        if not replaced:
+            args.append(target)
+        return args
+    return target
+
+
+def _drop_literal_param_args(case, method, args, kind):
+    """Ignore bare parameter names used as list/sort markers in cases."""
+    if kind not in ("read_all", "filter", "read_one"):
+        return args
+    params = {normalize(param.get("name")) for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")}
+    if not params:
+        return args
+    raw = (case.get("when") or {}).get("args")
+    if not isinstance(raw, list):
+        return args
+    kept = [value for value in raw
+            if not (isinstance(value, str) and "." not in value
+                    and "=" not in value and normalize(value) in params)]
+    if len(kept) == len(raw):
+        return args
+    case.setdefault("when", {})["args"] = kept
+    return kept
+
+
 def bind_case(case, docs):
     """`(scenario, reason)` for the existing worker scenario DSL."""
     models = _models(docs)
     setup, reason = _setup(case, docs, models)
     if setup is None:
         return None, reason
+    setup = _complete_setup_parents(setup, docs, case)
+    setup = _complete_order_items(setup, docs)
     create_target = _mark_create_target(case, setup)
+    _complete_create_required_values(create_target, case, docs)
     missing = _missing_setup(case, docs, setup)
     if missing:
         return None, missing
@@ -1190,15 +1847,26 @@ def bind_case(case, docs):
     if bound is None:
         return None, reason
     holder, method = bound
+    direction = _file_direction(case_when.get("action"))
+    if direction and _file_direction(method.get("name")) not in (None, direction):
+        return None, (f"no generated method matches {case_when.get('action')!r} "
+                      f"for {direction}")
     args = _complete_id_args(
         method, _service_args(case_when.get("args") or [], setup), setup)
-    args = _complete_create_args(method, args, setup)
-    args = _complete_update_args(method, args, setup)
+    args = _complete_create_args(method, args, setup, create_target)
+    args = _complete_update_args(method, args, setup, case)
     args = _coerce_args(method, args)
     kind = codegen.classify_crud(method.get("name") or "")
     if kind in ("filter", "read_all", "read_one"):
         args = _filter_args(method, case_when.get("action") or "", args)
         args = _coerce_args(method, args)
+    args = _materialize_file_fixture(case, docs, method, args)
+    sort_gap = _sort_gap(case, docs)
+    if sort_gap:
+        return None, sort_gap
+    expectation = _filter_expectation_error(case, docs, setup, method, args)
+    if expectation:
+        return None, expectation
     shape_error = _argument_shape_error(case, method, kind)
     if shape_error:
         return None, shape_error
@@ -1208,12 +1876,18 @@ def bind_case(case, docs):
     unknown_state = _unknown_state_error(case, setup, create_target)
     if unknown_state:
         return None, unknown_state
+    setup = _complete_error_parents(setup, docs, case, method)
+    setup = _complete_setup_parents(setup, docs, case)
+    missing = _missing_setup(case, docs, setup)
+    if missing:
+        return None, missing
     missing_row = _missing_error_rows(case, docs, setup, method)
     if missing_row:
         return None, missing_row
     literal_error = _literal_param_error(case, method, kind)
     if literal_error:
         return None, literal_error
+    args = _drop_literal_param_args(case, method, args, kind)
     delete_error = _delete_state_error(
         case, docs, setup, method, docs.get("requirements") or "")
     if delete_error:

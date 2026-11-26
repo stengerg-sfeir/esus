@@ -1497,6 +1497,27 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "text search")
                 continue
+            boolean_filter = _repo_named_boolean_filter_body(
+                ctx, entity, model_cls, method)
+            if boolean_filter is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical boolean filter]"""']
+                lines.extend("        " + line if line else "" for line in boolean_filter)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "boolean filter")
+                continue
+            top_selling = _repo_top_selling_body(ctx, entity, method)
+            if top_selling is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical top-selling report]"""']
+                lines.extend("        " + line if line else "" for line in top_selling)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "top-selling report")
+                continue
             mark_state = _repo_mark_state_body(ctx, entity, method)
             if mark_state is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -1893,6 +1914,56 @@ def _repo_check_stock_body(ctx, entity, model_cls, method):
         f"    if product.get({stock!r}) <= 0:",
         f"        raise errors.{codegen.sanitize(stock_error)}("
         f"f\"Product with id {{product_id}} has insufficient stock quantity\")",
+    ]
+
+
+def _repo_named_boolean_filter_body(ctx, entity, model_cls, method):
+    """A list read filtered by the one boolean field its name mentions."""
+    name = normalize(method.get("name") or "")
+    fields = [field for field_name, field in fields_of(ctx, entity)
+              if isinstance(field, dict)
+              and str(field.get("type") or "").lower() in ("bool", "boolean")]
+    matches = [field for field in fields
+               if any(token and token in name for token in _name_tokens(field.get("name")))]
+    if len(matches) != 1:
+        return None
+    field = matches[0].get("name")
+    rows = f"[({field!r}, 'eq', True)]"
+    if model_cls is None:
+        return [f"return self._store.select(self.ENTITY, {rows})"]
+    return [f"return _model_list(self._store.select(self.ENTITY, {rows}), {model_cls})"]
+
+
+def _repo_top_selling_body(ctx, entity, method):
+    """Top products by total quantity sold, using Sale->Product ids."""
+    name = normalize(method.get("name") or "")
+    if "top" not in name or not ("sell" in name or "sold" in name):
+        return None
+    returns = str(method.get("return_type") or "")
+    target = next((item for item in ctx.get("entity_names") or []
+                   if item and normalize(item) in normalize(returns)), None)
+    if not target:
+        return None
+    sale_fields = {normalize(field.get("name")): field.get("name")
+                   for _n, field in fields_of(ctx, entity)
+                   if isinstance(field, dict) and field.get("name")}
+    product_id = sale_fields.get("productid") or sale_fields.get("product_id")
+    quantity = sale_fields.get("quantity")
+    if not product_id or not quantity:
+        return None
+    target_pk = primary_key_of(ctx, target)
+    return [
+        "totals = {}",
+        "for sale in self._store.select(self.ENTITY, []):",
+        f"    product_id = sale.get({product_id!r})",
+        f"    totals[product_id] = totals.get(product_id, 0) + (sale.get({quantity!r}) or 0)",
+        "ordered = sorted(totals, key=lambda key: totals[key], reverse=True)[:10]",
+        "products = []",
+        "for product_id in ordered:",
+        f"    row = self._store.get({target!r}, {target_pk!r}, product_id)",
+        "    if row is not None:",
+        f"        products.append(models.{codegen.sanitize(target)}(**row))",
+        "return products",
     ]
 
 
@@ -3527,6 +3598,11 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
         if entity_param is not None:
             lines.append(f"values.update(_record_values({entity_param[1]}, {field_names!r}))")
         for raw, ident in scalars:
+            if raw not in field_names:
+                # A mapping/list parameter that is not a model field
+                # (`order_lines_data`) is consumed by custom create logic,
+                # not passed as a constructor keyword.
+                continue
             lines.append(f"if {ident} is not None:")
             lines.append(f"    values[{raw!r}] = {ident}")
         lines.append(f"unknown = [k for k in values if k not in {field_names!r}]")
@@ -3547,6 +3623,16 @@ def _create_body(ctx, method, params, entity, model_cls, field_names, fk_literal
         lines.append(
             f"    raise ValueError(f\"{entity}.{field_name} must be one of "
             f"{values_enum!r}\")")
+    for field_name, field in fields_of(ctx, entity):
+        if _field_default(ctx, field) is not None:
+            continue
+        declared = str(field.get("type") or "").strip().lower()
+        if normalize(field_name) in ("status", "state") \
+                and declared in ("str", "string", "text") \
+                and not field.get("nullable") and not field.get("primary_key"):
+            default_state = "pending" if normalize(field_name) == "status" else "active"
+            lines.append(f"if values.get({field_name!r}) is None:")
+            lines.append(f"    values[{field_name!r}] = {default_state!r}")
     for field_name, field in fields_of(ctx, entity):
         if _field_default(ctx, field) is not None:
             continue
@@ -12146,6 +12232,73 @@ def fill_simple_service_reads(files, ctx):
     return files, replaced
 
 
+def fill_import_service_bodies(files, ctx):
+    """Fill a simple list/dict import stub from the entity repository."""
+    text = files.get("services.py")
+    if not isinstance(text, str):
+        return files, []
+    services = {item.get("service_name"): item for item in ctx.get("services") or []
+                if isinstance(item, dict) and item.get("service_name")}
+    repositories = {item.get("entity"): item for item in ctx.get("repositories") or []
+                    if isinstance(item, dict) and item.get("entity")}
+    replaced = []
+    blocked = set()
+    while True:
+        target = next((span for span in find_stub_spans(text)
+                       if span[2].get("cls") in services
+                       and f"{span[2].get('cls')}.{_stub_method(span[2])}" not in blocked), None)
+        if target is None:
+            break
+        start, end, info = target
+        cls = info.get("cls")
+        method = _stub_method(info)
+        label = f"{cls}.{method}"
+        if "import" not in normalize(method):
+            blocked.add(label)
+            continue
+        service = services[cls]
+        prefix = cls.replace("Service", "")
+        repo = next((item for entity, item in repositories.items()
+                     if normalize(entity) and normalize(prefix).startswith(normalize(entity))), None)
+        if repo is None:
+            blocked.add(label)
+            continue
+        repo_name = repo.get("interface_name") or f"{repo.get('entity')}Repository"
+        create = next((item for item in repo.get("methods") or []
+                       if isinstance(item, dict) and normalize(item.get("name") or "") == "create"), None)
+        if create is None:
+            blocked.add(label)
+            continue
+        fields = [item.get("name") for item in create.get("params") or []
+                  if isinstance(item, dict) and item.get("name")]
+        method_def = next((item for item in service.get("methods") or []
+                           if isinstance(item, dict) and item.get("name") == method), {})
+        params = [item.get("name") for item in method_def.get("params") or []
+                  if isinstance(item, dict) and item.get("name")]
+        if not params:
+            blocked.add(label)
+            continue
+        source = codegen.sanitize(params[0], "data")
+        body = [
+            f"for item in ({source} or []):",
+            "    if not isinstance(item, dict):",
+            "        return False",
+            f"    self._repos[{repo_name!r}].create(**{{name: item.get(name) for name in {fields!r}}})",
+            "return True",
+        ]
+        candidate = _spliced_candidate(text, start, end, info, body,
+                                       "generator-import-fallback")
+        try:
+            compile(candidate, "services.py", "exec")
+        except SyntaxError:
+            blocked.add(label)
+            continue
+        text = candidate
+        replaced.append(label)
+    files["services.py"] = text
+    return files, replaced
+
+
 def fill_contract_create_bodies(files, ctx):
     """Write a refused create from its create/precondition contract.
 
@@ -12814,7 +12967,11 @@ def main(argv=None):
             repairs_by_method=repairs_by_method)
     files, mechanical_fallbacks = fill_simple_service_crud(files, ctx)
     files, read_fallbacks = fill_simple_service_reads(files, ctx)
+    files, import_fallbacks = fill_import_service_bodies(files, ctx)
     files, contract_fallbacks = fill_contract_create_bodies(files, ctx)
+    if import_fallbacks:
+        stats["import_fallbacks"] = import_fallbacks
+        print("import fallback: " + ", ".join(import_fallbacks))
     if read_fallbacks:
         stats["read_fallbacks"] = read_fallbacks
         print("read fallback: " + ", ".join(read_fallbacks))

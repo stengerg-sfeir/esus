@@ -108,10 +108,10 @@ class OracleBinderTests(unittest.TestCase):
             "repos": [],
         }
         scenario, reason = binder.bind_case(
-            case(when={"action": "create_order"}, given={
+            case(when={"action": "create_order"}, then={}, given={
                 "order": {"status": "confirmed", "customer_id": 1}}), docs)
-        self.assertIsNone(scenario)
-        self.assertIn("Customer row", reason)
+        self.assertIsNone(reason)
+        self.assertIn("Customer", {step["entity"] for step in scenario["setup"]})
         scenario, reason = binder.bind_case(
             case(when={"action": "create_order"}, given={
                 "customer": {"id": 1},
@@ -420,7 +420,7 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(scenario)
         self.assertIn("Order.order_date", reason)
 
-    def test_an_update_that_supplies_no_new_value_is_unbound(self):
+    def test_an_update_that_supplies_no_new_value_is_normalized(self):
         docs = {
             "models": [{"name": "Project", "fields": [
                 {"name": "project_id", "primary_key": True},
@@ -436,8 +436,8 @@ class OracleBinderTests(unittest.TestCase):
                  given={"project": {"description": "An existing project"}},
                  then={"state": {
                      "project.description": "An updated description"}}), docs)
-        self.assertIsNone(scenario)
-        self.assertIn("supplies no new value", reason)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["fields"], {})
 
     def test_a_create_target_is_payload_not_an_existing_row(self):
         docs = {
@@ -629,7 +629,7 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"], [5])
 
-    def test_delete_state_on_a_hard_deleted_row_is_unbound(self):
+    def test_delete_state_on_a_hard_deleted_row_is_normalized(self):
         docs = {
             "models": [{"name": "Customer", "fields": [
                 {"name": "customer_id", "primary_key": True},
@@ -645,8 +645,8 @@ class OracleBinderTests(unittest.TestCase):
                  given={"customer": {"customer_id": 1}},
                  then={"state": {"customer.name": "x"},
                        "rows": {"Customer": 0}}), docs)
-        self.assertIsNone(scenario)
-        self.assertIn("hard-deleted row", reason)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["fields"], {})
 
     def test_a_standalone_app_case_binds_with_empty_setup(self):
         docs = {"models": [], "services": [], "repos": []}
@@ -657,6 +657,115 @@ class OracleBinderTests(unittest.TestCase):
         self.assertEqual(scenario["setup"], [])
         self.assertEqual(scenario["when"]["args"], ["2", "+", "3"])
         self.assertEqual(scenario["expect"]["stdout_contains"], "5")
+
+    def test_a_contradictory_zero_row_filter_case_is_repaired(self):
+        docs = {
+            "models": [
+                {"name": "Category", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "reorder_threshold"}]},
+                {"name": "Product", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "category_id"},
+                    {"name": "stock_qty"}]},
+            ],
+            "services": [{"service_name": "InventoryService", "methods": [{
+                "name": "list_products", "params": [
+                    {"name": "category_id"}, {"name": "low_only"}],
+                "return_type": "List[Product]"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_products", "args": [1, True]},
+                 given={"category": {"id": 1, "reorder_threshold": 10},
+                        "product": {"category_id": 1, "stock_qty": 3}},
+                 then={"rows": {"Product": 0}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["rows"], {"Product": 1})
+        self.assertIn("product_other", {step["as"] for step in scenario["setup"]})
+
+    def test_a_contradictory_author_filter_case_is_repaired(self):
+        docs = {
+            "models": [
+                {"name": "Book", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "author_id"}]},
+            ],
+            "services": [],
+            "repos": [{"interface_name": "BookRepository", "methods": [{
+                "name": "read_all", "params": [{"name": "author_id"}],
+                "return_type": "List[Book]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_books", "args": ["author_id=1"]},
+                 given={"book": {"author_id": 1}},
+                 then={"rows": {"Book": 0}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["rows"], {"Book": 1})
+        self.assertIn("book_other", {step["as"] for step in scenario["setup"]})
+
+    def test_a_boolean_only_flag_maps_to_the_active_filter(self):
+        docs = {
+            "models": [{"name": "Member", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "is_active"}]}],
+            "services": [],
+            "repos": [{"interface_name": "MemberRepository", "methods": [{
+                "name": "read_all", "params": [{"name": "is_active"}],
+                "return_type": "List[Member]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_members", "args": ["active_only"]},
+                 given={"member": {"is_active": True}},
+                 then={"rows": {"Member": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {"is_active": True})
+
+    def test_a_sort_direction_without_a_generated_sort_parameter_is_a_gap(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "name"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "read_all", "params": [{"name": "name"}],
+                "return_type": "List[Product]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_products", "args": ["asc"]},
+                 given={"product": {"name": "Laptop"}},
+                 then={"rows": {"Product": 1}}), docs)
+        self.assertIsNone(scenario)
+        self.assertIn("no sort parameter", reason)
+
+    def test_order_item_fixture_is_added_for_order_cancellation(self):
+        docs = {
+            "models": [
+                {"name": "Order", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "status"}]},
+                {"name": "Product", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "stock_quantity"}]},
+                {"name": "OrderItem", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "order_id"}, {"name": "product_id"},
+                    {"name": "quantity"}]},
+            ],
+            "services": [{"service_name": "OrderService", "methods": [{
+                "name": "cancel_order", "params": [{"name": "order_id"}],
+                "return_type": "None"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "cancel_order", "args": ["order.id"]},
+                 given={"order": {"status": "confirmed", "product_id": 1,
+                                  "reserved_stock": 3},
+                        "product": {"id": 1, "stock_quantity": 10}},
+                 then={"state": {"product.stock_quantity": 13},
+                       "rows": {"Order": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertIn("OrderItem", {step["entity"] for step in scenario["setup"]})
 
     def test_an_unknown_action_is_unbound(self):
         scenario, reason = binder.bind_case(

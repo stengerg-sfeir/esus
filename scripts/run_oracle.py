@@ -62,14 +62,18 @@ def main(argv=None):
             encoding="utf-8")
         results.append(payload)
     counts = {}
+    triage_counts = {}
     for payload in results:
         for status, count in (payload.get("counts") or {}).items():
             counts[status] = counts.get(status, 0) + count
+        for kind, count in (payload.get("triage_counts") or {}).items():
+            triage_counts[kind] = triage_counts.get(kind, 0) + count
     report = {"root": str(root), "summary": {
         "projects": len(results),
         "cases": sum(sum((payload.get("counts") or {}).values())
                      for payload in results),
         "counts": counts,
+        "triage_counts": triage_counts,
     }, "results": results}
     output = Path(args.output) if args.output else root / "oracle_report.json"
     output.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
