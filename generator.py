@@ -3106,8 +3106,48 @@ def _repo_two_hop_filter_body(ctx, entity, model_cls, method):
     return None
 
 
+def _repo_sort_body(ctx, method, entity, model_cls, field_names, params):
+    """A mechanical list action sorted by one declared field."""
+    name = normalize(method.get("name") or "")
+    if "sort" not in name:
+        return None
+    if not field_names:
+        return None
+    sort_param = next((item for item in params
+                       if "sort" in normalize(item[0])), None)
+    direction_param = next((item for item in params
+                            if any(word in normalize(item[0])
+                                   for word in ("direction", "order", "desc"))), None)
+    if sort_param is None:
+        return None
+    sort_ident = codegen.sanitize(sort_param[1], "param")
+    direction_ident = (codegen.sanitize(direction_param[1], "param")
+                       if direction_param is not None else None)
+    lines = [
+        f"allowed = {field_names!r}",
+        f"field = {sort_ident} or {field_names[0]!r}",
+        "if field not in allowed:",
+        "    raise ValueError(f'cannot sort by {field!r}')",
+    ]
+    if direction_ident is not None:
+        lines.append(f"reverse = str({direction_ident} or 'asc').lower().startswith('desc')")
+    else:
+        lines.append("reverse = False")
+    lines += [
+        "records = self._store.select(self.ENTITY, [])",
+        f"return [{model_cls}(**row) for row in sorted(" if model_cls
+        else "return [dict(row) for row in sorted(",
+        "    records, key=lambda row: (row.get(field) is None, row.get(field)),",
+        "    reverse=reverse)]",
+    ]
+    return lines
+
+
 def _repo_body(ctx, strategy, detail, method, params, entity, model_cls, field_names, pk, fk_literal, table="self.ENTITY", contract=None):
     """The statement list of one repository method."""
+    sort_body = _repo_sort_body(ctx, method, entity, model_cls, field_names, params)
+    if sort_body is not None:
+        return sort_body
     kind = strategy[5:] if strategy.startswith("crud:") else None
     err = method_error(ctx, method, entity)
     if kind == "create":

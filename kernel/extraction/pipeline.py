@@ -992,6 +992,7 @@ class Pipeline:
             self.documents.get(DATA_MODELS),
             requirements,
             self.log,
+            persistence_ports=self.documents.get(PERSISTENCE_PORTS),
         )
         # A capability method added to a repository contract after step H must
         # reach the persistence port too; otherwise the checker sees one

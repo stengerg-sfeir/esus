@@ -51,14 +51,20 @@ Prompt-derived oracle run:
 - Other invented or vague actions: 16 cases.
 
 **Coverage gaps (real extraction/generation signals):**
-- 1 missing action (export, already fixed in the extractor; awaiting regeneration)
+- 1 missing action (export, fixed in the extractor; awaiting regeneration)
 - 6 ambiguous action bindings
-- 3 missing sort/signature surfaces
+- 3 missing sort/signature surfaces (sort exposure fixed in the extractor; awaiting regeneration)
 
 **Canonical merged verifier:**
 - **85 cases, 85 passed, 0 case defects, 0 behavior findings**
 - One stale legacy `prompt_14` soft-delete case was retired: it supplied an unsupported `status` filter to `list_projects`.
 - The canonical verifier command exits successfully.
+
+## Extractor/generator changes
+
+- Prose import/export requirements are now exposed as real CLI actions with service methods and adapters. Import was previously added and then dropped during surface rebuild; export had no synthesis path.
+- Prose sorted-listing requirements are exposed as a `sort` action with `--sort-by` and `--direction`; the generated repository body mechanically sorts declared fields in either direction. The sort method is added to both the service contract and the persistence port.
+- Verifier binding fixes now prefer a filter method that consumes the case's row reference, normalize `stock`/`AuditRecord` aliases, and treat bare field/parameter names as under-specified cases rather than missing actions.
 
 ## Extraction and sidecar variance
 

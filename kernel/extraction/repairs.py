@@ -3089,7 +3089,7 @@ def repair_flat_prose_surface(components, services, models, requirements, log=No
         "read_one": "get", "get": "get", "find": "find", "search": "search",
         "update": "update", "delete": "delete", "remove": "delete",
         "confirm": "confirm", "cancel": "cancel", "ship": "ship",
-        "export": "export", "import": "import",
+        "export": "export", "import": "import", "sort": "sort",
         "report": "report", "summary": "report",
         "stock": "stock", "restock": "restock",
     }
@@ -3307,6 +3307,95 @@ def _add_capability_method(service, name, adapter, entity, verb, models, log):
     return method
 
 
+def _expose_prose_sort_action(components, services, adapters, models,
+                              requirements, log=None, persistence_ports=None):
+    """Expose `sorted by a, b or c` as a mechanical sort command."""
+    text = requirements or ""
+    match = re.search(r"sorted\s+by\s+(.+?)(?:[.;]|\s+in\s+)",
+                      text, re.IGNORECASE)
+    if match is None:
+        return
+    wanted = [normalize(item) for item in
+              re.split(r"\s*(?:,|\bor\b|\band\b)\s*", match.group(1))
+              if normalize(item)]
+    if not wanted:
+        return
+    model = next((item for item in models or []
+                  if isinstance(item, dict) and item.get("name")
+                  and all(any(normalize(field.get("name")) == name
+                              for field in item.get("fields") or []
+                              if isinstance(field, dict))
+                          for name in wanted)), None)
+    if model is None:
+        return
+    entity = model["name"]
+    facade = (components or {}).get("facade") if isinstance(components, dict) else None
+    invocation = (facade or {}).get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return
+    group = _prose_file_group(commands, models, text)
+    if group is None:
+        return
+    if any(isinstance(sub, dict) and normalize(sub.get("name")) == "sort"
+           for sub in group.get("subcommands") or []):
+        return
+    holder = next((service for service in services or []
+                   if isinstance(service, dict)
+                   and normalize(service.get("service_name") or "").endswith("repository")
+                   and normalize(entity) in normalize(service.get("service_name") or "")),
+                  None)
+    if holder is None:
+        return
+    action = f"sort_{entity.lower()}s"
+    method = {
+        "name": action,
+        "description": f"Lists {entity} records sorted by one declared field.",
+        "params": [{"name": "sort_by", "type": "str"},
+                   {"name": "direction", "type": "str"}],
+        "return_type": f"list[{entity}]",
+        "raises": [],
+        "provenance": "capability_adapter",
+        "review_required": True,
+    }
+    holder.setdefault("methods", []).append(method)
+    port_root = persistence_ports if isinstance(persistence_ports, dict) else {}
+    if isinstance(port_root.get("persistence_ports"), dict):
+        port_root = port_root["persistence_ports"]
+    ports = port_root.get("repositories")
+    port = next((item for item in ports or []
+                 if isinstance(item, dict)
+                 and normalize(item.get("entity") or "") == normalize(entity)), None)
+    if port is not None:
+        port.setdefault("methods", []).append(dict(method))
+    adapter = {
+        "action_name": action,
+        "target_service": holder.get("service_name"),
+        "target_method": action,
+        "provenance": "capability_adapter",
+        "review_required": True,
+        "input_fields": [
+            {"field_name": "sort_by", "target_param": "sort_by",
+             "transform": "DIRECT", "lookup_entity": None, "required": True},
+            {"field_name": "direction", "target_param": "direction",
+             "transform": "DIRECT", "lookup_entity": None, "required": False},
+        ],
+    }
+    adapters.append(adapter)
+    group.setdefault("subcommands", []).append({
+        "name": "sort",
+        "options": [
+            {"name": "--sort-by", "short": None, "type": "str",
+             "required": True, "default": None},
+            {"name": "--direction", "short": None, "type": "str",
+             "required": False, "default": None},
+        ],
+    })
+    if log is not None:
+        log.write(f"[ok] step adapters: exposed prose sort as "
+                  f"{group.get('name')} sort")
+
+
 def _prose_file_group(commands, models, text):
     group = next((command for command in commands
                   if isinstance(command, dict)
@@ -3380,7 +3469,7 @@ def _expose_prose_file_action(components, services, adapters, models,
 
 
 def repair_capability_adapters(components, services, adapters, models,
-                               requirements, log=None):
+                               requirements, log=None, persistence_ports=None):
     """Give capability actions a method and expose import when prose asks for it.
 
     A search/export/import action can be fully described by its adapter, yet
@@ -3452,6 +3541,8 @@ def repair_capability_adapters(components, services, adapters, models,
                               requirements, "import", log)
     _expose_prose_file_action(components, services, adapters, models,
                               requirements, "export", log)
+    _expose_prose_sort_action(components, services, adapters, models,
+                              requirements, log, persistence_ports)
     return components
 
 
@@ -3514,7 +3605,7 @@ def repair_surface_from_adapters(components, adapters, models, services, require
         "read_one": "get", "get": "get", "find": "find", "search": "search",
         "update": "update", "delete": "delete", "remove": "delete",
         "confirm": "confirm", "cancel": "cancel", "ship": "ship",
-        "export": "export", "import": "import",
+        "export": "export", "import": "import", "sort": "sort",
         "report": "report", "summary": "report",
         "stock": "stock", "restock": "restock",
     }

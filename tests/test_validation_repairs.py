@@ -333,6 +333,37 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertIn("import_contacts_from_csv", methods)
 
 
+    def test_prose_sort_survives_surface_rebuild_and_it_updates_the_port(self):
+        models = [{"name": "Product", "fields": [
+            {"name": "product_id", "type": "int", "primary_key": True},
+            {"name": "name", "type": "string"},
+            {"name": "price", "type": "int"},
+            {"name": "quantity", "type": "int"}]}]
+        services = [{"service_name": "ProductRepository", "methods": [
+            {"name": "read_all", "params": [], "return_type": "list[Product]"}]}]
+        ports = {"persistence_ports": {"repositories": [{
+            "entity": "Product", "interface_name": "ProductRepository",
+            "methods": [{"name": "read_all", "params": [],
+                         "return_type": "list[Product]"}]}]}}
+        adapters = []
+        components = {"facade": {"invocation": {"commands": [{
+            "name": "Product", "options": [], "subcommands": []}]}}}
+        requirements = ("List products sorted by name, price or quantity, "
+                        "in ascending or descending order.")
+        repairs.repair_capability_adapters(
+            components, services, adapters, models, requirements, None, ports)
+        repairs.repair_surface_from_adapters(
+            components, adapters, models, services, requirements)
+        names = [sub["name"] for sub in
+                 components["facade"]["invocation"]["commands"][0]["subcommands"]]
+        self.assertIn("sort", names)
+        self.assertIn("sort_products",
+                      {m["name"] for m in services[0]["methods"]})
+        self.assertIn("sort_products",
+                      {m["name"] for m in
+                       ports["persistence_ports"]["repositories"][0]["methods"]})
+
+
 class CapabilityOwnershipTests(unittest.TestCase):
     def test_an_action_cannot_land_on_a_service_that_does_not_own_it(self):
         models = [{"name": "Order", "fields": []}]
