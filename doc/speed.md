@@ -7,11 +7,13 @@ This page records measurements and the ideas they suggest. Some ideas are implem
 > evidence and the scaling and sovereignty caveats are in
 > [What the rerun does and does not establish](#what-the-rerun-does-and-does-not-establish-2026-11-13).
 
-## Current 66-prompt status (2026-11-19)
+## 66-prompt status (2026-11-19 snapshot)
 
-The latest reproducibility run is snapshot `repro66-20261119-105248`
-(kernel version 8). It extracts the 60 validation prompts plus the six
-initial prompts.
+> This section is the 2026-11-19 performance snapshot. For the current
+> acceptance and unit-test counts, see [Open points](open-points.md).
+
+The snapshot is `repro66-20261119-105248` (kernel version 8). It extracts the
+60 validation prompts plus the six initial prompts.
 
 | Run | Outcome | Wall | Calls | Output tokens | Prompt tokens |
 | --- | --- | ---: | ---: | ---: | ---: |

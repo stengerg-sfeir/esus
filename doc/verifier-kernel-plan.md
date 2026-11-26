@@ -198,6 +198,9 @@ evidence before they can be promoted.
 
 ## Trial result
 
+> This is the trial snapshot. The canonical merged verifier result is in
+> [Open points](open-points.md): 51 passed, 0 failed, 0 unbound.
+
 Across the 35 mapped-untested clauses:
 
 - 65 intents generated;

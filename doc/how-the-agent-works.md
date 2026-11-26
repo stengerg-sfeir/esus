@@ -226,9 +226,9 @@ python3 scripts/run_bench_acceptance.py out/validation/kaggle-v8
 It runs one fresh interpreter per project, imports the generated package,
 checks CLI parsing, schema/store round-trips, CRUD, unique and foreign-key
 constraints, contract effects and data-driven CLI and semantic scenarios. It
-never edits a generated module. Current v8 result: **66/66 projects, 1,073
-checks passed, 0 failed, 0 not applicable**, including state-effect scenarios
-for order cancellation and library return.
+never edits a generated module. Stored v8 result: **66/66 projects, 3,057
+checks passed (2 skipped), 0 failed, 0 not applicable**, including state-effect
+scenarios for order cancellation and library return.
 
 The older prompt-specific suites remain available:
 

@@ -1,17 +1,20 @@
 # Validation of the 66-prompt suite
 
-## Current status (2026-11-19)
+## v8 baseline (2026-11-19)
 
-The current reproducibility job extracts the **60 validation prompts plus the
-six initial prompts** (`hello_world`, `cli_tool`, `expenses`, `gui`,
-`inventory`, `library_system`).
+The v8 reproducibility job extracts the **60 validation prompts plus the six
+initial prompts** (`hello_world`, `cli_tool`, `expenses`, `gui`, `inventory`,
+`library_system`).
 
-Latest Kaggle run (`repro66-20261119-105248`, kernel version 8):
+v8 Kaggle run (`repro66-20261119-105248`, kernel version 8):
 
 - **42 successful / 24 review / 0 failed**
 - **3,596 s** total extraction
 - **529** timed model calls
 - **197,885** output tokens / **292,957** prompt tokens
+
+A later extraction (`repro66-20261120-074359`) classified 43 successful / 23
+review / 0 failed; see [Open points](open-points.md) for the current status.
 
 Local replay from that extraction, using the conservative review sidecars and
 the current generator:

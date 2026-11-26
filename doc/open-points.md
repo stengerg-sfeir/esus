@@ -658,8 +658,8 @@ field synonyms when the extracted model uses the other spelling.
 
 ## Related documents
 
-- Audit findings: `doc/esus_findings_consolides.md` (local working document;
-  currently not tracked)
+- Audit findings: `doc/esus_findings_consolides.md` (audit snapshot; line
+  references may not match the current code)
 - [Validation](validation.md)
 - [Checks, coverage, and gaps](checks-coverage-and-gaps.md)
 - [Speed](speed.md)

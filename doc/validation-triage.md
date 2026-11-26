@@ -1,5 +1,8 @@
 # Validation triage: non-generatable prompts
 
+> Historical record: this triage is from the 2026-11-13 run and its
+> 2026-11-14 resolution. See [Open points](open-points.md) for the active backlog.
+
 First pass over the 10 `not_generatable` prompts from the 2026-11-13 full
 run (`kaggle-20261113-121941`). The full run produced 28 `direct`,
 22 `review` and 10 `not_generatable` results. `direct` is renamed
