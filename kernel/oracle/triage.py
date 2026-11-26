@@ -44,6 +44,8 @@ def classify(status, reason, source=None):
             return "coverage_gap: ambiguous action"
         if "has no sort parameter" in text:
             return "coverage_gap: method signature"
+        if "sort direction but no sort field" in text:
+            return "under_specified"
         if "seeded data matches its filter" in text:
             return "case_defect: setup"
         if "represented by join model" in text:

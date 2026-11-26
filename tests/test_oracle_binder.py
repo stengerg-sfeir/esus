@@ -747,7 +747,7 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"], {"is_active": True})
 
-    def test_a_sort_direction_without_a_generated_sort_parameter_is_a_gap(self):
+    def test_a_sort_direction_without_a_sort_field_is_under_specified(self):
         docs = {
             "models": [{"name": "Product", "fields": [
                 {"name": "id", "primary_key": True},
@@ -762,7 +762,7 @@ class OracleBinderTests(unittest.TestCase):
                  given={"product": {"name": "Laptop"}},
                  then={"rows": {"Product": 1}}), docs)
         self.assertIsNone(scenario)
-        self.assertIn("no sort parameter", reason)
+        self.assertIn("no sort field", reason)
 
     def test_order_item_fixture_is_added_for_order_cancellation(self):
         docs = {

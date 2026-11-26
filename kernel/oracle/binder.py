@@ -870,18 +870,8 @@ def _sort_gap(case, docs):
     action = normalize((case.get("when") or {}).get("action") or "")
     if not any(word in action for word in ("list", "search", "read")):
         return None
-    for group_key in ("services", "repos"):
-        for holder in docs.get(group_key) or []:
-            for method in holder.get("methods") or []:
-                if not isinstance(method, dict):
-                    continue
-                for param in method.get("params") or []:
-                    name = normalize((param or {}).get("name") or "")
-                    if any(word in name for word in
-                           ("sort", "order", "direction")):
-                        return None
-    return ("list case supplies a sort direction but the generated surface "
-            "has no sort parameter")
+    return ("list case supplies a sort direction but no sort field; "
+            "the directive does not determine which field to sort")
 
 
 def _complete_order_items(setup, docs):
