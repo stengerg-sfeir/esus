@@ -1,0 +1,117 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1",
+            "--is-completed"
+          ],
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1",
+            "--is-completed",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--is-completed"
+          ],
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--is-completed",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1",
+            "--description",
+            "value1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "description": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--description",
+            "value1",
+            "--is-completed"
+          ],
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--description",
+            "value1",
+            "--is-completed",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "description": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

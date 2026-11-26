@@ -1,0 +1,38 @@
+{
+  "plans": [
+    {
+      "id": "hello_world_print",
+      "source": "Create a simple Python script with a CLI entry point that prints \"Hello, World!\" with type hints.",
+      "when": {
+        "action": "print",
+        "args": [
+          "Hello, World!"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "main_function_definition",
+      "source": "The script should define a `main()` function and include the standard `if __name__ == \"__main__\": main()` guard.",
+      "when": {
+        "action": "define_function",
+        "args": [
+          "main",
+          "returns: None",
+          "body: print('Hello, World!')"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    }
+  ]
+}

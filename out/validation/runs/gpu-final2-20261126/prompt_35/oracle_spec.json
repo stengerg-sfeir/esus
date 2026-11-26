@@ -1,0 +1,44 @@
+{
+  "requirements_sha": "213db1deec39124498e880db7a50a1c864c6cb5caf31e9d8ae65e3381b6758d4",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "ProductRepository.bulk_update_stock",
+      "chosen": {
+        "effects": [
+          {
+            "target": "product.stock_quantity",
+            "op": "set",
+            "value": "stock_quantity",
+            "write": "self._store.update"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

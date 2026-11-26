@@ -1,0 +1,58 @@
+[run] requirements: 180 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 81 tokens in 0.5s (158.9 tok/s, 169.3 decode, 79 prompt)
+[data_models] 340 tokens in 2.3s (150.3 tok/s, 157.9 decode, 588 prompt)
+[ok] step data_models: Book.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 1 explicit, 2 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (47.5 tok/s, 184.8 decode, 474 prompt)
+[invariants] 7 tokens in 0.1s (62.7 tok/s, 188.3 decode, 278 prompt)
+[ok] step invariants: 11 invariant(s) — 11 schema generated mechanically, 0 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 431 tokens in 3.1s (140.2 tok/s, 144.1 decode, 986 prompt)
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 0.2s (46.3 tok/s, 180.4 decode, 480 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Book add, Book list, Book update, Book delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 121 tokens in 0.8s (156.2 tok/s, 166.1 decode, 386 prompt)
+[ok] step persistence: merged 1 custom repository method(s) into service_contracts
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/6] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [2/6] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [3/6] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [4/6] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [5/6] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/6] contract:BookRepository.search_by_title -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 6 item(s) — 3 standard CRUD, 3 pattern(s), 0 gap(s)
+[ok] step adapters: 9 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: bookupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 5 required create field(s)
+[ok] step adapters: removed 4 duplicate adapter(s)
+[ok] step adapters: added capability method BookRepository.search (search)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: create  lacked '--title' required by 'create' — added as str
+[ok] step adapters: create  lacked '--author' required by 'create' — added as str
+[ok] step adapters: create  lacked '--isbn' required by 'create' — added as str
+[ok] step adapters: create  lacked '--created-at' required by 'create' — added as str
+[ok] step adapters: create  lacked '--updated-at' required by 'create' — added as str
+[ok] step adapters: update  lacked '--id' required by 'bookupdate' — added as int
+[ok] step adapters: delete  lacked '--id' required by 'bookdelete' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 2 adapter(s)
+[ok] step components: added 2 CRUD subcommand(s) from the service contracts: Book add, Book list
+[ok] step adapters: added 2 missing adapter(s) mechanically: Book add, Book list
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_07/requirements.txt
+[run] 7 steps, 998 generated tokens in 7.1s

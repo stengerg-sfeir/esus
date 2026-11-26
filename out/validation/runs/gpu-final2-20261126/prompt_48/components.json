@@ -1,0 +1,145 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "book",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--title",
+            "short": "-t",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--author",
+            "short": "-a",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--genre",
+            "short": "-g",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--isbn",
+            "short": "-i",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--publication-year",
+            "short": "-y",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--category",
+            "short": "-c",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Book",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--author",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--genre",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--isbn",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--publication-year",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--category",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Book",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one"
+        ]
+      }
+    ]
+  }
+}

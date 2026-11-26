@@ -1,0 +1,38 @@
+{
+  "plans": [
+    {
+      "id": "cancel_order_action",
+      "source": "cancelling an order must restore its product quantities",
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Order": 1,
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

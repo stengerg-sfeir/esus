@@ -1,0 +1,227 @@
+{
+  "prompt": "prompt_35",
+  "results": [
+    {
+      "name": "scenario:oracle:create_product",
+      "status": "passed",
+      "case": "create_product",
+      "source": "Provide normal product CRUD operations",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.description": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'description'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_product",
+      "status": "passed",
+      "case": "read_product",
+      "source": "Provide normal product CRUD operations",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.description": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'description'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_one",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProductRepository.delete",
+            "ProductRepository.update"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "update_product",
+      "status": "unbound",
+      "reason": "update case supplies 'description' for 'product.name', but expects 'Gaming Laptop'",
+      "source": "Provide normal product CRUD operations",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.description": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'description'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: other"
+    },
+    {
+      "name": "scenario:oracle:delete_product",
+      "status": "passed",
+      "case": "delete_product",
+      "source": "Provide normal product CRUD operations",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 3,
+    "unbound": 1
+  },
+  "triage_counts": {
+    "passed": 3,
+    "coverage_gap: other": 1
+  }
+}

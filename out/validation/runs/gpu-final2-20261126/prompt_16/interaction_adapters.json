@@ -1,0 +1,153 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_customer",
+      "target_service": "CustomerRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "first_name",
+          "target_param": "first_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "last_name",
+          "target_param": "last_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "phone",
+          "target_param": "phone",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        },
+        {
+          "field_name": "updated_at",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "action_name": "list_customers_paginated",
+      "target_service": "CustomerRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "page_number",
+          "target_param": "first_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "page_size",
+          "target_param": "last_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_customer",
+      "target_service": "CustomerRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        },
+        {
+          "field_name": "first_name",
+          "target_param": "first_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "last_name",
+          "target_param": "last_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "phone",
+          "target_param": "phone",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "delete_customer",
+      "target_service": "CustomerRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        },
+        {
+          "field_name": "first_name",
+          "target_param": "first_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "last_name",
+          "target_param": "last_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "phone",
+          "target_param": "phone",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

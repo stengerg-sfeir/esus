@@ -1,0 +1,67 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "ordership",
+      "target_service": "OrderService",
+      "target_method": "ship_order",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "ordercancel",
+      "target_service": "OrderService",
+      "target_method": "cancel_order",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "orderupdate",
+      "target_service": "OrderService",
+      "target_method": "update_order",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": false
+        },
+        {
+          "field_name": "state",
+          "target_param": "state",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "updated_at",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

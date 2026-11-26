@@ -1,0 +1,19 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/persistence_ports.json
+
+[ok] step contracts: retyped 5 id parameter(s) to int
+[ok] step grounding: dropped EventRepository.get_event_by_date — temporal method names a due/deadline predicate but the model has no Event date field and the prompt does not state one
+[ok] step adapters: eventupdate.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: eventdelete.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: registrationadd.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: registrationadd.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: registrationadd.user_id lookup entity 'User' resolved to Registration
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set

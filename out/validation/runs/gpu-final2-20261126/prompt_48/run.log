@@ -1,0 +1,72 @@
+[run] requirements: 190 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 65 tokens in 0.5s (122.1 tok/s, 170.3 decode, 71 prompt)
+[data_models] 616 tokens in 4.0s (154.6 tok/s, 159.0 decode, 566 prompt)
+[ok] step data_models: Book.primary_key became the integer primary key id
+[ok] step data_models: User.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 2 explicit, 4 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (41.4 tok/s, 185.7 decode, 478 prompt)
+[invariants] 275 tokens in 1.7s (161.0 tok/s, 165.6 decode, 282 prompt)
+[ok] step invariants: 26 invariant(s) — 16 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 899 tokens in 6.3s (141.6 tok/s, 146.0 decode, 990 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-genre' to '--genre'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-publication-year' to '--publication-year'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-genre' to '--genre'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-publication-year' to '--publication-year'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-genre' to '--genre'
+[ok] step components: normalized option '-category' to '--category'
+[service_contracts] 8 tokens in 0.3s (30.1 tok/s, 182.6 decode, 484 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 1 CRUD subcommand(s) from the service contracts: Book add
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.4s (125.3 tok/s, 157.4 decode, 386 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/13] invariant -> PRICE_MARGIN_GUARD (0.97)
+  [2/13] invariant -> STOCK_SUFFICIENCY_GUARD (0.97)
+  [3/13] invariant -> PRICE_MARGIN_GUARD (0.72)
+  [4/13] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [5/13] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [6/13] invariant -> STOCK_SUFFICIENCY_GUARD (0.92)
+  [7/13] invariant -> STATE_TRANSITION_GUARD (0.96)
+  [8/13] invariant -> PRICE_MARGIN_GUARD (0.99)
+  [9/13] invariant -> STOCK_SUFFICIENCY_GUARD (0.96)
+  [10/13] invariant -> NO_PATTERN_IN_DOMAIN (1.00)  <- GAP: no pattern for this
+  [11/13] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/13] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/13] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 13 item(s) — 1 standard CRUD, 11 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: The system must persist book and user data across application executions.
+[!] step adapters: mechanical derivation declined (find: no method matches the verb 'find'); retry after surface repairs declined (find: no method matches the verb 'find') — asking the model
+[interaction_adapters] 659 tokens in 4.2s (158.2 tok/s, 162.2 decode, 513 prompt)
+[ok] step adapters: add_book.publication_year was 'ISO_DATE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: find_books.publication_year was 'ISO_DATE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: get_book_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method BookRepository.find_books (search)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_48/requirements.txt
+[run] 8 steps, 2574 generated tokens in 17.6s

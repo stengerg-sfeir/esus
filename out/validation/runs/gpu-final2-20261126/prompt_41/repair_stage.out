@@ -1,0 +1,27 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/persistence_ports.json
+
+[ok] step contracts: retyped 2 id parameter(s) to int
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): LoanRepository.findOverdueLoans(id)
+[ok] step grounding: dropped LoanRepository.findOverdueLoans — temporal method names a due/deadline predicate but the model has no Loan date field and the prompt does not state one
+[ok] step adapters: update_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_loan.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_loan.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_loan.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_loan.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_loan.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_loan.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_loan.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_loan.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set

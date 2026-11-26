@@ -1,0 +1,15 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_09/persistence_ports.json
+
+[ok] step components: aligned 2 option type(s) with the data model: --salary -> float (Employee.salary), --salary -> float (Employee.salary)
+[ok] step adapters: update_employee.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_employee.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set

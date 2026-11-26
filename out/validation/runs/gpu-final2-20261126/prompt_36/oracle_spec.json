@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "147a87861baa9b6d2c69c67b6b2291215f22a35da85e5a8773cbc112ec78fa1d",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "A product must belong to an existing category.",
+      "chosen": "STATE_TRANSITION_GUARD",
+      "candidates": [
+        "STATE_TRANSITION_GUARD",
+        "BUDGET_OVERFLOW_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

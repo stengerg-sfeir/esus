@@ -1,0 +1,128 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_number must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_number must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.capacity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.capacity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.reservation_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.room_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.room_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.room_id must reference an existing Room.room_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.start_time must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.start_time must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.end_time must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Reservation.end_time must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A reservation must not overlap with an existing reservation in the same room.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a reservation starts at or after the end time of an existing reservation in the same room, it does not overlap.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a reservation ends at or before the start time of an existing reservation in the same room, it does not overlap.",
+      "kind": "rule"
+    },
+    {
+      "text": "A room cannot have two reservations that occupy the same time interval.",
+      "kind": "rule"
+    },
+    {
+      "text": "A reservation with a start time that is greater than or equal to its end time is invalid and must be rejected.",
+      "kind": "rule"
+    },
+    {
+      "text": "A reservation must be associated with a valid customer through the customer_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "A reservation must be associated with a valid room through the room_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer can have multiple reservations across different rooms and time periods.",
+      "kind": "rule"
+    },
+    {
+      "text": "A room's capacity must not be exceeded by the number of guests in a reservation.",
+      "kind": "rule"
+    },
+    {
+      "text": "Reservations that overlap in time and room are rejected during creation or update.",
+      "kind": "rule"
+    }
+  ]
+}

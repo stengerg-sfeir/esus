@@ -1,0 +1,216 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "command",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--book",
+            "short": "-b",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--member",
+            "short": "-m",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--loan-id",
+            "short": "-l",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--due-date",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--closed",
+            "short": "-c",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Loan",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--book-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--member-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--loan-date",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--closed",
+                    "short": null,
+                    "type": "bool",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Book",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--isbn",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--available",
+                    "short": null,
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Member",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Book",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one"
+        ]
+      },
+      {
+        "entity": "Member",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one"
+        ]
+      },
+      {
+        "entity": "Loan",
+        "operations": [
+          "create",
+          "read_one",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

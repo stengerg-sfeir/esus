@@ -1,0 +1,127 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Product.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "sort_products",
+          "description": "Lists Product records sorted by one declared field.",
+          "params": [
+            {
+              "name": "sort_by",
+              "type": "str"
+            },
+            {
+              "name": "direction",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "prompt": "prompt_expenses",
+  "run_id": "gpu-final2-20261126",
+  "prompt_file": "prompts/initial/prompt_expenses.txt",
+  "output_dir": "out/validation/runs/gpu-final2-20261126/prompt_expenses",
+  "sha256": "38b30610273d844426a4e802cd7e39375cb141e3e00034ab726ac9720817f537",
+  "bytes": 3320,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 42.593,
+  "tokens": {
+    "calls": 9,
+    "tokens_out": 5534,
+    "tokens_prompt": 10827,
+    "decode_seconds": 36.779
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "post-repair",
+    "blockers": 3,
+    "open_ties": 0,
+    "rules": [
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: expense report yearly: --year — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "1 unanswered surface questions; run the attended review before generation"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "3 unanswered pattern slots; run the attended review before generation"
+      }
+    ]
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/usr/bin/python3.12",
+      "/tmp/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/initial/prompt_expenses.txt",
+      "--output",
+      "out/validation/runs/gpu-final2-20261126/prompt_expenses",
+      "--no-chat",
+      "--quiet"
+    ],
+    "repair": [
+      "/usr/bin/python3.12",
+      "/tmp/esus/extract_arch.py",
+      "--repair",
+      "--output",
+      "out/validation/runs/gpu-final2-20261126/prompt_expenses",
+      "--check"
+    ]
+  }
+}

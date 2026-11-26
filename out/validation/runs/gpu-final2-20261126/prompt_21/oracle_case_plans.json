@@ -1,0 +1,140 @@
+{
+  "plans": [
+    {
+      "id": "list_orders_by_customer",
+      "source": "list all orders belonging to a customer",
+      "when": {
+        "action": "list_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 1
+        },
+        "state": [
+          "order.status",
+          "order.date"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_order_for_customer",
+      "source": "Create a Python 3.12 order management application. Customers can have multiple orders. Each order belongs to exactly one customer and has a date and status.",
+      "when": {
+        "action": "create_order",
+        "args": [
+          "customer.id",
+          "date",
+          "status"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "created"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 1
+        },
+        "state": [
+          "order.status",
+          "order.date"
+        ]
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "update_order_status",
+      "source": "Each order belongs to exactly one customer and has a date and status.",
+      "when": {
+        "action": "update_order",
+        "args": [
+          "order.id",
+          "status"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ]
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "delete_order",
+      "source": "Provide CRUD operations for customers and orders",
+      "when": {
+        "action": "delete_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 0
+        }
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "create_customer",
+      "source": "Provide CRUD operations for customers and orders",
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "created"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

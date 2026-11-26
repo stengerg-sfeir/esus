@@ -1,0 +1,76 @@
+{
+  "invariants": [
+    {
+      "text": "User.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "User.password_hash must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.password_hash must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.content must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.content must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.owner_user_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.owner_user_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Document.owner_user_id must reference an existing User.id",
+      "kind": "schema"
+    },
+    {
+      "text": "A user can only read, modify, or delete a document if the document's owner_user_id matches the user's id.",
+      "kind": "rule"
+    },
+    {
+      "text": "Access to a document is restricted to authenticated users only.",
+      "kind": "rule"
+    },
+    {
+      "text": "A user must provide valid credentials to authenticate before accessing any document.",
+      "kind": "rule"
+    },
+    {
+      "text": "The owner_user_id field in the Document entity must reference a valid User.id.",
+      "kind": "rule"
+    },
+    {
+      "text": "A document's owner_user_id must be set to the id of the user who created it.",
+      "kind": "rule"
+    }
+  ]
+}

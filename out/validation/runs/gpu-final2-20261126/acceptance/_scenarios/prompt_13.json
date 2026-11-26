@@ -1,0 +1,97 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--sku",
+            "value1",
+            "--category-id",
+            "value1",
+            "--price",
+            "2",
+            "--stock-quantity",
+            "2",
+            "--name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--category-id",
+            "value1",
+            "--price",
+            "2",
+            "--stock-quantity",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0,
+            "stock_quantity": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--category",
+            "value1",
+            "--price",
+            "2.0",
+            "--stock-quantity",
+            "2"
+          ],
+          [
+            "Product",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "category": "value1",
+            "price": 2.0,
+            "stock_quantity": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

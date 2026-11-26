@@ -1,0 +1,80 @@
+{
+  "invariants": [
+    {
+      "text": "Task.task_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.due_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "If a task's due_date is set, it must be a valid date in the past or in the future, and cannot be null.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's status must be one of 'pending', 'in-progress', 'completed', or 'cancelled'.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's priority must be one of 'low', 'medium', 'high', or 'urgent'.",
+      "kind": "rule"
+    },
+    {
+      "text": "When importing tasks from JSON, each task must have a non-empty title and a valid due_date if provided.",
+      "kind": "rule"
+    },
+    {
+      "text": "When importing tasks from JSON, if a task has a due_date, it must be a valid ISO-formatted date string or a valid datetime object.",
+      "kind": "rule"
+    },
+    {
+      "text": "When exporting tasks to JSON, all tasks must include their task_id, title, description, due_date, status, and priority fields.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a task's status is 'completed', its due_date must be in the past or equal to the current date.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task with a null due_date must have a status that is not 'completed'.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total number of tasks with status 'completed' must not exceed 30% of the total number of tasks in the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a task is updated, its due_date must not be set to a future date if its status is 'completed'.",
+      "kind": "rule"
+    }
+  ]
+}

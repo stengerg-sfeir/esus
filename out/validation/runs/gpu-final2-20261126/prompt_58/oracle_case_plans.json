@@ -1,0 +1,56 @@
+{
+  "plans": [
+    {
+      "id": "retrieve_customer_info_from_external_service",
+      "source": "retrieves additional customer information from an external service",
+      "when": {
+        "action": "retrieve_customer_info",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.info_fetched"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "application_continues_when_external_service_unavailable",
+      "source": "The application should continue to operate correctly when the external service is unavailable",
+      "when": {
+        "action": "operate",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    }
+  ]
+}

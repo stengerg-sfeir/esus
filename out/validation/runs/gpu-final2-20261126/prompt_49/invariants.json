@@ -1,0 +1,76 @@
+{
+  "invariants": [
+    {
+      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.first_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.first_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.last_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.last_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.department_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.department_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.department_id must reference an existing Department.department_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Department.department_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Department.department_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Department.department_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An employee must belong to exactly one department.",
+      "kind": "rule"
+    },
+    {
+      "text": "The department name must be unique across all departments.",
+      "kind": "rule"
+    },
+    {
+      "text": "An employee's email must be unique across all employees.",
+      "kind": "rule"
+    },
+    {
+      "text": "An employee's first name and last name together must uniquely identify the employee.",
+      "kind": "rule"
+    },
+    {
+      "text": "A department must have at least one employee assigned to it.",
+      "kind": "rule"
+    }
+  ]
+}

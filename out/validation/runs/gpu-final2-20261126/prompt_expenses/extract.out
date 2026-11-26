@@ -1,0 +1,39 @@
+steps:
+  intentions: the program's own phrases from the requirements
+  data_models: entities and their fields
+  errors: application error types
+  invariants: rules the program must always hold
+  components: CLI surface and CRUD services
+  service_contracts: service methods with params and raises
+  errors_repair: deterministic error-registry fix (no model call)
+  pattern_matches: pattern classification of invariants and methods
+  interaction_adapters: CLI input to service-method mapping
+  persistence_ports: repository interfaces for the entities
+intentions: 14 phrase(s)
+data_models: 3 entities, 16 field(s)
+errors: 3 error(s)
+invariants: 40 invariant(s)
+components: 2 command(s)
+service_contracts: 4 service(s), 25 method(s)
+errors_repair: 3 error(s), 4 service(s) after repair
+persistence_ports: 3 repositor(y/ies)
+pattern_matches: 42 item(s)
+interaction_adapters: 20 adapter(s)
+[intentions] 284 tokens in 1.9s (152.7 tok/s, 161.5 decode, 788 prompt)
+[data_models] 945 tokens in 6.5s (145.7 tok/s, 151.9 decode, 1492 prompt)
+[errors] 138 tokens in 1.3s (106.4 tok/s, 157.7 decode, 1217 prompt)
+[invariants] 440 tokens in 3.0s (144.9 tok/s, 157.5 decode, 1021 prompt)
+[components] 237 tokens in 1.9s (122.1 tok/s, 146.1 decode, 1624 prompt)
+[command_group] 1217 tokens in 8.7s (140.2 tok/s, 145.7 decode, 1212 prompt)
+[command_group] 547 tokens in 4.3s (127.0 tok/s, 140.9 decode, 1027 prompt)
+[service_contracts] 986 tokens in 6.8s (144.3 tok/s, 151.0 decode, 1289 prompt)
+[persistence_ports] 740 tokens in 5.1s (144.8 tok/s, 156.0 decode, 1157 prompt)
+[run] 9 steps, 5534 generated tokens in 39.5s
+==== SUMMARY ====
+review: none — the documents are unreviewed
+blockers: 4, open tie(s): 0
+GENERATABLE: NO — `generator.py` will refuse this output
+  - [ignored_cli_option] interaction_adapters: expense report yearly: --year — no adapter field reads it; the option parses but is not consumed by an effective action
+  - [open_human_review] 1 unanswered method contracts; run the attended review before generation
+  - [open_human_review] 1 unanswered surface questions; run the attended review before generation
+  - [open_human_review] 4 unanswered pattern slots; run the attended review before generation

@@ -1,0 +1,52 @@
+{
+  "requirements_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "A department can have zero or more employees.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "STOCK_SUFFICIENCY_GUARD",
+        "BUDGET_OVERFLOW_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "EmployeeRepository.read_employee_by_id",
+      "chosen": {},
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "DepartmentRepository.read_department_by_id",
+      "chosen": {},
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

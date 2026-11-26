@@ -1,0 +1,118 @@
+[run] requirements: 3299 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 284 tokens in 1.9s (152.7 tok/s, 161.5 decode, 788 prompt)
+[data_models] 945 tokens in 6.5s (145.7 tok/s, 151.9 decode, 1492 prompt)
+[ok] step data_models: uniqueness provenance — 4 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 138 tokens in 1.3s (106.4 tok/s, 157.7 decode, 1217 prompt)
+[invariants] 440 tokens in 3.0s (144.9 tok/s, 157.5 decode, 1021 prompt)
+[ok] step invariants: 40 invariant(s) — 30 schema generated mechanically, 10 rule(s) from the model
+[ok] step components: 14 command line(s) enumerated
+[components] 237 tokens in 1.9s (122.1 tok/s, 146.1 decode, 1624 prompt)
+[command_group] 1217 tokens in 8.7s (140.2 tok/s, 145.7 decode, 1212 prompt)
+[command_group] 547 tokens in 4.3s (127.0 tok/s, 140.9 decode, 1027 prompt)
+[ok] step components: aligned 1 option type(s) with the data model: --category -> int (2 models agreeing on int)
+[service_contracts] 986 tokens in 6.8s (144.3 tok/s, 151.0 decode, 1289 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: Category add, Category list, Category update, Category delete, expense update, expense delete
+[ok] step contracts: normalized 11 generic type spelling(s) to Python annotations
+[ok] step contracts: expanded 1 mapping parameter(s) into model fields
+[persistence_ports] 740 tokens in 5.1s (144.8 tok/s, 156.0 decode, 1157 prompt)
+[ok] step persistence: merged 7 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/42] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [2/42] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [3/42] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [4/42] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [5/42] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [6/42] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [7/42] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [8/42] invariant -> AGGREGATE_BY_FK_AND_DATE (0.92)
+  [9/42] invariant -> FILTER_WITH_PAGINATION (0.61)
+  [10/42] invariant -> BUDGET_OVERFLOW_GUARD (0.84)
+  [11/42] contract:ExpenseService.list_expenses -> FILTER_WITH_PAGINATION (0.99)
+  [12/42] contract:ExpenseService.get_expense_by_id -> STANDARD_CRUD (1.00)
+  [13/42] contract:ExpenseService.add_expense -> BUDGET_OVERFLOW_GUARD (1.00)
+  [14/42] contract:ExpenseService.update_expense -> BUDGET_OVERFLOW_GUARD (0.99)
+  [15/42] contract:ExpenseService.delete_expense -> STANDARD_CRUD (1.00)
+  [16/42] contract:ExpenseService.get_monthly_report -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [17/42] contract:ExpenseService.get_yearly_summary -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [18/42] contract:ExpenseService.get_category_spending -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [19/42] contract:ExpenseService.export_to_csv -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns none (None)
+  [20/42] contract:ExpenseService.detect_recurring -> NO_PATTERN_IN_DOMAIN (0.10)  <- UNKNOWN: THRESHOLD_SCAN returns collection, but this method returns none (None)
+  [21/42] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/42] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [23/42] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [24/42] contract:CategoryRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [25/42] contract:CategoryRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/42] contract:ExpenseRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [27/42] contract:ExpenseRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [28/42] contract:ExpenseRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [29/42] contract:ExpenseRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/42] contract:ExpenseRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [31/42] contract:ExpenseRepository.get_expenses_by_date_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [32/42] contract:ExpenseRepository.get_monthly_spending_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [33/42] contract:ExpenseRepository.get_yearly_spending_summary -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [34/42] contract:ExpenseRepository.get_category_spending_over_period -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [35/42] contract:ExpenseRepository.check_budget_exceeded -> BUDGET_OVERFLOW_GUARD (1.00)
+  [36/42] contract:BudgetRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [37/42] contract:BudgetRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [38/42] contract:BudgetRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [39/42] contract:BudgetRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [40/42] contract:BudgetRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [41/42] contract:BudgetRepository.get_budgets_by_month -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [42/42] contract:BudgetRepository.check_budget_exceeded -> BUDGET_OVERFLOW_GUARD (1.00)
+[ok] step patterns: 42 item(s) — 11 standard CRUD, 29 pattern(s), 2 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.export_to_csv: export_to_csv(file_path: str, start_date: date, end_date: date) -> None: Exports filtered expenses to a CSV file at the specified path.
+    gap [NO_PATTERN_IN_DOMAIN] contract:ExpenseService.detect_recurring: detect_recurring() -> None: Detects recurring expenses (same amount and category) that occur monthly and marks them as recurring.
+[ok] step adapters: 20 adapter(s) derived mechanically from the explicit surface
+[ok] step adapters: expenseupdate.payment_method was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: expensedelete.payment_method was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: expensecategoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensecategorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expenseupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expenseupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensedelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensedelete.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetdelete.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensecategoryadd.budget targets an entity but spells no model field — renamed to 'monthly_budget'
+[ok] step adapters: expensecategoryupdate.budget targets an entity but spells no model field — renamed to 'monthly_budget'
+[ok] step adapters: expenseadd.amount targets an entity but spells no model field — renamed to 'amount_cents'
+[ok] step adapters: expenseadd.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: expenseadd.method targets an entity but spells no model field — renamed to 'payment_method'
+[ok] step adapters: expenseadd.recurring targets an entity but spells no model field — renamed to 'is_recurring'
+[ok] step adapters: expenselist.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: expenselist.method targets an entity but spells no model field — renamed to 'payment_method'
+[ok] step adapters: budgetlist.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: budgetadd.amount targets an entity but spells no model field — renamed to 'amount_limit_cents'
+[ok] step adapters: budgetupdate.amount targets an entity but spells no model field — renamed to 'amount_limit_cents'
+[ok] step adapters: removed 4 duplicate adapter(s)
+[ok] step adapters: added capability method ExpenseService.expensereportmonthly (report)
+[ok] step adapters: added capability method ExpenseService.expensereportyearly (report)
+[ok] step adapters: added capability method ExpenseService.expenseexport (export)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: expenseexport.from_date targets undeclared 'start_date' while the method declares 'from_date' — redirected
+[ok] step adapters: expenseexport.to_date targets undeclared 'end_date' while the method declares 'to_date' — redirected
+[ok] step adapters: expenseexport.output targets undeclared 'file_path' while the method declares 'output' — redirected
+[ok] step adapters: expense report yearly lacked '--month' required by 'expensereportmonthly' — added as str
+[ok] step adapters: made 1 delete field(s) optional
+[ok] step surface: made 1 delete filter(s) optional
+[ok] step adapters: added 4 missing adapter(s) mechanically: expense category add, expense category list, expense category update, expense category delete
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/method_plans.json
+[ok] method plans: 1 mechanical candidate(s)
+[!] method plans: 4 ambiguous question(s) — human review required
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/command_group.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/requirements.txt
+[run] 9 steps, 5534 generated tokens in 39.5s

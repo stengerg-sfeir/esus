@@ -1,0 +1,266 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "customer_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "name": "room_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "name": "start_time",
+            "type": "str",
+            "required": true
+          },
+          {
+            "name": "end_time",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--list",
+            "short": "-l",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--detail",
+            "short": "-d",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Customer",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Room",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--room-number",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--capacity",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Reservation",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--customer-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--room-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--start-time",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--end-time",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--reservation-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--customer-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--room-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--start-time",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--end-time",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--reservation-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--customer-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--room-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--start-time",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--end-time",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Room",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Reservation",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

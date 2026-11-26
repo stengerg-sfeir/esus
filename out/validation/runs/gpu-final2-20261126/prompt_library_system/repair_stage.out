@@ -1,0 +1,41 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/persistence_ports.json
+
+[!] step components: 3 command line(s) need judgment, left to the model
+[ok] step contracts: added the primary key to 4 parameterless lookup(s): MemberRepository.find_active_members(id), MemberRepository.find_inactive_members(id), LoanRepository.find_active_loans(id), LoanRepository.find_overdue_loans(id)
+[ok] step grounding: dropped BookRepository.filter_by_available_copies — parameter 'available_only' names no Book field
+[!] step adapters: 'booksearch' names Book but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step adapters: bookadd.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: booklist.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookupdate.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookdelete.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: memberhistory.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: memberupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: memberdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrow.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrow.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: return.loan_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: authorupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: authordelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanadd.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanlist.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanlist.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: 21 adapter(s) re-derived after surface repairs
+[ok] step adapters: added 1 missing adapter(s) mechanically: book search
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set

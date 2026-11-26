@@ -1,0 +1,184 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "customer",
+            "type": "str",
+            "required": true
+          },
+          {
+            "name": "order",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--email",
+            "short": "-e",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--status",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--items",
+            "short": "-i",
+            "type": "list",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Customer",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": []
+              }
+            ]
+          },
+          {
+            "name": "Order",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--order-items",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--customer-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Order",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

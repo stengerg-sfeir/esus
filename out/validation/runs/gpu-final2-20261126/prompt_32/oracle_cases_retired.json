@@ -1,0 +1,212 @@
+{
+  "counts": {
+    "legacy": 6,
+    "kept": 0,
+    "retired": 6,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "confirm_pending_order",
+        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+        "given": {
+          "order": {
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "confirm_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "ship_confirmed_order",
+        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+        "given": {
+          "order": {
+            "status": "confirmed"
+          }
+        },
+        "when": {
+          "action": "ship_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "shipped"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "cancel_pending_order",
+        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+        "given": {
+          "order": {
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "cancel_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "cancelled"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "cancel_confirmed_order",
+        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+        "given": {
+          "order": {
+            "status": "confirmed"
+          }
+        },
+        "when": {
+          "action": "cancel_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "cancelled"
+          },
+          "error": "OrderStateException",
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'OrderStateException' is not named in the requirements"
+        ],
+        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "ship_cancelled_order",
+        "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+        "given": {
+          "order": {
+            "status": "cancelled"
+          }
+        },
+        "when": {
+          "action": "ship_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "cancelled"
+          },
+          "error": "OrderStateException",
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'OrderStateException' is not named in the requirements"
+        ],
+        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "cancel_shipped_order",
+        "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+        "given": {
+          "order": {
+            "status": "shipped"
+          }
+        },
+        "when": {
+          "action": "cancel_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "shipped"
+          },
+          "error": "OrderStateException",
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'OrderStateException' is not named in the requirements"
+        ],
+        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

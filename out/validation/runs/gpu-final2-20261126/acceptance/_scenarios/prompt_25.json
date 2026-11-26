@@ -1,0 +1,96 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Employee add",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "add",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--department-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee update",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
+            "--employee-id",
+            "1",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--department-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Employee": {
+            "first_name": "value1",
+            "last_name": "value1",
+            "email": "cli1@example.test",
+            "department_id": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Department add",
+      "when": {
+        "cli_variants": [
+          [
+            "Department",
+            "add",
+            "--department-name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

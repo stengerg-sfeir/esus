@@ -1,0 +1,144 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "OrderService",
+      "methods": [
+        {
+          "name": "confirm_order",
+          "description": "Transitions an order from pending to confirmed state. The order must be in pending state; cannot confirm a confirmed, shipped, or cancelled order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderStateException"
+          ]
+        },
+        {
+          "name": "ship_order",
+          "description": "Transitions an order from confirmed to shipped state. The order must be in confirmed state; cannot ship a pending, cancelled, or shipped order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderStateException"
+          ]
+        },
+        {
+          "name": "cancel_order",
+          "description": "Transitions an order from pending or confirmed to cancelled state. A cancelled order cannot be shipped. The order must be in pending or confirmed state; cannot cancel a shipped order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderStateException"
+          ]
+        },
+        {
+          "name": "read_order_by_id",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order | None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "update_order",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "state",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "orderconfirm",
+          "description": "Orderconfirm.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "service_name": "OrderRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "state",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

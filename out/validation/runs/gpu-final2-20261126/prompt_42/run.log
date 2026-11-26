@@ -1,0 +1,51 @@
+[run] requirements: 156 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 34 tokens in 0.6s (59.9 tok/s, 173.5 decode, 66 prompt)
+[data_models] 435 tokens in 2.8s (156.2 tok/s, 160.7 decode, 535 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (43.9 tok/s, 185.9 decode, 468 prompt)
+[invariants] 172 tokens in 1.1s (155.3 tok/s, 167.2 decode, 272 prompt)
+[ok] step invariants: 18 invariant(s) — 13 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 288 tokens in 2.2s (128.3 tok/s, 135.5 decode, 980 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 0.2s (46.8 tok/s, 182.6 decode, 474 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[persistence_ports] 313 tokens in 2.0s (157.6 tok/s, 165.4 decode, 382 prompt)
+[ok] step persistence: merged 1 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 1 generic type spelling(s) to Python annotations
+  [1/11] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [2/11] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [3/11] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [4/11] invariant -> FILTER_BY_FIELD (0.57)
+  [5/11] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [6/11] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [7/11] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [8/11] contract:PurchaseRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/11] contract:PurchaseRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [10/11] contract:PurchaseRepository.get_purchases_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [11/11] contract:PurchaseRepository.get_total_spent_by_customer -> AGGREGATE_BY_FK_AND_DATE (1.00)
+[ok] step patterns: 11 item(s) — 0 standard CRUD, 11 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (no CLI leaves); retry after surface repairs declined (no CLI leaves) — asking the model
+[interaction_adapters] 194 tokens in 1.3s (154.4 tok/s, 165.3 decode, 521 prompt)
+[ok] step adapters: get_total_spent_by_customer.customer_id was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: find_customer_purchases.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method PurchaseRepository.find_customer_purchases (search)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/requirements.txt
+[run] 8 steps, 1454 generated tokens in 10.3s

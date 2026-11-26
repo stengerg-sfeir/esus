@@ -1,0 +1,96 @@
+[run] requirements: 245 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 101 tokens in 0.6s (159.8 tok/s, 168.6 decode, 89 prompt)
+[data_models] 750 tokens in 4.8s (155.7 tok/s, 158.9 decode, 616 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (39.6 tok/s, 182.3 decode, 505 prompt)
+[invariants] 353 tokens in 2.2s (160.7 tok/s, 165.2 decode, 309 prompt)
+[ok] step invariants: 33 invariant(s) — 23 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1227 tokens in 8.5s (143.7 tok/s, 147.2 decode, 1017 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: added read_one to 2 persisted entity operation set(s)
+[service_contracts] 10 tokens in 0.3s (32.7 tok/s, 179.4 decode, 511 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[persistence_ports] 490 tokens in 3.1s (159.0 tok/s, 164.4 decode, 431 prompt)
+[ok] step persistence: merged 5 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/26] invariant -> BUDGET_OVERFLOW_GUARD (0.81)
+  [2/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/26] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [4/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/26] invariant -> STOCK_SUFFICIENCY_GUARD (0.76)
+  [7/26] invariant -> STOCK_SUFFICIENCY_GUARD (0.63)
+  [8/26] invariant -> NO_PATTERN_IN_DOMAIN (0.93)  <- GAP: no pattern for this
+  [9/26] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [10/26] invariant -> NO_PATTERN_IN_DOMAIN (0.92)  <- GAP: no pattern for this
+  [11/26] contract:ProjectRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/26] contract:ProjectRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/26] contract:ProjectRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/26] contract:ProjectRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/26] contract:ProjectRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/26] contract:ProjectRepository.find_project_by_title -> READ_ONE_BY_ID (1.00)
+  [17/26] contract:ProjectRepository.count_projects_by_status -> COUNT_ACTIVE_BY_FK (1.00)
+  [18/26] contract:TaskRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/26] contract:TaskRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [20/26] contract:TaskRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/26] contract:TaskRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/26] contract:TaskRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [23/26] contract:TaskRepository.get_tasks_by_project_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [24/26] contract:TaskRepository.find_task_by_title_and_project_id -> READ_ONE_BY_ID (0.89)
+  [25/26] contract:TaskRepository.count_tasks_by_priority -> AGGREGATE_BY_FK (0.54)
+  [26/26] contract:TaskRepository.get_tasks_with_status_and_project_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 26 item(s) — 6 standard CRUD, 18 pattern(s), 2 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: Task status updates must be recorded in the updated_at field of the task record.
+    gap [NO_PATTERN_IN_DOMAIN] invariant: A project's created_at field must be set to the current timestamp when a new project is created.
+[ok] step adapters: 8 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: added 5 required create field(s)
+[!] step adapters has 5 unreachable field(s) — retrying once
+[interaction_adapters] 547 tokens in 3.6s (153.4 tok/s, 159.7 decode, 834 prompt)
+[ok] step adapters: taskcreate.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 2 item(s) versus 8 in the first attempt — kept the fuller first attempt; its 5 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: project create lacked '--created-at' required by 'projectcreate' — added as str
+[ok] step adapters: project create lacked '--updated-at' required by 'projectcreate' — added as str
+[ok] step adapters: task create lacked '--project-id' required by 'taskcreate' — added as int
+[ok] step adapters: task create lacked '--created-at' required by 'taskcreate' — added as str
+[ok] step adapters: task create lacked '--updated-at' required by 'taskcreate' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[ok] step components: added 2 CRUD subcommand(s) from the service contracts: Project list, Task list
+[ok] step adapters: added 2 missing adapter(s) mechanically: Project list, Task list
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/requirements.txt
+[run] 8 steps, 3486 generated tokens in 23.3s

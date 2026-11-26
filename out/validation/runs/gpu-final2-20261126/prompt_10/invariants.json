@@ -1,0 +1,72 @@
+{
+  "invariants": [
+    {
+      "text": "Note.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Note.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Note.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Note.content must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Note.content must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Note.creation_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Note.creation_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The creation_date field of a Note must be set to the current timestamp when a note is created.",
+      "kind": "rule"
+    },
+    {
+      "text": "A Note's title must be unique across all notes in the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a note is updated, its content may be modified, but the creation_date field must remain unchanged.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a note with a given title does not exist, a create operation must fail unless the title is explicitly allowed to be duplicated.",
+      "kind": "rule"
+    },
+    {
+      "text": "The list operation must return all notes in the database, sorted by creation_date in descending order.",
+      "kind": "rule"
+    },
+    {
+      "text": "A delete operation must remove the note from the database by its id, and must not affect other notes.",
+      "kind": "rule"
+    },
+    {
+      "text": "The update operation must only modify the content of a note and must not alter its title or creation_date.",
+      "kind": "rule"
+    },
+    {
+      "text": "A note must have a unique id that is generated and assigned during creation.",
+      "kind": "rule"
+    },
+    {
+      "text": "The creation_date of a note must not be modified after the note is created.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a user attempts to delete a note that does not exist, the operation must fail.",
+      "kind": "rule"
+    }
+  ]
+}

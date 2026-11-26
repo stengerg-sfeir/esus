@@ -1,0 +1,75 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "notify_on_confirm",
+        "source": "When an order is confirmed, the application must send a notification.",
+        "given": {
+          "order": {
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "confirm_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "eed3ce829ab46c4bcbdbf1d0cb235d7790f3487cd2ffe32d140330c35267627c"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "notification_service_log",
+        "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+        "given": {
+          "notification": {
+            "message": "Order confirmed for order ID 123"
+          }
+        },
+        "when": {
+          "action": "notify",
+          "args": [
+            "notification.message"
+          ]
+        },
+        "then": {
+          "state": {
+            "notification.message": "Order confirmed for order ID 123"
+          },
+          "rows": {
+            "Notification": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "eed3ce829ab46c4bcbdbf1d0cb235d7790f3487cd2ffe32d140330c35267627c"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_44/persistence_ports.json
+
+[ok] step components: aligned 3 option type(s) with the data model: --price -> float (2 models agreeing on float), --price -> float (2 models agreeing on float), --total_price -> float (2 models agreeing on float)
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): SaleRepository.get_total_revenue_by_product(sale_id)
+[ok] step grounding: dropped ProductRepository.get_products_with_low_stock — parameter 'threshold' names no Product field
+[ok] step adapters: update_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_sale.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_sale.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 7 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set

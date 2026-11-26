@@ -1,0 +1,145 @@
+{
+  "plans": [
+    {
+      "id": "create_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "customer.name",
+          "customer.email"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "when": {
+        "action": "read_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status",
+          "customer.name",
+          "customer.email"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "customer.id",
+          "customer.name",
+          "customer.email"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status",
+          "customer.name",
+          "customer.email"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status"
+        ],
+        "rows": {
+          "Customer": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_customers_paginated",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "when": {
+        "action": "list_customers",
+        "args": [
+          "page",
+          "page_size"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [],
+        "rows": {
+          "Customer": "at least page_size"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

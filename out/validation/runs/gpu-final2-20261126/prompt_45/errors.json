@@ -1,0 +1,34 @@
+{
+  "errors": [
+    {
+      "name": "RoomNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested room is not found in the system."
+    },
+    {
+      "name": "GuestNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested guest is not found in the system."
+    },
+    {
+      "name": "BookingNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested booking is not found in the system."
+    },
+    {
+      "name": "RoomAlreadyBookedError",
+      "base": "ValueError",
+      "description": "Raised when an attempt is made to book a room during a period that is already occupied."
+    },
+    {
+      "name": "InvalidDateError",
+      "base": "ValueError",
+      "description": "Raised when a check-in or check-out date is invalid, such as a check-in date that is after the check-out date."
+    },
+    {
+      "name": "DuplicateBookingError",
+      "base": "RuntimeError",
+      "description": "Raised when the system detects a duplicate booking attempt for the same room and date range, indicating a data inconsistency."
+    }
+  ]
+}

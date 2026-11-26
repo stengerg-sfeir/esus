@@ -1,0 +1,36 @@
+steps:
+  intentions: the program's own phrases from the requirements
+  data_models: entities and their fields
+  errors: application error types
+  invariants: rules the program must always hold
+  components: CLI surface and CRUD services
+  service_contracts: service methods with params and raises
+  errors_repair: deterministic error-registry fix (no model call)
+  pattern_matches: pattern classification of invariants and methods
+  interaction_adapters: CLI input to service-method mapping
+  persistence_ports: repository interfaces for the entities
+intentions: 9 phrase(s)
+data_models: 6 entities, 24 field(s)
+errors: 0 error(s)
+invariants: 45 invariant(s)
+components: 8 command(s)
+service_contracts: 6 service(s), 32 method(s)
+errors_repair: 0 error(s), 6 service(s) after repair
+persistence_ports: 6 repositor(y/ies)
+pattern_matches: 36 item(s)
+interaction_adapters: 19 adapter(s)
+[intentions] 120 tokens in 0.7s (161.8 tok/s, 168.5 decode, 94 prompt)
+[data_models] 1441 tokens in 9.3s (155.2 tok/s, 156.9 decode, 638 prompt)
+[errors] 8 tokens in 0.3s (27.8 tok/s, 182.7 decode, 551 prompt)
+[invariants] 7 tokens in 0.1s (65.5 tok/s, 187.2 decode, 355 prompt)
+[components] 2070 tokens in 14.3s (145.2 tok/s, 146.2 decode, 1063 prompt)
+[service_contracts] 10 tokens in 0.4s (25.9 tok/s, 181.7 decode, 557 prompt)
+[persistence_ports] 554 tokens in 3.5s (157.0 tok/s, 162.6 decode, 534 prompt)
+[run] 7 steps, 4210 generated tokens in 28.6s
+==== SUMMARY ====
+review: none — the documents are unreviewed
+blockers: 3, open tie(s): 0
+GENERATABLE: NO — `generator.py` will refuse this output
+  - [mismatched_transform] interaction_adapters: 'taxadd.rate' is converted with DECIMAL_TO_CENTS, which is for a money amount — the field's name does not describe one
+  - [mismatched_transform] interaction_adapters: 'taxdelete.rate' is converted with DECIMAL_TO_CENTS, which is for a money amount — the field's name does not describe one
+  - [mismatched_transform] interaction_adapters: 'taxupdate.rate' is converted with DECIMAL_TO_CENTS, which is for a money amount — the field's name does not describe one

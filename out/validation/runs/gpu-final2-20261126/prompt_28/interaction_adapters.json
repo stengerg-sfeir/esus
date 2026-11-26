@@ -1,0 +1,63 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "invoiceadd",
+      "target_service": "InvoiceRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true,
+          "status": "explicit"
+        },
+        {
+          "field_name": "issue_date",
+          "target_param": "issue_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "explicit"
+        },
+        {
+          "field_name": "total_amount",
+          "target_param": "total_amount",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "action_name": "invoicelineadd",
+      "target_service": "InvoiceLineRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "invoice_id",
+          "target_param": "invoice_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Invoice",
+          "required": false
+        },
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": false
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "errors": [
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested book is not found in the system during a lookup operation."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested member is not found in the system during a lookup operation."
+    },
+    {
+      "name": "LoanNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested loan is not found in the system during a lookup operation."
+    },
+    {
+      "name": "BookAlreadyLoanedError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to loan a book that is already actively borrowed."
+    },
+    {
+      "name": "MemberNotAuthorizedError",
+      "base": "PermissionError",
+      "description": "Raised when a member attempts to borrow a book without proper authorization, such as not being a registered member."
+    }
+  ]
+}

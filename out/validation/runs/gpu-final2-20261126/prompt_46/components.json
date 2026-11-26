@@ -1,0 +1,376 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "client",
+            "type": "str",
+            "required": true
+          },
+          {
+            "name": "invoice",
+            "type": "str",
+            "required": true
+          },
+          {
+            "name": "payment",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--client-id",
+            "short": "-c",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--due-date",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--amount",
+            "short": "-a",
+            "type": "float",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--description",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--payment-date",
+            "short": "-p",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--status",
+            "short": "-t",
+            "type": "str",
+            "required": false,
+            "default": "outstanding"
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Client",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--phone",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--account-status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--phone",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--account-status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Invoice",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--client-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--amount",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--description",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--client-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--amount",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--description",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Payment",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--invoice-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--payment-date",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--amount",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--payment-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--amount",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Client",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Payment",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

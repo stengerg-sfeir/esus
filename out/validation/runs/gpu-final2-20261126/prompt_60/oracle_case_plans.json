@@ -1,0 +1,116 @@
+{
+  "plans": [
+    {
+      "id": "cancel_confirmed_order",
+      "source": "Cancelling a confirmed order releases the reserved stock.",
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "confirm_order_reserves_stock",
+      "source": "Confirming an order reserves stock.",
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "search_orders_by_customer",
+      "source": "Customers should be able to search their orders and invoices.",
+      "when": {
+        "action": "search_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "create_invoice_on_confirm",
+      "source": "An invoice is created when an order is confirmed.",
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Invoice": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    }
+  ]
+}

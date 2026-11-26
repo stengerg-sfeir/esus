@@ -1,0 +1,191 @@
+{
+  "counts": {
+    "legacy": 5,
+    "kept": 0,
+    "retired": 5,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_customer",
+        "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+        "given": {
+          "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "create_customer",
+          "args": [
+            "name",
+            "email",
+            "phone"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.name": "Alice Johnson",
+            "customer.email": "alice.johnson@example.com",
+            "customer.phone": "555-1234"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "6fa3b17c268730bf6eeeab1ce4078d40f60d751cb0c6a6a1a576805d2ffd4c13"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_customer_by_name",
+        "source": "Provide CRUD operations, search by name and filtering by email domain.",
+        "given": {
+          "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "search_by_name",
+          "args": [
+            "name"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.name": "Alice Johnson",
+            "customer.email": "alice.johnson@example.com",
+            "customer.phone": "555-1234"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "6fa3b17c268730bf6eeeab1ce4078d40f60d751cb0c6a6a1a576805d2ffd4c13"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_customer_by_domain",
+        "source": "Provide CRUD operations, search by name and filtering by email domain.",
+        "given": {
+          "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "filter_by_email_domain",
+          "args": [
+            "domain"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.name": "Alice Johnson",
+            "customer.email": "alice.johnson@example.com",
+            "customer.phone": "555-1234"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "6fa3b17c268730bf6eeeab1ce4078d40f60d751cb0c6a6a1a576805d2ffd4c13"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_customer",
+        "source": "Provide CRUD operations, search by name and filtering by email domain.",
+        "given": {
+          "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "update_customer",
+          "args": [
+            "customer.id",
+            "name",
+            "email",
+            "phone"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.name": "Bob Smith",
+            "customer.email": "bob.smith@example.com",
+            "customer.phone": "555-5678"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "6fa3b17c268730bf6eeeab1ce4078d40f60d751cb0c6a6a1a576805d2ffd4c13"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_customer",
+        "source": "Provide CRUD operations, search by name and filtering by email domain.",
+        "given": {
+          "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "delete_customer",
+          "args": [
+            "customer.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Customer": 0
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "6fa3b17c268730bf6eeeab1ce4078d40f60d751cb0c6a6a1a576805d2ffd4c13"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

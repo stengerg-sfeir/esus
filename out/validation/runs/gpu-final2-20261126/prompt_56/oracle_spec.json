@@ -1,0 +1,59 @@
+{
+  "requirements_sha": "08e2716a63301e30a0b3161a8b60a3d4696c568bbcafb1319d56896d4ce1af7c",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "read_all_orders() -> list[Order]: Lists every Order.",
+      "chosen": "READ_ALL",
+      "candidates": [
+        "READ_ALL",
+        "FILTER_BY_FIELD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "classification",
+      "source": "read_all_products() -> list[Product]: Lists every Product.",
+      "chosen": "READ_ALL",
+      "candidates": [
+        "READ_ALL",
+        "FILTER_BY_FIELD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "classification",
+      "source": "read_all_customers() -> list[Customer]: Lists every Customer.",
+      "chosen": "READ_ALL",
+      "candidates": [
+        "READ_ALL",
+        "FILTER_BY_FIELD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "prompt": "prompt_32",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "code:modules",
+      "status": "passed",
+      "reason": "8 generated modules"
+    },
+    {
+      "name": "code:type-hints",
+      "status": "passed",
+      "reason": "annotated generated functions"
+    },
+    {
+      "name": "db:foreign-keys",
+      "status": "passed",
+      "reason": "SQLite foreign keys enabled"
+    },
+    {
+      "name": "db:persistence-across-executions",
+      "status": "passed",
+      "reason": "SQLite database file"
+    },
+    {
+      "name": "code:entry-point",
+      "status": "passed",
+      "reason": "main guard present"
+    },
+    {
+      "name": "models:primary-keys",
+      "status": "passed",
+      "reason": "every model declares a primary key"
+    },
+    {
+      "name": "api:OrderRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderService.cancel_order",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderService.confirm_order",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderService.orderconfirm",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderService.read_order_by_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderService.ship_order",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderService.update_order",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order ship",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order cancel",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Order",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:OrderRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "contract:OrderService.confirm_order",
+      "status": "not_applicable",
+      "reason": "state effect has no documented starting state"
+    },
+    {
+      "name": "contract:OrderService.ship_order",
+      "status": "not_applicable",
+      "reason": "state effect has no documented starting state"
+    },
+    {
+      "name": "contract:OrderService.cancel_order",
+      "status": "not_applicable",
+      "reason": "state effect has no documented starting state"
+    },
+    {
+      "name": "scenario:confirm pending order",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order ship",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order cancel",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order update",
+      "status": "passed"
+    }
+  ]
+}

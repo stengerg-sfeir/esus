@@ -1,0 +1,301 @@
+{
+  "counts": {
+    "legacy": 7,
+    "kept": 0,
+    "retired": 7,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_product",
+        "source": "Create a Python 3.12 inventory application. Products have a SKU, name, category, price and stock quantity. SKUs must be unique.",
+        "given": {
+          "product": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "create_product",
+          "args": [
+            "PYTH-001",
+            "Python Programming Book",
+            "Education",
+            49.99,
+            10
+          ]
+        },
+        "then": {
+          "state": {
+            "product.sku": "PYTH-001",
+            "product.name": "Python Programming Book",
+            "product.category": "Education",
+            "product.price": 49.99,
+            "product.stock_quantity": 10
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_product_by_sku",
+        "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+        "given": {
+          "product": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "read_product",
+          "args": [
+            "PYTH-001"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.sku": "PYTH-001",
+            "product.name": "Python Programming Book",
+            "product.category": "Education",
+            "product.price": 49.99,
+            "product.stock_quantity": 10
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_product_by_category",
+        "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+        "given": {
+          "product_1": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 10
+          },
+          "product_2": {
+            "sku": "DEV-001",
+            "name": "DevOps Tools Guide",
+            "category": "Education",
+            "price": 39.99,
+            "stock_quantity": 5
+          }
+        },
+        "when": {
+          "action": "read_product",
+          "args": [
+            "Education"
+          ]
+        },
+        "then": {
+          "state": {
+            "product_1.sku": "PYTH-001",
+            "product_1.name": "Python Programming Book",
+            "product_1.category": "Education",
+            "product_1.price": 49.99,
+            "product_1.stock_quantity": 10,
+            "product_2.sku": "DEV-001",
+            "product_2.name": "DevOps Tools Guide",
+            "product_2.category": "Education",
+            "product_2.price": 39.99,
+            "product_2.stock_quantity": 5
+          },
+          "rows": {
+            "Product": 2
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "search_product_by_name",
+        "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+        "given": {
+          "product_1": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 10
+          },
+          "product_2": {
+            "sku": "DEV-001",
+            "name": "DevOps Tools Guide",
+            "category": "Education",
+            "price": 39.99,
+            "stock_quantity": 5
+          }
+        },
+        "when": {
+          "action": "search_product",
+          "args": [
+            "Python"
+          ]
+        },
+        "then": {
+          "state": {
+            "product_1.sku": "PYTH-001",
+            "product_1.name": "Python Programming Book",
+            "product_1.category": "Education",
+            "product_1.price": 49.99,
+            "product_1.stock_quantity": 10
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_product_stock",
+        "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+        "given": {
+          "product": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "update_product",
+          "args": [
+            "PYTH-001",
+            15
+          ]
+        },
+        "then": {
+          "state": {
+            "product.stock_quantity": 15
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_product",
+        "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+        "given": {
+          "product": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "delete_product",
+          "args": [
+            "PYTH-001"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Product": 0
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "report_low_stock",
+        "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+        "given": {
+          "product_1": {
+            "sku": "PYTH-001",
+            "name": "Python Programming Book",
+            "category": "Education",
+            "price": 49.99,
+            "stock_quantity": 2
+          },
+          "product_2": {
+            "sku": "DEV-001",
+            "name": "DevOps Tools Guide",
+            "category": "Education",
+            "price": 39.99,
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "report_low_stock"
+        },
+        "then": {
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "67d9551d6e73cda6dcfbec0ba195cad2e40fd6b8fedfd376c0deffacd5631962"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

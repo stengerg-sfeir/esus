@@ -1,0 +1,24 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/persistence_ports.json
+
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): ProductRepository.find_low_stock_products(id)
+[!] step adapters: 'productrestock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportlowstock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportvalue' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step adapters: productadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productlist.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: 11 adapter(s) re-derived after surface repairs
+[ok] step adapters: added 3 missing adapter(s) mechanically: product restock, product report low-stock, product report value
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set

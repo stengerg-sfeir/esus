@@ -1,0 +1,15 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_42/persistence_ports.json
+
+[ok] step contracts: retyped 1 id parameter(s) to int
+[ok] step adapters: find_customer_purchases.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_total_spent_by_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters: mechanical re-derivation declined (no CLI leaves) — keeping the existing adapters
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set

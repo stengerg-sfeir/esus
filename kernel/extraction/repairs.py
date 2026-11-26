@@ -1140,12 +1140,28 @@ def repair_missing_relation_filters(models, repositories, log=None):
                 if related is None or normalize(related.get("name")) == normalize(entity):
                     continue
                 fk_name = f"{match.group(1)}_id"
-                if normalize(fk_name) in existing:
-                    continue
                 related_pk = next(
                     (field.get("name") for field in related.get("fields") or []
                      if isinstance(field, dict) and field.get("primary_key")
                      and field.get("name")), "id")
+                if normalize(fk_name) in existing:
+                    for field in fields:
+                        if (isinstance(field, dict)
+                                and normalize(field.get("name")) == normalize(fk_name)
+                                and not field.get("foreign_key")):
+                            field["foreign_key"] = {
+                                "target_entity": related.get("name"),
+                                "target_field": related_pk,
+                                "relationship": "many_to_one",
+                            }
+                            if log is not None:
+                                log.write(
+                                    f"[ok] step persistence: {method.get('name')} "
+                                    f"filters {entity} by {match.group(1)} ID — "
+                                    f"declared {entity}.{fk_name} as an FK to "
+                                    f"{related.get('name')}")
+                            break
+                    continue
                 fields.append({
                     "name": fk_name,
                     "type": "int",

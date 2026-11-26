@@ -1,0 +1,81 @@
+{
+  "plans": [
+    {
+      "id": "manage_product_admin",
+      "source": "Administrators can manage products and users.",
+      "when": {
+        "action": "manage_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "admin",
+          "entity": "Administrator",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.status",
+          "product.name"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "cannot_modify_product_normal_user",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "when": {
+        "action": "modify_product",
+        "args": [
+          "product.id",
+          "new_name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "PermissionDenied"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "cannot_modify_user_normal_user",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "when": {
+        "action": "modify_user",
+        "args": [
+          "user.id",
+          "new_email"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "PermissionDenied"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

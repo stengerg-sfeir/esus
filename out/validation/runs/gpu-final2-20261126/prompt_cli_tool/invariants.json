@@ -1,0 +1,24 @@
+{
+  "invariants": [
+    {
+      "text": "The CSV header row must be read to dynamically determine the column names used in the output JSON.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each row in the CSV must be converted into a JSON object with keys corresponding to the actual column headers from the header row.",
+      "kind": "rule"
+    },
+    {
+      "text": "If no output file path is provided, the JSON output must be printed to stdout.",
+      "kind": "rule"
+    },
+    {
+      "text": "The tool must handle errors when the input CSV file is missing.",
+      "kind": "rule"
+    },
+    {
+      "text": "The tool must handle errors when the CSV file is malformed.",
+      "kind": "rule"
+    }
+  ]
+}

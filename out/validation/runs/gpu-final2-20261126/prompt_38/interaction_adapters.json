@@ -1,0 +1,165 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_user",
+      "target_service": "UserRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "password_hash",
+          "target_param": "password_hash",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_user",
+      "target_service": "UserRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "user_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "password_hash",
+          "target_param": "password_hash",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_user",
+      "target_service": "UserRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "user_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        },
+        {
+          "field_name": "password_hash",
+          "target_param": "password_hash",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "create_document",
+      "target_service": "DocumentRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "owner_user_id",
+          "target_param": "owner_user_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_document",
+      "target_service": "DocumentRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "document_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Document",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "owner_user_id",
+          "target_param": "owner_user_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_document",
+      "target_service": "DocumentRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "document_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Document",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

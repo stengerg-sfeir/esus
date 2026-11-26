@@ -1,0 +1,23 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/persistence_ports.json
+
+[ok] step contracts: retyped 2 id parameter(s) to int
+[ok] step components: aligned 4 option type(s) with the data model: --amount -> float (2 models agreeing on float), --amount -> float (2 models agreeing on float), --amount -> float (2 models agreeing on float), --amount -> float (2 models agreeing on float)
+[ok] step adapters: clientupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: clientdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceadd.client_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceupdate.client_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoicedelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentadd.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set

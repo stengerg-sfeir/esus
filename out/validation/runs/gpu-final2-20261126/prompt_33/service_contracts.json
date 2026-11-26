@@ -1,0 +1,198 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Customer.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Customer.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Customer.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "AuditLogRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new AuditLog.",
+          "params": [
+            {
+              "name": "operation",
+              "type": "str"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "timestamp",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.AuditLog",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one AuditLog by its key.",
+          "params": [
+            {
+              "name": "log_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.AuditLog",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every AuditLog; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "operation",
+              "type": "str"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "timestamp",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[AuditLog]",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

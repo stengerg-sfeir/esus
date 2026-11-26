@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "16cea32df6c65e15d2a8c0d57a64566e05fbd6a78b0a0be7c190dca5a2b5e820",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "When a task is deleted, it must be removed from the list of tasks.",
+      "chosen": "READ_ALL",
+      "candidates": [
+        "READ_ALL",
+        "AGGREGATE_BY_FK_AND_DATE"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

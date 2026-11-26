@@ -1,0 +1,76 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.purchase_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.purchase_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.purchase_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.amount must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.amount must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total amount spent by a customer is the sum of the amounts from all their purchases.",
+      "kind": "rule"
+    },
+    {
+      "text": "A purchase is associated with exactly one customer through the customer_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "The purchase_date of a purchase must be on or after the date of the first purchase made by the same customer.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's purchase history includes all purchases linked to their customer_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "The amount field in a purchase must be greater than zero.",
+      "kind": "rule"
+    }
+  ]
+}

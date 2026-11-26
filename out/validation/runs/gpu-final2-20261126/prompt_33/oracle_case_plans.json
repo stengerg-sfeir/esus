@@ -1,0 +1,111 @@
+{
+  "plans": [
+    {
+      "id": "create_customer_audit",
+      "source": "Provide CRUD operations for customers. Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "customer.id",
+          "customer.name",
+          "customer.email"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "audit_record",
+          "entity": "AuditRecord",
+          "role": "side_effect"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.id",
+          "customer.name",
+          "customer.email"
+        ],
+        "rows": {
+          "Customer": 1,
+          "AuditRecord": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_customer_audit",
+      "source": "Provide CRUD operations for customers. Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "customer.id",
+          "customer.name",
+          "customer.email"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "audit_record",
+          "entity": "AuditRecord",
+          "role": "side_effect"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.id",
+          "customer.name",
+          "customer.email"
+        ],
+        "rows": {
+          "Customer": 1,
+          "AuditRecord": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_customer_audit",
+      "source": "Provide CRUD operations for customers. Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "audit_record",
+          "entity": "AuditRecord",
+          "role": "side_effect"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.id"
+        ],
+        "rows": {
+          "Customer": 0,
+          "AuditRecord": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

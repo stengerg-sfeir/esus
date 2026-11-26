@@ -1,0 +1,53 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "add_book",
+      "target_service": "BookRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "genre",
+          "target_param": "genre",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "publication_year",
+          "target_param": "publication_year",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "category",
+          "target_param": "category",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

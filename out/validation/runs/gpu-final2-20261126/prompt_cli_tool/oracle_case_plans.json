@@ -1,0 +1,129 @@
+{
+  "plans": [
+    {
+      "id": "read_csv_header_dynamically",
+      "source": "Read the CSV header row to determine column names dynamically. Do NOT assume specific column names like \"title\" or \"name\".",
+      "when": {
+        "action": "read_csv_header",
+        "args": [
+          "file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "csv_file",
+          "entity": "CSVFile",
+          "role": "source"
+        }
+      ],
+      "expect": {
+        "state": [
+          "csv_file.header_row"
+        ],
+        "rows": {
+          "CSVFile": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "convert_row_to_json_with_dynamic_keys",
+      "source": "Convert each row to a JSON object using the actual headers as keys.",
+      "when": {
+        "action": "convert_row_to_json",
+        "args": [
+          "row",
+          "headers"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "row",
+          "entity": "Row",
+          "role": "target"
+        },
+        {
+          "alias": "headers",
+          "entity": "Headers",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "row.json_object.key_path"
+        ],
+        "rows": {
+          "Row": 1,
+          "Headers": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "handle_missing_input_file",
+      "source": "Include error handling for missing files and malformed CSV.",
+      "when": {
+        "action": "check_file_exists",
+        "args": [
+          "file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "input_file",
+          "entity": "File",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "FileNotFoundError"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "handle_malformed_csv",
+      "source": "Include error handling for missing files and malformed CSV.",
+      "when": {
+        "action": "validate_csv_format",
+        "args": [
+          "file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "csv_file",
+          "entity": "CSVFile",
+          "role": "source"
+        }
+      ],
+      "expect": {
+        "error": "MalformedCSVError"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "output_to_stdout_if_no_output_path",
+      "source": "If no output path is given, print to stdout.",
+      "when": {
+        "action": "output_to_stdout",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "output_path",
+          "entity": "OutputPath",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "output_path.is_none"
+        ],
+        "rows": {}
+      },
+      "status": "assumed"
+    }
+  ]
+}

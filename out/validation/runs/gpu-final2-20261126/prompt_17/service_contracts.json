@@ -1,0 +1,152 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "find_by_name",
+          "description": "Search products by name using partial matching; returns a list of products whose name contains the given string.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "filter_by_category",
+          "description": "Filter products by category; returns a list of products that match the specified category.",
+          "params": [
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "filter_by_max_price",
+          "description": "Filter products with price less than or equal to the specified maximum price; returns a list of products within the price limit.",
+          "params": [
+            {
+              "name": "max_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "filter_by_min_quantity",
+          "description": "Filter products with quantity greater than or equal to the specified minimum quantity; returns a list of products meeting the quantity threshold.",
+          "params": [
+            {
+              "name": "min_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "find_all_with_filters",
+          "description": "Combine multiple filters (name, category, max price, min quantity) to return products that satisfy all specified conditions simultaneously.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            },
+            {
+              "name": "max_price",
+              "type": "float"
+            },
+            {
+              "name": "min_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "List[Product]"
+        },
+        {
+          "name": "search_product_by_name",
+          "description": "Search product by name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        },
+        {
+          "name": "find_all_products_with_filters",
+          "description": "Find all products with filters.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            },
+            {
+              "name": "max_price",
+              "type": "str"
+            },
+            {
+              "name": "min_quantity",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    }
+  ]
+}

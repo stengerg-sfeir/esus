@@ -1,0 +1,29 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderService",
+      "method": "create_order_with_lines",
+      "decided_by": "user",
+      "requirements_sha": "3d7660bcd4f99fd883a16b3d79a413c3bc49dfc825889998c3fb8e16e4932e72",
+      "creates": [
+        {
+          "class": "Order",
+          "call": "OrderRepository.create"
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "orderline exists",
+          "error": "OrderLineNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "any(getattr(line, \"quantity\", 0) <= 0 for line in (getattr(order_data, \"lines\", None) or []))",
+          "error": "InvalidOrderLineError",
+          "raise_when": "true"
+        }
+      ],
+      "bindings": []
+    }
+  ]
+}

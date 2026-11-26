@@ -1,0 +1,238 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "create_contact",
+        "args": [
+          "name",
+          "email",
+          "phone"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Alice Johnson",
+          "contact.email": "alice.j@example.com",
+          "contact.phone": "555-1234"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "contact.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Contact.name exists"
+            ],
+            "alternatives": []
+          },
+          "contact.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Contact.email exists"
+            ],
+            "alternatives": []
+          },
+          "contact.phone": {
+            "status": "aligned",
+            "canonical": "phone",
+            "score": 10.0,
+            "evidence": [
+              "Contact.phone exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ContactRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_contacts",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "list_contacts"
+      },
+      "then": {
+        "state": {
+          "contact.name": "Alice Johnson",
+          "contact.email": "alice.j@example.com",
+          "contact.phone": "555-1234"
+        },
+        "rows": {
+          "Contact": ">=0"
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "contact.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Contact.name exists"
+            ],
+            "alternatives": []
+          },
+          "contact.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Contact.email exists"
+            ],
+            "alternatives": []
+          },
+          "contact.phone": {
+            "status": "aligned",
+            "canonical": "phone",
+            "score": 10.0,
+            "evidence": [
+              "Contact.phone exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ContactRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Charlie Brown",
+          "email": "charlie.b@example.com",
+          "phone": "555-9012"
+        }
+      },
+      "when": {
+        "action": "delete_contact",
+        "args": [
+          "contact.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ContactRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

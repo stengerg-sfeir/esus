@@ -1,0 +1,66 @@
+[run] requirements: 238 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 104 tokens in 0.7s (151.3 tok/s, 167.2 decode, 84 prompt)
+[data_models] 285 tokens in 1.9s (151.2 tok/s, 157.0 decode, 616 prompt)
+[ok] step data_models: Product.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 1 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (49.9 tok/s, 184.7 decode, 475 prompt)
+[invariants] 371 tokens in 2.3s (160.2 tok/s, 165.2 decode, 279 prompt)
+[ok] step invariants: 19 invariant(s) — 9 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 578 tokens in 4.2s (139.2 tok/s, 142.4 decode, 987 prompt)
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-threshold' to '--threshold'
+[ok] step components: normalized option '-action' to '--action'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-threshold' to '--threshold'
+[service_contracts] 10 tokens in 0.2s (43.6 tok/s, 182.4 decode, 481 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Product add, Product update, Product delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.3s (141.3 tok/s, 171.3 decode, 387 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> BUDGET_OVERFLOW_GUARD (0.93)
+  [2/15] invariant -> AGGREGATE_BY_FK_AND_DATE (0.97)
+  [3/15] invariant -> THRESHOLD_SCAN (1.00)
+  [4/15] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [5/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.91)
+  [6/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [7/15] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [8/15] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [9/15] invariant -> BUDGET_OVERFLOW_GUARD (0.51)  <- undecided (pattern): STOCK_SUFFICIENCY_GUARD at 0.49
+  [10/15] invariant -> STATE_TRANSITION_GUARD (0.87)
+  [11/15] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 3 standard CRUD, 12 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (filter by_category: no method matches the verb 'bycategory'); retry after surface repairs declined (filter by_category: no method matches the verb 'bycategory') — asking the model
+[interaction_adapters] 1159 tokens in 7.3s (158.4 tok/s, 160.1 decode, 526 prompt)
+[ok] step adapters: find_low_quantity_products.quantity_threshold was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_product_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: removed 2 duplicate adapter(s)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--name' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--category' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--price' required by 'create_product' — added as int
+[ok] step adapters: add  lacked '--quantity' required by 'create_product' — added as int
+[ok] step adapters: update  lacked '--id' required by 'update_product' — added as int
+[ok] step adapters: delete  lacked '--id' required by 'delete_product' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_08/requirements.txt
+[run] 8 steps, 2559 generated tokens in 17.1s

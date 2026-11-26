@@ -1,0 +1,68 @@
+[run] requirements: 207 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 76 tokens in 0.5s (159.7 tok/s, 169.3 decode, 76 prompt)
+[data_models] 847 tokens in 5.4s (157.1 tok/s, 159.1 decode, 582 prompt)
+[ok] step data_models: uniqueness provenance — 3 explicit, 2 inferred (inferred fields are not enforced until confirmed)
+[errors] 279 tokens in 1.9s (149.4 tok/s, 164.9 decode, 501 prompt)
+[invariants] 155 tokens in 1.0s (151.0 tok/s, 167.5 decode, 305 prompt)
+[ok] step invariants: 30 invariant(s) — 26 schema generated mechanically, 4 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 317 tokens in 2.3s (138.0 tok/s, 143.6 decode, 1013 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 356 tokens in 2.5s (144.4 tok/s, 155.3 decode, 647 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Book update, BorrowRecord add, BorrowRecord update, BorrowRecord delete
+[ok] step contracts: normalized 10 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 4 id parameter(s) to int
+[persistence_ports] 676 tokens in 4.3s (158.2 tok/s, 163.1 decode, 433 prompt)
+[ok] step persistence: merged 7 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+  [1/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [4/24] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [5/24] contract:BorrowService.confirm_borrow -> STATE_TRANSITION_GUARD (1.00)
+  [6/24] contract:BorrowService.return_book -> STATE_TRANSITION_GUARD (0.99)
+  [7/24] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/24] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/24] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/24] contract:BookRepository.read_one_by_title -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/24] contract:BookRepository.read_all_available -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [12/24] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/24] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/24] contract:MemberRepository.read_one_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [15/24] contract:BorrowRecordRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/24] contract:BorrowRecordRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/24] contract:BorrowRecordRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/24] contract:BorrowRecordRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/24] contract:BorrowRecordRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [20/24] contract:BorrowRecordRepository.get_borrow_records_by_book_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [21/24] contract:BorrowRecordRepository.create_borrow_record -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/24] contract:BorrowRecordRepository.read_all_borrow_records_by_member -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/24] contract:BorrowRecordRepository.update_return_date -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/24] contract:BorrowRecordRepository.read_one_by_borrow_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 24 item(s) — 6 standard CRUD, 18 pattern(s), 0 gap(s)
+[ok] step adapters: derived 1 command group(s) from 20 service method(s)
+[ok] step adapters: 1 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: borrowrecordadd.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrowrecordadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Book update, BorrowRecord update, BorrowRecord delete
+[ok] step adapters: added 3 missing adapter(s) mechanically: BorrowRecord update, BorrowRecord delete, Book update
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_52/requirements.txt
+[run] 7 steps, 2706 generated tokens in 17.8s

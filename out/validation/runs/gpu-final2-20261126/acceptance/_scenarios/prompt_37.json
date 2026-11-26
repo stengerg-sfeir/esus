@@ -1,0 +1,156 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Project delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ],
+          [
+            "Project",
+            "delete",
+            "--project-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Project add",
+      "when": {
+        "cli_variants": [
+          [
+            "Project",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--project-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--task-id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--project-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "title": "value1",
+            "description": "value1",
+            "status": "value1",
+            "project_id": 1,
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--task-id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--status",
+            "value1",
+            "--project-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "Task",
+            "delete",
+            "--task-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "title": "value1",
+            "description": "value1",
+            "status": "value1",
+            "project_id": 1,
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

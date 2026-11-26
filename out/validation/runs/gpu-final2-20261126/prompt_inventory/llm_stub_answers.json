@@ -1,0 +1,62 @@
+[
+  {
+    "label": "InventoryService.low_stock_report",
+    "status": "written",
+    "note": "",
+    "answer": "result = []\n        products = self._repos['ProductRepository'].read_all()\n        for product in products:\n            if product.category_id is None:\n                continue\n            category = self._repos['CategoryRepository'].read_one(id=product.category_id)\n            if category is None:\n                continue\n            if product.stock_qty is not None and product.stock_qty < (category.reorder_threshold or 0):\n                result.append({\n                    'id': product.id,\n                    'sku': product.sku,\n                    'name': product.name,\n                    'stock_qty': product.stock_qty,\n                    'reorder_threshold': category.reorder_threshold\n                })\n        return result",
+    "finish_reason": "stop",
+    "tokens": 135,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.4466636180877686,
+    "decode_seconds": 0.93102,
+    "prompt_tokens": 3591,
+    "cached_tokens": 0,
+    "context": "exact"
+  },
+  {
+    "label": "InventoryService.restock",
+    "status": "written",
+    "note": "",
+    "answer": "if qty is None or qty < 0:\n            raise ValueError(\"restock quantity must be non-negative\")\n        product = self._repos['ProductRepository'].read_one(id=id)\n        if product is None:\n            raise errors.ProductNotFoundError(f\"product with id {id} not found\")\n        new_stock_qty = product.stock_qty + qty\n        self._repos['ProductRepository'].update(id=id, stock_qty=new_stock_qty)",
+    "finish_reason": "stop",
+    "tokens": 90,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 0.6973071098327637,
+    "decode_seconds": 0.616765,
+    "prompt_tokens": 3621,
+    "cached_tokens": 3134,
+    "context": "exact"
+  },
+  {
+    "label": "InventoryService.list_products",
+    "status": "written",
+    "note": "",
+    "answer": "products = self._repos['ProductRepository'].read_all(category_id=category_id)\n        result = []\n        for product in products:\n            if low_only and product.stock_qty is not None and product.stock_qty < (self._repos['CategoryRepository'].read_one(id=product.category_id).reorder_threshold or 0):\n                result.append({\n                    'id': product.id,\n                    'sku': product.sku,\n                    'name': product.name,\n                    'stock_qty': product.stock_qty,\n                    'reorder_threshold': self._repos['CategoryRepository'].read_one(id=product.category_id).reorder_threshold if product.category_id else None\n                })\n            elif not low_only:\n                result.append({\n                    'id': product.id,\n                    'sku': product.sku,\n                    'name': product.name,\n                    'stock_qty': product.stock_qty,\n                    'reorder_threshold': self._repos['CategoryRepository'].read_one(id=product.category_id).reorder_threshold if product.category_id else None\n                })\n        return result\n```",
+    "finish_reason": "stop",
+    "tokens": 215,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.5853497982025146,
+    "decode_seconds": 1.491624,
+    "prompt_tokens": 3639,
+    "cached_tokens": 3073,
+    "context": "exact"
+  },
+  {
+    "label": "InventoryService.get_product_by_id",
+    "status": "written",
+    "note": "",
+    "answer": "product = self._repos['ProductRepository'].read_one(id=id)\n        if product is None:\n            raise errors.ProductNotFoundError(f'product with id {id} not found')\n        return {key: value for key, value in product.__dict__.items() if value is not None}",
+    "finish_reason": "stop",
+    "tokens": 61,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 0.5223827362060547,
+    "decode_seconds": 0.414954,
+    "prompt_tokens": 3768,
+    "cached_tokens": 3004,
+    "context": "exact"
+  }
+]

@@ -1,0 +1,58 @@
+{
+  "plans": [
+    {
+      "id": "close_loan",
+      "source": "Users must be able to create and close loans and determine which books are currently available.",
+      "when": {
+        "action": "close_loan",
+        "args": [
+          "loan.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "loan.status"
+        ],
+        "rows": {
+          "Loan": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "determine_available_books",
+      "source": "Users must be able to create and close loans and determine which books are currently available.",
+      "when": {
+        "action": "list_available_books",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "read"
+        },
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "read"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

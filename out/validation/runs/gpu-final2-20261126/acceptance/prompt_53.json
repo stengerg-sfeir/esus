@@ -1,0 +1,244 @@
+{
+  "prompt": "prompt_53",
+  "status": "failed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "stub:orderconfirm",
+      "status": "skipped",
+      "reason": "generated method still raises NotImplementedError"
+    },
+    {
+      "name": "code:modules",
+      "status": "passed",
+      "reason": "8 generated modules"
+    },
+    {
+      "name": "code:type-hints",
+      "status": "passed",
+      "reason": "annotated generated functions"
+    },
+    {
+      "name": "db:foreign-keys",
+      "status": "passed",
+      "reason": "SQLite foreign keys enabled"
+    },
+    {
+      "name": "db:persistence-across-executions",
+      "status": "passed",
+      "reason": "SQLite database file"
+    },
+    {
+      "name": "code:entry-point",
+      "status": "passed",
+      "reason": "main guard present"
+    },
+    {
+      "name": "models:primary-keys",
+      "status": "passed",
+      "reason": "every model declares a primary key"
+    },
+    {
+      "name": "api:CustomerRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderItemRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderManagementService.orderconfirm",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderManagementService.place_order",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderItemRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderItemRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:OrderItem add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Customer",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Order",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:OrderItem",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CustomerRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderItemRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Order.customer_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderItem.order_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderItem.product_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:OrderManagementService.place_order",
+      "status": "failed",
+      "reason": "valid call raised AttributeError: 'str' object has no attribute 'get'"
+    },
+    {
+      "name": "scenario:place_order_reserves_stock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:OrderItem add",
+      "status": "passed"
+    }
+  ]
+}

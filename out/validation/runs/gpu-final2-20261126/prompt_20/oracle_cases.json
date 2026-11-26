@@ -1,0 +1,564 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 999.99
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product.name",
+          "product.price"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.price": 999.99
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "SalesRecordRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 999.99
+        }
+      },
+      "when": {
+        "action": "read_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.price": 999.99
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_one",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "SalesRecordRepository.get_sales_records_by_product_id",
+            "SalesRecordRepository.read_all",
+            "ProductRepository.delete",
+            "ProductRepository.update"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 999.99
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product.id",
+          "product.name",
+          "product.price"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 999.99
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 999.99
+        },
+        "sale": {
+          "product_id": 1,
+          "quantity": 2,
+          "sale_date": "2025-04-01",
+          "total_price": 1999.98
+        }
+      },
+      "when": {
+        "action": "create_sale",
+        "args": [
+          "sale.product_id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ]
+      },
+      "then": {
+        "state": {
+          "sale.product_id": 1,
+          "sale.quantity": 2,
+          "sale.sale_date": "2025-04-01",
+          "sale.total_price": 1999.98
+        },
+        "error": "PRICE_MARGIN_GUARD",
+        "rows": {
+          "SalesRecord": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'PRICE_MARGIN_GUARD' is not named in the requirements",
+        "error class 'PRICE_MARGIN_GUARD' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "read_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "sale": {
+          "id": 1,
+          "product_id": 1,
+          "quantity": 2,
+          "sale_date": "2025-04-01",
+          "total_price": 1999.98
+        }
+      },
+      "when": {
+        "action": "read_sale",
+        "args": [
+          "sale.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "sale.product_id": 1,
+          "sale.quantity": 2,
+          "sale.sale_date": "2025-04-01",
+          "sale.total_price": 1999.98
+        },
+        "rows": {
+          "SalesRecord": 1
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "sale": {
+            "status": "alias",
+            "canonical": "SalesRecord",
+            "score": 9.4,
+            "evidence": [
+              "name/fields match SalesRecord",
+              "score 9.4"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "sale.product_id": {
+            "status": "aligned",
+            "canonical": "product_id",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.product_id exists"
+            ],
+            "alternatives": []
+          },
+          "sale.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "sale.sale_date": {
+            "status": "aligned",
+            "canonical": "sale_date",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.sale_date exists"
+            ],
+            "alternatives": []
+          },
+          "sale.total_price": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'total_price'",
+              "not declared on SalesRecord"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "SalesRecordRepository.get_sales_records_by_product_id",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "SalesRecordRepository.get_sales_records_by_product_id",
+            "SalesRecordRepository.read_all",
+            "SalesRecordRepository.read_one",
+            "SalesRecordRepository.create"
+          ]
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "expected state field 'sale.total_price' is not declared on SalesRecord"
+      }
+    },
+    {
+      "id": "update_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "sale": {
+          "id": 1,
+          "product_id": 1,
+          "quantity": 2,
+          "sale_date": "2025-04-01",
+          "total_price": 1999.98
+        }
+      },
+      "when": {
+        "action": "update_sale",
+        "args": [
+          "sale.id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ]
+      },
+      "then": {
+        "state": {
+          "sale.product_id": 1,
+          "sale.quantity": 3,
+          "sale.sale_date": "2025-04-01",
+          "sale.total_price": 2999.97
+        },
+        "error": "PRICE_MARGIN_GUARD",
+        "rows": {
+          "SalesRecord": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'PRICE_MARGIN_GUARD' is not named in the requirements",
+        "error class 'PRICE_MARGIN_GUARD' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "delete_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "sale": {
+          "id": 1,
+          "product_id": 1,
+          "quantity": 2,
+          "sale_date": "2025-04-01",
+          "total_price": 1999.98
+        }
+      },
+      "when": {
+        "action": "delete_sale",
+        "args": [
+          "sale.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "SalesRecord": 0
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "sale": {
+            "status": "alias",
+            "canonical": "SalesRecord",
+            "score": 9.4,
+            "evidence": [
+              "name/fields match SalesRecord",
+              "score 9.4"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "no generated method matches 'delete_sale'"
+      }
+    }
+  ]
+}

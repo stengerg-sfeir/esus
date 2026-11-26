@@ -1,0 +1,32 @@
+[
+  {
+    "label": "CustomerService.validate_customer_exists",
+    "status": "written",
+    "note": "",
+    "answer": "try:\n            self._repos['CustomerRepository'].read_one(customer_id)\n            return True\n        except errors.CustomerNotFoundError:\n            return False",
+    "finish_reason": "stop",
+    "tokens": 30,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.3750030994415283,
+    "decode_seconds": 0.20655199999999999,
+    "prompt_tokens": 4101,
+    "cached_tokens": 92,
+    "context": "exact"
+  },
+  {
+    "label": "OrderService.orderconfirm",
+    "status": "written",
+    "note": "",
+    "answer": "order = self._repos['OrderRepository'].get_order_with_products(order_id)\n        if order is None:\n            raise errors.OrderNotFoundError(\"Order not found\")\n        if order.status != \"pending\":\n            raise errors.InvalidOrderStatusError(\"Order status must be 'pending' to confirm\")\n        # Update order status to \"confirmed\"\n        self._repos['OrderRepository'].update(order_id=order.order_id, status=\"confirmed\")\n        # For each order product, restore the stock quantity\n        order_products = self._repos['OrderProductRepository'].get_order_products_by_order_id(order.order_id)\n        for op in order_products:\n            product = self._repos['ProductRepository'].read_one(product_id=op.product_id)\n            if product is None:\n                raise errors.ProductNotFoundError(f\"Product with ID {op.product_id} not found\")\n            new_stock = product.stock_quantity + op.quantity\n            self._repos['ProductRepository'].update(product_id=product.product_id, stock_quantity=new_stock)",
+    "finish_reason": "stop",
+    "tokens": 205,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.5524799823760986,
+    "decode_seconds": 1.446168,
+    "prompt_tokens": 4074,
+    "cached_tokens": 3344,
+    "context": "exact"
+  }
+]

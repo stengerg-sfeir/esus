@@ -1,0 +1,39 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_59/persistence_ports.json
+
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): OrderRepository.get_order_with_lines_and_customer(order_id)
+[ok] step grounding: dropped DiscountRepository.apply_discount_to_order_total — parameter 'order_total' names no Discount field
+[ok] step grounding: dropped TaxRepository.calculate_tax_amount — parameter 'order_total' names no Tax field
+[ok] step adapters: taxadd.rate was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: taxupdate.rate was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: taxdelete.rate was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerdelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_line_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.order_line_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: discountupdate.discount_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: discountdelete.discount_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taxupdate.tax_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taxdelete.tax_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_line_id lookup entity 'Order_line' canonicalized to OrderLine
+[ok] step adapters: orderlinedelete.order_line_id lookup entity 'Order_line' canonicalized to OrderLine
+[ok] step adapters: rebuilt prose-derived surface from 19 adapter(s)
+[ok] step persistence: 6 repository interface(s) adopted from service_contracts, so both documents declare one method set

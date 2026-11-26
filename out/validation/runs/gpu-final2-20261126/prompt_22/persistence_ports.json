@@ -1,0 +1,368 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Order",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Order.",
+            "params": [
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Order by its key.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Order; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "list[Order]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "calculate_total_order_amount",
+            "description": "Calculates the total amount of an order by summing up the product of quantity and unit price for all order items associated with the order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "float"
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Product.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Product.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Product.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "OrderItem",
+        "interface_name": "OrderItemRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new OrderItem.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderItem",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every OrderItem; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderItem]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing OrderItem.",
+            "params": [
+              {
+                "name": "order_item_id",
+                "type": "int"
+              },
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderItem",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing OrderItem.",
+            "params": [
+              {
+                "name": "order_item_id",
+                "type": "int"
+              },
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one OrderItem by its key.",
+            "params": [
+              {
+                "name": "order_item_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderItem",
+            "raises": []
+          },
+          {
+            "name": "get_order_items_by_order_id",
+            "description": "Lists the OrderItem records belonging to one Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderItem]",
+            "raises": []
+          },
+          {
+            "name": "get_total_quantity_for_product",
+            "description": "Returns the total quantity of a product across all orders, based on the product_id.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "int"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Order",
+        "table": "orders",
+        "primary_key": "order_id",
+        "indexes": [
+          "created_at",
+          "updated_at"
+        ]
+      },
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "product_id",
+        "indexes": []
+      },
+      {
+        "entity": "OrderItem",
+        "table": "order_items",
+        "primary_key": "order_item_id",
+        "indexes": [
+          "order_id",
+          "product_id"
+        ]
+      }
+    ]
+  }
+}

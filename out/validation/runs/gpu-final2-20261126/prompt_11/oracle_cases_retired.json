@@ -1,0 +1,115 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_book",
+        "source": "Users can create, list, update, search and delete books.",
+        "given": {
+          "book": {
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "isbn": "978-0-7475-3269-9",
+            "publication_year": 1925
+          }
+        },
+        "when": {
+          "action": "create_book",
+          "args": [
+            "title",
+            "author",
+            "isbn",
+            "publication_year"
+          ]
+        },
+        "then": {
+          "state": {
+            "book.title": "The Great Gatsby",
+            "book.author": "F. Scott Fitzgerald",
+            "book.isbn": "978-0-7475-3269-9",
+            "book.publication_year": 1925
+          },
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "45444e5188da3e03d0405d6e519acde3e448fbdfa8016d9427ed55b03796b608"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "search_books",
+        "source": "Users can create, list, update, search and delete books.",
+        "given": {
+          "search": {
+            "title": "1984",
+            "author": "George Orwell"
+          }
+        },
+        "when": {
+          "action": "search_books",
+          "args": [
+            "title",
+            "author"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "45444e5188da3e03d0405d6e519acde3e448fbdfa8016d9427ed55b03796b608"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_book",
+        "source": "Users can create, list, update, search and delete books.",
+        "given": {
+          "book": {
+            "title": "Pride and Prejudice",
+            "author": "Jane Austen",
+            "isbn": "978-0-14-143951-8",
+            "publication_year": 1813
+          }
+        },
+        "when": {
+          "action": "delete_book",
+          "args": [
+            "book.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Book": 0
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "45444e5188da3e03d0405d6e519acde3e448fbdfa8016d9427ed55b03796b608"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

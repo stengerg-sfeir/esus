@@ -1,0 +1,48 @@
+{
+  "data_models": [
+    {
+      "name": "Customer",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "rejected"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "phone_number",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}

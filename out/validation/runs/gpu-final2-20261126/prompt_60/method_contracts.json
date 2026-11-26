@@ -1,0 +1,166 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderService",
+      "method": "confirm_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "creates": [
+        {
+          "class": "Invoice",
+          "call": "InvoiceRepository.create",
+          "fields": {
+            "order_id": "param:order_id",
+            "total_amount": "0",
+            "generated_at": "now"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "increment",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        },
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'cancelled'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "ship_order",
+      "decided_by": "auto",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'shipped'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "order.status == 'confirmed'",
+          "error": "ValueError",
+          "raise_when": "false"
+        }
+      ]
+    },
+    {
+      "holder": "ProductService",
+      "method": "add_product",
+      "decided_by": "user",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "creates": [
+        {
+          "class": "Product",
+          "call": "ProductRepository.create"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "category",
+          "repository": "CategoryRepository",
+          "method": "read_one",
+          "args": [
+            "category_id"
+          ]
+        },
+        {
+          "name": "product",
+          "repository": "ProductRepository",
+          "method": "read_one",
+          "args": [
+            "product_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "category exists",
+          "error": "CategoryNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "price is not None and price < 0",
+          "error": "InvalidPriceError",
+          "raise_when": "true"
+        },
+        {
+          "check": "product_id is not None and product_id <= 0",
+          "error": "InvalidProductIdError",
+          "raise_when": "true"
+        }
+      ]
+    },
+    {
+      "holder": "CategoryService",
+      "method": "add_category",
+      "decided_by": "user",
+      "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+      "creates": [
+        {
+          "class": "Category",
+          "call": "CategoryRepository.create"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "category",
+          "repository": "CategoryRepository",
+          "method": "read_one",
+          "args": [
+            "category_id"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+gate passed (9 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: CustomerService.validate_customer_exists ...
+llm: OrderService.orderconfirm ...
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_56/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/generated/__init__.py
+methods: 43 implemented, 2 stubs (96% mechanical)
+llm: 2 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: CustomerService.validate_customer_exists
+  llm provisional: OrderService.orderconfirm
+  stub: OrderService.orderconfirm: no pattern entry and an ambiguous method name
+  stub: CustomerService.validate_customer_exists: pattern BUDGET_OVERFLOW_GUARD: no mechanical reading
+  cli Customer add -> customeradd [score 9]
+  cli Customer delete -> customerdelete [score 11]
+  cli Customer update -> customerupdate [score 11]
+  cli Order add -> orderadd [score 9]
+  cli Order cancel -> ordercancel [score 11]
+  cli Order delete -> orderdelete [score 11]
+  cli Order update -> orderupdate [score 11]
+  cli OrderProduct add -> orderproductadd [score 9]
+  cli Product add -> productadd [score 9]
+  cli Product delete -> productdelete [score 11]
+  cli Product update -> productupdate [score 11]

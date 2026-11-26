@@ -1,0 +1,26 @@
+{
+  "method_contracts": [
+    {
+      "holder": "InventoryService",
+      "method": "restock",
+      "decided_by": "user",
+      "requirements_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716",
+      "effects": [
+        {
+          "target": "product.stock_qty",
+          "op": "increment",
+          "by": "qty",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "product exists",
+          "error": "ProductNotFoundError",
+          "raise_when": "false"
+        }
+      ],
+      "bindings": []
+    }
+  ]
+}

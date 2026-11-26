@@ -1,0 +1,40 @@
+{
+  "requirements_sha": "6c5cca83d87b075e77d2e2febfe53b9f2a24626d84de7797814bc712b4b30835",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "The CSV header row must be read to dynamically determine the column names used in the output JSON.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "NO_PATTERN_IN_DOMAIN",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

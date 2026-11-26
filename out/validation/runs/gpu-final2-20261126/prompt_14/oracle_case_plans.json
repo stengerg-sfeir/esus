@@ -1,0 +1,112 @@
+{
+  "plans": [
+    {
+      "id": "create_project",
+      "source": "Users can create, update, list and delete projects.",
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name",
+          "project.description",
+          "project.status"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.name",
+          "project.description",
+          "project.status"
+        ],
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_project",
+      "source": "Users can create, update, list and delete projects.",
+      "when": {
+        "action": "update_project",
+        "args": [
+          "project.id",
+          "project.name",
+          "project.description",
+          "project.status"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.name",
+          "project.description",
+          "project.status"
+        ],
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_projects",
+      "source": "Users can create, update, list and delete projects.",
+      "when": {
+        "action": "list_projects"
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Project": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_project_soft",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.status"
+        ],
+        "rows": {
+          "Project": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "plans": [
+    {
+      "id": "create_book",
+      "source": "Users can create, list, update and delete books.",
+      "when": {
+        "action": "create_book",
+        "args": [
+          "title",
+          "author",
+          "isbn"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_books",
+      "source": "Users can create, list, update and delete books.",
+      "when": {
+        "action": "list_books"
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": "at_least_0"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_book",
+      "source": "Users can create, list, update and delete books.",
+      "when": {
+        "action": "update_book",
+        "args": [
+          "book.id",
+          "title",
+          "author",
+          "isbn"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_book",
+      "source": "Users can create, list, update and delete books.",
+      "when": {
+        "action": "delete_book",
+        "args": [
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_books_by_title",
+      "source": "Users must also be able to search books by title.",
+      "when": {
+        "action": "search_books_by_title",
+        "args": [
+          "title"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": "at_least_0"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "productadd",
+      "target_service": "ProductRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "sku",
+          "target_param": "sku",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "price_cents",
+          "target_param": "price_cents",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "stock_qty",
+          "target_param": "stock_qty",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "low_active",
+          "target_param": "low_active",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "productlist",
+      "target_service": "ProductRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": false
+        },
+        {
+          "field_name": "low_only",
+          "target_param": "low_active",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "productupdate",
+      "target_service": "ProductRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price_cents",
+          "target_param": "price_cents",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "productdelete",
+      "target_service": "ProductRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "categoryadd",
+      "target_service": "CategoryRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "reorder_threshold",
+          "target_param": "reorder_threshold",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "categorylist",
+      "target_service": "CategoryRepository",
+      "target_method": "read_all",
+      "input_fields": []
+    },
+    {
+      "action_name": "categoryupdate",
+      "target_service": "CategoryRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "reorder_threshold",
+          "target_param": "reorder_threshold",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "categorydelete",
+      "target_service": "CategoryRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "productrestock",
+      "target_service": "InventoryService",
+      "target_method": "restock",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "qty",
+          "target_param": "qty",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "productreportlowstock",
+      "target_service": "InventoryService",
+      "target_method": "low_stock_report",
+      "input_fields": []
+    },
+    {
+      "action_name": "productreportvalue",
+      "target_service": "InventoryService",
+      "target_method": "stock_value_by_category",
+      "input_fields": []
+    }
+  ]
+}

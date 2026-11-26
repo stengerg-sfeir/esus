@@ -1,0 +1,128 @@
+{
+  "prompt": "prompt_17",
+  "results": [
+    {
+      "name": "search_by_name",
+      "status": "under_specified",
+      "reason": "ambiguous action binding: ProductRepository.filter_by_category, ProductRepository.filter_by_max_price, ProductRepository.filter_by_min_quantity, ProductRepository.find_all_with_filters, ProductRepository.find_all_products_with_filters",
+      "source": "Users must be able to search by name",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt exposes the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    },
+    {
+      "name": "combinable_filters",
+      "status": "under_specified",
+      "reason": "ambiguous action binding: ProductRepository.filter_by_category, ProductRepository.filter_by_max_price, ProductRepository.filter_by_min_quantity",
+      "source": "All filters must be combinable",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "ProductRepository.filter_by_category",
+          "score": 3.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "ProductRepository.filter_by_category",
+            "ProductRepository.filter_by_max_price",
+            "ProductRepository.filter_by_min_quantity",
+            "ProductRepository.find_all_products_with_filters"
+          ]
+        }
+      },
+      "triage": "under_specified"
+    }
+  ],
+  "counts": {
+    "under_specified": 2
+  },
+  "triage_counts": {
+    "under_specified": 2
+  }
+}

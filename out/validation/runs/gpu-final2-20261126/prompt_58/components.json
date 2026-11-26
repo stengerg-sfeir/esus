@@ -1,0 +1,111 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "customer_id",
+            "type": "int",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--output",
+            "short": "-o",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "ExternalServiceResponse",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--customer-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--additional-info",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--error-message",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--timestamp",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [
+      "external service"
+    ],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "read_one"
+        ]
+      },
+      {
+        "entity": "ExternalServiceResponse",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all"
+        ]
+      }
+    ]
+  }
+}

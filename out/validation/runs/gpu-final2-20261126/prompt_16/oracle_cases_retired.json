@@ -1,0 +1,179 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 0,
+    "retired": 4,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_customer",
+        "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+        "given": {
+          "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com"
+          }
+        },
+        "when": {
+          "action": "create_customer",
+          "args": [
+            "customer.name",
+            "customer.email"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.status": "active"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "958c86c083f065a5530ffe60196efff755ebbe8ef8bac0cfd1071f86f657b50f"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_customer",
+        "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+        "given": {
+          "customer": {
+            "id": 101,
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "read_customer",
+          "args": [
+            "customer.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.status": "active",
+            "customer.name": "Alice Johnson",
+            "customer.email": "alice.johnson@example.com"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "958c86c083f065a5530ffe60196efff755ebbe8ef8bac0cfd1071f86f657b50f"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_customer",
+        "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+        "given": {
+          "customer": {
+            "id": 101,
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "update_customer",
+          "args": [
+            "customer.id",
+            "customer.name",
+            "customer.email"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.status": "active",
+            "customer.name": "Bob Smith",
+            "customer.email": "bob.smith@example.com"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "958c86c083f065a5530ffe60196efff755ebbe8ef8bac0cfd1071f86f657b50f"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "list_customers_paginated",
+        "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+        "given": {
+          "customer_1": {
+            "id": 101,
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "status": "active"
+          },
+          "customer_2": {
+            "id": 102,
+            "name": "Bob Smith",
+            "email": "bob.smith@example.com",
+            "status": "active"
+          },
+          "customer_3": {
+            "id": 103,
+            "name": "Charlie Brown",
+            "email": "charlie.brown@example.com",
+            "status": "active"
+          },
+          "customer_4": {
+            "id": 104,
+            "name": "Diana Prince",
+            "email": "diana.prince@example.com",
+            "status": "active"
+          },
+          "customer_5": {
+            "id": 105,
+            "name": "Eve Wilson",
+            "email": "eve.wilson@example.com",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "list_customers",
+          "args": [
+            "1",
+            "3"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {
+            "Customer": 3
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "958c86c083f065a5530ffe60196efff755ebbe8ef8bac0cfd1071f86f657b50f"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

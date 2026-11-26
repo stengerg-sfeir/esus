@@ -1,0 +1,174 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "TaskRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Task by its key.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Task; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Task]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskService",
+      "methods": [
+        {
+          "name": "import_tasks_from_json",
+          "description": "Import tasks from json.",
+          "params": [
+            {
+              "name": "file_path",
+              "type": "str"
+            }
+          ],
+          "return_type": "int",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        },
+        {
+          "name": "export_tasks_to_json",
+          "description": "Export tasks to json.",
+          "params": [
+            {
+              "name": "file_path",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    }
+  ]
+}

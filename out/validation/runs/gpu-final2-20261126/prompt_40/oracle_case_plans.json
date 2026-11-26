@@ -1,0 +1,58 @@
+{
+  "plans": [
+    {
+      "id": "notify_on_confirm",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "notification_service_log",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "when": {
+        "action": "notify",
+        "args": [
+          "notification.message"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "notification",
+          "entity": "Notification",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "notification.message"
+        ],
+        "rows": {
+          "Notification": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "project_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "name": "task_id",
+            "type": "int",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--title",
+            "short": "-t",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--description",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--status",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": "pending"
+          },
+          {
+            "name": "--priority",
+            "short": "-p",
+            "type": "str",
+            "required": false,
+            "default": "medium"
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Project",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--description",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--created-at",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--updated-at",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--description",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": []
+              }
+            ]
+          },
+          {
+            "name": "Task",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--description",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--priority",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--project-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--created-at",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--updated-at",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--description",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--priority",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Project",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete",
+          "read_one"
+        ]
+      },
+      {
+        "entity": "Task",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete",
+          "read_one"
+        ]
+      }
+    ]
+  }
+}

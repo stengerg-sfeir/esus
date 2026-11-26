@@ -1,0 +1,27 @@
+{
+  "slots": [
+    {
+      "holder": "StorageLocationRepository",
+      "method": "get_total_storage_capacity",
+      "pattern": "AGGREGATE_BY_FK",
+      "slots": {
+        "aggregate_func": "SUM",
+        "target_field": "maximum_capacity"
+      },
+      "decided_by": "user",
+      "requirements_sha": "797396aa6da996f220987f5713e3e5fb3a1a89d1ab6e7a626d17c853eca87cba"
+    },
+    {
+      "holder": "StorageLocationRepository",
+      "method": "get_over_capacity_locations",
+      "pattern": "THRESHOLD_SCAN",
+      "slots": {
+        "comparison_field": "max_capacity",
+        "operator": ">",
+        "threshold": "id"
+      },
+      "decided_by": "user",
+      "requirements_sha": "797396aa6da996f220987f5713e3e5fb3a1a89d1ab6e7a626d17c853eca87cba"
+    }
+  ]
+}

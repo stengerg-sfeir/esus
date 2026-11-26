@@ -1,0 +1,113 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_contact",
+        "source": "Provide operations to create, list, update and delete contacts.",
+        "given": {
+          "contact": {
+            "name": "Alice Johnson",
+            "email": "alice.j@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "create_contact",
+          "args": [
+            "name",
+            "email",
+            "phone"
+          ]
+        },
+        "then": {
+          "state": {
+            "contact.name": "Alice Johnson",
+            "contact.email": "alice.j@example.com",
+            "contact.phone": "555-1234"
+          },
+          "rows": {
+            "Contact": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "d4e0ba16d16c9df2ade2c97a942860c601305a71605e9e3a14ab128efc37fd08"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "list_contacts",
+        "source": "Provide operations to create, list, update and delete contacts.",
+        "given": {
+          "contact": {
+            "name": "Alice Johnson",
+            "email": "alice.j@example.com",
+            "phone": "555-1234"
+          }
+        },
+        "when": {
+          "action": "list_contacts"
+        },
+        "then": {
+          "state": {
+            "contact.name": "Alice Johnson",
+            "contact.email": "alice.j@example.com",
+            "contact.phone": "555-1234"
+          },
+          "rows": {
+            "Contact": ">=0"
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "d4e0ba16d16c9df2ade2c97a942860c601305a71605e9e3a14ab128efc37fd08"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_contact",
+        "source": "Provide operations to create, list, update and delete contacts.",
+        "given": {
+          "contact": {
+            "name": "Charlie Brown",
+            "email": "charlie.b@example.com",
+            "phone": "555-9012"
+          }
+        },
+        "when": {
+          "action": "delete_contact",
+          "args": [
+            "contact.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Contact": 0
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "d4e0ba16d16c9df2ade2c97a942860c601305a71605e9e3a14ab128efc37fd08"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

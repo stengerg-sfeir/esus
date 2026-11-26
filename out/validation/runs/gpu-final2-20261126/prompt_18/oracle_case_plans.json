@@ -1,0 +1,72 @@
+{
+  "plans": [
+    {
+      "id": "export_contacts_to_csv",
+      "source": "Export all contacts to CSV.",
+      "when": {
+        "action": "export_contacts_to_csv"
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "import_contacts_from_csv",
+      "source": "Import contacts from CSV.",
+      "when": {
+        "action": "import_contacts_from_csv",
+        "args": [
+          "csv_file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "import_invalid_row_rejection",
+      "source": "Invalid rows during import must be rejected without corrupting existing data.",
+      "when": {
+        "action": "import_contacts_from_csv",
+        "args": [
+          "csv_file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

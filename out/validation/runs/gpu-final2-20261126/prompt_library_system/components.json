@@ -1,0 +1,798 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "click",
+      "invocation": {
+        "positional": [],
+        "options": [],
+        "commands": [
+          {
+            "name": "book",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--author-id",
+                    "short": "-a",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--isbn",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--published-year",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--copies",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": "1"
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "--author",
+                    "short": "-a",
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--available-only",
+                    "short": null,
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "--query",
+                    "short": "-q",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--isbn",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--published-year",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--available-copies",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--author-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--title",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--isbn",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--published-year",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--available-copies",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--author-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "member",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": "-e",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--membership-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--is-active",
+                    "short": null,
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "--active-only",
+                    "short": "-a",
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "history",
+                "options": [
+                  {
+                    "name": "--member-id",
+                    "short": "-m",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--membership-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--is-active",
+                    "short": null,
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--email",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--membership-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--is-active",
+                    "short": null,
+                    "type": "bool",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "borrow",
+            "options": [
+              {
+                "name": "--member-id",
+                "short": "-m",
+                "type": "int",
+                "required": true,
+                "default": null
+              },
+              {
+                "name": "--book-id",
+                "short": "-b",
+                "type": "int",
+                "required": true,
+                "default": null
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "return",
+            "options": [
+              {
+                "name": "--loan-id",
+                "short": "-l",
+                "type": "int",
+                "required": true,
+                "default": null
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "overdue",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": "False"
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "author",
+            "options": [
+              {
+                "name": "--help",
+                "short": "-h",
+                "type": "bool",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--version",
+                "short": "-v",
+                "type": "bool",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": "-n",
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--birth-year",
+                    "short": "-b",
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--biography",
+                    "short": "-i",
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--birth-year",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--biography",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--birth-year",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--biography",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--birth-year",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--biography",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Loan",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--book-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--member-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--loan-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--return-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "--book-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--member-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--loan-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--return-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--book-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--member-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--loan-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--return-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "delete",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--book-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--member-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--loan-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--due-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--return-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--status",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Book",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Author",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Member",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "Loan",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

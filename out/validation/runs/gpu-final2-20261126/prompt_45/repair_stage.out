@@ -1,0 +1,24 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/persistence_ports.json
+
+[ok] step grounding: dropped BookingService.confirm_order — no requirement/intention evidence for verb `confirm`
+[ok] step grounding: dropped BookingService.cancel_order — no requirement/intention evidence for verb `cancel`
+[ok] step adapters: bookingadd.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingadd.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: roomupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: roomdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: guestupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: guestdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set

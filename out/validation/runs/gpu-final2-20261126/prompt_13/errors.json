@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "ProductSKUExistsError",
+      "base": "ValueError",
+      "description": "Raised when attempting to create a product with a SKU that already exists in the inventory."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested by SKU but not found in the inventory."
+    },
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested by category but that category does not exist in the inventory."
+    }
+  ]
+}

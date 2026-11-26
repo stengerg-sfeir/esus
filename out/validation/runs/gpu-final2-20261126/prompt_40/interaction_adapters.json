@@ -1,0 +1,39 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "orderadd",
+      "target_service": "OrderRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "orderupdate",
+      "target_service": "OrderRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Book",
+        "interface_name": "BookRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Book.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Book; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "list[Book]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Book by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Book.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Book.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "search_by_title",
+            "description": "Search for books by a partial match of the title, returning a list of books that contain the title string.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Book]"
+          },
+          {
+            "name": "search",
+            "description": "Search.",
+            "params": [],
+            "return_type": "list[Book]",
+            "raises": [],
+            "provenance": "capability_adapter",
+            "review_required": true
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Book",
+        "table": "books",
+        "primary_key": "id",
+        "indexes": [
+          "title",
+          "isbn",
+          "created_at",
+          "updated_at"
+        ]
+      }
+    ]
+  }
+}

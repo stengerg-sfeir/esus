@@ -1,0 +1,164 @@
+{
+  "invariants": [
+    {
+      "text": "Category.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.monthly_budget must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.icon must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.amount_cents must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.amount_cents must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.expense_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.expense_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.category_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.category_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.category_id must reference an existing Category.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.payment_method must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.payment_method must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.payment_method must be one of 'cash', 'card', 'transfer'",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.is_recurring must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Expense.is_recurring must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.category_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.category_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.category_id must reference an existing Category.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.month must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.month must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.amount_limit_cents must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget.amount_limit_cents must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Budget must have a unique constraint on (category_id, month)",
+      "kind": "schema"
+    },
+    {
+      "text": "A budget entry must uniquely identify a category and a month, and no two budget entries can share the same category_id and month.",
+      "kind": "rule"
+    },
+    {
+      "text": "When an expense is added, the system must check if the associated category's budget has been exceeded after the insertion.",
+      "kind": "rule"
+    },
+    {
+      "text": "The monthly budget for a category must be checked against the total expenses in that category for the same month to determine if the budget is on_track, in_warning, or exceeded.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a recurring expense is added, the system must detect and mark it as recurring if it has the same amount and category as another expense within the same month and date pattern.",
+      "kind": "rule"
+    },
+    {
+      "text": "The monthly report must include the total spending per category, the overall monthly total, and the budget status (on_track/warning/exceeded) for each category in that month.",
+      "kind": "rule"
+    },
+    {
+      "text": "The yearly summary must include monthly totals, the top spending categories by total expenditure, and the average monthly spend across all months in the year.",
+      "kind": "rule"
+    },
+    {
+      "text": "The get_category_spending method must aggregate all expenses for a given category over a specified date range.",
+      "kind": "rule"
+    },
+    {
+      "text": "The expense list query must filter results by category_id, date range, and payment_method if provided, and return all expenses if no filters are applied.",
+      "kind": "rule"
+    },
+    {
+      "text": "The export_to_csv method must generate a CSV file containing only the filtered expenses specified by date range and other filters.",
+      "kind": "rule"
+    },
+    {
+      "text": "A category must have a unique name across all categories in the system.",
+      "kind": "rule"
+    }
+  ]
+}

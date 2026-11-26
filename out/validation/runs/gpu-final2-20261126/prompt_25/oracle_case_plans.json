@@ -1,0 +1,179 @@
+{
+  "plans": [
+    {
+      "id": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "list_employees",
+        "args": [
+          "department.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
+        },
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.department_id"
+        ],
+        "rows": {
+          "Employee": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_employee_in_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "employee.name",
+          "employee.department_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
+        },
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "new"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.department_id"
+        ],
+        "rows": {
+          "Employee": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "read_employee_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "read_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.department_id"
+        ],
+        "rows": {
+          "Employee": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_department_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "read_department",
+        "args": [
+          "department.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [],
+        "rows": {
+          "Department": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_employee_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "update_employee",
+        "args": [
+          "employee.id",
+          "employee.department_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        },
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.department_id"
+        ],
+        "rows": {
+          "Employee": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "delete_employee",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "delete_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [],
+        "rows": {
+          "Employee": 0
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

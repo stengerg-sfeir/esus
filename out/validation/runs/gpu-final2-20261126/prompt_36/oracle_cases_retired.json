@@ -1,0 +1,79 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_product_with_nonexistent_category",
+        "source": "Every product must belong to an existing category.",
+        "given": {
+          "product": {
+            "name": "Laptop",
+            "category_id": 999
+          }
+        },
+        "when": {
+          "action": "create_product",
+          "args": [
+            "product.name",
+            "product.category_id"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.category_id": 999
+          },
+          "error": "STATE_TRANSITION_GUARD"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'STATE_TRANSITION_GUARD' is not named in the requirements"
+        ],
+        "prompt_sha": "147a87861baa9b6d2c69c67b6b2291215f22a35da85e5a8773cbc112ec78fa1d"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_category_with_products",
+        "source": "A category cannot be deleted while products still belong to it.",
+        "given": {
+          "category": {
+            "id": 101,
+            "name": "Electronics"
+          },
+          "product": {
+            "name": "Phone",
+            "category_id": 101
+          }
+        },
+        "when": {
+          "action": "delete_category",
+          "args": [
+            "category.id"
+          ]
+        },
+        "then": {
+          "error": "STATE_TRANSITION_GUARD"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'STATE_TRANSITION_GUARD' is not named in the requirements"
+        ],
+        "prompt_sha": "147a87861baa9b6d2c69c67b6b2291215f22a35da85e5a8773cbc112ec78fa1d"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

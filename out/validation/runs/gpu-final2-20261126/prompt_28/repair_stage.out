@@ -1,0 +1,16 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_28/persistence_ports.json
+
+[ok] step components: aligned 1 option type(s) with the data model: --total_amount -> float (Invoice.total_amount)
+[ok] step adapters: invoiceadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoicelineadd.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoicelineadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 2 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set

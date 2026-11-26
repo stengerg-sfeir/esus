@@ -1,0 +1,109 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "loanadd",
+      "target_service": "LoanService",
+      "target_method": "create_loan",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        },
+        {
+          "field_name": "loan_date",
+          "target_param": "loan_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "due_date",
+          "target_param": "due_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "closed",
+          "target_param": "closed",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "loandelete",
+      "target_service": "LoanService",
+      "target_method": "delete_loan",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Loan",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "bookadd",
+      "target_service": "BookRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "available",
+          "target_param": "available",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "memberadd",
+      "target_service": "MemberRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

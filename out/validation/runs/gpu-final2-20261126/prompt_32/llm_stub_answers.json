@@ -1,0 +1,17 @@
+[
+  {
+    "label": "OrderService.orderconfirm",
+    "status": "written",
+    "note": "",
+    "answer": "order = self._repos['OrderRepository'].read_one(order_id)\n    if not (order.state == 'pending'):\n        raise errors.OrderStateException(\"order.state == 'pending'\")\n    self._repos['OrderRepository'].update(order.id, state='confirmed')",
+    "finish_reason": "stop",
+    "tokens": 54,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.0830936431884766,
+    "decode_seconds": 0.35211000000000003,
+    "prompt_tokens": 2277,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

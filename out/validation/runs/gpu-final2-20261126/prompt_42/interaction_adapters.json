@@ -1,0 +1,32 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "find_customer_purchases",
+      "target_service": "PurchaseRepository",
+      "target_method": "find_customer_purchases",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "get_total_spent_by_customer",
+      "target_service": "PurchaseRepository",
+      "target_method": "get_total_spent_by_customer",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

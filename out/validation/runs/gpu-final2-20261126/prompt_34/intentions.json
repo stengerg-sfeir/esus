@@ -1,0 +1,8 @@
+{
+  "intentions": [
+    "Ensure atomic creation of an order and its order lines in the database",
+    "Validate all order lines during order creation",
+    "Roll back the entire transaction if any order line is invalid",
+    "Prevent partial insertion of an order or order lines into the database"
+  ]
+}

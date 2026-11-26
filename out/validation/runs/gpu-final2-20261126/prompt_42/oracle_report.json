@@ -1,0 +1,87 @@
+{
+  "prompt": "prompt_42",
+  "results": [
+    {
+      "name": "find_purchase_history",
+      "status": "unbound",
+      "reason": "ambiguous action binding: PurchaseRepository.find_customer_purchases, PurchaseRepository.get_purchases_by_customer_id, PurchaseRepository.get_total_spent_by_customer",
+      "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Purchase"
+            ]
+          },
+          "purchase": {
+            "status": "aligned",
+            "canonical": "Purchase",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Purchase",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "purchase.amount": {
+            "status": "aligned",
+            "canonical": "amount",
+            "score": 10.0,
+            "evidence": [
+              "Purchase.amount exists"
+            ],
+            "alternatives": []
+          },
+          "purchase.date": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'date'",
+              "not declared on Purchase"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: ambiguous action"
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  },
+  "triage_counts": {
+    "coverage_gap: ambiguous action": 1
+  }
+}

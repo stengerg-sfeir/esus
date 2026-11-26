@@ -1,0 +1,27 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--status",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "intentions": [
+    "Define domain models with auto-incremented primary keys and foreign key relationships enforcing referential integrity via CASCADE deletes",
+    "Implement repository interfaces for Book, Author, Member, and Loan with SQLite storage and CRUD operations including search and filtering",
+    "Establish business logic in LibraryService to handle borrowing, returning, membership renewal, and overdue loan detection with proper validation and transactional safety",
+    "Build a CLI interface using Click to provide commands for managing books, authors, members, loans, and querying library state",
+    "Ensure all operations involving borrowing and returning are wrapped in a single database transaction to maintain data consistency",
+    "Enforce unique constraints on ISBN and email fields at the database level",
+    "Support case-insensitive substring search across book title, author name, and ISBN with fallback to empty result on ISBN mismatch",
+    "Validate input constraints: non-negative copy counts, valid member and book IDs, and proper due date calculation (14 days after loan date)",
+    "Handle edge cases such as returning an already returned loan by raising a specific error and rolling back",
+    "Provide filtering capabilities (e.g., by author, availability, active status) in both repository and CLI commands",
+    "Maintain referential integrity through foreign key constraints with CASCADE on deletion of author and book entities",
+    "Allow optional fields (like biography or copies) with defaults where specified",
+    "Compute overdue status based on current date and stored due_date and return_date fields",
+    "Separate concerns using clean architecture: domain models, repositories, services, and CLI layer"
+  ]
+}

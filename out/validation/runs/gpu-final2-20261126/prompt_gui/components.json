@@ -1,0 +1,36 @@
+{
+  "components": {
+    "facade": {
+      "type": "gui",
+      "technology": "pyimgui",
+      "invocation": null
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Wine",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "StorageLocation",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

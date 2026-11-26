@@ -1,0 +1,239 @@
+{
+  "data_models": [
+    {
+      "name": "Project",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "project_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Project",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "TeamMember",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "rejected"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "TaskAssignment",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Task",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "member_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "TeamMember",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "responsibility_type",
+          "type": "string",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "assigned_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    }
+  ]
+}

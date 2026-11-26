@@ -1,0 +1,21 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_13/persistence_ports.json
+
+[ok] step data_models: added Product.sku from the requirement field list
+[ok] step components: aligned 3 option type(s) with the data model: --price -> float (Product.price), --price -> float (Product.price), --price -> float (Product.price)
+[ok] step persistence: ProductRepository.create cannot receive required 'sku' — added as str
+[ok] step contracts: added sku to ProductRepository.create from the requirement field list
+[ok] step adapters: update_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_product.sku went to 'name' while the method declares 'sku' — redirected to 'sku'
+[ok] step adapters: added 1 required create field(s)
+[ok] step adapters: Product add lacked '--name' required by 'create_product' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set

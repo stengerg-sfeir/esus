@@ -1,0 +1,62 @@
+[run] requirements: 274 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 71 tokens in 0.5s (149.7 tok/s, 170.4 decode, 88 prompt)
+[data_models] 394 tokens in 2.5s (156.3 tok/s, 160.3 decode, 587 prompt)
+[ok] step data_models: uniqueness provenance — 1 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (47.3 tok/s, 185.6 decode, 488 prompt)
+[invariants] 49 tokens in 0.4s (135.5 tok/s, 170.0 decode, 292 prompt)
+[ok] step invariants: 13 invariant(s) — 12 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 115 tokens in 1.0s (120.3 tok/s, 132.2 decode, 1000 prompt)
+[components] 190 tokens in 1.4s (135.0 tok/s, 150.8 decode, 379 prompt)
+[ok] step components: prose facade is api — kept the plan surface
+[service_contracts] 10 tokens in 0.1s (70.0 tok/s, 182.3 decode, 494 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Customer add, Customer list, Customer update, Customer delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.3s (141.8 tok/s, 170.4 decode, 400 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/6] invariant -> FILTER_WITH_PAGINATION (0.98)
+  [2/6] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [3/6] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [4/6] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/6] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/6] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 6 item(s) — 3 standard CRUD, 3 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (read: ambiguous methods: CustomerRepository.read_all, CustomerRepository.read_one); retry after surface repairs declined (read: ambiguous methods: CustomerRepository.read_all, CustomerRepository.read_one) — asking the model
+[interaction_adapters] 880 tokens in 5.6s (155.9 tok/s, 159.6 decode, 574 prompt)
+[ok] step adapters: read_customer_by_id.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[!] step adapters has 3 unreachable field(s) — retrying once
+[interaction_adapters] 224 tokens in 1.5s (145.2 tok/s, 161.5 decode, 655 prompt)
+[ok] step adapters: read_customer_by_id.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 2 item(s) versus 5 in the first attempt — kept the fuller first attempt; its 3 unreachable field(s) stay reported
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: list  lacked '--page-number' required by 'list_customers_paginated' — added as str
+[ok] step adapters: list  lacked '--page-size' required by 'list_customers_paginated' — added as str
+[ok] step adapters: create  lacked '--first-name' required by 'create_customer' — added as str
+[ok] step adapters: create  lacked '--last-name' required by 'create_customer' — added as str
+[ok] step adapters: create  lacked '--email' required by 'create_customer' — added as str
+[ok] step adapters: create  lacked '--created-at' required by 'create_customer' — added as str
+[ok] step adapters: create  lacked '--updated-at' required by 'create_customer' — added as str
+[ok] step adapters: read  lacked '--customer-id' required by 'read_customer_by_id' — added as int
+[ok] step adapters: update  lacked '--customer-id' required by 'update_customer' — added as int
+[ok] step adapters: delete  lacked '--customer-id' required by 'delete_customer' — added as int
+[ok] step adapters: Customer list lacked '--page-number' required by 'list_customers_paginated' — added as str
+[ok] step adapters: Customer list lacked '--page-size' required by 'list_customers_paginated' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_16/requirements.txt
+[run] 10 steps, 1985 generated tokens in 13.5s

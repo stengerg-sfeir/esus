@@ -1,0 +1,53 @@
+gate passed (2 residual risk(s); gaps stay documented stubs)
+llm: 6 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: ExpenseRepository.check_budget_exceeded ...
+llm: ExpenseService.expenseexport ...
+llm: ExpenseService.expensereportyearly ...
+llm: ExpenseService.expensereportyearly refused (sets `start_date` from an arithmetic expression that is not a date; use a date/datetime or `datetime.timedelta`) — repair ask 1
+llm: ExpenseService.expensereportmonthly ...
+llm: ExpenseService.get_yearly_summary ...
+llm: ExpenseService.get_monthly_report ...
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_expenses/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/__init__.py
+methods: 28 implemented, 6 stubs (82% mechanical)
+llm: 6 of 6 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: ExpenseRepository.check_budget_exceeded
+  llm provisional: ExpenseService.expenseexport
+  llm provisional: ExpenseService.expensereportyearly — repaired: sets `start_date` from an arithmetic expression that is not a date; use a date/datetime or `datetime.timedelta`; sets `end_date` from an arithmetic expression that is not a date; use a date/datetime or `datetime.timedelta`
+  llm provisional: ExpenseService.expensereportmonthly
+  llm provisional: ExpenseService.get_yearly_summary
+  llm provisional: ExpenseService.get_monthly_report
+  stub: ExpenseRepository.check_budget_exceeded: pattern BUDGET_OVERFLOW_GUARD: no mechanical reading
+  stub: ExpenseService.get_monthly_report: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: ExpenseService.get_yearly_summary: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: ExpenseService.expensereportmonthly: no pattern entry and an ambiguous method name
+  stub: ExpenseService.expensereportyearly: no pattern entry and an ambiguous method name
+  stub: ExpenseService.expenseexport: no pattern entry and an ambiguous method name
+  cli Category add -> categoryadd [score 9]
+  cli Category delete -> categorydelete [score 11]
+  cli Category list -> categorylist [score 9]
+  cli Category update -> categoryupdate [score 11]
+  cli budget add -> budgetadd [score 9]
+  cli budget delete -> budgetdelete [score 11]
+  cli budget list -> budgetlist [score 9]
+  cli budget update -> budgetupdate [score 11]
+  cli expense add -> expenseadd [score 9]
+  cli expense category add -> expensecategoryadd [score 6]
+  cli expense category delete -> expensecategorydelete [score 8]
+  cli expense category list -> expensecategorylist [score 6]
+  cli expense category update -> expensecategoryupdate [score 8]
+  cli expense delete -> expensedelete [score 11]
+  cli expense export -> expenseexport [score 11]
+  cli expense list -> expenselist [score 11]
+  cli expense recurring detect -> expenserecurringdetect [score 8]
+  cli expense report monthly -> expensereportmonthly [score 4]
+  cli expense report yearly -> expensereportmonthly [score 4]
+  cli expense update -> expenseupdate [score 11]
+  cli route: expense report yearly: --year -> get_yearly_summary_year

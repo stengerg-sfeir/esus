@@ -1,0 +1,17 @@
+[
+  {
+    "label": "OrderRepository.calculate_total_order_amount",
+    "status": "written",
+    "note": "",
+    "answer": "found = self._store.select(self.ENTITY, [])\n    total = 0.0\n    for record in found:\n        if order_id is not None and record.get('order_id') != order_id:\n            continue\n        order_items = self._store.select(\"OrderItem\", [(\"order_id\", \"eq\", record.get('order_id'))])\n        for item in order_items:\n            quantity = item.get('quantity')\n            unit_price = item.get('unit_price')\n            if quantity is not None and unit_price is not None:\n                total += quantity * unit_price\n    return total\n",
+    "finish_reason": "stop",
+    "tokens": 124,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.7798583507537842,
+    "decode_seconds": 0.884303,
+    "prompt_tokens": 4511,
+    "cached_tokens": 332,
+    "context": "exact"
+  }
+]

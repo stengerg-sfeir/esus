@@ -1,0 +1,134 @@
+[run] requirements: 353 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 113 tokens in 0.8s (138.2 tok/s, 167.8 decode, 103 prompt)
+[data_models] 888 tokens in 5.7s (155.6 tok/s, 158.0 decode, 641 prompt)
+[ok] step data_models: uniqueness provenance — 4 explicit, 2 inferred (inferred fields are not enforced until confirmed)
+[errors] 384 tokens in 2.5s (152.6 tok/s, 164.2 decode, 527 prompt)
+[invariants] 367 tokens in 2.3s (156.9 tok/s, 165.3 decode, 331 prompt)
+[ok] step invariants: 35 invariant(s) — 25 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1075 tokens in 7.5s (144.2 tok/s, 146.4 decode, 1039 prompt)
+[ok] step components: aligned 1 option type(s) with the data model: --customer_id -> int (2 models agreeing on int)
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-filter' to '--filter'
+[ok] step components: normalized option '-cancel' to '--cancel'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-filter' to '--filter'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-customer-id' to '--customer-id'
+[ok] step components: added 1 persisted dependent entity(ies) to crud_services: OrderProduct
+[service_contracts] 571 tokens in 3.8s (148.8 tok/s, 159.5 decode, 713 prompt)
+[ok] step contracts: added 15 mechanical service method(s)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step components: added 7 CRUD subcommand(s) from the service contracts: customer update, customer delete, product update, product delete, order update, order delete, OrderProduct add
+[ok] step contracts: normalized 11 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'PermissionError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'DatabaseConnectionError' and it is named nowhere in the requirements — dropped
+[persistence_ports] 590 tokens in 3.9s (152.2 tok/s, 162.7 decode, 478 prompt)
+[ok] step persistence: merged 7 custom repository method(s) into service_contracts
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step persistence: get_by_order_id filters OrderProduct by order ID — declared OrderProduct.order_id as an FK to Order
+  [1/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/57] invariant -> STOCK_SUFFICIENCY_GUARD (0.98)
+  [4/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [5/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [6/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [7/57] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/57] invariant -> NO_PATTERN_IN_DOMAIN (0.67)  <- GAP: no pattern for this
+  [9/57] invariant -> FILTER_WITH_PAGINATION (1.00)
+  [10/57] invariant -> STATE_TRANSITION_GUARD (0.83)
+  [11/57] contract:OrderService.confirm_order -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [12/57] contract:OrderService.cancel_order -> NO_PATTERN_IN_DOMAIN (0.19)  <- UNKNOWN: READ_ONE_BY_ID returns entity, but this method returns none (None)
+  [13/57] contract:OrderService.create_order -> STANDARD_CRUD (1.00)
+  [14/57] contract:OrderService.read_all_orders -> READ_ALL (0.01)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Order]) (was READ_ONE_BY_ID)  <- undecided (pattern): FILTER_BY_FIELD at 0.00
+  [15/57] contract:OrderService.read_order_by_id -> STANDARD_CRUD (1.00)
+  [16/57] contract:OrderService.update_order -> STANDARD_CRUD (1.00)
+  [17/57] contract:OrderService.delete_order -> STANDARD_CRUD (1.00)
+  [18/57] contract:ProductService.search_products -> FILTER_WITH_PAGINATION (1.00)
+  [19/57] contract:ProductService.validate_product_stock -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [20/57] contract:ProductService.create_product -> STANDARD_CRUD (1.00)
+  [21/57] contract:ProductService.read_all_products -> READ_ALL (0.00)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Product]) (was READ_ONE_BY_ID)  <- undecided (pattern): FILTER_BY_FIELD at 0.00
+  [22/57] contract:ProductService.read_product_by_id -> STANDARD_CRUD (1.00)
+  [23/57] contract:ProductService.update_product -> STANDARD_CRUD (1.00)
+  [24/57] contract:ProductService.delete_product -> STANDARD_CRUD (1.00)
+  [25/57] contract:CustomerService.validate_customer_exists -> BUDGET_OVERFLOW_GUARD (0.74)
+  [26/57] contract:CustomerService.create_customer -> STANDARD_CRUD (1.00)
+  [27/57] contract:CustomerService.read_all_customers -> READ_ALL (0.00)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Customer]) (was READ_ONE_BY_ID)  <- undecided (pattern): FILTER_BY_FIELD at 0.00
+  [28/57] contract:CustomerService.read_customer_by_id -> STANDARD_CRUD (1.00)
+  [29/57] contract:CustomerService.update_customer -> STANDARD_CRUD (1.00)
+  [30/57] contract:CustomerService.delete_customer -> STANDARD_CRUD (1.00)
+  [31/57] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [32/57] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [33/57] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [34/57] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [35/57] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [36/57] contract:CustomerRepository.find_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [37/57] contract:CustomerRepository.find_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [38/57] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [39/57] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [40/57] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [41/57] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [42/57] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [43/57] contract:ProductRepository.search_by_name -> FILTER_WITH_PAGINATION (0.89)
+  [44/57] contract:ProductRepository.filter_by_stock_quantity -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [45/57] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [46/57] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [47/57] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [48/57] contract:OrderRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [49/57] contract:OrderRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [50/57] contract:OrderRepository.get_orders_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [51/57] contract:OrderRepository.cancel_order -> NO_PATTERN_IN_DOMAIN (0.20)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns boolean (bool)
+  [52/57] contract:OrderRepository.get_order_with_products -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [53/57] contract:OrderProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [54/57] contract:OrderProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [55/57] contract:OrderProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [56/57] contract:OrderProductRepository.get_order_products_by_product_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [57/57] contract:OrderProductRepository.get_by_order_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 57 item(s) — 22 standard CRUD, 32 pattern(s), 3 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: All modifications to the database, including order creation, product search, and order cancellation, must be atomic and persisted in a single transaction.
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderService.cancel_order: cancel_order(order_id: int) -> None: Cancels an order by updating its status to 'cancelled' and releasing the reserved stock quantities of the products in the order.
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderRepository.cancel_order: cancel_order(order_id: int) -> bool: Cancel an order and restore the stock quantities of all products in that order.
+[ok] step adapters: derived 3 command group(s) from 47 service method(s)
+[ok] step adapters: 13 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: orderconfirm.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productstock.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerdelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method OrderService.orderconfirm (confirm)
+[ok] step adapters: added capability method ProductService.productsearch (search)
+[ok] step adapters: added capability method ProductService.productstock (stock)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 10 adapter(s)
+[ok] step components: added 1 CRUD subcommand(s) from the service contracts: OrderProduct add
+[ok] step adapters: added 1 missing adapter(s) mechanically: OrderProduct add
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/method_plans.json
+[ok] method plans: 3 mechanical candidate(s)
+[!] method plans: 9 ambiguous question(s) — human review required
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/requirements.txt
+[run] 7 steps, 3988 generated tokens in 26.5s

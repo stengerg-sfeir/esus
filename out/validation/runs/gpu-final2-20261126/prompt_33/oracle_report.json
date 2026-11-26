@@ -1,0 +1,75 @@
+{
+  "prompt": "prompt_33",
+  "results": [
+    {
+      "name": "scenario:oracle:create_customer_audit",
+      "status": "case_defect",
+      "reason": "customer.id is 1, expected 101",
+      "case": "create_customer_audit",
+      "source": "Provide CRUD operations for customers. Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "AuditLog"
+            ]
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "aligned",
+            "canonical": "id",
+            "score": 10.0,
+            "evidence": [
+              "Customer.id exists"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "AuditLogRepository.create"
+          ]
+        }
+      },
+      "triage": "case_defect: setup"
+    }
+  ],
+  "counts": {
+    "case_defect": 1
+  },
+  "triage_counts": {
+    "case_defect: setup": 1
+  }
+}

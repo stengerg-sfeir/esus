@@ -1,0 +1,75 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "handle_missing_input_file",
+        "source": "Include error handling for missing files and malformed CSV.",
+        "given": {
+          "input_file": {
+            "file_path": "missing_file.csv"
+          }
+        },
+        "when": {
+          "action": "check_file_exists",
+          "args": [
+            "input_file.file_path"
+          ]
+        },
+        "then": {
+          "error": "FileNotFoundError",
+          "rows": {}
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The requirement states to include error handling for missing files and malformed CSV, but does not specify whether the check for missing files is performed before or after validation. The behavior of `check_file_exists` in this context is ambiguous.",
+          "error class 'FileNotFoundError' is not named in the requirements"
+        ],
+        "prompt_sha": "6c5cca83d87b075e77d2e2febfe53b9f2a24626d84de7797814bc712b4b30835"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "handle_malformed_csv",
+        "source": "Include error handling for missing files and malformed CSV.",
+        "given": {
+          "csv_file": {
+            "content": "id,name\n1,2\n3,4\n5,6\n"
+          }
+        },
+        "when": {
+          "action": "validate_csv_format",
+          "args": [
+            "csv_file.file_path"
+          ]
+        },
+        "then": {
+          "error": "MalformedCSVError",
+          "rows": {
+            "CSVFile": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The requirement does not specify what constitutes a malformed CSV, nor does it define the exact error condition or input that triggers the MalformedCSVError. The behavior is ambiguous without a clear definition of malformed input.",
+          "error class 'MalformedCSVError' is not named in the requirements"
+        ],
+        "prompt_sha": "6c5cca83d87b075e77d2e2febfe53b9f2a24626d84de7797814bc712b4b30835"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

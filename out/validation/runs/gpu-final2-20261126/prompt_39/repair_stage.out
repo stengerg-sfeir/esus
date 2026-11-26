@@ -1,0 +1,21 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_39/persistence_ports.json
+
+[ok] step components: aligned 4 option type(s) with the data model: --price -> float (2 models agreeing on float), --price -> float (2 models agreeing on float), --total_amount -> float (Order.total_amount), --unit_price -> float (2 models agreeing on float)
+[ok] step contracts: added the primary key to 3 parameterless lookup(s): UserRepository.get_user_count(user_id), ProductRepository.get_product_count(product_id), OrderRepository.get_active_orders_count(order_id)
+[ok] step adapters: update_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_order.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_order_item.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_order_item.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 8 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set

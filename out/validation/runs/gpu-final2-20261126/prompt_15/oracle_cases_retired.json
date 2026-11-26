@@ -1,0 +1,239 @@
+{
+  "counts": {
+    "legacy": 6,
+    "kept": 0,
+    "retired": 6,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "list_products_by_name",
+        "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+        "given": {
+          "product": {
+            "name": "Laptop",
+            "price": 999.99,
+            "quantity": 10
+          }
+        },
+        "when": {
+          "action": "list_products",
+          "args": [
+            "name",
+            "asc"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Laptop",
+            "product.price": 999.99,
+            "product.quantity": 10
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b1e01623dd0becc2b07374dd821beeaf4bdf15fa1844a7df6529d723f9d0862b"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "list_products_by_price",
+        "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+        "given": {
+          "product": {
+            "name": "Mouse",
+            "price": 25.0,
+            "quantity": 50
+          }
+        },
+        "when": {
+          "action": "list_products",
+          "args": [
+            "price",
+            "asc"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Mouse",
+            "product.price": 25.0,
+            "product.quantity": 50
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b1e01623dd0becc2b07374dd821beeaf4bdf15fa1844a7df6529d723f9d0862b"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "list_products_by_quantity",
+        "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+        "given": {
+          "product": {
+            "name": "Keyboard",
+            "price": 75.0,
+            "quantity": 25
+          }
+        },
+        "when": {
+          "action": "list_products",
+          "args": [
+            "quantity",
+            "asc"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Keyboard",
+            "product.price": 75.0,
+            "product.quantity": 25
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b1e01623dd0becc2b07374dd821beeaf4bdf15fa1844a7df6529d723f9d0862b"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_product",
+        "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+        "given": {
+          "product": {
+            "id": 1,
+            "name": "Monitor",
+            "price": 299.99,
+            "quantity": 15
+          }
+        },
+        "when": {
+          "action": "read_product",
+          "args": [
+            "1"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Monitor",
+            "product.price": 299.99,
+            "product.quantity": 15
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "a product with a given ID can be read and returns its full state"
+        ],
+        "ambiguities": [],
+        "prompt_sha": "b1e01623dd0becc2b07374dd821beeaf4bdf15fa1844a7df6529d723f9d0862b"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_product",
+        "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+        "given": {
+          "product": {
+            "id": 1,
+            "name": "Monitor",
+            "price": 299.99,
+            "quantity": 15
+          }
+        },
+        "when": {
+          "action": "update_product",
+          "args": [
+            "1",
+            "Gaming Monitor",
+            "399.99",
+            "10"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Gaming Monitor",
+            "product.price": 399.99,
+            "product.quantity": 10
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "updating a product modifies all fields as specified and returns the updated state"
+        ],
+        "ambiguities": [],
+        "prompt_sha": "b1e01623dd0becc2b07374dd821beeaf4bdf15fa1844a7df6529d723f9d0862b"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_product",
+        "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+        "given": {
+          "product": {
+            "id": 1,
+            "name": "Old Mouse",
+            "price": 10.0,
+            "quantity": 0
+          }
+        },
+        "when": {
+          "action": "delete_product",
+          "args": [
+            "1"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Product": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "deleting a product removes it from the list and results in zero product rows"
+        ],
+        "ambiguities": [
+          "the state of the product is not updated after deletion; only rows are affected"
+        ],
+        "prompt_sha": "b1e01623dd0becc2b07374dd821beeaf4bdf15fa1844a7df6529d723f9d0862b"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

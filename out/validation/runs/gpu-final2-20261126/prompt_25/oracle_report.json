@@ -1,0 +1,97 @@
+{
+  "prompt": "prompt_25",
+  "results": [
+    {
+      "name": "scenario:oracle:read_employee_by_id",
+      "status": "passed",
+      "case": "read_employee_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 12.333333333333334,
+            "evidence": [
+              "name/fields match Employee",
+              "score 12.3"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {
+          "employee.department_id": {
+            "status": "aligned",
+            "canonical": "department_id",
+            "score": 10.0,
+            "evidence": [
+              "Employee.department_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all_employees",
+            "EmployeeRepository.read_employee_by_id",
+            "EmployeeRepository.create_employee",
+            "EmployeeRepository.delete_employee"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_department_by_id",
+      "status": "passed",
+      "case": "read_department_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "DepartmentRepository.read_all_departments",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "DepartmentRepository.read_all_departments",
+            "DepartmentRepository.read_department_by_id",
+            "DepartmentRepository.create_department",
+            "DepartmentRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 2
+  },
+  "triage_counts": {
+    "passed": 2
+  }
+}

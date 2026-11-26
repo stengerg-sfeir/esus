@@ -1,0 +1,189 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:book add",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "add",
+            "--author-id",
+            "1",
+            "--title",
+            "value1",
+            "--isbn",
+            "value1",
+            "--published-year",
+            "2",
+            "--copies",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:book list",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "list",
+            "--author",
+            "1",
+            "--available-only"
+          ],
+          [
+            "book",
+            "list",
+            "--author",
+            "1",
+            "--available-only",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:book search",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "search",
+            "--query",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member add",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member list",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "list",
+            "--active-only"
+          ],
+          [
+            "member",
+            "list",
+            "--active-only",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member history",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "history",
+            "--member-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:borrow",
+      "when": {
+        "cli_variants": [
+          [
+            "borrow",
+            "--member-id",
+            "1",
+            "--book-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:return",
+      "when": {
+        "cli_variants": [
+          [
+            "return",
+            "--loan-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:overdue",
+      "when": {
+        "cli_variants": [
+          [
+            "overdue"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:author add",
+      "when": {
+        "cli_variants": [
+          [
+            "author",
+            "add",
+            "--name",
+            "value1",
+            "--birth-year",
+            "2",
+            "--biography",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

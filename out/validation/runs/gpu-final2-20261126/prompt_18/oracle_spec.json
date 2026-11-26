@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "3f592a0c3ba227d93e8931e73d2218562ab7576987456cf4d4a149bbec2566a6",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "The address field of a contact may be empty or null, but must not contain invalid characters or formatting that would prevent parsing.",
+      "chosen": "BUDGET_OVERFLOW_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "PRICE_MARGIN_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

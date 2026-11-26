@@ -1,0 +1,76 @@
+[run] requirements: 257 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 168 tokens in 1.1s (154.1 tok/s, 168.4 decode, 84 prompt)
+[data_models] 436 tokens in 2.9s (152.7 tok/s, 158.3 decode, 678 prompt)
+[ok] step data_models: Customer.primary_key became the integer primary key id
+[ok] step data_models: Order.primary_key became the integer primary key id
+[ok] step data_models: Order.customer_id retyped to int for its Customer key
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (41.3 tok/s, 186.5 decode, 483 prompt)
+[invariants] 345 tokens in 2.2s (159.7 tok/s, 165.9 decode, 287 prompt)
+[ok] step invariants: 23 invariant(s) — 13 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 855 tokens in 6.0s (141.8 tok/s, 145.1 decode, 995 prompt)
+[ok] step components: aligned 1 option type(s) with the data model: --items -> str (Order.order_items)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-items' to '--items'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-items' to '--items'
+[ok] step components: normalized option '-status' to '--status'
+[service_contracts] 10 tokens in 0.3s (37.5 tok/s, 183.0 decode, 489 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[persistence_ports] 69 tokens in 0.5s (133.2 tok/s, 168.7 decode, 409 prompt)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/20] invariant -> STOCK_SUFFICIENCY_GUARD (0.96)
+  [2/20] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/20] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [4/20] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [5/20] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [6/20] invariant -> STATE_TRANSITION_GUARD (0.66)
+  [7/20] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/20] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [9/20] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [10/20] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [11/20] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/20] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/20] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/20] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/20] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/20] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/20] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/20] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [19/20] contract:OrderRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/20] contract:OrderRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 20 item(s) — 6 standard CRUD, 14 pattern(s), 0 gap(s)
+[ok] step adapters: 8 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: orderadd.items targets an entity but spells no model field — renamed to 'order_items'
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 95 tokens in 0.6s (147.9 tok/s, 166.7 decode, 608 prompt)
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[!] step interaction_adapters retry has 1 item(s) versus 8 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: order add lacked '--customer-id' required by 'orderadd' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_29/requirements.txt
+[run] 8 steps, 1986 generated tokens in 13.8s

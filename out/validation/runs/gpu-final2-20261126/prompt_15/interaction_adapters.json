@@ -1,0 +1,125 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "productadd",
+      "target_service": "ProductRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price",
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "productupdate",
+      "target_service": "ProductRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price",
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "productdelete",
+      "target_service": "ProductRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price",
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "sort_products",
+      "target_service": "ProductRepository",
+      "target_method": "sort_products",
+      "provenance": "capability_adapter",
+      "review_required": true,
+      "input_fields": [
+        {
+          "field_name": "sort_by",
+          "target_param": "sort_by",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "direction",
+          "target_param": "direction",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

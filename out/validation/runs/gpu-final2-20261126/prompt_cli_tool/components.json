@@ -1,0 +1,33 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "input_file",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--output",
+            "short": "-o",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": []
+      }
+    },
+    "persistence": {
+      "required": false,
+      "technology": "none"
+    },
+    "external_access": [],
+    "crud_services": []
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "plans": [
+    {
+      "id": "create_product",
+      "source": "Provide normal product CRUD operations",
+      "when": {
+        "action": "create_product",
+        "args": [
+          "name",
+          "description",
+          "stock_quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_product",
+      "source": "Provide normal product CRUD operations",
+      "when": {
+        "action": "read_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_product",
+      "source": "Provide normal product CRUD operations",
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product.id",
+          "name",
+          "description",
+          "stock_quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide normal product CRUD operations",
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

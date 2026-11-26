@@ -1,0 +1,128 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one Customer by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Customer]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Account",
+        "interface_name": "AccountRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one Account by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Account",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Account; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "balance",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Account]",
+            "raises": []
+          },
+          {
+            "name": "create",
+            "description": "Creates a new Account.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "balance",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Account",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Account.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "balance",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Account",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Account",
+        "table": "accounts",
+        "primary_key": "id",
+        "indexes": [
+          "customer_id"
+        ]
+      }
+    ]
+  }
+}

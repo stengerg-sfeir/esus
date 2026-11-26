@@ -1,0 +1,34 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/persistence_ports.json
+
+[ok] step contracts: retyped 2 id parameter(s) to int
+[ok] step components: aligned 1 option type(s) with the data model: --task_id -> int (5 models agreeing on int)
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): TaskAssignmentRepository.getAssignmentCountByTask(id)
+[ok] step adapters: update_project.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_project.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: list_tasks.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_task.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_team_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_team_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: list_task_assignments_by_task_id.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentadd.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentupdate.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentupdate.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentdelete.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentdelete.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 16 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set

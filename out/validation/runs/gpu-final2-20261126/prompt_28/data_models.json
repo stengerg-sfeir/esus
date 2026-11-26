@@ -1,0 +1,167 @@
+{
+  "data_models": [
+    {
+      "name": "Customer",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "rejected"
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "Invoice",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "customer_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Customer",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "issue_date",
+          "type": "date",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "total_amount",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "InvoiceLine",
+      "fields": [
+        {
+          "name": "line_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "invoice_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Invoice",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Product",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "close_loan",
+        "source": "Users must be able to create and close loans and determine which books are currently available.",
+        "given": {
+          "loan": {
+            "id": "loan_123",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "close_loan",
+          "args": [
+            "loan_123"
+          ]
+        },
+        "then": {
+          "state": {
+            "loan.status": "closed"
+          },
+          "rows": {
+            "Loan": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "9ea71871235b2a6bd25aa1eeeb662e5b0caeee7c48bea99d28dcd505033fe4ff"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "determine_available_books",
+        "source": "Users must be able to create and close loans and determine which books are currently available.",
+        "given": {
+          "loan": {
+            "id": "loan_123",
+            "status": "active",
+            "book_id": "book_456"
+          },
+          "book": {
+            "id": "book_456",
+            "title": "The Great Gatsby",
+            "available": true
+          }
+        },
+        "when": {
+          "action": "list_available_books",
+          "args": []
+        },
+        "then": {
+          "state": {},
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "9ea71871235b2a6bd25aa1eeeb662e5b0caeee7c48bea99d28dcd505033fe4ff"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

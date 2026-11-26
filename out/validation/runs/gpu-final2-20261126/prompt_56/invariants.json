@@ -1,0 +1,144 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "When an order is cancelled, the stock quantity of each product in the order must be restored to its original value before the order was placed.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total quantity of a product across all orders must not exceed its stock quantity at any time.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each order must be associated with exactly one customer.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each product in an order must have a valid product_id that exists in the Product table.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of quantities of products in an order must equal the total number of items in that order.",
+      "kind": "rule"
+    },
+    {
+      "text": "Product stock quantities must remain non-negative after any operation.",
+      "kind": "rule"
+    },
+    {
+      "text": "Order status must be updated only when the order is successfully cancelled or completed, and cancellation must be explicitly requested.",
+      "kind": "rule"
+    },
+    {
+      "text": "All modifications to the database, including order creation, product search, and order cancellation, must be atomic and persisted in a single transaction.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product can be searched and filtered by name or description, and the results must include only products that match the search criteria.",
+      "kind": "rule"
+    },
+    {
+      "text": "The order date must be set to the current timestamp when an order is created.",
+      "kind": "rule"
+    }
+  ]
+}

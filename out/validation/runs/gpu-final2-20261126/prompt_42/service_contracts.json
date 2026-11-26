@@ -1,0 +1,111 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "PurchaseRepository",
+      "methods": [
+        {
+          "name": "read_all",
+          "description": "Lists every Purchase; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "purchase_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Purchase by its key.",
+          "params": [
+            {
+              "name": "purchase_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Purchase",
+          "raises": []
+        },
+        {
+          "name": "get_purchases_by_customer_id",
+          "description": "Lists the Purchase records belonging to one Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        },
+        {
+          "name": "get_total_spent_by_customer",
+          "description": "Calculate and return the total amount spent by a customer across all their purchases.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "float"
+        },
+        {
+          "name": "find_customer_purchases",
+          "description": "Find customer purchases.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    }
+  ]
+}

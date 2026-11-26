@@ -1,0 +1,421 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "ClientRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Client.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "account_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Client",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Client by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Client",
+          "raises": [
+            "ClientNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Client; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "account_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Client]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Client.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "account_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Client",
+          "raises": [
+            "ClientNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Client.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "account_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "ClientNotFoundError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "InvoiceRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Invoice.",
+          "params": [
+            {
+              "name": "client_id",
+              "type": "int"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Invoice",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Invoice by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Invoice",
+          "raises": [
+            "InvoiceNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Invoice; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "client_id",
+              "type": "int"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Invoice]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Invoice.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "client_id",
+              "type": "int"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Invoice",
+          "raises": [
+            "InvoiceNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Invoice.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "client_id",
+              "type": "int"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "InvoiceNotFoundError"
+          ]
+        },
+        {
+          "name": "getOutstandingInvoicesByClient",
+          "description": "Returns all invoices for a given client that are past due or not yet paid, filtered by client ID.",
+          "params": [
+            {
+              "name": "clientId",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[models.Invoice]"
+        },
+        {
+          "name": "getInvoicesByDueDateRange",
+          "description": "Returns all invoices within a specified date range, useful for financial reporting or audits.",
+          "params": [
+            {
+              "name": "startDate",
+              "type": "Date"
+            },
+            {
+              "name": "endDate",
+              "type": "Date"
+            }
+          ],
+          "return_type": "list[models.Invoice]"
+        }
+      ]
+    },
+    {
+      "service_name": "PaymentRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Payment.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Payment",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Payment by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Payment",
+          "raises": [
+            "PaymentNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Payment; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Payment]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Payment.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Payment",
+          "raises": [
+            "PaymentNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Payment.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "PaymentNotFoundError"
+          ]
+        },
+        {
+          "name": "getPaymentForInvoice",
+          "description": "Returns the payment record associated with a specific invoice ID, used to verify payment status.",
+          "params": [
+            {
+              "name": "invoiceId",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Payment"
+        },
+        {
+          "name": "getPaymentsByDateRange",
+          "description": "Returns all payments made within a specified date range, useful for tracking revenue over time.",
+          "params": [
+            {
+              "name": "startDate",
+              "type": "Date"
+            },
+            {
+              "name": "endDate",
+              "type": "Date"
+            }
+          ],
+          "return_type": "list[models.Payment]"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,413 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Product.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Product.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Product.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "get_products_by_price_range",
+            "description": "Retrieves all products within a specified price range, inclusive of both endpoints.",
+            "params": [
+              {
+                "name": "min_price",
+                "type": "float"
+              },
+              {
+                "name": "max_price",
+                "type": "float"
+              }
+            ],
+            "return_type": "List[Product]"
+          }
+        ]
+      },
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Customer.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Customer]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Customer by its key.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "get_customer_by_email",
+            "description": "Finds a customer record using their email address as the unique identifier.",
+            "params": [
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "Optional[Customer]"
+          },
+          {
+            "name": "get_customers_by_phone_range",
+            "description": "Returns customers whose phone numbers fall within a specified range, useful for filtering by area code or number pattern.",
+            "params": [
+              {
+                "name": "min_phone",
+                "type": "str"
+              },
+              {
+                "name": "max_phone",
+                "type": "str"
+              }
+            ],
+            "return_type": "List[Customer]"
+          }
+        ]
+      },
+      {
+        "entity": "Sale",
+        "interface_name": "SaleRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Sale.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "sale_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "total_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Sale",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Sale; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "sale_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "total_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Sale]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Sale by its key.",
+            "params": [
+              {
+                "name": "sale_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Sale",
+            "raises": []
+          },
+          {
+            "name": "get_sales_by_customer_id",
+            "description": "Lists the Sale records belonging to one Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Sale]",
+            "raises": []
+          },
+          {
+            "name": "get_sales_by_date_range",
+            "description": "Retrieves all sales records that occurred within a specified date range, inclusive of both endpoints.",
+            "params": [
+              {
+                "name": "start_date",
+                "type": "datetime"
+              },
+              {
+                "name": "end_date",
+                "type": "datetime"
+              }
+            ],
+            "return_type": "List[Sale]"
+          },
+          {
+            "name": "get_total_revenue_by_product",
+            "description": "Calculates and returns the total revenue generated from sales of each product, grouped by product ID.",
+            "params": [
+              {
+                "name": "sale_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Dict[str, float]"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "product_id",
+        "indexes": []
+      },
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "customer_id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Sale",
+        "table": "sales",
+        "primary_key": "sale_id",
+        "indexes": [
+          "customer_id",
+          "product_id",
+          "sale_date"
+        ]
+      }
+    ]
+  }
+}

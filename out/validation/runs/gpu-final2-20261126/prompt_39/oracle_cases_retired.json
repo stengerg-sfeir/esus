@@ -1,0 +1,124 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "manage_product_admin",
+        "source": "Administrators can manage products and users.",
+        "given": {
+          "product": {
+            "id": "prod_123",
+            "name": "Laptop",
+            "status": "active"
+          },
+          "admin": {
+            "id": "admin_456",
+            "role": "administrator"
+          }
+        },
+        "when": {
+          "action": "manage_product",
+          "args": [
+            "product.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.status": "active",
+            "product.name": "Laptop"
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "cannot_modify_product_normal_user",
+        "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+        "given": {
+          "product": {
+            "id": "prod_789",
+            "name": "Mouse",
+            "status": "active"
+          },
+          "user": {
+            "id": "user_101",
+            "role": "normal_user"
+          }
+        },
+        "when": {
+          "action": "modify_product",
+          "args": [
+            "product.id",
+            "new_name"
+          ]
+        },
+        "then": {
+          "error": "PermissionDenied",
+          "state": {},
+          "rows": {}
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The requirement does not specify whether the action is attempted or blocked, and whether the error is raised at the API level or during authorization.",
+          "error class 'PermissionDenied' is not named in the requirements"
+        ],
+        "prompt_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "cannot_modify_user_normal_user",
+        "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+        "given": {
+          "user": {
+            "id": "user_202",
+            "email": "normal@example.com",
+            "role": "normal_user"
+          }
+        },
+        "when": {
+          "action": "modify_user",
+          "args": [
+            "user.id",
+            "new_email"
+          ]
+        },
+        "then": {
+          "error": "PermissionDenied",
+          "state": {},
+          "rows": {}
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The requirement does not specify whether the action is attempted or blocked, and whether the error is raised at the API level or during authorization.",
+          "error class 'PermissionDenied' is not named in the requirements"
+        ],
+        "prompt_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

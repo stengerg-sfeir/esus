@@ -1,0 +1,80 @@
+{
+  "prompt": "prompt_39",
+  "results": [
+    {
+      "name": "manage_product_admin",
+      "status": "case_defect",
+      "reason": "cannot resolve given entity 'admin'",
+      "source": "Administrators can manage products and users.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "Order",
+              "User"
+            ]
+          },
+          "admin": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 1.0,
+            "evidence": [
+              "prompt mentions 'admin'",
+              "no sufficiently close extracted entity"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "ProductRepository.find_product_by_id",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "ProductRepository.find_product_by_id",
+            "ProductRepository.find_product_by_name",
+            "ProductRepository.get_product_count",
+            "ProductRepository.get_products_by_price_range"
+          ]
+        }
+      },
+      "triage": "case_defect: setup"
+    }
+  ],
+  "counts": {
+    "case_defect": 1
+  },
+  "triage_counts": {
+    "case_defect: setup": 1
+  }
+}

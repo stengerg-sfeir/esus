@@ -1,0 +1,30 @@
+{
+  "slots": [
+    {
+      "holder": "PurchaseRepository",
+      "method": "calculate_total_spent_by_customer",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "slots": {
+        "fk_field": "customer_id",
+        "aggregate_func": "SUM",
+        "target_field": "amount",
+        "date_field": "purchase_date"
+      },
+      "decided_by": "user",
+      "requirements_sha": "62c0f6d4baa7cb4c23f2b81aad1763b4fea31d309a4791267f72f1030e9a80b0"
+    },
+    {
+      "holder": "PurchaseRepository",
+      "method": "get_total_spent_by_customer",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "slots": {
+        "fk_field": "customer_id",
+        "aggregate_func": "SUM",
+        "target_field": "amount",
+        "date_field": "purchase_date"
+      },
+      "decided_by": "user",
+      "requirements_sha": "62c0f6d4baa7cb4c23f2b81aad1763b4fea31d309a4791267f72f1030e9a80b0"
+    }
+  ]
+}

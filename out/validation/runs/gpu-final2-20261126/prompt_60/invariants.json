@@ -1,0 +1,236 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must reference an existing Category.category_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.category_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.confirmed_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.shipped_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.cancelled_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_item_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_id must reference an existing Order.order_id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.unit_price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.unit_price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.invoice_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.order_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.order_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.order_id must reference an existing Order.order_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.total_amount must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.total_amount must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.generated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Invoice.generated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "When an order is confirmed, an invoice must be created with a total amount equal to the sum of the unit prices of all products in the order multiplied by their quantities.",
+      "kind": "rule"
+    },
+    {
+      "text": "Confirming an order reserves the stock quantity of each product in the order by the quantity specified in the order item.",
+      "kind": "rule"
+    },
+    {
+      "text": "Cancelling a confirmed order releases the reserved stock for each product in the order by subtracting the quantity from the reserved amount.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order cannot be cancelled if it is not in the confirmed status.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order cannot be confirmed if it is already confirmed or cancelled.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product's stock quantity must not go below zero after any reservation or release operation.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer can search their orders and invoices by customer_id or by order status.",
+      "kind": "rule"
+    },
+    {
+      "text": "An administrator can add, update, or delete products and categories, but only if the product's stock quantity is zero or the category exists and is valid.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total amount in an invoice must match the sum of (unit_price * quantity) for all order items in the corresponding order.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product must belong to a valid category, as defined by the category_id in the product record.",
+      "kind": "rule"
+    }
+  ]
+}

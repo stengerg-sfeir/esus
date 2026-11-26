@@ -1,0 +1,22 @@
+gate passed (2 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: TaskRepository.count_tasks_by_priority ...
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_24/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/generated/__init__.py
+methods: 14 implemented, 1 stubs (93% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: TaskRepository.count_tasks_by_priority
+  stub: TaskRepository.count_tasks_by_priority: pattern AGGREGATE_BY_FK: no mechanical reading
+  cli Project add -> projectcreate [score 8]
+  cli Project delete -> projectdelete [score 11]
+  cli Project update -> projectupdate [score 11]
+  cli Task add -> taskcreate [score 8]
+  cli Task delete -> taskdelete [score 11]
+  cli Task update -> taskupdate [score 11]

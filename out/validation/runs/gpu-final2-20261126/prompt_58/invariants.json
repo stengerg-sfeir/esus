@@ -1,0 +1,128 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.address must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.customer_id must reference an existing Customer.id",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.additional_info must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.error_message must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.timestamp must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.timestamp must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "If the external service is unavailable, the application must not crash and must continue to operate by using locally stored customer data.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status field in ExternalServiceResponse must be set to 'failed' when the external service call times out or returns an error.",
+      "kind": "rule"
+    },
+    {
+      "text": "The error_message field in ExternalServiceResponse must be populated with the specific error received from the external service when the call fails.",
+      "kind": "rule"
+    },
+    {
+      "text": "The additional_info field in ExternalServiceResponse must contain the response data from the external service when the call succeeds.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's external service response must be marked as successful only if the status is 'success' and the error_message is empty.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must ensure that each customer has at most one ExternalServiceResponse record associated with them.",
+      "kind": "rule"
+    },
+    {
+      "text": "When retrieving customer information, the application must first attempt to fetch data from the external service and fall back to local customer data if the service is unavailable.",
+      "kind": "rule"
+    },
+    {
+      "text": "The timestamp field in ExternalServiceResponse must be set to the current time when the external service call is made.",
+      "kind": "rule"
+    },
+    {
+      "text": "If the external service returns a non-200 HTTP status code, the status field must be set to 'failed' and the error_message must contain the HTTP status code and message.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must not retry external service calls indefinitely; it must have a configurable retry limit and backoff strategy.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "plans": [
+    {
+      "id": "create_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product.name",
+          "product.price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": 1
+        },
+        "state": [
+          "product.name",
+          "product.price"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "read_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": 1
+        },
+        "state": [
+          "product.name",
+          "product.price"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product.id",
+          "product.name",
+          "product.price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": 1
+        },
+        "state": [
+          "product.name",
+          "product.price"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "create_sale",
+        "args": [
+          "sale.product_id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "SalesRecord",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "SalesRecord": 1
+        },
+        "state": [
+          "sale.product_id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ],
+        "error": "PRICE_MARGIN_GUARD"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "read_sale",
+        "args": [
+          "sale.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "SalesRecord",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "SalesRecord": 1
+        },
+        "state": [
+          "sale.product_id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "update_sale",
+        "args": [
+          "sale.id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "SalesRecord",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "SalesRecord": 1
+        },
+        "state": [
+          "sale.product_id",
+          "sale.quantity",
+          "sale.sale_date",
+          "sale.total_price"
+        ],
+        "error": "PRICE_MARGIN_GUARD"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "delete_sale",
+        "args": [
+          "sale.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "SalesRecord",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "SalesRecord": 0
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,379 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "customer.name",
+          "customer.email"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "given": {
+        "customer": {
+          "id": 101,
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "read_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.email": "alice.johnson@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.read_one",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CustomerRepository.delete",
+            "CustomerRepository.update"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "given": {
+        "customer": {
+          "id": 101,
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "customer.id",
+          "customer.name",
+          "customer.email"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_customers_paginated",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "given": {
+        "customer_1": {
+          "id": 101,
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "status": "active"
+        },
+        "customer_2": {
+          "id": 102,
+          "name": "Bob Smith",
+          "email": "bob.smith@example.com",
+          "status": "active"
+        },
+        "customer_3": {
+          "id": 103,
+          "name": "Charlie Brown",
+          "email": "charlie.brown@example.com",
+          "status": "active"
+        },
+        "customer_4": {
+          "id": 104,
+          "name": "Diana Prince",
+          "email": "diana.prince@example.com",
+          "status": "active"
+        },
+        "customer_5": {
+          "id": 105,
+          "name": "Eve Wilson",
+          "email": "eve.wilson@example.com",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "list_customers",
+        "args": [
+          "1",
+          "3"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 3
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer_1": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_2": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_3": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_4": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_5": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "failed",
+        "reason": "result row count is 0, expected 3"
+      },
+      "triage": "behavior: row count",
+      "needs_review": true
+    }
+  ]
+}

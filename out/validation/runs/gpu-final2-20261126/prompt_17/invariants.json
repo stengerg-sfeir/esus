@@ -1,0 +1,92 @@
+{
+  "invariants": [
+    {
+      "text": "Product.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "User.username must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.username must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A product must have a price that is greater than or equal to zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product must have a quantity that is greater than or equal to zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "When searching for products by name, the search is case-insensitive and matches partial names.",
+      "kind": "rule"
+    },
+    {
+      "text": "When filtering products by category, only products belonging to the specified category are included.",
+      "kind": "rule"
+    },
+    {
+      "text": "When applying a maximum price filter, only products with a price less than or equal to the specified maximum are included.",
+      "kind": "rule"
+    },
+    {
+      "text": "When applying a minimum quantity filter, only products with a quantity greater than or equal to the specified minimum are included.",
+      "kind": "rule"
+    },
+    {
+      "text": "All filter conditions—name, category, maximum price, and minimum quantity—can be combined and applied simultaneously to the product list.",
+      "kind": "rule"
+    },
+    {
+      "text": "If no filters are applied, all products are returned.",
+      "kind": "rule"
+    }
+  ]
+}

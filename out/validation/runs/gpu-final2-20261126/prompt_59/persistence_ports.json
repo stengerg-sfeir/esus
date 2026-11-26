@@ -1,0 +1,735 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Customer.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Customer by its key.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Customer]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Product.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Product.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Product.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Order",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Order.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "total_amount",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Order by its key.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Order; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "total_amount",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Order]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "total_amount",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "order_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "total_amount",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "get_orders_by_customer_id",
+            "description": "Lists the Order records belonging to one Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Order]",
+            "raises": []
+          },
+          {
+            "name": "cancel_order",
+            "description": "Marks an order as canceled and updates its status. Triggers stock restoration for all products in the order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_order_with_lines_and_customer",
+            "description": "Retrieves an order with its associated customer and order lines, including product details and quantities.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "dict"
+          }
+        ]
+      },
+      {
+        "entity": "OrderLine",
+        "interface_name": "OrderLineRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new OrderLine.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderLine",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one OrderLine by its key.",
+            "params": [
+              {
+                "name": "order_line_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderLine",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every OrderLine; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderLine]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing OrderLine.",
+            "params": [
+              {
+                "name": "order_line_id",
+                "type": "int"
+              },
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderLine",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing OrderLine.",
+            "params": [
+              {
+                "name": "order_line_id",
+                "type": "int"
+              },
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "get_order_lines_by_order_id",
+            "description": "Lists the OrderLine records belonging to one Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderLine]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Discount",
+        "interface_name": "DiscountRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Discount.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "value",
+                "type": "int"
+              },
+              {
+                "name": "applies_to",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Discount",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Discount by its key.",
+            "params": [
+              {
+                "name": "discount_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Discount",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Discount; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "value",
+                "type": "int"
+              },
+              {
+                "name": "applies_to",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Discount]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Discount.",
+            "params": [
+              {
+                "name": "discount_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "value",
+                "type": "int"
+              },
+              {
+                "name": "applies_to",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Discount",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Discount.",
+            "params": [
+              {
+                "name": "discount_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "value",
+                "type": "int"
+              },
+              {
+                "name": "applies_to",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Tax",
+        "interface_name": "TaxRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Tax.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "rate",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Tax",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Tax by its key.",
+            "params": [
+              {
+                "name": "tax_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Tax",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Tax; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "rate",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Tax]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Tax.",
+            "params": [
+              {
+                "name": "tax_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "rate",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Tax",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Tax.",
+            "params": [
+              {
+                "name": "tax_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "rate",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "customer_id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "product_id",
+        "indexes": []
+      },
+      {
+        "entity": "Order",
+        "table": "orders",
+        "primary_key": "order_id",
+        "indexes": [
+          "customer_id",
+          "order_date",
+          "status"
+        ]
+      },
+      {
+        "entity": "OrderLine",
+        "table": "order_lines",
+        "primary_key": "order_line_id",
+        "indexes": [
+          "order_id",
+          "product_id"
+        ]
+      },
+      {
+        "entity": "Discount",
+        "table": "discounts",
+        "primary_key": "discount_id",
+        "indexes": []
+      },
+      {
+        "entity": "Tax",
+        "table": "taxes",
+        "primary_key": "tax_id",
+        "indexes": []
+      }
+    ]
+  }
+}

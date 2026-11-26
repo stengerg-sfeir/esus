@@ -1,0 +1,71 @@
+[run] requirements: 227 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 110 tokens in 0.8s (131.1 tok/s, 168.9 decode, 83 prompt)
+[data_models] 235 tokens in 1.6s (149.3 tok/s, 156.5 decode, 617 prompt)
+[ok] step data_models: Customer.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 228 tokens in 1.5s (150.9 tok/s, 165.5 decode, 473 prompt)
+[invariants] 325 tokens in 2.0s (158.7 tok/s, 166.0 decode, 277 prompt)
+[ok] step invariants: 18 invariant(s) — 8 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 744 tokens in 5.2s (143.0 tok/s, 147.5 decode, 985 prompt)
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-domain' to '--domain'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-domain' to '--domain'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[service_contracts] 10 tokens in 0.3s (36.9 tok/s, 181.2 decode, 590 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Customer add, Customer update, Customer delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidEmailError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidPhoneNumberError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 44 tokens in 0.3s (127.9 tok/s, 170.5 decode, 385 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.97)
+  [2/15] invariant -> PRICE_MARGIN_GUARD (0.63)
+  [3/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.49)
+  [4/15] invariant -> PRICE_MARGIN_GUARD (0.71)
+  [5/15] invariant -> FILTER_BY_FIELD (0.92)
+  [6/15] invariant -> AGGREGATE_BY_FK_AND_DATE (0.73)
+  [7/15] invariant -> STANDARD_CRUD (0.97)
+  [8/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.69)
+  [9/15] invariant -> STANDARD_CRUD (0.67)
+  [10/15] invariant -> STANDARD_CRUD (1.00)
+  [11/15] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 6 standard CRUD, 9 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (search: no method matches the verb 'search'); retry after surface repairs declined (search: no method matches the verb 'search') — asking the model
+[interaction_adapters] 703 tokens in 4.4s (158.6 tok/s, 161.9 decode, 520 prompt)
+[ok] step adapters: read_customer_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_customer.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_customer.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--name' required by 'create_customer' — added as str
+[ok] step adapters: add  lacked '--email' required by 'create_customer' — added as str
+[ok] step adapters: update  lacked '--id' required by 'update_customer' — added as int
+[ok] step adapters: delete  lacked '--id' required by 'delete_customer' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_12/requirements.txt
+[run] 8 steps, 2399 generated tokens in 16.2s

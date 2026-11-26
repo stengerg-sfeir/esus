@@ -1,0 +1,20 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_53/persistence_ports.json
+
+[ok] step grounding: dropped OrderManagementService.confirm_order — no requirement/intention evidence for verb `confirm`
+[ok] step grounding: dropped OrderManagementService.cancel_order — no requirement/intention evidence for verb `cancel`
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[ok] step adapters: Order add lacked '--customer-id' required by 'orderadd' — added as int
+[ok] step adapters: Order add lacked '--order-date' required by 'orderadd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set

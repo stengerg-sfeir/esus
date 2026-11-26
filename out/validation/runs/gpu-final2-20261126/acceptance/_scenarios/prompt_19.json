@@ -1,0 +1,117 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--due-date",
+            "2024-01-01",
+            "--status",
+            "value1",
+            "--priority",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--task-id",
+            "1",
+            "--title",
+            "value1",
+            "--description",
+            "value1",
+            "--due-date",
+            "2024-01-01",
+            "--status",
+            "value1",
+            "--priority",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Task": {
+            "title": "value1",
+            "description": "value1",
+            "due_date": "2024-01-01",
+            "status": "value1",
+            "priority": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--task-id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--task-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task import",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "import",
+            "--file-path",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task export",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "export",
+            "--file-path",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,336 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "AuthorRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Author.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Author",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Author by its key.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Author",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Author; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Author]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Author.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Author",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Author.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "PostRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Post.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Post",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Post by its key.",
+          "params": [
+            {
+              "name": "post_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Post",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Post; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Post]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Post.",
+          "params": [
+            {
+              "name": "post_id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Post",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Post.",
+          "params": [
+            {
+              "name": "post_id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "get_posts_by_author_id",
+          "description": "Lists the Post records belonging to one Author.",
+          "params": [
+            {
+              "name": "author_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Post]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TagRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Tag.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Tag",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Tag by its key.",
+          "params": [
+            {
+              "name": "tag_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Tag",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Tag; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Tag]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Tag.",
+          "params": [
+            {
+              "name": "tag_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Tag",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Tag.",
+          "params": [
+            {
+              "name": "tag_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "PostTagRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new PostTag.",
+          "params": [
+            {
+              "name": "tag_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.PostTag",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one PostTag by its key.",
+          "params": [
+            {
+              "name": "post_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.PostTag",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every PostTag; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "tag_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[PostTag]",
+          "raises": []
+        },
+        {
+          "name": "get_post_tags_by_tag_id",
+          "description": "Lists the PostTag records belonging to one Tag.",
+          "params": [
+            {
+              "name": "tag_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[PostTag]",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

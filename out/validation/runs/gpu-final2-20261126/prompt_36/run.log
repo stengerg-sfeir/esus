@@ -1,0 +1,74 @@
+[run] requirements: 181 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 78 tokens in 0.6s (127.3 tok/s, 169.6 decode, 73 prompt)
+[data_models] 544 tokens in 3.5s (156.8 tok/s, 160.1 decode, 577 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 134 tokens in 0.9s (142.0 tok/s, 166.0 decode, 481 prompt)
+[invariants] 65 tokens in 0.5s (133.1 tok/s, 169.4 decode, 285 prompt)
+[ok] step invariants: 19 invariant(s) — 17 schema generated mechanically, 2 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 966 tokens in 6.7s (144.7 tok/s, 147.1 decode, 993 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-category-name' to '--category-name'
+[ok] step components: normalized option '-product-name' to '--product-name'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[service_contracts] 10 tokens in 0.3s (33.9 tok/s, 182.3 decode, 549 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[persistence_ports] 69 tokens in 0.5s (137.9 tok/s, 169.3 decode, 407 prompt)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/13] invariant -> STATE_TRANSITION_GUARD (0.52)  <- undecided (pattern): BUDGET_OVERFLOW_GUARD at 0.44
+  [2/13] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [3/13] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [4/13] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/13] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [6/13] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/13] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/13] contract:ProductRepository.get_products_by_category_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/13] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/13] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [11/13] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/13] contract:CategoryRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/13] contract:CategoryRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 13 item(s) — 6 standard CRUD, 7 pattern(s), 0 gap(s)
+[ok] step adapters: 8 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: productadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 4 required create field(s)
+[!] step adapters has 4 unreachable field(s) — retrying once
+[interaction_adapters] 385 tokens in 2.5s (153.6 tok/s, 162.2 decode, 707 prompt)
+[ok] step adapters: productadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 2 item(s) versus 8 in the first attempt — kept the fuller first attempt; its 4 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: product add lacked '--created-at' required by 'productadd' — added as str
+[ok] step adapters: product add lacked '--updated-at' required by 'productadd' — added as str
+[ok] step adapters: category add lacked '--created-at' required by 'categoryadd' — added as str
+[ok] step adapters: category add lacked '--updated-at' required by 'categoryadd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_36/requirements.txt
+[run] 8 steps, 2251 generated tokens in 15.5s

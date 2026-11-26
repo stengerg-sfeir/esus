@@ -1,0 +1,23 @@
+gate passed (3 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: OrderService.create_order_with_lines ...
+llm: OrderService.create_order_with_lines refused (raises `InvalidOrderLineError` but not when `any(getattr(line, "quantity", 0) <= 0 for line in (getattr(order_data, "lines", None) or []))` is true; the confirmed contract requires that branch) — repair ask 1
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_34/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/generated/__init__.py
+methods: 15 implemented, 1 stubs (94% mechanical)
+llm: 0 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: OrderService.create_order_with_lines — still refused: raises `InvalidOrderLineError` but not when `any(getattr(line, "quantity", 0) <= 0 for line in (getattr(order_data, "lines", None) or []))` is true; the confirmed contract requires that branch
+  stub: OrderService.create_order_with_lines: gap NO_PATTERN_IN_DOMAIN: STOCK_SUFFICIENCY_GUARD refused (STOCK_SUFFICIENCY_GUARD returns boolean/none, but this method returns entity (models.Order)); read-one by parameter shape
+  cli Order add -> orderadd [score 9]
+  cli Order delete -> orderdelete [score 11]
+  cli Order update -> orderupdate [score 11]
+  cli OrderLine add -> orderlineadd [score 9]
+  cli OrderLine delete -> orderlinedelete [score 11]
+  cli OrderLine update -> orderlineupdate [score 11]

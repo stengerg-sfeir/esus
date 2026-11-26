@@ -1,0 +1,33 @@
+[
+  {
+    "label": "OrderManagementService.orderconfirm",
+    "status": "kept",
+    "note": "still refused: calls `OrderItemRepository.read_all(...)`, but OrderItemRepository does not define `read_all`; it is declared on `CustomerRepository` or `OrderRepository` or `ProductRepository`",
+    "answer": "order = self._repos['OrderRepository'].read_one(id=order_id)\nif order is None:\n    raise errors.OrderNotFoundError\nfor order_item in self._repos['OrderItemRepository'].read_all(order_id=order.id):\n    product = self._repos['ProductRepository'].read_one(id=order_item.product_id)\n    if product is None:\n        raise errors.ProductNotFoundError\n    self._repos['ProductRepository'].update(id=product.id, stock_quantity=product.stock_quantity + order_item.quantity)",
+    "first_answer": "order = self._repos['OrderRepository'].read_one(id=order_id)\n    if order is None:\n        raise errors.OrderNotFoundError\n    for order_item in self._repos['OrderItemRepository'].read_all(order_id=order.id):\n        product = self._repos['ProductRepository'].read_one(id=order_item.product_id)\n        if product is None:\n            raise errors.ProductNotFoundError\n        if product.stock_quantity is None or product.stock_quantity < order_item.quantity:\n            raise errors.InsufficientStockError\n        self._repos['ProductRepository'].update(id=product.id, stock_quantity=product.stock_quantity + order_item.quantity)",
+    "complaints": [
+      "calls `OrderItemRepository.read_all(...)`, but OrderItemRepository does not define `read_all`; it is declared on `CustomerRepository` or `OrderRepository` or `ProductRepository`"
+    ],
+    "second_complaints": [
+      "calls `OrderItemRepository.read_all(...)`, but OrderItemRepository does not define `read_all`; it is declared on `CustomerRepository` or `OrderRepository` or `ProductRepository`"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 132,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 1.3270859718322754,
+    "first_decode_seconds": 0.87633,
+    "first_prompt_tokens": 2606,
+    "first_cached_tokens": 658,
+    "finish_reason": "stop",
+    "tokens": 104,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 0.7380821704864502,
+    "decode_seconds": 0.690904,
+    "prompt_tokens": 2810,
+    "cached_tokens": 2576,
+    "context": "exact"
+  }
+]

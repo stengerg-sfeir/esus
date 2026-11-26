@@ -1,0 +1,169 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "product",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--action",
+            "short": "-a",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--stock",
+            "short": "-s",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--sale-quantity",
+            "short": "-q",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--user-id",
+            "short": "-u",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--sale-date",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Product",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--stock-quantity",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--price",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              },
+              {
+                "name": "update",
+                "options": [
+                  {
+                    "name": "--id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--new-stock-quantity",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Sale",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--product-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--quantity",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--sale-date",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--user-id",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Product",
+        "operations": [
+          "create",
+          "read_all",
+          "read_one",
+          "update"
+        ]
+      },
+      {
+        "entity": "Sale",
+        "operations": [
+          "create",
+          "read_one"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,95 @@
+[run] requirements: 252 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 89 tokens in 0.6s (157.2 tok/s, 169.1 decode, 80 prompt)
+[data_models] 688 tokens in 4.4s (156.4 tok/s, 159.5 decode, 597 prompt)
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 322 tokens in 2.1s (151.5 tok/s, 164.4 decode, 496 prompt)
+[invariants] 344 tokens in 2.2s (157.4 tok/s, 165.5 decode, 300 prompt)
+[ok] step invariants: 31 invariant(s) — 21 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 897 tokens in 6.3s (143.5 tok/s, 147.4 decode, 1008 prompt)
+[ok] step components: aligned 1 option type(s) with the data model: --number -> str (Room.room_number)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-list' to '--list'
+[ok] step components: normalized option '-detail' to '--detail'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-number' to '--number'
+[ok] step components: normalized option '-capacity' to '--capacity'
+[ok] step components: normalized option '-start-time' to '--start-time'
+[ok] step components: normalized option '-end-time' to '--end-time'
+[service_contracts] 10 tokens in 0.3s (33.0 tok/s, 181.9 decode, 662 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 2 CRUD subcommand(s) from the service contracts: reservation update, reservation delete
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidStartTimeError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidEndTimeError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidRoomCapacityError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidCustomerEmailError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 890 tokens in 5.6s (158.3 tok/s, 161.6 decode, 428 prompt)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/22] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/22] invariant -> QUOTA_CAPACITY_GUARD (0.66)
+  [3/22] invariant -> STATE_TRANSITION_GUARD (0.55)
+  [4/22] invariant -> QUOTA_CAPACITY_GUARD (0.95)
+  [5/22] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/22] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [7/22] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [8/22] invariant -> AGGREGATE_BY_FK_AND_DATE (0.85)
+  [9/22] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [10/22] invariant -> QUOTA_CAPACITY_GUARD (0.99)
+  [11/22] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/22] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/22] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/22] contract:RoomRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/22] contract:RoomRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/22] contract:RoomRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/22] contract:ReservationRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/22] contract:ReservationRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [19/22] contract:ReservationRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [20/22] contract:ReservationRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/22] contract:ReservationRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/22] contract:ReservationRepository.get_reservations_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 22 item(s) — 5 standard CRUD, 17 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (customer view: no method matches the verb 'view'); retry after surface repairs declined (customer view: no method matches the verb 'view') — asking the model
+[interaction_adapters] 1793 tokens in 11.6s (154.9 tok/s, 156.3 decode, 626 prompt)
+[ok] step adapters: create_room.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_all_rooms.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: create_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_room.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_reservations.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_reservations.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_reservations_by_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 226 tokens in 1.6s (140.2 tok/s, 163.8 decode, 680 prompt)
+[ok] step adapters: create_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 12 in the first attempt — kept the fuller first attempt; its 2 unreachable field(s) stay reported
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: reservation add lacked '--customer-id' required by 'create_reservation' — added as int
+[ok] step adapters: reservation add lacked '--room-id' required by 'create_reservation' — added as int
+[ok] step adapters: made 4 delete field(s) optional
+[ok] step adapters: rebuilt prose-derived surface from 5 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_27/requirements.txt
+[run] 9 steps, 5259 generated tokens in 34.6s

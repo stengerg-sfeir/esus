@@ -1,0 +1,79 @@
+[run] requirements: 177 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 74 tokens in 0.6s (133.4 tok/s, 170.5 decode, 69 prompt)
+[data_models] 490 tokens in 3.1s (157.0 tok/s, 160.4 decode, 572 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 194 tokens in 1.3s (149.3 tok/s, 166.0 decode, 475 prompt)
+[invariants] 47 tokens in 0.3s (145.0 tok/s, 170.5 decode, 279 prompt)
+[ok] step invariants: 16 invariant(s) — 15 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 410 tokens in 2.9s (140.6 tok/s, 144.8 decode, 987 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-date' to '--date'
+[ok] step components: normalized option '-capacity' to '--capacity'
+[ok] step components: normalized option '-register' to '--register'
+[service_contracts] 165 tokens in 1.3s (128.0 tok/s, 148.1 decode, 581 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Event add, Event update, Event delete, Registration add
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 2 id parameter(s) to int
+[persistence_ports] 452 tokens in 2.9s (157.8 tok/s, 164.3 decode, 397 prompt)
+[ok] step persistence: merged 5 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+  [1/16] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/16] contract:EventRegistrationService.register_for_event -> QUOTA_CAPACITY_GUARD (1.00)
+  [3/16] contract:EventRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [4/16] contract:EventRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/16] contract:EventRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [6/16] contract:EventRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/16] contract:EventRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/16] contract:EventRepository.get_event_by_date -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/16] contract:EventRepository.get_event_by_title -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [10/16] contract:EventRepository.is_event_full -> QUOTA_CAPACITY_GUARD (1.00)
+  [11/16] contract:RegistrationRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/16] contract:RegistrationRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/16] contract:RegistrationRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/16] contract:RegistrationRepository.get_registrations_by_event_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/16] contract:RegistrationRepository.register_for_event -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/16] contract:RegistrationRepository.get_registration_by_user_and_event -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 16 item(s) — 5 standard CRUD, 11 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (create: ambiguous methods: EventRepository.create, RegistrationRepository.create); retry after surface repairs declined (create: ambiguous methods: EventRepository.create, RegistrationRepository.create) — asking the model
+[interaction_adapters] 385 tokens in 2.4s (157.3 tok/s, 163.4 decode, 637 prompt)
+[ok] step adapters: register_for_event.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: check_event_full.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id lookup entity 'User' resolved to Event
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 143 tokens in 0.9s (160.4 tok/s, 164.3 decode, 693 prompt)
+[ok] step adapters: register_for_event.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 3 in the first attempt — kept the fuller first attempt; its 2 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: create  lacked '--title' required by 'create_event' — added as str
+[ok] step adapters: create  lacked '--date' required by 'create_event' — added as str
+[ok] step adapters: create  lacked '--capacity' required by 'create_event' — added as int
+[ok] step adapters: create  lacked '--current-registration-count' required by 'create_event' — added as int
+[ok] step adapters: register  lacked '--event-id' required by 'register_for_event' — added as str
+[ok] step adapters: register  lacked '--user-id' required by 'register_for_event' — added as str
+[ok] step adapters: Registration add lacked '--title' required by 'create_event' — added as str
+[ok] step adapters: Registration add lacked '--date' required by 'create_event' — added as str
+[ok] step adapters: Registration add lacked '--capacity' required by 'create_event' — added as int
+[ok] step adapters: Registration add lacked '--current-registration-count' required by 'create_event' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Event update, Event delete, Registration add
+[ok] step adapters: added 3 missing adapter(s) mechanically: Event update, Event delete, Registration add
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_50/requirements.txt
+[run] 9 steps, 2360 generated tokens in 15.7s

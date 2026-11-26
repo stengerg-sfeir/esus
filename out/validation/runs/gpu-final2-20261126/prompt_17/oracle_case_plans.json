@@ -1,0 +1,62 @@
+{
+  "plans": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name",
+      "when": {
+        "action": "search",
+        "args": [
+          "name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name"
+        ],
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "combinable_filters",
+      "source": "All filters must be combinable",
+      "when": {
+        "action": "filter",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.quantity"
+        ],
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

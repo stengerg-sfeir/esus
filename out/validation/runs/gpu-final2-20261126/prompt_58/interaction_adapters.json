@@ -1,0 +1,46 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "externalserviceresponseadd",
+      "target_service": "ExternalServiceResponseRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": false
+        },
+        {
+          "field_name": "additional_info",
+          "target_param": "additional_info",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "error_message",
+          "target_param": "error_message",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "timestamp",
+          "target_param": "timestamp",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

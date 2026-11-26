@@ -1,0 +1,311 @@
+{
+  "scenarios": [
+    {
+      "name": "cancel_confirmed_order_releases_stock",
+      "setup": [
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Product",
+          "as": "product",
+          "values": {
+            "name": "Widget",
+            "price": 10,
+            "stock_quantity": 5
+          }
+        },
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "customer_id": {
+              "ref": "customer.customer_id"
+            },
+            "status": "confirmed"
+          }
+        },
+        {
+          "entity": "OrderProduct",
+          "as": "line",
+          "values": {
+            "order_id": {
+              "ref": "order.order_id"
+            },
+            "product_id": {
+              "ref": "product.product_id"
+            },
+            "quantity": 2
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderService",
+        "method": "cancel_order",
+        "args": [
+          {
+            "ref": "order.order_id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        }
+      }
+    },
+    {
+      "name": "cli:Order cancel",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "cancel",
+            "--order-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "confirmed"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--order-id",
+            "1",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "customer_id": 1,
+            "order_date": "2024-01-01T00:00:00",
+            "status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--stock-quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--stock-quantity",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "description": "value1",
+            "stock_quantity": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderProduct add",
+      "when": {
+        "cli_variants": [
+          [
+            "OrderProduct",
+            "add",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "plans": [
+    {
+      "id": "create_product",
+      "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+      "when": {
+        "action": "create_product",
+        "args": [
+          "name",
+          "description",
+          "price",
+          "quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.price",
+          "product.quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_product",
+      "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+      "when": {
+        "action": "read_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.price",
+          "product.quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_product",
+      "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product.id",
+          "name",
+          "description",
+          "price",
+          "quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.price",
+          "product.quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_product",
+      "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.description",
+          "product.price",
+          "product.quantity"
+        ],
+        "rows": {
+          "Product": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

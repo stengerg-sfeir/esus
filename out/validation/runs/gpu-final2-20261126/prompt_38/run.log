@@ -1,0 +1,100 @@
+[run] requirements: 178 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 68 tokens in 0.4s (152.2 tok/s, 170.4 decode, 73 prompt)
+[data_models] 436 tokens in 2.8s (156.2 tok/s, 160.6 decode, 571 prompt)
+[ok] step data_models: User.user_id became the integer primary key id
+[ok] step data_models: Document.document_id became the integer primary key id
+[ok] step data_models: Document.owner_user_id retyped to int for its User key
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 214 tokens in 1.4s (150.5 tok/s, 165.4 decode, 473 prompt)
+[invariants] 175 tokens in 1.1s (153.4 tok/s, 167.3 decode, 277 prompt)
+[ok] step invariants: 18 invariant(s) — 13 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1132 tokens in 7.9s (144.0 tok/s, 146.4 decode, 985 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-owner-id' to '--owner-id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 10 tokens in 0.3s (34.3 tok/s, 181.7 decode, 577 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidPasswordError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 69 tokens in 0.5s (136.6 tok/s, 169.6 decode, 399 prompt)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/15] invariant -> BUDGET_OVERFLOW_GUARD (0.74)
+  [3/15] invariant -> STATE_TRANSITION_GUARD (0.93)
+  [4/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.77)
+  [5/15] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/15] contract:UserRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/15] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/15] contract:UserRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/15] contract:UserRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/15] contract:UserRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/15] contract:DocumentRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:DocumentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:DocumentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:DocumentRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:DocumentRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 6 standard CRUD, 9 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (document get: ambiguous methods: DocumentRepository.read_all, DocumentRepository.read_one); retry after surface repairs declined (document get: ambiguous methods: DocumentRepository.read_all, DocumentRepository.read_one) — asking the model
+[interaction_adapters] 1408 tokens in 9.0s (156.2 tok/s, 158.1 decode, 567 prompt)
+[ok] step adapters: read_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_document.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_documents.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_document.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_user.password targets an entity but spells no model field — renamed to 'password_hash'
+[ok] step adapters: update_user.password targets an entity but spells no model field — renamed to 'password_hash'
+[ok] step adapters: delete_user.password targets an entity but spells no model field — renamed to 'password_hash'
+[!] step adapters has 8 unreachable field(s) — retrying once
+[interaction_adapters] 704 tokens in 4.6s (152.2 tok/s, 159.5 decode, 733 prompt)
+[ok] step adapters: update_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_document.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 5 item(s) versus 10 in the first attempt — kept the fuller first attempt; its 8 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: user update lacked '--user-id' required by 'update_user' — added as str
+[ok] step adapters: user delete lacked '--password-hash' required by 'delete_user' — added as str
+[ok] step adapters: document add lacked '--document-id' required by 'read_document' — added as str
+[ok] step adapters: document update lacked '--document-id' required by 'update_document' — added as str
+[ok] step adapters: document update lacked '--title' required by 'update_document' — added as str
+[ok] step adapters: document update lacked '--owner-user-id' required by 'update_document' — added as int
+[ok] step adapters: document delete lacked '--title' required by 'delete_document' — added as str
+[ok] step adapters: document delete lacked '--content' required by 'delete_document' — added as str
+[ok] step adapters: made 3 delete field(s) optional
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_38/requirements.txt
+[run] 9 steps, 4216 generated tokens in 28.1s

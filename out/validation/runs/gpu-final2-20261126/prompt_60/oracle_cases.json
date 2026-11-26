@@ -1,0 +1,97 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "confirm_order_reserves_stock",
+      "source": "Confirming an order reserves stock.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 102,
+          "product_id": 202
+        },
+        "customer": {
+          "id": 102,
+          "name": "Bob Smith"
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "stock reservation is applied when order status changes to confirmed"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "search_orders_by_customer",
+      "source": "Customers should be able to search their orders and invoices.",
+      "given": {
+        "customer": {
+          "id": 103,
+          "name": "Charlie Brown"
+        }
+      },
+      "when": {
+        "action": "search_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "It is unclear whether the search returns only orders for the customer or also includes invoices",
+        "No specification on whether the search is filtered by customer ID or name"
+      ]
+    },
+    {
+      "id": "create_invoice_on_confirm",
+      "source": "An invoice is created when an order is confirmed.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 104,
+          "product_id": 203
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Invoice": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "An invoice is created exactly once per confirmed order",
+        "The invoice is linked to the order via order_id"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

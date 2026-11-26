@@ -1,0 +1,36 @@
+{
+  "method_contracts": [
+    {
+      "holder": "EmployeeRepository",
+      "method": "read_employee_by_id",
+      "decided_by": "user",
+      "requirements_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a",
+      "bindings": [
+        {
+          "name": "employee",
+          "repository": "EmployeeRepository",
+          "method": "read_one",
+          "args": [
+            "employee_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "DepartmentRepository",
+      "method": "read_department_by_id",
+      "decided_by": "user",
+      "requirements_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a",
+      "bindings": [
+        {
+          "name": "department",
+          "repository": "DepartmentRepository",
+          "method": "read_one",
+          "args": [
+            "department_id"
+          ]
+        }
+      ]
+    }
+  ]
+}

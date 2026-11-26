@@ -1,0 +1,510 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_post_by_author",
+      "source": "Authors can create posts.",
+      "given": {
+        "author": {
+          "id": 1,
+          "name": "Alice"
+        },
+        "post": {
+          "title": "My First Post",
+          "content": "This is the content of my first post.",
+          "status": "draft"
+        }
+      },
+      "when": {
+        "action": "create_post",
+        "args": [
+          "author.id",
+          "post.title",
+          "post.content"
+        ]
+      },
+      "then": {
+        "state": {
+          "post.author.id": 1
+        },
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Post",
+              "Tag",
+              "PostTag"
+            ]
+          },
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Post",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          }
+        },
+        "fields": {
+          "post.author.id": {
+            "status": "aligned",
+            "canonical": "author_id",
+            "score": 10.0,
+            "evidence": [
+              "Post.author_id exists"
+            ],
+            "alternatives": []
+          },
+          "post.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Post"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "PostRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "PostRepository.create",
+            "PostTagRepository.create"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "ambiguous action binding: PostRepository.create, PostTagRepository.create"
+      }
+    },
+    {
+      "id": "create_tag_association",
+      "source": "Each post belongs to one author and can have multiple tags. A tag can be associated with multiple posts.",
+      "given": {
+        "post": {
+          "id": 1,
+          "title": "My First Post",
+          "content": "This is the content of my first post.",
+          "author.id": 1
+        },
+        "tag": {
+          "id": 1,
+          "name": "python"
+        }
+      },
+      "when": {
+        "action": "associate_tag_with_post",
+        "args": [
+          "post.id",
+          "tag.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "post.tags": 1,
+          "tag.posts": 1
+        },
+        "rows": {}
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Post",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          },
+          "tag": {
+            "status": "aligned",
+            "canonical": "Tag",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Tag",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Post"
+            ]
+          }
+        },
+        "fields": {
+          "post.tags": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'tags'",
+              "not declared on Post"
+            ],
+            "alternatives": []
+          },
+          "tag.posts": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'posts'",
+              "not declared on Tag"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "PostTagRepository.get_post_tags_by_tag_id",
+          "score": 8.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "PostRepository.get_posts_by_author_id",
+            "PostTagRepository.read_one",
+            "PostRepository.delete",
+            "PostRepository.read_one"
+          ]
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "expected relation 'post.tags' is represented by join model PostTag"
+      }
+    },
+    {
+      "id": "search_posts_by_tag",
+      "source": "Allow posts to be searched by tag.",
+      "given": {
+        "tag": {
+          "id": 1,
+          "name": "python"
+        }
+      },
+      "when": {
+        "action": "search_posts_by_tag",
+        "args": [
+          "tag.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "tag": {
+            "status": "aligned",
+            "canonical": "Tag",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Tag",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Post",
+              "Author"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: ambiguous action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "ambiguous action binding: PostTagRepository.get_post_tags_by_tag_id, PostTagRepository.read_all, TagRepository.read_one"
+      }
+    },
+    {
+      "id": "update_post_content",
+      "source": "Provide CRUD operations for authors, posts and tags.",
+      "given": {
+        "post": {
+          "id": 1,
+          "title": "My First Post",
+          "content": "This is the content of my first post.",
+          "status": "draft"
+        }
+      },
+      "when": {
+        "action": "update_post",
+        "args": [
+          "post.id",
+          "post.title",
+          "post.content"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Post",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          }
+        },
+        "fields": {
+          "post.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Post.title exists"
+            ],
+            "alternatives": []
+          },
+          "post.content": {
+            "status": "aligned",
+            "canonical": "content",
+            "score": 10.0,
+            "evidence": [
+              "Post.content exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "PostRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_author",
+      "source": "Provide CRUD operations for authors, posts and tags.",
+      "given": {
+        "author": {
+          "name": "Bob"
+        }
+      },
+      "when": {
+        "action": "create_author",
+        "args": [
+          "author.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "author.name": "Bob"
+        },
+        "rows": {
+          "Author": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Post",
+              "Tag",
+              "PostTag"
+            ]
+          }
+        },
+        "fields": {
+          "author.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Author.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "AuthorRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "PostRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_tag",
+      "source": "Provide CRUD operations for authors, posts and tags.",
+      "given": {
+        "tag": {
+          "name": "tutorial"
+        }
+      },
+      "when": {
+        "action": "create_tag",
+        "args": [
+          "tag.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "tag.name": "tutorial"
+        },
+        "rows": {
+          "Tag": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "tag": {
+            "status": "aligned",
+            "canonical": "Tag",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Tag",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Post"
+            ]
+          }
+        },
+        "fields": {
+          "tag.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Tag.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "PostTagRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "PostTagRepository.create",
+            "TagRepository.create"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "ambiguous action binding: TagRepository.create, PostTagRepository.create"
+      }
+    }
+  ]
+}

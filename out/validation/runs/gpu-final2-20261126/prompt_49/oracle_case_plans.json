@@ -1,0 +1,36 @@
+{
+  "plans": [
+    {
+      "id": "find_employees_by_department",
+      "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+      "when": {
+        "action": "find_employees_by_department",
+        "args": [
+          "department.name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
+        },
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.department"
+        ],
+        "rows": {
+          "Employee": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

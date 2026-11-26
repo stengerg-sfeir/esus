@@ -1,0 +1,137 @@
+{
+  "prompt": "prompt_32",
+  "results": [
+    {
+      "name": "scenario:oracle:confirm_pending_order",
+      "status": "passed",
+      "case": "confirm_pending_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Order"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.confirm_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:ship_confirmed_order",
+      "status": "passed",
+      "case": "ship_confirmed_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Order"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.ship_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:cancel_pending_order",
+      "status": "passed",
+      "case": "cancel_pending_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Order"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.cancel_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 3
+  },
+  "triage_counts": {
+    "passed": 3
+  }
+}

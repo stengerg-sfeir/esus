@@ -1,0 +1,23 @@
+gate passed (1 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: TaskService.import_tasks_from_json ...
+llm: TaskService.import_tasks_from_json refused (passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `task_id`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_19/llm_stub_answers.json
+import fallback: TaskService.import_tasks_from_json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/generated/__init__.py
+methods: 6 implemented, 1 stubs (86% mechanical)
+llm: 0 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: TaskService.import_tasks_from_json — still refused: passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `task_id`; pass the value positionally or use the declared keyword
+  stub: TaskService.import_tasks_from_json: no pattern entry and an ambiguous method name
+  cli Task add -> create_task [score 8]
+  cli Task delete -> delete_task [score 11]
+  cli Task export -> export_tasks_to_json [score 11]
+  cli Task import -> import_tasks_from_json [score 11]
+  cli Task update -> update_task [score 11]

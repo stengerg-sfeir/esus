@@ -1,0 +1,102 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "noteupdate",
+      "target_service": "NoteRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Note",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "creation_date",
+          "target_param": "creation_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "notedelete",
+      "target_service": "NoteRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Note",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "creation_date",
+          "target_param": "creation_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "noteadd",
+      "target_service": "NoteRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "creation_date",
+          "target_param": "creation_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,252 @@
+{
+  "prompt": "prompt_16",
+  "results": [
+    {
+      "name": "scenario:oracle:create_customer",
+      "status": "passed",
+      "case": "create_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_customer",
+      "status": "passed",
+      "case": "read_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.read_one",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CustomerRepository.delete",
+            "CustomerRepository.update"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:update_customer",
+      "status": "passed",
+      "case": "update_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:list_customers_paginated",
+      "status": "failed",
+      "reason": "result row count is 0, expected 3",
+      "case": "list_customers_paginated",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "alignment": {
+        "entities": {
+          "customer_1": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_2": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_3": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_4": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          },
+          "customer_5": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 8.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 8.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "behavior: row count"
+    }
+  ],
+  "counts": {
+    "passed": 3,
+    "failed": 1
+  },
+  "triage_counts": {
+    "passed": 3,
+    "behavior: row count": 1
+  }
+}

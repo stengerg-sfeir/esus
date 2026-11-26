@@ -1,0 +1,14 @@
+{
+  "errors": [
+    {
+      "name": "BookIsbnDuplicateError",
+      "base": "ValueError",
+      "description": "Raised when an attempt is made to add a book with an ISBN that is already in use."
+    },
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a book is requested by ID but no book with that ID exists in the database."
+    }
+  ]
+}

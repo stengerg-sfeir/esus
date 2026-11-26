@@ -1,0 +1,17 @@
+[
+  {
+    "label": "TaskRepository.count_tasks_by_priority",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        if priority is not None:\n            criteria.append(('priority', 'eq', priority))\n        found = self._store.select(self.ENTITY, criteria)\n        return len(found)",
+    "finish_reason": "stop",
+    "tokens": 41,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.319504737854004,
+    "decode_seconds": 0.28861200000000004,
+    "prompt_tokens": 4603,
+    "cached_tokens": 332,
+    "context": "exact"
+  }
+]

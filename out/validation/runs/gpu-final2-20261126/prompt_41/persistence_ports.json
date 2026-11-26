@@ -1,0 +1,405 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Book",
+        "interface_name": "BookRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Book.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "availability_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Book; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "availability_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "list[Book]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Book by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Book.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "availability_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Book.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "availability_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "Member",
+        "interface_name": "MemberRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Member.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "contact_details",
+                "type": "str"
+              },
+              {
+                "name": "membership_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "models.Member",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Member; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "contact_details",
+                "type": "str"
+              },
+              {
+                "name": "membership_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "list[Member]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Member by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Member",
+            "raises": [
+              "MemberNotFoundError"
+            ]
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Member.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "contact_details",
+                "type": "str"
+              },
+              {
+                "name": "membership_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "models.Member",
+            "raises": [
+              "MemberNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Member.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "contact_details",
+                "type": "str"
+              },
+              {
+                "name": "membership_status",
+                "type": "bool"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "MemberNotFoundError"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "Loan",
+        "interface_name": "LoanRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Loan.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "book_id",
+                "type": "int"
+              },
+              {
+                "name": "loan_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "return_date",
+                "type": "datetime.date"
+              }
+            ],
+            "return_type": "models.Loan",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Loan; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "book_id",
+                "type": "int"
+              },
+              {
+                "name": "loan_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "return_date",
+                "type": "datetime.date"
+              }
+            ],
+            "return_type": "list[Loan]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Loan by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Loan",
+            "raises": [
+              "LoanNotFoundError"
+            ]
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Loan.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "book_id",
+                "type": "int"
+              },
+              {
+                "name": "loan_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "return_date",
+                "type": "datetime.date"
+              }
+            ],
+            "return_type": "models.Loan",
+            "raises": [
+              "LoanNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Loan.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "member_id",
+                "type": "int"
+              },
+              {
+                "name": "book_id",
+                "type": "int"
+              },
+              {
+                "name": "loan_date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "return_date",
+                "type": "datetime.date"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "LoanNotFoundError"
+            ]
+          },
+          {
+            "name": "findLoansByBookId",
+            "description": "Returns all loans associated with a specific book ID, useful for tracking which members have borrowed a particular book.",
+            "params": [
+              {
+                "name": "bookId",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[models.Loan]"
+          },
+          {
+            "name": "findLoansByMemberId",
+            "description": "Returns all loans made by a specific member ID, allowing the system to track borrowing history per member.",
+            "params": [
+              {
+                "name": "memberId",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[models.Loan]"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Book",
+        "table": "books",
+        "primary_key": "id",
+        "indexes": []
+      },
+      {
+        "entity": "Member",
+        "table": "members",
+        "primary_key": "id",
+        "indexes": []
+      },
+      {
+        "entity": "Loan",
+        "table": "loans",
+        "primary_key": "id",
+        "indexes": [
+          "member_id",
+          "book_id",
+          "loan_date",
+          "return_date"
+        ]
+      }
+    ]
+  }
+}

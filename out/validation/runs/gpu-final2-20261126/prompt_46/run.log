@@ -1,0 +1,117 @@
+[run] requirements: 184 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 89 tokens in 0.6s (160.2 tok/s, 168.8 decode, 71 prompt)
+[data_models] 843 tokens in 5.4s (156.3 tok/s, 159.0 decode, 588 prompt)
+[ok] step data_models: Client.client_id became the integer primary key id
+[ok] step data_models: Invoice.invoice_id became the integer primary key id
+[ok] step data_models: Payment.payment_id became the integer primary key id
+[ok] step data_models: Invoice.client_id retyped to int for its Client key
+[ok] step data_models: Payment.invoice_id retyped to int for its Invoice key
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 138 tokens in 1.0s (136.2 tok/s, 165.7 decode, 489 prompt)
+[invariants] 320 tokens in 2.0s (158.1 tok/s, 165.9 decode, 293 prompt)
+[ok] step invariants: 35 invariant(s) — 25 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1973 tokens in 13.6s (144.9 tok/s, 146.6 decode, 1001 prompt)
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-due-date' to '--due-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-payment-date' to '--payment-date'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-account-status' to '--account-status'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-account-status' to '--account-status'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-due-date' to '--due-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-due-date' to '--due-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-invoice-id' to '--invoice-id'
+[ok] step components: normalized option '-payment-date' to '--payment-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-invoice-id' to '--invoice-id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-payment-date' to '--payment-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 10 tokens in 0.4s (25.9 tok/s, 182.4 decode, 561 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[persistence_ports] 427 tokens in 2.7s (159.9 tok/s, 164.3 decode, 429 prompt)
+[ok] step persistence: merged 4 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+  [1/29] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [2/29] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/29] invariant -> STATE_TRANSITION_GUARD (0.63)
+  [4/29] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [5/29] invariant -> STATE_TRANSITION_GUARD (0.97)
+  [6/29] invariant -> PRICE_MARGIN_GUARD (0.79)
+  [7/29] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/29] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [9/29] invariant -> BUDGET_OVERFLOW_GUARD (0.34)  <- undecided (pattern): QUOTA_CAPACITY_GUARD at 0.33
+  [10/29] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [11/29] contract:ClientRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/29] contract:ClientRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/29] contract:ClientRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/29] contract:ClientRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/29] contract:ClientRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/29] contract:InvoiceRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/29] contract:InvoiceRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/29] contract:InvoiceRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [19/29] contract:InvoiceRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/29] contract:InvoiceRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/29] contract:InvoiceRepository.getOutstandingInvoicesByClient -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/29] contract:InvoiceRepository.getInvoicesByDueDateRange -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/29] contract:PaymentRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/29] contract:PaymentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [25/29] contract:PaymentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [26/29] contract:PaymentRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [27/29] contract:PaymentRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [28/29] contract:PaymentRepository.getPaymentForInvoice -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [29/29] contract:PaymentRepository.getPaymentsByDateRange -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 29 item(s) — 9 standard CRUD, 20 pattern(s), 0 gap(s)
+[ok] step adapters: 12 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: paymentadd.payment_date was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: paymentupdate.payment_date was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: clientupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: clientdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceadd.client_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceupdate.client_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoicedelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentadd.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentlist.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: paymentdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_46/requirements.txt
+[run] 7 steps, 3800 generated tokens in 25.7s

@@ -1,0 +1,30 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Book add",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--genre",
+            "value1",
+            "--isbn",
+            "value1",
+            "--publication-year",
+            "2",
+            "--category",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

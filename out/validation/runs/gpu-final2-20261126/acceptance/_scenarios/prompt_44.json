@@ -1,0 +1,175 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--price",
+            "2",
+            "--stock-quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--description",
+            "value1",
+            "--price",
+            "2",
+            "--stock-quantity",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "description": "value1",
+            "price": 2.0,
+            "stock_quantity": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "phone": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Sale add",
+      "when": {
+        "cli_variants": [
+          [
+            "Sale",
+            "add",
+            "--customer-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--sale-date",
+            "2024-01-01T00:00:00",
+            "--total-price",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

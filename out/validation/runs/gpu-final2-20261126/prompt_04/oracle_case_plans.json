@@ -1,0 +1,103 @@
+{
+  "plans": [
+    {
+      "id": "add_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "when": {
+        "action": "add_task",
+        "args": [
+          "task_name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.name"
+        ],
+        "rows": {
+          "Task": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_tasks",
+      "source": "Users can add, list, complete and delete tasks.",
+      "when": {
+        "action": "list_tasks"
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Task": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "complete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "when": {
+        "action": "complete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.status"
+        ],
+        "rows": {
+          "Task": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Task": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

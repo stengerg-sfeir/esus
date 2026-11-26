@@ -33,6 +33,10 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "scripts"))
+from probe_readiness import check_prompt, open_questions  # noqa: E402
+
 DEFAULT_PROMPTS = ROOT / "prompts" / "validation"
 DEFAULT_RUN_ROOT = ROOT / "out" / "validation" / "runs"
 
@@ -170,6 +174,44 @@ def classify(summary: dict | None, exit_code: int, timed_out: bool) -> str:
     return "not_generatable"
 
 
+def repair_and_probe(output_dir: Path, timeout: int) -> tuple[dict | None, str, str]:
+    """Apply deterministic repairs, then classify the repaired documents."""
+    command = [
+        sys.executable, str(ROOT / "extract_arch.py"),
+        "--repair", "--output", str(output_dir), "--check",
+    ]
+    try:
+        result = subprocess.run(
+            command, cwd=str(ROOT), capture_output=True, text=True,
+            timeout=max(30, min(timeout, 300)),
+        )
+        stdout, stderr = result.stdout, result.stderr
+        exit_code = result.returncode
+    except subprocess.TimeoutExpired as error:
+        stdout = (error.stdout or "") if isinstance(error.stdout, str) else ""
+        stderr = (error.stderr or "") if isinstance(error.stderr, str) else ""
+        exit_code = 124
+    try:
+        blockers, _risks, _report = check_prompt(
+            output_dir.name, str(output_dir))
+        rules = [{"rule": item.rule, "message": item.message}
+                 for item in blockers]
+        ties = open_questions(str(output_dir))
+        summary = {
+            "generatable": not blockers,
+            "verdict_note": "post-repair",
+            "blockers": len(blockers),
+            "open_ties": ties,
+            "rules": rules,
+        }
+    except Exception as error:  # noqa: BLE001
+        summary = None
+        stderr += f"\nprobe after repair failed: {type(error).__name__}: {error}"
+    if exit_code not in (0, 1) and summary is None:
+        return None, stdout, stderr
+    return summary, stdout, stderr
+
+
 def run_one(prompt: Path, output_dir: Path, *, run_id: str,
             model: str, server_url: str, timeout: int) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -206,10 +248,21 @@ def run_one(prompt: Path, output_dir: Path, *, run_id: str,
     stdout_path.write_text(stdout, encoding="utf-8")
     stderr_path.write_text(stderr, encoding="utf-8")
 
+    repair_stdout = repair_stderr = ""
+    repaired = None
+    if not timed_out and exit_code == 0:
+        repaired, repair_stdout, repair_stderr = repair_and_probe(
+            output_dir, timeout)
+        (output_dir / "repair_stage.out").write_text(
+            repair_stdout + ("\n" + repair_stderr if repair_stderr else ""),
+            encoding="utf-8")
+
     log = output_dir / "run.log"
     log_text = log.read_text(encoding="utf-8") if log.is_file() else ""
     combined = stdout + "\n" + stderr + "\n" + log_text
     summary = parse_summary(combined)
+    if repaired is not None:
+        summary = repaired
     tokens = parse_tokens(log_text)
     if not tokens["calls"]:
         tokens = parse_tokens(stdout)
@@ -228,7 +281,9 @@ def run_one(prompt: Path, output_dir: Path, *, run_id: str,
         "summary": summary,
         "classification": classification,
         "outcome": outcome_for(classification),
-        "commands": {"extract": cmd},
+        "commands": {"extract": cmd, "repair": [
+            sys.executable, str(ROOT / "extract_arch.py"),
+            "--repair", "--output", str(output_dir), "--check"]},
     }
 
 

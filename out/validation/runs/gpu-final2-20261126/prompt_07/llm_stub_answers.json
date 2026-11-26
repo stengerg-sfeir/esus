@@ -1,0 +1,17 @@
+[
+  {
+    "label": "BookRepository.search",
+    "status": "written",
+    "note": "",
+    "answer": "result = []\n        for row in self._store.select(self.ENTITY, []):\n            title = row.get('title')\n            author = row.get('author')\n            isbn = row.get('isbn')\n            if title is not None and title.lower().find(str(title).lower()) != -1:\n                result.append(row)\n            elif author is not None and author.lower().find(str(author).lower()) != -1:\n                result.append(row)\n            elif isbn is not None and isbn.lower().find(str(isbn).lower()) != -1:\n                result.append(row)\n        return _model_list(result, models.Book)",
+    "finish_reason": "stop",
+    "tokens": 129,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.2157933712005615,
+    "decode_seconds": 0.859853,
+    "prompt_tokens": 2898,
+    "cached_tokens": 0,
+    "context": "exact"
+  }
+]

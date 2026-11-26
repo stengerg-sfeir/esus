@@ -1,0 +1,95 @@
+{
+  "requirements_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "OrderService.confirm_order",
+      "chosen": {
+        "effects": [
+          {
+            "target": "order.state",
+            "op": "set",
+            "value": "'confirmed'",
+            "write": "OrderRepository.update"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "order.state == 'pending'",
+            "error": "OrderStateException",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "OrderService.ship_order",
+      "chosen": {
+        "effects": [
+          {
+            "target": "order.state",
+            "op": "set",
+            "value": "'shipped'",
+            "write": "OrderRepository.update"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "order.state == 'confirmed'",
+            "error": "OrderStateException",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "OrderService.cancel_order",
+      "chosen": {
+        "effects": [
+          {
+            "target": "order.state",
+            "op": "set",
+            "value": "'cancelled'",
+            "write": "OrderRepository.update"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "order.state in ('pending', 'confirmed')",
+            "error": "OrderStateException",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

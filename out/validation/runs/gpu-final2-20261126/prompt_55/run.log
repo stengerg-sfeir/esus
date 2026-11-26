@@ -1,0 +1,82 @@
+[run] requirements: 159 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 70 tokens in 0.4s (159.7 tok/s, 169.9 decode, 64 prompt)
+[data_models] 541 tokens in 3.4s (157.5 tok/s, 160.3 decode, 561 prompt)
+[ok] step data_models: Product.product_id became the integer primary key id
+[ok] step data_models: Sale.sale_id became the integer primary key id
+[ok] step data_models: Sale.product_id retyped to int for its Product key
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (42.7 tok/s, 185.5 decode, 469 prompt)
+[invariants] 187 tokens in 1.2s (161.8 tok/s, 167.6 decode, 273 prompt)
+[ok] step invariants: 22 invariant(s) — 17 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 614 tokens in 4.5s (137.5 tok/s, 140.1 decode, 981 prompt)
+[ok] step components: normalized option '-action' to '--action'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-sale-quantity' to '--sale-quantity'
+[ok] step components: normalized option '-user-id' to '--user-id'
+[ok] step components: normalized option '-sale-date' to '--sale-date'
+[ok] step components: normalized option '-sale-quantity' to '--sale-quantity'
+[ok] step components: normalized option '-user-id' to '--user-id'
+[ok] step components: normalized option '-sale-date' to '--sale-date'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 10 tokens in 0.2s (42.0 tok/s, 181.8 decode, 475 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Product add, Product update, Sale add
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+[persistence_ports] 639 tokens in 4.0s (160.4 tok/s, 163.7 decode, 386 prompt)
+[ok] step persistence: merged 6 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+  [1/17] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/17] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/17] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/17] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [5/17] invariant -> BUDGET_OVERFLOW_GUARD (0.69)
+  [6/17] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/17] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [8/17] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/17] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/17] contract:ProductRepository.createProduct -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/17] contract:ProductRepository.readAllProducts -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [12/17] contract:ProductRepository.readProductById -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/17] contract:ProductRepository.updateProductStock -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/17] contract:SaleRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/17] contract:SaleRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/17] contract:SaleRepository.createSale -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/17] contract:SaleRepository.readSaleById -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 17 item(s) — 6 standard CRUD, 11 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (add: ambiguous methods: ProductRepository.create, SaleRepository.create); retry after surface repairs declined (add: ambiguous methods: ProductRepository.create, SaleRepository.create) — asking the model
+[interaction_adapters] 734 tokens in 4.6s (158.4 tok/s, 161.2 decode, 581 prompt)
+[ok] step adapters: create_product.stock_quantity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_product_stock.new_stock_quantity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: sell_product.quantity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_product_stock.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: sell_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: sell_product.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_product_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_sale_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: sell_product.user_id lookup entity 'User' resolved to Product
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--name' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--stock-quantity' required by 'create_product' — added as int
+[ok] step adapters: add  lacked '--price' required by 'create_product' — added as int
+[ok] step adapters: sell  lacked '--product-id' required by 'sell_product' — added as int
+[ok] step adapters: update  lacked '--id' required by 'update_product_stock' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 2 adapter(s)
+[ok] step components: added 1 CRUD subcommand(s) from the service contracts: Sale add
+[ok] step adapters: added 1 missing adapter(s) mechanically: Sale add
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_55/requirements.txt
+[run] 8 steps, 2803 generated tokens in 18.5s

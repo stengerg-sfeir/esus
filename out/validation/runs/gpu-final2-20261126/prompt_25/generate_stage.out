@@ -1,0 +1,23 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: DepartmentRepository.read_department_by_id ...
+llm: EmployeeRepository.read_employee_by_id ...
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_25/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_25/generated/__init__.py
+methods: 15 implemented, 2 stubs (88% mechanical)
+llm: 2 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: DepartmentRepository.read_department_by_id
+  llm provisional: EmployeeRepository.read_employee_by_id
+  stub: EmployeeRepository.read_employee_by_id: pattern READ_ONE_BY_ID: needs scalar key parameters and an entity return
+  stub: DepartmentRepository.read_department_by_id: pattern READ_ONE_BY_ID: needs scalar key parameters and an entity return
+  cli Department add -> departmentadd [score 9]
+  cli Employee add -> employeeadd [score 9]
+  cli Employee delete -> employeedelete [score 11]
+  cli Employee update -> employeeupdate [score 11]

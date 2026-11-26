@@ -1,0 +1,121 @@
+[run] requirements: 180 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 109 tokens in 0.8s (135.8 tok/s, 168.4 decode, 73 prompt)
+[data_models] 848 tokens in 5.5s (155.5 tok/s, 158.4 decode, 611 prompt)
+[ok] step data_models: Room.room_id became the integer primary key id
+[ok] step data_models: Guest.guest_id became the integer primary key id
+[ok] step data_models: Booking.booking_id became the integer primary key id
+[ok] step data_models: Booking.room_id retyped to int for its Room key
+[ok] step data_models: Booking.guest_id retyped to int for its Guest key
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 267 tokens in 1.8s (148.9 tok/s, 164.7 decode, 498 prompt)
+[invariants] 290 tokens in 1.9s (155.3 tok/s, 165.7 decode, 302 prompt)
+[ok] step invariants: 33 invariant(s) — 26 schema generated mechanically, 7 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1820 tokens in 12.6s (143.9 tok/s, 145.6 decode, 1010 prompt)
+[ok] step components: aligned 2 option type(s) with the data model: --availability_status -> bool (Room.availability_status), --availability_status -> bool (Room.availability_status)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-check-in-date' to '--check-in-date'
+[ok] step components: normalized option '-check-out-date' to '--check-out-date'
+[ok] step components: normalized option '-guest-name' to '--guest-name'
+[ok] step components: normalized option '-guest-email' to '--guest-email'
+[ok] step components: normalized option '-guest-phone' to '--guest-phone'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-availability-status' to '--availability-status'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-availability-status' to '--availability-status'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-first-name' to '--first-name'
+[ok] step components: normalized option '-last-name' to '--last-name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone-number' to '--phone-number'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-first-name' to '--first-name'
+[ok] step components: normalized option '-last-name' to '--last-name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone-number' to '--phone-number'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-guest-name' to '--guest-name'
+[ok] step components: normalized option '-check-in-date' to '--check-in-date'
+[ok] step components: normalized option '-check-out-date' to '--check-out-date'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-guest-name' to '--guest-name'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 469 tokens in 3.2s (146.3 tok/s, 162.0 decode, 633 prompt)
+[ok] step contracts: added 5 mechanical service method(s)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[persistence_ports] 330 tokens in 2.1s (157.3 tok/s, 164.8 decode, 438 prompt)
+[ok] step persistence: merged 2 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+  [1/33] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/33] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [3/33] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [4/33] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/33] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (1.00)
+  [6/33] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [7/33] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [8/33] contract:BookingService.confirm_order -> STATE_TRANSITION_GUARD (0.96)
+  [9/33] contract:BookingService.cancel_order -> NO_PATTERN_IN_DOMAIN (0.01)  <- UNKNOWN: READ_ONE_BY_ID returns entity, but this method returns none (void)
+  [10/33] contract:BookingService.validate_booking_dates -> QUOTA_CAPACITY_GUARD (1.00)
+  [11/33] contract:BookingService.check_room_availability -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: THRESHOLD_SCAN returns collection, but this method returns boolean (bool)
+  [12/33] contract:BookingService.create_booking -> STANDARD_CRUD (1.00)
+  [13/33] contract:BookingService.read_all_bookings -> READ_ALL (0.01)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Booking]) (was READ_ONE_BY_ID)  <- undecided (pattern): FILTER_BY_FIELD at 0.00
+  [14/33] contract:BookingService.read_booking_by_id -> STANDARD_CRUD (1.00)
+  [15/33] contract:BookingService.update_booking -> STANDARD_CRUD (1.00)
+  [16/33] contract:BookingService.delete_booking -> STANDARD_CRUD (1.00)
+  [17/33] contract:RoomRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/33] contract:RoomRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [19/33] contract:RoomRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [20/33] contract:RoomRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/33] contract:RoomRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/33] contract:GuestRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/33] contract:GuestRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [24/33] contract:GuestRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [25/33] contract:GuestRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/33] contract:GuestRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [27/33] contract:BookingRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [28/33] contract:BookingRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [29/33] contract:BookingRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [30/33] contract:BookingRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [31/33] contract:BookingRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [32/33] contract:BookingRepository.findBookingsByRoomAndDateRange -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [33/33] contract:BookingRepository.findOverlappingBookings -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 33 item(s) — 13 standard CRUD, 18 pattern(s), 2 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:BookingService.cancel_order: cancel_order(booking_id: int) -> void: Cancels a confirmed booking by updating its status to 'cancelled' and releasing the reserved room for future bookings.
+    gap [NO_PATTERN_IN_DOMAIN] contract:BookingService.check_room_availability: check_room_availability(room_id: int, check_in_date: datetime, check_out_date: datetime) -> bool: Checks if a room is available during a specified date range by verifying no overlapping bookings exist.
+[ok] step adapters: derived 1 command group(s) from 26 service method(s)
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: bookingadd.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingadd.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: Room add, Room update, Room delete, Guest add, Guest update, Guest delete
+[ok] step adapters: added 6 missing adapter(s) mechanically: Room add, Room update, Room delete, Guest add, Guest update, Guest delete
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/method_plans.json
+[ok] method plans: 1 mechanical candidate(s)
+[!] method plans: 3 ambiguous question(s) — human review required
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_45/requirements.txt
+[run] 7 steps, 4133 generated tokens in 27.9s

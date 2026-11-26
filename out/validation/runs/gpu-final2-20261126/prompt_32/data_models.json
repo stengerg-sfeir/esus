@@ -1,0 +1,46 @@
+{
+  "data_models": [
+    {
+      "name": "Order",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    }
+  ]
+}

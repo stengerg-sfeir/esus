@@ -1,0 +1,49 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "find_employees_by_department",
+        "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+        "given": {
+          "department": {
+            "name": "Engineering"
+          },
+          "employee": {
+            "name": "Alice Johnson",
+            "department": "Engineering"
+          }
+        },
+        "when": {
+          "action": "find_employees_by_department",
+          "args": [
+            "department.name"
+          ]
+        },
+        "then": {
+          "state": {
+            "employee.department": "Engineering"
+          },
+          "rows": {
+            "Employee": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The action 'find_employees_by_department' does not specify whether it returns a list or a single employee, and the expected 'rows' count of 1 may imply a single result but the requirement does not clarify if this is guaranteed or based on filtering criteria."
+        ],
+        "prompt_sha": "0619d727c2b61c5a6f5c7bf3af702c8eaecfda04b4f879fe27fab1682660d08b"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

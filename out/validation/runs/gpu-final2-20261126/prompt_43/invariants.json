@@ -1,0 +1,164 @@
+{
+  "invariants": [
+    {
+      "text": "Project.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must reference an existing Project.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.due_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Status.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Status.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Status.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Priority.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Priority.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Priority.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A task must have a project_id that references a valid project.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's status must be one of the statuses defined in the Status entity.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's priority must be one of the priorities defined in the Priority entity.",
+      "kind": "rule"
+    },
+    {
+      "text": "Tasks with a due_date in the past and status not equal to 'completed' should be flagged as overdue.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of a task cannot be changed to 'completed' if the due_date has not passed.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project must have at least one task to be considered active.",
+      "kind": "rule"
+    },
+    {
+      "text": "Tasks with the same title within the same project must have unique identifiers.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status field of a task must be updated only when a valid status from the Status entity is provided.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's due_date cannot be set to a date before its creation date.",
+      "kind": "rule"
+    },
+    {
+      "text": "Only tasks with a status of 'pending' or 'in progress' should be included in the 'what needs attention' view.",
+      "kind": "rule"
+    }
+  ]
+}

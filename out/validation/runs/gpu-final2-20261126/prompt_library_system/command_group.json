@@ -1,0 +1,48 @@
+{
+  "command_group": {
+    "options": [
+      {
+        "name": "--help",
+        "short": "-h",
+        "type": "bool",
+        "required": false,
+        "default": null
+      },
+      {
+        "name": "--version",
+        "short": "-v",
+        "type": "bool",
+        "required": false,
+        "default": null
+      }
+    ],
+    "subcommands": [
+      {
+        "name": "add",
+        "options": [
+          {
+            "name": "--name",
+            "short": "-n",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--birth-year",
+            "short": "-b",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--biography",
+            "short": "-i",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ]
+      }
+    ]
+  }
+}

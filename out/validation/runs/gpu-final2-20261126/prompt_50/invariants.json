@@ -1,0 +1,68 @@
+{
+  "invariants": [
+    {
+      "text": "Event.event_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.capacity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.capacity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.current_registration_count must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Event.current_registration_count must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Registration.registration_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Registration.event_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Registration.event_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Registration.event_id must reference an existing Event.event_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Registration.user_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Registration.user_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A registration for an event is only allowed if the current registration count is less than the event capacity.",
+      "kind": "rule"
+    }
+  ]
+}

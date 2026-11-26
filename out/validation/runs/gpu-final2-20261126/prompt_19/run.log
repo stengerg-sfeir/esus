@@ -1,0 +1,70 @@
+[run] requirements: 231 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 107 tokens in 0.8s (134.3 tok/s, 168.3 decode, 81 prompt)
+[data_models] 339 tokens in 2.2s (153.3 tok/s, 159.6 decode, 614 prompt)
+[ok] step data_models: uniqueness provenance — 1 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.2s (47.9 tok/s, 186.4 decode, 476 prompt)
+[invariants] 417 tokens in 2.6s (160.0 tok/s, 165.5 decode, 280 prompt)
+[ok] step invariants: 19 invariant(s) — 9 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 520 tokens in 3.9s (134.5 tok/s, 140.0 decode, 988 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-validate' to '--validate'
+[ok] step components: normalized option '-input' to '--input'
+[service_contracts] 10 tokens in 0.2s (43.5 tok/s, 182.2 decode, 482 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Task add, Task update, Task delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.3s (144.6 tok/s, 170.7 decode, 388 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> BUDGET_OVERFLOW_GUARD (0.50)  <- undecided (pattern): PRICE_MARGIN_GUARD at 0.49
+  [2/15] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/15] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [4/15] invariant -> BUDGET_OVERFLOW_GUARD (0.93)
+  [5/15] invariant -> PRICE_MARGIN_GUARD (0.98)
+  [6/15] invariant -> NO_PATTERN_IN_DOMAIN (1.00)  <- GAP: no pattern for this
+  [7/15] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/15] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [9/15] invariant -> BUDGET_OVERFLOW_GUARD (0.93)
+  [10/15] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [11/15] contract:TaskRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:TaskRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:TaskRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:TaskRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:TaskRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 3 standard CRUD, 11 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: When exporting tasks to JSON, all tasks must include their task_id, title, description, due_date, status, and priority fields.
+[!] step adapters: mechanical derivation declined (export: no method matches the verb 'export'); retry after surface repairs declined (export: no method matches the verb 'export') — asking the model
+[interaction_adapters] 1071 tokens in 6.8s (158.4 tok/s, 160.1 decode, 542 prompt)
+[ok] step adapters: import_tasks.tasks was 'CSV_LIST' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_task.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_task.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[ok] step adapters: removed 2 duplicate adapter(s)
+[ok] step adapters: added capability method TaskService.import_tasks_from_json (import)
+[ok] step adapters: exposed prose import as Task import
+[ok] step adapters: added capability method TaskService.export_tasks_to_json (export)
+[ok] step adapters: exposed prose export as Task export
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--title' required by 'create_task' — added as str
+[ok] step adapters: update  lacked '--task-id' required by 'update_task' — added as int
+[ok] step adapters: delete  lacked '--task-id' required by 'delete_task' — added as int
+[ok] step adapters: import  lacked '--file-path' required by 'import_tasks_from_json' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 5 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_19/requirements.txt
+[run] 8 steps, 2516 generated tokens in 16.9s

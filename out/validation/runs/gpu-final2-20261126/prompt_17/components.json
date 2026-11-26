@@ -1,0 +1,88 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "query",
+            "type": "str",
+            "required": false
+          }
+        ],
+        "options": [
+          {
+            "name": "--category",
+            "short": "-c",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--max-price",
+            "short": "-m",
+            "type": "float",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--min-quantity",
+            "short": "-q",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Product",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "search",
+                "options": [
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Product",
+        "operations": [
+          "read_all",
+          "read_one"
+        ]
+      }
+    ]
+  }
+}

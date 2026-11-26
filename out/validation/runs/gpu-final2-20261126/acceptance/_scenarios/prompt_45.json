@@ -1,0 +1,268 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Booking add",
+      "when": {
+        "cli_variants": [
+          [
+            "Booking",
+            "add",
+            "--room-id",
+            "1",
+            "--guest-id",
+            "1",
+            "--check-in-date",
+            "2024-01-01",
+            "--check-out-date",
+            "2024-01-01",
+            "--booking-status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Booking update",
+      "when": {
+        "cli_variants": [
+          [
+            "Booking",
+            "update",
+            "--id",
+            "1",
+            "--room-id",
+            "1",
+            "--guest-id",
+            "1",
+            "--check-in-date",
+            "2024-01-01",
+            "--check-out-date",
+            "2024-01-01",
+            "--booking-status",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Booking": {
+            "room_id": 1,
+            "guest_id": 1,
+            "check_in_date": "2024-01-01",
+            "check_out_date": "2024-01-01",
+            "booking_status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Booking delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Booking",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Booking",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room add",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--availability-status"
+          ],
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--availability-status",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room update",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "update",
+            "--id",
+            "1",
+            "--room-number",
+            "value1",
+            "--availability-status"
+          ],
+          [
+            "Room",
+            "update",
+            "--id",
+            "1",
+            "--room-number",
+            "value1",
+            "--availability-status",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_number": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "delete",
+            "--id",
+            "1",
+            "--room-number",
+            "value1",
+            "--availability-status",
+            "false"
+          ],
+          [
+            "Room",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_number": "value1",
+            "availability_status": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest add",
+      "when": {
+        "cli_variants": [
+          [
+            "Guest",
+            "add",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest update",
+      "when": {
+        "cli_variants": [
+          [
+            "Guest",
+            "update",
+            "--id",
+            "1",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone-number",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Guest": {
+            "first_name": "value1",
+            "last_name": "value1",
+            "email": "cli1@example.test",
+            "phone_number": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Guest delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Guest",
+            "delete",
+            "--id",
+            "1",
+            "--first-name",
+            "value1",
+            "--last-name",
+            "value1",
+            "--email",
+            "seed1@example.test",
+            "--phone-number",
+            "value1"
+          ],
+          [
+            "Guest",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Guest": {
+            "first_name": "value1",
+            "last_name": "value1",
+            "email": "seed1@example.test",
+            "phone_number": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "label": "TaskAssignmentRepository.getAssignmentCountByTask",
+    "status": "written",
+    "note": "",
+    "answer": "count_map = {}\n        criteria = []\n        if id is not None:\n            criteria.append(('task_id', 'eq', id))\n        found = self._store.select(self.ENTITY, criteria)\n        for record in found:\n            task_id = record.get('task_id')\n            if task_id is not None:\n                count_map[task_id] = count_map.get(task_id, 0) + 1\n        return count_map",
+    "finish_reason": "stop",
+    "tokens": 91,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.8404521942138672,
+    "decode_seconds": 0.687414,
+    "prompt_tokens": 6507,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

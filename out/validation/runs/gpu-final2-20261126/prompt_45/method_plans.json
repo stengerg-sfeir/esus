@@ -1,0 +1,34 @@
+{
+  "plans": [
+    {
+      "holder": "BookingService",
+      "method": "create_booking",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Booking",
+      "target_service": "BookingRepository",
+      "target_method": "create"
+    }
+  ],
+  "questions": [
+    {
+      "holder": "BookingService",
+      "method": "read_booking_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "BookingService",
+      "method": "update_booking",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "BookingService",
+      "method": "delete_booking",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    }
+  ],
+  "requirements_sha": "f297bf6e3557e49b0e4cb550133e3fc4b57b7c2fda5ba32cc84a9779cb9097c7"
+}

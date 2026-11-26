@@ -1,0 +1,271 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Order",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Order.",
+            "params": [
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Order by its key.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Order; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "list[Order]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "OrderLine",
+        "interface_name": "OrderLineRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new OrderLine.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "str"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              },
+              {
+                "name": "total_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderLine",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one OrderLine by its key.",
+            "params": [
+              {
+                "name": "order_line_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderLine",
+            "raises": [
+              "OrderLineNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every OrderLine; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "str"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              },
+              {
+                "name": "total_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderLine]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing OrderLine.",
+            "params": [
+              {
+                "name": "order_line_id",
+                "type": "int"
+              },
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "str"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              },
+              {
+                "name": "total_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.OrderLine",
+            "raises": [
+              "OrderLineNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing OrderLine.",
+            "params": [
+              {
+                "name": "order_line_id",
+                "type": "int"
+              },
+              {
+                "name": "order_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "str"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "unit_price",
+                "type": "int"
+              },
+              {
+                "name": "total_price",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "OrderLineNotFoundError"
+            ]
+          },
+          {
+            "name": "get_order_lines_by_order_id",
+            "description": "Lists the OrderLine records belonging to one Order.",
+            "params": [
+              {
+                "name": "order_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[OrderLine]",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Order",
+        "table": "orders",
+        "primary_key": "order_id",
+        "indexes": [
+          "created_at",
+          "updated_at"
+        ]
+      },
+      {
+        "entity": "OrderLine",
+        "table": "order_lines",
+        "primary_key": "order_line_id",
+        "indexes": [
+          "order_id"
+        ]
+      }
+    ]
+  }
+}

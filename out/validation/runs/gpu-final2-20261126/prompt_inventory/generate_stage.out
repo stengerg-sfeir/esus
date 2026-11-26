@@ -1,0 +1,36 @@
+gate passed (1 residual risk(s); gaps stay documented stubs)
+llm: 4 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: InventoryService.low_stock_report ...
+llm: InventoryService.restock ...
+llm: InventoryService.list_products ...
+llm: InventoryService.get_product_by_id ...
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_inventory/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/generated/__init__.py
+methods: 18 implemented, 4 stubs (82% mechanical)
+llm: 4 of 4 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: InventoryService.low_stock_report
+  llm provisional: InventoryService.restock
+  llm provisional: InventoryService.list_products
+  llm provisional: InventoryService.get_product_by_id
+  stub: InventoryService.get_product_by_id: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: InventoryService.list_products: pattern FILTER_WITH_PAGINATION: no mechanical reading
+  stub: InventoryService.restock: pattern STANDARD_CRUD: no mechanical reading
+  stub: InventoryService.low_stock_report: pattern THRESHOLD_SCAN: no mechanical reading
+  cli category add -> categoryadd [score 9]
+  cli category delete -> categorydelete [score 11]
+  cli category list -> categorylist [score 9]
+  cli category update -> categoryupdate [score 11]
+  cli product add -> productadd [score 9]
+  cli product delete -> productdelete [score 11]
+  cli product list -> productlist [score 9]
+  cli product report low-stock -> productreportlowstock [score 8]
+  cli product report value -> productreportvalue [score 6]
+  cli product restock -> productrestock [score 3]
+  cli product update -> productupdate [score 11]

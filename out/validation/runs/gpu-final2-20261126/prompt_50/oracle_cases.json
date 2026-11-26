@@ -1,0 +1,148 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_event",
+      "source": "People should be able to create events and register for them.",
+      "given": {
+        "event": {
+          "name": "Team Meeting",
+          "date": "2023-10-05",
+          "capacity": 10
+        }
+      },
+      "when": {
+        "action": "create_event",
+        "args": [
+          "event.name",
+          "event.date",
+          "event.capacity"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Event": 1
+        }
+      },
+      "status": "case_defect",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "event": {
+            "status": "aligned",
+            "canonical": "Event",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Event",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "event.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Event"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "EventRegistrationService.register_for_event",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "EventRegistrationService.register_for_event",
+            "EventRepository.create",
+            "RegistrationRepository.create",
+            "RegistrationRepository.register_for_event"
+          ]
+        }
+      },
+      "execution": {
+        "status": "case_defect",
+        "reason": "harness error: KeyError: 'event'"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "register_for_event",
+      "source": "People should be able to create events and register for them.",
+      "given": {
+        "event": {
+          "name": "Team Meeting",
+          "date": "2023-10-05",
+          "capacity": 10,
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "register_for_event",
+        "args": [
+          "event.id",
+          "event.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "event.status": "active",
+          "event.registration_count": 1
+        },
+        "rows": {
+          "Event": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "registration count starts at 0 and increments on registration"
+      ],
+      "ambiguities": [
+        "it is not clear whether registration count is stored per event or if event status changes on registration"
+      ]
+    },
+    {
+      "id": "prevent_registration_when_full",
+      "source": "The application should prevent registrations when an event is full.",
+      "given": {
+        "event": {
+          "name": "Team Meeting",
+          "date": "2023-10-05",
+          "capacity": 10,
+          "registration_count": 10,
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "register_for_event",
+        "args": [
+          "event.id"
+        ]
+      },
+      "then": {
+        "error": "RegistrationPrevented",
+        "rows": {
+          "Event": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'RegistrationPrevented' is not named in the requirements",
+        "error class 'RegistrationPrevented' is not named in the requirements"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "data_models": [
+    {
+      "name": "Customer",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "rejected"
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "stock_quantity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "customer_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Customer",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "order_date",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "name": "OrderItem",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "order_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Order",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "product_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Product",
+            "target_field": "id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}

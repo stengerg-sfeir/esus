@@ -1,0 +1,192 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "borrow_book",
+      "source": "A book can be borrowed by members.",
+      "given": {
+        "book": {
+          "id": "book_1",
+          "status": "available"
+        },
+        "member": {
+          "id": "member_1"
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "book_1.id",
+          "member_1.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BorrowRecordRepository.get_borrow_records_by_book_id",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "BorrowRecordRepository.create_borrow_record",
+            "BorrowService.return_book",
+            "BookRepository.read_one",
+            "BookRepository.update"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "return_book",
+      "source": "When it is returned, it should become available again.",
+      "given": {
+        "book": {
+          "id": "book_1",
+          "status": "borrowed"
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "book_1.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "case_defect",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "case_defect",
+        "reason": "raised BorrowRecordNotFoundError: borrow record not found; expected None"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "book_not_available_while_borrowed",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "given": {
+        "book": {
+          "id": "book_1",
+          "status": "borrowed"
+        }
+      },
+      "when": {
+        "action": "check_availability",
+        "args": [
+          "book_1.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.status": "borrowed"
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system does not show a borrowed book as available during a check_availability query"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

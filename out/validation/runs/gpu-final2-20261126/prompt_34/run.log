@@ -1,0 +1,61 @@
+[run] requirements: 215 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 67 tokens in 0.5s (126.8 tok/s, 170.9 decode, 85 prompt)
+[data_models] 546 tokens in 3.5s (156.6 tok/s, 160.2 decode, 581 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 98 tokens in 0.7s (134.4 tok/s, 166.4 decode, 496 prompt)
+[invariants] 45 tokens in 0.4s (124.8 tok/s, 170.7 decode, 300 prompt)
+[ok] step invariants: 18 invariant(s) — 17 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 350 tokens in 2.5s (138.4 tok/s, 144.7 decode, 1008 prompt)
+[ok] step components: normalized option '-force' to '--force'
+[ok] step components: normalized option '-validation' to '--validation'
+[service_contracts] 156 tokens in 1.3s (124.2 tok/s, 144.3 decode, 550 prompt)
+[ok] step contracts: added 4 mechanical service method(s)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: Order add, Order update, Order delete, OrderLine add, OrderLine update, OrderLine delete
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+[persistence_ports] 71 tokens in 0.5s (129.4 tok/s, 169.1 decode, 423 prompt)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/17] invariant -> BUDGET_OVERFLOW_GUARD (0.80)
+  [2/17] contract:OrderService.create_order_with_lines -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: STOCK_SUFFICIENCY_GUARD returns boolean/none, but this method returns entity (models.Order)
+  [3/17] contract:OrderService.read_order_by_id -> STANDARD_CRUD (1.00)
+  [4/17] contract:OrderService.read_all_orders -> READ_ALL (0.01)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Order]) (was READ_ONE_BY_ID)  <- undecided (pattern): FILTER_BY_FIELD at 0.00
+  [5/17] contract:OrderService.update_order -> STANDARD_CRUD (1.00)
+  [6/17] contract:OrderService.delete_order -> STANDARD_CRUD (1.00)
+  [7/17] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/17] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/17] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/17] contract:OrderRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/17] contract:OrderRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/17] contract:OrderLineRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/17] contract:OrderLineRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/17] contract:OrderLineRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/17] contract:OrderLineRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/17] contract:OrderLineRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/17] contract:OrderLineRepository.get_order_lines_by_order_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 17 item(s) — 9 standard CRUD, 7 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderService.create_order_with_lines: create_order_with_lines(order_data: OrderCreationData) -> models.Order: Creates an order and all its order lines atomically. If any order line contains invalid data (e.g., negative quantity, invalid product ID), the entire operation fails and neither the order nor any order lines are persisted.
+[ok] step adapters: derived 1 command group(s) from 16 service method(s)
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: retargeted 1 aggregate create adapter(s) to plain create
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: OrderLine add, OrderLine update, OrderLine delete
+[ok] step adapters: added 3 missing adapter(s) mechanically: OrderLine add, OrderLine update, OrderLine delete
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/method_plans.json
+[ok] method plans: 3 mechanical candidate(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/requirements.txt
+[run] 7 steps, 1333 generated tokens in 9.4s

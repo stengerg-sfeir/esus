@@ -1,0 +1,59 @@
+{
+  "plans": [
+    {
+      "id": "auth_required_to_access_documents",
+      "source": "Users must authenticate before accessing documents.",
+      "when": {
+        "action": "access_documents",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.authenticated"
+        ],
+        "error": "AuthenticationRequired"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "only_own_documents_access_allowed",
+      "source": "A user can only read, modify or delete their own documents.",
+      "when": {
+        "action": "read_document",
+        "args": [
+          "document.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.id",
+          "document.owner.id"
+        ],
+        "rows": {
+          "Document": 1
+        },
+        "error": "UnauthorizedAccess"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "list_orders_by_customer",
+        "source": "list all orders belonging to a customer",
+        "given": {
+          "customer": {
+            "id": 101
+          },
+          "order": {
+            "status": "pending",
+            "date": "2023-10-01"
+          }
+        },
+        "when": {
+          "action": "list_orders",
+          "args": [
+            "customer.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "pending",
+            "order.date": "2023-10-01"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "6e4bf045f2e272b7e75d3afa0736196ff6f84ba2edf6215542eeaf7991f0e08f"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_order_status",
+        "source": "Each order belongs to exactly one customer and has a date and status.",
+        "given": {
+          "order": {
+            "id": 201,
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "update_order",
+          "args": [
+            "order.id",
+            "status"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "shipped"
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "the new status value 'shipped' is assumed based on typical order lifecycle; requirement does not specify value"
+        ],
+        "ambiguities": [
+          "the requirement does not specify which status value should be set, so the exact value is ambiguous"
+        ],
+        "prompt_sha": "6e4bf045f2e272b7e75d3afa0736196ff6f84ba2edf6215542eeaf7991f0e08f"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_order",
+        "source": "Provide CRUD operations for customers and orders",
+        "given": {
+          "order": {
+            "id": 201
+          }
+        },
+        "when": {
+          "action": "delete_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Order": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "deletion removes the order from the system; no explicit state change is required beyond row count"
+        ],
+        "ambiguities": [
+          "the requirement does not specify whether deletion affects related entities or triggers cascades"
+        ],
+        "prompt_sha": "6e4bf045f2e272b7e75d3afa0736196ff6f84ba2edf6215542eeaf7991f0e08f"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

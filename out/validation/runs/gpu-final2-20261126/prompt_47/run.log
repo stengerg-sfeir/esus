@@ -1,0 +1,151 @@
+[run] requirements: 147 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 61 tokens in 0.4s (156.8 tok/s, 169.6 decode, 70 prompt)
+[data_models] 1316 tokens in 8.4s (156.1 tok/s, 157.7 decode, 560 prompt)
+[ok] step data_models: Project.project_id became the integer primary key id
+[ok] step data_models: Task.task_id became the integer primary key id
+[ok] step data_models: TeamMember.member_id became the integer primary key id
+[ok] step data_models: TaskAssignment.assignment_id became the integer primary key id
+[ok] step data_models: Task.project_id retyped to int for its Project key
+[ok] step data_models: TaskAssignment.task_id retyped to int for its Task key
+[ok] step data_models: TaskAssignment.member_id retyped to int for its TeamMember key
+[ok] step data_models: uniqueness provenance — 4 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.3s (31.0 tok/s, 185.9 decode, 514 prompt)
+[invariants] 228 tokens in 1.5s (156.5 tok/s, 166.3 decode, 318 prompt)
+[ok] step invariants: 48 invariant(s) — 39 schema generated mechanically, 9 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 2051 tokens in 14.0s (146.6 tok/s, 148.3 decode, 1026 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-project-name' to '--project-name'
+[ok] step components: normalized option '-task-title' to '--task-title'
+[ok] step components: normalized option '-member-email' to '--member-email'
+[ok] step components: normalized option '-role' to '--role'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-role' to '--role'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-role' to '--role'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-task-id' to '--task-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-responsibility-type' to '--responsibility-type'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-task-id' to '--task-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-responsibility-type' to '--responsibility-type'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 10 tokens in 0.4s (26.3 tok/s, 182.5 decode, 520 prompt)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: TeamMember add, TeamMember update, TeamMember delete, TaskAssignment add, TaskAssignment update, TaskAssignment delete
+[ok] step contracts: normalized 12 generic type spelling(s) to Python annotations
+[persistence_ports] 380 tokens in 2.4s (159.5 tok/s, 164.7 decode, 470 prompt)
+[ok] step persistence: merged 4 custom repository method(s) into service_contracts
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+  [1/33] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/33] invariant -> STATE_TRANSITION_GUARD (0.65)
+  [3/33] invariant -> STATE_TRANSITION_GUARD (0.51)  <- undecided (pattern): BUDGET_OVERFLOW_GUARD at 0.41
+  [4/33] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [5/33] invariant -> AGGREGATE_BY_FK_AND_DATE (0.96)
+  [6/33] invariant -> PRICE_MARGIN_GUARD (0.94)
+  [7/33] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [8/33] invariant -> STATE_TRANSITION_GUARD (0.54)
+  [9/33] invariant -> STATE_TRANSITION_GUARD (0.79)
+  [10/33] contract:ProjectRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/33] contract:ProjectRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/33] contract:ProjectRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/33] contract:ProjectRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/33] contract:ProjectRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/33] contract:TaskRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/33] contract:TaskRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [17/33] contract:TaskRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [18/33] contract:TaskRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/33] contract:TaskRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/33] contract:TeamMemberRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/33] contract:TeamMemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [22/33] contract:TeamMemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/33] contract:TeamMemberRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/33] contract:TeamMemberRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [25/33] contract:TaskAssignmentRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/33] contract:TaskAssignmentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [27/33] contract:TaskAssignmentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/33] contract:TaskAssignmentRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [29/33] contract:TaskAssignmentRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/33] contract:TaskAssignmentRepository.findAssignmentsByTaskId -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [31/33] contract:TaskAssignmentRepository.findAssignmentsByMemberId -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [32/33] contract:TaskAssignmentRepository.findAssignmentsByResponsibilityType -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [33/33] contract:TaskAssignmentRepository.getAssignmentCountByTask -> AGGREGATE_BY_FK_AND_DATE (0.72)
+[ok] step patterns: 33 item(s) — 12 standard CRUD, 21 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (task show: ambiguous methods: TaskRepository.read_all, TaskRepository.read_one); retry after surface repairs declined (task show: ambiguous methods: TaskRepository.read_all, TaskRepository.read_one) — asking the model
+[interaction_adapters] 3584 tokens in 24.1s (148.6 tok/s, 149.4 decode, 848 prompt) TRUNCATED at the 3584-token ceiling
+[!] interaction_adapters: JSON error: Unterminated string starting at: line 602 column 7 (char 15908)
+[!] step interaction_adapters hit the 3584-token ceiling — its document may be incomplete, retrying with a 15472-token ceiling — retrying once
+[interaction_adapters] 3787 tokens in 25.9s (146.0 tok/s, 148.6 decode, 848 prompt)
+[ok] step adapters: assign_task_to_member.assigned_at was 'ISO_DATE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: list_task_assignments_by_task_id.task_id was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: list_task_assignments_by_member_id.member_id was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_project.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_project.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_project.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_task.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: list_tasks.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_task.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_team_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_team_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_team_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: assign_task_to_member.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: assign_task_to_member.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_task_assignments.id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 550 tokens in 4.1s (135.2 tok/s, 158.3 decode, 901 prompt)
+[ok] step adapters: create_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 2 item(s) versus 21 in the first attempt — kept the fuller first attempt; its 2 unreachable field(s) stay reported
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: project update lacked '--id' required by 'update_project' — added as int
+[ok] step adapters: task add lacked '--project-id' required by 'create_task' — added as int
+[ok] step adapters: task update lacked '--id' required by 'update_task' — added as int
+[ok] step adapters: member add lacked '--task-id' required by 'assign_task_to_member' — added as int
+[ok] step adapters: member add lacked '--member-id' required by 'assign_task_to_member' — added as int
+[ok] step adapters: member add lacked '--responsibility-type' required by 'assign_task_to_member' — added as str
+[ok] step adapters: member list lacked '--member-id' required by 'list_task_assignments_by_member_id' — added as str
+[ok] step adapters: member update lacked '--id' required by 'update_team_member' — added as int
+[ok] step adapters: assignment list lacked '--member-id' required by 'list_task_assignments_by_member_id' — added as str
+[ok] step adapters: assignment update lacked '--name' required by 'update_project' — added as str
+[ok] step adapters: TaskAssignment update lacked '--name' required by 'update_project' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 13 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: TaskAssignment add, TaskAssignment update, TaskAssignment delete
+[ok] step adapters: added 3 missing adapter(s) mechanically: TaskAssignment add, TaskAssignment update, TaskAssignment delete
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_47/requirements.txt
+[run] 10 steps, 11975 generated tokens in 81.4s

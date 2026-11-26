@@ -1,0 +1,33 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_60/persistence_ports.json
+
+[ok] step grounding: dropped ExportService.export_orders_to_csv — no requirement/intention evidence for verb `export`
+[ok] step grounding: dropped ExportService.export_invoices_to_csv — no requirement/intention evidence for verb `export`
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: ordership.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerdelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 16 adapter(s)
+[ok] step persistence: 6 repository interface(s) adopted from service_contracts, so both documents declare one method set

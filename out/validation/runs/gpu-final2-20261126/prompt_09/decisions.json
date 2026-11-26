@@ -1,0 +1,24 @@
+{
+  "decisions": [
+    {
+      "text": "When creating a new employee, the system must validate that the email is valid, the age is between 18 and 70, and the salary is positive before saving the record to the database.",
+      "chosen_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "PRICE_MARGIN_GUARD"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "fcc1096f08e3ecc27d0edc60cc5ef530de816e00015897d0213dc2cf2da284e4"
+    },
+    {
+      "text": "When updating an employee's salary, the new salary must still be positive.",
+      "chosen_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "PRICE_MARGIN_GUARD"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "fcc1096f08e3ecc27d0edc60cc5ef530de816e00015897d0213dc2cf2da284e4"
+    }
+  ]
+}

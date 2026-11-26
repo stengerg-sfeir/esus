@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "9ea71871235b2a6bd25aa1eeeb662e5b0caeee7c48bea99d28dcd505033fe4ff",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "A member can have multiple loans, each involving a different book.",
+      "chosen": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "AGGREGATE_BY_FK_AND_DATE"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "add_task",
+        "source": "Users can add tasks",
+        "given": {
+          "task": {
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "add_task",
+          "args": [
+            "task"
+          ]
+        },
+        "then": {
+          "state": {
+            "task.status": "pending"
+          },
+          "rows": {
+            "Task": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "16cea32df6c65e15d2a8c0d57a64566e05fbd6a78b0a0be7c190dca5a2b5e820"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

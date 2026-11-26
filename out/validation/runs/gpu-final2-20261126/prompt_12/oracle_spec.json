@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "6fa3b17c268730bf6eeeab1ce4078d40f60d751cb0c6a6a1a576805d2ffd4c13",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "Customers can be filtered by email domain, such as 'example.com' or 'gmail.com'.",
+      "chosen": "AGGREGATE_BY_FK_AND_DATE",
+      "candidates": [
+        "AGGREGATE_BY_FK_AND_DATE",
+        "FILTER_BY_FIELD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

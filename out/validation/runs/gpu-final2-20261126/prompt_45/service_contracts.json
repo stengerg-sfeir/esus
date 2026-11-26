@@ -1,0 +1,558 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "BookingService",
+      "methods": [
+        {
+          "name": "validate_booking_dates",
+          "description": "Validates that the check-in and check-out dates are valid and non-overlapping with existing bookings for the specified room.",
+          "params": [
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "InvalidDateError"
+          ]
+        },
+        {
+          "name": "check_room_availability",
+          "description": "Checks if a room is available during a specified date range by verifying no overlapping bookings exist.",
+          "params": [
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "InvalidDateError"
+          ]
+        },
+        {
+          "name": "create_booking",
+          "description": "Creates a new Booking.",
+          "params": [
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "guest_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "booking_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_all_bookings",
+          "description": "Lists every Booking.",
+          "params": [],
+          "return_type": "list[Booking]",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_booking_by_id",
+          "description": "Reads one Booking by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Booking | None",
+          "raises": [
+            "BookingNotFoundError"
+          ],
+          "mechanical": true
+        },
+        {
+          "name": "update_booking",
+          "description": "Updates an existing Booking.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "guest_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "booking_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "BookingNotFoundError"
+          ],
+          "mechanical": true
+        },
+        {
+          "name": "delete_booking",
+          "description": "Deletes an existing Booking.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "BookingNotFoundError"
+          ],
+          "mechanical": true
+        }
+      ]
+    },
+    {
+      "service_name": "RoomRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Room.",
+          "params": [
+            {
+              "name": "room_number",
+              "type": "str"
+            },
+            {
+              "name": "availability_status",
+              "type": "bool"
+            }
+          ],
+          "return_type": "models.Room",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Room; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "room_number",
+              "type": "str"
+            },
+            {
+              "name": "availability_status",
+              "type": "bool"
+            }
+          ],
+          "return_type": "list[Room]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Room by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Room",
+          "raises": [
+            "RoomNotFoundError"
+          ]
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Room.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "room_number",
+              "type": "str"
+            },
+            {
+              "name": "availability_status",
+              "type": "bool"
+            }
+          ],
+          "return_type": "models.Room",
+          "raises": [
+            "RoomNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Room.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "room_number",
+              "type": "str"
+            },
+            {
+              "name": "availability_status",
+              "type": "bool"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "RoomNotFoundError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "GuestRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Guest.",
+          "params": [
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Guest",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Guest; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Guest]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Guest by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Guest",
+          "raises": [
+            "GuestNotFoundError"
+          ]
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Guest.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Guest",
+          "raises": [
+            "GuestNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Guest.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "GuestNotFoundError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "BookingRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Booking.",
+          "params": [
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "guest_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "booking_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Booking",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Booking; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "guest_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "booking_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Booking]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Booking by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Booking",
+          "raises": [
+            "BookingNotFoundError"
+          ]
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Booking.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "guest_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "booking_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Booking",
+          "raises": [
+            "BookingNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Booking.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "room_id",
+              "type": "int"
+            },
+            {
+              "name": "guest_id",
+              "type": "int"
+            },
+            {
+              "name": "check_in_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "check_out_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "booking_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "BookingNotFoundError"
+          ]
+        },
+        {
+          "name": "findBookingsByRoomAndDateRange",
+          "description": "Checks for existing bookings in a room during a specified date range to prevent double booking.",
+          "params": [
+            {
+              "name": "roomId",
+              "type": "int"
+            },
+            {
+              "name": "checkInDate",
+              "type": "datetime"
+            },
+            {
+              "name": "checkOutDate",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "list[models.Booking]"
+        },
+        {
+          "name": "findOverlappingBookings",
+          "description": "Identifies all bookings that overlap with a proposed new booking in terms of date and room, helping to validate booking conflicts.",
+          "params": [
+            {
+              "name": "roomId",
+              "type": "int"
+            },
+            {
+              "name": "checkInDate",
+              "type": "datetime"
+            },
+            {
+              "name": "checkOutDate",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "list[models.Booking]"
+        }
+      ]
+    }
+  ]
+}

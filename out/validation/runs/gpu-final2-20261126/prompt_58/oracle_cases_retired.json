@@ -1,0 +1,75 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "retrieve_customer_info_from_external_service",
+        "source": "retrieves additional customer information from an external service",
+        "given": {
+          "customer": {
+            "id": 101,
+            "info_fetched": false
+          }
+        },
+        "when": {
+          "action": "retrieve_customer_info",
+          "args": [
+            "customer.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.info_fetched": true
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "31c654f09f91ed924cbceb7a1d3e1c56e8f9eca9eac15e64cc1000988a891ba2"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "application_continues_when_external_service_unavailable",
+        "source": "The application should continue to operate correctly when the external service is unavailable",
+        "given": {
+          "customer": {
+            "id": 102,
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "operate",
+          "args": []
+        },
+        "then": {
+          "state": {
+            "customer.status": "active"
+          },
+          "rows": {
+            "Customer": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "31c654f09f91ed924cbceb7a1d3e1c56e8f9eca9eac15e64cc1000988a891ba2"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

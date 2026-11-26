@@ -1,0 +1,74 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested by ID but not found in the database."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested by ID but not found in the database."
+    },
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a category is requested by ID but not found in the database."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order is requested by ID but not found in the database."
+    },
+    {
+      "name": "OrderItemNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order item is requested by ID but not found in the database."
+    },
+    {
+      "name": "InvoiceNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an invoice is requested by ID but not found in the database."
+    },
+    {
+      "name": "InvalidOrderStatusError",
+      "base": "ValueError",
+      "description": "Raised when an order status is set to a value not in the allowed set: pending, confirmed, shipped, cancelled."
+    },
+    {
+      "name": "InsufficientStockError",
+      "base": "ValueError",
+      "description": "Raised when attempting to confirm an order that would result in insufficient stock for one or more products."
+    },
+    {
+      "name": "InvalidPriceError",
+      "base": "ValueError",
+      "description": "Raised when a product price is set to a negative or non-numeric value."
+    },
+    {
+      "name": "InvalidProductIdError",
+      "base": "KeyError",
+      "description": "Raised when a product ID is used in an order but not present in the product catalog."
+    },
+    {
+      "name": "OrderAlreadyConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to confirm an order that is already confirmed or cancelled."
+    },
+    {
+      "name": "OrderCannotBeCancelledError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to cancel an order that is not confirmed."
+    },
+    {
+      "name": "OrderCannotBeShippedError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to ship an order that is not confirmed."
+    },
+    {
+      "name": "MalformedCSVError",
+      "base": "OSError",
+      "description": "Raised when a CSV file is malformed or cannot be parsed during import."
+    }
+  ]
+}

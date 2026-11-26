@@ -1,0 +1,59 @@
+{
+  "prompt": "prompt_50",
+  "results": [
+    {
+      "name": "oracle:create_event",
+      "status": "case_defect",
+      "reason": "harness error: KeyError: 'event'",
+      "case": "create_event",
+      "source": "People should be able to create events and register for them.",
+      "alignment": {
+        "entities": {
+          "event": {
+            "status": "aligned",
+            "canonical": "Event",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Event",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "event.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Event"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "EventRegistrationService.register_for_event",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "EventRegistrationService.register_for_event",
+            "EventRepository.create",
+            "RegistrationRepository.create",
+            "RegistrationRepository.register_for_event"
+          ]
+        }
+      },
+      "triage": "case_defect: setup"
+    }
+  ],
+  "counts": {
+    "case_defect": 1
+  },
+  "triage_counts": {
+    "case_defect: setup": 1
+  }
+}

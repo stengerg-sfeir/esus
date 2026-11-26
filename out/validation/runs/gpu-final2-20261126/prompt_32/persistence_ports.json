@@ -1,0 +1,59 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Order",
+        "interface_name": "OrderRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one Order by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Order.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "state",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "updated_at",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Order",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Order",
+        "table": "orders",
+        "primary_key": "id",
+        "indexes": [
+          "created_at",
+          "updated_at"
+        ]
+      }
+    ]
+  }
+}

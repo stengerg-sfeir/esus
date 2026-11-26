@@ -1,0 +1,30 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_56/persistence_ports.json
+
+[ok] step persistence: get_by_order_id filters OrderProduct by order ID — declared OrderProduct.order_id as an FK to Order
+[ok] step contracts: added 1 missing standard repository method(s)
+[ok] step grounding: dropped OrderService.confirm_order — no requirement/intention evidence for verb `confirm`
+[ok] step grounding: dropped ProductService.search_products — parameter 'min_stock' names no Product field
+[ok] step grounding: dropped ProductService.validate_product_stock — parameter 'requested_quantity' names no Product field
+[ok] step grounding: dropped ProductService.productsearch — parameter 'min_stock' names no Product field
+[ok] step grounding: dropped ProductService.productstock — parameter 'requested_quantity' names no Product field
+[ok] step grounding: dropped ProductRepository.filter_by_stock_quantity — parameter 'min_stock' names no Product field
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerdelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderproductadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 11 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set

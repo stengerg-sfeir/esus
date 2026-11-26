@@ -1,0 +1,422 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_project",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "name": "Development Project"
+        }
+      },
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.title": "Development Project"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 19.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 19.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          }
+        },
+        "fields": {
+          "project.name": {
+            "status": "alias",
+            "canonical": "title",
+            "score": 8.0,
+            "evidence": [
+              "'name' aliases 'title'"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "TaskRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_projects",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "name": "Development Project"
+        }
+      },
+      "when": {
+        "action": "list_projects"
+      },
+      "then": {
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 19.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 19.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "TaskRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_project",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Project": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "TaskRepository.delete"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_task",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "id": 1
+        },
+        "task": {
+          "title": "Design UI",
+          "description": "Create user interface mockups",
+          "status": "pending",
+          "priority": "high"
+        }
+      },
+      "when": {
+        "action": "create_task",
+        "args": [
+          "project.id",
+          "task.title",
+          "task.description",
+          "task.status",
+          "task.priority"
+        ]
+      },
+      "then": {
+        "state": {
+          "task.title": "Design UI",
+          "task.description": "Create user interface mockups",
+          "task.status": "pending",
+          "task.priority": "high"
+        },
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          },
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {
+          "task.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Task.title exists"
+            ],
+            "alternatives": []
+          },
+          "task.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          },
+          "task.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          },
+          "task.priority": {
+            "status": "aligned",
+            "canonical": "priority",
+            "score": 10.0,
+            "evidence": [
+              "Task.priority exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_tasks",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "task": {
+          "title": "Design UI",
+          "description": "Create user interface mockups",
+          "status": "pending",
+          "priority": "high"
+        }
+      },
+      "when": {
+        "action": "list_tasks"
+      },
+      "then": {
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_task",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "task": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Task": 0
+        }
+      },
+      "status": "case_defect",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "case_defect",
+        "reason": "raised LookupError: Task delete matched no records; expected None"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    }
+  ]
+}

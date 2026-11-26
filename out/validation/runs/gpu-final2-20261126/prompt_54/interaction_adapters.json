@@ -1,0 +1,81 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "appointmentadd",
+      "target_service": "AppointmentRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "start_time",
+          "target_param": "start_time",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "end_time",
+          "target_param": "end_time",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "appointmentupdate",
+      "target_service": "AppointmentRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Appointment",
+          "required": true
+        },
+        {
+          "field_name": "start_time",
+          "target_param": "start_time",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "end_time",
+          "target_param": "end_time",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "appointmentdelete",
+      "target_service": "AppointmentRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Appointment",
+          "required": true
+        },
+        {
+          "field_name": "start_time",
+          "target_param": "start_time",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "end_time",
+          "target_param": "end_time",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

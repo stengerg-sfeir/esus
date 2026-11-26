@@ -1,0 +1,24 @@
+{
+  "decisions": [
+    {
+      "text": "If any order line is invalid, the entire order and all its order lines must be rolled back and not persisted.",
+      "chosen_pattern_id": "STATE_TRANSITION_GUARD",
+      "candidates": [
+        "STATE_TRANSITION_GUARD",
+        "BUDGET_OVERFLOW_GUARD"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "3d7660bcd4f99fd883a16b3d79a413c3bc49dfc825889998c3fb8e16e4932e72"
+    },
+    {
+      "text": "read_all_orders() -> list[Order]: Lists every Order.",
+      "chosen_pattern_id": "READ_ALL",
+      "candidates": [
+        "READ_ALL",
+        "FILTER_BY_FIELD"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "3d7660bcd4f99fd883a16b3d79a413c3bc49dfc825889998c3fb8e16e4932e72"
+    }
+  ]
+}

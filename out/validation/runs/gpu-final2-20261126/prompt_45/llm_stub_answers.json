@@ -1,0 +1,32 @@
+[
+  {
+    "label": "BookingService.check_room_availability",
+    "status": "written",
+    "note": "",
+    "answer": "room_bookings = self._repos['BookingRepository'].findOverlappingBookings(roomId=room_id, checkInDate=check_in_date.date(), checkOutDate=check_out_date.date())\n    return len(room_bookings) == 0",
+    "finish_reason": "stop",
+    "tokens": 52,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.4211218357086182,
+    "decode_seconds": 0.349829,
+    "prompt_tokens": 3179,
+    "cached_tokens": 658,
+    "context": "exact"
+  },
+  {
+    "label": "BookingService.validate_booking_dates",
+    "status": "written",
+    "note": "",
+    "answer": "room_bookings = self._repos['BookingRepository'].findOverlappingBookings(roomId=room_id, checkInDate=check_in_date.date(), checkOutDate=check_out_date.date())\n    if room_bookings:\n        return False\n    return True",
+    "finish_reason": "stop",
+    "tokens": 55,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 0.4738435745239258,
+    "decode_seconds": 0.368768,
+    "prompt_tokens": 3151,
+    "cached_tokens": 2406,
+    "context": "exact"
+  }
+]

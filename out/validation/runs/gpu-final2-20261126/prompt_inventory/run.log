@@ -1,0 +1,88 @@
+[run] requirements: 2312 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 225 tokens in 1.5s (147.9 tok/s, 164.9 decode, 559 prompt)
+[data_models] 644 tokens in 4.4s (148.0 tok/s, 154.3 decode, 1208 prompt)
+[ok] step data_models: uniqueness provenance — 4 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 86 tokens in 0.8s (109.2 tok/s, 162.2 decode, 970 prompt)
+[invariants] 401 tokens in 2.7s (149.3 tok/s, 161.2 decode, 774 prompt)
+[ok] step invariants: 30 invariant(s) — 20 schema generated mechanically, 10 rule(s) from the model
+[ok] step components: 11 command line(s) enumerated
+[components] 197 tokens in 1.6s (124.6 tok/s, 148.4 decode, 1246 prompt)
+[command_group] 784 tokens in 5.7s (137.5 tok/s, 143.7 decode, 854 prompt)
+[command_group] 431 tokens in 3.3s (129.7 tok/s, 141.2 decode, 771 prompt)
+[ok] step components: removed 1 exactly repeated name(s) from the merged split surface
+[service_contracts] 774 tokens in 5.3s (145.2 tok/s, 152.0 decode, 1012 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[ok] step contracts: InventoryService.add_product is a create and cannot fail to find what it creates — dropped raises 'ProductNotFoundError'
+[persistence_ports] 322 tokens in 2.3s (139.1 tok/s, 159.8 decode, 896 prompt)
+[ok] step persistence: merged 4 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/32] invariant -> BUDGET_OVERFLOW_GUARD (0.40)  <- undecided (pattern): QUOTA_CAPACITY_GUARD at 0.35
+  [2/32] invariant -> BUDGET_OVERFLOW_GUARD (0.65)
+  [3/32] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/32] invariant -> STATE_TRANSITION_GUARD (0.77)
+  [5/32] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [6/32] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [7/32] invariant -> THRESHOLD_SCAN (0.99)
+  [8/32] invariant -> BUDGET_OVERFLOW_GUARD (0.48)  <- undecided (pattern): QUOTA_CAPACITY_GUARD at 0.39
+  [9/32] invariant -> STATE_TRANSITION_GUARD (0.78)
+  [10/32] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [11/32] contract:InventoryService.add_product -> BUDGET_OVERFLOW_GUARD (0.77)
+  [12/32] contract:InventoryService.update_product -> BUDGET_OVERFLOW_GUARD (0.88)
+  [13/32] contract:InventoryService.delete_product -> STANDARD_CRUD (1.00)
+  [14/32] contract:InventoryService.get_product_by_id -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: READ_ONE_BY_ID returns entity, but this method returns mapping (dict)
+  [15/32] contract:InventoryService.list_products -> FILTER_WITH_PAGINATION (0.87)
+  [16/32] contract:InventoryService.restock -> STANDARD_CRUD (0.99)
+  [17/32] contract:InventoryService.low_stock_report -> THRESHOLD_SCAN (1.00)
+  [18/32] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [19/32] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/32] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/32] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/32] contract:CategoryRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/32] contract:CategoryRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/32] contract:CategoryRepository.find_products_by_category -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [25/32] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/32] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [27/32] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/32] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [29/32] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/32] contract:ProductRepository.find_products_by_category -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [31/32] contract:ProductRepository.find_low_stock_products -> THRESHOLD_SCAN (1.00)
+  [32/32] contract:ProductRepository.aggregate_stock_value_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+[ok] step patterns: 32 item(s) — 8 standard CRUD, 23 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:InventoryService.get_product_by_id: get_product_by_id(id: int) -> dict: Returns a product by its ID, raising an error if the product does not exist.
+[ok] step adapters: 11 adapter(s) derived mechanically from the explicit surface
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productrestock.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productadd.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: productadd.price targets an entity but spells no model field — renamed to 'price_cents'
+[ok] step adapters: productadd.stock targets an entity but spells no model field — renamed to 'stock_qty'
+[ok] step adapters: productlist.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: productupdate.price targets an entity but spells no model field — renamed to 'price_cents'
+[ok] step adapters: productupdate.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: categoryadd.threshold targets an entity but spells no model field — renamed to 'reorder_threshold'
+[ok] step adapters: categoryupdate.threshold targets an entity but spells no model field — renamed to 'reorder_threshold'
+[ok] step adapters: added 1 missing method parameter(s) to adapters: productadd.low_active
+[!] step adapters: 'productrestock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportlowstock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportvalue' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: added 3 missing adapter(s) mechanically: product restock, product report low-stock, product report value
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/method_plans.json
+[!] method plans: 2 ambiguous question(s) — human review required
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/command_group.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_inventory/requirements.txt
+[run] 9 steps, 3864 generated tokens in 27.6s

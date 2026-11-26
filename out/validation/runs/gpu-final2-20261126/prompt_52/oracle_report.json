@@ -1,0 +1,117 @@
+{
+  "prompt": "prompt_52",
+  "results": [
+    {
+      "name": "scenario:oracle:borrow_book",
+      "status": "passed",
+      "case": "borrow_book",
+      "source": "A book can be borrowed by members.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BorrowRecordRepository.get_borrow_records_by_book_id",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "BorrowRecordRepository.create_borrow_record",
+            "BorrowService.return_book",
+            "BookRepository.read_one",
+            "BookRepository.update"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:return_book",
+      "status": "case_defect",
+      "reason": "raised BorrowRecordNotFoundError: borrow record not found; expected None",
+      "case": "return_book",
+      "source": "When it is returned, it should become available again.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup"
+    }
+  ],
+  "counts": {
+    "passed": 1,
+    "case_defect": 1
+  },
+  "triage_counts": {
+    "passed": 1,
+    "case_defect: setup": 1
+  }
+}

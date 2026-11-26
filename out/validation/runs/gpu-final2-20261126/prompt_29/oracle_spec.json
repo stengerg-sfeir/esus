@@ -1,0 +1,44 @@
+{
+  "requirements_sha": "aabefd702c536a1b7490854d996b070b37a04f2e88cb5f40515b0013ae8da09a",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "OrderRepository.get_orders_with_customer_name",
+      "chosen": {
+        "reads": [
+          {
+            "entity": "Customer",
+            "field": "name",
+            "repository": "CustomerRepository",
+            "via": "Order.customer_id"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

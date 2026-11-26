@@ -1,0 +1,17 @@
+[
+  {
+    "label": "OrderRepository.get_order_with_lines_and_customer",
+    "status": "written",
+    "note": "",
+    "answer": "order = self._store.get(self.ENTITY, self.PK, order_id)\n    if order is None:\n        return {}\n    order_model = models.Order(**order)\n    lines = self._store.select('OrderLine', [('order_id', 'eq', order_id)])\n    customer = self._store.get('Customer', 'customer_id', order.get('customer_id'))\n    order_with_lines = {\n        'order': order_model,\n        'customer': customer if customer else None,\n        'lines': []\n    }\n    for line in lines:\n        product = self._store.get('Product', 'product_id', line.get('product_id'))\n        if product is not None:\n            order_with_lines['lines'].append({\n                'product': models.Product(**product),\n                'quantity': line.get('quantity'),\n                'unit_price': line.get('unit_price')\n            })\n    return order_with_lines\n```",
+    "finish_reason": "stop",
+    "tokens": 188,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.9529523849487305,
+    "decode_seconds": 1.2700809999999998,
+    "prompt_tokens": 3041,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

@@ -1,0 +1,158 @@
+{
+  "plans": [
+    {
+      "id": "create_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "when": {
+        "action": "create_order",
+        "args": [
+          "order.id",
+          "customer.id",
+          "product.id",
+          "quantity",
+          "unit_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status",
+          "order.total_amount"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "when": {
+        "action": "read_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status",
+          "order.total_amount"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "when": {
+        "action": "update_order",
+        "args": [
+          "order.id",
+          "quantity",
+          "unit_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status",
+          "order.total_amount"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "when": {
+        "action": "delete_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "calculate_total_order_amount",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "when": {
+        "action": "calculate_total_order_amount",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.total_amount"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

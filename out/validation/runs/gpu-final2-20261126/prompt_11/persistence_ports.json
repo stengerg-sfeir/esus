@@ -1,0 +1,144 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Book",
+        "interface_name": "BookRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Book.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "publication_year",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Book; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "publication_year",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Book]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Book by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Book.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "publication_year",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Book",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Book.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "author",
+                "type": "str"
+              },
+              {
+                "name": "isbn",
+                "type": "str"
+              },
+              {
+                "name": "publication_year",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "BookNotFoundError"
+            ]
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Book",
+        "table": "books",
+        "primary_key": "id",
+        "indexes": [
+          "isbn"
+        ]
+      }
+    ]
+  }
+}

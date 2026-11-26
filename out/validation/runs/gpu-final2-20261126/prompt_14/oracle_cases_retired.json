@@ -1,0 +1,119 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_project",
+        "source": "Users can create, update, list and delete projects.",
+        "given": {
+          "project": {
+            "name": "New Project",
+            "description": "A sample project for testing",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "create_project",
+          "args": [
+            "project.name",
+            "project.description",
+            "project.status"
+          ]
+        },
+        "then": {
+          "state": {
+            "project.name": "New Project",
+            "project.description": "A sample project for testing",
+            "project.status": "active"
+          },
+          "rows": {
+            "Project": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "38c006a09a269a49561c79b6661d78ff72405e1238ace66045923299a3777a55"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_project",
+        "source": "Users can create, update, list and delete projects.",
+        "given": {
+          "project": {
+            "name": "Old Project",
+            "description": "An existing project",
+            "status": "inactive"
+          }
+        },
+        "when": {
+          "action": "update_project",
+          "args": [
+            "project.id",
+            "project.name",
+            "project.description",
+            "project.status"
+          ]
+        },
+        "then": {
+          "state": {
+            "project.name": "Updated Project",
+            "project.description": "Updated description for testing",
+            "project.status": "active"
+          },
+          "rows": {
+            "Project": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "38c006a09a269a49561c79b6661d78ff72405e1238ace66045923299a3777a55"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_project_soft",
+        "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+        "given": {
+          "project": {
+            "name": "Test Project",
+            "description": "A project to be soft deleted",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "delete_project",
+          "args": [
+            "project.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Project": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "38c006a09a269a49561c79b6661d78ff72405e1238ace66045923299a3777a55"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

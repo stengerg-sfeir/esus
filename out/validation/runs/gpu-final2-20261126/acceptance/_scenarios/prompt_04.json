@@ -1,0 +1,109 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Task add",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1",
+            "--is-complete",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "Task",
+            "add",
+            "--description",
+            "value1",
+            "--is-complete",
+            "true",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task list",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--is-complete"
+          ],
+          [
+            "Task",
+            "list",
+            "--description",
+            "value1",
+            "--is-complete",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task update",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--is-complete"
+          ],
+          [
+            "Task",
+            "update",
+            "--id",
+            "1",
+            "--is-complete",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Task delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Task",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

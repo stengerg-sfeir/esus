@@ -1,0 +1,204 @@
+{
+  "counts": {
+    "legacy": 5,
+    "kept": 0,
+    "retired": 5,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "add_product_with_valid_category",
+        "source": "product add --sku --name --category --price --stock [--stock]",
+        "given": {
+          "category": {
+            "id": 1,
+            "name": "Electronics",
+            "description": "",
+            "reorder_threshold": 10
+          },
+          "product": {
+            "sku": "EL123",
+            "name": "Smartphone",
+            "category_id": 1,
+            "price_cents": 5000,
+            "stock_qty": 5
+          }
+        },
+        "when": {
+          "action": "add_product",
+          "args": [
+            "EL123",
+            "Smartphone",
+            "1",
+            "5000",
+            "5"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.sku": "EL123",
+            "product.name": "Smartphone",
+            "product.category_id": 1,
+            "product.price_cents": 5000,
+            "product.stock_qty": 5
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_product_by_id",
+        "source": "product delete --id",
+        "given": {
+          "product": {
+            "id": 1,
+            "sku": "EL123",
+            "name": "Smartphone",
+            "category_id": 1,
+            "price_cents": 5000,
+            "stock_qty": 5
+          }
+        },
+        "when": {
+          "action": "delete_product",
+          "args": [
+            "1"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Product": 0
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "restock_product_by_id",
+        "source": "product restock --id --qty",
+        "given": {
+          "product": {
+            "id": 1,
+            "sku": "EL123",
+            "name": "Smartphone",
+            "category_id": 1,
+            "price_cents": 5000,
+            "stock_qty": 3
+          }
+        },
+        "when": {
+          "action": "restock",
+          "args": [
+            "1",
+            "2"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.stock_qty": 5
+          },
+          "error": "ProductNotFoundError",
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "add_category_with_threshold",
+        "source": "category add --name [--description] [--threshold]",
+        "given": {
+          "category": {
+            "name": "Electronics",
+            "description": "Devices and gadgets",
+            "reorder_threshold": 10
+          }
+        },
+        "when": {
+          "action": "add_category",
+          "args": [
+            "Electronics",
+            "Devices and gadgets",
+            "10"
+          ]
+        },
+        "then": {
+          "state": {
+            "category.name": "Electronics",
+            "category.description": "Devices and gadgets",
+            "category.reorder_threshold": 10
+          },
+          "rows": {
+            "Category": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_category_by_id",
+        "source": "category delete --id",
+        "given": {
+          "category": {
+            "id": 1,
+            "name": "Electronics",
+            "description": "Devices and gadgets",
+            "reorder_threshold": 10
+          }
+        },
+        "when": {
+          "action": "delete_category",
+          "args": [
+            "1"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Category": 0
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

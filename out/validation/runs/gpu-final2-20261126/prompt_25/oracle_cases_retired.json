@@ -1,0 +1,161 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 0,
+    "retired": 4,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_employee_in_department",
+        "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+        "given": {
+          "department": {
+            "id": 1,
+            "name": "Engineering"
+          },
+          "employee": {
+            "name": "Alice Johnson",
+            "department_id": 1
+          }
+        },
+        "when": {
+          "action": "create_employee",
+          "args": [
+            "employee.name",
+            "employee.department_id"
+          ]
+        },
+        "then": {
+          "state": {
+            "employee.department_id": 1
+          },
+          "rows": {
+            "Employee": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "A department can have zero or more employees"
+        ],
+        "ambiguities": [
+          "The requirement does not specify whether the employee must be assigned to an existing department or if department validation is enforced"
+        ],
+        "prompt_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_employee_by_id",
+        "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+        "given": {
+          "employee": {
+            "id": 101,
+            "name": "Bob Smith",
+            "department_id": 1
+          }
+        },
+        "when": {
+          "action": "read_employee",
+          "args": [
+            "employee.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "employee.department_id": 1
+          },
+          "rows": {
+            "Employee": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "read_department_by_id",
+        "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+        "given": {
+          "department": {
+            "id": 1,
+            "name": "Engineering"
+          }
+        },
+        "when": {
+          "action": "read_department",
+          "args": [
+            "department.id"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {
+            "Department": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_employee_department",
+        "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+        "given": {
+          "employee": {
+            "id": 101,
+            "name": "Bob Smith",
+            "department_id": 1
+          },
+          "department": {
+            "id": 2,
+            "name": "Marketing"
+          }
+        },
+        "when": {
+          "action": "update_employee",
+          "args": [
+            "employee.id",
+            "employee.department_id"
+          ]
+        },
+        "then": {
+          "state": {
+            "employee.department_id": 2
+          },
+          "rows": {
+            "Employee": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "A department can have zero or more employees"
+        ],
+        "ambiguities": [
+          "The requirement does not specify whether the department must exist before updating or if it is validated"
+        ],
+        "prompt_sha": "5ef47c2f8dd6255cb413ff2c872c70c0b6c5daa6666c055bf644effbfa46d48a"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

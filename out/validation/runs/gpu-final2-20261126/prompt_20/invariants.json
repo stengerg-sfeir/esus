@@ -1,0 +1,96 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.sales_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.sale_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "SalesRecord.sale_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total sales amount for a product is calculated by multiplying the product's price by the sum of the quantities of all sales records for that product.",
+      "kind": "rule"
+    },
+    {
+      "text": "The number of sales per product is the count of sales records associated with that product's product_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "A sales record must reference a product that exists in the Product table via the product_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sale_date in a SalesRecord must be a valid date and cannot be in the future.",
+      "kind": "rule"
+    },
+    {
+      "text": "The quantity in a SalesRecord must be a positive integer greater than zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "The price in a Product must be a positive numeric value greater than zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product must have a unique name across all products in the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each sales record must have a unique sales_id that corresponds to a single entry in the SalesRecord table.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total sales amount reported must reflect the sum of (price * quantity) across all sales records for each product.",
+      "kind": "rule"
+    },
+    {
+      "text": "The number of sales per product reported must match the count of sales records grouped by product_id.",
+      "kind": "rule"
+    }
+  ]
+}

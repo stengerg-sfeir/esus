@@ -1,0 +1,24 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_34/persistence_ports.json
+
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_line_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.order_line_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_line_id lookup entity 'Order_line' canonicalized to OrderLine
+[ok] step adapters: orderlinedelete.order_line_id lookup entity 'Order_line' canonicalized to OrderLine
+[ok] step adapters: added 2 required create field(s)
+[ok] step adapters: Order add lacked '--created-at' required by 'orderadd' — added as str
+[ok] step adapters: Order add lacked '--updated-at' required by 'orderadd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set

@@ -1,0 +1,88 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "projectadd",
+      "target_service": "ProjectRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "is_deleted",
+          "target_param": "is_deleted",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "projectupdate",
+      "target_service": "ProjectRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "project_id",
+          "target_param": "project_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Project",
+          "required": false
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "projectdelete",
+      "target_service": "ProjectRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "project_id",
+          "target_param": "project_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Project",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

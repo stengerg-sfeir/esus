@@ -1,0 +1,48 @@
+{
+  "prompt": "prompt_23",
+  "run_id": "gpu-final2-20261126",
+  "prompt_file": "prompts/validation/prompt_23.txt",
+  "output_dir": "out/validation/runs/gpu-final2-20261126/prompt_23",
+  "sha256": "52c2a34e86d1d6497cd2eca71e55440dbfeaf8acec94ddf4d13bb49f36bbe874",
+  "bytes": 273,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 20.731,
+  "tokens": {
+    "calls": 7,
+    "tokens_out": 2821,
+    "tokens_prompt": 3529,
+    "decode_seconds": 18.387
+  },
+  "summary": {
+    "generatable": true,
+    "verdict_note": "post-repair",
+    "blockers": 0,
+    "open_ties": 0,
+    "rules": []
+  },
+  "classification": "successful",
+  "outcome": "successful",
+  "commands": {
+    "extract": [
+      "/usr/bin/python3.12",
+      "/tmp/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/validation/prompt_23.txt",
+      "--output",
+      "out/validation/runs/gpu-final2-20261126/prompt_23",
+      "--no-chat",
+      "--quiet"
+    ],
+    "repair": [
+      "/usr/bin/python3.12",
+      "/tmp/esus/extract_arch.py",
+      "--repair",
+      "--output",
+      "out/validation/runs/gpu-final2-20261126/prompt_23",
+      "--check"
+    ]
+  }
+}

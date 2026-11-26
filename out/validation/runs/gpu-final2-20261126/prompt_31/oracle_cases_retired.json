@@ -1,0 +1,151 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 0,
+    "retired": 4,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "cancel_order_1",
+        "source": "A withdrawal must be rejected if it would make the balance negative.",
+        "given": {
+          "account": {
+            "balance": 10,
+            "id": "acc_1"
+          }
+        },
+        "when": {
+          "action": "withdraw",
+          "args": [
+            "acc_1",
+            15
+          ]
+        },
+        "then": {
+          "state": {
+            "account.balance": 10
+          },
+          "error": "withdrawal_rejected"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'withdrawal_rejected' is not named in the requirements"
+        ],
+        "prompt_sha": "4a9021b5460f0563e7d618ccd0449f3b2f9427c25c0c303495612deae11d4199"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "deposit_increase_balance",
+        "source": "Deposits increase the balance",
+        "given": {
+          "account": {
+            "balance": 5,
+            "id": "acc_1"
+          }
+        },
+        "when": {
+          "action": "deposit",
+          "args": [
+            "acc_1",
+            10
+          ]
+        },
+        "then": {
+          "state": {
+            "account.balance": 15
+          },
+          "rows": {
+            "Account": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "4a9021b5460f0563e7d618ccd0449f3b2f9427c25c0c303495612deae11d4199"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "withdraw_decrease_balance",
+        "source": "Withdrawals decrease it",
+        "given": {
+          "account": {
+            "balance": 20,
+            "id": "acc_1"
+          }
+        },
+        "when": {
+          "action": "withdraw",
+          "args": [
+            "acc_1",
+            5
+          ]
+        },
+        "then": {
+          "state": {
+            "account.balance": 15
+          },
+          "rows": {
+            "Account": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "4a9021b5460f0563e7d618ccd0449f3b2f9427c25c0c303495612deae11d4199"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "account_belongs_to_customer",
+        "source": "An account belongs to a customer",
+        "given": {
+          "customer": {
+            "id": "cust_1"
+          },
+          "account": {
+            "id": "acc_1",
+            "balance": 0
+          }
+        },
+        "when": {
+          "action": "create_account",
+          "args": [
+            "cust_1"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Customer": 1,
+            "Account": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "the account is created and linked to the customer"
+        ],
+        "ambiguities": [
+          "it is unclear whether the account must be created with a specific balance or if the balance is initialized to zero"
+        ],
+        "prompt_sha": "4a9021b5460f0563e7d618ccd0449f3b2f9427c25c0c303495612deae11d4199"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

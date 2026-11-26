@@ -1,0 +1,305 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Employee",
+        "interface_name": "EmployeeRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Employee.",
+            "params": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Employee",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Employee; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Employee]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Employee by its key.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Employee",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Employee.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              },
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Employee",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Employee.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              },
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "get_employees_by_department_id",
+            "description": "Lists the Employee records belonging to one Department.",
+            "params": [
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Employee]",
+            "raises": []
+          },
+          {
+            "name": "create_employee",
+            "description": "Creates a new employee record with the specified first name, last name, email, and department ID.",
+            "params": [
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None"
+          },
+          {
+            "name": "read_all_employees",
+            "description": "Retrieves a list of all employees with their associated department names.",
+            "params": [],
+            "return_type": "list[dict]"
+          },
+          {
+            "name": "read_employee_by_id",
+            "description": "Retrieves an employee record by employee ID.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "dict | None"
+          },
+          {
+            "name": "update_employee",
+            "description": "Updates an existing employee's first name, last name, email, or department ID.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              },
+              {
+                "name": "first_name",
+                "type": "str"
+              },
+              {
+                "name": "last_name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None"
+          },
+          {
+            "name": "delete_employee",
+            "description": "Deletes an employee record by employee ID.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None"
+          }
+        ]
+      },
+      {
+        "entity": "Department",
+        "interface_name": "DepartmentRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Department.",
+            "params": [
+              {
+                "name": "department_name",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Department",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Department; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "department_name",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Department]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Department by its key.",
+            "params": [
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Department",
+            "raises": []
+          },
+          {
+            "name": "create_department",
+            "description": "Creates a new department with the specified department name.",
+            "params": [
+              {
+                "name": "department_name",
+                "type": "str"
+              }
+            ],
+            "return_type": "None"
+          },
+          {
+            "name": "read_all_departments",
+            "description": "Retrieves a list of all departments with their names.",
+            "params": [],
+            "return_type": "list[dict]"
+          },
+          {
+            "name": "read_department_by_id",
+            "description": "Retrieves a department record by department ID.",
+            "params": [
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "dict | None"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Employee",
+        "table": "employees",
+        "primary_key": "employee_id",
+        "indexes": [
+          "email",
+          "department_id"
+        ]
+      },
+      {
+        "entity": "Department",
+        "table": "departments",
+        "primary_key": "department_id",
+        "indexes": []
+      }
+    ]
+  }
+}

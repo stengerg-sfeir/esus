@@ -1,0 +1,33 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "increment",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        },
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'cancelled'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    }
+  ]
+}

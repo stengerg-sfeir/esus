@@ -1,0 +1,43 @@
+gate passed (8 residual risk(s); gaps stay documented stubs)
+llm: 3 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: LibraryService.renew_membership ...
+llm: LibraryService.return_book ...
+llm: LibraryService.borrow_book ...
+llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_library_system/llm_stub_answers.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/models.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/errors.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/repositories.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/services.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/schema.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/store.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/cli.py
+[write] out/validation/runs/gpu-final2-20261126/prompt_library_system/generated/__init__.py
+methods: 30 implemented, 3 stubs (91% mechanical)
+llm: 3 of 3 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: LibraryService.renew_membership — passed the arguments of MemberRepository.read_one positionally to match the declared parameter
+  llm provisional: LibraryService.return_book — passed the arguments of BookRepository.read_one positionally to match the declared parameter
+  llm provisional: LibraryService.borrow_book
+  stub: LibraryService.borrow_book: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  stub: LibraryService.return_book: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: LibraryService.renew_membership: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  cli Loan add -> loanadd [score 9]
+  cli Loan delete -> loandelete [score 11]
+  cli Loan list -> loanlist [score 9]
+  cli Loan update -> loanupdate [score 11]
+  cli author add -> authoradd [score 9]
+  cli author delete -> authordelete [score 11]
+  cli author list -> authorlist [score 9]
+  cli author update -> authorupdate [score 11]
+  cli book add -> bookadd [score 9]
+  cli book delete -> bookdelete [score 11]
+  cli book list -> booklist [score 9]
+  cli book search -> booksearch [score 3]
+  cli book update -> bookupdate [score 11]
+  cli borrow -> borrow [score 7]
+  cli member add -> memberadd [score 9]
+  cli member delete -> memberdelete [score 11]
+  cli member history -> memberhistory [score 7]
+  cli member list -> memberlist [score 9]
+  cli member update -> memberupdate [score 11]
+  cli overdue -> overdue [score 7]
+  cli return -> return [score 7]

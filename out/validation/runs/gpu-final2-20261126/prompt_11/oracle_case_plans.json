@@ -1,0 +1,137 @@
+{
+  "plans": [
+    {
+      "id": "create_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "when": {
+        "action": "create_book",
+        "args": [
+          "title",
+          "author",
+          "isbn",
+          "publication_year"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn",
+          "book.publication_year"
+        ],
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_books",
+      "source": "Users can create, list, update, search and delete books.",
+      "when": {
+        "action": "list_books"
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "when": {
+        "action": "update_book",
+        "args": [
+          "book.id",
+          "title",
+          "author",
+          "isbn",
+          "publication_year"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn",
+          "book.publication_year"
+        ],
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_books",
+      "source": "Users can create, list, update, search and delete books.",
+      "when": {
+        "action": "search_books",
+        "args": [
+          "title",
+          "author",
+          "isbn"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "when": {
+        "action": "delete_book",
+        "args": [
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Book": 0
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

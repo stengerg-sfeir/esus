@@ -1,0 +1,35 @@
+steps:
+  intentions: the program's own phrases from the requirements
+  data_models: entities and their fields
+  errors: application error types
+  invariants: rules the program must always hold
+  components: CLI surface and CRUD services
+  service_contracts: service methods with params and raises
+  errors_repair: deterministic error-registry fix (no model call)
+  pattern_matches: pattern classification of invariants and methods
+  interaction_adapters: CLI input to service-method mapping
+  persistence_ports: repository interfaces for the entities
+intentions: 4 phrase(s)
+data_models: 2 entities, 8 field(s)
+errors: 4 error(s)
+invariants: 16 invariant(s)
+components: 3 command(s)
+service_contracts: 3 service(s), 10 method(s)
+errors_repair: 4 error(s), 3 service(s) after repair
+persistence_ports: 2 repositor(y/ies)
+pattern_matches: 16 item(s)
+interaction_adapters: 4 adapter(s)
+[intentions] 74 tokens in 0.6s (133.4 tok/s, 170.5 decode, 69 prompt)
+[data_models] 490 tokens in 3.1s (157.0 tok/s, 160.4 decode, 572 prompt)
+[errors] 194 tokens in 1.3s (149.3 tok/s, 166.0 decode, 475 prompt)
+[invariants] 47 tokens in 0.3s (145.0 tok/s, 170.5 decode, 279 prompt)
+[components] 410 tokens in 2.9s (140.6 tok/s, 144.8 decode, 987 prompt)
+[service_contracts] 165 tokens in 1.3s (128.0 tok/s, 148.1 decode, 581 prompt)
+[persistence_ports] 452 tokens in 2.9s (157.8 tok/s, 164.3 decode, 397 prompt)
+[interaction_adapters] 385 tokens in 2.4s (157.3 tok/s, 163.4 decode, 637 prompt)
+[interaction_adapters] 143 tokens in 0.9s (160.4 tok/s, 164.3 decode, 693 prompt)
+[run] 9 steps, 2360 generated tokens in 15.7s
+==== SUMMARY ====
+review: none — the documents are unreviewed
+blockers: 0, open tie(s): 0
+GENERATABLE: YES (UNREVIEWED) — `generator.py` can run, but no human review ran; the generated code may be incomplete or wrong

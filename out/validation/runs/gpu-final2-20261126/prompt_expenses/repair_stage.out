@@ -1,0 +1,30 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_expenses/persistence_ports.json
+
+[ok] step grounding: dropped ExpenseService.add_expense — parameter 'expense' names no Expense field
+[ok] step adapters: categoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expenseadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expenseupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expenseupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensedelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensedelete.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetlist.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: budgetdelete.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensecategoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensecategorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: expensecategoryadd.budget targets an entity but spells no model field — renamed to 'monthly_budget'
+[ok] step adapters: expensecategoryupdate.budget targets an entity but spells no model field — renamed to 'monthly_budget'
+[ok] step adapters: removed 4 duplicate adapter(s)
+[ok] step adapters: 20 adapter(s) re-derived after surface repairs
+[ok] step adapters: added 4 missing adapter(s) mechanically: expense category add, expense category list, expense category update, expense category delete
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set

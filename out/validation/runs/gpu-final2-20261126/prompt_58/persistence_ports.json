@@ -1,0 +1,120 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one Customer by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "ExternalServiceResponse",
+        "interface_name": "ExternalServiceResponseRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new ExternalServiceResponse.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "additional_info",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "error_message",
+                "type": "str"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.ExternalServiceResponse",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one ExternalServiceResponse by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.ExternalServiceResponse",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every ExternalServiceResponse; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "additional_info",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "error_message",
+                "type": "str"
+              },
+              {
+                "name": "timestamp",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "list[ExternalServiceResponse]",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "id",
+        "indexes": [
+          "email",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      {
+        "entity": "ExternalServiceResponse",
+        "table": "external_service_responses",
+        "primary_key": "id",
+        "indexes": [
+          "customer_id",
+          "status",
+          "timestamp"
+        ]
+      }
+    ]
+  }
+}

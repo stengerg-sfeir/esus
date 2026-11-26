@@ -1,0 +1,148 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.total_price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.total_price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total_price of a sale must equal the price of the product multiplied by the quantity sold.",
+      "kind": "rule"
+    },
+    {
+      "text": "The stock_quantity of a product must not go below zero after a sale is recorded.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each sale must be associated with a valid customer and a valid product.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product's stock_quantity must be updated only when a sale is recorded for that product.",
+      "kind": "rule"
+    },
+    {
+      "text": "A sale must have a sale_date that is not in the future.",
+      "kind": "rule"
+    },
+    {
+      "text": "The same customer cannot be associated with multiple sales unless each sale is a separate transaction.",
+      "kind": "rule"
+    },
+    {
+      "text": "The product_id in a sale must reference a product that exists in the Product table.",
+      "kind": "rule"
+    },
+    {
+      "text": "The customer_id in a sale must reference a customer that exists in the Customer table.",
+      "kind": "rule"
+    },
+    {
+      "text": "The quantity of a product sold in a sale must be a positive integer.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total number of units sold across all sales for a product must not exceed the product's stock_quantity at any point in time.",
+      "kind": "rule"
+    }
+  ]
+}

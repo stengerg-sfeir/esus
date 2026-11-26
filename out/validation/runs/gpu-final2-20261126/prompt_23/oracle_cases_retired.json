@@ -1,0 +1,224 @@
+{
+  "counts": {
+    "legacy": 6,
+    "kept": 0,
+    "retired": 6,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_post_by_author",
+        "source": "Authors can create posts.",
+        "given": {
+          "author": {
+            "id": 1,
+            "name": "Alice"
+          },
+          "post": {
+            "title": "My First Post",
+            "content": "This is the content of my first post.",
+            "status": "draft"
+          }
+        },
+        "when": {
+          "action": "create_post",
+          "args": [
+            "author.id",
+            "post.title",
+            "post.content"
+          ]
+        },
+        "then": {
+          "state": {
+            "post.author.id": 1,
+            "post.status": "draft"
+          },
+          "rows": {
+            "Post": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_tag_association",
+        "source": "Each post belongs to one author and can have multiple tags. A tag can be associated with multiple posts.",
+        "given": {
+          "post": {
+            "id": 1,
+            "title": "My First Post",
+            "content": "This is the content of my first post.",
+            "author.id": 1
+          },
+          "tag": {
+            "id": 1,
+            "name": "python"
+          }
+        },
+        "when": {
+          "action": "associate_tag_with_post",
+          "args": [
+            "post.id",
+            "tag.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "post.tags": 1,
+            "tag.posts": 1
+          },
+          "rows": {}
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "search_posts_by_tag",
+        "source": "Allow posts to be searched by tag.",
+        "given": {
+          "tag": {
+            "id": 1,
+            "name": "python"
+          }
+        },
+        "when": {
+          "action": "search_posts_by_tag",
+          "args": [
+            "tag.id"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {
+            "Post": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_post_content",
+        "source": "Provide CRUD operations for authors, posts and tags.",
+        "given": {
+          "post": {
+            "id": 1,
+            "title": "My First Post",
+            "content": "This is the content of my first post.",
+            "status": "draft"
+          }
+        },
+        "when": {
+          "action": "update_post",
+          "args": [
+            "post.id",
+            "post.title",
+            "post.content"
+          ]
+        },
+        "then": {
+          "state": {
+            "post.title": "Updated Post Title",
+            "post.content": "Updated content of the post."
+          },
+          "rows": {
+            "Post": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_author",
+        "source": "Provide CRUD operations for authors, posts and tags.",
+        "given": {
+          "author": {
+            "name": "Bob"
+          }
+        },
+        "when": {
+          "action": "create_author",
+          "args": [
+            "author.name"
+          ]
+        },
+        "then": {
+          "state": {
+            "author.name": "Bob"
+          },
+          "rows": {
+            "Author": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6"
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_tag",
+        "source": "Provide CRUD operations for authors, posts and tags.",
+        "given": {
+          "tag": {
+            "name": "tutorial"
+          }
+        },
+        "when": {
+          "action": "create_tag",
+          "args": [
+            "tag.name"
+          ]
+        },
+        "then": {
+          "state": {
+            "tag.name": "tutorial"
+          },
+          "rows": {
+            "Tag": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "prompt_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6"
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

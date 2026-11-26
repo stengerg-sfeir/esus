@@ -1,0 +1,169 @@
+{
+  "plans": [
+    {
+      "id": "create_invoice_for_client",
+      "source": "Create a small invoicing application for a freelance business. It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
+      "when": {
+        "action": "create_invoice",
+        "args": [
+          "client.id",
+          "amount",
+          "due_date"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "client",
+          "entity": "Client",
+          "role": "target"
+        },
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "created"
+        }
+      ],
+      "expect": {
+        "state": [
+          "invoice.client.id",
+          "invoice.status",
+          "invoice.amount",
+          "invoice.due_date"
+        ],
+        "rows": {
+          "Invoice": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "check_outstanding_invoices",
+      "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
+      "when": {
+        "action": "check_outstanding_invoices",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "target"
+        },
+        {
+          "alias": "payment",
+          "entity": "Payment",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "invoice.status",
+          "invoice.amount",
+          "invoice.due_date",
+          "payment.amount"
+        ],
+        "rows": {
+          "Invoice": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "link_invoice_to_client",
+      "source": "Create a small invoicing application for a freelance business. It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
+      "when": {
+        "action": "link_invoice_to_client",
+        "args": [
+          "invoice.id",
+          "client.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "target"
+        },
+        {
+          "alias": "client",
+          "entity": "Client",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "invoice.client.id"
+        ],
+        "rows": {
+          "Invoice": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "mark_invoice_as_paid",
+      "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
+      "when": {
+        "action": "mark_invoice_as_paid",
+        "args": [
+          "invoice.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "invoice.status"
+        ],
+        "rows": {
+          "Invoice": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "create_payment_for_invoice",
+      "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
+      "when": {
+        "action": "create_payment",
+        "args": [
+          "invoice.id",
+          "amount"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "target"
+        },
+        {
+          "alias": "payment",
+          "entity": "Payment",
+          "role": "created"
+        }
+      ],
+      "expect": {
+        "state": [
+          "payment.invoice.id",
+          "payment.amount",
+          "payment.date"
+        ],
+        "rows": {
+          "Payment": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

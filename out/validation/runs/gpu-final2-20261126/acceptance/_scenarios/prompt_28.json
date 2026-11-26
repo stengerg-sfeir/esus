@@ -1,0 +1,44 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Invoice add",
+      "when": {
+        "cli_variants": [
+          [
+            "Invoice",
+            "add",
+            "--customer-id",
+            "1",
+            "--issue-date",
+            "2024-01-01",
+            "--total-amount",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:InvoiceLine add",
+      "when": {
+        "cli_variants": [
+          [
+            "InvoiceLine",
+            "add",
+            "--invoice-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

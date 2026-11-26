@@ -1,0 +1,258 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_user",
+      "target_service": "UserRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "password_hash",
+          "target_param": "password_hash",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "is_admin",
+          "target_param": "is_admin",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "action_name": "update_user",
+      "target_service": "UserRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "user_id",
+          "target_param": "user_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "password_hash",
+          "target_param": "password_hash",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "is_admin",
+          "target_param": "is_admin",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "delete_user",
+      "target_service": "UserRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "user_id",
+          "target_param": "user_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_product",
+      "target_service": "ProductRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price",
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "stock_quantity",
+          "target_param": "stock_quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "action_name": "update_product",
+      "target_service": "ProductRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price",
+          "target_param": "price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "stock_quantity",
+          "target_param": "stock_quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_product",
+      "target_service": "ProductRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_order",
+      "target_service": "OrderRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "user_id",
+          "target_param": "user_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": true
+        },
+        {
+          "field_name": "order_date",
+          "target_param": "order_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "total_amount",
+          "target_param": "total_amount",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_order_item",
+      "target_service": "OrderItemRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        },
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "unit_price",
+          "target_param": "unit_price",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

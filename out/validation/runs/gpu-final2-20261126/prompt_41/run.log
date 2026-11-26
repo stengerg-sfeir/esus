@@ -1,0 +1,110 @@
+[run] requirements: 194 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 103 tokens in 0.7s (155.0 tok/s, 169.3 decode, 75 prompt)
+[data_models] 792 tokens in 5.1s (156.7 tok/s, 158.3 decode, 607 prompt)
+[ok] step data_models: Book.primary_key became the integer primary key id
+[ok] step data_models: Member.primary_key became the integer primary key id
+[ok] step data_models: Loan.primary_key became the integer primary key id
+[ok] step data_models: Loan.member_id retyped to int for its Member key
+[ok] step data_models: Loan.book_id retyped to int for its Book key
+[ok] step data_models: uniqueness provenance — 3 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 405 tokens in 2.6s (154.0 tok/s, 164.2 decode, 493 prompt)
+[invariants] 359 tokens in 2.3s (157.2 tok/s, 165.2 decode, 297 prompt)
+[ok] step invariants: 34 invariant(s) — 24 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1046 tokens in 7.3s (144.1 tok/s, 145.8 decode, 1005 prompt)
+[ok] step components: aligned 2 option type(s) with the data model: --availability_status -> bool (Book.availability_status), --membership_status -> bool (Member.membership_status)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-availability-status' to '--availability-status'
+[ok] step components: normalized option '-available-only' to '--available-only'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-contact-details' to '--contact-details'
+[ok] step components: normalized option '-membership-status' to '--membership-status'
+[ok] step components: normalized option '-active-only' to '--active-only'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[service_contracts] 10 tokens in 0.3s (33.7 tok/s, 180.7 decode, 700 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 7 CRUD subcommand(s) from the service contracts: book update, book delete, member update, member delete, loan add, loan update, loan delete
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidBookIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidMemberIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidLoanIdError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 304 tokens in 2.0s (155.5 tok/s, 164.7 decode, 433 prompt)
+[ok] step persistence: merged 3 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+  [1/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/28] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/28] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/28] invariant -> NO_PATTERN_IN_DOMAIN (0.67)  <- GAP: no pattern for this
+  [6/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [7/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/28] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [9/28] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [10/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [11/28] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/28] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/28] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/28] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/28] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/28] contract:MemberRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/28] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [18/28] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [19/28] contract:MemberRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/28] contract:MemberRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/28] contract:LoanRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/28] contract:LoanRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/28] contract:LoanRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [24/28] contract:LoanRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [25/28] contract:LoanRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/28] contract:LoanRepository.findLoansByBookId -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [27/28] contract:LoanRepository.findLoansByMemberId -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/28] contract:LoanRepository.findOverdueLoans -> THRESHOLD_SCAN (1.00)
+[ok] step patterns: 28 item(s) — 9 standard CRUD, 18 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: When a loan is returned, the book's availability_status must be updated to 'available'.
+[!] step adapters: mechanical derivation declined (loan borrow: no method matches the verb 'borrow'); retry after surface repairs declined (loan borrow: no method matches the verb 'borrow') — asking the model
+[interaction_adapters] 2900 tokens in 19.2s (151.3 tok/s, 152.2 decode, 696 prompt)
+[ok] step adapters: find_loans_by_book_id.bookId was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: find_loans_by_member_id.memberId was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_book_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_member_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_member.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_loan.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_loan.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_loans.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_loans.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_loan_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_loan.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_loan.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_loan.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_loan.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_loan.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_loan.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: book search lacked '--bookId' required by 'find_loans_by_book_id' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/method_plans.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/persistence_ports.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_41/requirements.txt
+[run] 8 steps, 5919 generated tokens in 39.3s

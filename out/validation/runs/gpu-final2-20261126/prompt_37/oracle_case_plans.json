@@ -1,0 +1,72 @@
+{
+  "plans": [
+    {
+      "id": "delete_project_removes_tasks",
+      "source": "Deleting a project must also remove its tasks.",
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        },
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.status",
+          "task.status"
+        ],
+        "rows": {
+          "Project": 1,
+          "Task": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "operation_is_atomic",
+      "source": "The operation must be atomic.",
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        },
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.status",
+          "task.status"
+        ],
+        "rows": {
+          "Project": 1,
+          "Task": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

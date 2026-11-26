@@ -1,0 +1,63 @@
+{
+  "plans": [
+    {
+      "id": "order_creation_with_insufficient_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "when": {
+        "action": "place_order",
+        "args": [
+          "order.products"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "error": "insufficient_stock"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_creation_with_sufficient_stock",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "when": {
+        "action": "place_order",
+        "args": [
+          "order.products"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Order": 1,
+          "Product": 1
+        }
+      },
+      "status": "assumed"
+    }
+  ]
+}

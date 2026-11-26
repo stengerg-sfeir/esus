@@ -1,0 +1,219 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_employee_in_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "department": {
+          "id": 1,
+          "name": "Engineering"
+        },
+        "employee": {
+          "name": "Alice Johnson",
+          "department_id": 1
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "employee.name",
+          "employee.department_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.department_id": 1
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "A department can have zero or more employees"
+      ],
+      "ambiguities": [
+        "The requirement does not specify whether the employee must be assigned to an existing department or if department validation is enforced"
+      ]
+    },
+    {
+      "id": "read_employee_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "id": 101,
+          "name": "Bob Smith",
+          "department_id": 1
+        }
+      },
+      "when": {
+        "action": "read_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.department_id": 1
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 12.333333333333334,
+            "evidence": [
+              "name/fields match Employee",
+              "score 12.3"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {
+          "employee.department_id": {
+            "status": "aligned",
+            "canonical": "department_id",
+            "score": 10.0,
+            "evidence": [
+              "Employee.department_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all_employees",
+            "EmployeeRepository.read_employee_by_id",
+            "EmployeeRepository.create_employee",
+            "EmployeeRepository.delete_employee"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_department_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "department": {
+          "id": 1,
+          "name": "Engineering"
+        }
+      },
+      "when": {
+        "action": "read_department",
+        "args": [
+          "department.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Department": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "DepartmentRepository.read_all_departments",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "DepartmentRepository.read_all_departments",
+            "DepartmentRepository.read_department_by_id",
+            "DepartmentRepository.create_department",
+            "DepartmentRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_employee_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "id": 101,
+          "name": "Bob Smith",
+          "department_id": 1
+        },
+        "department": {
+          "id": 2,
+          "name": "Marketing"
+        }
+      },
+      "when": {
+        "action": "update_employee",
+        "args": [
+          "employee.id",
+          "employee.department_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.department_id": 2
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "A department can have zero or more employees"
+      ],
+      "ambiguities": [
+        "The requirement does not specify whether the department must exist before updating or if it is validated"
+      ]
+    }
+  ]
+}

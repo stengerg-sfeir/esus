@@ -1,0 +1,271 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Customer.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Customer by its key.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": [
+              "CustomerNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Customer]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Room",
+        "interface_name": "RoomRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Room.",
+            "params": [
+              {
+                "name": "room_number",
+                "type": "str"
+              },
+              {
+                "name": "capacity",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Room",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Room by its key.",
+            "params": [
+              {
+                "name": "room_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Room",
+            "raises": [
+              "RoomNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Room; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "room_number",
+                "type": "str"
+              },
+              {
+                "name": "capacity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Room]",
+            "raises": []
+          }
+        ]
+      },
+      {
+        "entity": "Reservation",
+        "interface_name": "ReservationRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Reservation.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "room_id",
+                "type": "int"
+              },
+              {
+                "name": "start_time",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "end_time",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Reservation",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Reservation by its key.",
+            "params": [
+              {
+                "name": "reservation_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Reservation",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Reservation; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "room_id",
+                "type": "int"
+              },
+              {
+                "name": "start_time",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "end_time",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "list[Reservation]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Reservation.",
+            "params": [
+              {
+                "name": "reservation_id",
+                "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "room_id",
+                "type": "int"
+              },
+              {
+                "name": "start_time",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "end_time",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "models.Reservation",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Reservation.",
+            "params": [
+              {
+                "name": "reservation_id",
+                "type": "int"
+              },
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "room_id",
+                "type": "int"
+              },
+              {
+                "name": "start_time",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "end_time",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
+          },
+          {
+            "name": "get_reservations_by_customer_id",
+            "description": "Lists the Reservation records belonging to one Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Reservation]",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "customer_id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Room",
+        "table": "rooms",
+        "primary_key": "room_id",
+        "indexes": []
+      },
+      {
+        "entity": "Reservation",
+        "table": "reservations",
+        "primary_key": "reservation_id",
+        "indexes": [
+          "customer_id",
+          "room_id",
+          "start_time",
+          "end_time"
+        ]
+      }
+    ]
+  }
+}

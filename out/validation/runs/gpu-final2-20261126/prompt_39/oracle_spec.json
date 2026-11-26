@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "The total_amount in an Order must equal the sum of (quantity * unit_price) for all OrderItems in that Order.",
+      "chosen": "BUDGET_OVERFLOW_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "STOCK_SUFFICIENCY_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

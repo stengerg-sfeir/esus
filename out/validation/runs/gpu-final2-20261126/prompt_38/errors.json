@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "name": "UserNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a user is not found by their ID during authentication or lookup."
+    },
+    {
+      "name": "DocumentNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a document is not found by its ID during retrieval or deletion."
+    },
+    {
+      "name": "UnauthorizedAccessError",
+      "base": "RuntimeError",
+      "description": "Raised when a user attempts to access a document that does not belong to them."
+    },
+    {
+      "name": "DocumentOwnershipError",
+      "base": "RuntimeError",
+      "description": "Raised when a user tries to modify or delete a document not owned by them."
+    }
+  ]
+}

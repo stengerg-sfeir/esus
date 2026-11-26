@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "345a33c4919b49987a778df6fdca9fd6ff688ea401f8d21e381c91ada9f72373",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "If a task's due_date is set, it must be a valid date in the past or in the future, and cannot be null.",
+      "chosen": "BUDGET_OVERFLOW_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "PRICE_MARGIN_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

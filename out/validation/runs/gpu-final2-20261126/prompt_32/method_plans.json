@@ -1,0 +1,24 @@
+{
+  "plans": [
+    {
+      "holder": "OrderService",
+      "method": "read_order_by_id",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Order",
+      "target_service": "OrderRepository",
+      "target_method": "read_one"
+    },
+    {
+      "holder": "OrderService",
+      "method": "update_order",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Order",
+      "target_service": "OrderRepository",
+      "target_method": "update"
+    }
+  ],
+  "questions": [],
+  "requirements_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+}

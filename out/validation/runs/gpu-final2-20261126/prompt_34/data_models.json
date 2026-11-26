@@ -1,0 +1,101 @@
+{
+  "data_models": [
+    {
+      "name": "Order",
+      "fields": [
+        {
+          "name": "order_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "OrderLine",
+      "fields": [
+        {
+          "name": "order_line_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "order_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Order",
+            "target_field": "order_id",
+            "relationship": "one_to_many"
+          },
+          "status": "explicit"
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "unit_price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "total_price",
+          "type": "decimal",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderRepository",
+      "method": "get_orders_with_customer_name",
+      "decided_by": "user",
+      "requirements_sha": "aabefd702c536a1b7490854d996b070b37a04f2e88cb5f40515b0013ae8da09a",
+      "bindings": [
+        {
+          "name": "customer",
+          "repository": "CustomerRepository",
+          "method": "read_one",
+          "args": [
+            "customer_id"
+          ]
+        }
+      ],
+      "reads": [
+        {
+          "entity": "Customer",
+          "field": "name",
+          "repository": "CustomerRepository",
+          "via": "Order.customer_id"
+        }
+      ]
+    }
+  ]
+}

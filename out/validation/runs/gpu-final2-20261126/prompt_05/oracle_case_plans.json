@@ -1,0 +1,113 @@
+{
+  "plans": [
+    {
+      "id": "create_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "when": {
+        "action": "create_contact",
+        "args": [
+          "name",
+          "email",
+          "phone"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": 1
+        },
+        "state": [
+          "contact.name",
+          "contact.email",
+          "contact.phone"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_contacts",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "when": {
+        "action": "list_contacts"
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": ">=0"
+        },
+        "state": [
+          "contact.name",
+          "contact.email",
+          "contact.phone"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "when": {
+        "action": "update_contact",
+        "args": [
+          "contact.id",
+          "name",
+          "email",
+          "phone"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": 1
+        },
+        "state": [
+          "contact.name",
+          "contact.email",
+          "contact.phone"
+        ]
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "when": {
+        "action": "delete_contact",
+        "args": [
+          "contact.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "contact",
+          "entity": "Contact",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

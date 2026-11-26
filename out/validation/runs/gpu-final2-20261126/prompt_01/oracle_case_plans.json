@@ -1,0 +1,34 @@
+{
+  "plans": [
+    {
+      "id": "hello_world_output",
+      "source": "Create a Python 3.12 application that prints \"Hello, World!\" when executed.",
+      "when": {
+        "action": "execute",
+        "args": []
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "package_structure",
+      "source": "Organize the application as a small Python package with a main entry point.",
+      "when": {
+        "action": "organize",
+        "args": [
+          "package"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "rows": {},
+        "error": "omitted"
+      },
+      "status": "assumed"
+    }
+  ]
+}

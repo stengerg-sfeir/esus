@@ -1,0 +1,136 @@
+{
+  "invariants": [
+    {
+      "text": "Project.project_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.task_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must reference an existing Project.project_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A task must belong to exactly one project, as specified by the project_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of a task must be one of the defined task status values, such as 'pending', 'in progress', 'completed'.",
+      "kind": "rule"
+    },
+    {
+      "text": "The priority of a task must be one of the defined priority values, such as 'low', 'medium', 'high'.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a project is deleted, all associated tasks must also be deleted.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project must have at least one task to be considered active.",
+      "kind": "rule"
+    },
+    {
+      "text": "The title of a task must not be empty when creating or updating a task.",
+      "kind": "rule"
+    },
+    {
+      "text": "The title of a project must not be empty when creating a project.",
+      "kind": "rule"
+    },
+    {
+      "text": "Task status updates must be recorded in the updated_at field of the task record.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a task is updated, its updated_at field must be set to the current timestamp.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project's created_at field must be set to the current timestamp when a new project is created.",
+      "kind": "rule"
+    }
+  ]
+}

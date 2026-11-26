@@ -1,0 +1,38 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "find_employees_by_department",
+      "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+      "given": {
+        "department": {
+          "name": "Engineering"
+        },
+        "employee": {
+          "name": "Alice Johnson",
+          "department": "Engineering"
+        }
+      },
+      "when": {
+        "action": "find_employees_by_department",
+        "args": [
+          "department.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.department": "Engineering"
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The action 'find_employees_by_department' does not specify whether it returns a list or a single employee, and the expected 'rows' count of 1 may imply a single result but the requirement does not clarify if this is guaranteed or based on filtering criteria."
+      ]
+    }
+  ]
+}

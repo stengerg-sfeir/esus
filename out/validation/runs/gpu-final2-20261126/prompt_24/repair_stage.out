@@ -1,0 +1,15 @@
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/intentions.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/invariants.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/data_models.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/errors.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/components.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/service_contracts.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/pattern_matches.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/interaction_adapters.json
+[write] out/validation/runs/gpu-final2-20261126/prompt_24/persistence_ports.json
+
+[ok] step grounding: dropped ProjectRepository.count_projects_by_status — parameter 'status' names no Project field
+[ok] step adapters: taskcreate.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: tasklist.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set

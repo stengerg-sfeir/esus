@@ -1,0 +1,85 @@
+{
+  "data_models": [
+    {
+      "name": "Employee",
+      "fields": [
+        {
+          "name": "employee_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "rejected"
+        },
+        {
+          "name": "department_id",
+          "type": "int",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": {
+            "target_entity": "Department",
+            "target_field": "department_id",
+            "relationship": "one_to_many"
+          },
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "Department",
+      "fields": [
+        {
+          "name": "department_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "department_name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "rejected"
+        }
+      ]
+    }
+  ]
+}

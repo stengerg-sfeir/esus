@@ -1,0 +1,32 @@
+[
+  {
+    "label": "LoanRepository.close_loan_by_id",
+    "status": "written",
+    "note": "",
+    "answer": "record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)\n        book_id = record.get(\"book_id\")\n        if book_id is None:\n            return False\n        book = self._store.get(\"Book\", self.PK, book_id, error=errors.BookNotFoundError)\n        book_available = book.get(\"available\")\n        if book_available is None:\n            book_available = False\n        if book_available:\n            book[\"available\"] = False\n        self._store.update(\"Book\", self.PK, book)\n        record[\"closed\"] = True\n        self._store.update(self.ENTITY, self.PK, record)\n        return True",
+    "finish_reason": "stop",
+    "tokens": 145,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.736692190170288,
+    "decode_seconds": 0.984253,
+    "prompt_tokens": 3062,
+    "cached_tokens": 92,
+    "context": "exact"
+  },
+  {
+    "label": "LoanService.get_available_books",
+    "status": "written",
+    "note": "",
+    "answer": "books = self._repos['BookRepository'].read_all_available()\n    available_books = []\n    for book in books:\n        # Check if the book has an active loan\n        active_loan = self._repos['LoanRepository'].get_active_loans_for_member(member_id=book.id)\n        # If no active loan exists, the book is available\n        if not active_loan:\n            available_books.append(book)\n    return available_books\n```",
+    "finish_reason": "stop",
+    "tokens": 91,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.1700749397277832,
+    "decode_seconds": 0.604588,
+    "prompt_tokens": 2477,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

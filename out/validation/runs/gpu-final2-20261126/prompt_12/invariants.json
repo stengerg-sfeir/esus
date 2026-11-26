@@ -1,0 +1,76 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone_number must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone_number must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Each customer must have a unique email address.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's email address must be provided when creating a new customer.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's name must be provided when creating a new customer.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's phone number must be provided when creating a new customer.",
+      "kind": "rule"
+    },
+    {
+      "text": "Searching for customers by name returns only those customers whose name matches the search term exactly or contains it as a substring.",
+      "kind": "rule"
+    },
+    {
+      "text": "Filtering customers by email domain returns only those customers whose email address ends with the specified domain.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a customer is deleted, their name, email, and phone number are removed from the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "Updating a customer's email address must ensure that the new email is unique across all customers.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must persist customer data using SQLite.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support creating, reading, updating, and deleting customer records.",
+      "kind": "rule"
+    }
+  ]
+}

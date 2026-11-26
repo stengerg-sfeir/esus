@@ -1,0 +1,70 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "auth_required_to_access_documents",
+      "source": "Users must authenticate before accessing documents.",
+      "given": {
+        "user": {
+          "id": 101,
+          "authenticated": false
+        }
+      },
+      "when": {
+        "action": "access_documents",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "user.authenticated": true
+        },
+        "error": "AuthenticationRequired"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'AuthenticationRequired' is not named in the requirements",
+        "error class 'AuthenticationRequired' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "only_own_documents_access_allowed",
+      "source": "A user can only read, modify or delete their own documents.",
+      "given": {
+        "user": {
+          "id": 101,
+          "owner_id": 101
+        },
+        "document": {
+          "id": 201,
+          "owner.id": 101
+        }
+      },
+      "when": {
+        "action": "read_document",
+        "args": [
+          "document.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "user.id": 101,
+          "document.owner.id": 101
+        },
+        "error": "UnauthorizedAccess",
+        "rows": {
+          "Document": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirement does not specify whether the user must be the owner of the document at the time of access, or if ownership is checked only during creation or modification.",
+        "error class 'UnauthorizedAccess' is not named in the requirements",
+        "error class 'UnauthorizedAccess' is not named in the requirements"
+      ]
+    }
+  ]
+}

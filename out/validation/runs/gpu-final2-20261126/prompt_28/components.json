@@ -1,0 +1,152 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "customer_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "name": "product_id",
+            "type": "int",
+            "required": true
+          },
+          {
+            "name": "quantity",
+            "type": "int",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--output",
+            "short": "-o",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Invoice",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--customer-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--issue-date",
+                    "short": null,
+                    "type": "str",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--total-amount",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "InvoiceLine",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--invoice-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--product-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--quantity",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "InvoiceLine",
+        "operations": [
+          "create",
+          "read_one"
+        ]
+      }
+    ]
+  }
+}

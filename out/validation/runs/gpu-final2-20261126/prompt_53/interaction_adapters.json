@@ -1,0 +1,83 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "orderadd",
+      "target_service": "OrderRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true,
+          "status": "explicit"
+        },
+        {
+          "field_name": "order_date",
+          "target_param": "order_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "explicit"
+        }
+      ]
+    },
+    {
+      "action_name": "productupdate",
+      "target_service": "ProductRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "stock_quantity",
+          "target_param": "stock_quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "orderitemadd",
+      "target_service": "OrderItemRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": false
+        },
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": false
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

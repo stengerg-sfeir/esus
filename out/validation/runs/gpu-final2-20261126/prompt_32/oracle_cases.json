@@ -1,0 +1,296 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "confirm_pending_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "given": {
+        "order": {
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Order"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.confirm_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "ship_confirmed_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "given": {
+        "order": {
+          "status": "confirmed"
+        }
+      },
+      "when": {
+        "action": "ship_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Order"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.ship_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "cancel_pending_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "given": {
+        "order": {
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Order"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.cancel_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "cancel_confirmed_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "given": {
+        "order": {
+          "status": "confirmed"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "error": "OrderStateException",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'OrderStateException' is not named in the requirements",
+        "error class 'OrderStateException' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "ship_cancelled_order",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "given": {
+        "order": {
+          "status": "cancelled"
+        }
+      },
+      "when": {
+        "action": "ship_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "error": "OrderStateException",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'OrderStateException' is not named in the requirements",
+        "error class 'OrderStateException' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "cancel_shipped_order",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "given": {
+        "order": {
+          "status": "shipped"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "shipped"
+        },
+        "error": "OrderStateException",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'OrderStateException' is not named in the requirements",
+        "error class 'OrderStateException' is not named in the requirements"
+      ]
+    }
+  ]
+}

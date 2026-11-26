@@ -1,0 +1,18 @@
+{
+  "plans": [],
+  "questions": [
+    {
+      "holder": "InventoryService",
+      "method": "delete_product",
+      "pattern": "STANDARD_CRUD",
+      "reason": "no unambiguous CRUD target"
+    },
+    {
+      "holder": "InventoryService",
+      "method": "stock_value_by_category",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "reason": "service does not map to one entity"
+    }
+  ],
+  "requirements_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716"
+}

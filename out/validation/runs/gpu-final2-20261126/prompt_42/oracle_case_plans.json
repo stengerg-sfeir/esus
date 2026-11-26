@@ -1,0 +1,38 @@
+{
+  "plans": [
+    {
+      "id": "find_purchase_history",
+      "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
+      "when": {
+        "action": "find_purchase_history",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "purchase",
+          "entity": "Purchase",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.id",
+          "purchase.amount",
+          "purchase.date"
+        ],
+        "rows": {
+          "Purchase": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}
