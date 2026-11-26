@@ -1,0 +1,159 @@
+{
+  "intents": [
+    {
+      "id": "add_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "kind": "create",
+      "entity": "Task",
+      "action": "add_task",
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "new task"
+      ],
+      "changes": {},
+      "cli": [
+        "add",
+        "new task"
+      ],
+      "app": {},
+      "expect": {
+        "state": {
+          "task.title": "new task"
+        },
+        "rows": {
+          "Task": 1
+        },
+        "error": null,
+        "stdout_contains": "added",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_tasks",
+      "source": "Users can add, list, complete and delete tasks.",
+      "kind": "list",
+      "entity": "Task",
+      "action": "list_tasks",
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [
+        "list"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Task": 1
+        },
+        "error": null,
+        "stdout_contains": "new task",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "complete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "kind": "update",
+      "entity": "Task",
+      "action": "complete_task",
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "task_id"
+      ],
+      "changes": {
+        "task.completed": true
+      },
+      "cli": [
+        "complete",
+        "task_id"
+      ],
+      "app": {},
+      "expect": {
+        "state": {
+          "task.completed": true
+        },
+        "rows": {
+          "Task": 1
+        },
+        "error": null,
+        "stdout_contains": "completed",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "kind": "delete",
+      "entity": "Task",
+      "action": "delete_task",
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "task_id"
+      ],
+      "changes": {},
+      "cli": [
+        "delete",
+        "task_id"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Task": 0
+        },
+        "error": null,
+        "stdout_contains": "deleted",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

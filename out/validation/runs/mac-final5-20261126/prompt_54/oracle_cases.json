@@ -1,0 +1,84 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "appointment_creation_with_identical_times",
+      "source": "Create an appointment application. Appointments have a start and end time. An appointment must always end after it starts, but the application must also support appointments whose start and end time are identical.",
+      "given": {
+        "appointment": {
+          "start_time": "2023-10-05T09:00:00Z",
+          "end_time": "2023-10-05T09:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_appointment",
+        "args": [
+          "2023-10-05T09:00:00Z",
+          "2023-10-05T09:00:00Z"
+        ]
+      },
+      "then": {
+        "state": {
+          "appointment.start_time": "2023-10-05T09:00:00Z",
+          "appointment.end_time": "2023-10-05T09:00:00Z"
+        },
+        "rows": {
+          "Appointment": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "appointment": {
+            "status": "aligned",
+            "canonical": "Appointment",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Appointment",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "appointment.start_time": {
+            "status": "aligned",
+            "canonical": "start_time",
+            "score": 10.0,
+            "evidence": [
+              "Appointment.start_time exists"
+            ],
+            "alternatives": []
+          },
+          "appointment.end_time": {
+            "status": "aligned",
+            "canonical": "end_time",
+            "score": 10.0,
+            "evidence": [
+              "Appointment.end_time exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "AppointmentRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

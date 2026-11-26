@@ -1,0 +1,283 @@
+{
+  "counts": {
+    "legacy": 6,
+    "kept": 3,
+    "retired": 3,
+    "confirmed_intents": 5,
+    "merged": 8
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "borrow_book_action",
+        "source": "library borrow --member-id --book-id",
+        "given": {
+          "member": {
+            "id": 1,
+            "name": "Alice",
+            "email": "alice@example.com",
+            "is_active": true,
+            "membership_date": "2023-01-01"
+          },
+          "book": {
+            "id": 101,
+            "title": "The Great Gatsby",
+            "isbn": "978-0-7475-3269-9",
+            "author_id": 1,
+            "published_year": 1925,
+            "available_copies": 5
+          },
+          "loan": {
+            "id": 201,
+            "book_id": 101,
+            "member_id": 1,
+            "loan_date": "2023-05-01",
+            "due_date": "2023-05-15",
+            "return_date": null,
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "borrow_book",
+          "args": [
+            "member_id",
+            "book_id"
+          ]
+        },
+        "then": {
+          "state": {
+            "book.available_copies": 4,
+            "loan.status": "active",
+            "loan.return_date": null
+          },
+          "rows": {
+            "Loan": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error is not a class name: 'MemberNotFoundError|BookNotFoundError|AlreadyReturnedLoanError'"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "return_book_action",
+        "source": "library return --loan-id",
+        "given": {
+          "loan": {
+            "id": 201,
+            "book_id": 101,
+            "member_id": 1,
+            "loan_date": "2023-05-01",
+            "due_date": "2023-05-15",
+            "return_date": null,
+            "status": "active"
+          },
+          "book": {
+            "id": 101,
+            "title": "The Great Gatsby",
+            "isbn": "978-0-7475-3269-9",
+            "author_id": 1,
+            "published_year": 1925,
+            "available_copies": 4
+          }
+        },
+        "when": {
+          "action": "return_book",
+          "args": [
+            "loan_id"
+          ]
+        },
+        "then": {
+          "state": {
+            "loan.return_date": "2023-05-20",
+            "loan.status": "returned",
+            "book.available_copies": 5
+          },
+          "error": "LoanNotFoundError",
+          "rows": {
+            "Loan": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements",
+          "error class 'LoanNotFoundError' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "book_add_with_author_id",
+        "source": "library book add --title --isbn --author-id --published-year --copies",
+        "given": {
+          "book": {
+            "id": 101,
+            "title": "The Great Gatsby",
+            "isbn": "978-0-7475-3269-9",
+            "author_id": 1,
+            "published_year": 1925,
+            "available_copies": 5
+          },
+          "author": {
+            "id": 1,
+            "name": "F. Scott Fitzgerald",
+            "birth_year": 1901,
+            "biography": "American novelist"
+          }
+        },
+        "when": {
+          "action": "add_book",
+          "args": [
+            "title",
+            "isbn",
+            "author_id",
+            "published_year",
+            "copies"
+          ]
+        },
+        "then": {
+          "state": {
+            "book.title": "The Great Gatsby",
+            "book.isbn": "978-0-7475-3269-9",
+            "book.author_id": 1,
+            "book.published_year": 1925,
+            "book.available_copies": 5
+          },
+          "error": "AuthorNotFoundError",
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements",
+          "error class 'AuthorNotFoundError' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

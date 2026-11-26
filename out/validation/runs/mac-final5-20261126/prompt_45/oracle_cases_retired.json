@@ -1,0 +1,203 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_booking_with_nonexistent_guest",
+        "source": "Staff should be able to manage rooms, guests and bookings and should not accidentally book the same room twice for the same period.",
+        "given": {
+          "guest": {
+            "id": "guest_1",
+            "name": "Alice"
+          },
+          "room": {
+            "id": "room_1",
+            "capacity": 2
+          }
+        },
+        "when": {
+          "action": "create_booking",
+          "args": [
+            "guest_1",
+            "room_1",
+            "2025-04-01",
+            "2025-04-05"
+          ]
+        },
+        "then": {
+          "error": "GuestNotFoundError",
+          "rows": {
+            "Guest": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The requirement does not specify whether a guest with a non-existent ID should trigger a GuestNotFoundError, or if the system should validate guest existence before attempting to create a booking. The absence of explicit validation logic in the requirement makes this ambiguous.",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements",
+          "error class 'GuestNotFoundError' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_booking_with_nonexistent_room",
+        "source": "Staff should be able to manage rooms, guests and bookings and should not accidentally book the same room twice for the same period.",
+        "given": {
+          "guest": {
+            "id": "guest_1",
+            "name": "Alice"
+          },
+          "room": {
+            "id": "room_1",
+            "capacity": 2
+          }
+        },
+        "when": {
+          "action": "create_booking",
+          "args": [
+            "guest_1",
+            "room_1",
+            "2025-04-01",
+            "2025-04-05"
+          ]
+        },
+        "then": {
+          "error": "RoomNotFoundError",
+          "rows": {
+            "Room": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "The requirement does not specify whether a room with a non-existent ID should trigger a RoomNotFoundError, or if the system should validate room existence before attempting to create a booking. The absence of explicit validation logic in the requirement makes this ambiguous.",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements",
+          "error class 'RoomNotFoundError' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

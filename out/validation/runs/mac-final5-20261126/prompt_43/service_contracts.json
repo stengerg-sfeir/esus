@@ -1,0 +1,276 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "ProjectRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Project.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Project",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Project; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Project]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Project by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Project",
+          "raises": []
+        },
+        {
+          "name": "find_project_by_name",
+          "description": "Retrieves a project by its name, returning the project if found, otherwise null.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Project | null"
+        },
+        {
+          "name": "count_projects_with_pending_tasks",
+          "description": "Returns the number of projects that have at least one task with status 'pending'.",
+          "params": [],
+          "return_type": "int"
+        }
+      ]
+    },
+    {
+      "service_name": "TaskRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Task; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Task]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Task by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "project_id",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "find_task_by_priority_and_status",
+          "description": "Retrieves all tasks with a specific priority and status, useful for identifying high-priority pending tasks.",
+          "params": [
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[models.Task]"
+        },
+        {
+          "name": "count_tasks_by_status",
+          "description": "Returns a map of task status to the count of tasks in that status (e.g., {\"pending\": 5, \"completed\": 3}).",
+          "params": [],
+          "return_type": "dict[str, int]"
+        }
+      ]
+    }
+  ]
+}

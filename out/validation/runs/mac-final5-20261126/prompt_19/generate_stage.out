@@ -1,0 +1,52 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19
+
+gate passed (8 residual risk(s); gaps stay documented stubs)
+llm: 9 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: TaskDataIntegrityService.validate_task_data_integrity ...
+llm: TaskValidationGuardService.ensure_task_status_transition_valid ...
+llm: TaskAggregationService.get_task_statistics ...
+llm: TaskAggregationService.get_task_statistics refused (the body does not compile (invalid syntax)) — repair ask 1
+llm: TaskErrorService.handle_validation_failure ...
+llm: TaskStateTransitionService.transition_task_status ...
+llm: TaskStateTransitionService.transition_task_status refused (calls errors.TaskNotFoundError, which errors.py does not define) — repair ask 1
+llm: TaskImportService.import_tasks_from_json ...
+llm: TaskImportService.import_tasks_from_json refused (passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `id`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: TaskValidationService.validate_task_update ...
+llm: TaskValidationService.validate_task_creation ...
+llm: TaskService.import_tasks_from_json ...
+llm: TaskService.import_tasks_from_json refused (passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `id`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_19/generated/__init__.py
+methods: 16 implemented, 9 stubs (64% mechanical)
+llm: 7 of 9 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: TaskDataIntegrityService.validate_task_data_integrity
+  llm provisional: TaskValidationGuardService.ensure_task_status_transition_valid
+  llm provisional: TaskAggregationService.get_task_statistics — repaired: the body does not compile (invalid syntax)
+  llm provisional: TaskErrorService.handle_validation_failure
+  llm provisional: TaskStateTransitionService.transition_task_status — repaired: calls errors.TaskNotFoundError, which errors.py does not define
+  llm kept stub: TaskImportService.import_tasks_from_json — still refused: passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `id`; pass the value positionally or use the declared keyword
+  llm provisional: TaskValidationService.validate_task_update
+  llm provisional: TaskValidationService.validate_task_creation
+  llm kept stub: TaskService.import_tasks_from_json — still refused: passes keyword `title` to `TaskRepository.read_one`, whose declared parameter is `id`; pass the value positionally or use the declared keyword
+  stub: TaskService.import_tasks_from_json: no pattern entry and an ambiguous method name
+  stub: TaskValidationService.validate_task_creation: pattern BUDGET_OVERFLOW_GUARD: no mechanical reading
+  stub: TaskValidationService.validate_task_update: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: TaskImportService.import_tasks_from_json: gap NO_PATTERN_IN_DOMAIN: NO_PATTERN_IN_DOMAIN refused (None)
+  stub: TaskStateTransitionService.transition_task_status: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: TaskErrorService.handle_validation_failure: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns mapping (dict))
+  stub: TaskAggregationService.get_task_statistics: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: TaskValidationGuardService.ensure_task_status_transition_valid: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: TaskDataIntegrityService.validate_task_data_integrity: pattern BUDGET_OVERFLOW_GUARD: no mechanical reading
+  cli Task add -> taskadd [score 9]
+  cli Task delete -> taskdelete [score 11]
+  cli Task update -> taskupdate [score 11]
+
+
+

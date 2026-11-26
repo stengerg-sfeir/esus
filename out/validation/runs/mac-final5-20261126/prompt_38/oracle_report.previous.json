@@ -1,0 +1,57 @@
+{
+  "prompt": "prompt_38",
+  "results": [
+    {
+      "name": "read_document",
+      "status": "unbound",
+      "reason": "no generated method matches 'read_document'",
+      "source": "A user can only read, modify or delete their own documents.",
+      "alignment": {
+        "entities": {
+          "user": {
+            "status": "aligned",
+            "canonical": "User",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match User",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Document"
+            ]
+          },
+          "document": {
+            "status": "aligned",
+            "canonical": "Document",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Document",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "DocumentRepository.find_document_by_id",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "DocumentRepository.find_document_by_id",
+            "DocumentRepository.find_document_by_title",
+            "DocumentRepository.find_document_by_user",
+            "DocumentRepository.find_document_by_user_id"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  }
+}

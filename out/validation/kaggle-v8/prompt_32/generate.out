@@ -1,0 +1,21 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: OrderService.orderconfirm ...
+llm: raw answers -> /tmp/v8-work/prompt_32/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_32/generated/models.py
+[write] /tmp/v8-work/prompt_32/generated/errors.py
+[write] /tmp/v8-work/prompt_32/generated/repositories.py
+[write] /tmp/v8-work/prompt_32/generated/services.py
+[write] /tmp/v8-work/prompt_32/generated/schema.py
+[write] /tmp/v8-work/prompt_32/generated/store.py
+[write] /tmp/v8-work/prompt_32/generated/cli.py
+[write] /tmp/v8-work/prompt_32/generated/__init__.py
+methods: 13 implemented, 1 stubs (93% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: OrderService.orderconfirm
+  stub: OrderService.orderconfirm: no pattern entry and an ambiguous method name
+  cli Order add -> orderadd [score 9]
+  cli Order cancel -> ordercancel [score 11]
+  cli Order delete -> orderdelete [score 11]
+  cli Order ship -> ordership [score 11]
+  cli Order update -> orderupdate [score 11]

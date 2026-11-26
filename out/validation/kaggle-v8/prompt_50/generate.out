@@ -1,0 +1,32 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 4 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: UserRepository.get_user_by_email ...
+llm: UserRepository.get_user_by_email refused (the model kept it unimplemented) — repair ask 1
+llm: EventRegistrationService.check_event_capacity ...
+llm: EventRegistrationService.cancel_order ...
+llm: EventRegistrationService.cancel_order refused (passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: EventRegistrationService.confirm_order ...
+llm: EventRegistrationService.confirm_order equivalence of `event.status == 'pending'` -> YES ()
+llm: EventRegistrationService.confirm_order refused (uses `registration_id`, which neither the module nor the body binds) — repair ask 1
+llm: EventRegistrationService.confirm_order equivalence of `event.status == 'pending'` -> YES ()
+llm: EventRegistrationService.confirm_order refused (passes keyword `event_id` to `RegistrationRepository.read_one`, whose declared parameter is `registration_id`; pass the value positionally or use the declared keyword) — repair ask 2
+llm: raw answers -> /tmp/v8-work/prompt_50/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_50/generated/models.py
+[write] /tmp/v8-work/prompt_50/generated/errors.py
+[write] /tmp/v8-work/prompt_50/generated/repositories.py
+[write] /tmp/v8-work/prompt_50/generated/services.py
+[write] /tmp/v8-work/prompt_50/generated/schema.py
+[write] /tmp/v8-work/prompt_50/generated/store.py
+[write] /tmp/v8-work/prompt_50/generated/cli.py
+[write] /tmp/v8-work/prompt_50/generated/__init__.py
+methods: 17 implemented, 4 stubs (81% mechanical)
+llm: 2 of 4 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: UserRepository.get_user_by_email — still refused: the model kept it unimplemented
+  llm provisional: EventRegistrationService.check_event_capacity
+  llm provisional: EventRegistrationService.cancel_order — repaired: passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword
+  llm kept stub: EventRegistrationService.confirm_order — still refused: uses `registration_id`, which neither the module nor the body binds; parameter `event_id` is never used in the body; parameter `user_id` is never used in the body; passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword
+  stub: UserRepository.get_user_by_email: parameter 'email' maps to no field
+  stub: EventRegistrationService.confirm_order: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: EventRegistrationService.cancel_order: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: EventRegistrationService.check_event_capacity: pattern QUOTA_CAPACITY_GUARD: no mechanical reading
+  cli Event add -> create_event [score 8]

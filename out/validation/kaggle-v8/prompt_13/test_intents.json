@@ -1,0 +1,91 @@
+{
+  "intents": [
+    {
+      "id": "sku_uniqueness_create",
+      "source": "SKUs must be unique.",
+      "kind": "create",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {},
+      "args": [
+        "product.sku",
+        "SKU123"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.sku": "SKU123",
+          "product.stock_qty": 5
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "sku_uniqueness_conflict",
+      "source": "SKUs must be unique.",
+      "kind": "create",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {},
+      "args": [
+        "product.sku",
+        "SKU123"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 0
+        },
+        "error": "DuplicateSKUError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The system raises an error when attempting to create a product with a duplicate SKU"
+      ],
+      "ambiguities": [
+        "The exact error type or message is not specified in the requirement"
+      ]
+    }
+  ]
+}

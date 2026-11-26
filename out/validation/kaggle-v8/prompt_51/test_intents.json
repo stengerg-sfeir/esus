@@ -1,0 +1,109 @@
+{
+  "intents": [
+    {
+      "id": "allow_same_sku_different_categories",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "kind": "create",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [
+        {
+          "alias": "product_a",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "product_b",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product_a.sku": "SKU123",
+        "product_a.category": "electronics",
+        "product_b.sku": "SKU123",
+        "product_b.category": "furniture"
+      },
+      "lookup": [
+        "product_a.sku",
+        "product_b.sku"
+      ],
+      "where": {},
+      "args": [
+        "SKU120",
+        "furniture"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product_a.sku": "SKU123",
+          "product_a.category": "electronics",
+          "product_b.sku": "SKU123",
+          "product_b.category": "furniture"
+        },
+        "rows": {
+          "Product": 2
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "unique_sku_across_categories",
+      "source": "Each product must have a unique SKU",
+      "kind": "error",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": "duplicate_sku",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The system enforces SKU uniqueness across all products regardless of category",
+        "error class 'duplicate_sku' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "The requirement allows multiple products to use the same SKU when they belong to different categories, but does not specify how this is enforced or what the error condition is called"
+      ]
+    }
+  ]
+}

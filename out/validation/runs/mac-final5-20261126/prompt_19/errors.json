@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "name": "TaskAlreadyConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised by TaskService.confirm_order when the requested operation is not valid."
+    },
+    {
+      "name": "TaskNotConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised by TaskService.cancel_order when the requested operation is not valid."
+    },
+    {
+      "name": "DuplicateTaskIdError",
+      "base": "RuntimeError",
+      "description": "Raised by TaskService.validate_and_import_tasks when the requested operation is not valid."
+    },
+    {
+      "name": "MissingRequiredFieldError",
+      "base": "LookupError",
+      "description": "Raised by TaskValidationService.validate_task_creation when the requested operation is not valid."
+    }
+  ]
+}

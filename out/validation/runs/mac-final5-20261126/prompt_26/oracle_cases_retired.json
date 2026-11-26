@@ -1,0 +1,79 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "close_loan",
+        "source": "Users must be able to create and close loans",
+        "given": {
+          "loan": {
+            "id": "loan_123",
+            "status": "active"
+          }
+        },
+        "when": {
+          "action": "close_loan",
+          "args": [
+            "loan_123"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {
+            "Loan": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "loan": {
+              "status": "aligned",
+              "canonical": "Loan",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Loan",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "Book",
+                "Member"
+              ]
+            }
+          },
+          "fields": {},
+          "action": {
+            "status": "ambiguous",
+            "canonical": "LoanService.create_loan",
+            "score": 4.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "LoanService.create_loan",
+              "LoanService.delete_loan",
+              "LoanService.read_loan_by_id",
+              "LoanService.update_loan"
+            ]
+          }
+        },
+        "triage": "coverage_gap: ambiguous action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'close_loan'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'close_loan'"
+    }
+  ]
+}

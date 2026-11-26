@@ -1,0 +1,19 @@
+{
+  "method_contracts": [
+    {
+      "holder": "ProductRepository",
+      "method": "bulk_update_stock",
+      "decided_by": "user",
+      "requirements_sha": "213db1deec39124498e880db7a50a1c864c6cb5caf31e9d8ae65e3381b6758d4",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "set",
+          "value": "stock_quantity",
+          "write": "self._store.update"
+        }
+      ],
+      "bindings": []
+    }
+  ]
+}

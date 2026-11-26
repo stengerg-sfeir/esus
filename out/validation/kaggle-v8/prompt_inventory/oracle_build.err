@@ -1,0 +1,240 @@
+{
+  "cases": [
+    {
+      "id": "cancel_order",
+      "source": "cancel_order",
+      "given": {
+        "order": {"status": "pending", "customer_id": 1},
+        "product": {"stock_quantity": 5}
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": ["order.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+      "error": "",
+      "rows": {
+        "Order": 1
+      },
+      "status": "ambiguous",
+      "assumptions": [
+        "The 'cancel_order' action is not defined in the requirements; only product and category operations are described."
+      ],
+      "ambiguities": [
+        "No requirement specifies a 'cancel_order' action or its effect on product stock quantities.",
+        "The change in product.stock_quantity from 5 to 7 is not justified or defined in the requirements."
+      ]
+    },
+    {
+      "id": "add_product_with_valid_inputs",
+      "source": "product add --sku --name --category --price --stock",
+      "given": {
+        "product": {
+          "sku": "SKU123",
+          "name": "Laptop",
+          "category_id": 1,
+          "price_cents": 10000,
+          "stock_qty": 10
+        }
+      },
+      "when": {
+        "action": "product add",
+        "args": [
+          "--sku", "SKU123",
+          "--name", "Laptop",
+          "--category", "1",
+          "--price", "10000",
+          "--stock", "10"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "SKU123",
+          "product.name": "Laptop",
+          "product.category_id": 1,
+          "product.price_cents": 10000,
+          "product.stock_qty": 10
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "list_products_by_category",
+      "source": "product list [--category]",
+      "given": {
+        "product": {
+          "category_id": 1
+        }
+      },
+      "when": {
+        "action": "product list",
+        "args": [
+          "--category", "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.category_id": 1
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "list_low_stock_products",
+      "source": "product list [--low-only]",
+      "given": {
+        "product": {
+          "stock_qty": 3,
+          "reorder_threshold": 5
+        }
+      },
+      "when": {
+        "action": "product list",
+        "args": [
+          "--low-only"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "restock_product",
+      "source": "product restock --id --qty",
+      "given": {
+        "product": {
+          "id": 1,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "product restock",
+        "args": [
+          "--id", "1",
+          "--qty", "10"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 15
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "get_low_stock_report",
+      "source": "product report low-stock",
+      "given": {
+        "product": {
+          "stock_qty": 2,
+          "reorder_threshold": 5
+        }
+      },
+      "when": {
+        "action": "product report",
+        "args": [
+          "low-stock"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 2
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "get_stock_value_by_category",
+      "source": "product report value",
+      "given": {
+        "product": {
+          "price_cents": 1000,
+          "stock_qty": 10,
+          "category_id": 1
+        }
+      },
+      "when": {
+        "action": "product report",
+        "args": [
+          "value"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.price_cents": 1000,
+          "product.stock_qty": 10
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "update_product_field",
+      "source": "product update --id [--name] [--price] [--category]",
+      "given": {
+        "product": {
+          "id": 1,
+          "name": "Old Laptop",
+          "price_cents": 9000,
+          "category_id": 1
+        }
+      },
+      "when": {
+        "action": "product update",
+        "args": [
+          "--id", "1",
+          "--name", "New Laptop",
+          "--price", "10000"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "New Laptop",
+          "product.price_cents": 10000
+        },
+        "error": "",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": []
+    }
+  ]
+}

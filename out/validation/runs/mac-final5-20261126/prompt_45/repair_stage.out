@@ -1,0 +1,29 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/persistence_ports.json
+
+
+[ok] step grounding: dropped BookingService.confirm_order — no requirement/intention evidence for verb `confirm`
+[ok] step grounding: dropped BookingService.cancel_order — no requirement/intention evidence for verb `cancel`
+[ok] step adapters: bookingadd.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingadd.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.booking_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingupdate.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookingdelete.booking_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: roomupdate.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: roomdelete.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: guestupdate.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: guestdelete.guest_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step data_models: applied 2 grouped uniqueness decision(s)
+

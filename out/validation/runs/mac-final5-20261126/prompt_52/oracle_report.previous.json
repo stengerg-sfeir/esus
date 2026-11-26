@@ -1,0 +1,212 @@
+{
+  "prompt": "prompt_52",
+  "results": [
+    {
+      "name": "scenario:oracle:borrow_book_available",
+      "status": "passed",
+      "case": "borrow_book_available",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 10.0"
+            ],
+            "alternatives": [
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.availability": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'availability'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          },
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "return_book_available",
+      "status": "unbound",
+      "reason": "setup needs a BorrowRecord row required by BorrowRecordNotFoundError",
+      "source": "When it is returned, it should become available again.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 12.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.availability": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'availability'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "check_availability_borrowed",
+      "status": "unbound",
+      "reason": "no generated method matches 'check_availability'",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "availability": {
+            "status": "invented",
+            "canonical": null,
+            "score": 1.0,
+            "evidence": [
+              "no prompt evidence for 'availability'",
+              "no sufficiently close extracted entity"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "no prompt evidence for the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "check_availability_available",
+      "status": "unbound",
+      "reason": "no generated method matches 'check_availability'",
+      "source": "When it is returned, it should become available again.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 12.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "availability": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no extracted entity matches 'availability'",
+              "no prompt evidence for the alias"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "no prompt evidence for the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 1,
+    "unbound": 3
+  }
+}

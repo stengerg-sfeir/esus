@@ -1,0 +1,84 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.sku must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.sku must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must reference an existing Category.category_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.category_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.category_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.category_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "A product must have a unique SKU within the same category.",
+      "kind": "rule"
+    }
+  ]
+}

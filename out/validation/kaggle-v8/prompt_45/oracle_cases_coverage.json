@@ -1,0 +1,425 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "book_room_success",
+      "source": "Staff should be able to manage rooms, guests and bookings",
+      "given": {
+        "room": {
+          "room_id": "R101",
+          "capacity": 2
+        },
+        "guest": {
+          "name": "Alice",
+          "email": "alice@example.com"
+        },
+        "booking": {
+          "start_date": "2023-10-01",
+          "end_date": "2023-10-03",
+          "guest_name": "Alice"
+        }
+      },
+      "when": {
+        "action": "book_room",
+        "args": [
+          "room.room_id",
+          "booking.start_date",
+          "booking.end_date",
+          "guest.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "booking.status": "confirmed",
+          "room.status": "booked"
+        },
+        "rows": {
+          "Booking": 1,
+          "Room": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "Booking success implies the room is marked as booked and the booking is confirmed."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "cancel_booking",
+      "source": "Staff should be able to manage rooms, guests and bookings",
+      "given": {
+        "booking": {
+          "booking_id": "B101",
+          "status": "confirmed",
+          "start_date": "2023-10-01",
+          "end_date": "2023-10-03"
+        }
+      },
+      "when": {
+        "action": "cancel_booking",
+        "args": [
+          "booking.booking_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "booking.status": "cancelled"
+        },
+        "rows": {
+          "Booking": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether room availability is released upon cancellation or if it remains booked."
+      ]
+    },
+    {
+      "id": "book_room_with_capacity_check",
+      "source": "Staff should be able to manage rooms, guests and bookings",
+      "given": {
+        "room": {
+          "room_id": "R101",
+          "capacity": 1
+        },
+        "guest": {
+          "name": "Alice",
+          "email": "alice@example.com"
+        },
+        "booking": {
+          "start_date": "2023-10-01",
+          "end_date": "2023-10-03"
+        }
+      },
+      "when": {
+        "action": "book_room",
+        "args": [
+          "room.room_id",
+          "booking.start_date",
+          "booking.end_date",
+          "guest.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "booking.status": "rejected",
+          "error": "CapacityExceededError"
+        },
+        "rows": {
+          "Booking": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether room capacity is checked during booking or if it's a separate constraint."
+      ]
+    },
+    {
+      "id": "add_guest",
+      "source": "Staff should be able to manage rooms, guests and bookings",
+      "given": {
+        "guest": {
+          "name": "Alice",
+          "email": "alice@example.com"
+        }
+      },
+      "when": {
+        "action": "add_guest",
+        "args": [
+          "guest.name",
+          "guest.email"
+        ]
+      },
+      "then": {
+        "state": {
+          "guest.id": "G101",
+          "guest.name": "Alice",
+          "guest.email": "alice@example.com"
+        },
+        "rows": {
+          "Guest": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "Adding a guest creates a unique guest record with the provided name and email."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "book_room_same_period",
+      "source": "should not accidentally book the same room twice for the same period",
+      "given": {
+        "room": {
+          "room_id": "R001",
+          "capacity": 2
+        },
+        "booking": {
+          "start_date": "2023-10-01",
+          "end_date": "2023-10-03",
+          "guest_name": "Alice"
+        }
+      },
+      "when": {
+        "action": "book_room",
+        "args": [
+          "room.room_id",
+          "booking.start_date",
+          "booking.end_date",
+          "guest_name"
+        ]
+      },
+      "then": {
+        "state": {
+          "booking.status": "booked"
+        },
+        "error": "DuplicateBookingError",
+        "rows": {
+          "Room": 1,
+          "Booking": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "book_room_after_cancel",
+      "source": "should not accidentally book the same room twice for the same period",
+      "given": {
+        "room": {
+          "room_id": "R002",
+          "capacity": 3
+        },
+        "booking": {
+          "start_date": "2023-10-05",
+          "end_date": "2023-10-07",
+          "guest_name": "Bob"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'cancel_order' does not cancel a booking or affect room availability"
+      ],
+      "ambiguities": [
+        "No explicit requirement links cancellation of an order to room availability or booking state"
+      ]
+    },
+    {
+      "id": "book_room_with_no_overlap",
+      "source": "should not accidentally book the same room twice for the same period",
+      "given": {
+        "room": {
+          "room_id": "R003",
+          "capacity": 4
+        },
+        "booking": {
+          "start_date": "2023-10-10",
+          "end_date": "2023-10-12",
+          "guest_name": "Charlie"
+        }
+      },
+      "when": {
+        "action": "book_room",
+        "args": [
+          "room.room_id",
+          "booking.start_date",
+          "booking.end_date",
+          "guest_name"
+        ]
+      },
+      "then": {
+        "state": {
+          "booking.status": "booked"
+        },
+        "rows": {
+          "Room": 1,
+          "Booking": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'book_room'"
+      }
+    },
+    {
+      "id": "book_room_with_overlap",
+      "source": "should not accidentally book the same room twice for the same period",
+      "given": {
+        "room": {
+          "room_id": "R004",
+          "capacity": 2
+        },
+        "booking": {
+          "start_date": "2023-10-01",
+          "end_date": "2023-10-03",
+          "guest_name": "David"
+        }
+      },
+      "when": {
+        "action": "book_room",
+        "args": [
+          "room.room_id",
+          "booking.start_date",
+          "booking.end_date",
+          "guest_name"
+        ]
+      },
+      "then": {
+        "state": {
+          "booking.status": "booked"
+        },
+        "error": "DuplicateBookingError",
+        "rows": {
+          "Room": 1,
+          "Booking": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements",
+        "error class 'DuplicateBookingError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "add_room_without_capacity",
+      "source": "staff should be able to manage rooms, guests and bookings",
+      "given": {
+        "room": {
+          "room_id": "R005",
+          "capacity": 0
+        }
+      },
+      "when": {
+        "action": "add_room",
+        "args": [
+          "room.room_id",
+          "room.capacity"
+        ]
+      },
+      "then": {
+        "state": {
+          "room.room_id": "R005",
+          "room.capacity": 0
+        },
+        "rows": {
+          "Room": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'room.capacity' is not declared on Room"
+      }
+    },
+    {
+      "id": "book_room_with_invalid_dates",
+      "source": "should not accidentally book the same room twice for the same period",
+      "given": {
+        "room": {
+          "room_id": "R006",
+          "capacity": 1
+        },
+        "booking": {
+          "start_date": "2023-10-03",
+          "end_date": "2023-10-01",
+          "guest_name": "Frank"
+        }
+      },
+      "when": {
+        "action": "book_room",
+        "args": [
+          "room.room_id",
+          "booking.start_date",
+          "booking.end_date",
+          "guest_name"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "InvalidDateRangeError",
+        "rows": {
+          "Room": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "Invalid date range (end_date before start_date) is explicitly handled"
+      ],
+      "ambiguities": [
+        "No requirement specifies error type for invalid date ranges",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements",
+        "error class 'InvalidDateRangeError' is not named in the requirements"
+      ]
+    }
+  ]
+}

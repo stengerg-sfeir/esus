@@ -1,0 +1,86 @@
+[run] requirements: 181 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 78 tokens in 1.4s (57.0 tok/s, 63.7 decode, 73 prompt)
+[data_models] 332 tokens in 5.5s (60.0 tok/s, 61.3 decode, 577 prompt)
+[errors] 130 tokens in 2.3s (57.6 tok/s, 62.4 decode, 469 prompt)
+[invariants] 49 tokens in 0.9s (54.1 tok/s, 63.3 decode, 273 prompt)
+[ok] step invariants: 11 invariant(s) — 9 schema generated mechanically, 2 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1040 tokens in 18.0s (57.6 tok/s, 58.2 decode, 981 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: added 1 persisted dependent entity(ies) to crud_services: Product
+[service_contracts] 10 tokens in 0.5s (19.6 tok/s, 69.2 decode, 533 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 4 generic type spelling(s) to Python annotations
+[persistence_ports] 390 tokens in 6.4s (60.7 tok/s, 62.0 decode, 389 prompt)
+[ok] step persistence: merged 5 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> BUDGET_OVERFLOW_GUARD (0.64)
+  [2/15] invariant -> STATE_TRANSITION_GUARD (0.79)
+  [3/15] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [4/15] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/15] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [6/15] contract:CategoryRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/15] contract:CategoryRepository.find_category_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/15] contract:CategoryRepository.get_category_count -> AGGREGATE_BY_FK (0.99)
+  [9/15] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/15] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/15] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:ProductRepository.get_products_by_category_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:ProductRepository.find_product_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:ProductRepository.find_product_by_category_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:ProductRepository.get_product_count_in_category -> COUNT_ACTIVE_BY_FK (0.92)
+[ok] step patterns: 15 item(s) — 3 standard CRUD, 12 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (product update: no method matches the verb 'update') — asking the model
+[interaction_adapters] 1106 tokens in 18.4s (60.0 tok/s, 60.7 decode, 567 prompt)
+[ok] step adapters: read_all_categories.name was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_category_by_id.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_category.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_product.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_product_by_id.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_products.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_products_by_category.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: find_product_by_category.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_product_count_in_category.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 93 tokens in 1.7s (53.8 tok/s, 62.5 decode, 601 prompt)
+[ok] step adapters: delete_category.name was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[!] step interaction_adapters still omits 1 unreachable field(s) (retry: 1) — kept first attempt; the probe will report it
+[!] step adapters: 'find_product_by_category' names Category but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: category delete lacked '--name' required by 'delete_category' — added as str
+[ok] step adapters: product delete lacked '--category-id' required by 'delete_category' — added as int
+[ok] step adapters: product delete lacked '--name' required by 'delete_category' — added as str
+[ok] step adapters: made 1 delete field(s) optional
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_36/requirements.txt
+[run] 9 steps, 3228 generated tokens in 55.2s

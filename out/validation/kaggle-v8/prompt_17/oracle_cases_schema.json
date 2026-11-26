@@ -1,0 +1,100 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "search",
+        "args": [
+          "name"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop"
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'search'"
+      }
+    },
+    {
+      "id": "filters_combinable",
+      "source": "All filters must be combinable",
+      "given": {
+        "product": {
+          "name": "Wireless Mouse",
+          "category": "Electronics",
+          "price": 25,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Keyboard",
+          "category": "Electronics",
+          "price": 75,
+          "quantity": 3
+        },
+        "product_3": {
+          "name": "Mouse Pad",
+          "category": "Office",
+          "price": 15,
+          "quantity": 20
+        }
+      },
+      "when": {
+        "action": "filter",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Wireless Mouse",
+          "product.category": "Electronics",
+          "product.price": 25,
+          "product.quantity": 10,
+          "product_2.name": "Keyboard",
+          "product_2.category": "Electronics",
+          "product_2.price": 75,
+          "product_2.quantity": 3,
+          "product_3.name": "Mouse Pad",
+          "product_3.category": "Office",
+          "product_3.price": 15,
+          "product_3.quantity": 20
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "PRICE_MARGIN_GUARD: when a product has a maximum price specified, only products with a price less than or equal to the maximum price are included"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

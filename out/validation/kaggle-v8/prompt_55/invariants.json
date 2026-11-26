@@ -1,0 +1,108 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.user_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "User.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.user_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.user_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.user_id must reference an existing User.user_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The stock quantity of a product must not go below zero after a sale.",
+      "kind": "rule"
+    },
+    {
+      "text": "The quantity of a product sold in a sale must not exceed the product's current stock quantity at the time of the sale.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of all quantities sold for a product across all sales must equal the difference between the initial stock quantity and the current stock quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "A sale can only be recorded if the product's stock quantity is sufficient to cover the sale quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "The stock quantity of a product is updated only when a sale is successfully recorded.",
+      "kind": "rule"
+    }
+  ]
+}

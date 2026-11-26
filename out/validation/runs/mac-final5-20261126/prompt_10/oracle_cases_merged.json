@@ -1,0 +1,62 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "list_notes",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "list_notes",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Note": 1
+        },
+        "stdout_contains": "Meeting Notes",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "note": {
+            "status": "aligned",
+            "canonical": "Note",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Note",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "NoteRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

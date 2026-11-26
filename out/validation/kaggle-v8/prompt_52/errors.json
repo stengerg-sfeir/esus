@@ -1,0 +1,29 @@
+{
+  "errors": [
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested book is not found in the library system by its book_id."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested member is not found in the system by their member_id."
+    },
+    {
+      "name": "BorrowRecordNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a borrow record is not found in the system by its borrow_id."
+    },
+    {
+      "name": "BookAlreadyBorrowedError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to borrow a book that is already currently borrowed by another member."
+    },
+    {
+      "name": "InvalidReturnDateError",
+      "base": "ValueError",
+      "description": "Raised when a return date is set to a date earlier than the borrow date, which is invalid."
+    }
+  ]
+}

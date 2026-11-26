@@ -1,0 +1,18 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "list_all_departments",
+      "target_service": "DepartmentRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "ENUM_LOOKUP",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

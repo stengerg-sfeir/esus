@@ -1,0 +1,81 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_employee",
+      "target_service": "EmployeeRepository",
+      "target_method": "create_employee",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "department_id",
+          "target_param": "department_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Department",
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_employee",
+      "target_service": "EmployeeRepository",
+      "target_method": "update_employee",
+      "input_fields": [
+        {
+          "field_name": "employee_id",
+          "target_param": "employee_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Employee",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "department_id",
+          "target_param": "department_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Department",
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_employee",
+      "target_service": "EmployeeRepository",
+      "target_method": "delete_employee",
+      "input_fields": [
+        {
+          "field_name": "employee_id",
+          "target_param": "employee_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Employee",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

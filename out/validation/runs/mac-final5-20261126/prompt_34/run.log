@@ -1,0 +1,64 @@
+[run] requirements: 215 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 81 tokens in 2.2s (36.3 tok/s, 41.5 decode, 85 prompt)
+[data_models] 654 tokens in 17.5s (37.3 tok/s, 38.2 decode, 593 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 65 tokens in 1.9s (34.2 tok/s, 40.0 decode, 501 prompt)
+[invariants] 39 tokens in 1.2s (33.0 tok/s, 42.3 decode, 305 prompt)
+[ok] step invariants: 22 invariant(s) — 21 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 350 tokens in 10.1s (34.7 tok/s, 35.8 decode, 1013 prompt)
+[ok] step components: normalized option '-validation' to '--validation'
+[ok] step components: normalized option '-force' to '--force'
+[service_contracts] 145 tokens in 4.4s (33.0 tok/s, 36.7 decode, 544 prompt)
+[ok] step contracts: added 4 mechanical service method(s)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: OrderService.create_order_with_lines describes 'status' but takes no such parameter — added
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: Order add, Order update, Order delete, OrderLine add, OrderLine update, OrderLine delete
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+[persistence_ports] 193 tokens in 5.2s (37.2 tok/s, 39.8 decode, 428 prompt)
+[ok] step persistence: merged 1 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 1 generic type spelling(s) to Python annotations
+  [1/18] invariant -> STATE_TRANSITION_GUARD (0.49)  <- undecided (pattern): BUDGET_OVERFLOW_GUARD at 0.48
+  [2/18] contract:OrderService.create_order_with_lines -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: STOCK_SUFFICIENCY_GUARD returns boolean/none, but this method returns entity (models.Order)
+  [3/18] contract:OrderService.read_order_by_id -> STANDARD_CRUD (1.00)
+  [4/18] contract:OrderService.read_all_orders -> READ_ALL (0.64)
+  [5/18] contract:OrderService.update_order -> STANDARD_CRUD (1.00)
+  [6/18] contract:OrderService.delete_order -> STANDARD_CRUD (1.00)
+  [7/18] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/18] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/18] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/18] contract:OrderRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/18] contract:OrderRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/18] contract:OrderRepository.create_order_with_lines -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/18] contract:OrderLineRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/18] contract:OrderLineRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [15/18] contract:OrderLineRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [16/18] contract:OrderLineRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/18] contract:OrderLineRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/18] contract:OrderLineRepository.get_order_lines_by_order_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 18 item(s) — 10 standard CRUD, 7 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderService.create_order_with_lines: create_order_with_lines(order_data: OrderCreationData, status: str) -> models.Order: Creates an order and all its order lines atomically. If any order line contains invalid data (e.g., negative quantity, invalid product ID), the entire operation fails and neither the order nor any order lines are persisted.
+[ok] step adapters: derived 1 command group(s) from 17 service method(s)
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: OrderLine add, OrderLine update, OrderLine delete
+[ok] step adapters: added 3 missing adapter(s) mechanically: OrderLine add, OrderLine update, OrderLine delete
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/method_plans.json
+[ok] method plans: 3 mechanical candidate(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/requirements.txt
+[run] 7 steps, 1527 generated tokens in 42.5s

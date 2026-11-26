@@ -1,0 +1,43 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "return_book_available",
+      "source": "When it is returned, it should become available again.",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "availability": "borrowed"
+        },
+        "member": {
+          "id": 101,
+          "name": "Alice"
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "book.title"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.availability": "available"
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a BorrowRecord row required by BorrowRecordNotFoundError"
+      }
+    }
+  ]
+}

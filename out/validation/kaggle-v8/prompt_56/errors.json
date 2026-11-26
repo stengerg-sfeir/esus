@@ -1,0 +1,39 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested by an ID that does not exist in the database."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested by an ID that does not exist in the database."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order is requested by an ID that does not exist in the database."
+    },
+    {
+      "name": "InvalidOrderStatusError",
+      "base": "ValueError",
+      "description": "Raised when an order status is set to a value not in the allowed set (e.g., 'cancelled', 'completed', 'pending')."
+    },
+    {
+      "name": "InsufficientStockError",
+      "base": "ValueError",
+      "description": "Raised when an order attempts to include a product quantity that exceeds the available stock quantity."
+    },
+    {
+      "name": "OrderCancellationFailedError",
+      "base": "RuntimeError",
+      "description": "Raised when an order cancellation fails due to an inconsistent database state, such as an order being referenced in another transaction or already cancelled."
+    },
+    {
+      "name": "InvalidInputError",
+      "base": "ValueError",
+      "description": "Raised when user input does not conform to expected formats, such as invalid email addresses or non-numeric values for prices or quantities."
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "intents": [
+    {
+      "id": "create_product",
+      "source": "Provide CRUD operations.",
+      "kind": "create",
+      "entity": "Product",
+      "action": "create_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 5
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "update_product",
+      "source": "Provide CRUD operations.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "update_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {},
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations.",
+      "kind": "delete",
+      "entity": "Product",
+      "action": "delete_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {},
+      "args": [
+        "product.sku"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_products_by_category",
+      "source": "Provide CRUD operations.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "list_products",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.category": "electronics",
+        "product.stock_qty": 10
+      },
+      "lookup": [],
+      "where": {
+        "product.category": "electronics"
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "electronics",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The list operation returns products filtered by category"
+      ],
+      "ambiguities": [
+        "The exact output format or field names are not specified"
+      ]
+    },
+    {
+      "id": "list_products_below_threshold",
+      "source": "Provide CRUD operations.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "list_products",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 3
+      },
+      "lookup": [],
+      "where": {
+        "product.stock_qty": 3
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "3",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The list operation returns products with stock below a threshold"
+      ],
+      "ambiguities": [
+        "The threshold value is not explicitly defined in the requirement"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "prompt": "prompt_36",
+  "results": [
+    {
+      "name": "delete_category_without_products",
+      "status": "unbound",
+      "reason": "expected state field 'category.deleted' is not declared on Category",
+      "source": "A category cannot be deleted while products still belong to it",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "category.deleted": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'deleted'",
+              "not declared on Category"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CategoryRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:create_product_with_valid_category",
+      "status": "passed",
+      "case": "create_product_with_valid_category",
+      "source": "every product must belong to an existing category",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "delete_product_from_category",
+      "status": "unbound",
+      "reason": "expected state field 'product.deleted' is not declared on Product",
+      "source": "A category cannot be deleted while products still belong to it",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.deleted": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'deleted'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 2,
+    "passed": 1
+  }
+}

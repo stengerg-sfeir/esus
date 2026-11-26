@@ -1,0 +1,182 @@
+{
+  "prompt": "prompt_library_system",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book search",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member history",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:borrow",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:return",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:overdue",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:author add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Book",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Author",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Member",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Loan",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:BookRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:AuthorRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:MemberRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:LoanRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Book.isbn",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Book.author_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Member.email",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Loan.book_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Loan.member_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LibraryService.borrow_book",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LibraryService.renew_membership",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LoanRepository.find_active_loans",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LoanRepository.find_overdue_loans",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LibraryService.return_book",
+      "status": "not_applicable",
+      "reason": "state effect covered by a scenario"
+    },
+    {
+      "name": "scenario:cli:book add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book search",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member history",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:borrow",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:return",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:overdue",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:author add",
+      "status": "passed"
+    }
+  ]
+}

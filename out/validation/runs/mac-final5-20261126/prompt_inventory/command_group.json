@@ -1,0 +1,90 @@
+{
+  "command_group": {
+    "options": [
+      {
+        "name": "--help",
+        "short": "-h",
+        "type": "bool",
+        "required": false,
+        "default": null
+      }
+    ],
+    "subcommands": [
+      {
+        "name": "add",
+        "options": [
+          {
+            "name": "--name",
+            "short": "-n",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--description",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--threshold",
+            "short": "-t",
+            "type": "int",
+            "required": false,
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "list",
+        "options": []
+      },
+      {
+        "name": "update",
+        "options": [
+          {
+            "name": "--id",
+            "short": "-i",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--name",
+            "short": "-n",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--description",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--threshold",
+            "short": "-t",
+            "type": "int",
+            "required": false,
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "options": [
+          {
+            "name": "--id",
+            "short": "-i",
+            "type": "int",
+            "required": true,
+            "default": null
+          }
+        ]
+      }
+    ]
+  }
+}

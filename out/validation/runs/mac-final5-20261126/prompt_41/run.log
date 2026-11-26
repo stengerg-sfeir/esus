@@ -1,0 +1,112 @@
+[run] requirements: 194 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 112 tokens in 2.9s (38.3 tok/s, 41.7 decode, 75 prompt)
+[data_models] 792 tokens in 22.6s (35.1 tok/s, 35.7 decode, 615 prompt)
+[ok] step data_models: Book.book_id became the integer primary key id
+[ok] step data_models: Member.member_id became the integer primary key id
+[ok] step data_models: Loan.loan_id became the integer primary key id
+[ok] step data_models: Loan.book_id retyped to int for its Book key
+[ok] step data_models: Loan.member_id retyped to int for its Member key
+[ok] step data_models: uniqueness provenance — 3 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 452 tokens in 12.9s (35.2 tok/s, 36.0 decode, 493 prompt)
+[invariants] 176 tokens in 4.6s (38.5 tok/s, 41.3 decode, 297 prompt)
+[ok] step invariants: 30 invariant(s) — 24 schema generated mechanically, 6 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1388 tokens in 42.1s (33.0 tok/s, 33.2 decode, 1005 prompt)
+[ok] step components: aligned 2 option type(s) with the data model: --availability_status -> bool (Book.availability_status), --membership_status -> bool (Member.membership_status)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-availability-status' to '--availability-status'
+[ok] step components: normalized option '-available-only' to '--available-only'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-contact-details' to '--contact-details'
+[ok] step components: normalized option '-membership-status' to '--membership-status'
+[ok] step components: normalized option '-active-only' to '--active-only'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-loan-date' to '--loan-date'
+[ok] step components: normalized option '-return-date' to '--return-date'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[service_contracts] 10 tokens in 1.2s (8.2 tok/s, 40.7 decode, 725 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: book update, book delete, member update, member delete, loan update, loan delete
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidBookIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidMemberIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidLoanIdError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 543 tokens in 15.3s (35.4 tok/s, 36.5 decode, 433 prompt)
+[ok] step persistence: merged 7 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+  [1/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/28] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/28] invariant -> STATE_TRANSITION_GUARD (0.93)
+  [4/28] invariant -> AGGREGATE_BY_FK_AND_DATE (0.46)
+  [5/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [7/28] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/28] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/28] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [10/28] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/28] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/28] contract:BookRepository.findAvailableBooks -> FILTER_BY_FIELD (0.37)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (list[models.Book]) (was AGGREGATE_BY_FK_AND_DATE)
+  [13/28] contract:BookRepository.getBookByTitle -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/28] contract:MemberRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/28] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [16/28] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [17/28] contract:MemberRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/28] contract:MemberRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/28] contract:MemberRepository.findActiveMembers -> FILTER_BY_FIELD (0.00)  <- corrected: COUNT_ACTIVE_BY_FK returns scalar, but this method returns collection (list[models.Member]) (was COUNT_ACTIVE_BY_FK)  <- undecided (pattern): THRESHOLD_SCAN at 0.00
+  [20/28] contract:MemberRepository.getMemberByName -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/28] contract:LoanRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/28] contract:LoanRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/28] contract:LoanRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [24/28] contract:LoanRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [25/28] contract:LoanRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/28] contract:LoanRepository.findLoansByBookId -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [27/28] contract:LoanRepository.findLoansByMemberId -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/28] contract:LoanRepository.getLoanByDate -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 28 item(s) — 9 standard CRUD, 19 pattern(s), 0 gap(s)
+[ok] step adapters: 13 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: bookupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: bookdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: memberupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: memberdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanadd.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanlist.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanlist.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method BookRepository.booksearch (search)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/requirements.txt
+[run] 7 steps, 3473 generated tokens in 101.6s

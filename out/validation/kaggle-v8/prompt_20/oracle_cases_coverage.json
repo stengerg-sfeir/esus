@@ -1,0 +1,202 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "report_total_sales_and_per_product",
+      "source": "Provide a report showing total sales amount and number of sales per product.",
+      "given": {
+        "product": {
+          "name": "Mouse",
+          "stock_quantity": 10
+        },
+        "product_2": {
+          "name": "Keyboard",
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "generate_report"
+      },
+      "then": {
+        "state": {},
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The report requires data that must be generated from existing sales, but no sales data is provided in the given state. The report's output is not defined in the requirements."
+      ],
+      "ambiguities": [
+        "The requirements do not specify what data is included in the report or how it is computed. The total sales amount and per-product count are mentioned, but no example or formula is given."
+      ]
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Mouse",
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "Mouse"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product.stock_quantity": 10
+        },
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify whether a product is deleted or only marked as inactive. The state of the product after deletion is not defined."
+      ],
+      "ambiguities": [
+        "The behavior of deletion is not specified—whether it removes the product or just marks it as deleted. The stock quantity remains unchanged in the given state."
+      ]
+    },
+    {
+      "id": "add_product_unique_name_constraint",
+      "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "product.name",
+          "product.stock_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.stock_quantity": 10
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement specifies that a product must have a unique name, but does not specify whether this is enforced at the database level or during application logic. The behavior is assumed to be enforced during application logic."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "add_product_with_zero_stock",
+      "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Mouse",
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "product.name",
+          "product.stock_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product.stock_quantity": 0
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'product.stock_quantity' is not declared on Product"
+      }
+    },
+    {
+      "id": "delete_product_by_name",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Monitor",
+          "stock_quantity": 3
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "product.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Monitor",
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether a product is deleted from the database or only marked as inactive. It is unclear whether the product record is permanently removed or just soft-deleted."
+      ]
+    },
+    {
+      "id": "add_sale_with_valid_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "sale": {
+          "product_id": 1,
+          "amount": 50.0
+        }
+      },
+      "when": {
+        "action": "add_sale",
+        "args": [
+          "sale.product_id",
+          "sale.amount"
+        ]
+      },
+      "then": {
+        "state": {
+          "sale.product_id": 1,
+          "sale.amount": 50.0
+        },
+        "rows": {
+          "Sale": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Product row for Sale.product_id"
+      }
+    }
+  ]
+}

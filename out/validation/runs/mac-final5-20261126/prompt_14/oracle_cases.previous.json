@@ -1,0 +1,387 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_project",
+      "source": "Users can create, update, list and delete projects.",
+      "given": {
+        "project": {
+          "name": "New Project",
+          "description": "A sample project",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name",
+          "project.description",
+          "project.status"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "New Project",
+          "project.description": "A sample project",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "project.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Project.name exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          },
+          "project.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Project.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_project",
+      "source": "Users can create, update, list and delete projects.",
+      "given": {
+        "project": {
+          "name": "Old Project",
+          "description": "An existing project",
+          "status": "inactive"
+        }
+      },
+      "when": {
+        "action": "update_project",
+        "args": [
+          "project.id",
+          "project.name",
+          "project.description",
+          "project.status"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Old Project",
+          "project.description": "An updated description",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "project.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Project.name exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          },
+          "project.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Project.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "update case supplies no new value for 'project.description' (setup has 'An existing project')"
+      }
+    },
+    {
+      "id": "list_projects",
+      "source": "Users can create, update, list and delete projects.",
+      "given": {
+        "project": {
+          "name": "Project A",
+          "description": "First project",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "list_projects"
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_project_soft",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "given": {
+        "project": {
+          "name": "Project X",
+          "description": "A project to be deleted",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Project X",
+          "project.description": "A project to be deleted",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "project.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Project.name exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          },
+          "project.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Project.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_projects_after_soft_delete",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "given": {
+        "project": {
+          "name": "Project X",
+          "description": "A project to be deleted",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "list_projects"
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Project": 0
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "list case expects fewer rows than its setup but performs no delete or filter action"
+      }
+    }
+  ]
+}

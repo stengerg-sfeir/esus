@@ -1,0 +1,17 @@
+[
+  {
+    "label": "InventoryService.restock",
+    "status": "written",
+    "note": "",
+    "answer": "product = self._repos['ProductRepository'].read_one(id=id)\n    if product is None:\n        raise errors.ProductNotFoundError(f\"Product with id {id} not found\")\n    if qty is None or qty < 0:\n        raise ValueError(\"Restock quantity must be a non-negative integer\")\n    product.stock_qty += qty\n    self._repos['ProductRepository'].update(id=id, stock_qty=product.stock_qty)",
+    "finish_reason": "stop",
+    "tokens": 89,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 11.770489931106567,
+    "decode_seconds": 2.5335590000000003,
+    "prompt_tokens": 3590,
+    "cached_tokens": 0,
+    "context": "exact"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "label": "BookingRepository.getBookingsByRoomAndDateRange",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        if room_id is not None:\n            criteria.append(('room_id', 'eq', room_id))\n        if check_in_date is not None:\n            criteria.append(('check_in_date', 'eq', check_in_date))\n        if check_out_date is not None:\n            criteria.append(('check_out_date', 'eq', check_out_date))\n        found = self._store.select(self.ENTITY, criteria)\n        return [models.Booking(**r) for r in found]",
+    "finish_reason": "stop",
+    "tokens": 101,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 16.98478078842163,
+    "decode_seconds": 2.905756,
+    "prompt_tokens": 5250,
+    "cached_tokens": 332,
+    "context": "exact"
+  },
+  {
+    "label": "BookingRepository.checkRoomAvailability",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n    if room_id is not None:\n        criteria.append(('room_id', 'eq', room_id))\n    if check_in_date is not None:\n        criteria.append(('check_in_date', 'eq', check_in_date))\n    if check_out_date is not None:\n        criteria.append(('check_out_date', 'eq', check_out_date))\n    found = self._store.select(self.ENTITY, criteria)\n    if not found:\n        return True\n    for record in found:\n        booking_check_in = record.get('check_in_date')\n        booking_check_out = record.get('check_out_date')\n        if booking_check_in and booking_check_out:\n            booking_check_in_str = str(booking_check_in)[:10]\n            booking_check_out_str = str(booking_check_out)[:10]\n            check_in_str = str(check_in_date)[:10]\n            check_out_str = str(check_out_date)[:10]\n            if (check_in_str <= booking_check_in_str and booking_check_in_str < check_out_str) or \\\n               (check_in_str <= booking_check_out_str and booking_check_out_str < check_out_str):\n                return False\n    return True\n```",
+    "finish_reason": "stop",
+    "tokens": 244,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 8.488342046737671,
+    "decode_seconds": 7.070229,
+    "prompt_tokens": 5315,
+    "cached_tokens": 4910,
+    "context": "exact"
+  }
+]

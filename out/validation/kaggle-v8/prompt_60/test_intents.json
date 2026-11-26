@@ -1,0 +1,56 @@
+{
+  "intents": [
+    {
+      "id": "cancel_confirmed_order_releases_stock",
+      "source": "Cancelling a confirmed order releases the reserved stock.",
+      "kind": "update",
+      "entity": "Order",
+      "action": "cancel_order",
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "related"
+        }
+      ],
+      "setup_values": {
+        "order.status": "confirmed",
+        "product.stock_qty": 5,
+        "order.product_id": "prod123"
+      },
+      "lookup": [
+        "order.order_id"
+      ],
+      "where": {
+        "order.status": "confirmed"
+      },
+      "args": [
+        "order.order_id"
+      ],
+      "changes": {
+        "order.status": "cancelled"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 6
+        },
+        "rows": {
+          "Order": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

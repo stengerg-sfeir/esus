@@ -1,0 +1,113 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_tag_without_post",
+      "source": "A tag can be associated with multiple posts.",
+      "given": {
+        "tag": {
+          "name": "database"
+        }
+      },
+      "when": {
+        "action": "create_tag",
+        "args": [
+          "tag.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "tag.name": "database"
+        },
+        "rows": {
+          "Tag": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_author",
+      "source": "Authors can create posts. Each post belongs to one author and can have multiple tags.",
+      "given": {
+        "author": {
+          "name": "Alice Johnson"
+        }
+      },
+      "when": {
+        "action": "create_author",
+        "args": [
+          "author.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "author.name": "Alice Johnson"
+        },
+        "rows": {
+          "Author": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "create case supplies no value for required field Author.email"
+      }
+    },
+    {
+      "id": "create_post_without_author",
+      "source": "Each post belongs to one author and can have multiple tags.",
+      "given": {
+        "post": {
+          "title": "No Author Post",
+          "content": "This post has no author."
+        }
+      },
+      "when": {
+        "action": "create_post",
+        "args": [
+          "post.title",
+          "post.content",
+          "post.author_id"
+        ]
+      },
+      "then": {
+        "error": "AuthorNotFoundError",
+        "rows": {
+          "Post": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether an author must be provided when creating a post or if the system allows creation without an author. No explicit error or behavior is defined for missing author_id.",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements"
+      ]
+    }
+  ]
+}

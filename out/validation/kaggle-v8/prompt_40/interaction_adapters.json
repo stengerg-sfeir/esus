@@ -1,0 +1,53 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_order",
+      "target_service": "OrderRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "ENUM_LOOKUP",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "list_orders",
+      "target_service": "OrderRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "ENUM_LOOKUP",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "update_order_status",
+      "target_service": "OrderRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "ENUM_LOOKUP",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "borrow_book_with_available_copies",
+      "source": "library borrow --member-id --book-id",
+      "given": {
+        "member": {
+          "id": 1,
+          "name": "Alice",
+          "email": "alice@example.com",
+          "is_active": true
+        },
+        "book": {
+          "id": 1,
+          "title": "The Great Gatsby",
+          "isbn": "9780747532699",
+          "author_id": 1,
+          "available_copies": 1
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "1",
+          "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0,
+          "loan.status": "active",
+          "loan.loan_date": "2023-10-01",
+          "loan.due_date": "2023-10-15"
+        },
+        "rows": {
+          "Book": 1,
+          "Member": 1,
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Author row for Book.author_id"
+      }
+    },
+    {
+      "id": "return_book_already_returned",
+      "source": "library return --loan-id",
+      "given": {
+        "loan": {
+          "id": 1,
+          "book_id": 1,
+          "member_id": 1,
+          "return_date": "2023-10-10",
+          "status": "returned"
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.return_date": null,
+          "loan.status": "returned"
+        },
+        "error": "AlreadyReturnedLoanError",
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "borrow_book_final_copy",
+      "source": "library borrow --member-id --book-id",
+      "given": {
+        "member": {
+          "id": 1,
+          "name": "Bob",
+          "email": "bob@example.com",
+          "is_active": true
+        },
+        "book": {
+          "id": 1,
+          "title": "1984",
+          "isbn": "9780452284234",
+          "author_id": 2,
+          "available_copies": 1
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "1",
+          "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1,
+          "Member": 1,
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Author row for Book.author_id"
+      }
+    },
+    {
+      "id": "overdue_loan_detection",
+      "source": "library overdue",
+      "given": {
+        "loan": {
+          "id": 1,
+          "book_id": 1,
+          "member_id": 1,
+          "loan_date": "2023-10-01",
+          "due_date": "2023-10-15",
+          "return_date": null,
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "get_overdue_loans",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "loan.status": "overdue"
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Book row for Loan.book_id"
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000,
+          "quantity": 10
+        }
+      },
+      "when": {
+        "action": "search",
+        "args": [
+          "name"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop"
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'search'"
+      }
+    },
+    {
+      "id": "filters_combinable",
+      "source": "All filters must be combinable",
+      "given": {
+        "product_1": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Mouse",
+          "category": "Electronics",
+          "price": 25,
+          "quantity": 50
+        },
+        "product_3": {
+          "name": "Keyboard",
+          "category": "Electronics",
+          "price": 50,
+          "quantity": 20
+        },
+        "product_4": {
+          "name": "Monitor",
+          "category": "Electronics",
+          "price": 300,
+          "quantity": 3
+        }
+      },
+      "when": {
+        "action": "filter",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product_1.name": "Laptop",
+          "product_1.category": "Electronics",
+          "product_1.price": 1000,
+          "product_1.quantity": 10
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "PRICE_MARGIN_GUARD: when a product has a maximum price specified, only products with a price less than or equal to the maximum price are included"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

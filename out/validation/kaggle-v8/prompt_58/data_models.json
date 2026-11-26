@@ -1,0 +1,125 @@
+{
+  "data_models": [
+    {
+      "name": "Customer",
+      "fields": [
+        {
+          "name": "customer_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "explicit"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "explicit",
+          "unique_status": "inferred"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "address",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "name": "ExternalServiceResponse",
+      "fields": [
+        {
+          "name": "customer_id",
+          "type": "int",
+          "primary_key": true,
+          "nullable": false,
+          "unique": true,
+          "foreign_key": null,
+          "status": "deduced",
+          "unique_status": "explicit"
+        },
+        {
+          "name": "additional_info",
+          "type": "text",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "error_message",
+          "type": "string",
+          "primary_key": false,
+          "nullable": true,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        },
+        {
+          "name": "timestamp",
+          "type": "datetime",
+          "primary_key": false,
+          "nullable": false,
+          "unique": false,
+          "foreign_key": null,
+          "status": "deduced"
+        }
+      ]
+    }
+  ]
+}

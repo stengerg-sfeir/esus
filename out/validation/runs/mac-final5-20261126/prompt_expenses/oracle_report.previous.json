@@ -1,0 +1,92 @@
+{
+  "prompt": "prompt_expenses",
+  "results": [
+    {
+      "name": "add_expense_with_valid_category",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Expense.category_id",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {
+          "expense.amount_cents": {
+            "status": "aligned",
+            "canonical": "amount_cents",
+            "score": 10.0,
+            "evidence": [
+              "Expense.amount_cents exists"
+            ],
+            "alternatives": []
+          },
+          "expense.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Expense.description exists"
+            ],
+            "alternatives": []
+          },
+          "expense.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Expense.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "expense.expense_date": {
+            "status": "aligned",
+            "canonical": "expense_date",
+            "score": 10.0,
+            "evidence": [
+              "Expense.expense_date exists"
+            ],
+            "alternatives": []
+          },
+          "expense.payment_method": {
+            "status": "aligned",
+            "canonical": "payment_method",
+            "score": 10.0,
+            "evidence": [
+              "Expense.payment_method exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ExpenseService.add_expense",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ExpenseRepository.find_expenses_by_date_range",
+            "ExpenseRepository.get_category_expense_count",
+            "ExpenseService.delete_expense",
+            "ExpenseService.get_expense_by_id"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  }
+}

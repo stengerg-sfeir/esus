@@ -1,0 +1,116 @@
+[run] requirements: 252 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 89 tokens in 2.4s (37.4 tok/s, 41.6 decode, 80 prompt)
+[data_models] 688 tokens in 18.6s (37.1 tok/s, 37.8 decode, 594 prompt)
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 359 tokens in 9.6s (37.5 tok/s, 38.7 decode, 496 prompt)
+[invariants] 263 tokens in 7.0s (37.8 tok/s, 39.4 decode, 300 prompt)
+[ok] step invariants: 28 invariant(s) — 21 schema generated mechanically, 7 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1853 tokens in 57.4s (32.3 tok/s, 32.5 decode, 1008 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-room-id' to '--room-id'
+[ok] step components: normalized option '-start-date' to '--start-date'
+[ok] step components: normalized option '-end-date' to '--end-date'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-capacity' to '--capacity'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-room-number' to '--room-number'
+[ok] step components: normalized option '-capacity' to '--capacity'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-customer-id' to '--customer-id'
+[ok] step components: normalized option '-room-id' to '--room-id'
+[ok] step components: normalized option '-start-date' to '--start-date'
+[ok] step components: normalized option '-end-date' to '--end-date'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-customer-id' to '--customer-id'
+[ok] step components: normalized option '-room-id' to '--room-id'
+[ok] step components: normalized option '-start-date' to '--start-date'
+[ok] step components: normalized option '-end-date' to '--end-date'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 10 tokens in 1.1s (8.7 tok/s, 42.8 decode, 679 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidDateError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidRoomCapacityError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidCustomerDataError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidReservationDataError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 1300 tokens in 37.1s (35.1 tok/s, 35.4 decode, 436 prompt)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/23] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/23] invariant -> BUDGET_OVERFLOW_GUARD (0.60)
+  [3/23] invariant -> STATE_TRANSITION_GUARD (0.78)
+  [4/23] invariant -> QUOTA_CAPACITY_GUARD (0.78)
+  [5/23] invariant -> STATE_TRANSITION_GUARD (0.51)
+  [6/23] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [7/23] invariant -> QUOTA_CAPACITY_GUARD (0.89)
+  [8/23] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [9/23] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [10/23] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [11/23] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/23] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/23] contract:RoomRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/23] contract:RoomRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [15/23] contract:RoomRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [16/23] contract:RoomRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/23] contract:RoomRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/23] contract:ReservationRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/23] contract:ReservationRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [20/23] contract:ReservationRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [21/23] contract:ReservationRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/23] contract:ReservationRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/23] contract:ReservationRepository.get_reservations_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 23 item(s) — 9 standard CRUD, 14 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (reservation read: ambiguous methods: ReservationRepository.read_all, ReservationRepository.read_one); retry after surface repairs declined (reservation read: ambiguous methods: ReservationRepository.read_all, ReservationRepository.read_one) — asking the model
+[interaction_adapters] 2457 tokens in 75.6s (32.5 tok/s, 32.8 decode, 668 prompt)
+[ok] step adapters: create_room.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_all_rooms.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_room.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: delete_room.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_room.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_room.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_room.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_reservations.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_reservations.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_reservations_by_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/requirements.txt
+[run] 8 steps, 7019 generated tokens in 208.7s

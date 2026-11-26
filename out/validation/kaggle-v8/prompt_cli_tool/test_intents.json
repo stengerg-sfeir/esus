@@ -1,0 +1,382 @@
+{
+  "intents": [
+    {
+      "id": "cli_no_output_path",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "input.csv"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "input.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "input.csv": "name,age\nAlice,30\nBob,25"
+        }
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "{\"name\":\"Alice\",\"age\":30}",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "cli_with_output_path",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "input.csv",
+        "output.json"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "input.csv",
+          "output.json"
+        ],
+        "stdin": "",
+        "files": {
+          "input.csv": "name,age\nAlice,30\nBob,25"
+        }
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "error_missing_input_file",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "nonexistent.csv"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "nonexistent.csv"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "FileNotFoundError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "error_malformed_csv",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "malformed.csv"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "malformed.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "malformed.csv": "name,age\nAlice,30\nBob"
+        }
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "MalformedCSVError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "critical-dynamic-header-read",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "input.csv"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "input.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "input.csv": "name,age\nAlice,30\nBob,25"
+        }
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "name",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "critical-dynamic-header-malformed",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "invalid.csv"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "invalid.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "invalid.csv": "name,age\n"
+        }
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "malformed_csv",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "critical-dynamic-header-missing",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "kind": "app",
+      "entity": "",
+      "action": "",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "empty.csv"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "empty.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "empty.csv": ""
+        }
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "missing_file_or_empty",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "cli_csv_to_json",
+      "source": "Do NOT assume specific column names like \"title\" or \"name\".",
+      "kind": "cli",
+      "entity": "CSVFile",
+      "action": "convert_csv_to_json",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "input.csv",
+        "output.json"
+      ],
+      "changes": {},
+      "cli": [
+        "csv-to-json",
+        "input.csv",
+        "--output",
+        "output.json"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "argument 'input.csv' is not stated in the target clause",
+        "argument 'output.json' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "cli_csv_to_json_stdout",
+      "source": "Do NOT assume specific column names like \"title\" or \"name\".",
+      "kind": "cli",
+      "entity": "CSVFile",
+      "action": "convert_csv_to_json",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "input.csv"
+      ],
+      "changes": {},
+      "cli": [
+        "csv-to-json",
+        "input.csv"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "{'column1': 'value1'}",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "argument 'input.csv' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "cli_missing_file_error",
+      "source": "Do NOT assume specific column names like \"title\" or \"name\".",
+      "kind": "error",
+      "entity": "CSVFile",
+      "action": "convert_csv_to_json",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "nonexistent.csv"
+      ],
+      "changes": {},
+      "cli": [
+        "csv-to-json",
+        "nonexistent.csv"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "FileNotFoundError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "error class 'FileNotFoundError' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "cli_malformed_csv_error",
+      "source": "Do NOT assume specific column names like \"title\" or \"name\".",
+      "kind": "error",
+      "entity": "CSVFile",
+      "action": "convert_csv_to_json",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "malformed.csv"
+      ],
+      "changes": {},
+      "cli": [
+        "csv-to-json",
+        "malformed.csv"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "MalformedCSVError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "error class 'MalformedCSVError' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

@@ -1,0 +1,302 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Book add",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status"
+          ],
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book update",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status"
+          ],
+          [
+            "Book",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "delete",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--availability-status",
+            "false"
+          ],
+          [
+            "Book",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "availability_status": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Member add",
+      "when": {
+        "cli_variants": [
+          [
+            "Member",
+            "add",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status"
+          ],
+          [
+            "Member",
+            "add",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Member update",
+      "when": {
+        "cli_variants": [
+          [
+            "Member",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status"
+          ],
+          [
+            "Member",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Member": {
+            "name": "value1",
+            "contact_details": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Member delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Member",
+            "delete",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--contact-details",
+            "value1",
+            "--membership-status",
+            "false"
+          ],
+          [
+            "Member",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Member": {
+            "name": "value1",
+            "contact_details": "value1",
+            "membership_status": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan add",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan update",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "update",
+            "--id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01"
+          ]
+        ],
+        "seed_overrides": {
+          "Loan": {
+            "book_id": 1,
+            "member_id": 1,
+            "loan_date": "2024-01-01T00:00:00",
+            "return_date": "2024-01-01"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01"
+          ],
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Loan": {
+            "book_id": 1,
+            "member_id": 1,
+            "loan_date": "2024-01-01T00:00:00",
+            "return_date": "2024-01-01"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

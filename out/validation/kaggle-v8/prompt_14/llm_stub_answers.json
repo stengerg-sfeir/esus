@@ -1,0 +1,17 @@
+[
+  {
+    "label": "ProjectRepository.count_active_projects",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = [('is_deleted', 'eq', False)]\n    found = self._store.select(self.ENTITY, criteria)\n    return len(found)",
+    "finish_reason": "stop",
+    "tokens": 31,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 6.5415730476379395,
+    "decode_seconds": 0.777941,
+    "prompt_tokens": 2526,
+    "cached_tokens": 332,
+    "context": "exact"
+  }
+]

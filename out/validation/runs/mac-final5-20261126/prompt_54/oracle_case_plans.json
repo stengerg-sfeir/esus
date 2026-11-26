@@ -1,0 +1,33 @@
+{
+  "plans": [
+    {
+      "id": "appointment_creation_with_identical_times",
+      "source": "Create an appointment application. Appointments have a start and end time. An appointment must always end after it starts, but the application must also support appointments whose start and end time are identical.",
+      "when": {
+        "action": "create_appointment",
+        "args": [
+          "start_time",
+          "end_time"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "appointment",
+          "entity": "Appointment",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "appointment.start_time",
+          "appointment.end_time"
+        ],
+        "rows": {
+          "Appointment": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

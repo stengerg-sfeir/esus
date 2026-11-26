@@ -1,0 +1,503 @@
+{
+  "plans": [
+    {
+      "id": "expense_add_with_valid_params",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "when": {
+        "action": "add_expense",
+        "args": [
+          "amount",
+          "description",
+          "category",
+          "expense-date",
+          "method",
+          "recurring"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "target"
+        },
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "expense_list_with_filters",
+      "source": "expense list [--category] [--from-date] [--to-date] [--method]",
+      "when": {
+        "action": "list_expenses",
+        "args": [
+          "category",
+          "from_date",
+          "to_date",
+          "payment_method"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "target"
+        },
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.category_id",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": "variable"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "expense_get_by_id",
+      "source": "get_expense_by_id(id)",
+      "when": {
+        "action": "get_expense_by_id",
+        "args": [
+          "id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.category_id",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "expense_update_with_valid_params",
+      "source": "update_expense(id, data)",
+      "when": {
+        "action": "update_expense",
+        "args": [
+          "id",
+          "data"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.category_id",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "expense_delete_by_id",
+      "source": "delete_expense(id)",
+      "when": {
+        "action": "delete_expense",
+        "args": [
+          "id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.category_id",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "budget_list_with_filters",
+      "source": "budget list [--category] [--month]",
+      "when": {
+        "action": "list_budgets",
+        "args": [
+          "category",
+          "month"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "budget",
+          "entity": "Budget",
+          "role": "target"
+        },
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "budget.amount_limit_cents",
+          "budget.month",
+          "budget.category_id"
+        ],
+        "rows": {
+          "Budget": "variable"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "budget_add_with_params",
+      "source": "budget add --category-id --month --amount",
+      "when": {
+        "action": "add_budget",
+        "args": [
+          "category_id",
+          "month",
+          "amount"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "setup"
+        },
+        {
+          "alias": "budget",
+          "entity": "Budget",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "budget.amount_limit_cents",
+          "budget.month",
+          "budget.category_id"
+        ],
+        "rows": {
+          "Budget": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "budget_update_with_amount",
+      "source": "budget update --category-id --month [--amount]",
+      "when": {
+        "action": "update_budget",
+        "args": [
+          "category_id",
+          "month",
+          "amount"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "budget",
+          "entity": "Budget",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "budget.amount_limit_cents",
+          "budget.month",
+          "budget.category_id"
+        ],
+        "rows": {
+          "Budget": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "budget_delete_by_id",
+      "source": "budget delete --category-id --month",
+      "when": {
+        "action": "delete_budget",
+        "args": [
+          "category_id",
+          "month"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "budget",
+          "entity": "Budget",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "budget.amount_limit_cents",
+          "budget.month",
+          "budget.category_id"
+        ],
+        "rows": {
+          "Budget": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "category_add_with_params",
+      "source": "expense category add --name --description [--budget] [--icon]",
+      "when": {
+        "action": "add_category",
+        "args": [
+          "name",
+          "description",
+          "budget",
+          "icon"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "category.name",
+          "category.description",
+          "category.monthly_budget",
+          "category.icon"
+        ],
+        "rows": {
+          "Category": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "category_list",
+      "source": "expense category list",
+      "when": {
+        "action": "list_categories",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "category.name",
+          "category.description",
+          "category.monthly_budget",
+          "category.icon"
+        ],
+        "rows": {
+          "Category": "variable"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "category_update_with_params",
+      "source": "expense category update --id [--name] [--description] [--budget] [--icon]",
+      "when": {
+        "action": "update_category",
+        "args": [
+          "id",
+          "name",
+          "description",
+          "budget",
+          "icon"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "category.name",
+          "category.description",
+          "category.monthly_budget",
+          "category.icon"
+        ],
+        "rows": {
+          "Category": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "category_delete_by_id",
+      "source": "expense category delete --id",
+      "when": {
+        "action": "delete_category",
+        "args": [
+          "id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "category.name",
+          "category.description",
+          "category.monthly_budget",
+          "category.icon"
+        ],
+        "rows": {
+          "Category": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "expense_export_with_params",
+      "source": "expense export --from-date --to-date --output",
+      "when": {
+        "action": "export_to_csv",
+        "args": [
+          "from_date",
+          "to_date",
+          "output"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.category_id",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": "variable"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "expense_recurring_detect",
+      "source": "expense recurring detect",
+      "when": {
+        "action": "detect_recurring",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "expense",
+          "entity": "Expense",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "expense.amount_cents",
+          "expense.description",
+          "expense.expense_date",
+          "expense.category_id",
+          "expense.payment_method",
+          "expense.is_recurring"
+        ],
+        "rows": {
+          "Expense": "variable"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

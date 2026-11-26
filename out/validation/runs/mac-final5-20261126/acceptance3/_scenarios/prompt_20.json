@@ -1,0 +1,138 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--price",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Sale add",
+      "when": {
+        "cli_variants": [
+          [
+            "Sale",
+            "add",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--sale-date",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Sale update",
+      "when": {
+        "cli_variants": [
+          [
+            "Sale",
+            "update",
+            "--sale-id",
+            "1",
+            "--quantity",
+            "2",
+            "--sale-date",
+            "2024-01-01T00:00:00"
+          ]
+        ],
+        "seed_overrides": {
+          "Sale": {
+            "quantity": 2,
+            "sale_date": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Sale delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Sale",
+            "delete",
+            "--sale-id",
+            "1"
+          ],
+          [
+            "Sale",
+            "delete",
+            "--sale-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

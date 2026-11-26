@@ -1,0 +1,155 @@
+{
+  "plans": [
+    {
+      "id": "cancel_order_action",
+      "source": "Cancelling a confirmed order releases the reserved stock.",
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "confirm_order_action",
+      "source": "Confirming an order reserves stock.",
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_orders_by_customer",
+      "source": "Customers should be able to search their orders and invoices.",
+      "when": {
+        "action": "search_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        },
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "create_invoice_on_confirm",
+      "source": "An invoice is created when an order is confirmed.",
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "created"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Invoice": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "manage_products_and_categories",
+      "source": "Administrators should be able to manage products and categories.",
+      "when": {
+        "action": "manage_products",
+        "args": [
+          "product.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    }
+  ]
+}

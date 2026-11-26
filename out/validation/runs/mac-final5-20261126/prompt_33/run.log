@@ -1,0 +1,84 @@
+[run] requirements: 215 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 115 tokens in 3.0s (38.4 tok/s, 41.7 decode, 77 prompt)
+[data_models] 754 tokens in 21.0s (36.0 tok/s, 36.6 decode, 620 prompt)
+[ok] step data_models: Customer.customer_id became the integer primary key id
+[ok] step data_models: AuditLog.audit_id became the integer primary key id
+[ok] step data_models: AuditLog.customer_id retyped to int for its Customer key
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.5s (16.5 tok/s, 44.5 decode, 492 prompt)
+[invariants] 256 tokens in 6.5s (39.2 tok/s, 40.7 decode, 296 prompt)
+[ok] step invariants: 27 invariant(s) — 21 schema generated mechanically, 6 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 547 tokens in 15.3s (35.8 tok/s, 36.5 decode, 1004 prompt)
+[ok] step components: normalized option '-action' to '--action'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-address' to '--address'
+[ok] step components: normalized option '-force' to '--force'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: added 1 persisted dependent entity(ies) to crud_services: AuditLog
+[service_contracts] 10 tokens in 0.5s (19.9 tok/s, 43.6 decode, 498 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Customer add, Customer update, Customer delete, AuditLog add
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+[persistence_ports] 699 tokens in 18.3s (38.1 tok/s, 38.8 decode, 415 prompt)
+[ok] step persistence: merged 8 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[ok] step contracts: expanded 1 mapping parameter(s) into model fields
+  [1/22] invariant -> NO_PATTERN_IN_DOMAIN (0.91)  <- GAP: no pattern for this
+  [2/22] invariant -> NO_PATTERN_IN_DOMAIN (0.71)  <- GAP: no pattern for this
+  [3/22] invariant -> NO_PATTERN_IN_DOMAIN (0.90)  <- GAP: no pattern for this
+  [4/22] invariant -> AGGREGATE_BY_FK_AND_DATE (0.98)
+  [5/22] invariant -> AGGREGATE_BY_FK_AND_DATE (0.61)
+  [6/22] invariant -> NO_PATTERN_IN_DOMAIN (0.94)  <- GAP: no pattern for this
+  [7/22] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/22] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/22] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/22] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/22] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/22] contract:CustomerRepository.create_customer -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/22] contract:CustomerRepository.read_customer_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/22] contract:CustomerRepository.read_all_customers -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [15/22] contract:CustomerRepository.update_customer -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/22] contract:CustomerRepository.delete_customer -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/22] contract:AuditLogRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/22] contract:AuditLogRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [19/22] contract:AuditLogRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [20/22] contract:AuditLogRepository.create_audit_log -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/22] contract:AuditLogRepository.read_audit_log_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/22] contract:AuditLogRepository.read_all_audit_logs -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 22 item(s) — 8 standard CRUD, 10 pattern(s), 4 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: Every customer creation operation must generate an audit log entry with the operation type 'create', the customer ID of the newly created customer, and the current timestamp.
+    gap [NO_PATTERN_IN_DOMAIN] invariant: Every customer update operation must generate an audit log entry with the operation type 'update', the customer ID of the customer being updated, and the current timestamp.
+    gap [NO_PATTERN_IN_DOMAIN] invariant: Every customer deletion operation must generate an audit log entry with the operation type 'delete', the customer ID of the customer being deleted, and the current timestamp.
+    gap [NO_PATTERN_IN_DOMAIN] invariant: The audit log must include the operation type ('create', 'update', or 'delete') that describes the action taken on the customer.
+[ok] step adapters: derived 2 command group(s) from 16 service method(s)
+[ok] step adapters: 4 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerdelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: auditlogadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 182 tokens in 6.5s (28.1 tok/s, 38.2 decode, 738 prompt)
+[ok] step adapters: auditlogadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 4 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: AuditLog add lacked '--timestamp' required by 'auditlogadd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_33/requirements.txt
+[run] 8 steps, 2571 generated tokens in 71.6s

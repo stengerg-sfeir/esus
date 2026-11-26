@@ -1,0 +1,49 @@
+{
+  "intents": [
+    {
+      "id": "category_cannot_be_deleted_with_products",
+      "source": "A category cannot be deleted while products still belong to it",
+      "kind": "error",
+      "entity": "Category",
+      "action": "delete",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "category",
+          "entity": "Category",
+          "role": "parent"
+        }
+      ],
+      "setup_values": {
+        "product.category_id": "cat1",
+        "category.id": "cat1"
+      },
+      "lookup": [
+        "product.category_id"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "CategoryCannotBeDeletedWhileProductsBelongToIt",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "error class 'CategoryCannotBeDeletedWhileProductsBelongToIt' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

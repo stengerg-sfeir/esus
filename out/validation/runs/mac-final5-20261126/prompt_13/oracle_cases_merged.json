@@ -1,0 +1,431 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_product",
+      "source": "Create a Python 3.12 inventory application. Products have a SKU, name, category, price and stock quantity.",
+      "given": {
+        "product": {
+          "sku": "PY312-001",
+          "name": "Python 3.12 Book",
+          "category": "Programming",
+          "price": 49.99,
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "PY312-001",
+          "Python 3.12 Book",
+          "Programming",
+          49.99,
+          5
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "PY312-001",
+          "product.name": "Python 3.12 Book",
+          "product.category": "Programming",
+          "product.price": 49.99,
+          "product.stock_quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "given": {
+        "product": {
+          "sku": "PY312-001",
+          "name": "Python 3.12 Book",
+          "category": "Programming",
+          "price": 49.99,
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "read_product",
+        "args": [
+          "PY312-001"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "PY312-001",
+          "product.name": "Python 3.12 Book",
+          "product.category": "Programming",
+          "product.price": 49.99,
+          "product.stock_quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "given": {
+        "product": {
+          "sku": "PY312-001",
+          "name": "Python 3.12 Book",
+          "category": "Programming",
+          "price": 49.99,
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": [
+          "PY312-001",
+          "price",
+          59.99
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "PY312-001",
+          "product.name": "Python 3.12 Book",
+          "product.category": "Programming",
+          "product.price": 59.99,
+          "product.stock_quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "sku_uniqueness_create",
+      "source": "SKUs must be unique.",
+      "given": {
+        "product": {
+          "stock_quantity": 5,
+          "sku": "SKU123",
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          {
+            "ref": "product.sku"
+          },
+          "SKU123"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "SKU123",
+          "product.stock_quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

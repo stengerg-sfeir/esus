@@ -1,0 +1,261 @@
+{
+  "prompt": "prompt_38",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "code:modules",
+      "status": "passed",
+      "reason": "8 generated modules"
+    },
+    {
+      "name": "code:type-hints",
+      "status": "passed",
+      "reason": "annotated generated functions"
+    },
+    {
+      "name": "db:foreign-keys",
+      "status": "passed",
+      "reason": "SQLite foreign keys enabled"
+    },
+    {
+      "name": "db:persistence-across-executions",
+      "status": "passed",
+      "reason": "SQLite database file"
+    },
+    {
+      "name": "code:entry-point",
+      "status": "passed",
+      "reason": "main guard present"
+    },
+    {
+      "name": "models:primary-keys",
+      "status": "passed",
+      "reason": "every model declares a primary key"
+    },
+    {
+      "name": "api:UserRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:UserRepository.find_user_by_email",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:UserRepository.find_user_by_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:UserRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:UserRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.count_documents_by_owner",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.find_all_documents_by_owner",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.find_document_by_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.find_document_by_owner_and_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DocumentRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:UserRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:UserRepository.find_user_by_email",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:UserRepository.find_user_by_id",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:UserRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:UserRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.count_documents_by_owner",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.find_all_documents_by_owner",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.find_document_by_id",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.find_document_by_owner_and_id",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DocumentRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:User add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:User list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Document add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Document update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Document delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Document list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:User",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Document",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:UserRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:DocumentRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Document.owner_user_id",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:User add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:User list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Document add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Document update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Document delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Document list",
+      "status": "passed"
+    }
+  ]
+}

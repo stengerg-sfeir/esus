@@ -1,0 +1,680 @@
+{
+  "prompt": "prompt_13",
+  "results": [
+    {
+      "name": "scenario:oracle:create_product",
+      "status": "passed",
+      "case": "create_product",
+      "source": "Create a Python 3.12 inventory application. Products have a SKU, name, category, price and stock quantity.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_product",
+      "status": "passed",
+      "case": "read_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:update_product",
+      "status": "passed",
+      "case": "update_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "search_products",
+      "status": "under_specified",
+      "reason": "no generated method matches 'search_products'",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product_1.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    },
+    {
+      "name": "filter_by_category",
+      "status": "under_specified",
+      "reason": "no generated method matches 'filter_by_category'",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product_1.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    },
+    {
+      "name": "report_low_stock",
+      "status": "unbound",
+      "reason": "no generated method matches 'report_low_stock'",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product_1.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_1.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "ProductRepository.create",
+          "score": 0.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "ProductRepository.create",
+            "ProductRepository.delete",
+            "ProductRepository.read_all",
+            "ProductRepository.update"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action"
+    }
+  ],
+  "counts": {
+    "passed": 3,
+    "under_specified": 2,
+    "unbound": 1
+  },
+  "triage_counts": {
+    "passed": 3,
+    "under_specified": 2,
+    "coverage_gap: ambiguous action": 1
+  }
+}

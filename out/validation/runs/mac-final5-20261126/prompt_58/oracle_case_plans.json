@@ -1,0 +1,56 @@
+{
+  "plans": [
+    {
+      "id": "manage_customers_and_retrieve_info",
+      "source": "Create a Python 3.12 application that manages customers and retrieves additional customer information from an external service.",
+      "when": {
+        "action": "manage_customers",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "continue_operation_when_external_unavailable",
+      "source": "The application should continue to operate correctly when the external service is unavailable.",
+      "when": {
+        "action": "operate_application",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.status"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "prompt": "prompt_09",
+  "run_id": "mac-final5-20261126",
+  "prompt_file": "prompts/validation/prompt_09.txt",
+  "output_dir": "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_09",
+  "sha256": "0a8095784b11bc79b7e0b93353446f0758adf05db535d063c0f877f5b790eb6c",
+  "bytes": 235,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 35.077,
+  "tokens": {
+    "calls": 7,
+    "tokens_out": 1185,
+    "tokens_prompt": 3392,
+    "decode_seconds": 30.874
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 0,
+    "open_ties": 2,
+    "rules": []
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/opt/homebrew/opt/python@3.12/bin/python3.12",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/validation/prompt_09.txt",
+      "--output",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_09",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "price_constraint",
+      "source": "The selling price of a wine bottle must always be strictly greater than its cost price.",
+      "given": {
+        "wine": {
+          "name": "Chardonnay",
+          "vintage": 2020,
+          "type": "white",
+          "country_of_origin": "France",
+          "cost_price": 10.0,
+          "selling_price": 10.0
+        }
+      },
+      "when": {
+        "action": "add_wine",
+        "args": [
+          "wine.name",
+          "wine.vintage",
+          "wine.type",
+          "wine.country_of_origin",
+          "wine.cost_price",
+          "wine.selling_price"
+        ]
+      },
+      "then": {
+        "error": "InvalidPricingException"
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "create case supplies no value for required field Wine.vintage_year"
+      }
+    }
+  ]
+}

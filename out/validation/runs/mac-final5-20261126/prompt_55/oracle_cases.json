@@ -1,0 +1,130 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "cancel_order",
+      "source": "Users can sell products.",
+      "given": {
+        "product": {
+          "stock_quantity": 5
+        },
+        "user": {
+          "id": 101
+        }
+      },
+      "when": {
+        "action": "sell_product",
+        "args": [
+          "product.id",
+          "5"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 0
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The sell_product action reduces stock_quantity by the specified quantity"
+      ],
+      "ambiguities": [
+        "The requirement does not specify how stock quantity is updated or what happens if quantity exceeds available stock"
+      ]
+    },
+    {
+      "id": "prevent_inventory_incorrectness",
+      "source": "The application should never allow the inventory to become incorrect.",
+      "given": {
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "sell_product",
+        "args": [
+          "product.id",
+          "15"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 10
+        },
+        "error": "invalid_quantity",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application validates that the requested quantity does not exceed available stock",
+        "If the quantity exceeds stock, the system rejects the transaction and maintains original stock"
+      ],
+      "ambiguities": [
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements",
+        "error class 'invalid_quantity' is not named in the requirements"
+      ]
+    }
+  ]
+}

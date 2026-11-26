@@ -1,0 +1,358 @@
+{
+  "prompt": "prompt_inventory",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "code:modules",
+      "status": "passed",
+      "reason": "8 generated modules"
+    },
+    {
+      "name": "code:type-hints",
+      "status": "passed",
+      "reason": "annotated generated functions"
+    },
+    {
+      "name": "db:foreign-keys",
+      "status": "passed",
+      "reason": "SQLite foreign keys enabled"
+    },
+    {
+      "name": "db:persistence-across-executions",
+      "status": "passed",
+      "reason": "SQLite database file"
+    },
+    {
+      "name": "code:entry-point",
+      "status": "passed",
+      "reason": "main guard present"
+    },
+    {
+      "name": "models:primary-keys",
+      "status": "passed",
+      "reason": "every model declares a primary key"
+    },
+    {
+      "name": "api:CategoryRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CategoryRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CategoryRepository.find_products_by_category",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CategoryRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CategoryRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CategoryRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.aggregate_stock_value_by_category",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.find_low_stock_products",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.find_products_by_category",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.add_product",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.delete_product",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.get_product_by_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.list_products",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.low_stock_report",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.restock",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.stock_value_by_category",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:InventoryService.update_product",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CategoryRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CategoryRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CategoryRepository.find_products_by_category",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CategoryRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CategoryRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CategoryRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.aggregate_stock_value_by_category",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.find_low_stock_products",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.find_products_by_category",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product restock",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product report low-stock",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product report value",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Category",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CategoryRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Category.name",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Product.sku",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Product.category_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:InventoryService.restock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product restock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product report low-stock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product report value",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category delete",
+      "status": "passed"
+    }
+  ]
+}

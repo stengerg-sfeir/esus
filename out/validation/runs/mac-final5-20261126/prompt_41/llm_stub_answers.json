@@ -1,0 +1,30 @@
+[
+  {
+    "label": "BookRepository.booksearch",
+    "status": "written",
+    "note": "repaired: calls self._search_term, which the module does not define",
+    "answer": "```python\ncriteria = []\nfound = self._store.select(self.ENTITY, [])\nresults = []\nfor record in found:\n    title = record.get('title')\n    author = record.get('author')\n    if title and title.lower() in self._store.select(\"Book\", [(\"title\", \"eq\", title.lower())])[0].get(\"title\", \"\").lower():\n        results.append(models.Book(**record))\n    if author and author.lower() in self._store.select(\"Book\", [(\"author\", \"eq\", author.lower())])[0].get(\"author\", \"\").lower():\n        results.append(models.Book(**record))\nreturn results\n```",
+    "first_answer": "found = self._store.all(self.ENTITY)\n        results = []\n        for record in found:\n            title = record.get(\"title\")\n            author = record.get(\"author\")\n            if title and title.lower() in self._search_term.lower():\n                results.append(models.Book(**record))\n            elif author and author.lower() in self._search_term.lower():\n                results.append(models.Book(**record))\n        return results\n```",
+    "complaints": [
+      "calls self._search_term, which the module does not define"
+    ],
+    "repairs": 2,
+    "first_finish_reason": "stop",
+    "first_tokens": 87,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 18.659411907196045,
+    "first_decode_seconds": 3.317228,
+    "first_prompt_tokens": 5309,
+    "first_cached_tokens": 332,
+    "finish_reason": "stop",
+    "tokens": 130,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 5.150874137878418,
+    "decode_seconds": 4.7553410000000005,
+    "prompt_tokens": 5372,
+    "cached_tokens": 5291,
+    "context": "exact"
+  }
+]

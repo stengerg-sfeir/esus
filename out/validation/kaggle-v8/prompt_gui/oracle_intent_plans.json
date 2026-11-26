@@ -1,0 +1,91 @@
+{
+  "plans": [
+    {
+      "id": "price_greater_than_cost",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "storagelocation",
+            "entity": "StorageLocation",
+            "reason": "required Wine.storage_location_id"
+          }
+        ],
+        "aliases": {
+          "wine": "Wine"
+        },
+        "target_usage": {
+          "entity": "Wine",
+          "used_entities": [
+            "Wine"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "stock_never_below_zero",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "storagelocation",
+            "entity": "StorageLocation",
+            "reason": "required Wine.storage_location_id"
+          }
+        ],
+        "aliases": {
+          "wine": "Wine"
+        },
+        "target_usage": {
+          "entity": "Wine",
+          "used_entities": [
+            "Wine"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "location_capacity_exceeded_error",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "wine": "Wine",
+          "location": "StorageLocation"
+        },
+        "target_usage": {
+          "entity": "Wine",
+          "used_entities": [
+            "Wine"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "prevent_removal_if_assigned",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "wine": "Wine",
+          "location": "StorageLocation"
+        },
+        "target_usage": {
+          "entity": "StorageLocation",
+          "used_entities": [
+            "StorageLocation"
+          ],
+          "used": true
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "location_capacity_enforcement",
+      "errors": [
+        "reference field 'total_bottles_assigned' is not declared on StorageLocation"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

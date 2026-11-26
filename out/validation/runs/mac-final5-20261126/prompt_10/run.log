@@ -1,0 +1,58 @@
+[run] requirements: 265 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 88 tokens in 2.3s (38.8 tok/s, 43.3 decode, 93 prompt)
+[data_models] 235 tokens in 6.3s (37.4 tok/s, 40.0 decode, 609 prompt)
+[ok] step data_models: Note.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 1 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.4s (18.3 tok/s, 46.0 decode, 483 prompt)
+[invariants] 7 tokens in 0.4s (18.1 tok/s, 49.5 decode, 287 prompt)
+[ok] step invariants: 7 invariant(s) — 7 schema generated mechanically, 0 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 645 tokens in 17.3s (37.3 tok/s, 37.9 decode, 995 prompt)
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-list' to '--list'
+[ok] step components: normalized option '-update' to '--update'
+[ok] step components: normalized option '-delete' to '--delete'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 10 tokens in 0.5s (18.9 tok/s, 44.9 decode, 489 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 446 tokens in 11.7s (38.0 tok/s, 38.8 decode, 395 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/5] contract:NoteRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [2/5] contract:NoteRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [3/5] contract:NoteRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [4/5] contract:NoteRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [5/5] contract:NoteRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 5 item(s) — 3 standard CRUD, 2 pattern(s), 0 gap(s)
+[ok] step adapters: 4 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: noteupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: notedelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 174 tokens in 5.0s (35.1 tok/s, 39.8 decode, 566 prompt)
+[!] step interaction_adapters retry has 1 item(s) versus 4 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: note create lacked '--creation-date' required by 'notecreate' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step components: added 1 CRUD subcommand(s) from the service contracts: Note list
+[ok] step adapters: added 1 missing adapter(s) mechanically: Note list
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_10/requirements.txt
+[run] 8 steps, 1613 generated tokens in 43.9s

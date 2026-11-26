@@ -1,0 +1,128 @@
+[run] requirements: 184 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 89 tokens in 2.3s (38.5 tok/s, 42.7 decode, 71 prompt)
+[data_models] 946 tokens in 26.4s (35.9 tok/s, 36.4 decode, 588 prompt)
+[ok] step data_models: Client.client_id became the integer primary key id
+[ok] step data_models: Invoice.invoice_id became the integer primary key id
+[ok] step data_models: Payment.payment_id became the integer primary key id
+[ok] step data_models: Invoice.client_id retyped to int for its Client key
+[ok] step data_models: Payment.invoice_id retyped to int for its Invoice key
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 367 tokens in 9.8s (37.6 tok/s, 38.8 decode, 494 prompt)
+[invariants] 236 tokens in 6.1s (38.9 tok/s, 40.8 decode, 298 prompt)
+[ok] step invariants: 37 invariant(s) — 29 schema generated mechanically, 8 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 2190 tokens in 64.8s (33.8 tok/s, 34.0 decode, 1006 prompt)
+[ok] step components: aligned 3 option type(s) with the data model: --client -> int (Invoice.client_id), --client -> int (Invoice.client_id), --client -> int (Invoice.client_id)
+[ok] step components: normalized option '-client' to '--client'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-account-status' to '--account-status'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-due-date' to '--due-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-invoice-id' to '--invoice-id'
+[ok] step components: normalized option '-payment-date' to '--payment-date'
+[ok] step components: normalized option '-amount' to '--amount'
+[ok] step components: normalized option '-payment-method' to '--payment-method'
+[ok] step components: normalized option '-invoice-id' to '--invoice-id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-from-date' to '--from-date'
+[ok] step components: normalized option '-to-date' to '--to-date'
+[ok] step components: normalized option '-client' to '--client'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-client' to '--client'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-client' to '--client'
+[ok] step components: normalized option '-client-id' to '--client-id'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 1.0s (9.9 tok/s, 43.6 decode, 685 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: client update, client delete, invoice update, invoice delete, payment update, payment delete
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidClientDataError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidInvoiceDataError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidPaymentDataError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 175 tokens in 4.8s (36.5 tok/s, 40.0 decode, 434 prompt)
+[ok] step persistence: merged 1 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/24] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [3/24] invariant -> BUDGET_OVERFLOW_GUARD (0.49)
+  [4/24] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [5/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [7/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/24] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [9/24] contract:ClientRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/24] contract:ClientRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/24] contract:ClientRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/24] contract:ClientRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/24] contract:ClientRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/24] contract:InvoiceRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/24] contract:InvoiceRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/24] contract:InvoiceRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/24] contract:InvoiceRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/24] contract:InvoiceRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/24] contract:InvoiceRepository.get_outstanding_invoices -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [20/24] contract:PaymentRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/24] contract:PaymentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [22/24] contract:PaymentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/24] contract:PaymentRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/24] contract:PaymentRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 24 item(s) — 9 standard CRUD, 15 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (invoice get: ambiguous methods: InvoiceRepository.read_all, InvoiceRepository.read_one); retry after surface repairs declined (invoice get: ambiguous methods: InvoiceRepository.read_all, InvoiceRepository.read_one) — asking the model
+[interaction_adapters] 2046 tokens in 64.3s (31.8 tok/s, 32.2 decode, 699 prompt)
+[ok] step adapters: create_invoice.client_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_payment.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_client.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_invoice.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_payment.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_client.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_invoice.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_invoice.client_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_payment.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_payment.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_client.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_invoice.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_payment.id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 100 tokens in 3.3s (30.5 tok/s, 33.7 decode, 737 prompt)
+[!] step interaction_adapters retry has 1 item(s) versus 13 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: invoice get lacked '--current-date' required by 'get_outstanding_invoices' — added as str
+[ok] step adapters: outstanding  lacked '--current-date' required by 'get_outstanding_invoices' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_46/requirements.txt
+[run] 9 steps, 6159 generated tokens in 182.6s

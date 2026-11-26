@@ -1,0 +1,34 @@
+{
+  "errors": [
+    {
+      "name": "NegativeStockError",
+      "base": "ValueError",
+      "description": "Raised when an attempt is made to set a wine's stock quantity to a negative value."
+    },
+    {
+      "name": "LocationOverCapacityException",
+      "base": "ValueError",
+      "description": "Raised when adding a wine to a storage location would exceed that location's maximum bottle capacity."
+    },
+    {
+      "name": "InvalidPricingException",
+      "base": "ValueError",
+      "description": "Raised when a wine's selling price is not strictly greater than its cost price."
+    },
+    {
+      "name": "DuplicateWineNameError",
+      "base": "KeyError",
+      "description": "Raised when attempting to add a wine with a name that already exists in the system."
+    },
+    {
+      "name": "StorageLocationNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested storage location is not found in the system."
+    },
+    {
+      "name": "WineNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested wine is not found in the system."
+    }
+  ]
+}

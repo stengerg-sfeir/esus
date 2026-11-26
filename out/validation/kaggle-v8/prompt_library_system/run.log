@@ -1,0 +1,110 @@
+[run] requirements: 4286 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 509 tokens in 9.1s (56.1 tok/s, 60.3 decode, 998 prompt)
+[data_models] 1296 tokens in 23.6s (54.9 tok/s, 57.6 decode, 1917 prompt)
+[errors] 671 tokens in 12.3s (54.5 tok/s, 59.3 decode, 1441 prompt)
+[invariants] 454 tokens in 8.4s (54.0 tok/s, 60.0 decode, 1245 prompt)
+[ok] step invariants: 54 invariant(s) — 44 schema generated mechanically, 10 rule(s) from the model
+[ok] step components: 15 command line(s) enumerated
+[components] 333 tokens in 6.8s (48.8 tok/s, 57.8 decode, 1564 prompt)
+[ok] step components: removed 1 exactly repeated name(s)
+[command_group] 533 tokens in 10.5s (50.8 tok/s, 55.6 decode, 1269 prompt)
+[command_group] 307 tokens in 6.4s (48.2 tok/s, 55.9 decode, 1211 prompt)
+[command_group] 102 tokens in 2.7s (37.2 tok/s, 53.7 decode, 1176 prompt)
+[command_group] 67 tokens in 2.2s (30.3 tok/s, 48.3 decode, 1170 prompt)
+[command_group] 125 tokens in 3.3s (38.2 tok/s, 50.2 decode, 1167 prompt)
+[command_group] 234 tokens in 5.1s (46.2 tok/s, 54.6 decode, 1177 prompt)
+[ok] step components: removed 4 exactly repeated name(s) from the merged split surface
+[!] step components: 3 command line(s) need judgment, left to the model
+[ok] step components: book add lacked '--title' the requirements pass — added as str (typed from Book.title)
+[ok] step components: book add lacked '--isbn' the requirements pass — added as str (typed from Book.isbn)
+[ok] step components: book add lacked '--published-year' the requirements pass — added as int (typed from Book.published_year)
+[ok] step components: book add lacked '--copies' the requirements pass — added as int (typed from Book.available_copies)
+[ok] step components: book list lacked optional '--available-only' the requirements pass — added as bool (typed from boolean flag name)
+[ok] step components: '--copies' is optional with default '1' (requirements/model default)
+[ok] step components: folded accidental subcommand 'overdue library' into flat 'overdue' (the program word is not a command path)
+[ok] step components: normalized option '-overdue' to '--overdue'
+[service_contracts] 547 tokens in 10.5s (51.9 tok/s, 57.9 decode, 1781 prompt)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step contracts: normalized 12 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidISBNError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidEmailError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidMemberStatusError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidLoanStatusError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidMemberEmailError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidLoanMemberIDError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 729 tokens in 13.2s (55.0 tok/s, 59.3 decode, 1395 prompt)
+[ok] step persistence: merged 9 custom repository method(s) into service_contracts
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/44] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/44] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/44] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [4/44] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [5/44] invariant -> BUDGET_OVERFLOW_GUARD (0.72)
+  [6/44] invariant -> FILTER_WITH_PAGINATION (1.00)
+  [7/44] invariant -> FILTER_BY_FIELD (0.99)
+  [8/44] invariant -> FILTER_BY_FIELD (0.49)
+  [9/44] invariant -> STATE_TRANSITION_GUARD (0.68)
+  [10/44] invariant -> AGGREGATE_BY_FK_AND_DATE (0.99)
+  [11/44] contract:LibraryService.borrow_book -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [12/44] contract:LibraryService.return_book -> STATE_TRANSITION_GUARD (0.98)
+  [13/44] contract:LibraryService.get_overdue_loans -> THRESHOLD_SCAN (1.00)
+  [14/44] contract:LibraryService.renew_membership -> STATE_TRANSITION_GUARD (1.00)
+  [15/44] contract:LibraryService.search_books -> FILTER_WITH_PAGINATION (1.00)
+  [16/44] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/44] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/44] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [19/44] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/44] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/44] contract:BookRepository.search_by_title_or_author_or_isbn -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/44] contract:BookRepository.filter_by_available_copies -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/44] contract:AuthorRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/44] contract:AuthorRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [25/44] contract:AuthorRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [26/44] contract:AuthorRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [27/44] contract:AuthorRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [28/44] contract:AuthorRepository.find_books_by_author -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [29/44] contract:MemberRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/44] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [31/44] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [32/44] contract:MemberRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [33/44] contract:MemberRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [34/44] contract:MemberRepository.find_active_members -> FILTER_BY_FIELD (0.00)  <- corrected: COUNT_ACTIVE_BY_FK returns scalar, but this method returns collection (list[Member]) (was COUNT_ACTIVE_BY_FK)  <- undecided (pattern): THRESHOLD_SCAN at 0.00
+  [35/44] contract:MemberRepository.find_inactive_members -> FILTER_BY_FIELD (0.00)  <- corrected: COUNT_ACTIVE_BY_FK returns scalar, but this method returns collection (list[Member]) (was COUNT_ACTIVE_BY_FK)  <- undecided (pattern): FILTER_WITH_PAGINATION at 0.00
+  [36/44] contract:LoanRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [37/44] contract:LoanRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [38/44] contract:LoanRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [39/44] contract:LoanRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [40/44] contract:LoanRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [41/44] contract:LoanRepository.find_active_loans -> FILTER_BY_FIELD (0.00)  <- corrected: COUNT_ACTIVE_BY_FK returns scalar, but this method returns collection (list[Loan]) (was COUNT_ACTIVE_BY_FK)  <- undecided (pattern): THRESHOLD_SCAN at 0.00
+  [42/44] contract:LoanRepository.find_overdue_loans -> THRESHOLD_SCAN (1.00)
+  [43/44] contract:LoanRepository.get_member_loan_history -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [44/44] contract:LoanRepository.get_book_loan_history -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 44 item(s) — 12 standard CRUD, 32 pattern(s), 0 gap(s)
+[ok] step adapters: 10 adapter(s) derived mechanically from the explicit surface
+[ok] step adapters: bookadd.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: memberhistory.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrow.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrow.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: return.loan_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 173 tokens in 4.0s (43.6 tok/s, 59.3 decode, 1873 prompt)
+[ok] step interaction_adapters retry healed 1->0 unreachable field(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: book add lacked '--name' required by 'memberadd' — added as str
+[ok] step adapters: book add lacked '--email' required by 'memberadd' — added as str
+[ok] step adapters: author add lacked '--email' required by 'memberadd' — added as str
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/command_group.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system/requirements.txt
+[run] 14 steps, 6080 generated tokens in 118.1s

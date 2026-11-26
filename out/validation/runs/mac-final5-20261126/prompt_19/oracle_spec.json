@@ -1,0 +1,51 @@
+{
+  "requirements_sha": "345a33c4919b49987a778df6fdca9fd6ff688ea401f8d21e381c91ada9f72373",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "The total number of tasks in the database must remain consistent after import or export operations.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "REPO_QUERY",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "classification",
+      "source": "Imported tasks must have valid titles, and a task with an empty or null title must be rejected.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "STOCK_SUFFICIENCY_GUARD",
+        "PRICE_MARGIN_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

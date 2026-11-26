@@ -1,0 +1,436 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Client",
+        "interface_name": "ClientRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Client.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "account_status",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Client",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Client by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Client",
+            "raises": [
+              "ClientNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Client; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "account_status",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Client]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Client.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "account_status",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Client",
+            "raises": [
+              "ClientNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Client.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "phone",
+                "type": "str"
+              },
+              {
+                "name": "account_status",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "ClientNotFoundError"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "interface_name": "InvoiceRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Invoice.",
+            "params": [
+              {
+                "name": "client_id",
+                "type": "int"
+              },
+              {
+                "name": "due_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Invoice",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Invoice by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Invoice",
+            "raises": [
+              "InvoiceNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Invoice; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "client_id",
+                "type": "int"
+              },
+              {
+                "name": "due_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Invoice]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Invoice.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "client_id",
+                "type": "int"
+              },
+              {
+                "name": "due_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Invoice",
+            "raises": [
+              "InvoiceNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Invoice.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "client_id",
+                "type": "int"
+              },
+              {
+                "name": "due_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "InvoiceNotFoundError"
+            ]
+          }
+        ]
+      },
+      {
+        "entity": "Payment",
+        "interface_name": "PaymentRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Payment.",
+            "params": [
+              {
+                "name": "invoice_id",
+                "type": "int"
+              },
+              {
+                "name": "payment_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "payment_method",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Payment",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Payment by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Payment",
+            "raises": [
+              "PaymentNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Payment; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "invoice_id",
+                "type": "int"
+              },
+              {
+                "name": "payment_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "payment_method",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Payment]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Payment.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "invoice_id",
+                "type": "int"
+              },
+              {
+                "name": "payment_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "payment_method",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Payment",
+            "raises": [
+              "PaymentNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Payment.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "invoice_id",
+                "type": "int"
+              },
+              {
+                "name": "payment_date",
+                "type": "datetime.date"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "payment_method",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "PaymentNotFoundError"
+            ]
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Client",
+        "table": "clients",
+        "primary_key": "id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Invoice",
+        "table": "invoices",
+        "primary_key": "id",
+        "indexes": [
+          "client_id",
+          "due_date",
+          "status"
+        ]
+      },
+      {
+        "entity": "Payment",
+        "table": "payments",
+        "primary_key": "id",
+        "indexes": [
+          "invoice_id",
+          "payment_date",
+          "payment_method"
+        ]
+      }
+    ]
+  }
+}

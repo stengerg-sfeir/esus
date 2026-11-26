@@ -1,0 +1,18 @@
+{
+  "method_contracts": [
+    {
+      "holder": "PostTagRepository",
+      "method": "read_posts_by_tag_name",
+      "decided_by": "user",
+      "requirements_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6",
+      "reads": [
+        {
+          "entity": "Tag",
+          "field": "name",
+          "repository": "TagRepository",
+          "via": "PostTag.tag_id"
+        }
+      ]
+    }
+  ]
+}

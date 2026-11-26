@@ -1,0 +1,45 @@
+{
+  "plans": [
+    {
+      "id": "order_with_insufficient_stock",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "customer",
+            "entity": "Customer",
+            "reason": "required parameter customer_id"
+          }
+        ],
+        "aliases": {
+          "product": "Product",
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Product",
+          "used_entities": [
+            "Customer"
+          ],
+          "used": false
+        }
+      }
+    },
+    {
+      "id": "order_creation_decreases_stock",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "product": "Product"
+        },
+        "target_usage": {
+          "entity": "Product",
+          "used_entities": [
+            "Product"
+          ],
+          "used": true
+        }
+      }
+    }
+  ],
+  "rejected": [],
+  "validation_errors": []
+}

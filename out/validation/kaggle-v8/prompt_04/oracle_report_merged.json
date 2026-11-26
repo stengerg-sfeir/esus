@@ -1,0 +1,68 @@
+{
+  "prompt": "prompt_04",
+  "results": [
+    {
+      "name": "scenario:oracle:list_tasks",
+      "status": "passed",
+      "case": "list_tasks",
+      "source": "Users can add, list, complete and delete tasks.",
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:delete_task",
+      "status": "passed",
+      "case": "delete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 2
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "cases": [
+    {
+      "id": "cancel_order_pending",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "product": {
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": ["order.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+      "status": "ambiguous",
+      "ambiguities": [
+        "The requirement does not specify what happens to stock quantities when an order is cancelled. It only specifies stock reduction during order creation, not during cancellation. The increase in stock quantity (to 7) is not mentioned or justified in the requirements."
+      ]
+    },
+    {
+      "id": "order_creation_with_insufficient_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "given": {
+        "product": {
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product.id"]
+      },
+      "then": {
+        "error": "InsufficientStockError",
+        "state": {}
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_creation_with_sufficient_stock",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed",
+          "product.stock_quantity": 9
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_creation_with_multiple_products",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "given": {
+        "product_1": {
+          "stock_quantity": 5
+        },
+        "product_2": {
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product_1.id", "product_2.id"]
+      },
+      "then": {
+        "error": "InsufficientStockError",
+        "state": {}
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_creation_with_zero_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "given": {
+        "product": {
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product.id"]
+      },
+      "then": {
+        "error": "InsufficientStockError",
+        "state": {}
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_creation_with_negative_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "given": {
+        "product": {
+          "stock_quantity": -1
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product.id"]
+      },
+      "then": {
+        "error": "InsufficientStockError",
+        "state": {}
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "stock_decrease_after_order_creation",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed",
+          "product.stock_quantity": 9
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_status_after_creation",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": ["product.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

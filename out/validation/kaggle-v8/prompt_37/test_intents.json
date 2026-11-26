@@ -1,0 +1,56 @@
+{
+  "intents": [
+    {
+      "id": "delete_project_remove_tasks",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "kind": "delete",
+      "entity": "Project",
+      "action": "delete_project",
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        },
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "related"
+        }
+      ],
+      "setup_values": {
+        "project.name": "Project A",
+        "task.project_id": "1",
+        "task.status": "active"
+      },
+      "lookup": [
+        "project.name"
+      ],
+      "where": {
+        "project.active": true
+      },
+      "args": [
+        "Project A"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "project.name": "Project A",
+          "task.project_id": null
+        },
+        "rows": {
+          "Project": 1,
+          "Task": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

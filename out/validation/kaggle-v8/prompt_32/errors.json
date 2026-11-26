@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "OrderStatusInvalidError",
+      "base": "ValueError",
+      "description": "Raised by OrderService.confirm_order when the requested operation is not valid."
+    },
+    {
+      "name": "OrderAlreadyConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised by OrderService.confirm_order when the requested operation is not valid."
+    },
+    {
+      "name": "OrderNotConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised by OrderService.ship_order when the requested operation is not valid."
+    }
+  ]
+}

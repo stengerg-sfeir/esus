@@ -1,0 +1,123 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "employeeadd",
+      "target_service": "EmployeeRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "age",
+          "target_param": "age",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "salary",
+          "target_param": "salary",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "employeeupdate",
+      "target_service": "EmployeeRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "employee_id",
+          "target_param": "employee_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Employee",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "age",
+          "target_param": "age",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "salary",
+          "target_param": "salary",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "employeedelete",
+      "target_service": "EmployeeRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "employee_id",
+          "target_param": "employee_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Employee",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "age",
+          "target_param": "age",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "salary",
+          "target_param": "salary",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

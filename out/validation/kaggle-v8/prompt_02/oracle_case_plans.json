@@ -1,0 +1,190 @@
+{
+  "plans": [
+    {
+      "id": "addition_support",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "when": {
+        "action": "add",
+        "args": [
+          "number1",
+          "number2"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "number1",
+          "entity": "Number",
+          "role": "input"
+        },
+        {
+          "alias": "number2",
+          "entity": "Number",
+          "role": "input"
+        }
+      ],
+      "expect": {
+        "state": [
+          "result"
+        ],
+        "rows": {
+          "Operation": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "subtraction_support",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "when": {
+        "action": "subtract",
+        "args": [
+          "number1",
+          "number2"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "number1",
+          "entity": "Number",
+          "role": "input"
+        },
+        {
+          "alias": "number2",
+          "entity": "Number",
+          "role": "input"
+        }
+      ],
+      "expect": {
+        "state": [
+          "result"
+        ],
+        "rows": {
+          "Operation": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "multiplication_support",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "when": {
+        "action": "multiply",
+        "args": [
+          "number1",
+          "number2"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "number1",
+          "entity": "Number",
+          "role": "input"
+        },
+        {
+          "alias": "number2",
+          "entity": "Number",
+          "role": "input"
+        }
+      ],
+      "expect": {
+        "state": [
+          "result"
+        ],
+        "rows": {
+          "Operation": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "division_support",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "when": {
+        "action": "divide",
+        "args": [
+          "number1",
+          "number2"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "number1",
+          "entity": "Number",
+          "role": "input"
+        },
+        {
+          "alias": "number2",
+          "entity": "Number",
+          "role": "input"
+        }
+      ],
+      "expect": {
+        "state": [
+          "result"
+        ],
+        "rows": {
+          "Operation": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "division_by_zero_error",
+      "source": "Division by zero must produce a clear error message.",
+      "when": {
+        "action": "divide",
+        "args": [
+          "number1",
+          "0"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "number1",
+          "entity": "Number",
+          "role": "input"
+        },
+        {
+          "alias": "number2",
+          "entity": "Number",
+          "role": "input"
+        }
+      ],
+      "expect": {
+        "error": "Division by zero is not allowed"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "result_display",
+      "source": "Display the result on the command line.",
+      "when": {
+        "action": "calculate",
+        "args": [
+          "number1",
+          "number2",
+          "operation"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "number1",
+          "entity": "Number",
+          "role": "input"
+        },
+        {
+          "alias": "number2",
+          "entity": "Number",
+          "role": "input"
+        }
+      ],
+      "expect": {
+        "stdout_contains": "result",
+        "rows": {
+          "Operation": 1
+        }
+      },
+      "status": "assumed"
+    }
+  ]
+}

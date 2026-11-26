@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested category is not found in the database."
+    },
+    {
+      "name": "ExpenseNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an expense with the specified ID is not found in the database."
+    },
+    {
+      "name": "BudgetExceededException",
+      "base": "RuntimeError",
+      "description": "Raised when adding or updating an expense causes a category's budget to be exceeded for a given month."
+    }
+  ]
+}

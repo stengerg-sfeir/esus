@@ -1,0 +1,20 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: ProductRepository.report_low_stock ...
+llm: raw answers -> /tmp/v8-work/prompt_13/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_13/generated/models.py
+[write] /tmp/v8-work/prompt_13/generated/errors.py
+[write] /tmp/v8-work/prompt_13/generated/repositories.py
+[write] /tmp/v8-work/prompt_13/generated/services.py
+[write] /tmp/v8-work/prompt_13/generated/schema.py
+[write] /tmp/v8-work/prompt_13/generated/store.py
+[write] /tmp/v8-work/prompt_13/generated/cli.py
+[write] /tmp/v8-work/prompt_13/generated/__init__.py
+methods: 6 implemented, 1 stubs (86% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: ProductRepository.report_low_stock
+  stub: ProductRepository.report_low_stock: no pattern entry and an ambiguous method name
+  cli Product add -> create_product [score 8]
+  cli Product delete -> delete_product [score 11]
+  cli Product search -> search_products_by_category [score 11]
+  cli Product update -> update_product [score 11]

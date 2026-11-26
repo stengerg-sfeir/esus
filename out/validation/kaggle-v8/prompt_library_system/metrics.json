@@ -1,0 +1,81 @@
+{
+  "prompt": "prompt_library_system",
+  "run_id": "repro66-20261119-105248",
+  "prompt_file": "prompts/initial/prompt_library_system.txt",
+  "output_dir": "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system",
+  "sha256": "1280d3a397f3a52d2e8078796ad293ae83769ed8972b946566af7e4e04ab546c",
+  "bytes": 4305,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 121.805,
+  "tokens": {
+    "calls": 14,
+    "tokens_out": 6080,
+    "tokens_prompt": 19384,
+    "decode_seconds": 105.383
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 10,
+    "open_ties": 2,
+    "rules": [
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: author add: --biography — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: author add: --birth-year — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: book add: --author-id — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: book add: --copies — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: book add: --isbn — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: book add: --published-year — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: book add: --title — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "2 unanswered pattern slots; run the attended review before generation"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "4 unanswered method contracts; run the attended review before generation"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "7 unanswered surface questions; run the attended review before generation"
+      }
+    ]
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/usr/bin/python3",
+      "/kaggle/working/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/initial/prompt_library_system.txt",
+      "--output",
+      "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_library_system",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

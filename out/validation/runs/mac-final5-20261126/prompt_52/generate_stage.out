@@ -1,0 +1,25 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52
+
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: BorrowService.borrow_book ...
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_52/generated/__init__.py
+methods: 21 implemented, 1 stubs (95% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: BorrowService.borrow_book
+  stub: BorrowService.borrow_book: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  cli Book update -> bookupdate [score 11]
+  cli BorrowRecord add -> borrowrecordadd [score 9]
+  cli BorrowRecord delete -> borrowrecorddelete [score 11]
+  cli BorrowRecord update -> borrowrecordupdate [score 11]
+
+
+

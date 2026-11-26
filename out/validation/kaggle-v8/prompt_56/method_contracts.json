@@ -1,0 +1,62 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderService",
+      "method": "confirm_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "increment",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        },
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'cancelled'",
+          "write": "OrderRepository.update"
+        },
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    }
+  ]
+}

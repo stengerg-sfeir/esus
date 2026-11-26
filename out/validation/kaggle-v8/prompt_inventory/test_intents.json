@@ -1,0 +1,106 @@
+{
+  "intents": [
+    {
+      "id": "add_product_sku_name_category_price_stock",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "kind": "create",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 8
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "ambiguous",
+      "assumptions": [
+        "The action adds a product with the given sku, name, category_id, price_cents, and stock_qty."
+      ],
+      "ambiguities": [
+        "The clause does not specify the exact behavior of the action (e.g., whether it creates a new product or updates an existing one).",
+        "The setup values and expected changes are not directly stated in the clause; they are inferred.",
+        "The expected state change (stock_qty from 5 to 3) is not explicitly defined in the requirement."
+      ]
+    },
+    {
+      "id": "list_products_category_id_optional",
+      "source": "list_products(category_id (Optional[int]), low_only (Optional[bool]))",
+      "kind": "list",
+      "entity": "Product",
+      "action": "list_products",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 8
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "8",
+        "exit_code": 0
+      },
+      "status": "ambiguous",
+      "assumptions": [
+        "The list_products function filters products by category_id and optionally by low_stock status"
+      ],
+      "ambiguities": [
+        "The clause does not specify whether the behavior involves filtering by category or low stock, nor does it define the expected output format or filtering logic in detail."
+      ]
+    }
+  ]
+}

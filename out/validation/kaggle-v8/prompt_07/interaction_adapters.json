@@ -1,0 +1,57 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "list",
+      "target_service": "BookRepository",
+      "target_method": "read_all",
+      "input_fields": []
+    },
+    {
+      "action_name": "create",
+      "target_service": "BookRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "updated_at",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update",
+      "target_service": "BookRepository",
+      "target_method": "update",
+      "input_fields": []
+    },
+    {
+      "action_name": "delete",
+      "target_service": "BookRepository",
+      "target_method": "delete",
+      "input_fields": []
+    }
+  ]
+}

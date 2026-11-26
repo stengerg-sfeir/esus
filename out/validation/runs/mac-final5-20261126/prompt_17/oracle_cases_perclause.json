@@ -1,0 +1,47 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "filter_combinable",
+      "source": "All filters must be combinable.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 999.99,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "search_products",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.category": "Electronics",
+          "product.price": 999.99,
+          "product.quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'search_products'"
+      }
+    }
+  ]
+}

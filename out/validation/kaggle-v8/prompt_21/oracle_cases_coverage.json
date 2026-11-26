@@ -1,0 +1,368 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "list_orders_by_customer",
+      "source": "Provide CRUD operations for customers and orders and allow users to list all orders belonging to a customer.",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "list_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Order": 2
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The list_orders action returns a list of orders for a given customer ID.",
+        "The number of orders (2) is assumed based on typical test data; not specified in requirements."
+      ],
+      "ambiguities": [
+        "The requirements do not specify the exact output format or whether the list includes only active orders or all orders.",
+        "No example of the expected order list structure or field names is provided."
+      ]
+    },
+    {
+      "id": "create_order_with_customer",
+      "source": "Each order belongs to exactly one customer and has a date and status.",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "customer.id",
+          "2023-10-01",
+          "pending"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.customer_id": 1,
+          "order.date": "2023-10-01",
+          "order.status": "pending"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "contradicts case create_order_with_invalid_status",
+        "contradicts case create_order_with_invalid_status"
+      ]
+    },
+    {
+      "id": "update_order_status",
+      "source": "Each order belongs to exactly one customer and has a date and status.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        }
+      },
+      "when": {
+        "action": "update_order_status",
+        "args": [
+          "order.id",
+          "completed"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "completed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The update_order_status action exists and is available to users.",
+        "The action updates only the status field, not other fields like date or customer_id."
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether the status update is allowed for all statuses or only specific ones.",
+        "No example of valid or invalid status transitions is provided."
+      ]
+    },
+    {
+      "id": "delete_order",
+      "source": "Customers can have multiple orders. Each order belongs to exactly one customer and has a date and status.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        }
+      },
+      "when": {
+        "action": "delete_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "deleted"
+        },
+        "rows": {
+          "Order": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The delete_order action exists and marks the order as deleted or removes it."
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether deletion removes the order or just marks it as deleted.",
+        "No mention of cascading effects (e.g., on customer or product stock)."
+      ]
+    },
+    {
+      "id": "create_order_with_invalid_status",
+      "source": "Each order belongs to exactly one customer and has a date and status.",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "customer.id",
+          "2023-10-01",
+          "invalid_status"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "InvalidOrderStatusError",
+        "rows": {
+          "Order": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "An invalid status like 'invalid_status' will trigger an error.",
+        "The error class is assumed to be 'InvalidOrderStatusError'."
+      ],
+      "ambiguities": [
+        "The requirements do not specify valid status values or error handling for invalid ones.",
+        "No mention of what constitutes a valid status (e.g., pending, completed, cancelled).",
+        "contradicts case create_order_with_customer",
+        "contradicts case create_order_with_customer",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements",
+        "error class 'InvalidOrderStatusError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "list_orders_for_customer",
+      "source": "allow users to list all orders belonging to a customer",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "list_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Order": 2
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: ambiguous action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "ambiguous action binding: OrderRepository.read_all, OrderRepository.read_all_orders"
+      }
+    },
+    {
+      "id": "create_order_for_customer",
+      "source": "Provide CRUD operations for customers and orders",
+      "given": {
+        "customer": {
+          "id": 3
+        },
+        "order": {
+          "status": "pending",
+          "customer_id": 3
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "customer.id",
+          "order.status"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "pending"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "create case supplies no value for required field Order.order_date"
+      }
+    },
+    {
+      "id": "create_order_with_missing_customer",
+      "source": "Provide CRUD operations for customers and orders",
+      "given": {
+        "order": {
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "customer.id",
+          "order.status"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "CustomerNotFoundError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system requires a valid customer ID to create an order"
+      ],
+      "ambiguities": [
+        "No requirement specifies error handling for missing customer ID",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "list_orders_for_nonexistent_customer",
+      "source": "allow users to list all orders belonging to a customer",
+      "given": {
+        "customer": {
+          "id": 999
+        }
+      },
+      "when": {
+        "action": "list_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "CustomerNotFoundError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system returns an error when a customer does not exist"
+      ],
+      "ambiguities": [
+        "No requirement specifies behavior for invalid or non-existent customer IDs",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements"
+      ]
+    }
+  ]
+}

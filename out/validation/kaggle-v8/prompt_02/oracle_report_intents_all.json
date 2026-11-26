@@ -1,0 +1,68 @@
+{
+  "prompt": "prompt_02",
+  "results": [
+    {
+      "name": "scenario:oracle:addition",
+      "status": "failed",
+      "reason": "exit code 1, expected 0; stderr=error: Invalid number: '+'\n",
+      "case": "addition",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:subtraction",
+      "status": "failed",
+      "reason": "exit code 1, expected 0; stderr=error: Invalid number: '-'\n",
+      "case": "subtraction",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:multiplication",
+      "status": "failed",
+      "reason": "exit code 1, expected 0; stderr=error: Invalid number: '*'\n",
+      "case": "multiplication",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:display_result_on_command_line",
+      "status": "failed",
+      "reason": "exit code 1, expected 0; stderr=error: Invalid number: '+'\n",
+      "case": "display_result_on_command_line",
+      "source": "Display the result on the command line.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:display_division_error",
+      "status": "failed",
+      "reason": "stdout does not contain 'Error: Division by zero': ''",
+      "case": "display_division_error",
+      "source": "Display the result on the command line.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    }
+  ],
+  "counts": {
+    "failed": 5
+  }
+}

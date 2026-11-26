@@ -1,0 +1,94 @@
+{
+  "plans": [
+    {
+      "id": "addition_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "when": {
+        "action": "calculate",
+        "args": [
+          "add",
+          "5",
+          "3"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "8",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "subtraction_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "when": {
+        "action": "calculate",
+        "args": [
+          "subtract",
+          "10",
+          "4"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "6",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "multiplication_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "when": {
+        "action": "calculate",
+        "args": [
+          "multiply",
+          "6",
+          "7"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "42",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "division_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "when": {
+        "action": "calculate",
+        "args": [
+          "divide",
+          "10",
+          "2"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "division_by_zero_error",
+      "source": "Division by zero must produce a clear error message.",
+      "when": {
+        "action": "calculate",
+        "args": [
+          "divide",
+          "10",
+          "0"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "Error: Division by zero is not allowed",
+        "exit_code": 1
+      },
+      "status": "confirmed"
+    }
+  ]
+}

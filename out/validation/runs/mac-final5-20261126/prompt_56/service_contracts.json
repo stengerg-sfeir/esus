@@ -1,0 +1,811 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "OrderService",
+      "methods": [
+        {
+          "name": "cancel_order",
+          "description": "Cancels an order, releasing the reserved stock of the products in the order. The order status is updated to 'cancelled'.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderNotFoundError",
+            "AtomicOperationFailedError",
+            "InvalidOrderStatusError"
+          ]
+        },
+        {
+          "name": "get_order_with_products",
+          "description": "Retrieves an order with its associated products and their quantities, including the order status and customer name.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "create_order",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_all_orders",
+          "description": "Lists every Order.",
+          "params": [],
+          "return_type": "list[Order]",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_order_by_id",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order | None",
+          "raises": [
+            "OrderNotFoundError"
+          ],
+          "mechanical": true
+        },
+        {
+          "name": "update_order",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderNotFoundError"
+          ],
+          "mechanical": true
+        },
+        {
+          "name": "delete_order",
+          "description": "Deletes an existing Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderNotFoundError"
+          ],
+          "mechanical": true
+        },
+        {
+          "name": "orderconfirm",
+          "description": "Orderconfirm.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "service_name": "ProductService",
+      "methods": [
+        {
+          "name": "search_products",
+          "description": "Searches products by name or category, returning a list of matching products with their stock quantities and prices.",
+          "params": [
+            {
+              "name": "query",
+              "type": "str"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[dict]",
+          "raises": []
+        },
+        {
+          "name": "get_product_by_id",
+          "description": "Retrieves a product by its product ID, including its name, price, and stock quantity.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "update_product_stock",
+          "description": "Updates the stock quantity of a product. The stock must be a non-negative integer.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "new_stock",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "ProductNotFoundError",
+            "AtomicOperationFailedError"
+          ]
+        },
+        {
+          "name": "create_product",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_all_products",
+          "description": "Lists every Product.",
+          "params": [],
+          "return_type": "list[Product]",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "productsearch",
+          "description": "Productsearch.",
+          "params": [
+            {
+              "name": "query",
+              "type": "str"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerService",
+      "methods": [
+        {
+          "name": "get_customer_by_id",
+          "description": "Retrieves a customer by their customer ID, including their name and email.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "list_customers",
+          "description": "Returns a list of all customers with their IDs, names, and emails.",
+          "params": [],
+          "return_type": "list[dict]",
+          "raises": []
+        },
+        {
+          "name": "create_customer",
+          "description": "Creates a new Customer.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "update_customer",
+          "description": "Updates an existing Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "CustomerNotFoundError"
+          ],
+          "mechanical": true
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Customer.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "find_customer_by_email",
+          "description": "Retrieves a customer record by their email address.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer | None"
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            },
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "find_product_by_name",
+          "description": "Retrieves a product record by its name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Product | None"
+        },
+        {
+          "name": "find_products_by_category",
+          "description": "Retrieves a list of products belonging to a specific category.",
+          "params": [
+            {
+              "name": "category",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]"
+        },
+        {
+          "name": "find_products_by_price_range",
+          "description": "Retrieves a list of products within a specified price range (inclusive).",
+          "params": [
+            {
+              "name": "min_price",
+              "type": "float"
+            },
+            {
+              "name": "max_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "list[Product]"
+        }
+      ]
+    },
+    {
+      "service_name": "OrderRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Order; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "get_orders_by_customer_id",
+          "description": "Lists the Order records belonging to one Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "find_order_by_id",
+          "description": "Retrieves an order record by its order ID.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order | None"
+        },
+        {
+          "name": "find_orders_by_customer_id",
+          "description": "Retrieves a list of orders associated with a specific customer ID.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Order]"
+        },
+        {
+          "name": "find_orders_by_status",
+          "description": "Retrieves a list of orders with a specific status (e.g., 'pending', 'cancelled').",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]"
+        },
+        {
+          "name": "cancel_order",
+          "description": "Cancels an order and restores the stock quantities of all products in that order. The operation must be atomic and update both the order status and product stock.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "OrderProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new OrderProduct.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.OrderProduct",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every OrderProduct; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[OrderProduct]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one OrderProduct by its key.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.OrderProduct",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing OrderProduct.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.OrderProduct",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing OrderProduct.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "get_order_products_by_product_id",
+          "description": "Lists the OrderProduct records belonging to one Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[OrderProduct]",
+          "raises": []
+        },
+        {
+          "name": "get_order_product_details",
+          "description": "Retrieves the quantity of a product in a specific order, by order and product ID.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "int | None"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "roomadd",
+      "target_service": "RoomRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "room_number",
+          "target_param": "room_number",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "room_type",
+          "target_param": "room_type",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "price_per_night",
+          "target_param": "price_per_night",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "roomupdate",
+      "target_service": "RoomRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "room_id",
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Room",
+          "required": true
+        },
+        {
+          "field_name": "room_number",
+          "target_param": "room_number",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "room_type",
+          "target_param": "room_type",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "price_per_night",
+          "target_param": "price_per_night",
+          "transform": "DECIMAL_TO_CENTS",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "roomdelete",
+      "target_service": "RoomRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "room_id",
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Room",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "guestadd",
+      "target_service": "GuestRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "first_name",
+          "target_param": "first_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "last_name",
+          "target_param": "last_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "phone_number",
+          "target_param": "phone_number",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "guestupdate",
+      "target_service": "GuestRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "guest_id",
+          "target_param": "guest_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Guest",
+          "required": true
+        },
+        {
+          "field_name": "first_name",
+          "target_param": "first_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "last_name",
+          "target_param": "last_name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "phone_number",
+          "target_param": "phone_number",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "guestdelete",
+      "target_service": "GuestRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "guest_id",
+          "target_param": "guest_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Guest",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "bookingadd",
+      "target_service": "BookingRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "guest_id",
+          "target_param": "guest_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Guest",
+          "required": true
+        },
+        {
+          "field_name": "room_id",
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Room",
+          "required": true
+        },
+        {
+          "field_name": "check_in_date",
+          "target_param": "check_in_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "check_out_date",
+          "target_param": "check_out_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "bookingupdate",
+      "target_service": "BookingRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "booking_id",
+          "target_param": "booking_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Booking",
+          "required": true
+        },
+        {
+          "field_name": "check_in_date",
+          "target_param": "check_in_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "check_out_date",
+          "target_param": "check_out_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "bookingdelete",
+      "target_service": "BookingRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "booking_id",
+          "target_param": "booking_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Booking",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

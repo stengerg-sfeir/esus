@@ -1,0 +1,52 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "allow_same_sku_different_categories",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "given": {
+        "product": {
+          "sku": "SKU123",
+          "category_id": "electronics",
+          "product_name": "product value",
+          "price": 10.0
+        },
+        "product_2": {
+          "sku": "SKU123",
+          "category_id": "furniture",
+          "product_name": "product2 value",
+          "price": 10.0
+        },
+        "category": {
+          "category_name": "category value"
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "SKU120",
+          "furniture"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "SKU123",
+          "product.category_id": "electronics",
+          "product_2.sku": "SKU123",
+          "product_2.category_id": "furniture"
+        },
+        "rows": {
+          "Product": 2
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "target entity Product is not used by the action; the action uses Category"
+      ]
+    }
+  ]
+}

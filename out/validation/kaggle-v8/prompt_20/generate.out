@@ -1,0 +1,17 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: SalesReportService.generate_product_sales_report ...
+llm: raw answers -> /tmp/v8-work/prompt_20/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_20/generated/models.py
+[write] /tmp/v8-work/prompt_20/generated/errors.py
+[write] /tmp/v8-work/prompt_20/generated/repositories.py
+[write] /tmp/v8-work/prompt_20/generated/services.py
+[write] /tmp/v8-work/prompt_20/generated/schema.py
+[write] /tmp/v8-work/prompt_20/generated/store.py
+[write] /tmp/v8-work/prompt_20/generated/cli.py
+[write] /tmp/v8-work/prompt_20/generated/__init__.py
+methods: 21 implemented, 1 stubs (95% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: SalesReportService.generate_product_sales_report
+  stub: SalesReportService.generate_product_sales_report: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  cli Sale update -> update_sale [score 11]

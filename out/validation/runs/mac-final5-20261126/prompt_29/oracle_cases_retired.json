@@ -1,0 +1,111 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "get_orders_with_customer_name_repository_call",
+        "source": "The service layer must contain the business rules and repositories must contain persistence logic.",
+        "given": {
+          "order": {
+            "status": "pending",
+            "customer_id": 1
+          },
+          "customer": {
+            "name": "Alice"
+          }
+        },
+        "when": {
+          "action": "get_orders_with_customer_name",
+          "args": [
+            "Alice"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "pending",
+            "customer.name": "Alice"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 14.0"
+              ],
+              "alternatives": []
+            },
+            "customer": {
+              "status": "aligned",
+              "canonical": "Customer",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Customer",
+                "score 14.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Order.status exists"
+              ],
+              "alternatives": []
+            },
+            "customer.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Customer.name exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "ambiguous",
+            "canonical": "CustomerRepository.create",
+            "score": 1.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "CustomerRepository.create",
+              "CustomerRepository.delete",
+              "CustomerRepository.read_all",
+              "CustomerRepository.update"
+            ]
+          }
+        },
+        "triage": "coverage_gap: ambiguous action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "ambiguous action binding: CustomerRepository.read_one, OrderRepository.read_one"
+        }
+      },
+      "status": "unbound",
+      "reason": "ambiguous action binding: CustomerRepository.read_one, OrderRepository.read_one"
+    }
+  ]
+}

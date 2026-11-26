@@ -1,0 +1,100 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "project_name",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--description",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--status",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": "active"
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "create",
+            "options": [
+              {
+                "name": "--name",
+                "short": null,
+                "type": "str",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--status",
+                "short": null,
+                "type": "str",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "list",
+            "options": [],
+            "subcommands": []
+          },
+          {
+            "name": "update",
+            "options": [],
+            "subcommands": []
+          },
+          {
+            "name": "delete",
+            "options": [],
+            "subcommands": []
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Project",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+[run] requirements: 252 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 78 tokens in 2.0s (38.5 tok/s, 42.2 decode, 90 prompt)
+[data_models] 793 tokens in 23.6s (33.7 tok/s, 34.2 decode, 595 prompt)
+[ok] step data_models: Book.primary_key became the integer primary key id
+[ok] step data_models: Member.primary_key became the integer primary key id
+[ok] step data_models: Loan.primary_key became the integer primary key id
+[ok] step data_models: Loan.book_primary_key retyped to int for its Book key
+[ok] step data_models: Loan.member_primary_key retyped to int for its Member key
+[ok] step data_models: renamed Loan.book_primary_key to book_id (foreign key to Book)
+[ok] step data_models: renamed Loan.member_primary_key to member_id (foreign key to Member)
+[ok] step data_models: uniqueness provenance — 3 explicit, 2 inferred (inferred fields are not enforced until confirmed)
+[errors] 350 tokens in 10.3s (34.1 tok/s, 35.5 decode, 506 prompt)
+[invariants] 333 tokens in 9.0s (37.1 tok/s, 38.7 decode, 310 prompt)
+[ok] step invariants: 35 invariant(s) — 25 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 854 tokens in 26.8s (31.9 tok/s, 32.4 decode, 1018 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-loan-date' to '--loan-date'
+[ok] step components: normalized option '-due-date' to '--due-date'
+[ok] step components: normalized option '-active' to '--active'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-loan-date' to '--loan-date'
+[ok] step components: normalized option '-due-date' to '--due-date'
+[ok] step components: normalized option '-loan-id' to '--loan-id'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 301 tokens in 8.8s (34.2 tok/s, 37.8 decode, 680 prompt)
+[ok] step contracts: added 4 mechanical service method(s)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 2 CRUD subcommand(s) from the service contracts: loan update, loan delete
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidMemberIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidBookIdError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 677 tokens in 18.3s (37.1 tok/s, 38.0 decode, 431 prompt)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/24] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [4/24] invariant -> QUOTA_CAPACITY_GUARD (0.35)  <- undecided (pattern): STOCK_SUFFICIENCY_GUARD at 0.27
+  [5/24] invariant -> QUOTA_CAPACITY_GUARD (0.62)
+  [6/24] invariant -> STATE_TRANSITION_GUARD (0.59)
+  [7/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [9/24] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [10/24] invariant -> STOCK_SUFFICIENCY_GUARD (0.87)
+  [11/24] contract:LoanService.confirm_order -> STATE_TRANSITION_GUARD (0.69)
+  [12/24] contract:LoanService.cancel_order -> STATE_TRANSITION_GUARD (1.00)
+  [13/24] contract:LoanService.create_loan -> STANDARD_CRUD (1.00)
+  [14/24] contract:LoanService.update_loan -> STANDARD_CRUD (1.00)
+  [15/24] contract:LoanService.delete_loan -> STANDARD_CRUD (1.00)
+  [16/24] contract:LoanService.read_loan_by_id -> STANDARD_CRUD (1.00)
+  [17/24] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [18/24] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [19/24] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [20/24] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/24] contract:LoanRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/24] contract:LoanRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/24] contract:LoanRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/24] contract:LoanRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 24 item(s) — 7 standard CRUD, 17 pattern(s), 0 gap(s)
+[ok] step adapters: derived 1 command group(s) from 14 service method(s)
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: loanadd.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanupdate.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loandelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/method_plans.json
+[ok] method plans: 1 mechanical candidate(s)
+[!] method plans: 3 ambiguous question(s) — human review required
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_26/requirements.txt
+[run] 7 steps, 3386 generated tokens in 98.7s

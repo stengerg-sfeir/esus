@@ -1,0 +1,216 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "place_order_with_sufficient_stock",
+        "source": "A customer must not be able to place an order if any product has insufficient stock.",
+        "given": {
+          "order": {
+            "status": "pending",
+            "customer_id": 1
+          },
+          "product": {
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "place_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed",
+            "product.stock_quantity": 9
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "OrderItem",
+                "Customer",
+                "Product"
+              ]
+            },
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "OrderItem",
+                "Customer",
+                "Order"
+              ]
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no prompt evidence for field 'status'",
+                "not declared on Order"
+              ],
+              "alternatives": []
+            },
+            "product.stock_quantity": {
+              "status": "aligned",
+              "canonical": "stock_quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.stock_quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "aligned",
+            "canonical": "OrderManagementService.place_order",
+            "score": 10.0,
+            "evidence": [
+              "exact generated method"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "setup needs a Customer row for Order.customer_id"
+        }
+      },
+      "status": "unbound",
+      "reason": "setup needs a Customer row for Order.customer_id"
+    },
+    {
+      "case": {
+        "id": "place_order_with_stock_decrease",
+        "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+        "given": {
+          "order": {
+            "status": "pending",
+            "customer_id": 5
+          },
+          "product": {
+            "stock_quantity": 10
+          }
+        },
+        "when": {
+          "action": "place_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed",
+            "product.stock_quantity": 9
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "OrderItem"
+              ]
+            },
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 14.0"
+              ],
+              "alternatives": [
+                "OrderItem",
+                "Order"
+              ]
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no prompt evidence for field 'status'",
+                "not declared on Order"
+              ],
+              "alternatives": []
+            },
+            "product.stock_quantity": {
+              "status": "aligned",
+              "canonical": "stock_quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.stock_quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "aligned",
+            "canonical": "OrderManagementService.place_order",
+            "score": 10.0,
+            "evidence": [
+              "exact generated method"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "setup needs a Customer row for Order.customer_id"
+        }
+      },
+      "status": "unbound",
+      "reason": "setup needs a Customer row for Order.customer_id"
+    }
+  ]
+}

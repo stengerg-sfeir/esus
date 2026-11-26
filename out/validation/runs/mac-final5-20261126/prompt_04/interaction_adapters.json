@@ -1,0 +1,68 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "taskadd",
+      "target_service": "TaskRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "description",
+          "target_param": "description",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "is_completed",
+          "target_param": "is_completed",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "action_name": "taskupdate",
+      "target_service": "TaskRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "task_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Task",
+          "required": false
+        },
+        {
+          "field_name": "is_completed",
+          "target_param": "is_completed",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "taskdelete",
+      "target_service": "TaskRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "task_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Task",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

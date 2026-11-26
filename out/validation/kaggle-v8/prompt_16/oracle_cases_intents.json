@@ -1,0 +1,345 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "list_paginated_customers",
+      "source": "The caller specifies page number and page size.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        },
+        "customer2": {
+          "name": "customer2 name",
+          "email": "customer2@example.test"
+        },
+        "customer3": {
+          "name": "customer3 name",
+          "email": "customer3@example.test"
+        },
+        "customer4": {
+          "name": "customer4 name",
+          "email": "customer4@example.test"
+        },
+        "customer5": {
+          "name": "customer5 name",
+          "email": "customer5@example.test"
+        },
+        "customer6": {
+          "name": "customer6 name",
+          "email": "customer6@example.test"
+        },
+        "customer7": {
+          "name": "customer7 name",
+          "email": "customer7@example.test"
+        },
+        "customer8": {
+          "name": "customer8 name",
+          "email": "customer8@example.test"
+        },
+        "customer9": {
+          "name": "customer9 name",
+          "email": "customer9@example.test"
+        },
+        "customer10": {
+          "name": "customer10 name",
+          "email": "customer10@example.test"
+        }
+      },
+      "when": {
+        "action": "list_customers",
+        "args": [
+          "1",
+          "10"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 10
+        },
+        "stdout_contains": "10",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "expected row count exceeds the named setup; extra rows were added mechanically to exercise the list result"
+      ]
+    },
+    {
+      "id": "create_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "John Doe",
+          "email": "john@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "customer.name": "John Doe",
+          "customer.email": "john@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Jane Doe",
+          "email": "jane@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": {
+          "name": "Jane Smith"
+        }
+      },
+      "then": {
+        "state": {
+          "customer.name": "Jane Smith",
+          "customer.email": "jane@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_paginated_customers_3",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Customer 1",
+          "email": "c1@example.com"
+        }
+      },
+      "when": {
+        "action": "list_customers",
+        "args": [
+          "1",
+          "10"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "10",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.read_all_paginated",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

@@ -1,0 +1,619 @@
+{
+  "prompt": "prompt_library_system",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "code:modules",
+      "status": "passed",
+      "reason": "8 generated modules"
+    },
+    {
+      "name": "code:type-hints",
+      "status": "passed",
+      "reason": "annotated generated functions"
+    },
+    {
+      "name": "db:foreign-keys",
+      "status": "passed",
+      "reason": "SQLite foreign keys enabled"
+    },
+    {
+      "name": "db:persistence-across-executions",
+      "status": "passed",
+      "reason": "SQLite database file"
+    },
+    {
+      "name": "code:entry-point",
+      "status": "passed",
+      "reason": "main guard present"
+    },
+    {
+      "name": "models:primary-keys",
+      "status": "passed",
+      "reason": "every model declares a primary key"
+    },
+    {
+      "name": "api:BookRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BookRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BookRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BookRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BookRepository.search_by_title_or_author_or_isbn",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BookRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:AuthorRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:AuthorRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:AuthorRepository.find_books_by_author",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:AuthorRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:AuthorRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:AuthorRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.find_active_members",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.find_inactive_members",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:MemberRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.find_active_loans",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.find_overdue_loans",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.get_book_loan_history",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.get_member_loan_history",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LoanRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LibraryService.borrow_book",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LibraryService.get_overdue_loans",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LibraryService.renew_membership",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LibraryService.return_book",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:LibraryService.search_books",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:BookRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BookRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BookRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BookRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BookRepository.search_by_title_or_author_or_isbn",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:BookRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:AuthorRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:AuthorRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:AuthorRepository.find_books_by_author",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:AuthorRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:AuthorRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:AuthorRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.find_active_members",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.find_inactive_members",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:MemberRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.find_active_loans",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.find_overdue_loans",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.get_book_loan_history",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.get_member_loan_history",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:LoanRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book search",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:book delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member history",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:member delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:borrow",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:return",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:overdue",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:author add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:author list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:author update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:author delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Loan add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Loan list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Loan update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Loan delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Book",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Author",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Member",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Loan",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:BookRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:AuthorRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:MemberRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:LoanRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Book.isbn",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Book.author_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Member.email",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Loan.book_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Loan.member_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LibraryService.borrow_book",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LibraryService.renew_membership",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LoanRepository.find_active_loans",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LoanRepository.find_overdue_loans",
+      "status": "passed"
+    },
+    {
+      "name": "contract:LibraryService.return_book",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:return_active_loan",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book search",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:book delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member history",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:member delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:borrow",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:return",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:overdue",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:author add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:author list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:author update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:author delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Loan add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Loan list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Loan update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Loan delete",
+      "status": "passed"
+    }
+  ]
+}

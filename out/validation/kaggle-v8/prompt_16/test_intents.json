@@ -1,0 +1,250 @@
+{
+  "intents": [
+    {
+      "id": "list_paginated_customers",
+      "source": "The caller specifies page number and page size.",
+      "kind": "list",
+      "entity": "Customer",
+      "action": "list_customers",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "1",
+        "10"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "1",
+          "10"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 10
+        },
+        "error": null,
+        "stdout_contains": "10",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_paginated_customers_2",
+      "source": "The application must return the requested items and enough information to determine the total number of pages.",
+      "kind": "list",
+      "entity": "Customer",
+      "action": "list_customers",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.active": true
+      },
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {
+        "customer.active": true
+      },
+      "args": [
+        "1",
+        "10"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "1",
+          "10"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 10
+        },
+        "error": null,
+        "stdout_contains": "total_pages: 5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "create_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "kind": "create",
+      "entity": "Customer",
+      "action": "create_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.name": "John Doe",
+        "customer.email": "john@example.com"
+      },
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "customer.name": "John Doe",
+          "customer.email": "john@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "update_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "kind": "update",
+      "entity": "Customer",
+      "action": "update_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.name": "Jane Doe",
+        "customer.email": "jane@example.com"
+      },
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {
+        "customer.name": "Jane Smith"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "customer.name": "Jane Smith",
+          "customer.email": "jane@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "kind": "delete",
+      "entity": "Customer",
+      "action": "delete_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.name": "Alice Johnson"
+      },
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_paginated_customers_3",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "kind": "list",
+      "entity": "Customer",
+      "action": "list_customers",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.name": "Customer 1",
+        "customer.email": "c1@example.com"
+      },
+      "lookup": [],
+      "where": {},
+      "args": [
+        "1",
+        "10"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "10",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

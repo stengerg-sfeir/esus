@@ -1,0 +1,562 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "TaskService",
+      "methods": [
+        {
+          "name": "validate_and_import_tasks",
+          "description": "Validates a list of tasks from JSON input before importing them into the database. Ensures all required fields are present and valid.",
+          "params": [
+            {
+              "name": "task_data",
+              "type": "list[dict]"
+            }
+          ],
+          "return_type": "list[str]",
+          "raises": [
+            "DuplicateTaskIdError"
+          ]
+        },
+        {
+          "name": "export_tasks_to_json",
+          "description": "Exports all tasks from the database to a JSON format, including their status, priority, due date, and other metadata.",
+          "params": [],
+          "return_type": "dict",
+          "raises": []
+        },
+        {
+          "name": "create_task",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_task_by_id",
+          "description": "Reads one Task by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Task | None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_all_tasks",
+          "description": "Lists every Task.",
+          "params": [],
+          "return_type": "list[Task]",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "update_task",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "delete_task",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "import_tasks_from_json",
+          "description": "Import tasks from json.",
+          "params": [
+            {
+              "name": "file_path",
+              "type": "str"
+            }
+          ],
+          "return_type": "int",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "service_name": "TaskValidationService",
+      "methods": [
+        {
+          "name": "validate_task_creation",
+          "description": "Validates a new task before creation. Ensures required fields like title and due_date are present and valid.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str",
+              "status": "explicit"
+            },
+            {
+              "name": "description",
+              "type": "str",
+              "status": "deduced"
+            },
+            {
+              "name": "status",
+              "type": "str",
+              "status": "explicit"
+            },
+            {
+              "name": "priority",
+              "type": "str",
+              "status": "explicit"
+            },
+            {
+              "name": "due_date",
+              "type": "date",
+              "status": "deduced"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime",
+              "status": "deduced"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime",
+              "status": "deduced"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "MissingRequiredFieldError"
+          ]
+        },
+        {
+          "name": "validate_task_update",
+          "description": "Validates a task update operation. Ensures the new status and due date are valid and within allowed constraints.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            },
+            {
+              "name": "update_data",
+              "type": "dict"
+            }
+          ],
+          "return_type": "bool",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskReportingService",
+      "methods": [
+        {
+          "name": "get_tasks_by_status",
+          "description": "Returns all tasks filtered by a specific status (e.g., 'pending', 'confirmed').",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[dict]",
+          "raises": []
+        },
+        {
+          "name": "get_tasks_by_priority",
+          "description": "Returns all tasks filtered by a specific priority level (e.g., 'high', 'medium').",
+          "params": [
+            {
+              "name": "priority",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[dict]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskSearchService",
+      "methods": [
+        {
+          "name": "tasksearch",
+          "description": "Tasksearch.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Task]",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "service_name": "TaskExportService",
+      "methods": [
+        {
+          "name": "export_tasks_to_json",
+          "description": "Exports all tasks from the database to a JSON format, including their status, priority, due date, and other metadata.",
+          "params": [],
+          "return_type": "dict",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskImportService",
+      "methods": [
+        {
+          "name": "import_tasks_from_json",
+          "description": "Imports tasks from a JSON file. Validates the input data before updating the database.",
+          "params": [
+            {
+              "name": "task_data",
+              "type": "list[dict]"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "DuplicateTaskIdError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "TaskStateTransitionService",
+      "methods": [
+        {
+          "name": "transition_task_status",
+          "description": "Transitions a task's status from one state to another, ensuring valid state transitions are respected.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            },
+            {
+              "name": "new_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "bool",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskErrorService",
+      "methods": [
+        {
+          "name": "handle_validation_failure",
+          "description": "Handles validation errors during task operations and returns a detailed error message.",
+          "params": [
+            {
+              "name": "error_type",
+              "type": "str"
+            },
+            {
+              "name": "context",
+              "type": "str"
+            }
+          ],
+          "return_type": "dict",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskAggregationService",
+      "methods": [
+        {
+          "name": "get_task_statistics",
+          "description": "Aggregates and returns statistics about tasks (e.g., total count, pending tasks, overdue tasks).",
+          "params": [],
+          "return_type": "dict",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskValidationGuardService",
+      "methods": [
+        {
+          "name": "ensure_task_status_transition_valid",
+          "description": "Ensures that a status transition is valid according to business rules (e.g., cannot cancel a non-confirmed task).",
+          "params": [
+            {
+              "name": "current_status",
+              "type": "str"
+            },
+            {
+              "name": "target_status",
+              "type": "str"
+            }
+          ],
+          "return_type": "bool",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskDataIntegrityService",
+      "methods": [
+        {
+          "name": "validate_task_data_integrity",
+          "description": "Validates that all imported or updated task data maintains consistency and constraints (e.g., due date not in the past).",
+          "params": [
+            {
+              "name": "task_data",
+              "type": "list[dict]"
+            }
+          ],
+          "return_type": "bool",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "TaskRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Task by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Task; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Task]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

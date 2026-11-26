@@ -1,0 +1,248 @@
+{
+  "prompt": "prompt_library_system",
+  "results": [
+    {
+      "name": "scenario:oracle:book_list_with_author_filter",
+      "status": "passed",
+      "case": "book_list_with_author_filter",
+      "source": "library book list [--author]",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          },
+          "book_other": {
+            "status": "alias",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          },
+          "author_other": {
+            "status": "alias",
+            "canonical": "Author",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "LoanRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:member_list_active_only",
+      "status": "passed",
+      "case": "member_list_active_only",
+      "source": "library member list [--active-only]",
+      "alignment": {
+        "entities": {
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "member.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Member.name exists"
+            ],
+            "alternatives": []
+          },
+          "member.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Member.email exists"
+            ],
+            "alternatives": []
+          },
+          "member.is_active": {
+            "status": "aligned",
+            "canonical": "is_active",
+            "score": 10.0,
+            "evidence": [
+              "Member.is_active exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "MemberRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "LoanRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:author_add_command",
+      "status": "passed",
+      "case": "author_add_command",
+      "source": "library author add --name --birth-year [--biography]",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "author.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Author.name exists"
+            ],
+            "alternatives": []
+          },
+          "author.birth_year": {
+            "status": "aligned",
+            "canonical": "birth_year",
+            "score": 10.0,
+            "evidence": [
+              "Author.birth_year exists"
+            ],
+            "alternatives": []
+          },
+          "author.biography": {
+            "status": "aligned",
+            "canonical": "biography",
+            "score": 10.0,
+            "evidence": [
+              "Author.biography exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "AuthorRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "BookRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 3
+  },
+  "triage_counts": {
+    "passed": 3
+  }
+}

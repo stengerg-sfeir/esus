@@ -1,0 +1,56 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.first_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.first_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.last_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.last_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total number of pages in a paginated customer listing is calculated by dividing the total number of customers by the page size, rounded up to the nearest whole number.",
+      "kind": "rule"
+    }
+  ]
+}

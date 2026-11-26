@@ -1,0 +1,57 @@
+[run] requirements: 169 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 56 tokens in 1.5s (36.6 tok/s, 42.3 decode, 67 prompt)
+[data_models] 384 tokens in 10.2s (37.8 tok/s, 38.8 decode, 554 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.4s (21.3 tok/s, 45.3 decode, 466 prompt)
+[invariants] 70 tokens in 1.8s (38.0 tok/s, 42.1 decode, 270 prompt)
+[ok] step invariants: 14 invariant(s) — 11 schema generated mechanically, 3 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 285 tokens in 7.9s (35.9 tok/s, 36.9 decode, 978 prompt)
+[ok] step components: normalized option '-department-id' to '--department-id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 8 tokens in 0.4s (18.8 tok/s, 40.9 decode, 472 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[persistence_ports] 262 tokens in 7.3s (35.9 tok/s, 37.3 decode, 380 prompt)
+[ok] step persistence: merged 3 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+  [1/11] invariant -> STATE_TRANSITION_GUARD (0.98)
+  [2/11] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/11] invariant -> BUDGET_OVERFLOW_GUARD (0.62)
+  [4/11] contract:EmployeeRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [5/11] contract:EmployeeRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [6/11] contract:EmployeeRepository.get_employees_by_department_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [7/11] contract:EmployeeRepository.findEmployeeByDepartment -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [8/11] contract:EmployeeRepository.findEmployeeByEmail -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/11] contract:DepartmentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/11] contract:DepartmentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/11] contract:DepartmentRepository.findDepartmentByName -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 11 item(s) — 0 standard CRUD, 11 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (no CLI leaves); retry after surface repairs declined (no CLI leaves) — asking the model
+[interaction_adapters] 441 tokens in 13.3s (33.2 tok/s, 36.8 decode, 530 prompt)
+[ok] step adapters: find_employee_by_email.email was 'ISO_DATE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: find_employee_by_department_name.department_name was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: find_employee_by_department_id.department_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_employee_by_id.employee_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters: 'find_employee_by_department_id' names Department but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step adapters: added capability method DepartmentRepository.find_employee_by_department_name (search)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: find_employee_by_department_name.department_name targets undeclared 'name' while the method declares 'department_name' — redirected
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_49/requirements.txt
+[run] 8 steps, 1514 generated tokens in 42.9s

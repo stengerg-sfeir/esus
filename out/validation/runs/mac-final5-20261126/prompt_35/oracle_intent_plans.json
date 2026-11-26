@@ -1,0 +1,59 @@
+{
+  "plans": [
+    {
+      "id": "create_product",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "product": "Product"
+        },
+        "target_usage": {
+          "entity": "Product",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    },
+    {
+      "id": "bulk_update_stock",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "product": "Product"
+        },
+        "target_usage": {
+          "entity": "Product",
+          "used_entities": [
+            "Product"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "bulk_update_transactional",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "product": "Product"
+        },
+        "target_usage": {
+          "entity": "Product",
+          "used_entities": [
+            "Product"
+          ],
+          "used": true
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "update_product_stock",
+      "errors": [
+        "action 'update_product_stock' is coverage_gap: prompt names the action; no generated method matches"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

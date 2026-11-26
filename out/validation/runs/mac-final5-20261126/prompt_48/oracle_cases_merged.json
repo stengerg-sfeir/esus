@@ -1,0 +1,94 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "add_book_action",
+      "source": "Users should be able to add books",
+      "given": {
+        "book": {
+          "title": "1984",
+          "author": "George Orwell",
+          "isbn": "978-0-452-28423-4"
+        }
+      },
+      "when": {
+        "action": "add_book",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "book.title": "1984",
+          "book.author": "George Orwell",
+          "book.isbn": "978-0-452-28423-4"
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

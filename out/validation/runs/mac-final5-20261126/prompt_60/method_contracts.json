@@ -1,0 +1,97 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderService",
+      "method": "confirm_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "creates": [
+        {
+          "class": "Invoice",
+          "call": "InvoiceRepository.create",
+          "fields": {
+            "order_id": "param:order_id",
+            "total_amount": "0",
+            "generated_at": "now"
+          }
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "increment",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        },
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'cancelled'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "ship_order",
+      "decided_by": "auto",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'shipped'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "order.status == 'confirmed'",
+          "error": "ValueError",
+          "raise_when": "false"
+        }
+      ]
+    }
+  ]
+}

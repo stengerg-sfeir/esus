@@ -1,0 +1,104 @@
+{
+  "plans": [
+    {
+      "id": "admin_manage_products",
+      "source": "Administrators can manage products and users.",
+      "when": {
+        "action": "manage_products",
+        "args": [
+          "product_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.price"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "admin_manage_users",
+      "source": "Administrators can manage products and users.",
+      "when": {
+        "action": "manage_users",
+        "args": [
+          "user_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.role",
+          "user.email"
+        ],
+        "rows": {
+          "User": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "user_cannot_modify_product",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product_id",
+          "new_name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "PermissionDeniedError"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "user_cannot_modify_other_user",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "when": {
+        "action": "update_user",
+        "args": [
+          "user_id",
+          "new_role"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "PermissionDeniedError"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

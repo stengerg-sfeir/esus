@@ -1,0 +1,33 @@
+{
+  "method_contracts": [
+    {
+      "holder": "OrderManagementService",
+      "method": "place_order",
+      "decided_by": "user",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "customer",
+          "repository": "CustomerRepository",
+          "method": "read_one",
+          "args": [
+            "customer_id"
+          ]
+        }
+      ],
+      "creates": [
+        {
+          "class": "OrderItem",
+          "call": "OrderItemRepository.create"
+        }
+      ]
+    }
+  ]
+}

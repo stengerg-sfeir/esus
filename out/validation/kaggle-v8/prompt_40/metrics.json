@@ -1,0 +1,40 @@
+{
+  "prompt": "prompt_40",
+  "run_id": "repro66-20261119-105248",
+  "prompt_file": "prompts/validation/prompt_40.txt",
+  "output_dir": "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_40",
+  "sha256": "9a1884f18b5159ad947e7019dd7105462911caa574e3362a75d56cf529788a71",
+  "bytes": 250,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 16.31,
+  "tokens": {
+    "calls": 8,
+    "tokens_out": 870,
+    "tokens_prompt": 3736,
+    "decode_seconds": 14.296
+  },
+  "summary": {
+    "generatable": true,
+    "verdict_note": "UNREVIEWED",
+    "blockers": 0,
+    "open_ties": 0,
+    "rules": []
+  },
+  "classification": "successful",
+  "outcome": "successful",
+  "commands": {
+    "extract": [
+      "/usr/bin/python3",
+      "/kaggle/working/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/validation/prompt_40.txt",
+      "--output",
+      "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_40",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

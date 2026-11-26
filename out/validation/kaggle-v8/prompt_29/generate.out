@@ -1,0 +1,27 @@
+gate passed (4 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: OrderRepository.get_orders_with_customer_name ...
+llm: OrderRepository.get_orders_with_customer_name refused (calls models.OrderWithCustomerName, which models.py does not define) — repair ask 1
+llm: OrderRepository.get_order_by_customer_and_date ...
+llm: raw answers -> /tmp/v8-work/prompt_29/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_29/generated/models.py
+[write] /tmp/v8-work/prompt_29/generated/errors.py
+[write] /tmp/v8-work/prompt_29/generated/repositories.py
+[write] /tmp/v8-work/prompt_29/generated/services.py
+[write] /tmp/v8-work/prompt_29/generated/schema.py
+[write] /tmp/v8-work/prompt_29/generated/store.py
+[write] /tmp/v8-work/prompt_29/generated/cli.py
+[write] /tmp/v8-work/prompt_29/generated/__init__.py
+methods: 11 implemented, 2 stubs (85% mechanical)
+llm: 1 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: OrderRepository.get_orders_with_customer_name — still refused: calls models.OrderWithCustomerName, which models.py does not define
+  llm provisional: OrderRepository.get_order_by_customer_and_date
+  stub: OrderRepository.get_order_by_customer_and_date: parameter 'from_date' maps to no field
+  stub: OrderRepository.get_orders_with_customer_name: rule signature-pagination: method needs custom logic
+  cli Customer add -> create_customer [score 8]
+  cli Customer list -> list_customers [score 9]
+  cli Customer update -> update_customer [score 11]
+  cli Order add -> create_order [score 8]
+  cli Order delete -> delete_order [score 11]
+  cli Order list -> list_orders [score 9]
+  cli Order update -> update_order [score 11]

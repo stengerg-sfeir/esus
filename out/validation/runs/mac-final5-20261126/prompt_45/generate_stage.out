@@ -1,0 +1,42 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45
+
+gate passed (2 residual risk(s); gaps stay documented stubs)
+llm: 4 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: BookingRepository.validate_booking_conflict ...
+llm: RoomRepository.read_all_available_rooms ...
+llm: RoomRepository.read_all_available_rooms used its final block (the first was a draft)
+llm: BookingService.create_booking ...
+llm: BookingService.create_booking refused (raises `RoomConflictError` but not when `any(str(row.room_id) == str(room_id) and str(row.check_in_date or '') < str(check_out_date) and str(check_in_date) < str(row.check_out_date or '') for row in self._repos['BookingRepository'].read_all())` is true; the confirmed contract requires that branch) — repair ask 1
+llm: BookingService.check_room_availability ...
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/llm_stub_answers.json
+contract fallback: BookingService.create_booking
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_45/generated/__init__.py
+methods: 24 implemented, 4 stubs (86% mechanical)
+llm: 3 of 4 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: BookingRepository.validate_booking_conflict
+  llm provisional: RoomRepository.read_all_available_rooms — used the final block of a deliberating answer
+  llm kept stub: BookingService.create_booking — still refused: raises `RoomConflictError` but not when `any(str(row.room_id) == str(room_id) and str(row.check_in_date or '') < str(check_out_date) and str(check_in_date) < str(row.check_out_date or '') for row in self._repos['BookingRepository'].read_all())` is true; the confirmed contract requires that branch
+  llm provisional: BookingService.check_room_availability
+  stub: RoomRepository.read_all_available_rooms: parameter 'check_in_date' maps to no field
+  stub: BookingRepository.validate_booking_conflict: pattern QUOTA_CAPACITY_GUARD: no mechanical reading
+  stub: BookingService.check_room_availability: gap NO_PATTERN_IN_DOMAIN: AGGREGATE_BY_FK_AND_DATE refused (AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns boolean (bool))
+  stub: BookingService.create_booking: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (str))
+  cli Booking add -> bookingadd [score 9]
+  cli Booking delete -> bookingdelete [score 11]
+  cli Booking update -> bookingupdate [score 11]
+  cli Guest add -> guestadd [score 9]
+  cli Guest delete -> guestdelete [score 11]
+  cli Guest update -> guestupdate [score 11]
+  cli Room add -> roomadd [score 9]
+  cli Room delete -> roomdelete [score 11]
+  cli Room update -> roomupdate [score 11]
+
+
+

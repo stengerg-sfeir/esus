@@ -1,0 +1,76 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone_number must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone_number must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Each customer must have a unique email address.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's email address must be valid and follow the format of an email address.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support creating a new customer with a name, email, and phone number.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support retrieving a customer by their unique identifier.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support updating an existing customer's name, email, or phone number.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support deleting a customer by their unique identifier.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support searching for customers by name using partial matching.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must support filtering customers by email domain (e.g., all customers with '@example.com').",
+      "kind": "rule"
+    },
+    {
+      "text": "Email addresses used in customer records must be stored in lowercase to ensure consistency.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a customer with the same email address is attempted to be created, the operation must fail.",
+      "kind": "rule"
+    }
+  ]
+}

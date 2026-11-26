@@ -1,0 +1,40 @@
+{
+  "requirements_sha": "86e7d2759e29e8f8af67042e025b321ce79740a539d9abaf18078ad5a57df0e5",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "An invoice must reference a customer through the customer_id field.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "NO_PATTERN_IN_DOMAIN",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

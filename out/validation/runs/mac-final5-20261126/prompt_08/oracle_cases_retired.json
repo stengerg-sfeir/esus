@@ -1,0 +1,437 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 2,
+    "retired": 2,
+    "confirmed_intents": 3,
+    "merged": 5
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "filter_by_category",
+        "source": "Users must be able to filter products by category and display products whose quantity is below a specified threshold.",
+        "given": {
+          "product_1": {
+            "name": "Mouse",
+            "category": "Electronics",
+            "price": 25.0,
+            "quantity": 50
+          },
+          "product_2": {
+            "name": "Keyboard",
+            "category": "Electronics",
+            "price": 75.0,
+            "quantity": 10
+          },
+          "product_3": {
+            "name": "Monitor",
+            "category": "Electronics",
+            "price": 299.99,
+            "quantity": 3
+          },
+          "product_4": {
+            "name": "Book",
+            "category": "Education",
+            "price": 15.0,
+            "quantity": 100
+          }
+        },
+        "when": {
+          "action": "filter_products",
+          "args": [
+            "category"
+          ]
+        },
+        "then": {
+          "state": {
+            "product_1.name": "Mouse",
+            "product_1.category": "Electronics",
+            "product_1.price": 25.0,
+            "product_1.quantity": 50,
+            "product_2.name": "Keyboard",
+            "product_2.category": "Electronics",
+            "product_2.price": 75.0,
+            "product_2.quantity": 10,
+            "product_3.name": "Monitor",
+            "product_3.category": "Electronics",
+            "product_3.price": 299.99,
+            "product_3.quantity": 3
+          },
+          "rows": {
+            "Product": 3
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product_1": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            },
+            "product_2": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            },
+            "product_3": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            },
+            "product_4": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "product_1.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product_1.category": {
+              "status": "aligned",
+              "canonical": "category",
+              "score": 10.0,
+              "evidence": [
+                "Product.category exists"
+              ],
+              "alternatives": []
+            },
+            "product_1.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product_1.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.category": {
+              "status": "aligned",
+              "canonical": "category",
+              "score": 10.0,
+              "evidence": [
+                "Product.category exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.category": {
+              "status": "aligned",
+              "canonical": "category",
+              "score": 10.0,
+              "evidence": [
+                "Product.category exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt exposes the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "case passes parameter/field name 'category' as a value"
+        }
+      },
+      "status": "under_specified",
+      "reason": "no generated method matches 'filter_products'"
+    },
+    {
+      "case": {
+        "id": "display_low_quantity",
+        "source": "Users must be able to filter products by category and display products whose quantity is below a specified threshold.",
+        "given": {
+          "product_1": {
+            "name": "Mouse",
+            "category": "Electronics",
+            "price": 25.0,
+            "quantity": 50
+          },
+          "product_2": {
+            "name": "Keyboard",
+            "category": "Electronics",
+            "price": 75.0,
+            "quantity": 10
+          },
+          "product_3": {
+            "name": "Monitor",
+            "category": "Electronics",
+            "price": 299.99,
+            "quantity": 3
+          },
+          "product_4": {
+            "name": "Book",
+            "category": "Education",
+            "price": 15.0,
+            "quantity": 100
+          }
+        },
+        "when": {
+          "action": "filter_products",
+          "args": [
+            "threshold"
+          ]
+        },
+        "then": {
+          "state": {
+            "product_2.name": "Keyboard",
+            "product_2.category": "Electronics",
+            "product_2.price": 75.0,
+            "product_2.quantity": 10,
+            "product_3.name": "Monitor",
+            "product_3.category": "Electronics",
+            "product_3.price": 299.99,
+            "product_3.quantity": 3
+          },
+          "rows": {
+            "Product": 2
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product_1": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            },
+            "product_2": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            },
+            "product_3": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            },
+            "product_4": {
+              "status": "alias",
+              "canonical": "Product",
+              "score": 11.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 11.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "product_2.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.category": {
+              "status": "aligned",
+              "canonical": "category",
+              "score": 10.0,
+              "evidence": [
+                "Product.category exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product_2.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.category": {
+              "status": "aligned",
+              "canonical": "category",
+              "score": 10.0,
+              "evidence": [
+                "Product.category exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product_3.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt exposes the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "case passes parameter/field name 'threshold' as a value"
+        }
+      },
+      "status": "under_specified",
+      "reason": "no generated method matches 'filter_products'"
+    }
+  ]
+}

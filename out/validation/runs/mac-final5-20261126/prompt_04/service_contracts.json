@@ -1,0 +1,167 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "TaskRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Task; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Task]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Task by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "create_task",
+          "description": "Creates a new task with the given description, completion status, and creation timestamp.",
+          "params": [
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            }
+          ],
+          "return_type": "models.Task"
+        },
+        {
+          "name": "read_all_tasks",
+          "description": "Retrieves a list of all tasks, sorted by creation timestamp in ascending order.",
+          "params": [],
+          "return_type": "list[Task]"
+        },
+        {
+          "name": "read_task_by_id",
+          "description": "Retrieves a single task by its unique identifier.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Task | None"
+        },
+        {
+          "name": "update_task_completion",
+          "description": "Updates the completion status of a task by its ID.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            },
+            {
+              "name": "is_completed",
+              "type": "bool"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "delete_task",
+          "description": "Permanently removes a task from the database by its ID.",
+          "params": [
+            {
+              "name": "task_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    }
+  ]
+}

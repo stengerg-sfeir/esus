@@ -1,0 +1,25 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "update_task_status",
+      "target_service": "TaskRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "task_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Task",
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "ENUM_LOOKUP",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 2,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 2
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "import_tasks_from_json",
+        "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+        "given": {
+          "task": {
+            "title": "Write documentation",
+            "description": "Complete the user guide for version 1.0"
+          }
+        },
+        "when": {
+          "action": "import_tasks_from_json",
+          "args": [
+            "tasks.json"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Task": 1
+          },
+          "error": "InvalidTitleError"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "import_tasks_from_json_with_empty_title",
+        "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+        "given": {
+          "task": {
+            "title": "Write documentation",
+            "description": "Complete the user guide for version 1.0"
+          }
+        },
+        "when": {
+          "action": "import_tasks_from_json",
+          "args": [
+            "tasks.json"
+          ]
+        },
+        "then": {
+          "error": "InvalidTitleError"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements",
+          "error class 'InvalidTitleError' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

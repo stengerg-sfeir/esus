@@ -1,0 +1,180 @@
+```json
+{
+  "cases": [
+    {
+      "id": "cancel_pending_order_releases_stock",
+      "source": "Cancelling an order releases the reserved stock.",
+      "given": {
+        "order": {"status": "pending", "customer_id": 1},
+        "product": {"stock_quantity": 5}
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": ["order.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 5  // Assumed: stock returns to original quantity after cancellation
+        },
+        "error": null,
+        "rows": {"Order": 1}
+      },
+      "status": "assumed",
+      "assumptions": [
+        "Stock quantity reverts to its pre-order value after cancellation (not explicitly stated for pending orders)"
+      ]
+    },
+    {
+      "id": "confirm_pending_order_reserves_stock",
+      "source": "Confirming an order reserves stock.",
+      "given": {
+        "order": {"status": "pending", "customer_id": 1},
+        "product": {"stock_quantity": 5}
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": ["order.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed",
+          "product.stock_quantity": 0  // Assumed: stock is fully reserved
+        },
+        "error": null,
+        "rows": {"Order": 1, "Product": 1}
+      },
+      "status": "assumed",
+      "assumptions": [
+        "Stock quantity is reduced to zero after full reservation (no partial reservation logic implied)"
+      ]
+    },
+    {
+      "id": "cancel_confirmed_order_releases_stock",
+      "source": "Cancelling a confirmed order releases the reserved stock.",
+      "given": {
+        "order": {"status": "confirmed", "customer_id": 1},
+        "product": {"stock_quantity": 0}  // Assumed: stock was reserved
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": ["order.id"]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 5  // Assumed: stock returns to original quantity
+        },
+        "error": null,
+        "rows": {"Order": 1, "Product": 1}
+      },
+      "status": "assumed",
+      "assumptions": [
+        "Stock quantity returns to its pre-order value after cancellation (no partial restocking logic)"
+      ]
+    },
+    {
+      "id": "search_customer_orders",
+      "source": "Customers should be able to search their orders.",
+      "given": {
+        "customer": {"id": 1}
+      },
+      "when": {
+        "cli": ["orders", "list", "--customer_id=1"]
+      },
+      "then": {
+        "state": {
+          "rows": {"Order": 2}  // Assumed: At least 2 orders exist for customer 1
+        },
+        "error": null
+      },
+      "status": "ambiguous",
+      "ambiguities": [
+        "Does the CLI return only confirmed orders, or all orders? Does it paginate results?"
+      ]
+    },
+    {
+      "id": "search_customer_invoices",
+      "source": "Customers should be able to search their invoices.",
+      "given": {
+        "customer": {"id": 1}
+      },
+      "when": {
+        "cli": ["invoices", "list", "--customer_id=1"]
+      },
+      "then": {
+        "state": {
+          "rows": {"Invoice": 1}  // Assumed: At least 1 invoice exists for customer 1
+        },
+        "error": null
+      },
+      "status": "ambiguous",
+      "ambiguities": [
+        "Does the CLI return only confirmed orders' invoices, or all invoices? Does it paginate results?"
+      ]
+    },
+    {
+      "id": "admin_add_product_category",
+      "source": "Administrators should be able to manage products and categories.",
+      "given": {
+        "category": {"name": "Electronics"}
+      },
+      "when": {
+        "cli": ["categories", "add", "--name=Electronics"]
+      },
+      "then": {
+        "state": {
+          "rows": {"Category": 1}
+        },
+        "error": null
+      },
+      "status": "ambiguous",
+      "ambiguities": [
+        "Does the CLI require admin privileges? Does it validate category name uniqueness?"
+      ]
+    },
+    {
+      "id": "admin_add_product",
+      "source": "Administrators should be able to manage products and categories.",
+      "given": {
+        "product": {"name": "Laptop", "category": "Electronics", "stock_quantity": 10}
+      },
+      "when": {
+        "cli": ["products", "add", "--name=Laptop", "--category=Electronics", "--stock=10"]
+      },
+      "then": {
+        "state": {
+          "rows": {"Product": 1}
+        },
+        "error": null
+      },
+      "status": "ambiguous",
+      "ambiguities": [
+        "Does the CLI require admin privileges? Does it validate category existence? Does it validate stock quantity?"
+      ]
+    },
+    {
+      "id": "invoice_created_on_confirm_order",
+      "source": "An invoice is created when an order is confirmed.",
+      "given": {
+        "order": {"status": "pending", "customer_id": 1}
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": ["order.id"]
+      },
+      "then": {
+        "state": {
+          "invoice": {"customer_id": 1, "order_id": order.id}  // Assumed: Invoice is created
+        },
+        "error": null,
+        "rows": {"Order": 1, "Invoice": 1}
+      },
+      "status": "ambiguous",
+      "ambiguities": [
+        "Does the invoice include order details? Does it have a timestamp? Does it persist separately from the order?"
+      ]
+    }
+  ]
+}
+```

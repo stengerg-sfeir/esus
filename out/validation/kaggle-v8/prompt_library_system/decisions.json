@@ -1,0 +1,24 @@
+{
+  "decisions": [
+    {
+      "text": "find_active_members() -> list[Member]: Returns all active members (is_active = True).",
+      "chosen_pattern_id": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "THRESHOLD_SCAN"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+    },
+    {
+      "text": "find_active_loans() -> list[Loan]: Returns all loans with status 'active' (i.e., not returned and not overdue).",
+      "chosen_pattern_id": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "THRESHOLD_SCAN"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f"
+    }
+  ]
+}

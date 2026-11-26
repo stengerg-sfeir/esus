@@ -1,0 +1,290 @@
+{
+  "counts": {
+    "legacy": 6,
+    "kept": 3,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 3
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_employee_invalid_email",
+        "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+        "given": {
+          "employee": {
+            "name": "Bob Smith",
+            "email": "invalid-email",
+            "age": 25,
+            "salary": 60000
+          }
+        },
+        "when": {
+          "action": "create_employee",
+          "args": [
+            "name",
+            "invalid_email",
+            "age",
+            "salary"
+          ]
+        },
+        "then": {
+          "error": "invalid_email",
+          "rows": {
+            "Employee": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements",
+          "error class 'invalid_email' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_employee_invalid_age",
+        "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+        "given": {
+          "employee": {
+            "name": "Charlie Brown",
+            "email": "charlie.brown@example.com",
+            "age": 80,
+            "salary": 80000
+          }
+        },
+        "when": {
+          "action": "create_employee",
+          "args": [
+            "name",
+            "email",
+            "age",
+            "salary"
+          ]
+        },
+        "then": {
+          "error": "age_out_of_range",
+          "rows": {
+            "Employee": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements",
+          "error class 'age_out_of_range' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_employee_negative_salary",
+        "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+        "given": {
+          "employee": {
+            "name": "Diana Prince",
+            "email": "diana.prince@example.com",
+            "age": 28,
+            "salary": -5000
+          }
+        },
+        "when": {
+          "action": "create_employee",
+          "args": [
+            "name",
+            "email",
+            "age",
+            "salary"
+          ]
+        },
+        "then": {
+          "error": "salary_not_positive",
+          "rows": {
+            "Employee": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements",
+          "error class 'salary_not_positive' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "BookRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Book.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "author",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Book",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Book; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "author",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Book]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Book.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "author",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Book",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Book.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "author",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Book by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Book",
+          "raises": []
+        },
+        {
+          "name": "search_by_title",
+          "description": "Search for books by a partial match of the title, returning a list of books that match the search term.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Book]"
+        }
+      ]
+    }
+  ]
+}

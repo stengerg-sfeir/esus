@@ -1,0 +1,40 @@
+{
+  "prompt": "prompt_inventory",
+  "results": [
+    {
+      "name": "scenario:oracle:add_product_invalid_category",
+      "status": "passed",
+      "case": "add_product_invalid_category",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 1
+  }
+}

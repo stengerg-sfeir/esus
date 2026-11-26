@@ -1,0 +1,179 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "find_customer_purchase_history",
+      "source": "find a customer's purchase history",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "find_customer_purchase_history",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Purchase": 3
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "read case expects Purchase rows but seeds no Purchase"
+      }
+    },
+    {
+      "id": "determine_customer_spent_amount",
+      "source": "determine how much they have spent",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "determine_customer_spent_amount",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'determine_customer_spent_amount'"
+      }
+    },
+    {
+      "id": "find_purchase_history_with_missing_customer",
+      "source": "find a customer's purchase history",
+      "given": {
+        "customer": {
+          "id": 999
+        }
+      },
+      "when": {
+        "action": "find_customer_purchase_history",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "CustomerNotFoundError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system must return an error when a customer is not found"
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether a missing customer should return an error or an empty result",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "determine_spent_amount_with_missing_customer",
+      "source": "determine how much they have spent",
+      "given": {
+        "customer": {
+          "id": 999
+        }
+      },
+      "when": {
+        "action": "determine_customer_spent_amount",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "CustomerNotFoundError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system must return an error when a customer is not found"
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether a missing customer should return an error or an empty result",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements",
+        "error class 'CustomerNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "find_purchase_history_with_duplicate_customer_id",
+      "source": "find a customer's purchase history",
+      "given": {
+        "customer": {
+          "id": 1
+        },
+        "customer_2": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "find_customer_purchase_history",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Purchase": 3
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "Duplicate customer IDs are allowed and treated as the same entity"
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether customer IDs must be unique or how duplicates are handled"
+      ]
+    }
+  ]
+}

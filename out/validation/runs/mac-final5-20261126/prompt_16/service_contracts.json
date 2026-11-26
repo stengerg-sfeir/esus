@@ -1,0 +1,244 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Customer.",
+          "params": [
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "create_customer",
+          "description": "Creates a new customer record with the provided first name, last name, email, and phone number.",
+          "params": [
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "return_type": "int"
+        },
+        {
+          "name": "read_customer_by_id",
+          "description": "Retrieves a customer record by their unique customer_id.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer"
+        },
+        {
+          "name": "read_all_customers_paginated",
+          "description": "Retrieves a paginated list of customers with specified page number and page size. Returns the list of customers and the total number of pages for pagination.",
+          "params": [
+            {
+              "name": "page_number",
+              "type": "int"
+            },
+            {
+              "name": "page_size",
+              "type": "int"
+            }
+          ],
+          "return_type": "dict[str, any]"
+        },
+        {
+          "name": "update_customer",
+          "description": "Updates an existing customer's first name, last name, email, and phone number by customer_id.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "first_name",
+              "type": "str"
+            },
+            {
+              "name": "last_name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone",
+              "type": "str"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "delete_customer",
+          "description": "Deletes a customer record by customer_id.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    }
+  ]
+}

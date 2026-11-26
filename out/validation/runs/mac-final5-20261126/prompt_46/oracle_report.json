@@ -1,0 +1,157 @@
+{
+  "prompt": "prompt_46",
+  "results": [
+    {
+      "name": "track_clients",
+      "status": "unbound",
+      "reason": "no generated method matches 'track_clients'",
+      "source": "It should keep track of clients",
+      "alignment": {
+        "entities": {
+          "client": {
+            "status": "aligned",
+            "canonical": "Client",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Client",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Invoice"
+            ]
+          }
+        },
+        "fields": {
+          "client.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Client.name exists"
+            ],
+            "alternatives": []
+          },
+          "client.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Client.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "InvoiceRepository.create",
+          "score": 0.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "InvoiceRepository.create",
+            "InvoiceRepository.delete",
+            "InvoiceRepository.read_all",
+            "InvoiceRepository.update"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action"
+    },
+    {
+      "name": "know_outstanding_invoices",
+      "status": "unbound",
+      "reason": "no generated method matches 'check_outstanding_invoices'",
+      "source": "make it possible to know which invoices are still outstanding",
+      "alignment": {
+        "entities": {
+          "invoice": {
+            "status": "aligned",
+            "canonical": "Invoice",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Invoice",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Payment",
+              "Client"
+            ]
+          },
+          "payment": {
+            "status": "aligned",
+            "canonical": "Payment",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Payment",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Invoice",
+              "Client"
+            ]
+          }
+        },
+        "fields": {
+          "invoice.id": {
+            "status": "aligned",
+            "canonical": "id",
+            "score": 10.0,
+            "evidence": [
+              "Invoice.id exists"
+            ],
+            "alternatives": []
+          },
+          "invoice.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Invoice.status exists"
+            ],
+            "alternatives": []
+          },
+          "invoice.amount": {
+            "status": "aligned",
+            "canonical": "amount",
+            "score": 10.0,
+            "evidence": [
+              "Invoice.amount exists"
+            ],
+            "alternatives": []
+          },
+          "invoice.client_id": {
+            "status": "aligned",
+            "canonical": "client_id",
+            "score": 10.0,
+            "evidence": [
+              "Invoice.client_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "PaymentRepository.create",
+          "score": 0.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "PaymentRepository.create",
+            "PaymentRepository.delete",
+            "PaymentRepository.read_all",
+            "PaymentRepository.update"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action"
+    }
+  ],
+  "counts": {
+    "unbound": 2
+  },
+  "triage_counts": {
+    "coverage_gap: ambiguous action": 2
+  }
+}

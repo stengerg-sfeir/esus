@@ -1,0 +1,47 @@
+{
+  "prompt": "prompt_50",
+  "results": [
+    {
+      "name": "scenario:oracle:create_event",
+      "status": "passed",
+      "case": "create_event",
+      "source": "People should be able to create events and register for them.",
+      "alignment": {
+        "entities": {
+          "event": {
+            "status": "aligned",
+            "canonical": "Event",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Event",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EventRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "RegistrationRepository.create",
+            "RegistrationRepository.register_user_for_event"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
+}

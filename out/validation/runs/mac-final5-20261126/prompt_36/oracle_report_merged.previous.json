@@ -1,0 +1,62 @@
+{
+  "prompt": "prompt_36",
+  "results": [
+    {
+      "name": "scenario:oracle:create_product_with_valid_category",
+      "status": "passed",
+      "case": "create_product_with_valid_category",
+      "source": "every product must belong to an existing category",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.create_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 1
+  }
+}

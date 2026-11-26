@@ -1,0 +1,493 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_customer",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "alice.j@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice.j@example.com"
+        },
+        "rows": {
+          "Customer": 1,
+          "Audit": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.create_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_customer_email",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "Bob Smith",
+          "email": "bob.s@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "bob.s@example.com",
+          "bob.smith@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Bob Smith",
+          "customer.email": "bob.smith@example.com"
+        },
+        "rows": {
+          "Customer": 1,
+          "Audit": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.update_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "audit_record_creation",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "given": {
+        "customer": {
+          "name": "Diana Prince",
+          "email": "diana.p@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "diana.p@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Diana Prince",
+          "customer.email": "diana.p@example.com"
+        },
+        "rows": {
+          "Audit": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "AuditLog"
+            ]
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.create_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "audit_record_on_update",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "given": {
+        "customer": {
+          "name": "Eve Davis",
+          "email": "eve.d@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "eve.d@example.com",
+          "eve.davis@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Eve Davis",
+          "customer.email": "eve.davis@example.com"
+        },
+        "rows": {
+          "Audit": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "AuditLog"
+            ]
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.update_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.create_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.update_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.delete_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

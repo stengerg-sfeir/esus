@@ -1,0 +1,51 @@
+{
+  "requirements_sha": "fcc1096f08e3ecc27d0edc60cc5ef530de816e00015897d0213dc2cf2da284e4",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "The age of an employee must be between 18 and 70 inclusive.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "PRICE_MARGIN_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "classification",
+      "source": "When creating an employee, the email must pass validation before being stored.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "PRICE_MARGIN_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

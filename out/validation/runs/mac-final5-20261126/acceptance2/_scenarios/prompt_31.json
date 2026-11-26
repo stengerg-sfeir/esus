@@ -1,0 +1,48 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Account add",
+      "when": {
+        "cli_variants": [
+          [
+            "Account",
+            "add",
+            "--customer-id",
+            "1",
+            "--balance",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Account update",
+      "when": {
+        "cli_variants": [
+          [
+            "Account",
+            "update",
+            "--id",
+            "1",
+            "--customer-id",
+            "1",
+            "--balance",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Account": {
+            "customer_id": 1,
+            "balance": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

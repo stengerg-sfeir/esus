@@ -1,0 +1,59 @@
+{
+  "plans": [
+    {
+      "id": "track_clients",
+      "source": "It should keep track of clients",
+      "when": {
+        "action": "track_clients"
+      },
+      "setup_entities": [
+        {
+          "alias": "client",
+          "entity": "Client",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "client.name",
+          "client.email"
+        ],
+        "rows": {
+          "Client": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "know_outstanding_invoices",
+      "source": "make it possible to know which invoices are still outstanding",
+      "when": {
+        "action": "check_outstanding_invoices"
+      },
+      "setup_entities": [
+        {
+          "alias": "invoice",
+          "entity": "Invoice",
+          "role": "target"
+        },
+        {
+          "alias": "payment",
+          "entity": "Payment",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "invoice.id",
+          "invoice.status",
+          "invoice.amount",
+          "invoice.client"
+        ],
+        "rows": {
+          "Invoice": 1
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

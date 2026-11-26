@@ -1,0 +1,169 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "book_available_only_filter",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "isbn": "9780747532699",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 3
+        },
+        "author": {
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1896,
+          "biography": "American novelist"
+        }
+      },
+      "when": {
+        "action": "library book list",
+        "args": [
+          "--author",
+          "1",
+          "--available-only"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 3
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises AlreadyReturnedLoanError and changes neither the loan nor inventory.",
+      "given": {
+        "loan": {
+          "id": 1,
+          "book_id": 1,
+          "member_id": 1,
+          "loan_date": "2023-01-01",
+          "due_date": "2023-01-15",
+          "return_date": "2023-01-10",
+          "status": "returned"
+        }
+      },
+      "when": {
+        "action": "library return",
+        "args": [
+          "loan.id"
+        ]
+      },
+      "then": {
+        "error": "AlreadyReturnedLoanError",
+        "rows": {}
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "borrow_final_copy",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "given": {
+        "book": {
+          "title": "1984",
+          "isbn": "9780452284234",
+          "author_id": 1,
+          "published_year": 1949,
+          "available_copies": 1
+        },
+        "member": {
+          "id": 1,
+          "name": "Alice Smith",
+          "email": "alice@example.com",
+          "membership_date": "2023-01-01",
+          "is_active": true
+        }
+      },
+      "when": {
+        "action": "library borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Author row for Book.author_id"
+      }
+    },
+    {
+      "id": "borrow_transaction_rollback",
+      "source": "Borrowing and returning each perform all related writes in one SQLite transaction. If any write fails, roll back every write in that operation.",
+      "given": {
+        "book": {
+          "title": "Brave New World",
+          "isbn": "9780141439518",
+          "author_id": 1,
+          "published_year": 1932,
+          "available_copies": 2
+        },
+        "member": {
+          "id": 1,
+          "name": "Bob Johnson",
+          "email": "bob@example.com",
+          "membership_date": "2023-01-01",
+          "is_active": true
+        }
+      },
+      "when": {
+        "action": "library borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The transaction fails due to an internal error (e.g., database constraint violation or network issue), and all writes are rolled back"
+      ],
+      "ambiguities": [
+        "The exact condition under which the transaction fails is not specified, so the error behavior cannot be precisely defined without additional constraints."
+      ]
+    }
+  ]
+}

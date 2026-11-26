@@ -1,0 +1,228 @@
+{
+  "plans": [
+    {
+      "id": "create_project",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.name"
+        ],
+        "rows": {
+          "Project": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_project",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "update_project",
+        "args": [
+          "project.id",
+          "project.name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.name"
+        ],
+        "rows": {
+          "Project": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_project",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "project.status"
+        ],
+        "rows": {
+          "Project": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_projects",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "list_projects"
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Project": "any"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_task",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "create_task",
+        "args": [
+          "project.id",
+          "task.title",
+          "task.description",
+          "task.status",
+          "task.priority"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        },
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.title",
+          "task.description",
+          "task.status",
+          "task.priority"
+        ],
+        "rows": {
+          "Task": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_task",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "update_task",
+        "args": [
+          "task.id",
+          "task.title",
+          "task.description",
+          "task.status",
+          "task.priority"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.title",
+          "task.description",
+          "task.status",
+          "task.priority"
+        ],
+        "rows": {
+          "Task": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_task",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.status"
+        ],
+        "rows": {
+          "Task": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "list_tasks",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "when": {
+        "action": "list_tasks"
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Task": "any"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

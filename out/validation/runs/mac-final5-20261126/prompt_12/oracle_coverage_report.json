@@ -1,0 +1,27 @@
+{
+  "prompt": "prompt_12",
+  "results": [
+    {
+      "name": "add_customer_unique_email",
+      "status": "unbound",
+      "reason": "create case expects customer.phone = '123-496-7890' but supplies '123-456-7890'",
+      "source": "Customers have a name, email and phone number. Email addresses must be unique."
+    },
+    {
+      "name": "scenario:oracle:update_customer_email",
+      "status": "passed",
+      "case": "update_customer_email",
+      "source": "Provide CRUD operations, search by name and filtering by email domain."
+    },
+    {
+      "name": "delete_customer",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Customer; a hard-deleted row has no state to read",
+      "source": "Provide CRUD operations, search by name and filtering by email domain."
+    }
+  ],
+  "counts": {
+    "unbound": 2,
+    "passed": 1
+  }
+}

@@ -1,0 +1,56 @@
+[run] requirements: 156 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 50 tokens in 0.9s (54.7 tok/s, 64.3 decode, 66 prompt)
+[data_models] 437 tokens in 7.2s (60.3 tok/s, 61.3 decode, 546 prompt)
+[errors] 271 tokens in 4.6s (59.3 tok/s, 62.2 decode, 468 prompt)
+[invariants] 35 tokens in 0.7s (50.0 tok/s, 64.0 decode, 272 prompt)
+[ok] step invariants: 15 invariant(s) — 14 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 288 tokens in 5.2s (55.3 tok/s, 57.3 decode, 980 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 749 tokens in 12.9s (58.2 tok/s, 59.7 decode, 607 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[persistence_ports] 286 tokens in 4.8s (59.0 tok/s, 62.2 decode, 382 prompt)
+[ok] step persistence: merged 3 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+  [1/15] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [2/15] contract:PurchaseHistoryService.get_customer_purchase_history -> FILTER_BY_FIELD (0.00)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (list[Purchase]) (was AGGREGATE_BY_FK_AND_DATE)  <- undecided (pattern): FILTER_WITH_PAGINATION at 0.00
+  [3/15] contract:SpendingAnalysisService.calculate_total_spent_by_customer -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [4/15] contract:PurchaseValidationService.validate_purchase_amount -> BUDGET_OVERFLOW_GUARD (1.00)
+  [5/15] contract:CustomerDataService.ensure_customer_email_is_present -> STOCK_SUFFICIENCY_GUARD (0.98)
+  [6/15] contract:PurchaseHistorySearchService.search_purchases_by_customer_and_date_range -> FILTER_WITH_PAGINATION (0.10)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (list[Purchase]) (was AGGREGATE_BY_FK_AND_DATE)  <- undecided (pattern): FILTER_BY_FIELD at 0.00
+  [7/15] contract:SpendingReportService.generate_customer_spending_report -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [8/15] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/15] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/15] contract:CustomerRepository.read_customer_purchases -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [11/15] contract:CustomerRepository.get_total_spent_by_customer -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [12/15] contract:PurchaseRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:PurchaseRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:PurchaseRepository.get_purchases_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:PurchaseRepository.read_all_purchases_for_customer -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 0 standard CRUD, 15 pattern(s), 0 gap(s)
+[ok] step adapters: derived 2 command group(s) from 14 service method(s)
+[ok] step adapters: 2 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: purchasesearch.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerreport.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method PurchaseHistorySearchService.purchasesearch (search)
+[ok] step adapters: added capability method CustomerDataService.customerreport (report)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/method_plans.json
+[!] method plans: 2 ambiguous question(s) — human review required
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_42/requirements.txt
+[run] 7 steps, 2116 generated tokens in 36.3s

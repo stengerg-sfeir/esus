@@ -1,0 +1,49 @@
+{
+  "errors": [
+    {
+      "name": "AlreadyReturnedLoanError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to return a loan that is already marked as returned."
+    },
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a book is not found during lookup by title, ISBN, or author ID."
+    },
+    {
+      "name": "AuthorNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an author is not found during lookup by ID or name."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a member is not found during lookup by ID or email."
+    },
+    {
+      "name": "LoanNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a loan is not found during lookup by ID."
+    },
+    {
+      "name": "InvalidBookCopiesError",
+      "base": "ValueError",
+      "description": "Raised when the number of available copies is negative or not an integer."
+    },
+    {
+      "name": "InvalidBookAuthorIDError",
+      "base": "KeyError",
+      "description": "Raised when a book is attempted to be added with a non-existent author ID."
+    },
+    {
+      "name": "InvalidLoanBookIDError",
+      "base": "KeyError",
+      "description": "Raised when a loan is attempted to be created with a book ID that does not exist."
+    },
+    {
+      "name": "MalformedQueryError",
+      "base": "ValueError",
+      "description": "Raised when a search query is empty or contains invalid characters that prevent substring matching."
+    }
+  ]
+}

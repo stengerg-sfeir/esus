@@ -1,0 +1,222 @@
+{
+  "intents": [
+    {
+      "id": "addition",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "kind": "app",
+      "entity": "",
+      "action": "calculate",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "2",
+        "+",
+        "3"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "2",
+          "+",
+          "3"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "subtraction",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "kind": "app",
+      "entity": "",
+      "action": "calculate",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "5",
+        "-",
+        "3"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "5",
+          "-",
+          "3"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "2",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "multiplication",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "kind": "app",
+      "entity": "",
+      "action": "calculate",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "4",
+        "*",
+        "7"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "4",
+          "*",
+          "7"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "28",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "display_result_on_command_line",
+      "source": "Display the result on the command line.",
+      "kind": "app",
+      "entity": "",
+      "action": "display_result",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "2",
+        "3"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "2",
+          "+",
+          "3"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "display_division_error",
+      "source": "Display the result on the command line.",
+      "kind": "app",
+      "entity": "",
+      "action": "display_result",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "10",
+        "0"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "10",
+          "/",
+          "0"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "DivisionByZeroError",
+        "stdout_contains": "Error: Division by zero",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "division_by_zero_error",
+      "source": "Division by zero must produce a clear error message.",
+      "kind": "error",
+      "entity": "Calculation",
+      "action": "perform_division",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "5",
+        "0"
+      ],
+      "changes": {},
+      "cli": [
+        "calc",
+        "divide",
+        "5",
+        "0"
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "DivisionByZeroError",
+        "stdout_contains": "Error: Division by zero is not allowed.",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "error class 'DivisionByZeroError' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

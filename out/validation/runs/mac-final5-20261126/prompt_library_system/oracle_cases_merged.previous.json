@@ -1,0 +1,802 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "return_already_returned_loan",
+      "source": "library return --loan-id",
+      "given": {
+        "loan": {
+          "book_id": 1,
+          "member_id": 2,
+          "loan_date": "2023-10-01",
+          "due_date": "2023-10-15",
+          "return_date": "2023-10-20",
+          "status": "returned"
+        },
+        "book": {
+          "title": "Brave New World",
+          "isbn": "9780141439518",
+          "available_copies": 1
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "loan_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 1,
+          "loan.return_date": "2023-10-20",
+          "loan.status": "returned"
+        },
+        "error": "AlreadyReturnedLoanError",
+        "rows": {
+          "Loan": 1,
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          },
+          "loan.return_date": {
+            "status": "aligned",
+            "canonical": "return_date",
+            "score": 10.0,
+            "evidence": [
+              "Loan.return_date exists"
+            ],
+            "alternatives": []
+          },
+          "loan.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Loan.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_books_by_author_id",
+      "source": "library book list [--author]",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "isbn": "9780747532699",
+          "author_id": 1,
+          "available_copies": 1
+        },
+        "author": {
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1896
+        }
+      },
+      "when": {
+        "action": "list_books",
+        "args": [
+          "author"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "The Great Gatsby"
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "LoanRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "borrow_final_copy",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "given": {
+        "author": {
+          "name": "author name",
+          "birth_year": 1
+        },
+        "book": {
+          "available_copies": 1,
+          "author_id": {
+            "ref": "author.id"
+          },
+          "title": "book name",
+          "isbn": "BOOK-1",
+          "published_year": 1
+        },
+        "member": {
+          "name": "member name",
+          "email": "member@example.test",
+          "is_active": false
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          {
+            "ref": "book.id"
+          },
+          1
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "borrowing_final_copy_leaves_zero",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "given": {
+        "author": {
+          "name": "author name",
+          "birth_year": 1
+        },
+        "book": {
+          "available_copies": 1,
+          "author_id": {
+            "ref": "author.id"
+          },
+          "title": "book name",
+          "isbn": "BOOK-1",
+          "published_year": 1
+        },
+        "member": {
+          "name": "member name",
+          "email": "member@example.test",
+          "is_active": false
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          {
+            "ref": "book.id"
+          },
+          1
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "return_already_returned_loan_intent_2",
+      "source": "Returning an already returned loan raises `AlreadyReturnedLoanError` and changes neither the loan nor inventory. Include that error in the declared error set.",
+      "given": {
+        "author": {
+          "name": "author name",
+          "birth_year": 1
+        },
+        "book": {
+          "author_id": {
+            "ref": "author.id"
+          },
+          "title": "book name",
+          "isbn": "BOOK-1",
+          "published_year": 1,
+          "available_copies": 1
+        },
+        "member": {
+          "name": "member name",
+          "email": "member@example.test",
+          "is_active": false
+        },
+        "loan": {
+          "status": "returned",
+          "book_id": {
+            "ref": "book.id"
+          },
+          "member_id": {
+            "ref": "member.id"
+          },
+          "loan_date": "2024-01-01",
+          "due_date": "2024-01-01"
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          {
+            "ref": "loan.id"
+          }
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "AlreadyReturnedLoanError"
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Loan",
+              "Author",
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book",
+              "Loan"
+            ]
+          },
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "library_borrow_member_id_book_id",
+      "source": "library borrow --member-id --book-id",
+      "given": {
+        "member": {
+          "is_active": true,
+          "name": "member name",
+          "email": "member@example.test"
+        },
+        "author": {
+          "name": "author name",
+          "birth_year": 1
+        },
+        "book": {
+          "available_copies": 1,
+          "author_id": {
+            "ref": "author.id"
+          },
+          "title": "book name",
+          "isbn": "BOOK-1",
+          "published_year": 1
+        }
+      },
+      "when": {
+        "cli": [
+          "library",
+          "borrow",
+          "--member-id",
+          "1",
+          "--book-id",
+          "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Loan": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Author"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Member",
+              "Author"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": null
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "library book search --query",
+      "source": "library book search --query",
+      "given": {
+        "author": {
+          "name": "author name",
+          "birth_year": 1
+        },
+        "book": {
+          "title": "The Great Gatsby",
+          "isbn": "9780747532699",
+          "published_year": 1925,
+          "available_copies": 3,
+          "author_id": {
+            "ref": "author.id"
+          }
+        }
+      },
+      "when": {
+        "action": "search_books",
+        "args": [
+          "The Great Gatsby"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "The Great Gatsby",
+          "book.isbn": "9780747532699",
+          "book.published_year": 1925,
+          "book.available_copies": 3
+        },
+        "rows": {
+          "Book": 1
+        },
+        "stdout_contains": "The Great Gatsby",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.published_year": {
+            "status": "aligned",
+            "canonical": "published_year",
+            "score": 10.0,
+            "evidence": [
+              "Book.published_year exists"
+            ],
+            "alternatives": []
+          },
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.search_books",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

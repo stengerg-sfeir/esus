@@ -1,0 +1,295 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "InvoiceRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Invoice by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Invoice",
+          "raises": [
+            "InvoiceNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Invoice; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "total_amount",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Invoice]",
+          "raises": []
+        },
+        {
+          "name": "read_one_by_customer_id",
+          "description": "Fetches an invoice by its customer ID, returning the full invoice object including all associated invoice lines and product details.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Invoice | None"
+        },
+        {
+          "name": "read_all_by_date_range",
+          "description": "Retrieves all invoices created within a specified date range, inclusive of both start and end dates, with full line item and product details.",
+          "params": [
+            {
+              "name": "start_date",
+              "type": "datetime"
+            },
+            {
+              "name": "end_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "list[Invoice]"
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "read_one_by_name",
+          "description": "Fetches a product by its name, returning the full product object with its price.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Product | None"
+        },
+        {
+          "name": "read_all_by_price_range",
+          "description": "Returns all products whose price falls within a specified range, inclusive of both bounds.",
+          "params": [
+            {
+              "name": "min_price",
+              "type": "float"
+            },
+            {
+              "name": "max_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "list[Product]"
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "read_one_by_email",
+          "description": "Fetches a customer by their email address, returning the full customer object.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer | None"
+        },
+        {
+          "name": "read_all_active",
+          "description": "Returns all customers who have active status (e.g., not deleted or suspended), with their name and email.",
+          "params": [],
+          "return_type": "list[Customer]"
+        }
+      ]
+    },
+    {
+      "service_name": "InvoiceLineRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new InvoiceLine.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "int"
+            },
+            {
+              "name": "line_total",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.InvoiceLine",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one InvoiceLine by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.InvoiceLine",
+          "raises": [
+            "InvoiceLineNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every InvoiceLine; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "int"
+            },
+            {
+              "name": "line_total",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[InvoiceLine]",
+          "raises": []
+        },
+        {
+          "name": "create_with_product_and_quantity",
+          "description": "Creates a new invoice line with a specified product ID, quantity, and unit price, and associates it with an invoice. Returns the created line object.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "models.InvoiceLine"
+        },
+        {
+          "name": "read_one_by_invoice_and_product",
+          "description": "Fetches an invoice line by invoice ID and product ID, returning the line with its total calculated as quantity times unit price.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "InvoiceLine | None"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "intents": [
+    {
+      "id": "hello_world_cli",
+      "source": "The script should define a `main()` function and include the standard `if __name__ == \"__main__\": main()` guard.",
+      "kind": "app",
+      "entity": "",
+      "action": "run_script",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": null,
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

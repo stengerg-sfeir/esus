@@ -1,0 +1,171 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "export_contacts",
+      "source": "Export all contacts to CSV",
+      "given": {
+        "contact": {
+          "email": "alice@example.com",
+          "name": "Alice Johnson"
+        }
+      },
+      "when": {
+        "action": "export_contacts"
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ContactService.import_contacts_from_csv",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'export_contacts' for export"
+      }
+    },
+    {
+      "id": "import_contacts",
+      "source": "Import contacts from CSV",
+      "given": {
+        "contact": {
+          "email": "bob@example.com",
+          "name": "Bob Smith"
+        }
+      },
+      "when": {
+        "action": "import_contacts",
+        "args": [
+          "contacts.csv"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ContactService.import_contacts_from_csv",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "import_invalid_row_rejected",
+      "source": "Invalid rows during import must be rejected without corrupting existing data",
+      "given": {
+        "contact": {
+          "email": "alice@example.com",
+          "name": "Alice Johnson"
+        }
+      },
+      "when": {
+        "action": "import_contacts",
+        "args": [
+          "invalid_contacts.csv"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "invalid_row",
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ContactService.import_contacts_from_csv",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "failed",
+        "reason": "expected invalid_row, no error was raised"
+      },
+      "triage": "under_specified",
+      "needs_review": false
+    }
+  ]
+}

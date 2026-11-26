@@ -1,0 +1,119 @@
+[run] requirements: 272 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 75 tokens in 1.3s (55.8 tok/s, 63.9 decode, 95 prompt)
+[data_models] 734 tokens in 12.3s (59.9 tok/s, 60.6 decode, 599 prompt)
+[ok] step data_models: PostTag.post_id is a primary key — unique=false contradicts it, set true
+[errors] 8 tokens in 0.4s (22.3 tok/s, 71.4 decode, 511 prompt)
+[invariants] 406 tokens in 6.7s (60.9 tok/s, 62.1 decode, 315 prompt)
+[ok] step invariants: 32 invariant(s) — 22 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1472 tokens in 25.6s (57.6 tok/s, 58.2 decode, 1023 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-post-id' to '--post-id'
+[ok] step components: normalized option '-tag-id' to '--tag-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-author-id' to '--author-id'
+[ok] step components: normalized option '-tag' to '--tag'
+[ok] step components: normalized option '-post-id' to '--post-id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-post-id' to '--post-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-tag-id' to '--tag-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-tag-id' to '--tag-id'
+[ok] step components: added 1 persisted dependent entity(ies) to crud_services: PostTag
+[service_contracts] 10 tokens in 0.5s (18.3 tok/s, 70.1 decode, 517 prompt)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step contracts: normalized 11 generic type spelling(s) to Python annotations
+[persistence_ports] 1395 tokens in 23.2s (60.2 tok/s, 60.7 decode, 462 prompt)
+[ok] step persistence: merged 18 custom repository method(s) into service_contracts
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+  [1/48] invariant -> BUDGET_OVERFLOW_GUARD (0.54)
+  [2/48] invariant -> AGGREGATE_BY_FK_AND_DATE (0.96)
+  [3/48] invariant -> AGGREGATE_BY_FK_AND_DATE (0.99)
+  [4/48] invariant -> AGGREGATE_BY_FK_AND_DATE (0.97)
+  [5/48] invariant -> STOCK_SUFFICIENCY_GUARD (0.98)
+  [6/48] invariant -> BUDGET_OVERFLOW_GUARD (0.89)
+  [7/48] invariant -> STOCK_SUFFICIENCY_GUARD (0.86)
+  [8/48] invariant -> EXISTS_BY_UNIQUE_COMPOSITE (0.97)
+  [9/48] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [10/48] invariant -> STOCK_SUFFICIENCY_GUARD (0.66)
+  [11/48] contract:AuthorRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/48] contract:AuthorRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/48] contract:AuthorRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/48] contract:AuthorRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/48] contract:AuthorRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/48] contract:AuthorRepository.create_author -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/48] contract:AuthorRepository.read_author_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/48] contract:AuthorRepository.read_all_authors -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [19/48] contract:AuthorRepository.update_author -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/48] contract:AuthorRepository.delete_author -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/48] contract:PostRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/48] contract:PostRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [23/48] contract:PostRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [24/48] contract:PostRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [25/48] contract:PostRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/48] contract:PostRepository.get_posts_by_author_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [27/48] contract:PostRepository.create_post -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [28/48] contract:PostRepository.read_post_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [29/48] contract:PostRepository.read_all_posts -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [30/48] contract:PostRepository.update_post -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [31/48] contract:PostRepository.delete_post -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [32/48] contract:TagRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [33/48] contract:TagRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [34/48] contract:TagRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [35/48] contract:TagRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [36/48] contract:TagRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [37/48] contract:TagRepository.create_tag -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [38/48] contract:TagRepository.read_tag_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [39/48] contract:TagRepository.read_all_tags -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [40/48] contract:TagRepository.update_tag -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [41/48] contract:TagRepository.delete_tag -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [42/48] contract:PostTagRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [43/48] contract:PostTagRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [44/48] contract:PostTagRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [45/48] contract:PostTagRepository.get_post_tags_by_tag_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [46/48] contract:PostTagRepository.create_post_tag_association -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [47/48] contract:PostTagRepository.read_post_tags_by_post_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [48/48] contract:PostTagRepository.read_posts_by_tag_name -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 48 item(s) — 20 standard CRUD, 28 pattern(s), 0 gap(s)
+[ok] step adapters: derived 4 command group(s) from 38 service method(s)
+[!] step adapters: mechanical derivation declined (Author add: ambiguous methods: AuthorRepository.create, AuthorRepository.create_author) — asking the model
+[interaction_adapters] 1675 tokens in 28.4s (58.9 tok/s, 59.6 decode, 840 prompt)
+[ok] step adapters: update_author.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_author.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_post.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_post_by_id.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_post.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_post.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_tag.tag_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_tag.tag_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_post_tag_association.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_post_tag_association.tag_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 10 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23/requirements.txt
+[run] 8 steps, 5775 generated tokens in 98.3s

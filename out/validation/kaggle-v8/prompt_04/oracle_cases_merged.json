@@ -1,0 +1,119 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "list_tasks",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "description": "task description",
+          "is_completed": false
+        }
+      },
+      "when": {
+        "action": "list_tasks",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Task": 1
+        },
+        "stdout_contains": "new task",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "description": "task description",
+          "is_completed": false
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task_id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Task": 0
+        },
+        "stdout_contains": "deleted",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

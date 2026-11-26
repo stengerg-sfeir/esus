@@ -1,0 +1,146 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Customer",
+        "interface_name": "CustomerRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one Customer by its key.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Customer",
+            "raises": [
+              "CustomerNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Customer; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "email",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Customer]",
+            "raises": []
+          },
+          {
+            "name": "read_customer_purchases",
+            "description": "Retrieves all purchase records for a specific customer by their customer_id.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Purchase]"
+          },
+          {
+            "name": "get_total_spent_by_customer",
+            "description": "Calculates and returns the total amount spent by a customer across all their purchases.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "float"
+          }
+        ]
+      },
+      {
+        "entity": "Purchase",
+        "interface_name": "PurchaseRepository",
+        "methods": [
+          {
+            "name": "read_all",
+            "description": "Lists every Purchase; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              },
+              {
+                "name": "amount",
+                "type": "int"
+              },
+              {
+                "name": "purchase_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "list[Purchase]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Purchase by its key.",
+            "params": [
+              {
+                "name": "purchase_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Purchase",
+            "raises": [
+              "PurchaseNotFoundError"
+            ]
+          },
+          {
+            "name": "get_purchases_by_customer_id",
+            "description": "Lists the Purchase records belonging to one Customer.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Purchase]",
+            "raises": []
+          },
+          {
+            "name": "read_all_purchases_for_customer",
+            "description": "Retrieves all purchase records for a specific customer by their customer_id.",
+            "params": [
+              {
+                "name": "customer_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Purchase]"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Customer",
+        "table": "customers",
+        "primary_key": "customer_id",
+        "indexes": [
+          "email"
+        ]
+      },
+      {
+        "entity": "Purchase",
+        "table": "purchases",
+        "primary_key": "purchase_id",
+        "indexes": [
+          "customer_id",
+          "purchase_date"
+        ]
+      }
+    ]
+  }
+}

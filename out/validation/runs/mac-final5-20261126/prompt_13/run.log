@@ -1,0 +1,75 @@
+[run] requirements: 212 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 104 tokens in 2.7s (38.9 tok/s, 42.0 decode, 83 prompt)
+[data_models] 285 tokens in 7.7s (37.0 tok/s, 39.0 decode, 611 prompt)
+[ok] step data_models: Product.sku became the integer primary key id
+[ok] step data_models: uniqueness provenance — 1 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 225 tokens in 5.9s (38.0 tok/s, 39.7 decode, 475 prompt)
+[invariants] 322 tokens in 8.1s (39.7 tok/s, 41.0 decode, 279 prompt)
+[ok] step invariants: 19 invariant(s) — 9 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 610 tokens in 16.8s (36.2 tok/s, 36.9 decode, 987 prompt)
+[ok] step components: normalized option '-action' to '--action'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-category-filter' to '--category-filter'
+[ok] step components: normalized option '-low-stock' to '--low-stock'
+[ok] step components: normalized option '-low-stock' to '--low-stock'
+[service_contracts] 10 tokens in 0.7s (13.3 tok/s, 43.1 decode, 590 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Product add, Product update, Product delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidProductPriceError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidProductStockError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidProductCategoryError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 44 tokens in 1.3s (33.7 tok/s, 42.3 decode, 387 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.64)
+  [2/15] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/15] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [4/15] invariant -> BUDGET_OVERFLOW_GUARD (0.94)
+  [5/15] invariant -> FILTER_WITH_PAGINATION (1.00)
+  [6/15] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [7/15] invariant -> THRESHOLD_SCAN (1.00)
+  [8/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.66)
+  [9/15] invariant -> STATE_TRANSITION_GUARD (0.57)
+  [10/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [11/15] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 3 standard CRUD, 12 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (search: no method matches the verb 'search'); retry after surface repairs declined (search: no method matches the verb 'search') — asking the model
+[interaction_adapters] 1200 tokens in 32.5s (36.9 tok/s, 37.4 decode, 530 prompt)
+[ok] step adapters: read_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: removed 2 duplicate adapter(s)
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 256 tokens in 6.9s (37.3 tok/s, 38.7 decode, 564 prompt)
+[!] step interaction_adapters retry has 1 item(s) versus 5 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--sku' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--name' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--category' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--price' required by 'create_product' — added as int
+[ok] step adapters: add  lacked '--stock-quantity' required by 'create_product' — added as int
+[ok] step adapters: Product add lacked '--sku' required by 'create_product' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/requirements.txt
+[run] 9 steps, 3056 generated tokens in 82.7s

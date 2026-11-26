@@ -1,0 +1,30 @@
+{
+  "plans": [
+    {
+      "id": "add_task",
+      "source": "Users can add tasks",
+      "when": {
+        "action": "add_task",
+        "args": [
+          "task"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Task": 1
+        },
+        "state": [
+          "task.status"
+        ]
+      },
+      "status": "confirmed"
+    }
+  ]
+}

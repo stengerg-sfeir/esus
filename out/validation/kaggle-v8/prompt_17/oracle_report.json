@@ -1,0 +1,39 @@
+{
+  "prompt": "prompt_17",
+  "results": [
+    {
+      "name": "filter_with_no_matches",
+      "status": "unbound",
+      "reason": "no generated method matches 'search_products'",
+      "source": "All filters must be combinable",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  }
+}

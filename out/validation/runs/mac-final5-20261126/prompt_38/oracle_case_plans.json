@@ -1,0 +1,125 @@
+{
+  "plans": [
+    {
+      "id": "auth_required_to_access_documents",
+      "source": "Users must authenticate before accessing documents.",
+      "when": {
+        "action": "access_documents",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.authenticated"
+        ],
+        "error": "AuthenticationRequired"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "user_can_only_access_own_documents",
+      "source": "A user can only read, modify or delete their own documents.",
+      "when": {
+        "action": "read_document",
+        "args": [
+          "document.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.id",
+          "document.owner.id"
+        ],
+        "rows": {
+          "Document": 1
+        },
+        "error": "UnauthorizedAccess"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "user_can_modify_own_documents",
+      "source": "A user can only read, modify or delete their own documents.",
+      "when": {
+        "action": "modify_document",
+        "args": [
+          "document.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.id",
+          "document.owner.id"
+        ],
+        "rows": {
+          "Document": 1
+        },
+        "error": "UnauthorizedAccess"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "user_can_delete_own_documents",
+      "source": "A user can only read, modify or delete their own documents.",
+      "when": {
+        "action": "delete_document",
+        "args": [
+          "document.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "user.id",
+          "document.owner.id"
+        ],
+        "rows": {
+          "Document": 1
+        },
+        "error": "UnauthorizedAccess"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

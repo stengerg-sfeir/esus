@@ -1,0 +1,166 @@
+{
+  "prompt": "prompt_17",
+  "results": [
+    {
+      "name": "scenario:oracle:search_by_name",
+      "status": "passed",
+      "case": "search_by_name",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.find_products_by_name_and_category_and_price_range_and_quantity_range",
+          "score": 6.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:filter_by_category",
+      "status": "passed",
+      "case": "filter_by_category",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.search_products",
+          "score": 0.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:specify_maximum_price",
+      "status": "passed",
+      "case": "specify_maximum_price",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.search_products",
+          "score": 0.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:specify_minimum_quantity",
+      "status": "passed",
+      "case": "specify_minimum_quantity",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.search_products",
+          "score": 0.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:filters_combinable",
+      "status": "passed",
+      "case": "filters_combinable",
+      "source": "All filters must be combinable",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.search_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 5
+  }
+}

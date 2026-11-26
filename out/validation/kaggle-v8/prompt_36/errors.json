@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested category does not exist in the system."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested product does not exist in the system."
+    },
+    {
+      "name": "CategoryCannotBeDeletedError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to delete a category that still has products assigned to it."
+    }
+  ]
+}

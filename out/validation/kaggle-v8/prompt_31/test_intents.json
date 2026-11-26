@@ -1,0 +1,178 @@
+{
+  "intents": [
+    {
+      "id": "deposit_increases_balance",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "kind": "update",
+      "entity": "Account",
+      "action": "deposit",
+      "setup_entities": [
+        {
+          "alias": "account",
+          "entity": "Account",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "account.balance": 100
+      },
+      "lookup": [
+        "account.account_id"
+      ],
+      "where": {},
+      "args": [
+        "account.account_id",
+        50
+      ],
+      "changes": {
+        "account.balance": 150
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "account.balance": 150
+        },
+        "rows": {
+          "Account": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "withdrawal_decreases_balance",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "kind": "update",
+      "entity": "Account",
+      "action": "withdraw",
+      "setup_entities": [
+        {
+          "alias": "account",
+          "entity": "Account",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "account.balance": 100
+      },
+      "lookup": [
+        "account.account_id"
+      ],
+      "where": {},
+      "args": [
+        "account.account_id",
+        30
+      ],
+      "changes": {
+        "account.balance": 70
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "account.balance": 70
+        },
+        "rows": {
+          "Account": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "withdrawal_rejected_if_negative_balance",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "kind": "error",
+      "entity": "Account",
+      "action": "withdraw",
+      "setup_entities": [
+        {
+          "alias": "account",
+          "entity": "Account",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "account.balance": 10
+      },
+      "lookup": [
+        "account.account_id"
+      ],
+      "where": {},
+      "args": [
+        "account.account_id",
+        20
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "account.balance": 10
+        },
+        "rows": {
+          "Account": 1
+        },
+        "error": "InsufficientFundsError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [
+        "The system explicitly rejects withdrawals that would make the balance negative"
+      ],
+      "ambiguities": [
+        "The exact error message or exception type is not specified in the requirement"
+      ]
+    },
+    {
+      "id": "withdrawal-negative-balance-rejection",
+      "source": "A withdrawal must be rejected if it would make the balance negative.",
+      "kind": "error",
+      "entity": "Account",
+      "action": "withdraw",
+      "setup_entities": [
+        {
+          "alias": "account",
+          "entity": "Account",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "account.balance": 10
+      },
+      "lookup": [
+        "account.account_id"
+      ],
+      "where": {},
+      "args": [
+        "account.account_id",
+        20
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "WithdrawalWouldMakeBalanceNegative",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "error class 'WithdrawalWouldMakeBalanceNegative' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

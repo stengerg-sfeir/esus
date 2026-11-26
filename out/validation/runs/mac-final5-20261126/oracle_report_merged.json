@@ -1,0 +1,5097 @@
+{
+  "root": "out/validation/runs/mac-final5-20261126",
+  "summary": {
+    "projects": 66,
+    "cases": 85,
+    "counts": {
+      "passed": 85
+    },
+    "triage_counts": {
+      "passed": 85
+    }
+  },
+  "results": [
+    {
+      "prompt": "prompt_01",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_02",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_03",
+      "results": [
+        {
+          "name": "scenario:oracle:add_task",
+          "status": "passed",
+          "case": "add_task",
+          "source": "Users can add tasks",
+          "alignment": {
+            "entities": {
+              "task": {
+                "status": "aligned",
+                "canonical": "Task",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Task",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "TaskRepository.create",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_04",
+      "results": [
+        {
+          "name": "scenario:oracle:list_tasks",
+          "status": "passed",
+          "case": "list_tasks",
+          "source": "Users can add, list, complete and delete tasks.",
+          "alignment": {
+            "entities": {
+              "task": {
+                "status": "aligned",
+                "canonical": "Task",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Task",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "TaskRepository.read_all_tasks",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "TaskRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_05",
+      "results": [
+        {
+          "name": "scenario:oracle:create_contact",
+          "status": "passed",
+          "case": "create_contact",
+          "source": "Provide operations to create, list, update and delete contacts.",
+          "alignment": {
+            "entities": {
+              "contact": {
+                "status": "aligned",
+                "canonical": "Contact",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Contact",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "contact.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Contact.name exists"
+                ],
+                "alternatives": []
+              },
+              "contact.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Contact.email exists"
+                ],
+                "alternatives": []
+              },
+              "contact.phone_number": {
+                "status": "aligned",
+                "canonical": "phone_number",
+                "score": 10.0,
+                "evidence": [
+                  "Contact.phone_number exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ContactRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_contacts",
+          "status": "passed",
+          "case": "list_contacts",
+          "source": "Provide operations to create, list, update and delete contacts.",
+          "alignment": {
+            "entities": {
+              "contact": {
+                "status": "aligned",
+                "canonical": "Contact",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Contact",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "contact.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Contact.name exists"
+                ],
+                "alternatives": []
+              },
+              "contact.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Contact.email exists"
+                ],
+                "alternatives": []
+              },
+              "contact.phone_number": {
+                "status": "aligned",
+                "canonical": "phone_number",
+                "score": 10.0,
+                "evidence": [
+                  "Contact.phone_number exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ContactRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_contact",
+          "status": "passed",
+          "case": "delete_contact",
+          "source": "Provide operations to create, list, update and delete contacts.",
+          "alignment": {
+            "entities": {
+              "contact": {
+                "status": "aligned",
+                "canonical": "Contact",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Contact",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ContactRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 3
+      },
+      "triage_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "prompt": "prompt_06",
+      "results": [
+        {
+          "name": "scenario:oracle:create_product",
+          "status": "passed",
+          "case": "create_product",
+          "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Product.description exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_product",
+          "status": "passed",
+          "case": "read_product",
+          "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Product.description exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.read_one",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProductRepository.delete",
+                "ProductRepository.update"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_07",
+      "results": [
+        {
+          "name": "scenario:oracle:create_book",
+          "status": "passed",
+          "case": "create_book",
+          "source": "Users can create, list, update and delete books.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 13.666666666666666,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 13.7"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "book.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Book.title exists"
+                ],
+                "alternatives": []
+              },
+              "book.author": {
+                "status": "aligned",
+                "canonical": "author",
+                "score": 10.0,
+                "evidence": [
+                  "Book.author exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_books",
+          "status": "passed",
+          "case": "list_books",
+          "source": "Users can create, list, update and delete books.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 13.666666666666666,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 13.7"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_book",
+          "status": "passed",
+          "case": "delete_book",
+          "source": "Users can create, list, update and delete books.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 13.666666666666666,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 13.7"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:search_books_by_title",
+          "status": "passed",
+          "case": "search_books_by_title",
+          "source": "Users must also be able to search books by title.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 13.666666666666666,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 13.7"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.search_by_title",
+              "score": 10.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 4
+      },
+      "triage_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "prompt": "prompt_08",
+      "results": [
+        {
+          "name": "scenario:oracle:create_product",
+          "status": "passed",
+          "case": "create_product",
+          "source": "Create a Python 3.12 inventory application. Products have a name, category, price and quantity. Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_product",
+          "status": "passed",
+          "case": "read_product",
+          "source": "Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.read_one",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProductRepository.delete",
+                "ProductRepository.update"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:create_product_intent_2",
+          "status": "passed",
+          "case": "create_product_intent_2",
+          "source": "Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:update_product",
+          "status": "passed",
+          "case": "update_product",
+          "source": "Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.update",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 4
+      },
+      "triage_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "prompt": "prompt_09",
+      "results": [
+        {
+          "name": "scenario:oracle:create_employee_valid",
+          "status": "passed",
+          "case": "create_employee_valid",
+          "source": "Create a Python 3.12 application for managing employees. An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive. Provide CRUD operations using SQLite.",
+          "alignment": {
+            "entities": {
+              "employee": {
+                "status": "aligned",
+                "canonical": "Employee",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Employee",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "employee.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.name exists"
+                ],
+                "alternatives": []
+              },
+              "employee.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.email exists"
+                ],
+                "alternatives": []
+              },
+              "employee.age": {
+                "status": "aligned",
+                "canonical": "age",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.age exists"
+                ],
+                "alternatives": []
+              },
+              "employee.salary": {
+                "status": "aligned",
+                "canonical": "salary",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.salary exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "EmployeeRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_employee",
+          "status": "passed",
+          "case": "read_employee",
+          "source": "Provide CRUD operations using SQLite.",
+          "alignment": {
+            "entities": {
+              "employee": {
+                "status": "aligned",
+                "canonical": "Employee",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Employee",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "employee.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.name exists"
+                ],
+                "alternatives": []
+              },
+              "employee.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.email exists"
+                ],
+                "alternatives": []
+              },
+              "employee.age": {
+                "status": "aligned",
+                "canonical": "age",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.age exists"
+                ],
+                "alternatives": []
+              },
+              "employee.salary": {
+                "status": "aligned",
+                "canonical": "salary",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.salary exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "EmployeeRepository.read_one",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "EmployeeRepository.delete",
+                "EmployeeRepository.update"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_employee",
+          "status": "passed",
+          "case": "delete_employee",
+          "source": "Provide CRUD operations using SQLite.",
+          "alignment": {
+            "entities": {
+              "employee": {
+                "status": "aligned",
+                "canonical": "Employee",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Employee",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "EmployeeRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 3
+      },
+      "triage_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "prompt": "prompt_10",
+      "results": [
+        {
+          "name": "scenario:oracle:list_notes",
+          "status": "passed",
+          "case": "list_notes",
+          "source": "Provide create, list, update and delete operations using SQLite.",
+          "alignment": {
+            "entities": {
+              "note": {
+                "status": "aligned",
+                "canonical": "Note",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Note",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "NoteRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_11",
+      "results": [
+        {
+          "name": "scenario:oracle:create_book",
+          "status": "passed",
+          "case": "create_book",
+          "source": "Users can create, list, update, search and delete books.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "book.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Book.title exists"
+                ],
+                "alternatives": []
+              },
+              "book.author": {
+                "status": "aligned",
+                "canonical": "author",
+                "score": 10.0,
+                "evidence": [
+                  "Book.author exists"
+                ],
+                "alternatives": []
+              },
+              "book.isbn": {
+                "status": "aligned",
+                "canonical": "isbn",
+                "score": 10.0,
+                "evidence": [
+                  "Book.isbn exists"
+                ],
+                "alternatives": []
+              },
+              "book.publication_year": {
+                "status": "aligned",
+                "canonical": "publication_year",
+                "score": 10.0,
+                "evidence": [
+                  "Book.publication_year exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_books",
+          "status": "passed",
+          "case": "list_books",
+          "source": "Users can create, list, update, search and delete books.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "book.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Book.title exists"
+                ],
+                "alternatives": []
+              },
+              "book.author": {
+                "status": "aligned",
+                "canonical": "author",
+                "score": 10.0,
+                "evidence": [
+                  "Book.author exists"
+                ],
+                "alternatives": []
+              },
+              "book.isbn": {
+                "status": "aligned",
+                "canonical": "isbn",
+                "score": 10.0,
+                "evidence": [
+                  "Book.isbn exists"
+                ],
+                "alternatives": []
+              },
+              "book.publication_year": {
+                "status": "aligned",
+                "canonical": "publication_year",
+                "score": 10.0,
+                "evidence": [
+                  "Book.publication_year exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_book",
+          "status": "passed",
+          "case": "delete_book",
+          "source": "Users can create, list, update, search and delete books.",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 3
+      },
+      "triage_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "prompt": "prompt_12",
+      "results": [
+        {
+          "name": "scenario:oracle:create_customer",
+          "status": "passed",
+          "case": "create_customer",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "customer.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.name exists"
+                ],
+                "alternatives": []
+              },
+              "customer.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.email exists"
+                ],
+                "alternatives": []
+              },
+              "customer.phone_number": {
+                "status": "aligned",
+                "canonical": "phone_number",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.phone_number exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "CustomerRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_customer",
+          "status": "passed",
+          "case": "read_customer",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "customer.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.name exists"
+                ],
+                "alternatives": []
+              },
+              "customer.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.email exists"
+                ],
+                "alternatives": []
+              },
+              "customer.phone_number": {
+                "status": "aligned",
+                "canonical": "phone_number",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.phone_number exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_13",
+      "results": [
+        {
+          "name": "scenario:oracle:create_product",
+          "status": "passed",
+          "case": "create_product",
+          "source": "Create a Python 3.12 inventory application. Products have a SKU, name, category, price and stock quantity.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_product",
+          "status": "passed",
+          "case": "read_product",
+          "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:update_product",
+          "status": "passed",
+          "case": "update_product",
+          "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.update",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:sku_uniqueness_create",
+          "status": "passed",
+          "case": "sku_uniqueness_create",
+          "source": "SKUs must be unique.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 4
+      },
+      "triage_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "prompt": "prompt_14",
+      "results": [
+        {
+          "name": "scenario:oracle:create_project",
+          "status": "passed",
+          "case": "create_project",
+          "source": "Users can create, update, list and delete projects.",
+          "alignment": {
+            "entities": {
+              "project": {
+                "status": "aligned",
+                "canonical": "Project",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Project",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "project.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Project.name exists"
+                ],
+                "alternatives": []
+              },
+              "project.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Project.description exists"
+                ],
+                "alternatives": []
+              },
+              "project.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Project.status exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "ProjectRepository.create_project",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_projects",
+          "status": "passed",
+          "case": "list_projects",
+          "source": "Users can create, update, list and delete projects.",
+          "alignment": {
+            "entities": {
+              "project": {
+                "status": "aligned",
+                "canonical": "Project",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Project",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ProjectRepository.read_all_projects",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProjectRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_15",
+      "results": [
+        {
+          "name": "scenario:oracle:create_product",
+          "status": "passed",
+          "case": "create_product",
+          "source": "Provide CRUD operations",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_product",
+          "status": "passed",
+          "case": "read_product",
+          "source": "Provide CRUD operations",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.read_one",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProductRepository.delete",
+                "ProductRepository.update"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_16",
+      "results": [
+        {
+          "name": "scenario:oracle:create_customer",
+          "status": "passed",
+          "case": "create_customer",
+          "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 13.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.create_customer",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_customer",
+          "status": "passed",
+          "case": "read_customer",
+          "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 12.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 12.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "customer.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.email exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "CustomerRepository.read_all_customers_paginated",
+              "score": 7.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_customers_paginated",
+          "status": "passed",
+          "case": "list_customers_paginated",
+          "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+          "alignment": {
+            "entities": {
+              "customer_1": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 8.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 8.0"
+                ],
+                "alternatives": []
+              },
+              "customer_2": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 8.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 8.0"
+                ],
+                "alternatives": []
+              },
+              "customer_3": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 8.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 8.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "CustomerRepository.read_all_customers_paginated",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:create_customer_intent_2",
+          "status": "passed",
+          "case": "create_customer_intent_2",
+          "source": "Provide CRUD operations and a paginated listing operation.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 12.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 12.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "customer.name": {
+                "status": "invented",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "no prompt evidence for field 'name'",
+                  "not declared on Customer"
+                ],
+                "alternatives": []
+              },
+              "customer.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.email exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.create_customer",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:update_customer",
+          "status": "passed",
+          "case": "update_customer",
+          "source": "Provide CRUD operations and a paginated listing operation.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 12.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 12.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "customer.name": {
+                "status": "invented",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "no prompt evidence for field 'name'",
+                  "not declared on Customer"
+                ],
+                "alternatives": []
+              },
+              "customer.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Customer.email exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.update_customer",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_paginated_customers_3",
+          "status": "passed",
+          "case": "list_paginated_customers_3",
+          "source": "Provide CRUD operations and a paginated listing operation.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 12.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 12.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "CustomerRepository.read_all_customers_paginated",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 6
+      },
+      "triage_counts": {
+        "passed": 6
+      }
+    },
+    {
+      "prompt": "prompt_17",
+      "results": [
+        {
+          "name": "scenario:oracle:search_by_name",
+          "status": "passed",
+          "case": "search_by_name",
+          "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.search_product_by_name",
+              "score": 9.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProductRepository.find_by_name"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:filter_by_category",
+          "status": "passed",
+          "case": "filter_by_category",
+          "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.filter_by_category",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:specify_maximum_price",
+          "status": "passed",
+          "case": "specify_maximum_price",
+          "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.filter_by_max_price",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:specify_minimum_quantity",
+          "status": "passed",
+          "case": "specify_minimum_quantity",
+          "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.filter_by_min_quantity",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:filters_combinable",
+          "status": "passed",
+          "case": "filters_combinable",
+          "source": "All filters must be combinable",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.find_all_products_with_filters",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProductRepository.filter_by_category",
+                "ProductRepository.filter_by_max_price",
+                "ProductRepository.filter_by_min_quantity",
+                "ProductRepository.find_all_with_filters"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 5
+      },
+      "triage_counts": {
+        "passed": 5
+      }
+    },
+    {
+      "prompt": "prompt_18",
+      "results": [
+        {
+          "name": "scenario:oracle:import_contacts",
+          "status": "passed",
+          "case": "import_contacts",
+          "source": "Import contacts from CSV",
+          "alignment": {
+            "entities": {
+              "contact": {
+                "status": "aligned",
+                "canonical": "Contact",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Contact",
+                  "score 13.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ContactService.import_contacts_from_csv",
+              "score": 7.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_19",
+      "results": [
+        {
+          "name": "scenario:oracle:read_all_tasks",
+          "status": "passed",
+          "case": "read_all_tasks",
+          "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+          "alignment": {
+            "entities": {
+              "task": {
+                "status": "aligned",
+                "canonical": "Task",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Task",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "task.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Task.title exists"
+                ],
+                "alternatives": []
+              },
+              "task.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Task.description exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "TaskService.read_all_tasks",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:export_tasks_to_json",
+          "status": "passed",
+          "case": "export_tasks_to_json",
+          "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+          "alignment": {
+            "entities": {
+              "task": {
+                "status": "aligned",
+                "canonical": "Task",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Task",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "TaskExportService.export_tasks_to_json",
+              "score": 14.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "TaskService.export_tasks_to_json",
+                "TaskImportService.import_tasks_from_json",
+                "TaskService.import_tasks_from_json"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_20",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_21",
+      "results": [
+        {
+          "name": "scenario:oracle:delete_order",
+          "status": "passed",
+          "case": "delete_order",
+          "source": "Provide CRUD operations for customers and orders",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "Customer"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderRepository.delete_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_customer",
+          "status": "passed",
+          "case": "delete_customer",
+          "source": "Provide CRUD operations for customers and orders",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "Order"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.delete_customer",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_22",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_23",
+      "results": [
+        {
+          "name": "scenario:oracle:create_post_by_author",
+          "status": "passed",
+          "case": "create_post_by_author",
+          "source": "Authors can create posts.",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "Post",
+                  "Tag",
+                  "PostTag"
+                ]
+              },
+              "post": {
+                "status": "aligned",
+                "canonical": "Post",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Post",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "PostTag",
+                  "Author",
+                  "Tag"
+                ]
+              }
+            },
+            "fields": {
+              "post.author_id": {
+                "status": "aligned",
+                "canonical": "author_id",
+                "score": 10.0,
+                "evidence": [
+                  "Post.author_id exists"
+                ],
+                "alternatives": []
+              },
+              "post.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Post.title exists"
+                ],
+                "alternatives": []
+              },
+              "post.content": {
+                "status": "aligned",
+                "canonical": "content",
+                "score": 10.0,
+                "evidence": [
+                  "Post.content exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "PostRepository.create_post",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:create_author",
+          "status": "passed",
+          "case": "create_author",
+          "source": "Provide CRUD operations for authors, posts and tags",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Post",
+                  "Tag",
+                  "PostTag"
+                ]
+              }
+            },
+            "fields": {
+              "author.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Author.name exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "AuthorRepository.create_author",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:create_tag",
+          "status": "passed",
+          "case": "create_tag",
+          "source": "Provide CRUD operations for authors, posts and tags",
+          "alignment": {
+            "entities": {
+              "tag": {
+                "status": "aligned",
+                "canonical": "Tag",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Tag",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "PostTag",
+                  "Author",
+                  "Post"
+                ]
+              }
+            },
+            "fields": {
+              "tag.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Tag.name exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "TagRepository.create_tag",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_post_by_id",
+          "status": "passed",
+          "case": "read_post_by_id",
+          "source": "Provide CRUD operations for authors, posts and tags",
+          "alignment": {
+            "entities": {
+              "post": {
+                "status": "aligned",
+                "canonical": "Post",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Post",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "PostTag",
+                  "Author",
+                  "Tag"
+                ]
+              }
+            },
+            "fields": {
+              "post.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Post.title exists"
+                ],
+                "alternatives": []
+              },
+              "post.content": {
+                "status": "aligned",
+                "canonical": "content",
+                "score": 10.0,
+                "evidence": [
+                  "Post.content exists"
+                ],
+                "alternatives": []
+              },
+              "post.author_id": {
+                "status": "aligned",
+                "canonical": "author_id",
+                "score": 10.0,
+                "evidence": [
+                  "Post.author_id exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "ambiguous",
+              "canonical": "PostRepository.read_all_posts",
+              "score": 7.0,
+              "evidence": [
+                "several generated methods have the same action score"
+              ],
+              "alternatives": [
+                "PostRepository.read_all_posts",
+                "PostRepository.read_post_by_id",
+                "PostTagRepository.read_all_post_tags",
+                "PostTagRepository.read_post_tags_by_tag"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 4
+      },
+      "triage_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "prompt": "prompt_24",
+      "results": [
+        {
+          "name": "scenario:oracle:create_project",
+          "status": "passed",
+          "case": "create_project",
+          "source": "Users must be able to create, update, delete and list projects and tasks.",
+          "alignment": {
+            "entities": {
+              "project": {
+                "status": "aligned",
+                "canonical": "Project",
+                "score": 19.0,
+                "evidence": [
+                  "name/fields match Project",
+                  "score 19.0"
+                ],
+                "alternatives": [
+                  "Task"
+                ]
+              }
+            },
+            "fields": {
+              "project.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Project.title exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProjectRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "TaskRepository.create"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_projects",
+          "status": "passed",
+          "case": "list_projects",
+          "source": "Users must be able to create, update, delete and list projects and tasks.",
+          "alignment": {
+            "entities": {
+              "project": {
+                "status": "aligned",
+                "canonical": "Project",
+                "score": 19.0,
+                "evidence": [
+                  "name/fields match Project",
+                  "score 19.0"
+                ],
+                "alternatives": [
+                  "Task"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ProjectRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "TaskRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:create_task",
+          "status": "passed",
+          "case": "create_task",
+          "source": "Users must be able to create, update, delete and list projects and tasks.",
+          "alignment": {
+            "entities": {
+              "project": {
+                "status": "aligned",
+                "canonical": "Project",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Project",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Task"
+                ]
+              },
+              "task": {
+                "status": "aligned",
+                "canonical": "Task",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Task",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Project"
+                ]
+              }
+            },
+            "fields": {
+              "task.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Task.title exists"
+                ],
+                "alternatives": []
+              },
+              "task.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Task.description exists"
+                ],
+                "alternatives": []
+              },
+              "task.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Task.status exists"
+                ],
+                "alternatives": []
+              },
+              "task.priority": {
+                "status": "aligned",
+                "canonical": "priority",
+                "score": 10.0,
+                "evidence": [
+                  "Task.priority exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "TaskRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_tasks",
+          "status": "passed",
+          "case": "list_tasks",
+          "source": "Users must be able to create, update, delete and list projects and tasks.",
+          "alignment": {
+            "entities": {
+              "task": {
+                "status": "aligned",
+                "canonical": "Task",
+                "score": 19.0,
+                "evidence": [
+                  "name/fields match Task",
+                  "score 19.0"
+                ],
+                "alternatives": [
+                  "Project"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "TaskRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 4
+      },
+      "triage_counts": {
+        "passed": 4
+      }
+    },
+    {
+      "prompt": "prompt_25",
+      "results": [
+        {
+          "name": "scenario:oracle:list_employees_by_department",
+          "status": "passed",
+          "case": "list_employees_by_department",
+          "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+          "alignment": {
+            "entities": {
+              "department": {
+                "status": "aligned",
+                "canonical": "Department",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Department",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "Employee"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "EmployeeRepository.read_all_employees",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "EmployeeRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_26",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_27",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_28",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_29",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_30",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_31",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_32",
+      "results": [
+        {
+          "name": "scenario:oracle:order_state_transition_pending_to_confirmed",
+          "status": "passed",
+          "case": "order_state_transition_pending_to_confirmed",
+          "source": "An order starts in the pending state and can become confirmed, shipped or cancelled.",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "order.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Order.status exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderService.confirm_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:order_state_transition_confirmed_to_shipped",
+          "status": "passed",
+          "case": "order_state_transition_confirmed_to_shipped",
+          "source": "An order starts in the pending state and can become confirmed, shipped or cancelled.",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "order.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Order.status exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderService.ship_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:order_state_transition_pending_to_cancelled",
+          "status": "passed",
+          "case": "order_state_transition_pending_to_cancelled",
+          "source": "An order starts in the pending state and can become confirmed, shipped or cancelled.",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "order.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Order.status exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderService.cancel_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 3
+      },
+      "triage_counts": {
+        "passed": 3
+      }
+    },
+    {
+      "prompt": "prompt_33",
+      "results": [
+        {
+          "name": "scenario:oracle:create_customer_audit",
+          "status": "passed",
+          "case": "create_customer_audit",
+          "source": "Provide CRUD operations for customers. Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "AuditLog"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.create_customer",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:create_customer_audit_intent_2",
+          "status": "passed",
+          "case": "create_customer_audit_intent_2",
+          "source": "Provide CRUD operations for customers.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.create_customer",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_34",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_35",
+      "results": [
+        {
+          "name": "scenario:oracle:create_product",
+          "status": "passed",
+          "case": "create_product",
+          "source": "Provide normal product CRUD operations",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_product",
+          "status": "passed",
+          "case": "read_product",
+          "source": "Provide normal product CRUD operations",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.read_one",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "ProductRepository.delete",
+                "ProductRepository.update"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_36",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_37",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_38",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_39",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_40",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_41",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_42",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_43",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_44",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_45",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_46",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_47",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_48",
+      "results": [
+        {
+          "name": "scenario:oracle:add_book_action",
+          "status": "passed",
+          "case": "add_book_action",
+          "source": "Users should be able to add books",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "User"
+                ]
+              }
+            },
+            "fields": {
+              "book.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Book.title exists"
+                ],
+                "alternatives": []
+              },
+              "book.author": {
+                "status": "aligned",
+                "canonical": "author",
+                "score": 10.0,
+                "evidence": [
+                  "Book.author exists"
+                ],
+                "alternatives": []
+              },
+              "book.isbn": {
+                "status": "aligned",
+                "canonical": "isbn",
+                "score": 10.0,
+                "evidence": [
+                  "Book.isbn exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.create",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_49",
+      "results": [
+        {
+          "name": "scenario:oracle:find_employee_by_department",
+          "status": "passed",
+          "case": "find_employee_by_department",
+          "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+          "alignment": {
+            "entities": {
+              "department": {
+                "status": "aligned",
+                "canonical": "Department",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Department",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Employee"
+                ]
+              },
+              "employee": {
+                "status": "aligned",
+                "canonical": "Employee",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Employee",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Department"
+                ]
+              }
+            },
+            "fields": {
+              "employee.department_id": {
+                "status": "aligned",
+                "canonical": "department_id",
+                "score": 10.0,
+                "evidence": [
+                  "Employee.department_id exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "EmployeeRepository.findEmployeeByDepartment",
+              "score": 7.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_50",
+      "results": [
+        {
+          "name": "scenario:oracle:create_event",
+          "status": "passed",
+          "case": "create_event",
+          "source": "People should be able to create events and register for them.",
+          "alignment": {
+            "entities": {
+              "event": {
+                "status": "aligned",
+                "canonical": "Event",
+                "score": 13.666666666666666,
+                "evidence": [
+                  "name/fields match Event",
+                  "score 13.7"
+                ],
+                "alternatives": [
+                  "User"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "EventRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "RegistrationRepository.create",
+                "RegistrationRepository.register_user_for_event"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_51",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_52",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_53",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_54",
+      "results": [
+        {
+          "name": "scenario:oracle:appointment_creation_with_identical_times",
+          "status": "passed",
+          "case": "appointment_creation_with_identical_times",
+          "source": "Create an appointment application. Appointments have a start and end time. An appointment must always end after it starts, but the application must also support appointments whose start and end time are identical.",
+          "alignment": {
+            "entities": {
+              "appointment": {
+                "status": "aligned",
+                "canonical": "Appointment",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Appointment",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "appointment.start_time": {
+                "status": "aligned",
+                "canonical": "start_time",
+                "score": 10.0,
+                "evidence": [
+                  "Appointment.start_time exists"
+                ],
+                "alternatives": []
+              },
+              "appointment.end_time": {
+                "status": "aligned",
+                "canonical": "end_time",
+                "score": 10.0,
+                "evidence": [
+                  "Appointment.end_time exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "AppointmentRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
+    },
+    {
+      "prompt": "prompt_55",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_56",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_57",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_58",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_59",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_60",
+      "results": [
+        {
+          "name": "scenario:oracle:cancel_order_action",
+          "status": "passed",
+          "case": "cancel_order_action",
+          "source": "Cancelling a confirmed order releases the reserved stock.",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "OrderItem",
+                  "Customer",
+                  "Product"
+                ]
+              },
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "OrderItem",
+                  "Order"
+                ]
+              },
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 12.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 12.0"
+                ],
+                "alternatives": [
+                  "Category",
+                  "Product",
+                  "Order"
+                ]
+              }
+            },
+            "fields": {
+              "order.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Order.status exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderService.cancel_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:confirm_order_action",
+          "status": "passed",
+          "case": "confirm_order_action",
+          "source": "Confirming an order reserves stock.",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "OrderItem",
+                  "Customer",
+                  "Product"
+                ]
+              },
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "OrderItem",
+                  "Order"
+                ]
+              }
+            },
+            "fields": {
+              "order.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Order.status exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderService.confirm_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_cli_tool",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_expenses",
+      "results": [
+        {
+          "name": "scenario:oracle:expense_add_with_valid_params",
+          "status": "passed",
+          "case": "expense_add_with_valid_params",
+          "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+          "alignment": {
+            "entities": {
+              "category": {
+                "status": "aligned",
+                "canonical": "Category",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Expense"
+                ]
+              },
+              "expense": {
+                "status": "aligned",
+                "canonical": "Expense",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Expense",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category"
+                ]
+              }
+            },
+            "fields": {
+              "expense.amount_cents": {
+                "status": "aligned",
+                "canonical": "amount_cents",
+                "score": 10.0,
+                "evidence": [
+                  "Expense.amount_cents exists"
+                ],
+                "alternatives": []
+              },
+              "expense.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Expense.description exists"
+                ],
+                "alternatives": []
+              },
+              "expense.expense_date": {
+                "status": "aligned",
+                "canonical": "expense_date",
+                "score": 10.0,
+                "evidence": [
+                  "Expense.expense_date exists"
+                ],
+                "alternatives": []
+              },
+              "expense.payment_method": {
+                "status": "aligned",
+                "canonical": "payment_method",
+                "score": 10.0,
+                "evidence": [
+                  "Expense.payment_method exists"
+                ],
+                "alternatives": []
+              },
+              "expense.is_recurring": {
+                "status": "aligned",
+                "canonical": "is_recurring",
+                "score": 10.0,
+                "evidence": [
+                  "Expense.is_recurring exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "ExpenseService.add_expense",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:category_add_with_params",
+          "status": "passed",
+          "case": "category_add_with_params",
+          "source": "expense category add --name --description [--budget] [--icon]",
+          "alignment": {
+            "entities": {
+              "category": {
+                "status": "aligned",
+                "canonical": "Category",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Expense",
+                  "Budget"
+                ]
+              }
+            },
+            "fields": {
+              "category.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Category.name exists"
+                ],
+                "alternatives": []
+              },
+              "category.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Category.description exists"
+                ],
+                "alternatives": []
+              },
+              "category.monthly_budget": {
+                "status": "aligned",
+                "canonical": "monthly_budget",
+                "score": 10.0,
+                "evidence": [
+                  "Category.monthly_budget exists"
+                ],
+                "alternatives": []
+              },
+              "category.icon": {
+                "status": "aligned",
+                "canonical": "icon",
+                "score": 10.0,
+                "evidence": [
+                  "Category.icon exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ExpenseService.add_expense",
+              "score": 3.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "CategoryRepository.create",
+                "BudgetRepository.create",
+                "ExpenseRepository.create"
+              ]
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 2
+      },
+      "triage_counts": {
+        "passed": 2
+      }
+    },
+    {
+      "prompt": "prompt_gui",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_hello_world",
+      "results": [],
+      "counts": {}
+    },
+    {
+      "prompt": "prompt_inventory",
+      "results": [
+        {
+          "name": "scenario:oracle:product_list_with_category_filter",
+          "status": "passed",
+          "case": "product_list_with_category_filter",
+          "source": "product list [--category] [--low-only]",
+          "alignment": {
+            "entities": {
+              "category": {
+                "status": "aligned",
+                "canonical": "Category",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Product"
+                ]
+              },
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category"
+                ]
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
+              "product.category_id": {
+                "status": "aligned",
+                "canonical": "category_id",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category_id exists"
+                ],
+                "alternatives": []
+              },
+              "product.price_cents": {
+                "status": "aligned",
+                "canonical": "price_cents",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price_cents exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_qty": {
+                "status": "aligned",
+                "canonical": "stock_qty",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_qty exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "InventoryService.list_products",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:product_restock_increments_stock",
+          "status": "passed",
+          "case": "product_restock_increments_stock",
+          "source": "product restock --id --qty",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category"
+                ]
+              }
+            },
+            "fields": {
+              "product.stock_qty": {
+                "status": "aligned",
+                "canonical": "stock_qty",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_qty exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "InventoryService.restock",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:stock_value_by_category_returns_aggregate",
+          "status": "passed",
+          "case": "stock_value_by_category_returns_aggregate",
+          "source": "product report value",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category"
+                ]
+              },
+              "category": {
+                "status": "aligned",
+                "canonical": "Category",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Product"
+                ]
+              }
+            },
+            "fields": {
+              "product.price_cents": {
+                "status": "aligned",
+                "canonical": "price_cents",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price_cents exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_qty": {
+                "status": "aligned",
+                "canonical": "stock_qty",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_qty exists"
+                ],
+                "alternatives": []
+              },
+              "category.id": {
+                "status": "aligned",
+                "canonical": "id",
+                "score": 10.0,
+                "evidence": [
+                  "Category.id exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "InventoryService.stock_value_by_category",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:category_add_with_optional_fields",
+          "status": "passed",
+          "case": "category_add_with_optional_fields",
+          "source": "category add --name [--description] [--threshold]",
+          "alignment": {
+            "entities": {
+              "category": {
+                "status": "aligned",
+                "canonical": "Category",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Product"
+                ]
+              }
+            },
+            "fields": {
+              "category.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Category.name exists"
+                ],
+                "alternatives": []
+              },
+              "category.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Category.description exists"
+                ],
+                "alternatives": []
+              },
+              "category.reorder_threshold": {
+                "status": "aligned",
+                "canonical": "reorder_threshold",
+                "score": 10.0,
+                "evidence": [
+                  "Category.reorder_threshold exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "InventoryService.add_product",
+              "score": 3.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "CategoryRepository.create",
+                "ProductRepository.create"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:product_list_low_only_filter",
+          "status": "passed",
+          "case": "product_list_low_only_filter",
+          "source": "product list [--category] [--low-only]",
+          "alignment": {
+            "entities": {
+              "category": {
+                "status": "aligned",
+                "canonical": "Category",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Product"
+                ]
+              },
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category"
+                ]
+              },
+              "product_other": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": [
+                  "Category"
+                ]
+              },
+              "category_other": {
+                "status": "alias",
+                "canonical": "Category",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Category",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "Product"
+                ]
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
+              "product.category_id": {
+                "status": "aligned",
+                "canonical": "category_id",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category_id exists"
+                ],
+                "alternatives": []
+              },
+              "product.price_cents": {
+                "status": "aligned",
+                "canonical": "price_cents",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price_cents exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_qty": {
+                "status": "aligned",
+                "canonical": "stock_qty",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_qty exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "InventoryService.list_products",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 5
+      },
+      "triage_counts": {
+        "passed": 5
+      }
+    },
+    {
+      "prompt": "prompt_library_system",
+      "results": [
+        {
+          "name": "scenario:oracle:book_list_with_author_filter",
+          "status": "passed",
+          "case": "book_list_with_author_filter",
+          "source": "library book list [--author]",
+          "alignment": {
+            "entities": {
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Member",
+                  "Loan"
+                ]
+              },
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member",
+                  "Loan"
+                ]
+              },
+              "book_other": {
+                "status": "alias",
+                "canonical": "Book",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 11.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Member",
+                  "Loan"
+                ]
+              },
+              "author_other": {
+                "status": "alias",
+                "canonical": "Author",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 11.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member",
+                  "Loan"
+                ]
+              }
+            },
+            "fields": {
+              "book.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Book.title exists"
+                ],
+                "alternatives": []
+              },
+              "book.isbn": {
+                "status": "aligned",
+                "canonical": "isbn",
+                "score": 10.0,
+                "evidence": [
+                  "Book.isbn exists"
+                ],
+                "alternatives": []
+              },
+              "book.available_copies": {
+                "status": "aligned",
+                "canonical": "available_copies",
+                "score": 10.0,
+                "evidence": [
+                  "Book.available_copies exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "BookRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "LoanRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:member_list_active_only",
+          "status": "passed",
+          "case": "member_list_active_only",
+          "source": "library member list [--active-only]",
+          "alignment": {
+            "entities": {
+              "member": {
+                "status": "aligned",
+                "canonical": "Member",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Member",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Book",
+                  "Loan"
+                ]
+              }
+            },
+            "fields": {
+              "member.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Member.name exists"
+                ],
+                "alternatives": []
+              },
+              "member.email": {
+                "status": "aligned",
+                "canonical": "email",
+                "score": 10.0,
+                "evidence": [
+                  "Member.email exists"
+                ],
+                "alternatives": []
+              },
+              "member.is_active": {
+                "status": "aligned",
+                "canonical": "is_active",
+                "score": 10.0,
+                "evidence": [
+                  "Member.is_active exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "MemberRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "LoanRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:author_add_command",
+          "status": "passed",
+          "case": "author_add_command",
+          "source": "library author add --name --birth-year [--biography]",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member",
+                  "Loan"
+                ]
+              }
+            },
+            "fields": {
+              "author.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Author.name exists"
+                ],
+                "alternatives": []
+              },
+              "author.birth_year": {
+                "status": "aligned",
+                "canonical": "birth_year",
+                "score": 10.0,
+                "evidence": [
+                  "Author.birth_year exists"
+                ],
+                "alternatives": []
+              },
+              "author.biography": {
+                "status": "aligned",
+                "canonical": "biography",
+                "score": 10.0,
+                "evidence": [
+                  "Author.biography exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "AuthorRepository.create",
+              "score": 1.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "BookRepository.create"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:borrow_final_copy",
+          "status": "passed",
+          "case": "borrow_final_copy",
+          "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member"
+                ]
+              },
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Member"
+                ]
+              },
+              "member": {
+                "status": "aligned",
+                "canonical": "Member",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Member",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Book"
+                ]
+              }
+            },
+            "fields": {
+              "book.available_copies": {
+                "status": "aligned",
+                "canonical": "available_copies",
+                "score": 10.0,
+                "evidence": [
+                  "Book.available_copies exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "LibraryService.borrow_book",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:borrowing_final_copy_leaves_zero",
+          "status": "passed",
+          "case": "borrowing_final_copy_leaves_zero",
+          "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member"
+                ]
+              },
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Member"
+                ]
+              },
+              "member": {
+                "status": "aligned",
+                "canonical": "Member",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Member",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Book"
+                ]
+              }
+            },
+            "fields": {
+              "book.available_copies": {
+                "status": "aligned",
+                "canonical": "available_copies",
+                "score": 10.0,
+                "evidence": [
+                  "Book.available_copies exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "LibraryService.borrow_book",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:return_already_returned_loan",
+          "status": "passed",
+          "case": "return_already_returned_loan",
+          "source": "Returning an already returned loan raises `AlreadyReturnedLoanError` and changes neither the loan nor inventory. Include that error in the declared error set.",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member",
+                  "Loan"
+                ]
+              },
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Loan",
+                  "Author",
+                  "Member"
+                ]
+              },
+              "member": {
+                "status": "aligned",
+                "canonical": "Member",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Member",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Book",
+                  "Loan"
+                ]
+              },
+              "loan": {
+                "status": "aligned",
+                "canonical": "Loan",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Loan",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "LibraryService.return_book",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:library_borrow_member_id_book_id",
+          "status": "passed",
+          "case": "library_borrow_member_id_book_id",
+          "source": "library borrow --member-id --book-id",
+          "alignment": {
+            "entities": {
+              "member": {
+                "status": "aligned",
+                "canonical": "Member",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Member",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Author"
+                ]
+              },
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member"
+                ]
+              },
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Member",
+                  "Author"
+                ]
+              }
+            },
+            "fields": {
+              "book.available_copies": {
+                "status": "aligned",
+                "canonical": "available_copies",
+                "score": 10.0,
+                "evidence": [
+                  "Book.available_copies exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": null
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:library book search --query",
+          "status": "passed",
+          "case": "library book search --query",
+          "source": "library book search --query",
+          "alignment": {
+            "entities": {
+              "author": {
+                "status": "aligned",
+                "canonical": "Author",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Author",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "Book",
+                  "Member"
+                ]
+              },
+              "book": {
+                "status": "aligned",
+                "canonical": "Book",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Book",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Author",
+                  "Member"
+                ]
+              }
+            },
+            "fields": {
+              "book.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Book.title exists"
+                ],
+                "alternatives": []
+              },
+              "book.isbn": {
+                "status": "aligned",
+                "canonical": "isbn",
+                "score": 10.0,
+                "evidence": [
+                  "Book.isbn exists"
+                ],
+                "alternatives": []
+              },
+              "book.published_year": {
+                "status": "aligned",
+                "canonical": "published_year",
+                "score": 10.0,
+                "evidence": [
+                  "Book.published_year exists"
+                ],
+                "alternatives": []
+              },
+              "book.available_copies": {
+                "status": "aligned",
+                "canonical": "available_copies",
+                "score": 10.0,
+                "evidence": [
+                  "Book.available_copies exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "LibraryService.search_books",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 8
+      },
+      "triage_counts": {
+        "passed": 8
+      }
+    }
+  ]
+}

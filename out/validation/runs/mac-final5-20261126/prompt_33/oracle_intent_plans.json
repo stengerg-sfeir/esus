@@ -1,0 +1,71 @@
+{
+  "plans": [
+    {
+      "id": "create_customer_audit",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    },
+    {
+      "id": "update_customer_audit",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [
+            "Customer"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "delete_customer_audit",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [
+            "Customer"
+          ],
+          "used": true
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "create_audit_record",
+      "errors": [
+        "primary key customer.id value 'C123' does not match type 'int'"
+      ]
+    },
+    {
+      "id": "update_audit_record",
+      "errors": [
+        "primary key customer.id value 'C123' does not match type 'int'"
+      ]
+    },
+    {
+      "id": "delete_audit_record",
+      "errors": [
+        "primary key customer.id value 'C123' does not match type 'int'"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

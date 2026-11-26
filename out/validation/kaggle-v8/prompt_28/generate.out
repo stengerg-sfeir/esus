@@ -1,0 +1,20 @@
+gate passed (1 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: InvoiceRepository.read_all_by_customer_email ...
+llm: InvoiceRepository.read_one_by_customer_email ...
+llm: raw answers -> /tmp/v8-work/prompt_28/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_28/generated/models.py
+[write] /tmp/v8-work/prompt_28/generated/errors.py
+[write] /tmp/v8-work/prompt_28/generated/repositories.py
+[write] /tmp/v8-work/prompt_28/generated/services.py
+[write] /tmp/v8-work/prompt_28/generated/schema.py
+[write] /tmp/v8-work/prompt_28/generated/store.py
+[write] /tmp/v8-work/prompt_28/generated/cli.py
+[write] /tmp/v8-work/prompt_28/generated/__init__.py
+methods: 15 implemented, 2 stubs (88% mechanical)
+llm: 2 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: InvoiceRepository.read_all_by_customer_email
+  llm provisional: InvoiceRepository.read_one_by_customer_email
+  stub: InvoiceRepository.read_one_by_customer_email: parameter 'email' maps to no field
+  stub: InvoiceRepository.read_all_by_customer_email: parameter 'email' maps to no field
+  cli Product add -> productadd [score 5]

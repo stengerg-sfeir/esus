@@ -1,0 +1,42 @@
+{
+  "prompt": "prompt_18",
+  "results": [
+    {
+      "name": "scenario:oracle:import_contacts",
+      "status": "passed",
+      "case": "import_contacts",
+      "source": "Import contacts from CSV",
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ContactService.import_contacts_from_csv",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "decisions": [
+    {
+      "text": "An order must be associated with a user through the user_id field.",
+      "chosen_pattern_id": "STATE_TRANSITION_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "STATE_TRANSITION_GUARD"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+    },
+    {
+      "text": "An order must be associated with a user via the user_id field.",
+      "chosen_pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "STATE_TRANSITION_GUARD",
+        "BUDGET_OVERFLOW_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+    },
+    {
+      "text": "A user can only view their own orders, not those of other users.",
+      "chosen_pattern_id": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "STOCK_SUFFICIENCY_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+    }
+  ]
+}

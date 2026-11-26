@@ -1,0 +1,54 @@
+{
+  "requirements_sha": "f9d32c346b213a467643b767c191f4a77fb687ab8a686ef69e93b5848d3d6ca6",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "A tag can be associated with zero or more posts.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "AGGREGATE_BY_FK_AND_DATE",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "PostTagRepository.read_posts_by_tag_name",
+      "chosen": {
+        "reads": [
+          {
+            "entity": "Tag",
+            "field": "name",
+            "repository": "TagRepository",
+            "via": "PostTag.tag_id"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

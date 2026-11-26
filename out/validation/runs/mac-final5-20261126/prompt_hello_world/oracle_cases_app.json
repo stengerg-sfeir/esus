@@ -1,0 +1,30 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "hello_world_main_function",
+      "source": "The script should define a `main()` function and include the standard `if __name__ == \"__main__\": main()` guard.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [],
+        "stdin": "",
+        "files": {}
+      },
+      "then": {
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "exit code 2, expected 0; stderr=r/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/var/folders/kk/xjh_78x515g6lld88l0c_q2m0000gp/T/esus-app-0g_4_xeg/out/validation/kaggle-v8/prompt_hello_world/generated/app.py': [Errno 2] No such file or directory\n"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    }
+  ]
+}

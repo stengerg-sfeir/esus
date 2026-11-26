@@ -1,0 +1,415 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_reservation_same_room_same_time",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "reservation_1": {
+          "start_time": "2023-10-01T10:00:00Z",
+          "end_time": "2023-10-01T12:00:00Z",
+          "room_id": 1
+        },
+        "reservation_2": {
+          "start_time": "2023-10-01T10:00:00Z",
+          "end_time": "2023-10-01T12:00:00Z",
+          "room_id": 1
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start_time",
+          "reservation_2.end_time",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "OverlapError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements",
+        "error class 'OverlapError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "delete_reservation",
+      "source": "Create a Python 3.12 reservation application managing customers and rooms.",
+      "given": {
+        "reservation": {
+          "id": 1,
+          "start_time": "2023-10-01T10:00:00Z",
+          "end_time": "2023-10-01T12:00:00Z",
+          "room_id": 1
+        }
+      },
+      "when": {
+        "action": "delete_reservation",
+        "args": [
+          "reservation.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation.status": "deleted"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether deletion of a reservation affects overlapping reservations or room availability. No explicit behavior is defined for deletion."
+      ],
+      "ambiguities": [
+        "No specification on what happens to room availability or overlapping reservations upon deletion. The state of the room or other reservations is not defined."
+      ]
+    },
+    {
+      "id": "create_reservation_overlap",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "room": {
+          "id": 101,
+          "capacity": 4
+        },
+        "reservation_1": {
+          "room_id": 101,
+          "start": "2023-10-01T09:00:00Z",
+          "end": "2023-10-01T17:00:00Z"
+        },
+        "reservation_2": {
+          "room_id": 101,
+          "start": "2023-10-01T10:00:00Z",
+          "end": "2023-10-01T18:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start",
+          "reservation_2.end",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "OverlappingReservationError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_reservation_non_overlap",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "room": {
+          "id": 101,
+          "capacity": 4
+        },
+        "reservation_1": {
+          "room_id": 101,
+          "start": "2023-10-01T09:00:00Z",
+          "end": "2023-10-01T17:00:00Z"
+        },
+        "reservation_2": {
+          "room_id": 101,
+          "start": "2023-10-01T18:00:00Z",
+          "end": "2023-10-01T21:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start",
+          "reservation_2.end",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation_2.status": "confirmed"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Customer row required by CustomerNotFoundError"
+      }
+    },
+    {
+      "id": "create_reservation_same_time_different_room",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "customer": {
+          "id": 5
+        },
+        "reservation_1": {
+          "customer_id": 5,
+          "room_id": 101,
+          "start": "2023-10-01T10:00:00Z",
+          "end": "2023-10-01T12:00:00Z"
+        },
+        "reservation_2": {
+          "customer_id": 5,
+          "room_id": 102,
+          "start": "2023-10-01T10:00:00Z",
+          "end": "2023-10-01T12:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start",
+          "reservation_2.end",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation_2.status": "confirmed"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Room row for Reservation.room_id"
+      }
+    },
+    {
+      "id": "create_reservation_overlap_with_different_start",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "room": {
+          "id": 101,
+          "capacity": 4
+        },
+        "reservation_1": {
+          "room_id": 101,
+          "start": "2023-10-01T09:00:00Z",
+          "end": "2023-10-01T17:00:00Z"
+        },
+        "reservation_2": {
+          "room_id": 101,
+          "start": "2023-10-01T16:00:00Z",
+          "end": "2023-10-01T18:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start",
+          "reservation_2.end",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "OverlappingReservationError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements",
+        "error class 'OverlappingReservationError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_reservation_with_no_overlap",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "room": {
+          "id": 101,
+          "capacity": 4
+        },
+        "reservation_1": {
+          "room_id": 101,
+          "start": "2023-10-01T09:00:00Z",
+          "end": "2023-10-01T17:00:00Z"
+        },
+        "reservation_2": {
+          "room_id": 101,
+          "start": "2023-10-01T19:00:00Z",
+          "end": "2023-10-01T21:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start",
+          "reservation_2.end",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation_2.status": "confirmed"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Customer row required by CustomerNotFoundError"
+      }
+    },
+    {
+      "id": "create_reservation_with_no_overlap_different_room",
+      "source": "A customer can make multiple reservations.",
+      "given": {
+        "customer": {
+          "id": 5
+        },
+        "reservation_1": {
+          "customer_id": 5,
+          "room_id": 101,
+          "start": "2023-10-01T09:00:00Z",
+          "end": "2023-10-01T17:00:00Z"
+        },
+        "reservation_2": {
+          "customer_id": 5,
+          "room_id": 102,
+          "start": "2023-10-01T19:00:00Z",
+          "end": "2023-10-01T21:00:00Z"
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start",
+          "reservation_2.end",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation_2.status": "confirmed"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Room row for Reservation.room_id"
+      }
+    }
+  ]
+}

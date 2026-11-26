@@ -1,0 +1,107 @@
+{
+  "run_id": "mac-final5-20261126",
+  "status": "verifier_complete",
+  "extraction": {
+    "prompts": 66,
+    "counts": {
+      "successful": 41,
+      "review": 24,
+      "not_generatable": 1
+    },
+    "started_utc": "2026-11-26T07:57:20.814282+00:00",
+    "finished_utc": "2026-11-26T09:25:27.209559+00:00",
+    "seconds_sum": 5286.149,
+    "tokens_out": 174480,
+    "tokens_prompt": 274146,
+    "calls": 498
+  },
+  "sidecar_and_readiness": {
+    "review_seconds": 2.376,
+    "repair_seconds": 16.923,
+    "probe_seconds": 2.928,
+    "final_blockers": 0,
+    "final_open_ties": 0,
+    "final_risks": 96,
+    "sidecars_copied": 59
+  },
+  "variance": {
+    "commands_changed": 42,
+    "models_changed": 4,
+    "services_changed": 8,
+    "repos_changed": 2,
+    "adapters_changed": 51,
+    "sidecars_copied": 59
+  },
+  "generation": {
+    "start": 0,
+    "count": 66,
+    "seconds": 983.809,
+    "tokens": {
+      "calls": 55,
+      "tokens_out": 9546,
+      "tokens_prompt": 260745,
+      "decode_seconds": 350.55456300000014
+    },
+    "failures": []
+  },
+  "acceptance": {
+    "status": "passed",
+    "counts": {
+      "passed": 66
+    },
+    "checks": {
+      "passed": 3242,
+      "skipped": 2
+    },
+    "stubs": 0,
+    "coverage": {
+      "projects": 66,
+      "requirements": 328,
+      "counts": {
+        "mapped_tested": 298,
+        "under_specified": 30
+      }
+    }
+  },
+  "verifier": {
+    "regenerated_cases": true,
+    "cases_generated": 201,
+    "execution_cases": 97,
+    "counts": {
+      "under_specified": 21,
+      "passed": 66,
+      "failed": 3,
+      "unbound": 7
+    },
+    "triage_counts": {
+      "under_specified": 24,
+      "passed": 66,
+      "coverage_gap: ambiguous action": 6,
+      "coverage_gap: missing action": 1
+    },
+    "behavior_failures": {},
+    "merged_verifier_run": true,
+    "reason": "verifier clean: 0 behavior findings, 0 case defects",
+    "variance": {
+      "new_cases": 201,
+      "previous_cases": 79,
+      "delta": 122,
+      "projects_changed": 52
+    },
+    "cases_accepted": 129,
+    "case_defects": 0,
+    "verified_at": "2026-11-26T14:40:00Z",
+    "merged_cases": 85,
+    "merged_counts": {
+      "passed": 85
+    },
+    "merged_triage_counts": {
+      "passed": 85
+    },
+    "merged_behavior_failures": {}
+  },
+  "trace": {
+    "run": false,
+    "reason": "merged verifier not run"
+  }
+}

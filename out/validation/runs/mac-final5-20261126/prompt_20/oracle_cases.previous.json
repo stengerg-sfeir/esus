@@ -1,0 +1,87 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "update_product_stock",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Mouse",
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": [
+          "Mouse",
+          15
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product.stock_quantity": 15
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Sale"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'stock_quantity'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.update_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'product.stock_quantity' is not declared on Product"
+      }
+    }
+  ]
+}

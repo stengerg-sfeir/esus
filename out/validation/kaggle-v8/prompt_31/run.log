@@ -1,0 +1,52 @@
+[run] requirements: 253 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 92 tokens in 1.6s (58.2 tok/s, 63.8 decode, 87 prompt)
+[data_models] 383 tokens in 6.4s (60.0 tok/s, 61.2 decode, 606 prompt)
+[ok] step data_models: Customer.customer_id became the integer primary key id
+[ok] step data_models: Account.account_id became the integer primary key id
+[ok] step data_models: Account.customer_id retyped to int for its Customer key
+[errors] 8 tokens in 0.3s (26.8 tok/s, 71.0 decode, 483 prompt)
+[invariants] 30 tokens in 0.6s (51.5 tok/s, 64.7 decode, 287 prompt)
+[ok] step invariants: 13 invariant(s) — 12 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 321 tokens in 5.7s (56.4 tok/s, 57.8 decode, 995 prompt)
+[ok] step components: normalized option '-operation' to '--operation'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 0.4s (26.1 tok/s, 68.4 decode, 489 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 4 generic type spelling(s) to Python annotations
+[persistence_ports] 460 tokens in 7.6s (60.8 tok/s, 62.1 decode, 401 prompt)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/7] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [2/7] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [3/7] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [4/7] contract:AccountRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [5/7] contract:AccountRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [6/7] contract:AccountRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/7] contract:AccountRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 7 item(s) — 2 standard CRUD, 5 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (no CLI leaves) — asking the model
+[interaction_adapters] 678 tokens in 11.2s (60.5 tok/s, 61.4 decode, 526 prompt)
+[ok] step adapters: list_customers.name was 'CSV_LIST' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: list_customers.email was 'CSV_LIST' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: create_account.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: deposit.account_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: withdraw.account_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_customer_accounts.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_customer.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 2 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_31/requirements.txt
+[run] 8 steps, 1982 generated tokens in 33.7s

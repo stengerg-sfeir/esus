@@ -1,0 +1,646 @@
+{
+  "scenarios": [
+    {
+      "name": "return_active_loan",
+      "setup": [
+        {
+          "entity": "Author",
+          "as": "author",
+          "values": {
+            "name": "Ada"
+          }
+        },
+        {
+          "entity": "Book",
+          "as": "book",
+          "values": {
+            "title": "Widget",
+            "isbn": "isbn-1",
+            "published_year": 2020,
+            "available_copies": 1,
+            "author_id": {
+              "ref": "author.id"
+            }
+          }
+        },
+        {
+          "entity": "Member",
+          "as": "member",
+          "values": {
+            "name": "Grace",
+            "email": "grace@example.test",
+            "membership_date": "2024-01-01",
+            "is_active": true
+          }
+        },
+        {
+          "entity": "Loan",
+          "as": "loan",
+          "values": {
+            "book_id": {
+              "ref": "book.id"
+            },
+            "member_id": {
+              "ref": "member.id"
+            },
+            "loan_date": "2024-01-01",
+            "due_date": "2024-01-15",
+            "return_date": null,
+            "status": "active"
+          }
+        }
+      ],
+      "when": {
+        "service": "LibraryService",
+        "method": "return_book",
+        "args": [
+          {
+            "ref": "loan.id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "loan.status": "returned",
+          "book.available_copies": 2
+        }
+      }
+    },
+    {
+      "name": "cli:book add",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "add",
+            "--author-id",
+            "1",
+            "--title",
+            "value1",
+            "--isbn",
+            "value1",
+            "--published-year",
+            "2",
+            "--copies",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:book list",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "list",
+            "--author",
+            "1",
+            "--available-only"
+          ],
+          [
+            "book",
+            "list",
+            "--author",
+            "1",
+            "--available-only",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:book search",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "search",
+            "--query",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:book update",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "update",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--isbn",
+            "value1",
+            "--published-year",
+            "2",
+            "--available-copies",
+            "2",
+            "--author-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "isbn": "value1",
+            "published_year": 2,
+            "available_copies": 2,
+            "author_id": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:book delete",
+      "when": {
+        "cli_variants": [
+          [
+            "book",
+            "delete",
+            "--id",
+            "1",
+            "--title",
+            "value1",
+            "--isbn",
+            "value1",
+            "--published-year",
+            "2",
+            "--available-copies",
+            "2",
+            "--author-id",
+            "1"
+          ],
+          [
+            "book",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "isbn": "value1",
+            "published_year": 2,
+            "available_copies": 2,
+            "author_id": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member add",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--membership-date",
+            "2024-01-01",
+            "--is-active"
+          ],
+          [
+            "member",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--membership-date",
+            "2024-01-01",
+            "--is-active",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member list",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "list",
+            "--active-only"
+          ],
+          [
+            "member",
+            "list",
+            "--active-only",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member history",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "history",
+            "--member-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member update",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--membership-date",
+            "2024-01-01",
+            "--is-active"
+          ],
+          [
+            "member",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--membership-date",
+            "2024-01-01",
+            "--is-active",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Member": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "membership_date": "2024-01-01"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:member delete",
+      "when": {
+        "cli_variants": [
+          [
+            "member",
+            "delete",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "seed1@example.test",
+            "--membership-date",
+            "2024-01-01",
+            "--is-active",
+            "false"
+          ],
+          [
+            "member",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Member": {
+            "name": "value1",
+            "email": "seed1@example.test",
+            "membership_date": "2024-01-01",
+            "is_active": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:borrow",
+      "when": {
+        "cli_variants": [
+          [
+            "borrow",
+            "--member-id",
+            "1",
+            "--book-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:return",
+      "when": {
+        "cli_variants": [
+          [
+            "return",
+            "--loan-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:overdue",
+      "when": {
+        "cli_variants": [
+          [
+            "overdue"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:author add",
+      "when": {
+        "cli_variants": [
+          [
+            "author",
+            "add",
+            "--name",
+            "value1",
+            "--birth-year",
+            "2",
+            "--biography",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:author list",
+      "when": {
+        "cli_variants": [
+          [
+            "author",
+            "list",
+            "--name",
+            "value1",
+            "--birth-year",
+            "2",
+            "--biography",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:author update",
+      "when": {
+        "cli_variants": [
+          [
+            "author",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--birth-year",
+            "2",
+            "--biography",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Author": {
+            "name": "value1",
+            "birth_year": 2,
+            "biography": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:author delete",
+      "when": {
+        "cli_variants": [
+          [
+            "author",
+            "delete",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--birth-year",
+            "2",
+            "--biography",
+            "value1"
+          ],
+          [
+            "author",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Author": {
+            "name": "value1",
+            "birth_year": 2,
+            "biography": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan add",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01",
+            "--due-date",
+            "2024-01-01",
+            "--return-date",
+            "2024-01-01",
+            "--status",
+            "active"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan list",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "list",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01",
+            "--due-date",
+            "2024-01-01",
+            "--return-date",
+            "2024-01-01",
+            "--status",
+            "active"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan update",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "update",
+            "--id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01",
+            "--due-date",
+            "2024-01-01",
+            "--return-date",
+            "2024-01-01",
+            "--status",
+            "active"
+          ]
+        ],
+        "seed_overrides": {
+          "Loan": {
+            "book_id": 1,
+            "member_id": 1,
+            "loan_date": "2024-01-01",
+            "due_date": "2024-01-01",
+            "return_date": "2024-01-01",
+            "status": "active"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01",
+            "--due-date",
+            "2024-01-01",
+            "--return-date",
+            "2024-01-01",
+            "--status",
+            "value1"
+          ],
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Loan": {
+            "book_id": 1,
+            "member_id": 1,
+            "loan_date": "2024-01-01",
+            "due_date": "2024-01-01",
+            "return_date": "2024-01-01",
+            "status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

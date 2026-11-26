@@ -1,0 +1,118 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 3,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 3
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "search_books",
+        "source": "Users can create, list, update, search and delete books.",
+        "given": {
+          "book": {
+            "title": "1984",
+            "author": "George Orwell",
+            "isbn": "9780452284234",
+            "publication_year": 1949
+          }
+        },
+        "when": {
+          "action": "search_books",
+          "args": [
+            "title",
+            "author",
+            "isbn"
+          ]
+        },
+        "then": {
+          "state": {
+            "book.title": "1984",
+            "book.author": "George Orwell",
+            "book.isbn": "9780452284234",
+            "book.publication_year": 1949
+          },
+          "rows": {
+            "Book": ">=0"
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "book": {
+              "status": "aligned",
+              "canonical": "Book",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Book",
+                "score 15.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "book.title": {
+              "status": "aligned",
+              "canonical": "title",
+              "score": 10.0,
+              "evidence": [
+                "Book.title exists"
+              ],
+              "alternatives": []
+            },
+            "book.author": {
+              "status": "aligned",
+              "canonical": "author",
+              "score": 10.0,
+              "evidence": [
+                "Book.author exists"
+              ],
+              "alternatives": []
+            },
+            "book.isbn": {
+              "status": "aligned",
+              "canonical": "isbn",
+              "score": 10.0,
+              "evidence": [
+                "Book.isbn exists"
+              ],
+              "alternatives": []
+            },
+            "book.publication_year": {
+              "status": "aligned",
+              "canonical": "publication_year",
+              "score": 10.0,
+              "evidence": [
+                "Book.publication_year exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "action is not exposed as an operation by the prompt",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "case passes parameter/field name 'title' as a value"
+        }
+      },
+      "status": "under_specified",
+      "reason": "no generated method matches 'search_books'"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "delete_project_with_invalid_id",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "given": {
+        "project": {
+          "name": "Invalid Project",
+          "id": 999
+        }
+      },
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "then": {
+        "error": "InvalidProjectIdError",
+        "state": {},
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify error handling for invalid project IDs"
+      ],
+      "ambiguities": [
+        "No explicit error type is defined for invalid project IDs",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements",
+        "error class 'InvalidProjectIdError' is not named in the requirements"
+      ]
+    }
+  ]
+}

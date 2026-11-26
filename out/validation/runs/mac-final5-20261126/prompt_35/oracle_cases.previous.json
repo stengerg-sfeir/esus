@@ -1,0 +1,155 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "product_crud_create",
+      "source": "normal product CRUD operations",
+      "given": {
+        "product": {
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          {
+            "name": "Laptop",
+            "stock_quantity": 5
+          }
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.stock_quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "object payload passed to a scalar method"
+      }
+    },
+    {
+      "id": "product_crud_update",
+      "source": "normal product CRUD operations",
+      "given": {
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": [
+          {
+            "product_id": "prod_1",
+            "stock_quantity": 15
+          }
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 15
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "object payload passed to a scalar method"
+      }
+    }
+  ]
+}

@@ -1,0 +1,325 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "UserRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new User.",
+          "params": [
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.User",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one User by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.User",
+          "raises": [
+            "UserNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every User; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[User]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing User.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.User",
+          "raises": [
+            "UserNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing User.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "UserNotFoundError"
+          ]
+        },
+        {
+          "name": "find_user_by_email",
+          "description": "Retrieve a user by their email address, used for authentication.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "User | None"
+        },
+        {
+          "name": "find_user_by_id",
+          "description": "Retrieve a user by their unique identifier (ID), used for user-specific operations.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "User | None"
+        }
+      ]
+    },
+    {
+      "service_name": "DocumentRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Document.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Document",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Document by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Document",
+          "raises": [
+            "DocumentNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Document; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Document]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Document.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Document",
+          "raises": [
+            "DocumentNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Document.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "content",
+              "type": "str"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "DocumentNotFoundError"
+          ]
+        },
+        {
+          "name": "find_document_by_user_id",
+          "description": "Retrieve all documents belonging to a specific user, used to enforce ownership restrictions.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Document]"
+        },
+        {
+          "name": "find_document_by_id",
+          "description": "Retrieve a document by its unique identifier (ID), used for read, update, or delete operations.",
+          "params": [
+            {
+              "name": "document_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Document | None"
+        },
+        {
+          "name": "find_document_by_title",
+          "description": "Retrieve a document by its title, used for searching documents by title.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            }
+          ],
+          "return_type": "Document | None"
+        },
+        {
+          "name": "find_document_by_user",
+          "description": "Find document by user.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Document]",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

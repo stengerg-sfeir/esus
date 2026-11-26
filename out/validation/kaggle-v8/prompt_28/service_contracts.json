@@ -1,0 +1,239 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "InvoiceRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Invoice by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Invoice",
+          "raises": [
+            "InvoiceNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Invoice; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "total_amount",
+              "type": "int"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Invoice]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "read_one_by_name",
+          "description": "Fetches a product by its name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Product | None"
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "read_one_by_email",
+          "description": "Fetches a customer by their email address.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer | None"
+        },
+        {
+          "name": "read_all_active",
+          "description": "Retrieves all active customers (those with a valid email and status).",
+          "params": [],
+          "return_type": "list[Customer]"
+        }
+      ]
+    },
+    {
+      "service_name": "InvoiceLineRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new InvoiceLine.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "int"
+            },
+            {
+              "name": "line_total",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.InvoiceLine",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one InvoiceLine by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.InvoiceLine",
+          "raises": [
+            "InvoiceLineNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every InvoiceLine; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "int"
+            },
+            {
+              "name": "line_total",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[InvoiceLine]",
+          "raises": []
+        },
+        {
+          "name": "create_with_product_and_quantity",
+          "description": "Creates a new invoice line with a specified product and quantity, ensuring the line total is calculated as quantity times unit price.",
+          "params": [
+            {
+              "name": "invoice_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "float"
+            }
+          ],
+          "return_type": "models.InvoiceLine"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "errors": [
+    {
+      "name": "CustomerEmailDuplicateError",
+      "base": "ValueError",
+      "description": "Raised when an attempt is made to create a customer with an email that is already in use."
+    },
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested by ID but no such customer exists in the database."
+    }
+  ]
+}

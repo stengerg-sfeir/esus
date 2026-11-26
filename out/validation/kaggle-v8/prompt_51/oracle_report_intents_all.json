@@ -1,0 +1,102 @@
+{
+  "prompt": "prompt_51",
+  "results": [
+    {
+      "name": "scenario:oracle:allow_same_sku_different_categories",
+      "status": "failed",
+      "reason": "raised KeyError: \"Product.category_id='electronics' references missing Category.category_id\"; expected None",
+      "case": "allow_same_sku_different_categories",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "failed": 1
+  }
+}

@@ -1,0 +1,24 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/persistence_ports.json
+
+
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): EventRepository.get_event_with_registration_count(event_id)
+[ok] step grounding: dropped EventRegistrationService.confirm_order — no requirement/intention evidence for verb `confirm`
+[ok] step grounding: dropped EventRegistrationService.cancel_order — no requirement/intention evidence for verb `cancel`
+[ok] step grounding: dropped EventRepository.get_event_by_date — temporal method names a due/deadline predicate but the model has no Event date field and the prompt does not state one
+[ok] step adapters: eventupdate.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: eventdelete.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: registrationadd.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: registrationadd.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+

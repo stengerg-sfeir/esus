@@ -1,0 +1,27 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38
+
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: DocumentRepository.count_documents_by_owner ...
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/generated/__init__.py
+methods: 13 implemented, 1 stubs (93% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: DocumentRepository.count_documents_by_owner
+  stub: DocumentRepository.count_documents_by_owner: pattern COUNT_ACTIVE_BY_FK: no mechanical reading
+  cli Document add -> create_document [score 8]
+  cli Document delete -> delete_document [score 11]
+  cli Document list -> list_documents_by_owner [score 9]
+  cli Document update -> update_document [score 11]
+  cli User add -> create_user [score 8]
+  cli User list -> list_users [score 9]
+
+
+

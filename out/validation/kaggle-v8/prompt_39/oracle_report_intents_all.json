@@ -1,0 +1,52 @@
+{
+  "prompt": "prompt_39",
+  "results": [
+    {
+      "name": "manage_users_admin",
+      "status": "unbound",
+      "reason": "update case supplies no new value for 'user.role' (setup has 'normal')",
+      "source": "Administrators can manage products and users.",
+      "alignment": {
+        "entities": {
+          "user": {
+            "status": "aligned",
+            "canonical": "User",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match User",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "user.role": {
+            "status": "aligned",
+            "canonical": "role",
+            "score": 10.0,
+            "evidence": [
+              "User.role exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "UserService.update_user_role",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "UserRepository.update"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  }
+}

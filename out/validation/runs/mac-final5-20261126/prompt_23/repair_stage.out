@@ -1,0 +1,27 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_23/persistence_ports.json
+
+
+[ok] step patterns: applied 1 recorded user decision(s)
+[ok] step adapters: authorupdate.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: authordelete.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: postadd.author_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: postupdate.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: postdelete.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: tagupdate.tag_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: tagdelete.tag_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: posttagadd.post_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: posttagadd.tag_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 10 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step data_models: applied 2 grouped uniqueness decision(s)
+

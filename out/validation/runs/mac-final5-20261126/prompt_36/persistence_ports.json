@@ -1,0 +1,245 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Category",
+        "interface_name": "CategoryRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Category.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Category",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Category; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Category]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Category by its key.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Category",
+            "raises": [
+              "CategoryNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Category.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "CategoryNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all_categories",
+            "description": "Retrieves all categories from the database, including their names and IDs.",
+            "params": [],
+            "return_type": "list[Category]"
+          },
+          {
+            "name": "read_category_by_id",
+            "description": "Retrieves a specific category by its category_id.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Category | None"
+          },
+          {
+            "name": "create_category",
+            "description": "Creates a new category with the provided name and returns the created category.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Category"
+          },
+          {
+            "name": "delete_category",
+            "description": "Deletes a category only if it does not have any associated products. Throws an error if the category has active products.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Product.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "get_products_by_category_id",
+            "description": "Lists the Product records belonging to one Category.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "read_product_by_id",
+            "description": "Retrieves a specific product by its product_id.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "Product | None"
+          },
+          {
+            "name": "read_all_products",
+            "description": "Retrieves all products from the database, including their names, category_id, and other attributes.",
+            "params": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "name": "create_product",
+            "description": "Creates a new product with the provided name and category_id. Ensures the category_id references an existing category.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product"
+          },
+          {
+            "name": "update_product_category",
+            "description": "Updates the category of a product, ensuring the new category exists and the product is reassigned to it.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "new_category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "delete_product",
+            "description": "Deletes a product only if it does not belong to a category that has other products. Does not delete the category.",
+            "params": [
+              {
+                "name": "product_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Category",
+        "table": "categories",
+        "primary_key": "category_id",
+        "indexes": []
+      },
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "product_id",
+        "indexes": [
+          "category_id"
+        ]
+      }
+    ]
+  }
+}

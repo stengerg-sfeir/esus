@@ -1,0 +1,46 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "list_expenses_by_category_and_date_range",
+      "source": "expense list [--category] [--from-date] [--to-date] [--method]",
+      "given": {
+        "expense": {
+          "amount_cents": 200,
+          "description": "Coffee",
+          "category_id": 1,
+          "expense_date": "2024-01-01"
+        }
+      },
+      "when": {
+        "action": "expense list",
+        "args": [
+          "--category=1",
+          "--from-date=2024-01-01",
+          "--to-date=2024-01-31"
+        ]
+      },
+      "then": {
+        "state": {
+          "expense.amount_cents": 200,
+          "expense.description": "Coffee",
+          "expense.category_id": 1,
+          "expense.expense_date": "2024-01-01"
+        },
+        "rows": {
+          "Expense": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Expense.category_id"
+      }
+    }
+  ]
+}

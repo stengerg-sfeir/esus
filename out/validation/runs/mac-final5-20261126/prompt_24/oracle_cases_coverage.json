@@ -1,0 +1,171 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_project_with_tasks",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "name": "Website Redesign",
+          "description": "Redesign the company website"
+        },
+        "task": {
+          "title": "Design homepage",
+          "description": "Create wireframes for homepage",
+          "status": "pending",
+          "priority": "high"
+        }
+      },
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name",
+          "project.description"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Website Redesign",
+          "project.description": "Redesign the company website",
+          "project.tasks": 1
+        },
+        "rows": {
+          "Project": 1,
+          "Task": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'project.name' is not declared on Project"
+      }
+    },
+    {
+      "id": "add_task_to_project",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "name": "Website Redesign"
+        },
+        "task": {
+          "title": "Design homepage",
+          "description": "Create wireframes for homepage",
+          "status": "pending",
+          "priority": "high"
+        }
+      },
+      "when": {
+        "action": "add_task_to_project",
+        "args": [
+          "project.name",
+          "task.title",
+          "task.description",
+          "task.status",
+          "task.priority"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Website Redesign",
+          "project.tasks": 1,
+          "task.title": "Design homepage",
+          "task.description": "Create wireframes for homepage",
+          "task.status": "pending",
+          "task.priority": "high"
+        },
+        "rows": {
+          "Project": 1,
+          "Task": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'project.name' is not declared on Project"
+      }
+    },
+    {
+      "id": "create_project_with_duplicate_name",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "name": "Website Redesign",
+          "description": "Redesign the company website"
+        },
+        "project_2": {
+          "name": "Website Redesign",
+          "description": "Redesign the mobile app"
+        }
+      },
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name",
+          "project.description"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Website Redesign",
+          "project.description": "Redesign the company website"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether duplicate project names are allowed or rejected. The behavior is not explicitly defined."
+      ],
+      "ambiguities": [
+        "It is not clear whether project names must be unique or if duplicates are permitted. This case assumes that duplicates are allowed unless otherwise specified."
+      ]
+    },
+    {
+      "id": "update_project_description",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "project": {
+          "name": "Website Redesign",
+          "description": "Redesign the company website"
+        }
+      },
+      "when": {
+        "action": "update_project",
+        "args": [
+          "project.name",
+          "project.description",
+          "new_description"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Website Redesign",
+          "project.description": "Updated description for website redesign"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify the exact field names or the expected value for 'new_description'. The behavior assumes a standard update pattern."
+      ],
+      "ambiguities": [
+        "The exact field names and update semantics (e.g., whether 'new_description' is a required parameter) are not defined in the requirements."
+      ]
+    }
+  ]
+}

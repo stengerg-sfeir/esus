@@ -1,0 +1,115 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Customer.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Customer.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Customer.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "phone_number",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        }
+      ]
+    }
+  ]
+}

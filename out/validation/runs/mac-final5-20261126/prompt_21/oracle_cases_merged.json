@@ -1,0 +1,119 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "delete_order",
+      "source": "Provide CRUD operations for customers and orders",
+      "given": {
+        "order": {
+          "id": 201,
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "delete_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Order": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderRepository.delete_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_customer",
+      "source": "Provide CRUD operations for customers and orders",
+      "given": {
+        "customer": {
+          "id": 101,
+          "name": "Alice Johnson"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Customer": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Order"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.delete_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

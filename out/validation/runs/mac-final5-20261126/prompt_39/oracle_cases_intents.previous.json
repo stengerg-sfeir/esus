@@ -1,0 +1,40 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "manage_users_admin",
+      "source": "Administrators can manage products and users.",
+      "given": {
+        "user": {
+          "role": "normal",
+          "email": "user@example.test",
+          "password_hash": "user value"
+        }
+      },
+      "when": {
+        "action": "update_user",
+        "args": {
+          "role": "admin"
+        }
+      },
+      "then": {
+        "state": {
+          "user.role": "admin"
+        },
+        "rows": {
+          "User": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The term 'manage users' implies the ability to update user roles, such as changing from normal to admin."
+      ],
+      "ambiguities": [
+        "The clause does not specify which user attributes or operations are part of 'manage users'."
+      ]
+    }
+  ]
+}

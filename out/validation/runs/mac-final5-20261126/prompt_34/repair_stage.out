@@ -1,0 +1,28 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_34/persistence_ports.json
+
+
+[ok] step patterns: applied 1 recorded user decision(s)
+[ok] step contracts: OrderRepository.create_order_with_lines describes 'status' but takes no such parameter — added
+[ok] step contracts: OrderRepository.create_order_with_lines describes 'status' but takes no such parameter — added
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_line_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.order_line_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlinedelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderlineupdate.order_line_id lookup entity 'Order_line' canonicalized to OrderLine
+[ok] step adapters: orderlinedelete.order_line_id lookup entity 'Order_line' canonicalized to OrderLine
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+

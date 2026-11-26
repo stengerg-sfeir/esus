@@ -1,0 +1,93 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "AppointmentRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Appointment.",
+          "params": [
+            {
+              "name": "start_time",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "end_time",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Appointment",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Appointment by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Appointment",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Appointment; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "start_time",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "end_time",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Appointment]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Appointment.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "start_time",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "end_time",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Appointment",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Appointment.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "start_time",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "end_time",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

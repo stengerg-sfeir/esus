@@ -1,0 +1,26 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: BorrowService.return_book ...
+llm: BorrowService.return_book refused (the confirmed contract changes `member.status`, but the body never writes `status`) — repair ask 1
+llm: BorrowService.return_book refused (the confirmed contract changes `member.status`, but the body never writes `status`) — repair ask 2
+llm: BorrowService.borrow_book ...
+llm: raw answers -> /tmp/v8-work/prompt_52/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_52/generated/models.py
+[write] /tmp/v8-work/prompt_52/generated/errors.py
+[write] /tmp/v8-work/prompt_52/generated/repositories.py
+[write] /tmp/v8-work/prompt_52/generated/services.py
+[write] /tmp/v8-work/prompt_52/generated/schema.py
+[write] /tmp/v8-work/prompt_52/generated/store.py
+[write] /tmp/v8-work/prompt_52/generated/cli.py
+[write] /tmp/v8-work/prompt_52/generated/__init__.py
+methods: 13 implemented, 2 stubs (87% mechanical)
+llm: 1 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: BorrowService.return_book — still refused: the confirmed contract changes `member.status`, but the body never writes `status`; calls `BorrowRecordRepository.read_one(...)`, but BorrowRecordRepository does not define `read_one`; it is declared on `BookRepository` or `MemberRepository`
+  llm provisional: BorrowService.borrow_book
+  stub: BorrowService.borrow_book: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  stub: BorrowService.return_book: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  cli Book search -> search_books [score 11]
+  cli Book update -> update_book [score 11]
+  cli BorrowRecord add -> create_borrow_record [score 8]
+  cli Member add -> create_member [score 8]
+  cli Member search -> search_members [score 11]

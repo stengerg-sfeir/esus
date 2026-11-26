@@ -1,0 +1,77 @@
+[run] requirements: 2312 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 253 tokens in 4.5s (56.1 tok/s, 62.0 decode, 559 prompt)
+[data_models] 642 tokens in 11.3s (56.7 tok/s, 59.5 decode, 1233 prompt)
+[errors] 84 tokens in 1.9s (43.3 tok/s, 61.7 decode, 970 prompt)
+[invariants] 393 tokens in 6.9s (56.6 tok/s, 60.9 decode, 774 prompt)
+[ok] step invariants: 30 invariant(s) — 20 schema generated mechanically, 10 rule(s) from the model
+[ok] step components: 11 command line(s) enumerated
+[components] 197 tokens in 4.1s (48.1 tok/s, 58.1 decode, 1246 prompt)
+[command_group] 784 tokens in 14.2s (55.3 tok/s, 58.1 decode, 854 prompt)
+[command_group] 431 tokens in 8.1s (53.2 tok/s, 58.0 decode, 771 prompt)
+[ok] step components: removed 1 exactly repeated name(s) from the merged split surface
+[service_contracts] 751 tokens in 13.4s (56.2 tok/s, 59.2 decode, 1010 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+[ok] step contracts: InventoryService.add_product is a create and cannot fail to find what it creates — dropped raises 'ProductNotFoundError'
+[persistence_ports] 252 tokens in 4.8s (52.3 tok/s, 60.9 decode, 896 prompt)
+[ok] step persistence: merged 3 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/31] invariant -> BUDGET_OVERFLOW_GUARD (0.81)
+  [2/31] invariant -> BUDGET_OVERFLOW_GUARD (0.74)
+  [3/31] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/31] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [5/31] invariant -> STATE_TRANSITION_GUARD (0.82)
+  [6/31] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [7/31] invariant -> THRESHOLD_SCAN (0.93)
+  [8/31] invariant -> QUOTA_CAPACITY_GUARD (0.82)
+  [9/31] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [10/31] invariant -> THRESHOLD_SCAN (1.00)
+  [11/31] contract:InventoryService.add_product -> BUDGET_OVERFLOW_GUARD (0.69)
+  [12/31] contract:InventoryService.update_product -> BUDGET_OVERFLOW_GUARD (0.95)
+  [13/31] contract:InventoryService.delete_product -> STANDARD_CRUD (1.00)
+  [14/31] contract:InventoryService.get_product_by_id -> STANDARD_CRUD (1.00)
+  [15/31] contract:InventoryService.list_products -> FILTER_WITH_PAGINATION (0.83)
+  [16/31] contract:InventoryService.restock -> STOCK_SUFFICIENCY_GUARD (0.97)
+  [17/31] contract:InventoryService.low_stock_report -> THRESHOLD_SCAN (1.00)
+  [18/31] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [19/31] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/31] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/31] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/31] contract:CategoryRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/31] contract:CategoryRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/31] contract:CategoryRepository.find_products_by_category -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [25/31] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/31] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [27/31] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/31] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [29/31] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/31] contract:ProductRepository.find_low_stock_products -> THRESHOLD_SCAN (1.00)
+  [31/31] contract:ProductRepository.aggregate_stock_value_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+[ok] step patterns: 31 item(s) — 8 standard CRUD, 23 pattern(s), 0 gap(s)
+[ok] step adapters: 11 adapter(s) derived mechanically from the explicit surface
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productrestock.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.id lookup entity 'Inventory' resolved to Product
+[ok] step adapters: productdelete.id lookup entity 'Inventory' resolved to Product
+[!] step adapters: 'productrestock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportlowstock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportvalue' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/method_plans.json
+[!] method plans: 3 ambiguous question(s) — human review required
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/command_group.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_inventory/requirements.txt
+[run] 9 steps, 3787 generated tokens in 69.3s

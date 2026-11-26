@@ -1,0 +1,36 @@
+{
+  "prompt": "prompt_10",
+  "results": [
+    {
+      "name": "scenario:oracle:create_note",
+      "status": "failed",
+      "reason": "note.creation_date is datetime.datetime(2023, 10, 1, 0, 0), expected '2023-10-01'",
+      "case": "create_note",
+      "source": "Provide create, list, update and delete operations using SQLite."
+    },
+    {
+      "name": "scenario:oracle:list_notes",
+      "status": "failed",
+      "reason": "note.creation_date is datetime.datetime(2023, 10, 1, 0, 0), expected '2023-10-01'",
+      "case": "list_notes",
+      "source": "Provide create, list, update and delete operations using SQLite."
+    },
+    {
+      "name": "update_note",
+      "status": "unbound",
+      "reason": "update case supplies no new value for 'note.title' (setup has 'Meeting Notes')",
+      "source": "Provide create, list, update and delete operations using SQLite."
+    },
+    {
+      "name": "scenario:oracle:delete_note",
+      "status": "passed",
+      "case": "delete_note",
+      "source": "Provide create, list, update and delete operations using SQLite."
+    }
+  ],
+  "counts": {
+    "failed": 2,
+    "unbound": 1,
+    "passed": 1
+  }
+}

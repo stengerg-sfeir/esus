@@ -1,0 +1,88 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 2,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 2
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "search_orders_by_customer",
+        "source": "Customers should be able to search their orders and invoices.",
+        "given": {
+          "customer": {
+            "id": 103,
+            "name": "Bob Smith"
+          },
+          "order": {
+            "customer_id": 103,
+            "status": "confirmed",
+            "order_id": 501
+          }
+        },
+        "when": {
+          "action": "search_orders",
+          "args": [
+            "customer.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The search returns only orders belonging to the specified customer"
+        ],
+        "ambiguities": [
+          "It is unclear whether invoices are also returned in the search result or if the search is limited to orders only"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "manage_products_and_categories",
+        "source": "Administrators should be able to manage products and categories.",
+        "given": {
+          "product": {
+            "id": 301,
+            "name": "Wireless Mouse",
+            "category_id": 1,
+            "stock_quantity": 20
+          },
+          "category": {
+            "id": 1,
+            "name": "Electronics"
+          }
+        },
+        "when": {
+          "action": "manage_products",
+          "args": [
+            "product.id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The manage_products action allows creation, update, or deletion of products and their associated categories"
+        ],
+        "ambiguities": [
+          "It is not specified whether the action modifies the product or category, or whether it requires admin authentication"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "prompt": "prompt_35",
+  "results": [
+    {
+      "name": "scenario:oracle:create_product",
+      "status": "passed",
+      "case": "create_product",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "bulk_update_stock",
+      "status": "unbound",
+      "reason": "bulk collection parameter requires a scalar collection",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.bulk_update_stock",
+          "score": 10.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProductRepository.update",
+            "ProductRepository.create",
+            "ProductRepository.delete",
+            "ProductRepository.read_all"
+          ]
+        }
+      }
+    },
+    {
+      "name": "bulk_update_transactional",
+      "status": "unbound",
+      "reason": "bulk collection parameter requires a scalar collection",
+      "source": "The entire bulk update must succeed or fail as a single transaction.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.bulk_update_stock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 1,
+    "unbound": 2
+  }
+}

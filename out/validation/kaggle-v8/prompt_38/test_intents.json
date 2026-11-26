@@ -1,0 +1,151 @@
+{
+  "intents": [
+    {
+      "id": "user_reads_own_document",
+      "source": "A user can only read, modify or delete their own documents.",
+      "kind": "list",
+      "entity": "Document",
+      "action": "list_documents",
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "user.email": "alice@example.com",
+        "document.owner": "alice@example.com"
+      },
+      "lookup": [
+        "document.owner"
+      ],
+      "where": {
+        "document.owner": "alice@example.com"
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "document.owner": "alice@example.com"
+        },
+        "rows": {
+          "Document": 1
+        },
+        "error": null,
+        "stdout_contains": "alice@example.com",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "user_modifies_own_document",
+      "source": "A user can only read, modify or delete their own documents.",
+      "kind": "update",
+      "entity": "Document",
+      "action": "modify_document",
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "user.email": "bob@example.com",
+        "document.owner": "bob@example.com",
+        "document.title": "Old Title"
+      },
+      "lookup": [
+        "document.id"
+      ],
+      "where": {
+        "document.owner": "bob@example.com"
+      },
+      "args": [
+        "document.title",
+        "New Title"
+      ],
+      "changes": {
+        "document.title": "New Title"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "document.title": "New Title"
+        },
+        "rows": {
+          "Document": 1
+        },
+        "error": null,
+        "stdout_contains": "New Title",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "user_deletes_own_document",
+      "source": "A user can only read, modify or delete their own documents.",
+      "kind": "delete",
+      "entity": "Document",
+      "action": "delete_document",
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "document",
+          "entity": "Document",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "user.email": "charlie@example.com",
+        "document.owner": "charlie@example.com"
+      },
+      "lookup": [
+        "document.id"
+      ],
+      "where": {
+        "document.owner": "charlie@example.com"
+      },
+      "args": [
+        "document.id"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Document": 0
+        },
+        "error": null,
+        "stdout_contains": "Document deleted",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

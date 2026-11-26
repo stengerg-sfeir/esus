@@ -1,0 +1,206 @@
+{
+  "prompt": "prompt_gui",
+  "results": [
+    {
+      "name": "scenario:oracle:price_greater_than_cost",
+      "status": "failed",
+      "reason": "expected InvalidPricingException, no error was raised",
+      "case": "price_greater_than_cost",
+      "source": "The selling price of a wine bottle must always be strictly greater than its cost price.",
+      "alignment": {
+        "entities": {
+          "storagelocation": {
+            "status": "aligned",
+            "canonical": "StorageLocation",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match StorageLocation",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Wine"
+            ]
+          },
+          "wine": {
+            "status": "aligned",
+            "canonical": "Wine",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Wine",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "WineInventoryService.validate_wine_pricing",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "WineRepository.create",
+            "WineRepository.delete",
+            "WineRepository.read_all",
+            "WineRepository.update"
+          ]
+        }
+      }
+    },
+    {
+      "name": "stock_never_below_zero",
+      "status": "unbound",
+      "reason": "update case supplies no new value for 'wine.stock_quantity' (setup has 5)",
+      "source": "A wine's stock quantity can never drop below zero.",
+      "alignment": {
+        "entities": {
+          "storagelocation": {
+            "status": "aligned",
+            "canonical": "StorageLocation",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match StorageLocation",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Wine"
+            ]
+          },
+          "wine": {
+            "status": "aligned",
+            "canonical": "Wine",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Wine",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "wine.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Wine.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "WineInventoryService.update_wine_stock",
+          "score": 6.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "WineRepository.update"
+          ]
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:location_capacity_exceeded_error",
+      "status": "failed",
+      "reason": "expected LocationOverCapacityException, no error was raised",
+      "case": "location_capacity_exceeded_error",
+      "source": "The total number of bottles assigned to a specific storage location cannot exceed that location's defined maximum bottle capacity.",
+      "alignment": {
+        "entities": {
+          "location": {
+            "status": "alias",
+            "canonical": "StorageLocation",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match StorageLocation",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "wine": {
+            "status": "aligned",
+            "canonical": "Wine",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Wine",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "StorageLocation"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "WineInventoryService.assign_wine_to_location",
+          "score": 9.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "StorageLocationRepository.get_total_bottles_across_locations",
+            "StorageLocationRepository.find_location_by_zone_name",
+            "StorageLocationRepository.get_location_utilization_rate",
+            "WineInventoryService.check_storage_location_capacity"
+          ]
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:prevent_removal_if_assigned",
+      "status": "failed",
+      "reason": "raised ValueError: StorageLocation is still assigned to Wine records; expected 'LocationOverCapacityException'",
+      "case": "prevent_removal_if_assigned",
+      "source": "Prevent the removal of a storage location if wine bottles are currently assigned to it.",
+      "alignment": {
+        "entities": {
+          "location": {
+            "status": "alias",
+            "canonical": "StorageLocation",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match StorageLocation",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Wine"
+            ]
+          },
+          "wine": {
+            "status": "aligned",
+            "canonical": "Wine",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Wine",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "StorageLocation"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "StorageLocationRepository.delete",
+          "score": 2.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "WineRepository.delete"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "failed": 3,
+    "unbound": 1
+  }
+}

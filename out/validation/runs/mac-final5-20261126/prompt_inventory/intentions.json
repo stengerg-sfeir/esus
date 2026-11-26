@@ -1,0 +1,15 @@
+{
+  "intentions": [
+    "Define a Category model with unique name, optional description and reorder threshold",
+    "Define a Product model with unique SKU, foreign key to category, price in cents, stock quantity, and optional low_active flag",
+    "Implement a CategoryRepository with SQLite storage supporting CRUD operations and fetching all products in a category",
+    "Implement a ProductRepository with SQLite storage supporting CRUD, filtering by category, identifying low-stock items, and aggregating stock value by category",
+    "Develop an InventoryService with business logic for product and category operations including validation, updates, deletions, and reporting",
+    "Build a CLI interface using Click with nested command groups for product and category management",
+    "Ensure all monetary values are stored as integers (cents) to avoid floating-point inaccuracies",
+    "Use auto-incremented primary keys for IDs with optional default values in domain models",
+    "Enable foreign key constraints in SQLite database schema",
+    "Implement custom exception classes for CategoryNotFoundError and ProductNotFoundError",
+    "Provide comprehensive error handling across all service and CLI operations"
+  ]
+}

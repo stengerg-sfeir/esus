@@ -1,0 +1,49 @@
+[run] requirements: 265 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 88 tokens in 1.7s (53.1 tok/s, 61.3 decode, 93 prompt)
+[data_models] 235 tokens in 4.2s (56.5 tok/s, 58.6 decode, 609 prompt)
+[ok] step data_models: Note.primary_key became the integer primary key id
+[errors] 8 tokens in 0.3s (26.6 tok/s, 69.3 decode, 483 prompt)
+[invariants] 7 tokens in 0.2s (29.4 tok/s, 69.5 decode, 287 prompt)
+[ok] step invariants: 8 invariant(s) — 8 schema generated mechanically, 0 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 353 tokens in 6.5s (54.3 tok/s, 55.6 decode, 995 prompt)
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-list' to '--list'
+[ok] step components: normalized option '-update' to '--update'
+[ok] step components: normalized option '-delete' to '--delete'
+[service_contracts] 10 tokens in 0.4s (25.4 tok/s, 66.0 decode, 489 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.9s (51.1 tok/s, 60.9 decode, 392 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/4] contract:NoteRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [2/4] contract:NoteRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [3/4] contract:NoteRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [4/4] contract:NoteRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 4 item(s) — 3 standard CRUD, 1 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (note: no method matches the verb 'note') — asking the model
+[interaction_adapters] 743 tokens in 13.1s (56.7 tok/s, 57.5 decode, 524 prompt)
+[ok] step adapters: update_note.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_note.id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 3 unreachable field(s) — retrying once
+[interaction_adapters] 173 tokens in 3.2s (54.6 tok/s, 58.4 decode, 595 prompt)
+[!] step interaction_adapters still omits 3 unreachable field(s) (retry: 3) — kept first attempt; the probe will report it
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: note  lacked '--title' required by 'create_note' — added as str
+[ok] step adapters: note  lacked '--content' required by 'create_note' — added as str
+[ok] step adapters: note  lacked '--creation-date' required by 'create_note' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_10/requirements.txt
+[run] 9 steps, 1661 generated tokens in 30.4s

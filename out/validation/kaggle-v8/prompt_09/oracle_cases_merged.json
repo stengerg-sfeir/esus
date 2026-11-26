@@ -1,0 +1,207 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_employee_valid",
+      "source": "Provide CRUD operations using SQLite.",
+      "given": {
+        "employee": {
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "age": 30,
+          "salary": 75000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "alice.johnson@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Alice Johnson",
+          "employee.email": "alice.johnson@example.com",
+          "employee.age": 30,
+          "employee.salary": 75000
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "employee.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Employee.name exists"
+            ],
+            "alternatives": []
+          },
+          "employee.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Employee.email exists"
+            ],
+            "alternatives": []
+          },
+          "employee.age": {
+            "status": "aligned",
+            "canonical": "age",
+            "score": 10.0,
+            "evidence": [
+              "Employee.age exists"
+            ],
+            "alternatives": []
+          },
+          "employee.salary": {
+            "status": "aligned",
+            "canonical": "salary",
+            "score": 10.0,
+            "evidence": [
+              "Employee.salary exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_employee_valid",
+      "source": "Provide CRUD operations using SQLite.",
+      "given": {
+        "employee": {
+          "name": "Eve Davis",
+          "email": "eve.davis@example.com",
+          "age": 35,
+          "salary": 90000
+        }
+      },
+      "when": {
+        "action": "update_employee",
+        "args": [
+          "eve.davis@example.com",
+          "age",
+          40
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Eve Davis",
+          "employee.email": "eve.davis@example.com",
+          "employee.age": 40,
+          "employee.salary": 90000
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "employee.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Employee.name exists"
+            ],
+            "alternatives": []
+          },
+          "employee.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Employee.email exists"
+            ],
+            "alternatives": []
+          },
+          "employee.age": {
+            "status": "aligned",
+            "canonical": "age",
+            "score": 10.0,
+            "evidence": [
+              "Employee.age exists"
+            ],
+            "alternatives": []
+          },
+          "employee.salary": {
+            "status": "aligned",
+            "canonical": "salary",
+            "score": 10.0,
+            "evidence": [
+              "Employee.salary exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

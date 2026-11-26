@@ -1,0 +1,217 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "import_contact_1",
+      "source": "import contacts from CSV",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "import_contacts",
+        "args": [
+          "contacts.csv"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Alice Johnson",
+          "contact.email": "alice@example.com",
+          "contact.phone": "555-1234"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'import_contacts' is not explicitly defined in the requirements, and there is no specification of how CSV import handles invalid rows or duplicates."
+      ],
+      "ambiguities": [
+        "The requirements state that invalid rows must be rejected without corrupting data, but do not specify what constitutes an invalid row or how the import process validates fields like email or phone."
+      ]
+    },
+    {
+      "id": "export_contacts_1",
+      "source": "export all contacts to CSV",
+      "given": {
+        "contact": {
+          "name": "Bob Smith",
+          "email": "bob@example.com",
+          "phone": "555-5678"
+        }
+      },
+      "when": {
+        "action": "export_contacts",
+        "args": [
+          "contacts.csv"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Bob Smith",
+          "contact.email": "bob@example.com",
+          "contact.phone": "555-5678"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'export_contacts' is not explicitly defined in the requirements, and there is no specification of output format or field mapping."
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether the exported CSV includes all fields or only certain ones, nor how missing or invalid data is handled."
+      ]
+    },
+    {
+      "id": "add_contact_1",
+      "source": "normal CRUD operations",
+      "given": {
+        "contact": {
+          "name": "Charlie Brown",
+          "email": "charlie@example.com",
+          "phone": "555-9012"
+        }
+      },
+      "when": {
+        "action": "add_contact",
+        "args": [
+          "charlie@example.com",
+          "Charlie Brown",
+          "555-9012"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Charlie Brown",
+          "contact.email": "charlie@example.com",
+          "contact.phone": "555-9012"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'add_contact' is not explicitly named in the requirements. The CRUD operations are mentioned, but no specific action names or parameters are provided."
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether the contact is added only if the email is unique, or if duplicates are allowed. The 'STOCK_SUFFICIENCY_GUARD' rule applies to stock, not contacts, so this rule does not apply here."
+      ]
+    },
+    {
+      "id": "add_contact_duplicate_email",
+      "source": "normal CRUD operations",
+      "given": {
+        "contact": {
+          "name": "Diana Prince",
+          "email": "diana@example.com",
+          "phone": "555-3456"
+        }
+      },
+      "when": {
+        "action": "add_contact",
+        "args": [
+          "diana@example.com",
+          "Diana Prince",
+          "555-3456"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Diana Prince",
+          "contact.email": "diana@example.com",
+          "contact.phone": "555-3456"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement states that all operations must maintain data integrity and not allow duplicate contacts based on email address, yet this case assumes a duplicate is allowed if not explicitly blocked."
+      ],
+      "ambiguities": [
+        "The requirement does not specify whether the 'add_contact' action checks for email uniqueness, nor whether it fails or silently ignores duplicates. This contradicts the stated data integrity rule."
+      ]
+    },
+    {
+      "id": "import_invalid_row",
+      "source": "import contacts from CSV",
+      "given": {
+        "contact": {
+          "name": "",
+          "email": "invalid-email",
+          "phone": "555-1111"
+        }
+      },
+      "when": {
+        "action": "import_contacts",
+        "args": [
+          "invalid_contacts.csv"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "",
+          "contact.email": "invalid-email",
+          "contact.phone": "555-1111"
+        },
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements state that invalid rows must be rejected without corrupting existing data, but do not specify what constitutes an invalid row or how the import process validates fields."
+      ],
+      "ambiguities": [
+        "There is no definition of what makes a row invalid (e.g., missing name, invalid email format). The behavior of rejecting invalid rows is required, but the validation logic is not specified."
+      ]
+    },
+    {
+      "id": "export_contacts_to_csv",
+      "source": "export all contacts to CSV",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "export_contacts_to_csv",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "exported_file": "contacts.csv"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state references unseeded alias 'exported_file'"
+      }
+    }
+  ]
+}

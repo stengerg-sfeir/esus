@@ -1,0 +1,35 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44
+
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: SaleRepository.getTopSellingProducts ...
+llm: SaleRepository.getTopSellingProducts refused (the body does not compile (invalid syntax)) — repair ask 1
+llm: SaleRepository.getTopSellingProducts refused (parameter `sale_id` is never used in the body) — repair ask 2
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/generated/__init__.py
+methods: 18 implemented, 1 stubs (95% mechanical)
+llm: 0 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: SaleRepository.getTopSellingProducts — still refused: parameter `sale_id` is never used in the body
+  stub: SaleRepository.getTopSellingProducts: parameter 'sale_id' maps to no field
+  cli Customer add -> create_customer [score 8]
+  cli Customer delete -> customerdelete [score 11]
+  cli Customer list -> list_all_customers [score 9]
+  cli Customer update -> customerupdate [score 11]
+  cli Product add -> create_product [score 8]
+  cli Product delete -> productdelete [score 11]
+  cli Product list -> list_all_products [score 9]
+  cli Product update -> productupdate [score 11]
+  cli Sale add -> create_sale [score 8]
+  cli Sale delete -> saledelete [score 11]
+  cli Sale list -> list_all_sales [score 9]
+  cli Sale update -> saleupdate [score 11]
+
+
+

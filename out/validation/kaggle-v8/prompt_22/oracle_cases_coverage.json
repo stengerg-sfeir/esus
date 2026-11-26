@@ -1,0 +1,145 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_order_with_products",
+      "source": "Provide CRUD operations and calculate the total order amount.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "order.customer_id",
+          "product.id",
+          "1",
+          "10.0"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "pending",
+          "order.total_amount": "10.0"
+        },
+        "rows": {
+          "Order": 1,
+          "OrderItem": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The total order amount is assumed to be calculated as quantity × unit price, but this is not explicitly stated in the requirements.",
+        "The creation of an order item is assumed, but the requirements do not specify whether order items are created as part of order creation or require separate handling."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "update_order_status_to_completed",
+      "source": "Provide CRUD operations and calculate the total order amount.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        }
+      },
+      "when": {
+        "action": "update_order",
+        "args": [
+          "order.id",
+          "status",
+          "completed"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "completed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify what happens to the order total or product stock when status is updated to completed.",
+        "No mention of whether the total amount is recalculated or if any side effects occur."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_order",
+      "source": "Provide CRUD operations",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        }
+      },
+      "when": {
+        "action": "delete_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "deleted"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether deleting an order removes associated order items or updates product stock.",
+        "No information is provided about what happens to the order status after deletion or whether it is set to 'deleted' or removed entirely."
+      ]
+    },
+    {
+      "id": "update_product_stock_after_order_creation",
+      "source": "A product can appear in multiple orders.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "product": {
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "order.customer_id",
+          "product.id",
+          "1",
+          "10.0"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 4
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether product stock decreases when a product is added to an order.",
+        "The value 4 is assumed as a decrement of 1, but the quantity used in the order is not specified or linked to the stock change."
+      ]
+    }
+  ]
+}

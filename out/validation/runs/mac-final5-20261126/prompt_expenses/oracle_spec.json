@@ -1,0 +1,67 @@
+{
+  "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "ExpenseService.add_expense",
+      "chosen": {
+        "creates": [
+          {
+            "class": "Expense",
+            "call": "ExpenseRepository.create"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "category exists",
+            "error": "CategoryNotFoundError",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "route",
+      "source": "expense report yearly year get_yearly_summary",
+      "chosen": {
+        "service": "ExpenseService",
+        "method": "get_yearly_summary",
+        "target_param": "year",
+        "option_type": "int",
+        "transform": "DIRECT"
+      },
+      "provenance": "surface_decisions.json"
+    },
+    {
+      "kind": "drop-flag",
+      "source": "expense report yearly month",
+      "chosen": {},
+      "provenance": "surface_decisions.json"
+    }
+  ]
+}

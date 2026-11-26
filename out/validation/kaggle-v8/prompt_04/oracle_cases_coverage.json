@@ -1,0 +1,219 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "delete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "title": "Write documentation",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "Write documentation"
+        ]
+      },
+      "then": {
+        "state": {
+          "task.title": "Write documentation",
+          "task.status": "pending"
+        },
+        "rows": {
+          "Task": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task",
+        "contradicts case delete_nonexistent_task"
+      ]
+    },
+    {
+      "id": "add_duplicate_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "title": "Write documentation",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "add_task",
+        "args": [
+          "Write documentation"
+        ]
+      },
+      "then": {
+        "state": {
+          "task.title": "Write documentation",
+          "task.status": "pending"
+        },
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether adding a task with an existing title is allowed or rejected. No behavior is defined for duplicate titles."
+      ]
+    },
+    {
+      "id": "delete_nonexistent_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "title": "Write documentation",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "Non-existent task"
+        ]
+      },
+      "then": {
+        "error": "TaskNotFoundError",
+        "rows": {
+          "Task": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify what happens when a task to delete does not exist. No error class or behavior is defined.",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "contradicts case delete_task",
+        "contradicts case delete_task",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements",
+        "error class 'TaskNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "task_status_after_completion",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "title": "Write documentation",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "complete_task",
+        "args": [
+          "Write documentation"
+        ]
+      },
+      "then": {
+        "state": {
+          "task.title": "Write documentation",
+          "task.status": "completed"
+        },
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'task.title' is not declared on Task"
+      }
+    }
+  ]
+}

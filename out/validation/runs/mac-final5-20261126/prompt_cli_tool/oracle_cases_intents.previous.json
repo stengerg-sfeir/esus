@@ -1,0 +1,234 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "cli_no_output_path",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "input.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "input.csv": "name,age\nAlice,30\nBob,25"
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "{\"name\":\"Alice\",\"age\":30}",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument 'input.csv' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "cli_with_output_path",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "input.csv",
+          "output.json"
+        ],
+        "stdin": "",
+        "files": {
+          "input.csv": "name,age\nAlice,30\nBob,25"
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument 'input.csv' is not stated in the target clause",
+        "argument 'output.json' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "error_missing_input_file",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "nonexistent.csv"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "FileNotFoundError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'FileNotFoundError' is not stated in the target clause",
+        "argument 'nonexistent.csv' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "error_malformed_csv",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "malformed.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "malformed.csv": "name,age\nAlice,30\nBob"
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "MalformedCSVError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'MalformedCSVError' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "critical-dynamic-header-read",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "input.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "input.csv": "name,age\nAlice,30\nBob,25"
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "name",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument 'input.csv' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "critical-dynamic-header-malformed",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "invalid.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "invalid.csv": "name,age\n"
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "malformed_csv"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'malformed_csv' is only stated in another requirement",
+        "argument 'invalid.csv' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "critical-dynamic-header-missing",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "empty.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "empty.csv": ""
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "missing_file_or_empty"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'missing_file_or_empty' is not stated in the target clause",
+        "argument 'empty.csv' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements",
+        "error class 'missing_file_or_empty' is not named in the requirements"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "plans": [
+    {
+      "holder": "LoanService",
+      "method": "create_loan",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Loan",
+      "target_service": "LoanRepository",
+      "target_method": "create"
+    }
+  ],
+  "questions": [
+    {
+      "holder": "LoanService",
+      "method": "update_loan",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "LoanService",
+      "method": "delete_loan",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "LoanService",
+      "method": "read_loan_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    }
+  ],
+  "requirements_sha": "9ea71871235b2a6bd25aa1eeeb662e5b0caeee7c48bea99d28dcd505033fe4ff"
+}

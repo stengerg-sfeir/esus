@@ -1,0 +1,32 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41
+
+gate passed (3 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: BookRepository.booksearch ...
+llm: BookRepository.booksearch refused (calls self._search_term, which the module does not define) — repair ask 1
+llm: BookRepository.booksearch refused (the model kept it unimplemented) — repair ask 2
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41/generated/__init__.py
+methods: 22 implemented, 1 stubs (96% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: BookRepository.booksearch — repaired: calls self._search_term, which the module does not define
+  stub: BookRepository.booksearch: no pattern entry and an ambiguous method name
+  cli Book add -> bookadd [score 9]
+  cli Book delete -> bookdelete [score 11]
+  cli Book update -> bookupdate [score 11]
+  cli Loan add -> loanadd [score 9]
+  cli Loan delete -> loandelete [score 11]
+  cli Loan update -> loanupdate [score 11]
+  cli Member add -> memberadd [score 9]
+  cli Member delete -> memberdelete [score 11]
+  cli Member update -> memberupdate [score 11]
+
+
+

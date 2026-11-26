@@ -1,0 +1,121 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "manage_customers_and_retrieve_info",
+      "source": "Create a Python 3.12 application that manages customers and retrieves additional customer information from an external service.",
+      "given": {
+        "customer": {
+          "id": 101,
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "manage_customers",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "ExternalServiceResponse"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "no generated method matches 'manage_customers'"
+      }
+    },
+    {
+      "id": "continue_operation_when_external_unavailable",
+      "source": "The application should continue to operate correctly when the external service is unavailable.",
+      "given": {
+        "customer": {
+          "id": 101,
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "operate_application",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 10.0"
+            ],
+            "alternatives": [
+              "ExternalServiceResponse"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "no generated method matches 'operate_application'"
+      }
+    }
+  ]
+}

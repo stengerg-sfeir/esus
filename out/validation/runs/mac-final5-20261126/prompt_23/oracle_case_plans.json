@@ -1,0 +1,234 @@
+{
+  "plans": [
+    {
+      "id": "create_post_by_author",
+      "source": "Authors can create posts.",
+      "when": {
+        "action": "create_post",
+        "args": [
+          "author.id",
+          "post.title",
+          "post.content"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "target"
+        },
+        {
+          "alias": "post",
+          "entity": "Post",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "post.author_id",
+          "post.title",
+          "post.content"
+        ],
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_tag_association",
+      "source": "A tag can be associated with multiple posts.",
+      "when": {
+        "action": "associate_tag_with_post",
+        "args": [
+          "tag.name",
+          "post.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "tag",
+          "entity": "Tag",
+          "role": "target"
+        },
+        {
+          "alias": "post",
+          "entity": "Post",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "post.tags",
+          "tag.posts"
+        ],
+        "rows": {
+          "Post": 1,
+          "Tag": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_author",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "when": {
+        "action": "create_author",
+        "args": [
+          "author.name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "author.name"
+        ],
+        "rows": {
+          "Author": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_tag",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "when": {
+        "action": "create_tag",
+        "args": [
+          "tag.name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "tag",
+          "entity": "Tag",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "tag.name"
+        ],
+        "rows": {
+          "Tag": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_post_by_id",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "when": {
+        "action": "read_post",
+        "args": [
+          "post.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "post",
+          "entity": "Post",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "post.title",
+          "post.content",
+          "post.author_id"
+        ],
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_post",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "when": {
+        "action": "update_post",
+        "args": [
+          "post.id",
+          "post.title",
+          "post.content"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "post",
+          "entity": "Post",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "post.title",
+          "post.content"
+        ],
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_post",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "when": {
+        "action": "delete_post",
+        "args": [
+          "post.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "post",
+          "entity": "Post",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "post.status"
+        ],
+        "rows": {
+          "Post": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_tag",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "when": {
+        "action": "delete_tag",
+        "args": [
+          "tag.name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "tag",
+          "entity": "Tag",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "tag.name"
+        ],
+        "rows": {
+          "Tag": 0
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

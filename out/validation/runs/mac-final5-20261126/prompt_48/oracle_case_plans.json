@@ -1,0 +1,56 @@
+{
+  "plans": [
+    {
+      "id": "add_book_action",
+      "source": "Users should be able to add books",
+      "when": {
+        "action": "add_book"
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "remember_between_executions_action",
+      "source": "The application should remember the information between executions.",
+      "when": {
+        "action": "remember_information"
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    }
+  ]
+}

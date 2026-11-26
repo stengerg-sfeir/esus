@@ -1,0 +1,76 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "deposit_increase_balance",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson"
+        },
+        "account": {
+          "customer_id": 101,
+          "balance": 100.0
+        }
+      },
+      "when": {
+        "action": "deposit",
+        "args": [
+          "account.id",
+          "50.0"
+        ]
+      },
+      "then": {
+        "state": {
+          "account.balance": 150.0
+        },
+        "rows": {
+          "Account": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'deposit'"
+      }
+    },
+    {
+      "id": "withdrawal_negative_balance_rejection",
+      "source": "A withdrawal must be rejected if it would make the balance negative.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson"
+        },
+        "account": {
+          "customer_id": 101,
+          "balance": 50.0
+        }
+      },
+      "when": {
+        "action": "withdraw",
+        "args": [
+          "account.id",
+          "amount"
+        ]
+      },
+      "then": {
+        "state": {
+          "account.balance": 50.0
+        },
+        "error": "withdrawal_rejected"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'withdrawal_rejected' is not named in the requirements",
+        "error class 'withdrawal_rejected' is not named in the requirements"
+      ]
+    }
+  ]
+}

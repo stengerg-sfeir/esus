@@ -1,0 +1,33 @@
+{
+  "prompt": "prompt_library_system",
+  "results": [
+    {
+      "name": "borrow_book_with_available_copies",
+      "status": "unbound",
+      "reason": "setup needs a Author row for Book.author_id",
+      "source": "library borrow --member-id --book-id"
+    },
+    {
+      "name": "scenario:oracle:return_book_already_returned",
+      "status": "passed",
+      "case": "return_book_already_returned",
+      "source": "library return --loan-id"
+    },
+    {
+      "name": "borrow_book_final_copy",
+      "status": "unbound",
+      "reason": "setup needs a Author row for Book.author_id",
+      "source": "library borrow --member-id --book-id"
+    },
+    {
+      "name": "overdue_loan_detection",
+      "status": "unbound",
+      "reason": "setup needs a Book row for Loan.book_id",
+      "source": "library overdue"
+    }
+  ],
+  "counts": {
+    "unbound": 3,
+    "passed": 1
+  }
+}

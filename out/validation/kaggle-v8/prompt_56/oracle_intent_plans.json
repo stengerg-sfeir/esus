@@ -1,0 +1,18 @@
+{
+  "plans": [],
+  "rejected": [
+    {
+      "id": "cancel_order_restore_stock",
+      "errors": [
+        "entity 'Order' is ambiguous; cannot plan a fixture"
+      ]
+    },
+    {
+      "id": "atomic_modification_product_stock",
+      "errors": [
+        "action 'restore_stock_on_order_cancellation' is coverage_gap: prompt names the action; no generated method matches"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

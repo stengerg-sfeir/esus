@@ -1,0 +1,148 @@
+{
+  "prompt": "prompt_inventory",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product restock",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product report low-stock",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:product report value",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:category delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Category",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CategoryRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Category.name",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Product.sku",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Product.category_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:InventoryService.restock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product restock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product report low-stock",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:product report value",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:category delete",
+      "status": "passed"
+    }
+  ]
+}

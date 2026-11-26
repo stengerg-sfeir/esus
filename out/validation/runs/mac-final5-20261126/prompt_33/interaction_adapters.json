@@ -1,0 +1,131 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "customeradd",
+      "target_service": "CustomerRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "phone",
+          "target_param": "phone",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "address",
+          "target_param": "address",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "created_at",
+          "target_param": "created_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "updated_at",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "deleted_at",
+          "target_param": "deleted_at",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "customerupdate",
+      "target_service": "CustomerRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": false
+        },
+        {
+          "field_name": "updated_data",
+          "target_param": "updated_at",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "customerdelete",
+      "target_service": "CustomerRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "auditlogadd",
+      "target_service": "AuditLogRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "operation",
+          "target_param": "operation",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        },
+        {
+          "field_name": "performed_by",
+          "target_param": "performed_by",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "timestamp",
+          "target_param": "timestamp",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true,
+          "status": "explicit"
+        }
+      ]
+    }
+  ]
+}

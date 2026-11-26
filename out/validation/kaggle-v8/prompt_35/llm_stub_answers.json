@@ -1,0 +1,17 @@
+[
+  {
+    "label": "ProductRepository.bulk_update_stock",
+    "status": "written",
+    "note": "",
+    "answer": "if product_ids is not None:\n        product_ids = product_ids.split(',')\n        product_ids = [int(pid.strip()) for pid in product_ids if pid.strip()]\n    else:\n        product_ids = []\n\n    if not product_ids:\n        return None\n\n    criteria = []\n    for pid in product_ids:\n        criteria.append(('product_id', 'eq', pid))\n\n    found = self._store.select(self.ENTITY, criteria)\n    if not found:\n        return None\n\n    for record in found:\n        patch = {'stock_quantity': stock_quantity}\n        if stock_quantity is not None and stock_quantity < 0:\n            raise ValueError(f\"Product.stock_quantity must be >= 0, got {stock_quantity!r}\")\n        self._store.update(self.ENTITY, self.PK, record[self.PK], patch)",
+    "finish_reason": "stop",
+    "tokens": 169,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 9.824326753616333,
+    "decode_seconds": 4.196276,
+    "prompt_tokens": 2354,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

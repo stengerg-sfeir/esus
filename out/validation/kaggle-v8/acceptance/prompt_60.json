@@ -1,0 +1,222 @@
+{
+  "prompt": "prompt_60",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order cancel",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order ship",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Category add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Category update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Customer add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Customer update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Customer",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Category",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Order",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:OrderItem",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Invoice",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CustomerRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:CategoryRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:InvoiceRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderItemRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Customer.email",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Product.category_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Order.customer_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderItem.order_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderItem.product_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Invoice.order_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:OrderService.confirm_order",
+      "status": "passed"
+    },
+    {
+      "name": "contract:OrderService.cancel_order",
+      "status": "not_applicable",
+      "reason": "state effect covered by a scenario"
+    },
+    {
+      "name": "contract:OrderService.ship_order:invalid",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:ship_confirmed_order",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:confirm_order_reserves_stock_and_creates_invoice",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order cancel",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order ship",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Category add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Category update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Customer add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Customer update",
+      "status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,356 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "cancel_order_with_zero_stock",
+      "source": "cancelling an order must restore its product quantities",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 2
+        },
+        "product": {
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The initial stock quantity of 0 implies a product with no stock, but the expected restoration to 7 is not defined in requirements. The behavior of restoring stock to a specific value (7) is not specified."
+      ],
+      "ambiguities": [
+        "The requirements do not specify what value the stock should be restored to when cancelling an order. The value 7 is assumed but not grounded in the requirements."
+      ]
+    },
+    {
+      "id": "cancel_order_with_pending_status",
+      "source": "orders can be cancelled",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 3
+        },
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 17
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The restoration of stock quantity to 17 is assumed based on a pattern, but the requirements do not define how stock is restored (e.g., original value + delta)."
+      ],
+      "ambiguities": [
+        "The requirements do not specify how much stock is restored when an order is cancelled. The value 17 is not grounded in any rule or formula."
+      ]
+    },
+    {
+      "id": "cancel_order_with_completed_status",
+      "source": "orders can be cancelled",
+      "given": {
+        "order": {
+          "status": "completed",
+          "customer_id": 4
+        },
+        "product": {
+          "stock_quantity": 3
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "Cancellation is allowed for completed orders, but the requirements do not specify whether completed orders can be cancelled or if this is a violation."
+      ],
+      "ambiguities": [
+        "The requirements state that orders can be cancelled, but do not specify whether completed orders are eligible. The behavior of cancelling a completed order is not explicitly defined."
+      ]
+    },
+    {
+      "id": "cancel_order_with_no_product_stock",
+      "source": "cancelling an order must restore its product quantities",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 5
+        },
+        "product": {
+          "stock_quantity": 0
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The restoration to 7 is assumed without justification. The requirements do not define the restoration logic or base value."
+      ],
+      "ambiguities": [
+        "The requirements do not specify the logic for restoring stock quantities upon cancellation. The value 7 is arbitrary and not derived from any stated rule."
+      ]
+    },
+    {
+      "id": "cancel_order_with_duplicate_id",
+      "source": "cancelling an order must restore its product quantities",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 6
+        },
+        "product": {
+          "stock_quantity": 8
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify behavior when attempting to cancel an order with a duplicate or invalid ID. The case assumes a valid ID is provided."
+      ],
+      "ambiguities": [
+        "The requirements do not define what happens when an invalid or duplicate order ID is provided. No error or validation is specified."
+      ]
+    },
+    {
+      "id": "cancel_order_with_no_product_association",
+      "source": "orders contain products",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 7
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement states that orders contain products, but does not specify whether a product must exist to cancel an order. The behavior when no product is associated is not defined."
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether an order must have associated products to be cancellable. The absence of product data is not addressed."
+      ]
+    },
+    {
+      "id": "product_search_by_name",
+      "source": "products can be searched and filtered",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "stock_quantity": 15
+        }
+      },
+      "when": {
+        "action": "search_products",
+        "args": [
+          "name=laptop"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop"
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify how search results are returned or whether filtering is supported"
+      ],
+      "ambiguities": [
+        "No concrete behavior is defined for search or filtering actions; it is unclear whether results are returned, how they are filtered, or what fields are used"
+      ]
+    },
+    {
+      "id": "product_search_by_stock",
+      "source": "products can be searched and filtered",
+      "given": {
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "search_products",
+        "args": [
+          "stock_quantity=10"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 10
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify how search results are returned or whether filtering is supported"
+      ],
+      "ambiguities": [
+        "No concrete behavior is defined for search or filtering actions; it is unclear whether results are returned, how they are filtered, or what fields are used"
+      ]
+    },
+    {
+      "id": "order_creation_with_product_stock",
+      "source": "orders contain products",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 5
+        },
+        "product": {
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "order.id",
+          "product.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "pending",
+          "product.stock_quantity": 9
+        },
+        "rows": {
+          "Order": 1,
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether creating an order reduces product stock or if stock is only reduced upon fulfillment"
+      ],
+      "ambiguities": [
+        "No explicit rule defines whether order creation affects product stock; this behavior is assumed based on context"
+      ]
+    },
+    {
+      "id": "atomic_transaction_for_order_cancel",
+      "source": "all modifications must be persisted atomically in SQLite",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 6
+        },
+        "product": {
+          "stock_quantity": 8
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 10
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Customer row for Order.customer_id"
+      }
+    }
+  ]
+}

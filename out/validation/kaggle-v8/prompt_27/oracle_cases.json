@@ -1,0 +1,211 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_reservation_adjacent_no_overlap",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "reservation_1": {
+          "start_time": "2023-10-01T10:00:00Z",
+          "end_time": "2023-10-01T12:00:00Z",
+          "room_id": 1
+        },
+        "reservation_2": {
+          "start_time": "2023-10-01T12:00:00Z",
+          "end_time": "2023-10-01T14:00:00Z",
+          "room_id": 1
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start_time",
+          "reservation_2.end_time",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation.status": "confirmed"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "reservation_1": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation_2": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation": {
+            "status": "aligned",
+            "canonical": "Reservation",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          }
+        },
+        "fields": {
+          "reservation.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Reservation"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ReservationService.create_reservation",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Room row for Reservation.room_id"
+      }
+    },
+    {
+      "id": "create_reservation_different_room",
+      "source": "A room cannot have two overlapping reservations.",
+      "given": {
+        "reservation_1": {
+          "start_time": "2023-10-01T10:00:00Z",
+          "end_time": "2023-10-01T12:00:00Z",
+          "room_id": 1
+        },
+        "reservation_2": {
+          "start_time": "2023-10-01T10:00:00Z",
+          "end_time": "2023-10-01T12:00:00Z",
+          "room_id": 2
+        }
+      },
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "reservation_2.start_time",
+          "reservation_2.end_time",
+          "reservation_2.room_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "reservation.status": "confirmed"
+        },
+        "rows": {
+          "Reservation": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "reservation_1": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation_2": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation": {
+            "status": "aligned",
+            "canonical": "Reservation",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          }
+        },
+        "fields": {
+          "reservation.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Reservation"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ReservationService.create_reservation",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Room row for Reservation.room_id"
+      }
+    }
+  ]
+}

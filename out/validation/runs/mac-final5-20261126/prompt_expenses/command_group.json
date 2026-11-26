@@ -1,0 +1,112 @@
+{
+  "command_group": {
+    "options": [
+      {
+        "name": "--help",
+        "short": "-h",
+        "type": "bool",
+        "required": false,
+        "default": null
+      },
+      {
+        "name": "--version",
+        "short": "-v",
+        "type": "bool",
+        "required": false,
+        "default": null
+      }
+    ],
+    "subcommands": [
+      {
+        "name": "list",
+        "options": [
+          {
+            "name": "--category",
+            "short": "-c",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--month",
+            "short": "-m",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "add",
+        "options": [
+          {
+            "name": "--category-id",
+            "short": "-c",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--month",
+            "short": "-m",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--amount",
+            "short": "-a",
+            "type": "int",
+            "required": true,
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "update",
+        "options": [
+          {
+            "name": "--category-id",
+            "short": "-c",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--month",
+            "short": "-m",
+            "type": "str",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--amount",
+            "short": "-a",
+            "type": "int",
+            "required": false,
+            "default": null
+          }
+        ]
+      },
+      {
+        "name": "delete",
+        "options": [
+          {
+            "name": "--category-id",
+            "short": "-c",
+            "type": "int",
+            "required": true,
+            "default": null
+          },
+          {
+            "name": "--month",
+            "short": "-m",
+            "type": "str",
+            "required": false,
+            "default": null
+          }
+        ]
+      }
+    ]
+  }
+}

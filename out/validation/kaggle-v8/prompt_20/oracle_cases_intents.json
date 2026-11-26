@@ -1,0 +1,77 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "product name",
+          "price": 10.0
+        },
+        "sale": {
+          "product_id": {
+            "ref": "product.product_id"
+          },
+          "quantity": 1,
+          "sale_date": "2024-01-01T00:00:00"
+        }
+      },
+      "when": {
+        "action": "add_sale",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Sale": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "target entity Sale is not used by the action; the action uses Product"
+      ]
+    },
+    {
+      "id": "list_sales",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "product name",
+          "price": 10.0
+        },
+        "sale": {
+          "product_id": {
+            "ref": "product.product_id"
+          },
+          "quantity": 1,
+          "sale_date": "2024-01-01T00:00:00"
+        }
+      },
+      "when": {
+        "action": "list_sales",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Sale": 1
+        },
+        "stdout_contains": "sale_id",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The list operation returns at least one sale record"
+      ],
+      "ambiguities": [
+        "The exact output format or fields returned is not specified"
+      ]
+    }
+  ]
+}

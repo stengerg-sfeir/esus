@@ -1,0 +1,98 @@
+{
+  "plans": [
+    {
+      "id": "list_paginated_customers",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [],
+          "used": null
+        },
+        "replicated_rows": [
+          "customer2",
+          "customer3",
+          "customer4",
+          "customer5",
+          "customer6",
+          "customer7",
+          "customer8",
+          "customer9",
+          "customer10"
+        ]
+      }
+    },
+    {
+      "id": "create_customer",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    },
+    {
+      "id": "update_customer",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [
+            "Customer"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "delete_customer",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [
+            "Customer"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "list_paginated_customers_3",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "customer": "Customer"
+        },
+        "target_usage": {
+          "entity": "Customer",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "list_paginated_customers_2",
+      "errors": [
+        "reference field 'active' is not declared on Customer"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

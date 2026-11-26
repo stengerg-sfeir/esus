@@ -1,0 +1,49 @@
+{
+  "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "An invoice must be linked to exactly one order via the order_id field.",
+      "chosen": "STATE_TRANSITION_GUARD",
+      "candidates": [
+        "STATE_TRANSITION_GUARD",
+        "BUDGET_OVERFLOW_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "classification",
+      "source": "search_products_by_category(category_id: int) -> list: Searches for products belonging to a specific category.",
+      "chosen": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "THRESHOLD_SCAN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

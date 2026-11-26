@@ -1,0 +1,67 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses
+
+gate passed (11 residual risk(s); gaps stay documented stubs)
+llm: 8 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: ExpenseRepository.get_budget_status_for_category ...
+llm: ExpenseService.expenseexport ...
+llm: ExpenseService.expensereportyearly ...
+llm: ExpenseService.expensereportyearly refused (calls `BudgetRepository.get_budget_status_for_category(...)`, but BudgetRepository does not define `get_budget_status_for_category`; it is declared on `ExpenseRepository`) — repair ask 1
+llm: ExpenseService.expensereportmonthly ...
+llm: ExpenseService.get_yearly_summary ...
+llm: ExpenseService.get_monthly_report ...
+llm: ExpenseService.update_expense ...
+llm: ExpenseService.update_expense refused (passes keyword `category_id` to `ExpenseRepository.get_monthly_spending_by_category`, whose declared parameter is `month`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: ExpenseService.add_expense ...
+llm: ExpenseService.add_expense refused (passes keyword `category_id` to `ExpenseRepository.get_monthly_spending_by_category`, whose declared parameter is `month`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/llm_stub_answers.json
+mechanical fallback: ExpenseService.add_expense, ExpenseService.update_expense
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_expenses/generated/__init__.py
+methods: 28 implemented, 8 stubs (78% mechanical)
+llm: 6 of 8 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: ExpenseRepository.get_budget_status_for_category
+  llm provisional: ExpenseService.expenseexport
+  llm provisional: ExpenseService.expensereportyearly — repaired: calls `BudgetRepository.get_budget_status_for_category(...)`, but BudgetRepository does not define `get_budget_status_for_category`; it is declared on `ExpenseRepository`
+  llm provisional: ExpenseService.expensereportmonthly
+  llm provisional: ExpenseService.get_yearly_summary
+  llm provisional: ExpenseService.get_monthly_report
+  llm kept stub: ExpenseService.update_expense — still refused: passes keyword `category_id` to `ExpenseRepository.get_monthly_spending_by_category`, whose declared parameter is `month`; pass the value positionally or use the declared keyword
+  llm kept stub: ExpenseService.add_expense — still refused: passes keyword `category_id` to `ExpenseRepository.get_monthly_spending_by_category`, whose declared parameter is `month`; pass the value positionally or use the declared keyword
+  stub: ExpenseRepository.get_budget_status_for_category: pattern READ_ONE_BY_ID: needs scalar key parameters and an entity return
+  stub: ExpenseService.add_expense: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (models.Expense)); read-one by parameter shape
+  stub: ExpenseService.update_expense: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (models.Expense))
+  stub: ExpenseService.get_monthly_report: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: ExpenseService.get_yearly_summary: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: ExpenseService.expensereportmonthly: no pattern entry and an ambiguous method name
+  stub: ExpenseService.expensereportyearly: no pattern entry and an ambiguous method name
+  stub: ExpenseService.expenseexport: no pattern entry and an ambiguous method name
+  cli Category add -> categoryadd [score 9]
+  cli Category delete -> categorydelete [score 11]
+  cli Category list -> categorylist [score 9]
+  cli Category update -> categoryupdate [score 11]
+  cli budget add -> budgetadd [score 9]
+  cli budget delete -> budgetdelete [score 11]
+  cli budget list -> budgetlist [score 9]
+  cli budget update -> budgetupdate [score 11]
+  cli expense add -> expenseadd [score 11]
+  cli expense category add -> expensecategoryadd [score 6]
+  cli expense category delete -> expensecategorydelete [score 8]
+  cli expense category list -> expensecategorylist [score 6]
+  cli expense category update -> expensecategoryupdate [score 8]
+  cli expense delete -> expensedelete [score 11]
+  cli expense export -> expenseexport [score 11]
+  cli expense list -> expenselist [score 11]
+  cli expense recurring detect -> expenserecurringdetect [score 8]
+  cli expense report monthly -> expensereportmonthly [score 4]
+  cli expense report yearly -> expensereportmonthly [score 4]
+  cli expense update -> expenseupdate [score 11]
+  cli route: expense report yearly: --year -> get_yearly_summary_year
+
+
+

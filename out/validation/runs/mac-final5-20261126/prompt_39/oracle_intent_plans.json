@@ -1,0 +1,35 @@
+{
+  "plans": [
+    {
+      "id": "manage_users_admin",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "user": "User"
+        },
+        "target_usage": {
+          "entity": "User",
+          "used_entities": [
+            "User"
+          ],
+          "used": true
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "manage_products_admin",
+      "errors": [
+        "reference field 'stock_qty' is not declared on Product"
+      ]
+    },
+    {
+      "id": "normal_user_view_own_orders",
+      "errors": [
+        "action 'view_orders' is ambiguous: several generated methods have the same action score"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

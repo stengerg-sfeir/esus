@@ -1,0 +1,35 @@
+[run] requirements: 441 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 106 tokens in 2.9s (37.2 tok/s, 42.0 decode, 129 prompt)
+[data_models] 9 tokens in 1.7s (5.2 tok/s, 44.4 decode, 661 prompt)
+[errors] 146 tokens in 5.2s (28.2 tok/s, 35.9 decode, 472 prompt)
+[invariants] 150 tokens in 4.8s (31.2 tok/s, 36.6 decode, 276 prompt)
+[ok] step invariants: 5 invariant(s) — 0 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no entities from step B — crud_services unconstrained
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 156 tokens in 4.9s (32.1 tok/s, 35.7 decode, 972 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step contracts: step B produced no entities — no services
+[ok] step persistence: components declare no persistence — step skipped
+  [1/5] invariant -> FILTER_BY_FIELD (0.54)  <- undecided (pattern): NO_PATTERN_IN_DOMAIN at 0.44
+  [2/5] invariant -> FILTER_BY_FIELD (0.84)
+  [3/5] invariant -> NO_MATCH (0.92)  <- GAP: no pattern for this
+  [4/5] invariant -> NO_MATCH (0.94)  <- GAP: no pattern for this
+  [5/5] invariant -> NO_MATCH (0.52)  <- GAP: no pattern for this
+[ok] step patterns: 5 item(s) — 0 standard CRUD, 2 pattern(s), 3 gap(s)
+    gap [NO_MATCH] invariant: If no output file path is provided, the JSON output must be printed to stdout.
+    gap [NO_MATCH] invariant: The tool must handle errors when the input CSV file is missing or cannot be accessed.
+    gap [NO_MATCH] invariant: The tool must handle errors when the CSV file is malformed or contains invalid data.
+[ok] step adapters: step E produced no services — no adapters
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_cli_tool/requirements.txt
+[run] 5 steps, 567 generated tokens in 19.4s

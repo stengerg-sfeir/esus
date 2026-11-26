@@ -1,0 +1,417 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "modify_document",
+      "source": "A user can only read, modify or delete their own documents.",
+      "given": {
+        "user": {
+          "id": 101,
+          "role": "user"
+        },
+        "document": {
+          "owner_id": 101,
+          "title": "Report 2023"
+        }
+      },
+      "when": {
+        "action": "modify_document",
+        "args": [
+          "document.title",
+          "new_title"
+        ]
+      },
+      "then": {
+        "state": {
+          "document.title": "new_title"
+        },
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'modify_document' is not explicitly defined in the requirements. The requirement only states that users can modify their own documents, but does not specify how or under what conditions."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_document",
+      "source": "A user can only read, modify or delete their own documents.",
+      "given": {
+        "user": {
+          "id": 101,
+          "role": "user"
+        },
+        "document": {
+          "owner_id": 101,
+          "title": "Report 2023"
+        }
+      },
+      "when": {
+        "action": "delete_document",
+        "args": [
+          "document.title"
+        ]
+      },
+      "then": {
+        "state": {
+          "document.exists": false
+        },
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'delete_document' is not explicitly defined in the requirements. The requirement only states that users can delete their own documents, but does not specify the outcome or behavior of deletion."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "access_document_foreign_user",
+      "source": "A user can only read, modify or delete their own documents.",
+      "given": {
+        "user": {
+          "id": 102,
+          "role": "user"
+        },
+        "document": {
+          "owner_id": 101,
+          "title": "Report 2023"
+        }
+      },
+      "when": {
+        "action": "read_document",
+        "args": [
+          "document.title"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "AccessDeniedError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "authenticate_user",
+      "source": "Users must authenticate before accessing documents.",
+      "given": {
+        "user": {
+          "id": 101,
+          "password": "secret"
+        }
+      },
+      "when": {
+        "action": "authenticate_user",
+        "args": [
+          "user.id",
+          "user.password"
+        ]
+      },
+      "then": {
+        "state": {
+          "user.authenticated": true
+        },
+        "error": "AuthenticationFailedError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether authentication succeeds or fails with given credentials. No concrete success or failure outcome is provided."
+      ],
+      "ambiguities": [
+        "The requirement does not define the exact behavior of the authentication action or the expected error if credentials are invalid.",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements",
+        "error class 'AuthenticationFailedError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "unauthorized_access",
+      "source": "A user can only read, modify or delete their own documents.",
+      "given": {
+        "user": {
+          "id": 102,
+          "role": "user"
+        },
+        "document": {
+          "owner_id": 101,
+          "title": "Report 2023"
+        }
+      },
+      "when": {
+        "action": "modify_document",
+        "args": [
+          "document.title",
+          "new_title"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "AccessDeniedError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "read_document_foreign_user",
+      "source": "A user can only read, modify or delete their own documents.",
+      "given": {
+        "user": {
+          "id": 102,
+          "role": "user"
+        },
+        "document": {
+          "owner_id": 101,
+          "title": "Report 2023"
+        }
+      },
+      "when": {
+        "action": "read_document",
+        "args": [
+          "document.title"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "AccessDeniedError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements",
+        "error class 'AccessDeniedError' is not named in the requirements"
+      ]
+    }
+  ]
+}

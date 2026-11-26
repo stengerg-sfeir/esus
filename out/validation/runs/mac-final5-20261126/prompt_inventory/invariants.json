@@ -1,0 +1,124 @@
+{
+  "invariants": [
+    {
+      "text": "Category.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.name must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Category.reorder_threshold must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.sku must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.sku must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.sku must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category_id must reference an existing Category.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price_cents must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price_cents must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_qty must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_qty must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.low_active must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "A product must belong to a category that exists in the system before it can be added.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product's SKU must be unique across all products in the system.",
+      "kind": "rule"
+    },
+    {
+      "text": "The stock_qty of a product must be greater than or equal to zero after any restock or update operation.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product is considered low-active if its low_active field is true, and this state does not affect stock or reorder thresholds.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total stock value by category is calculated as the sum of (price_cents * stock_qty) for all products in that category.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product is included in the low-stock report if its stock_qty is strictly less than its category's reorder_threshold.",
+      "kind": "rule"
+    },
+    {
+      "text": "The list_products method returns products filtered by category_id if provided, and optionally only those with stock_qty below the category's reorder_threshold if low_only is true.",
+      "kind": "rule"
+    },
+    {
+      "text": "When updating a product, if the category_id is changed, the new category must exist in the system.",
+      "kind": "rule"
+    },
+    {
+      "text": "The product with a given ID must exist in the system before it can be deleted or updated.",
+      "kind": "rule"
+    },
+    {
+      "text": "The low_stock_report method returns only products whose stock_qty is below the reorder_threshold of their category.",
+      "kind": "rule"
+    }
+  ]
+}

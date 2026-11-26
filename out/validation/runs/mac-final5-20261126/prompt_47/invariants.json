@@ -1,0 +1,200 @@
+{
+  "invariants": [
+    {
+      "text": "Project.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must reference an existing Project.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.role must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "TeamMember.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.task_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.task_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.task_id must reference an existing Task.id",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.member_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.member_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.member_id must reference an existing TeamMember.id",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.responsibility_type must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.assigned_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.assigned_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "TaskAssignment.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A task must be assigned to at least one team member.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each task assignment specifies a responsibility type that defines the role of the team member in the task.",
+      "kind": "rule"
+    },
+    {
+      "text": "A team member can be assigned to multiple tasks, but each assignment has a distinct responsibility type.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task belongs to exactly one project.",
+      "kind": "rule"
+    },
+    {
+      "text": "A team member's role defines their position within the team, such as developer, manager, or designer.",
+      "kind": "rule"
+    },
+    {
+      "text": "Task assignments are updated only when a team member's responsibility changes.",
+      "kind": "rule"
+    },
+    {
+      "text": "The project creation time is always earlier than or equal to the task creation time.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task assignment's assigned_at timestamp must be on or after the task's creation time.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each team member must have a unique email address.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task cannot be assigned to a team member who does not exist in the system.",
+      "kind": "rule"
+    }
+  ]
+}

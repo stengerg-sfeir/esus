@@ -1,0 +1,62 @@
+{
+  "plans": [
+    {
+      "id": "cancel_order",
+      "source": "Users can sell products.",
+      "when": {
+        "action": "sell_product",
+        "args": [
+          "product.id",
+          "quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "prevent_inventory_incorrectness",
+      "source": "The application should never allow the inventory to become incorrect.",
+      "when": {
+        "action": "sell_product",
+        "args": [
+          "product.id",
+          "quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.stock_quantity"
+        ],
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

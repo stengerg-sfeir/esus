@@ -1,0 +1,92 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "read_document",
+        "source": "A user can only read, modify or delete their own documents.",
+        "given": {
+          "user": {
+            "id": 101,
+            "role": "user"
+          },
+          "document": {
+            "owner_id": 101,
+            "title": "Report 2023"
+          }
+        },
+        "when": {
+          "action": "read_document",
+          "args": [
+            "document.title"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {}
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "user": {
+              "status": "aligned",
+              "canonical": "User",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match User",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "Document"
+              ]
+            },
+            "document": {
+              "status": "aligned",
+              "canonical": "Document",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Document",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "User"
+              ]
+            }
+          },
+          "fields": {},
+          "action": {
+            "status": "ambiguous",
+            "canonical": "DocumentRepository.find_document_by_id",
+            "score": 4.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "DocumentRepository.find_document_by_id",
+              "DocumentRepository.find_document_by_title",
+              "DocumentRepository.find_document_by_user",
+              "DocumentRepository.find_document_by_user_id"
+            ]
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'read_document'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'read_document'"
+    }
+  ]
+}

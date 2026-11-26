@@ -1,0 +1,619 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "borrow_book_action",
+      "source": "library borrow --member-id --book-id",
+      "given": {
+        "member": {
+          "id": 1,
+          "name": "Alice",
+          "email": "alice@example.com",
+          "is_active": true,
+          "membership_date": "2023-01-01"
+        },
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 5
+        },
+        "loan": {
+          "id": 201,
+          "book_id": 101,
+          "member_id": 1,
+          "loan_date": "2023-05-01",
+          "due_date": "2023-05-15",
+          "return_date": null,
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "member_id",
+          "book_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 4,
+          "loan.status": "active",
+          "loan.return_date": null
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error is not a class name: 'MemberNotFoundError|BookNotFoundError|AlreadyReturnedLoanError'"
+      ]
+    },
+    {
+      "id": "return_book_action",
+      "source": "library return --loan-id",
+      "given": {
+        "loan": {
+          "id": 201,
+          "book_id": 101,
+          "member_id": 1,
+          "loan_date": "2023-05-01",
+          "due_date": "2023-05-15",
+          "return_date": null,
+          "status": "active"
+        },
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 4
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "loan_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.return_date": "2023-05-20",
+          "loan.status": "returned",
+          "book.available_copies": 5
+        },
+        "error": "LoanNotFoundError",
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements",
+        "error class 'LoanNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "book_list_with_author_filter",
+      "source": "library book list [--author]",
+      "given": {
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 5
+        },
+        "author": {
+          "id": 1,
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1901,
+          "biography": "American novelist"
+        },
+        "book_other": {
+          "id": 102,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9-other",
+          "author_id": 2,
+          "published_year": 1925,
+          "available_copies": 5
+        },
+        "author_other": {
+          "id": 2,
+          "name": "author name",
+          "birth_year": 1
+        }
+      },
+      "when": {
+        "action": "list_books",
+        "args": [
+          "author"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "The Great Gatsby",
+          "book.isbn": "978-0-7475-3269-9",
+          "book.available_copies": 5
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          },
+          "book_other": {
+            "status": "alias",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          },
+          "author_other": {
+            "status": "alias",
+            "canonical": "Author",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "LoanRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "member_list_active_only",
+      "source": "library member list [--active-only]",
+      "given": {
+        "member": {
+          "id": 1,
+          "name": "Alice",
+          "email": "alice@example.com",
+          "membership_date": "2023-01-01",
+          "is_active": true
+        }
+      },
+      "when": {
+        "action": "list_members",
+        "args": [
+          "active_only"
+        ]
+      },
+      "then": {
+        "state": {
+          "member.name": "Alice",
+          "member.email": "alice@example.com",
+          "member.is_active": true
+        },
+        "rows": {
+          "Member": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "member.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Member.name exists"
+            ],
+            "alternatives": []
+          },
+          "member.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Member.email exists"
+            ],
+            "alternatives": []
+          },
+          "member.is_active": {
+            "status": "aligned",
+            "canonical": "is_active",
+            "score": 10.0,
+            "evidence": [
+              "Member.is_active exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "MemberRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "LoanRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "author_add_command",
+      "source": "library author add --name --birth-year [--biography]",
+      "given": {
+        "author": {
+          "id": 1,
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1901,
+          "biography": "American novelist"
+        }
+      },
+      "when": {
+        "action": "add_author",
+        "args": [
+          "name",
+          "birth_year",
+          "biography"
+        ]
+      },
+      "then": {
+        "state": {
+          "author.name": "F. Scott Fitzgerald",
+          "author.birth_year": 1901,
+          "author.biography": "American novelist"
+        },
+        "rows": {
+          "Author": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "author.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Author.name exists"
+            ],
+            "alternatives": []
+          },
+          "author.birth_year": {
+            "status": "aligned",
+            "canonical": "birth_year",
+            "score": 10.0,
+            "evidence": [
+              "Author.birth_year exists"
+            ],
+            "alternatives": []
+          },
+          "author.biography": {
+            "status": "aligned",
+            "canonical": "biography",
+            "score": 10.0,
+            "evidence": [
+              "Author.biography exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "AuthorRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "BookRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "book_add_with_author_id",
+      "source": "library book add --title --isbn --author-id --published-year --copies",
+      "given": {
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 5
+        },
+        "author": {
+          "id": 1,
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1901,
+          "biography": "American novelist"
+        }
+      },
+      "when": {
+        "action": "add_book",
+        "args": [
+          "title",
+          "isbn",
+          "author_id",
+          "published_year",
+          "copies"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "The Great Gatsby",
+          "book.isbn": "978-0-7475-3269-9",
+          "book.author_id": 1,
+          "book.published_year": 1925,
+          "book.available_copies": 5
+        },
+        "error": "AuthorNotFoundError",
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements",
+        "error class 'AuthorNotFoundError' is not named in the requirements"
+      ]
+    }
+  ]
+}

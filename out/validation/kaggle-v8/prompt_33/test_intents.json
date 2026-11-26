@@ -1,0 +1,235 @@
+{
+  "intents": [
+    {
+      "id": "create_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "kind": "create",
+      "entity": "Customer",
+      "action": "create_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "update_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "kind": "update",
+      "entity": "Customer",
+      "action": "update_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "kind": "delete",
+      "entity": "Customer",
+      "action": "delete_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Customer": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "create_audit_record",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "kind": "create",
+      "entity": "Customer",
+      "action": "create_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.customer_id": "C123"
+      },
+      "lookup": [
+        "customer.customer_id"
+      ],
+      "where": {},
+      "args": [
+        "C123"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "customer.customer_id": "C123"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "update_audit_record",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "kind": "update",
+      "entity": "Customer",
+      "action": "update_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.customer_id": "C123",
+        "customer.email": "old@example.com"
+      },
+      "lookup": [
+        "customer.customer_id"
+      ],
+      "where": {},
+      "args": [
+        "C123",
+        "email=updated@example.com"
+      ],
+      "changes": {
+        "customer.email": "updated@example.com"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "customer.customer_id": "C123",
+          "customer.email": "updated@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_audit_record",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "kind": "delete",
+      "entity": "Customer",
+      "action": "delete_customer",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.customer_id": "C123"
+      },
+      "lookup": [
+        "customer.customer_id"
+      ],
+      "where": {},
+      "args": [
+        "C123"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "customer.customer_id": "C123"
+        },
+        "rows": {
+          "Customer": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

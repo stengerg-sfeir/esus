@@ -1,0 +1,63 @@
+[
+  {
+    "label": "WineInventoryService.get_storage_location_summary",
+    "status": "written",
+    "note": "",
+    "answer": "locations = self._repos['StorageLocationRepository'].read_all()\n    summary = {}\n    for location in locations:\n        location_id = location.id\n        total_stock = 0\n        wines = self._repos['WineRepository'].read_all(storage_location_id=location_id)\n        for wine in wines:\n            total_stock += wine.stock_quantity\n        utilization_rate = self._repos['StorageLocationRepository'].get_location_utilization_rate(location_id=location_id)\n        summary[location_id] = {\n            'total_bottles_assigned': total_stock,\n            'remaining_capacity': location.maximum_capacity - total_stock,\n            'utilization_rate': utilization_rate\n        }\n    return summary",
+    "finish_reason": "stop",
+    "tokens": 141,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 12.44737720489502,
+    "decode_seconds": 3.743886,
+    "prompt_tokens": 3731,
+    "cached_tokens": 658,
+    "context": "exact"
+  },
+  {
+    "label": "WineInventoryService.check_storage_location_capacity",
+    "status": "kept",
+    "note": "still refused: parameter `wine_id` is never used in the body",
+    "answer": "if location_id is None:\n    raise errors.StorageLocationNotFoundError('location_id is required')\nlocation = self._repos['StorageLocationRepository'].read_one(location_id)\nif location is None:\n    raise errors.StorageLocationNotFoundError(f'Storage location with id {location_id} not found')\ncurrent_total_stock = 0\nwines = self._repos['WineRepository'].read_all(storage_location_id=location.id)\nfor wine in wines:\n    current_total_stock += wine.stock_quantity\nif current_total_stock >= location.maximum_capacity:\n    return False\nreturn True",
+    "first_answer": "if location_id is None:\n            raise errors.StorageLocationNotFoundError('location_id is required')\n        location = self._repos['StorageLocationRepository'].read_one(location_id)\n        if location is None:\n            raise errors.StorageLocationNotFoundError(f\"Storage location with id {location_id} not found\")\n        current_total_stock = 0\n        wines = self._repos['WineRepository'].read_all(storage_location_id=location.id)\n        for wine in wines:\n            current_total_stock += wine.stock_quantity\n        if current_total_stock >= location.maximum_capacity:\n            return False\n        return True",
+    "complaints": [
+      "parameter `wine_id` is never used in the body"
+    ],
+    "second_complaints": [
+      "parameter `wine_id` is never used in the body"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 121,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 4.265359878540039,
+    "first_decode_seconds": 3.209887,
+    "first_prompt_tokens": 3742,
+    "first_cached_tokens": 3417,
+    "finish_reason": "stop",
+    "tokens": 115,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 3.754354953765869,
+    "decode_seconds": 3.0647800000000003,
+    "prompt_tokens": 3907,
+    "cached_tokens": 3709,
+    "context": "exact"
+  },
+  {
+    "label": "WineInventoryService.validate_wine_pricing",
+    "status": "written",
+    "note": "",
+    "answer": "record = self._repos['WineRepository'].read_one(wine_id)\n        if record is None:\n            raise errors.WineNotFoundError(f\"Wine not found\")\n        if cost_price is not None and selling_price is not None:\n            if cost_price >= selling_price:\n                raise errors.InvalidPricingException('Selling price must be strictly greater than cost price')\n        elif cost_price is not None:\n            # If only cost_price is provided, we assume selling_price is not being updated\n            # But we still need to validate that if selling_price is not provided, it's not less than cost_price\n            # However, since selling_price is not provided, we cannot validate it directly\n            # So we only validate if both are provided\n            pass\n        elif selling_price is not None:\n            # If only selling_price is provided, we assume cost_price is not being updated\n            # But we cannot validate selling_price without cost_price\n            pass\n        return True",
+    "finish_reason": "stop",
+    "tokens": 202,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 6.2024147510528564,
+    "decode_seconds": 5.403243000000001,
+    "prompt_tokens": 3824,
+    "cached_tokens": 3571,
+    "context": "exact"
+  }
+]

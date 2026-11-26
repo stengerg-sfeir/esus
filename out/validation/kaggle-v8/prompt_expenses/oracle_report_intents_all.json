@@ -1,0 +1,54 @@
+{
+  "prompt": "prompt_expenses",
+  "results": [
+    {
+      "name": "scenario:oracle:expense_add_missing_category_error",
+      "status": "failed",
+      "reason": "raised ValueError: Expense.payment_method must be one of ['cash', 'card', 'transfer']; expected 'CategoryNotFoundError'",
+      "case": "expense_add_missing_category_error",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 19.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 19.0"
+            ],
+            "alternatives": [
+              "Expense"
+            ]
+          },
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "failed": 1
+  }
+}

@@ -1,0 +1,70 @@
+[run] requirements: 159 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 64 tokens in 1.2s (52.9 tok/s, 63.3 decode, 64 prompt)
+[data_models] 687 tokens in 11.4s (60.2 tok/s, 60.7 decode, 555 prompt)
+[errors] 8 tokens in 0.4s (22.6 tok/s, 70.2 decode, 479 prompt)
+[invariants] 194 tokens in 3.2s (59.8 tok/s, 62.3 decode, 283 prompt)
+[ok] step invariants: 27 invariant(s) — 22 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 988 tokens in 17.2s (57.5 tok/s, 58.1 decode, 991 prompt)
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-user' to '--user'
+[ok] step components: normalized option '-sale-quantity' to '--sale-quantity'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-sale-quantity' to '--sale-quantity'
+[service_contracts] 10 tokens in 0.5s (20.5 tok/s, 69.2 decode, 485 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 8 generic type spelling(s) to Python annotations
+[persistence_ports] 466 tokens in 7.7s (60.5 tok/s, 61.7 decode, 415 prompt)
+[ok] step persistence: merged 4 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+  [1/23] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/23] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/23] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/23] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [5/23] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [6/23] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/23] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [8/23] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/23] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/23] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/23] contract:ProductRepository.get_product_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/23] contract:ProductRepository.get_product_by_stock_quantity -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/23] contract:UserRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/23] contract:UserRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/23] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/23] contract:UserRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/23] contract:UserRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/23] contract:UserRepository.get_user_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [19/23] contract:SaleRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/23] contract:SaleRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [21/23] contract:SaleRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [22/23] contract:SaleRepository.get_sales_by_product_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [23/23] contract:SaleRepository.get_sale_by_date -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 23 item(s) — 7 standard CRUD, 16 pattern(s), 0 gap(s)
+[ok] step adapters: 9 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_55/requirements.txt
+[run] 7 steps, 2417 generated tokens in 41.6s

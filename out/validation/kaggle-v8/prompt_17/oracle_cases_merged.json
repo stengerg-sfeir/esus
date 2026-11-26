@@ -1,0 +1,315 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "product value",
+          "price": 10.0,
+          "quantity": 1
+        }
+      },
+      "when": {
+        "action": "search_by_name",
+        "args": [
+          "Laptop"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "Laptop",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.find_products_by_name_and_category_and_price_range_and_quantity_range",
+          "score": 6.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "filter_by_category",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "given": {
+        "product": {
+          "category": "Electronics",
+          "name": "product name",
+          "price": 10.0,
+          "quantity": 1
+        }
+      },
+      "when": {
+        "action": "filter_by_category",
+        "args": [
+          "Electronics"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "Electronics",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.search_products",
+          "score": 0.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "specify_maximum_price",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "given": {
+        "product": {
+          "price": 1000,
+          "name": "product name",
+          "category": "product value",
+          "quantity": 1
+        }
+      },
+      "when": {
+        "action": "filter_by_max_price",
+        "args": [
+          1000
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "1000",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.search_products",
+          "score": 0.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "specify_minimum_quantity",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "given": {
+        "product": {
+          "quantity": 5,
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "filter_by_min_quantity",
+        "args": [
+          5
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.search_products",
+          "score": 0.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "filters_combinable",
+      "source": "All filters must be combinable",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000,
+          "quantity": 10
+        }
+      },
+      "when": {
+        "action": "search_products",
+        "args": {
+          "category": "Electronics",
+          "price": 1000,
+          "quantity": 10
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "Laptop",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.search_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

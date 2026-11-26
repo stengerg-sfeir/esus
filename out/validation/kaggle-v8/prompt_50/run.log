@@ -1,0 +1,77 @@
+[run] requirements: 177 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 71 tokens in 1.2s (57.3 tok/s, 63.8 decode, 69 prompt)
+[data_models] 642 tokens in 10.7s (60.2 tok/s, 60.8 decode, 569 prompt)
+[errors] 184 tokens in 3.2s (57.7 tok/s, 62.1 decode, 484 prompt)
+[invariants] 35 tokens in 0.7s (50.4 tok/s, 63.9 decode, 288 prompt)
+[ok] step invariants: 20 invariant(s) — 19 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 410 tokens in 7.2s (57.0 tok/s, 58.3 decode, 996 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-date' to '--date'
+[ok] step components: normalized option '-capacity' to '--capacity'
+[ok] step components: normalized option '-register' to '--register'
+[service_contracts] 325 tokens in 5.6s (58.3 tok/s, 61.6 decode, 580 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 11 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 4 id parameter(s) to int
+[persistence_ports] 653 tokens in 10.8s (60.2 tok/s, 61.4 decode, 411 prompt)
+[ok] step persistence: merged 7 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+  [1/21] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/21] contract:EventRegistrationService.confirm_order -> STATE_TRANSITION_GUARD (0.98)
+  [3/21] contract:EventRegistrationService.cancel_order -> STATE_TRANSITION_GUARD (0.96)
+  [4/21] contract:EventRegistrationService.check_event_capacity -> QUOTA_CAPACITY_GUARD (1.00)
+  [5/21] contract:EventRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/21] contract:EventRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [7/21] contract:EventRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/21] contract:EventRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [9/21] contract:EventRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/21] contract:EventRepository.get_event_by_date -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/21] contract:EventRepository.get_event_by_title -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/21] contract:EventRepository.get_events_by_capacity_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/21] contract:RegistrationRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/21] contract:RegistrationRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/21] contract:RegistrationRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/21] contract:RegistrationRepository.get_registrations_by_event_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/21] contract:RegistrationRepository.register_user_for_event -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/21] contract:RegistrationRepository.get_registrations_for_event -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [19/21] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [20/21] contract:UserRepository.get_user_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/21] contract:UserRepository.get_user_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 21 item(s) — 5 standard CRUD, 16 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (create: ambiguous methods: EventRepository.create, RegistrationRepository.create) — asking the model
+[interaction_adapters] 613 tokens in 10.3s (59.2 tok/s, 60.8 decode, 697 prompt)
+[ok] step adapters: create_event.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: create_event.current_attendees_count was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: register_for_event.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: check_event_capacity.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 5 unreachable field(s) — retrying once
+[interaction_adapters] 307 tokens in 5.1s (60.0 tok/s, 60.9 decode, 807 prompt)
+[ok] step adapters: create_event.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: register_for_event.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 1 required create field(s)
+[!] step interaction_adapters still omits 5 unreachable field(s) (retry: 6) — kept first attempt; the probe will report it
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: create  lacked '--title' required by 'create_event' — added as str
+[ok] step adapters: create  lacked '--date' required by 'create_event' — added as str
+[ok] step adapters: create  lacked '--capacity' required by 'create_event' — added as int
+[ok] step adapters: register  lacked '--event-id' required by 'register_for_event' — added as int
+[ok] step adapters: register  lacked '--user-id' required by 'register_for_event' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_50/requirements.txt
+[run] 9 steps, 3240 generated tokens in 54.9s

@@ -1,0 +1,22 @@
+gate passed (4 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: PaymentRepository.find_paid_invoices ...
+llm: InvoiceRepository.find_outstanding_invoices ...
+llm: raw answers -> /tmp/v8-work/prompt_46/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_46/generated/models.py
+[write] /tmp/v8-work/prompt_46/generated/errors.py
+[write] /tmp/v8-work/prompt_46/generated/repositories.py
+[write] /tmp/v8-work/prompt_46/generated/services.py
+[write] /tmp/v8-work/prompt_46/generated/schema.py
+[write] /tmp/v8-work/prompt_46/generated/store.py
+[write] /tmp/v8-work/prompt_46/generated/cli.py
+[write] /tmp/v8-work/prompt_46/generated/__init__.py
+methods: 18 implemented, 2 stubs (90% mechanical)
+llm: 2 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: PaymentRepository.find_paid_invoices
+  llm provisional: InvoiceRepository.find_outstanding_invoices
+  stub: InvoiceRepository.find_outstanding_invoices: pattern FILTER_WITH_PAGINATION: filter with no parameters filters nothing
+  stub: PaymentRepository.find_paid_invoices: rule signature-pagination: filter with no parameters filters nothing
+  cli Client add -> create_client [score 8]
+  cli Invoice add -> create_invoice [score 8]
+  cli Payment add -> create_payment [score 8]

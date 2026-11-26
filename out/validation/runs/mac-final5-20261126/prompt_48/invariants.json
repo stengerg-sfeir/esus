@@ -1,0 +1,60 @@
+{
+  "invariants": [
+    {
+      "text": "Book.book_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.author must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.author must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.genre must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.publication_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.isbn must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.user_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The publication date of a book must be earlier than or equal to the current date.",
+      "kind": "rule"
+    }
+  ]
+}

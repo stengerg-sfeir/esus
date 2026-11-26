@@ -1,0 +1,32 @@
+[
+  {
+    "label": "WineInventoryService.get_storage_location_summary",
+    "status": "written",
+    "note": "",
+    "answer": "locations = self._repos['StorageLocationRepository'].read_all()\n    summary = {}\n    for location in locations:\n        location_id = location.id\n        total_bottles = sum(wine.stock_quantity or 0 for wine in self._repos['WineRepository'].read_all(storage_location_id=location_id))\n        remaining_capacity = location.maximum_capacity - total_bottles\n        summary[location_id] = {\n            'total_bottles': total_bottles,\n            'remaining_capacity': remaining_capacity\n        }\n    return summary",
+    "finish_reason": "stop",
+    "tokens": 112,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 11.859204053878784,
+    "decode_seconds": 3.564788,
+    "prompt_tokens": 3469,
+    "cached_tokens": 658,
+    "context": "exact"
+  },
+  {
+    "label": "WineInventoryService.validate_wine_pricing",
+    "status": "written",
+    "note": "",
+    "answer": "wine = self._repos['WineRepository'].read_one(wine_id)\n        if wine is None:\n            raise errors.WineNotFoundError('wine not found')\n        if cost_price is not None and selling_price is not None:\n            if selling_price <= cost_price:\n                raise errors.InvalidPricingException('selling price must be strictly greater than cost price')\n        elif cost_price is not None:\n            # If only cost_price is provided, we need to check against the existing selling price\n            if wine.selling_price is not None and wine.selling_price <= cost_price:\n                raise errors.InvalidPricingException('selling price must be strictly greater than cost price')\n        elif selling_price is not None:\n            # If only selling_price is provided, we need to check against the existing cost price\n            if wine.cost_price is not None and wine.cost_price >= selling_price:\n                raise errors.InvalidPricingException('selling price must be strictly greater than cost price')\n        return True",
+    "finish_reason": "stop",
+    "tokens": 202,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 7.925616979598999,
+    "decode_seconds": 6.695054,
+    "prompt_tokens": 3534,
+    "cached_tokens": 3155,
+    "context": "exact"
+  }
+]

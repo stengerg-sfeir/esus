@@ -1,0 +1,244 @@
+{
+  "intents": [
+    {
+      "id": "price_greater_than_cost",
+      "source": "The selling price of a wine bottle must always be strictly greater than its cost price.",
+      "kind": "error",
+      "entity": "Product",
+      "action": "validate_selling_price",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.cost_price": 10.0,
+        "product.selling_price": 10.0
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "InvalidPricingException",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "stock_never_below_zero",
+      "source": "A wine's stock quantity can never drop below zero.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "update_stock_quantity",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        -1
+      ],
+      "changes": {
+        "product.stock_qty": 0
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 0
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": "NegativeStockError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "location_capacity_enforcement",
+      "source": "The total number of bottles assigned to a specific storage location cannot exceed that location's defined maximum bottle capacity.",
+      "kind": "update",
+      "entity": "Wine",
+      "action": "assign_bottle_to_location",
+      "setup_entities": [
+        {
+          "alias": "wine",
+          "entity": "Wine",
+          "role": "target"
+        },
+        {
+          "alias": "location",
+          "entity": "StorageLocation",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "wine.stock_qty": 1,
+        "location.max_capacity": 5
+      },
+      "lookup": [
+        "wine.sku",
+        "location.id"
+      ],
+      "where": {
+        "wine.active": true,
+        "location.active": true
+      },
+      "args": [
+        "wine.sku",
+        "location.id",
+        1
+      ],
+      "changes": {
+        "wine.stock_qty": 2
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "wine.stock_qty": 2,
+          "location.total_bottles_assigned": 1
+        },
+        "rows": {
+          "Wine": 1,
+          "StorageLocation": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "location_capacity_exceeded_error",
+      "source": "The total number of bottles assigned to a specific storage location cannot exceed that location's defined maximum bottle capacity.",
+      "kind": "error",
+      "entity": "Wine",
+      "action": "assign_bottle_to_location",
+      "setup_entities": [
+        {
+          "alias": "wine",
+          "entity": "Wine",
+          "role": "target"
+        },
+        {
+          "alias": "location",
+          "entity": "StorageLocation",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "wine.stock_qty": 1,
+        "location.max_capacity": 2
+      },
+      "lookup": [
+        "wine.sku",
+        "location.id"
+      ],
+      "where": {
+        "wine.active": true,
+        "location.active": true
+      },
+      "args": [
+        "wine.sku",
+        "location.id",
+        3
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "LocationOverCapacityException",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "prevent_removal_if_assigned",
+      "source": "Prevent the removal of a storage location if wine bottles are currently assigned to it.",
+      "kind": "delete",
+      "entity": "StorageLocation",
+      "action": "remove_storage_location",
+      "setup_entities": [
+        {
+          "alias": "wine",
+          "entity": "Wine",
+          "role": "assigned_to_location"
+        },
+        {
+          "alias": "location",
+          "entity": "StorageLocation",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "wine.stock_qty": 1,
+        "location.zone_name": "Main Cellar",
+        "location.row_number": 1,
+        "location.shelf_number": 3,
+        "location.max_capacity": 10
+      },
+      "lookup": [
+        "location.id"
+      ],
+      "where": {
+        "wine.storage_location_id": "location.id"
+      },
+      "args": [
+        "location.id"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "LocationOverCapacityException",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

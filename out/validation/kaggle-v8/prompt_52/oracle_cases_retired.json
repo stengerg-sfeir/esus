@@ -1,0 +1,251 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 1,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 1
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "return_book_available",
+        "source": "When it is returned, it should become available again.",
+        "given": {
+          "book": {
+            "title": "The Great Gatsby",
+            "availability": "borrowed"
+          },
+          "member": {
+            "id": 101
+          }
+        },
+        "when": {
+          "action": "return_book",
+          "args": [
+            "book.title",
+            "member.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "book.availability": "available"
+          },
+          "rows": {
+            "Book": 1,
+            "Member": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "book": {
+              "status": "aligned",
+              "canonical": "Book",
+              "score": 12.0,
+              "evidence": [
+                "name/fields match Book",
+                "score 12.0"
+              ],
+              "alternatives": [
+                "Member"
+              ]
+            },
+            "member": {
+              "status": "aligned",
+              "canonical": "Member",
+              "score": 10.0,
+              "evidence": [
+                "name/fields match Member",
+                "score 10.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "book.availability": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no prompt evidence for field 'availability'",
+                "not declared on Book"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "aligned",
+            "canonical": "BorrowService.return_book",
+            "score": 10.0,
+            "evidence": [
+              "exact generated method"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "setup needs a BorrowRecord row required by BorrowRecordNotFoundError"
+        }
+      },
+      "status": "unbound",
+      "reason": "setup needs a BorrowRecord row required by BorrowRecordNotFoundError"
+    },
+    {
+      "case": {
+        "id": "check_availability_borrowed",
+        "source": "A book that is currently being borrowed should not appear as available.",
+        "given": {
+          "book": {
+            "title": "1984",
+            "availability": "borrowed"
+          }
+        },
+        "when": {
+          "action": "check_availability",
+          "args": [
+            "book.title"
+          ]
+        },
+        "then": {
+          "state": {
+            "availability": "not_available"
+          },
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "book": {
+              "status": "aligned",
+              "canonical": "Book",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Book",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "Member"
+              ]
+            },
+            "availability": {
+              "status": "invented",
+              "canonical": null,
+              "score": 1.0,
+              "evidence": [
+                "no prompt evidence for 'availability'",
+                "no sufficiently close extracted entity"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {},
+          "action": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'check_availability'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'check_availability'"
+    },
+    {
+      "case": {
+        "id": "check_availability_available",
+        "source": "When it is returned, it should become available again.",
+        "given": {
+          "book": {
+            "title": "1984",
+            "availability": "available"
+          }
+        },
+        "when": {
+          "action": "check_availability",
+          "args": [
+            "book.title"
+          ]
+        },
+        "then": {
+          "state": {
+            "availability": "available"
+          },
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "book": {
+              "status": "aligned",
+              "canonical": "Book",
+              "score": 12.0,
+              "evidence": [
+                "name/fields match Book",
+                "score 12.0"
+              ],
+              "alternatives": [
+                "Member"
+              ]
+            },
+            "availability": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no extracted entity matches 'availability'",
+                "no prompt evidence for the alias"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {},
+          "action": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'check_availability'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'check_availability'"
+    }
+  ]
+}

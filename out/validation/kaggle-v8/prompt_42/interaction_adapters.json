@@ -1,0 +1,46 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "purchasesearch",
+      "target_service": "PurchaseHistorySearchService",
+      "target_method": "purchasesearch",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": false
+        },
+        {
+          "field_name": "start_date",
+          "target_param": "start_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "end_date",
+          "target_param": "end_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "customerreport",
+      "target_service": "CustomerDataService",
+      "target_method": "customerreport",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

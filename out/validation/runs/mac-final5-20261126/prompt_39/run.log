@@ -1,0 +1,102 @@
+[run] requirements: 215 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 73 tokens in 2.4s (30.3 tok/s, 42.5 decode, 80 prompt)
+[data_models] 714 tokens in 20.6s (34.6 tok/s, 35.3 decode, 582 prompt)
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 375 tokens in 10.8s (34.7 tok/s, 35.9 decode, 496 prompt)
+[invariants] 325 tokens in 8.3s (39.3 tok/s, 40.8 decode, 300 prompt)
+[ok] step invariants: 31 invariant(s) — 21 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 934 tokens in 26.3s (35.5 tok/s, 36.0 decode, 1008 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-user' to '--user'
+[ok] step components: normalized option '-product' to '--product'
+[ok] step components: normalized option '-order' to '--order'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-is-admin' to '--is-admin'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-user-id' to '--user-id'
+[service_contracts] 10 tokens in 1.0s (10.2 tok/s, 43.3 decode, 695 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 5 CRUD subcommand(s) from the service contracts: user update, user delete, product update, product delete, order add
+[ok] step contracts: normalized 8 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidUserIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidProductIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidOrderIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'UnauthorizedAccessError' and it is named nowhere in the requirements — dropped
+[persistence_ports] 712 tokens in 18.9s (37.6 tok/s, 38.5 decode, 432 prompt)
+[ok] step persistence: merged 9 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/33] invariant -> STATE_TRANSITION_GUARD (0.48)  <- undecided (pattern): BUDGET_OVERFLOW_GUARD at 0.39
+  [2/33] invariant -> STATE_TRANSITION_GUARD (0.74)
+  [3/33] invariant -> STATE_TRANSITION_GUARD (0.90)
+  [4/33] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/33] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/33] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [7/33] invariant -> BUDGET_OVERFLOW_GUARD (0.36)  <- undecided (pattern): STOCK_SUFFICIENCY_GUARD at 0.32
+  [8/33] invariant -> STATE_TRANSITION_GUARD (0.88)
+  [9/33] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [10/33] invariant -> BUDGET_OVERFLOW_GUARD (0.70)
+  [11/33] contract:UserRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/33] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/33] contract:UserRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/33] contract:UserRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/33] contract:UserRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/33] contract:UserRepository.find_user_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [17/33] contract:UserRepository.find_user_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/33] contract:UserRepository.get_admin_users -> FILTER_BY_FIELD (0.11)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (list[User]) (was AGGREGATE_BY_FK_AND_DATE)  <- undecided (pattern): FILTER_WITH_PAGINATION at 0.00
+  [19/33] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/33] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/33] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/33] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/33] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/33] contract:ProductRepository.find_product_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [25/33] contract:ProductRepository.find_product_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [26/33] contract:ProductRepository.get_all_active_products -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [27/33] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [28/33] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [29/33] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [30/33] contract:OrderRepository.get_orders_by_user_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [31/33] contract:OrderRepository.find_order_by_user_id_and_date -> READ_ONE_BY_ID (0.00)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (Order | None) (was AGGREGATE_BY_FK_AND_DATE)
+  [32/33] contract:OrderRepository.get_user_orders -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [33/33] contract:OrderRepository.get_orders_by_status -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 33 item(s) — 7 standard CRUD, 26 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (user view: no method matches the verb 'view'); retry after surface repairs declined (user view: no method matches the verb 'view') — asking the model
+[interaction_adapters] 2900 tokens in 91.1s (31.8 tok/s, 32.1 decode, 718 prompt)
+[ok] step adapters: create_user.is_admin was 'BOOL_TO_ONE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_user.is_admin was 'BOOL_TO_ONE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: read_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: find_user_by_id.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: find_product_by_id.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_order.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_order.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_all_orders.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_orders_by_user_id.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: find_order_by_user_id_and_date.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_user_orders.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 7 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/requirements.txt
+[run] 8 steps, 6043 generated tokens in 179.4s

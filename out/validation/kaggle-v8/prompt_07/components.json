@@ -1,0 +1,112 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "title",
+            "type": "str",
+            "required": true
+          },
+          {
+            "name": "author",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--search",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "list",
+            "options": [],
+            "subcommands": []
+          },
+          {
+            "name": "create",
+            "options": [
+              {
+                "name": "--title",
+                "short": null,
+                "type": "str",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--author",
+                "short": null,
+                "type": "str",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--created-at",
+                "short": null,
+                "type": "str",
+                "required": false,
+                "default": null
+              },
+              {
+                "name": "--updated-at",
+                "short": null,
+                "type": "str",
+                "required": false,
+                "default": null
+              }
+            ],
+            "subcommands": []
+          },
+          {
+            "name": "update",
+            "options": [],
+            "subcommands": []
+          },
+          {
+            "name": "delete",
+            "options": [],
+            "subcommands": []
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Book",
+        "operations": [
+          "create",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      }
+    ]
+  }
+}

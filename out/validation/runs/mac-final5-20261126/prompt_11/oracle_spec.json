@@ -1,0 +1,40 @@
+{
+  "requirements_sha": "45444e5188da3e03d0405d6e519acde3e448fbdfa8016d9427ed55b03796b608",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "The ISBN of a book must be unique across all books in the system.",
+      "chosen": "NO_PATTERN_IN_DOMAIN",
+      "candidates": [
+        "STOCK_SUFFICIENCY_GUARD",
+        "BUDGET_OVERFLOW_GUARD",
+        "NO_PATTERN_IN_DOMAIN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

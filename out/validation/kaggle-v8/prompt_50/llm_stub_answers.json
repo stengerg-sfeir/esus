@@ -1,0 +1,131 @@
+[
+  {
+    "label": "UserRepository.get_user_by_email",
+    "status": "kept",
+    "note": "still refused: the model kept it unimplemented",
+    "answer": "raise NotImplementedError(\"UserRepository.get_user_by_email: crud:read_one: parameter 'email' maps to no field\")",
+    "first_answer": "raise NotImplementedError(\"UserRepository.get_user_by_email: crud:read_one: parameter 'email' maps to no field\")",
+    "complaints": [
+      "the model kept it unimplemented"
+    ],
+    "second_complaints": [
+      "the model kept it unimplemented"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 25,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 11.391364097595215,
+    "first_decode_seconds": 0.666814,
+    "first_prompt_tokens": 4190,
+    "first_cached_tokens": 332,
+    "finish_reason": "stop",
+    "tokens": 25,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.070600986480713,
+    "decode_seconds": 0.670399,
+    "prompt_tokens": 4259,
+    "cached_tokens": 4159,
+    "context": "exact"
+  },
+  {
+    "label": "EventRegistrationService.check_event_capacity",
+    "status": "written",
+    "note": "",
+    "answer": "event = self._repos['EventRepository'].read_one(event_id=event_id)\n    if event is None:\n        raise errors.EventNotFoundError(f\"Event with id {event_id} not found\")\n    if event.current_attendees_count >= event.capacity:\n        return False\n    return True\n",
+    "finish_reason": "stop",
+    "tokens": 61,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 7.5401270389556885,
+    "decode_seconds": 1.503284,
+    "prompt_tokens": 2479,
+    "cached_tokens": 92,
+    "context": "exact"
+  },
+  {
+    "label": "EventRegistrationService.cancel_order",
+    "status": "written",
+    "note": "repaired: passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword",
+    "answer": "registration = self._repos['RegistrationRepository'].read_one(registration_id=registration_id)\nif registration is None:\n    raise errors.RegistrationNotFoundError(f'Registration with id {registration_id} not found')\nif not registration.status == 'confirmed':\n    raise ValueError('Registration must be confirmed to cancel')\nregistration.status = 'cancelled'\nself._repos['RegistrationRepository'].update(registration_id=registration_id)\nevent = self._repos['EventRepository'].read_one(event_id=registration.event_id)\nif event is None:\n    raise errors.EventNotFoundError(f'Event with id {registration.event_id} not found')\nif event.current_attendees_count > 0:\n    event.current_attendees_count -= 1\n    self._repos['EventRepository'].update(event_id=registration.event_id, current_attendees_count=event.current_attendees_count)",
+    "first_answer": "registration = self._repos['RegistrationRepository'].read_one(registration_id=registration_id)\n    if registration is None:\n        raise errors.RegistrationNotFoundError(f'Registration with id {registration_id} not found')\n    if not (registration.status == 'confirmed'):\n        raise ValueError('Registration must be confirmed to cancel')\n    registration.status = 'cancelled'\n    self._repos['RegistrationRepository'].update(registration_id=registration_id, status='cancelled')\n    event = self._repos['EventRepository'].read_one(event_id=registration.event_id)\n    if event is None:\n        raise errors.EventNotFoundError(f'Event with id {registration.event_id} not found')\n    if event.current_attendees_count > 0:\n        event.current_attendees_count -= 1\n        self._repos['EventRepository'].update(event_id=registration.event_id, current_attendees_count=event.current_attendees_count)",
+    "complaints": [
+      "passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 187,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 5.650877952575684,
+    "first_decode_seconds": 4.6913100000000005,
+    "first_prompt_tokens": 2610,
+    "first_cached_tokens": 2275,
+    "finish_reason": "stop",
+    "tokens": 174,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 5.22969388961792,
+    "decode_seconds": 4.406339,
+    "prompt_tokens": 2865,
+    "cached_tokens": 2580,
+    "context": "exact"
+  },
+  {
+    "label": "EventRegistrationService.confirm_order",
+    "status": "kept",
+    "note": "still refused: uses `registration_id`, which neither the module nor the body binds; parameter `event_id` is never used in the body; parameter `user_id` is never used in the body; passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword",
+    "answer": "registration = self._repos['RegistrationRepository'].read_one(registration_id=registration_id)\nif registration is None:\n    raise errors.RegistrationNotFoundError(f'Registration with id {registration_id} not found')\nif not registration.status == 'pending':\n    raise ValueError('Registration must be pending to confirm')\nregistration.status = 'confirmed'\nself._repos['RegistrationRepository'].update(registration_id=registration_id, status='confirmed')\nevent = self._repos['EventRepository'].read_one(event_id=registration.event_id)\nif event is None:\n    raise errors.EventNotFoundError(f'Event with id {registration.event_id} not found')\nif event.current_attendees_count is not None:\n    event.current_attendees_count += 1\n    self._repos['EventRepository'].update(event_id=registration.event_id, current_attendees_count=event.current_attendees_count)",
+    "first_answer": "registration = self._repos['RegistrationRepository'].read_one(registration_id=registration_id)\n    if registration is None:\n        raise errors.RegistrationNotFoundError(f'Registration with id {registration_id} not found')\n    if not registration.status == 'pending':\n        raise ValueError('Registration must be pending to confirm')\n    registration.status = 'confirmed'\n    self._repos['RegistrationRepository'].update(registration_id=registration_id, status='confirmed')\n    event = self._repos['EventRepository'].read_one(event_id=registration.event_id)\n    if event is None:\n        raise errors.EventNotFoundError(f'Event with id {registration.event_id} not found')\n    if event.current_attendees_count is not None:\n        event.current_attendees_count += 1\n        self._repos['EventRepository'].update(event_id=registration.event_id, current_attendees_count=event.current_attendees_count)\n```",
+    "complaints": [
+      "uses `registration_id`, which neither the module nor the body binds",
+      "parameter `event_id` is never used in the body",
+      "parameter `user_id` is never used in the body",
+      "passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword"
+    ],
+    "second_complaints": [
+      "uses `registration_id`, which neither the module nor the body binds",
+      "parameter `event_id` is never used in the body",
+      "parameter `user_id` is never used in the body",
+      "passes keyword `status` to `RegistrationRepository.update`, whose declared parameter is one of `registration_id`, `event_id`, `user_id`; pass the value positionally or use the declared keyword"
+    ],
+    "repairs": 2,
+    "first_finish_reason": "stop",
+    "first_tokens": 187,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 6.293871164321899,
+    "first_decode_seconds": 4.7247129999999995,
+    "first_prompt_tokens": 2772,
+    "first_cached_tokens": 2205,
+    "finish_reason": "stop",
+    "tokens": 178,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 5.389403343200684,
+    "decode_seconds": 4.540041,
+    "prompt_tokens": 3029,
+    "cached_tokens": 2753,
+    "context": "exact",
+    "equivalence_judgements": [
+      {
+        "error": "ValueError",
+        "condition": "event.status == 'pending'",
+        "raise_when": "false",
+        "equivalent": true,
+        "reason": "",
+        "raw": "VERDICT: YES  \nThe method raises `ValueError` exactly when `registration.status != 'pending'`, as required by the rule."
+      },
+      {
+        "error": "ValueError",
+        "condition": "event.status == 'pending'",
+        "raise_when": "false",
+        "equivalent": true,
+        "reason": "",
+        "raw": "VERDICT: YES  \nThe method raises `ValueError` exactly when `registration.status != 'pending'`, which matches the rule."
+      }
+    ]
+  }
+]

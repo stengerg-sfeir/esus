@@ -1,0 +1,101 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "employee_id",
+            "type": "int",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--department-id",
+            "short": "-d",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--search",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--list",
+            "short": "-l",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Employee",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "list",
+                "options": [
+                  {
+                    "name": "--department-id",
+                    "short": null,
+                    "type": "int",
+                    "required": false,
+                    "default": null
+                  },
+                  {
+                    "name": "--name",
+                    "short": null,
+                    "type": "str",
+                    "required": false,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Employee",
+        "operations": [
+          "read_all",
+          "read_one"
+        ]
+      },
+      {
+        "entity": "Department",
+        "operations": [
+          "read_all"
+        ]
+      }
+    ]
+  }
+}

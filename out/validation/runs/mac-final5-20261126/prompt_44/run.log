@@ -1,0 +1,113 @@
+[run] requirements: 179 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 71 tokens in 1.9s (38.0 tok/s, 42.2 decode, 76 prompt)
+[data_models] 895 tokens in 23.9s (37.5 tok/s, 38.1 decode, 576 prompt)
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.5s (16.5 tok/s, 44.8 decode, 500 prompt)
+[invariants] 226 tokens in 5.7s (39.8 tok/s, 41.7 decode, 304 prompt)
+[ok] step invariants: 35 invariant(s) — 26 schema generated mechanically, 9 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1985 tokens in 57.4s (34.6 tok/s, 34.7 decode, 1012 prompt)
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-sale-date' to '--sale-date'
+[ok] step components: normalized option '-quantity' to '--quantity'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-phone' to '--phone'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-customer-id' to '--customer-id'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-quantity' to '--quantity'
+[ok] step components: normalized option '-sale-date' to '--sale-date'
+[ok] step components: normalized option '-customer-id' to '--customer-id'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-sale-id' to '--sale-id'
+[ok] step components: normalized option '-quantity' to '--quantity'
+[ok] step components: normalized option '-sale-date' to '--sale-date'
+[ok] step components: normalized option '-sale-id' to '--sale-id'
+[service_contracts] 8 tokens in 0.6s (14.1 tok/s, 45.1 decode, 506 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[persistence_ports] 347 tokens in 9.5s (36.5 tok/s, 38.1 decode, 440 prompt)
+[ok] step persistence: merged 3 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+  [1/28] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [2/28] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/28] invariant -> STOCK_SUFFICIENCY_GUARD (0.89)
+  [4/28] invariant -> BUDGET_OVERFLOW_GUARD (0.94)
+  [5/28] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/28] invariant -> STOCK_SUFFICIENCY_GUARD (0.87)
+  [7/28] invariant -> STOCK_SUFFICIENCY_GUARD (0.75)
+  [8/28] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [9/28] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [10/28] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/28] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/28] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/28] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/28] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/28] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/28] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/28] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/28] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/28] contract:CustomerRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/28] contract:SaleRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/28] contract:SaleRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/28] contract:SaleRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [23/28] contract:SaleRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/28] contract:SaleRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [25/28] contract:SaleRepository.get_sales_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [26/28] contract:SaleRepository.getSalesByDateRange -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [27/28] contract:SaleRepository.getTotalRevenueByMonth -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [28/28] contract:SaleRepository.getTopSellingProducts -> FILTER_WITH_PAGINATION (0.65)
+[ok] step patterns: 28 item(s) — 9 standard CRUD, 19 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (product search: no method matches the verb 'search'); retry after surface repairs declined (product search: no method matches the verb 'search') — asking the model
+[interaction_adapters] 1391 tokens in 38.8s (35.9 tok/s, 36.7 decode, 732 prompt)
+[ok] step adapters: create_sale.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_sale.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_sales_by_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_product_by_id.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_customer_by_id.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_sale_by_id.sale_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 96 tokens in 3.8s (25.1 tok/s, 39.2 decode, 767 prompt)
+[ok] step adapters: added 4 required create field(s)
+[!] step interaction_adapters retry has 1 item(s) versus 13 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: sale add lacked '--total-price' required by 'create_sale' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: Product update, Product delete, Customer update, Customer delete, Sale update, Sale delete
+[ok] step adapters: added 6 missing adapter(s) mechanically: Product update, Product delete, Customer update, Customer delete, Sale update, Sale delete
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/requirements.txt
+[run] 9 steps, 5027 generated tokens in 142.0s

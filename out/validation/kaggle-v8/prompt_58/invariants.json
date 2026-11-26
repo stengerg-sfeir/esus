@@ -1,0 +1,108 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.address must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.additional_info must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.error_message must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.timestamp must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "ExternalServiceResponse.timestamp must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "If the external service is unavailable, the application must not fail and should continue to operate using existing customer data.",
+      "kind": "rule"
+    },
+    {
+      "text": "The external service response status must be checked to determine whether additional customer information was successfully retrieved.",
+      "kind": "rule"
+    },
+    {
+      "text": "When the external service returns an error, the error message must be stored in the ExternalServiceResponse entity and the customer record must remain accessible.",
+      "kind": "rule"
+    },
+    {
+      "text": "The timestamp in ExternalServiceResponse must reflect the exact time when the external service request was made.",
+      "kind": "rule"
+    },
+    {
+      "text": "If additional information is successfully retrieved from the external service, it must be associated with the corresponding customer via the customer_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must ensure that a customer record is not modified or deleted if the external service is unavailable.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status field in ExternalServiceResponse must indicate whether the request to the external service was successful or failed.",
+      "kind": "rule"
+    },
+    {
+      "text": "The application must maintain a record of all external service attempts, including failures, for each customer.",
+      "kind": "rule"
+    }
+  ]
+}

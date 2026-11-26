@@ -1,0 +1,185 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "borrow_book_transaction",
+      "source": "library borrow --member-id --book-id",
+      "given": {
+        "member": {
+          "id": 1,
+          "name": "Alice",
+          "email": "alice@example.com",
+          "is_active": true,
+          "membership_date": "2023-01-01"
+        },
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 5
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "member_id",
+          "book_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 4,
+          "loan.status": "active"
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error is not a class name: 'MemberNotFoundError | BookNotFoundError | AlreadyReturnedLoanError'"
+      ]
+    },
+    {
+      "id": "return_book_transaction",
+      "source": "library return --loan-id",
+      "given": {
+        "loan": {
+          "id": 201,
+          "book_id": 101,
+          "member_id": 1,
+          "loan_date": "2023-05-01",
+          "due_date": "2023-05-15",
+          "return_date": null,
+          "status": "active"
+        },
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 4
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "loan_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.return_date": "2023-05-20",
+          "loan.status": "returned",
+          "book.available_copies": 5
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error is not a class name: 'LoanNotFoundError | AlreadyReturnedLoanError'"
+      ]
+    },
+    {
+      "id": "return_already_returned_loan",
+      "source": "library return --loan-id",
+      "given": {
+        "loan": {
+          "id": 201,
+          "book_id": 101,
+          "member_id": 1,
+          "loan_date": "2023-05-01",
+          "due_date": "2023-05-15",
+          "return_date": "2023-05-20",
+          "status": "returned"
+        },
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 5
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "loan_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.return_date": "2023-05-20",
+          "loan.status": "returned",
+          "book.available_copies": 5
+        },
+        "error": "AlreadyReturnedLoanError",
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "borrow_final_copy",
+      "source": "library borrow --member-id --book-id",
+      "given": {
+        "member": {
+          "id": 1,
+          "name": "Alice",
+          "email": "alice@example.com",
+          "is_active": true,
+          "membership_date": "2023-01-01"
+        },
+        "book": {
+          "id": 101,
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "author_id": 1,
+          "published_year": 1925,
+          "available_copies": 1
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "member_id",
+          "book_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error is not a class name: 'BookNotFoundError | MemberNotFoundError'"
+      ]
+    }
+  ]
+}

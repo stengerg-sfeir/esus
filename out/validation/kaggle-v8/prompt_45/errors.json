@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "name": "RoomNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested room is not found in the system."
+    },
+    {
+      "name": "GuestNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested guest is not found in the system."
+    },
+    {
+      "name": "BookingNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested booking is not found in the system."
+    },
+    {
+      "name": "RoomConflictError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to book a room during a period that overlaps with an existing booking."
+    }
+  ]
+}

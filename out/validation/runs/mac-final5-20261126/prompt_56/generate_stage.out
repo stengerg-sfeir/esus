@@ -1,0 +1,57 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56
+
+gate passed (6 residual risk(s); gaps stay documented stubs)
+llm: 9 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: OrderProductRepository.get_order_product_details ...
+llm: CustomerService.list_customers ...
+llm: CustomerService.get_customer_by_id ...
+llm: ProductService.productsearch ...
+llm: ProductService.update_product_stock ...
+llm: ProductService.get_product_by_id ...
+llm: ProductService.search_products ...
+llm: OrderService.orderconfirm ...
+llm: OrderService.get_order_with_products ...
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/generated/__init__.py
+methods: 38 implemented, 9 stubs (81% mechanical)
+llm: 9 of 9 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: OrderProductRepository.get_order_product_details
+  llm provisional: CustomerService.list_customers
+  llm provisional: CustomerService.get_customer_by_id
+  llm provisional: ProductService.productsearch
+  llm provisional: ProductService.update_product_stock
+  llm provisional: ProductService.get_product_by_id
+  llm provisional: ProductService.search_products
+  llm provisional: OrderService.orderconfirm — passed the arguments of OrderProductRepository.get_order_products_by_product_id positionally to match the declared parameter
+  llm provisional: OrderService.get_order_with_products
+  stub: OrderProductRepository.get_order_product_details: gap NO_PATTERN_IN_DOMAIN: AGGREGATE_BY_FK_AND_DATE refused (AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (int | None))
+  stub: OrderService.get_order_with_products: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: OrderService.orderconfirm: no pattern entry and an ambiguous method name
+  stub: ProductService.search_products: pattern FILTER_WITH_PAGINATION: no mechanical reading
+  stub: ProductService.get_product_by_id: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: ProductService.update_product_stock: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  stub: ProductService.productsearch: name-only: step F never saw this method; by parameter shape
+  stub: CustomerService.get_customer_by_id: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: CustomerService.list_customers: READ_ALL
+  cli Customer add -> customeradd [score 9]
+  cli Customer list -> customerlist [score 11]
+  cli Customer update -> customerupdate [score 11]
+  cli Order add -> orderadd [score 9]
+  cli Order cancel -> ordercancel [score 11]
+  cli Order delete -> orderdelete [score 11]
+  cli Order update -> orderupdate [score 11]
+  cli OrderProduct add -> orderproductadd [score 9]
+  cli OrderProduct delete -> orderproductdelete [score 11]
+  cli OrderProduct update -> orderproductupdate [score 11]
+  cli Product add -> productadd [score 9]
+  cli Product update -> productupdate [score 11]
+
+
+

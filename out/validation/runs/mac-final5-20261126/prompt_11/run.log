@@ -1,0 +1,63 @@
+[run] requirements: 239 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 112 tokens in 2.8s (39.4 tok/s, 43.2 decode, 89 prompt)
+[data_models] 286 tokens in 7.8s (36.8 tok/s, 38.7 decode, 627 prompt)
+[ok] step data_models: Book.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 199 tokens in 5.3s (37.4 tok/s, 39.4 decode, 481 prompt)
+[invariants] 31 tokens in 1.0s (31.4 tok/s, 43.1 decode, 285 prompt)
+[ok] step invariants: 11 invariant(s) — 10 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 988 tokens in 28.4s (34.8 tok/s, 35.2 decode, 993 prompt)
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-list' to '--list'
+[ok] step components: normalized option '-update' to '--update'
+[ok] step components: normalized option '-delete' to '--delete'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-publication-year' to '--publication-year'
+[ok] step components: normalized option '-query' to '--query'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-publication-year' to '--publication-year'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 10 tokens in 0.8s (13.2 tok/s, 44.9 decode, 592 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidBookDataError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 44 tokens in 1.3s (33.2 tok/s, 42.7 decode, 393 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/6] invariant -> STOCK_SUFFICIENCY_GUARD (0.54)  <- undecided (pattern): BUDGET_OVERFLOW_GUARD at 0.45
+  [2/6] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [3/6] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [4/6] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [5/6] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/6] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 6 item(s) — 3 standard CRUD, 3 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (book search: no method matches the verb 'search'); retry after surface repairs declined (book search: no method matches the verb 'search') — asking the model
+[interaction_adapters] 983 tokens in 26.0s (37.8 tok/s, 38.4 decode, 536 prompt)
+[ok] step adapters: create_book.publication_year was 'ISO_DATE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_book.publication_year was 'ISO_DATE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_11/requirements.txt
+[run] 8 steps, 2653 generated tokens in 73.4s

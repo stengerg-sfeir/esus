@@ -1,0 +1,60 @@
+{
+  "invariants": [
+    {
+      "text": "Project.project_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.is_deleted must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.is_deleted must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A project's status must be updated only when the project is actively being modified by a user.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a project is deleted, its is_deleted field must be set to true.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project that has is_deleted set to true must not be returned in any normal listing operation.",
+      "kind": "rule"
+    },
+    {
+      "text": "Only projects with is_deleted set to false can be returned in a normal listing operation.",
+      "kind": "rule"
+    },
+    {
+      "text": "The project name must be unique across all projects that are not deleted.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project's status can only be changed if the project is not marked as deleted.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "notify-on-confirm",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "id": 101
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "no generated method matches 'confirm_order'"
+      }
+    },
+    {
+      "id": "notification-service-abstraction",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "given": {
+        "notification": {
+          "message": "The order has been confirmed."
+        }
+      },
+      "when": {
+        "action": "notify",
+        "args": [
+          "The order has been confirmed."
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Notification": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

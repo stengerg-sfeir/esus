@@ -1,0 +1,112 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.order_id must reference an existing Order.id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.product_id must reference an existing Product.id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderItem.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An order cannot be placed if any product in the order has a stock quantity less than the order quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "When an order is successfully created, the stock quantity of each product in the order must be decreased by the order quantity.",
+      "kind": "rule"
+    }
+  ]
+}

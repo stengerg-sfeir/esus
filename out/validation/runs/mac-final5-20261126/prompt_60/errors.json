@@ -1,0 +1,89 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested but not found in the database by customer_id."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested but not found in the database by product_id."
+    },
+    {
+      "name": "CategoryNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a category is requested but not found in the database by category_id."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order is requested but not found in the database by order_id."
+    },
+    {
+      "name": "OrderItemNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order item is requested but not found in the database by order_item_id."
+    },
+    {
+      "name": "InvoiceNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an invoice is requested but not found in the database by invoice_id."
+    },
+    {
+      "name": "InvalidOrderStatusError",
+      "base": "ValueError",
+      "description": "Raised when an order status is set to a value not in the allowed set: 'pending', 'confirmed', 'shipped', 'cancelled'."
+    },
+    {
+      "name": "InsufficientStockError",
+      "base": "ValueError",
+      "description": "Raised when attempting to confirm an order that contains products with insufficient stock."
+    },
+    {
+      "name": "InvalidProductIdError",
+      "base": "ValueError",
+      "description": "Raised when a product ID is provided that does not exist or is invalid."
+    },
+    {
+      "name": "InvalidCategoryIdError",
+      "base": "ValueError",
+      "description": "Raised when a category ID is provided that does not exist or is invalid."
+    },
+    {
+      "name": "InvalidCustomerIdError",
+      "base": "ValueError",
+      "description": "Raised when a customer ID is provided that does not exist or is invalid."
+    },
+    {
+      "name": "OrderAlreadyConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to confirm an order that is already confirmed or shipped."
+    },
+    {
+      "name": "OrderCannotBeCancelledError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to cancel an order that is not confirmed."
+    },
+    {
+      "name": "OrderCannotBeShippedError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to ship an order that is not confirmed."
+    },
+    {
+      "name": "OrderCannotBeCancelledAfterShipmentError",
+      "base": "RuntimeError",
+      "description": "Raised when attempting to cancel an order that has already been shipped."
+    },
+    {
+      "name": "FileNotFoundError",
+      "base": "OSError",
+      "description": "Raised when the SQLite database file is not found at the specified path."
+    },
+    {
+      "name": "MalformedCSVError",
+      "base": "ValueError",
+      "description": "Raised when a CSV file contains malformed data that cannot be parsed into valid records."
+    }
+  ]
+}

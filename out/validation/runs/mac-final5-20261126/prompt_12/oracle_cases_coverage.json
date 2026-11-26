@@ -1,0 +1,192 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "add_customer_unique_email",
+      "source": "Customers have a name, email and phone number. Email addresses must be unique.",
+      "given": {
+        "customer": {
+          "name": "Alice",
+          "email": "alice@example.com",
+          "phone": "123-456-7890"
+        }
+      },
+      "when": {
+        "action": "add_customer",
+        "args": [
+          "alice@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Alice",
+          "customer.email": "alice@example.com",
+          "customer.phone": "123-496-7890"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "create case expects customer.phone = '123-496-7890' but supplies '123-456-7890'"
+      }
+    },
+    {
+      "id": "add_duplicate_email",
+      "source": "Customers have a name, email and phone number. Email addresses must be unique.",
+      "given": {
+        "customer": {
+          "name": "Bob",
+          "email": "alice@example.com",
+          "phone": "098-765-4321"
+        }
+      },
+      "when": {
+        "action": "add_customer",
+        "args": [
+          "alice@example.com"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "DuplicateEmailError",
+        "rows": {
+          "Customer": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements",
+        "error class 'DuplicateEmailError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "add_customer_no_email",
+      "source": "Customers have a name, email and phone number.",
+      "given": {
+        "customer": {
+          "name": "Charlie",
+          "phone": "345-678-9012"
+        }
+      },
+      "when": {
+        "action": "add_customer",
+        "args": [
+          "charlie@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Charlie",
+          "customer.email": "",
+          "customer.phone": "345-678-9012"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement states customers have a name, email and phone number, but does not specify whether all fields are mandatory."
+      ],
+      "ambiguities": [
+        "No explicit requirement on whether email is required or optional. Missing clarity on field constraints."
+      ]
+    },
+    {
+      "id": "update_customer_email",
+      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "given": {
+        "customer": {
+          "name": "David",
+          "email": "david@old.com",
+          "phone": "456-789-0123"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "email",
+          "david@new.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "David",
+          "customer.email": "david@new.com",
+          "customer.phone": "456-789-0123"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_customer",
+      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "given": {
+        "customer": {
+          "name": "Eve",
+          "email": "eve@domain.com",
+          "phone": "567-890-1234"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "eve@domain.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "",
+          "customer.email": "",
+          "customer.phone": ""
+        },
+        "rows": {
+          "Customer": 0
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "delete case expects state on deleted Customer; a hard-deleted row has no state to read"
+      }
+    }
+  ]
+}

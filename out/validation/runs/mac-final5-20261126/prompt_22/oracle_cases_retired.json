@@ -1,0 +1,131 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_order",
+        "source": "Create a Python 3.12 order management application.",
+        "given": {
+          "order": {
+            "id": 1,
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "create_order",
+          "args": []
+        },
+        "then": {
+          "state": {
+            "order.status": "pending"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The order ID is assumed to be 1 as a default value; the requirement does not specify the ID assignment mechanism."
+        ],
+        "ambiguities": [
+          "The requirement does not specify what state or data should be created or initialized; no concrete fields or values are provided."
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_order_item_quantity",
+        "source": "Each order item contains a quantity and unit price.",
+        "given": {
+          "order": {
+            "id": 103,
+            "status": "pending"
+          },
+          "order_item": {
+            "id": 301,
+            "quantity": 1,
+            "unit_price": 100.0
+          }
+        },
+        "when": {
+          "action": "update_order_item_quantity",
+          "args": [
+            "order.id",
+            "order_item.id",
+            "new_quantity"
+          ]
+        },
+        "then": {
+          "state": {
+            "order_item.quantity": 3
+          },
+          "rows": {
+            "OrderItem": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The new_quantity is assumed to be 3; the requirement does not specify the value."
+        ],
+        "ambiguities": [
+          "The requirement does not specify whether the unit_price should be preserved or updated; it is assumed unchanged."
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "update_order_item_unit_price",
+        "source": "Each order item contains a quantity and unit price.",
+        "given": {
+          "order": {
+            "id": 104,
+            "status": "pending"
+          },
+          "order_item": {
+            "id": 302,
+            "quantity": 2,
+            "unit_price": 50.0
+          }
+        },
+        "when": {
+          "action": "update_order_item_unit_price",
+          "args": [
+            "order.id",
+            "order_item.id",
+            "new_unit_price"
+          ]
+        },
+        "then": {
+          "state": {
+            "order_item.unit_price": 75.0
+          },
+          "rows": {
+            "OrderItem": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The new_unit_price is assumed to be 75.0; the requirement does not specify the value."
+        ],
+        "ambiguities": [
+          "The requirement does not specify whether the quantity should be preserved or updated; it is assumed unchanged."
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

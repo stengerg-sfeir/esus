@@ -1,0 +1,37 @@
+{
+  "plans": [
+    {
+      "id": "get_orders_with_customer_name_repository_call",
+      "source": "The service layer must contain the business rules and repositories must contain persistence logic.",
+      "when": {
+        "action": "get_orders_with_customer_name",
+        "args": [
+          "customer_name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status",
+          "customer.name"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

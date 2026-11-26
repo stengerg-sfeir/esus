@@ -1,0 +1,44 @@
+{
+  "errors": [
+    {
+      "name": "UserNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a user is requested but not found in the system by user_id."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested but not found in the system by product_id."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order is requested but not found in the system by order_id."
+    },
+    {
+      "name": "InvalidUserRoleError",
+      "base": "RuntimeError",
+      "description": "Raised when a user attempts an action that is not permitted by their role, such as modifying a product or another user's data."
+    },
+    {
+      "name": "MissingRequiredFieldError",
+      "base": "ValueError",
+      "description": "Raised when a required field (such as email or product name) is missing or empty during user or product creation."
+    },
+    {
+      "name": "InvalidEmailError",
+      "base": "ValueError",
+      "description": "Raised when an email address is provided in an invalid format during user creation."
+    },
+    {
+      "name": "InvalidPriceError",
+      "base": "ValueError",
+      "description": "Raised when a product price is provided as a negative value or non-numeric during product creation."
+    },
+    {
+      "name": "OrderCreationFailedError",
+      "base": "RuntimeError",
+      "description": "Raised when an order cannot be created due to a system-level constraint, such as a user not being authenticated or exceeding order limits."
+    }
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "alice.j@example.com",
+          "Alice Johnson"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.id": 1,
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice.j@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "read_customer",
+        "args": [
+          "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.id": 1,
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice.j@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'read_customer'"
+      }
+    },
+    {
+      "id": "update_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "id": 1,
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "1",
+          "alice.j@example.com",
+          "Alice Johnson"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.id": 1,
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice.j@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.666666666666666,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.7"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "1"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.id": 1,
+          "customer.name": "",
+          "customer.email": ""
+        },
+        "rows": {
+          "Customer": 0
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Customer.name exists"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "delete case expects state on deleted Customer; a hard-deleted row has no state to read"
+      }
+    }
+  ]
+}

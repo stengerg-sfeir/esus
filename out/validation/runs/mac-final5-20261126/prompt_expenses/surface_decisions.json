@@ -1,0 +1,25 @@
+{
+  "decisions": [
+    {
+      "kind": "route",
+      "command": "expense",
+      "subcommand": "report yearly",
+      "flag": "year",
+      "service": "ExpenseService",
+      "method": "get_yearly_summary",
+      "target_param": "year",
+      "option_type": "int",
+      "transform": "DIRECT",
+      "decided_by": "user",
+      "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50"
+    },
+    {
+      "kind": "drop-flag",
+      "command": "expense",
+      "subcommand": "report yearly",
+      "flag": "month",
+      "decided_by": "user",
+      "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50"
+    }
+  ]
+}

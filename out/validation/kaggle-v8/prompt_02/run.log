@@ -1,0 +1,28 @@
+[run] requirements: 212 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 72 tokens in 1.2s (61.5 tok/s, 69.4 decode, 81 prompt)
+[data_models] 9 tokens in 0.2s (41.1 tok/s, 75.8 decode, 582 prompt)
+[errors] 47 tokens in 0.8s (57.9 tok/s, 69.2 decode, 424 prompt)
+[invariants] 40 tokens in 0.7s (58.7 tok/s, 69.6 decode, 228 prompt)
+[ok] step invariants: 1 invariant(s) — 0 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no entities from step B — crud_services unconstrained
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 182 tokens in 3.1s (59.4 tok/s, 61.5 decode, 924 prompt)
+[ok] step components: normalized option '-operation' to '--operation'
+[ok] step contracts: step B produced no entities — no services
+[ok] step persistence: components declare no persistence — step skipped
+  [1/1] invariant -> PRICE_MARGIN_GUARD (1.00)
+[ok] step patterns: 1 item(s) — 0 standard CRUD, 1 pattern(s), 0 gap(s)
+[ok] step adapters: step E produced no services — no adapters
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_02/requirements.txt
+[run] 5 steps, 350 generated tokens in 5.9s

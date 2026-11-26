@@ -1,0 +1,17 @@
+[
+  {
+    "label": "EventRegistrationService.check_event_capacity",
+    "status": "written",
+    "note": "",
+    "answer": "event = self._repos['EventRepository'].read_one(event_id=event_id)\n    if event is None:\n        raise errors.EventNotFoundError(f\"Event with id {event_id} not found\")\n    if event.current_attendees_count is None:\n        raise errors.EventNotFoundError(f\"Event with id {event_id} not found\")\n    registrations = self._repos['RegistrationRepository'].get_registrations_by_event_id(event_id=event_id)\n    current_count = len(registrations)\n    return current_count < event.capacity\n```",
+    "finish_reason": "stop",
+    "tokens": 109,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 9.186016082763672,
+    "decode_seconds": 3.153915,
+    "prompt_tokens": 2234,
+    "cached_tokens": 658,
+    "context": "exact"
+  }
+]

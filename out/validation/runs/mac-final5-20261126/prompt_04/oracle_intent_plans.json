@@ -1,0 +1,47 @@
+{
+  "plans": [
+    {
+      "id": "list_tasks",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "task": "Task"
+        },
+        "target_usage": {
+          "entity": "Task",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    },
+    {
+      "id": "delete_task",
+      "diagnostics": {
+        "synthetic": [],
+        "aliases": {
+          "task": "Task"
+        },
+        "target_usage": {
+          "entity": "Task",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "add_task",
+      "errors": [
+        "reference field 'title' is not declared on Task"
+      ]
+    },
+    {
+      "id": "complete_task",
+      "errors": [
+        "action 'complete_task' is coverage_gap: prompt names the action; no generated method matches"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

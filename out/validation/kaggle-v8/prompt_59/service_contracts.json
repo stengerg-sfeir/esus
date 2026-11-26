@@ -1,0 +1,537 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Customer.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "find_by_email",
+          "description": "Retrieve a customer by their email address.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer | None"
+        },
+        {
+          "name": "find_by_name",
+          "description": "Retrieve a customer by their name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Customer | None"
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_level",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_level",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "stock_level",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "find_by_name",
+          "description": "Retrieve a product by its name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Product | None"
+        }
+      ]
+    },
+    {
+      "service_name": "OrderRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Order; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "get_orders_by_customer_id",
+          "description": "Lists the Order records belonging to one Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "find_by_customer_id",
+          "description": "Retrieve all orders placed by a specific customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Order]"
+        },
+        {
+          "name": "find_by_status",
+          "description": "Retrieve all orders with a specific status (e.g., 'pending', 'shipped').",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]"
+        },
+        {
+          "name": "cancel_order",
+          "description": "Cancel an order and mark it as canceled, triggering stock restoration.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "OrderLineRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new OrderLine.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.OrderLine",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every OrderLine; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "unit_price",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[OrderLine]",
+          "raises": []
+        },
+        {
+          "name": "get_order_lines_by_order_id",
+          "description": "Lists the OrderLine records belonging to one Order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[OrderLine]",
+          "raises": []
+        },
+        {
+          "name": "get_by_order_id",
+          "description": "Retrieve all order lines associated with a specific order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[OrderLine]"
+        }
+      ]
+    },
+    {
+      "service_name": "DiscountRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Discount.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "value",
+              "type": "int"
+            },
+            {
+              "name": "type",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Discount",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Discount; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "value",
+              "type": "int"
+            },
+            {
+              "name": "type",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Discount]",
+          "raises": []
+        },
+        {
+          "name": "find_by_name",
+          "description": "Retrieve a discount by its name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Discount | None"
+        },
+        {
+          "name": "get_active_discounts",
+          "description": "Retrieve all active discounts (those with value > 0).",
+          "params": [],
+          "return_type": "list[Discount]"
+        }
+      ]
+    },
+    {
+      "service_name": "TaxRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Tax.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "rate",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Tax",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Tax; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "rate",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Tax]",
+          "raises": []
+        },
+        {
+          "name": "find_by_name",
+          "description": "Retrieve a tax by its name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Tax | None"
+        }
+      ]
+    }
+  ]
+}

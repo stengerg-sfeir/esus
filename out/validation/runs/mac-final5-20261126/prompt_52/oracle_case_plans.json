@@ -1,0 +1,88 @@
+{
+  "plans": [
+    {
+      "id": "borrow_book",
+      "source": "A book can be borrowed by members.",
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "book.id",
+          "member.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.status"
+        ],
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "return_book",
+      "source": "When it is returned, it should become available again.",
+      "when": {
+        "action": "return_book",
+        "args": [
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.status"
+        ],
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "book_not_available_while_borrowed",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "when": {
+        "action": "check_availability",
+        "args": [
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.status"
+        ],
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

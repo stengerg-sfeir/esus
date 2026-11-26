@@ -1,0 +1,77 @@
+[run] requirements: 247 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 91 tokens in 1.7s (54.3 tok/s, 60.5 decode, 83 prompt)
+[data_models] 444 tokens in 7.8s (56.9 tok/s, 57.9 decode, 602 prompt)
+[ok] step data_models: Contact.primary_key became the integer primary key id
+[errors] 8 tokens in 0.3s (25.2 tok/s, 68.5 decode, 484 prompt)
+[invariants] 295 tokens in 5.1s (57.8 tok/s, 59.4 decode, 288 prompt)
+[ok] step invariants: 23 invariant(s) — 14 schema generated mechanically, 9 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 483 tokens in 8.9s (54.1 tok/s, 55.3 decode, 996 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-output' to '--output'
+[service_contracts] 10 tokens in 0.4s (23.5 tok/s, 65.7 decode, 490 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.9s (50.1 tok/s, 60.6 decode, 396 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/14] invariant -> BUDGET_OVERFLOW_GUARD (0.78)
+  [2/14] invariant -> NO_PATTERN_IN_DOMAIN (0.90)  <- GAP: no pattern for this
+  [3/14] invariant -> STOCK_SUFFICIENCY_GUARD (0.72)
+  [4/14] invariant -> PRICE_MARGIN_GUARD (0.97)
+  [5/14] invariant -> STATE_TRANSITION_GUARD (0.98)
+  [6/14] invariant -> NO_PATTERN_IN_DOMAIN (0.58)  <- GAP: no pattern for this
+  [7/14] invariant -> BUDGET_OVERFLOW_GUARD (0.58)
+  [8/14] invariant -> BUDGET_OVERFLOW_GUARD (0.99)
+  [9/14] invariant -> STOCK_SUFFICIENCY_GUARD (0.55)  <- undecided (pattern): BUDGET_OVERFLOW_GUARD at 0.45
+  [10/14] contract:ContactRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/14] contract:ContactRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/14] contract:ContactRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/14] contract:ContactRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/14] contract:ContactRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 14 item(s) — 3 standard CRUD, 9 pattern(s), 2 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: The export to CSV command must include all contact fields: first_name, last_name, email, phone, and address.
+    gap [NO_PATTERN_IN_DOMAIN] invariant: The created_at timestamp for a new contact must be set to the current time.
+[!] step adapters: mechanical derivation declined (export: no method matches the verb 'export') — asking the model
+[interaction_adapters] 1023 tokens in 17.8s (57.4 tok/s, 57.9 decode, 575 prompt)
+[ok] step adapters: read_contact.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_contact.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_contact.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 7 required create field(s)
+[!] step adapters has 12 unreachable field(s) — retrying once
+[interaction_adapters] 1001 tokens in 17.6s (56.9 tok/s, 58.0 decode, 825 prompt)
+[ok] step adapters: update_contact.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_contact.id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters still omits 12 unreachable field(s) (retry: 16) — kept first attempt; the probe will report it
+[ok] step adapters: added capability method ContactService.export_contacts_to_csv (export)
+[ok] step adapters: added capability method ContactService.import_contacts_from_csv (import)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--first-name' required by 'create_contact' — added as str
+[ok] step adapters: add  lacked '--last-name' required by 'create_contact' — added as str
+[ok] step adapters: add  lacked '--email' required by 'create_contact' — added as str
+[ok] step adapters: add  lacked '--created-at' required by 'create_contact' — added as str
+[ok] step adapters: add  lacked '--updated-at' required by 'create_contact' — added as str
+[ok] step adapters: update  lacked '--id' required by 'update_contact' — added as int
+[ok] step adapters: delete  lacked '--id' required by 'delete_contact' — added as int
+[ok] step adapters: import  lacked '--first-name' required by 'import_contacts_from_csv' — added as str
+[ok] step adapters: import  lacked '--last-name' required by 'import_contacts_from_csv' — added as str
+[ok] step adapters: import  lacked '--email' required by 'import_contacts_from_csv' — added as str
+[ok] step adapters: import  lacked '--created-at' required by 'import_contacts_from_csv' — added as str
+[ok] step adapters: import  lacked '--updated-at' required by 'import_contacts_from_csv' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_18/requirements.txt
+[run] 9 steps, 3399 generated tokens in 60.6s

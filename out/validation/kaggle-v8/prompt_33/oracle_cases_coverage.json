@@ -1,0 +1,180 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "duplicate_email_check",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "Grace Lee",
+          "email": "grace.l@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "grace.l@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Grace Lee",
+          "customer.email": "grace.l@example.com"
+        },
+        "rows": {
+          "Customer": 1,
+          "Audit": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify whether email uniqueness is enforced or if duplicate emails are allowed."
+      ],
+      "ambiguities": [
+        "No requirement specifies email uniqueness constraints or behavior on duplicate email creation."
+      ]
+    },
+    {
+      "id": "audit_field_content",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "given": {
+        "customer": {
+          "name": "Henry Ford",
+          "email": "henry.f@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "henry.f@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Henry Ford",
+          "customer.email": "henry.f@example.com"
+        },
+        "rows": {
+          "Audit": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The audit record must contain the operation (e.g., 'create'), customer ID, and timestamp, but the exact fields or format are not specified."
+      ],
+      "ambiguities": [
+        "The requirements do not specify which fields must be included in the audit record or how the timestamp is generated or stored."
+      ]
+    },
+    {
+      "id": "update_customer_name",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "Eve Davis",
+          "email": "eve@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "eve_davis",
+          "name",
+          "Eve Updated"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Eve Updated",
+          "customer.email": "eve@example.com"
+        },
+        "rows": {
+          "Customer": 1,
+          "Audit": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_duplicate_customer",
+      "source": "Create a Python 3.12 customer management application. Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "alice@example.com"
+        },
+        "customer_2": {
+          "name": "Alice Johnson",
+          "email": "alice@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "alice_johnson_duplicate"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice@example.com"
+        },
+        "rows": {
+          "Customer": 1,
+          "Audit": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements state that unique_policy is conventional and unique is false, meaning duplicates are allowed, but no explicit behavior is defined for handling duplicate entries during creation."
+      ],
+      "ambiguities": [
+        "It is not clear whether the system allows duplicate customer records with the same name and email, or if it enforces uniqueness despite the policy."
+      ]
+    },
+    {
+      "id": "audit_on_deletion",
+      "source": "Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
+      "given": {
+        "customer": {
+          "name": "Frank Wilson",
+          "email": "frank@example.com"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "frank_wilson"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.name": "Frank Wilson",
+          "customer.email": "frank@example.com"
+        },
+        "rows": {
+          "Audit": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The audit record must contain the operation, customer ID, and timestamp, but the exact format or content of the audit record is not specified.",
+        "It is unclear whether the audit record is created only when the customer is deleted or also when updated or created."
+      ]
+    }
+  ]
+}

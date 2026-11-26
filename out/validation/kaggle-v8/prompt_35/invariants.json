@@ -1,0 +1,48 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The stock quantity of a product must be non-negative.",
+      "kind": "rule"
+    },
+    {
+      "text": "A bulk update operation that changes the stock quantity of multiple products must succeed entirely or fail entirely as a single transaction.",
+      "kind": "rule"
+    },
+    {
+      "text": "If any product in a bulk update operation has a stock quantity that is negative, the entire bulk update must fail.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of the stock quantities of all products after a bulk update must not exceed the maximum allowed stock quantity limit.",
+      "kind": "rule"
+    }
+  ]
+}

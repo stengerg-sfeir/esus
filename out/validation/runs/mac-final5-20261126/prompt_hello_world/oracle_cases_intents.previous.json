@@ -1,0 +1,27 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "hello_world_cli",
+      "source": "The script should define a `main()` function and include the standard `if __name__ == \"__main__\": main()` guard.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

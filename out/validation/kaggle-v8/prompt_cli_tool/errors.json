@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "MissingFileError",
+      "base": "OSError",
+      "description": "Raised when the input CSV file path does not exist or cannot be accessed."
+    },
+    {
+      "name": "MalformedCSVError",
+      "base": "ValueError",
+      "description": "Raised when the CSV file contains malformed data, such as incorrect delimiter usage or invalid row structure that prevents successful parsing."
+    },
+    {
+      "name": "ColumnLookupError",
+      "base": "KeyError",
+      "description": "Raised when attempting to access a column header that is missing from the CSV header row during parsing."
+    }
+  ]
+}

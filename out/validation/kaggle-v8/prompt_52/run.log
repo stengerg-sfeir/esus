@@ -1,0 +1,90 @@
+[run] requirements: 207 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 78 tokens in 1.4s (55.6 tok/s, 63.6 decode, 76 prompt)
+[data_models] 848 tokens in 14.1s (59.9 tok/s, 60.5 decode, 584 prompt)
+[errors] 338 tokens in 5.8s (58.7 tok/s, 61.7 decode, 502 prompt)
+[invariants] 54 tokens in 1.0s (52.4 tok/s, 63.2 decode, 306 prompt)
+[ok] step invariants: 30 invariant(s) — 28 schema generated mechanically, 2 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 747 tokens in 13.0s (57.5 tok/s, 58.5 decode, 1014 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-borrow-date' to '--borrow-date'
+[ok] step components: normalized option '-return-date' to '--return-date'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-borrow-date' to '--borrow-date'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-return-date' to '--return-date'
+[service_contracts] 300 tokens in 5.3s (56.6 tok/s, 61.4 decode, 684 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidBookStatusError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidMemberStatusError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 902 tokens in 15.0s (60.0 tok/s, 61.0 decode, 431 prompt)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/14] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/14] invariant -> STATE_TRANSITION_GUARD (0.76)
+  [3/14] contract:BorrowService.borrow_book -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/14] contract:BorrowService.return_book -> STATE_TRANSITION_GUARD (0.96)
+  [5/14] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [6/14] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [7/14] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [8/14] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/14] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [10/14] contract:MemberRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/14] contract:BorrowRecordRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/14] contract:BorrowRecordRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/14] contract:BorrowRecordRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/14] contract:BorrowRecordRepository.get_borrow_records_by_book_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 14 item(s) — 4 standard CRUD, 10 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (book add: ambiguous methods: BorrowRecordRepository.create, MemberRepository.create) — asking the model
+[interaction_adapters] 1570 tokens in 26.5s (59.2 tok/s, 59.8 decode, 659 prompt)
+[ok] step adapters: search_books.available_status was 'ENUM_LOOKUP' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: update_book.available_status was 'ENUM_LOOKUP' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: create_borrow_record.is_returned was 'BOOL_TO_ONE' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: borrow_book.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrow_book.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: return_book.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: return_book.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_book_details.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_book.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_member_details.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_borrow_record.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_borrow_record.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_borrow_records_by_book.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: get_borrow_records_by_member.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 7 unreachable field(s) — retrying once
+[interaction_adapters] 475 tokens in 8.2s (57.8 tok/s, 60.6 decode, 812 prompt)
+[ok] step adapters: create_borrow_record.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_borrow_record.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: borrow_book.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: return_book.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters still omits 7 unreachable field(s) (retry: 7) — kept first attempt; the probe will report it
+[ok] step adapters: added capability method BookRepository.search_books (search)
+[ok] step adapters: added capability method MemberRepository.search_members (search)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: book add lacked '--book-id' required by 'create_borrow_record' — added as int
+[ok] step adapters: book add lacked '--member-id' required by 'create_borrow_record' — added as int
+[ok] step adapters: book add lacked '--borrow-date' required by 'create_borrow_record' — added as str
+[ok] step adapters: book list lacked '--member-id' required by 'get_borrow_records_by_member' — added as int
+[ok] step adapters: book borrow lacked '--book-id' required by 'borrow_book' — added as int
+[ok] step adapters: book return lacked '--book-id' required by 'return_book' — added as int
+[ok] step adapters: member add lacked '--name' required by 'create_member' — added as str
+[ok] step adapters: member add lacked '--email' required by 'create_member' — added as str
+[ok] step adapters: member list lacked '--member-id' required by 'get_borrow_records_by_member' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 5 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_52/requirements.txt
+[run] 9 steps, 5312 generated tokens in 90.4s

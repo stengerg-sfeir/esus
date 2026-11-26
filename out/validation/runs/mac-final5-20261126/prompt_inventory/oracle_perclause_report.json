@@ -1,0 +1,56 @@
+{
+  "prompt": "prompt_inventory",
+  "results": [
+    {
+      "name": "scenario:oracle:add_product_unique_sku",
+      "status": "failed",
+      "reason": "raised CategoryNotFoundError: Product.category_id=1 references missing Category.id; expected 'ProductNotFoundError'",
+      "case": "add_product_unique_sku",
+      "source": "product add --sku --name --category --price --stock"
+    },
+    {
+      "name": "scenario:oracle:add_product_category_exists",
+      "status": "failed",
+      "reason": "raised CategoryNotFoundError: Product.category_id=1 references missing Category.id; expected 'ProductNotFoundError'",
+      "case": "add_product_category_exists",
+      "source": "product add --sku --name --category --price --stock"
+    },
+    {
+      "name": "scenario:oracle:delete_product",
+      "status": "failed",
+      "reason": "expected ProductNotFoundError, no error was raised",
+      "case": "delete_product",
+      "source": "product delete --id"
+    },
+    {
+      "name": "scenario:oracle:restock_product",
+      "status": "failed",
+      "reason": "expected ProductNotFoundError, no error was raised",
+      "case": "restock_product",
+      "source": "product restock --id --qty"
+    },
+    {
+      "name": "scenario:oracle:low_stock_report",
+      "status": "failed",
+      "reason": "expected ProductNotFoundError, no error was raised",
+      "case": "low_stock_report",
+      "source": "product report low-stock"
+    },
+    {
+      "name": "stock_value_by_category",
+      "status": "unbound",
+      "reason": "expected state references unseeded alias 'total_stock_value'",
+      "source": "product report value"
+    },
+    {
+      "name": "category_add",
+      "status": "unbound",
+      "reason": "no generated method matches 'category_add'",
+      "source": "category add --name [--description] [--threshold]"
+    }
+  ],
+  "counts": {
+    "failed": 5,
+    "unbound": 2
+  }
+}

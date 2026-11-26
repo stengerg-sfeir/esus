@@ -1,0 +1,17 @@
+[
+  {
+    "label": "ProductRepository.report_low_stock",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n    if stock_quantity is not None:\n        criteria.append(('stock_quantity', 'lt', stock_quantity))\n    found = self._store.select(self.ENTITY, criteria)\n    result = []\n    for row in found:\n        result.append(row)\n    return _model_list(result, models.Product)",
+    "finish_reason": "stop",
+    "tokens": 64,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 8.95028305053711,
+    "decode_seconds": 1.7209960000000002,
+    "prompt_tokens": 2802,
+    "cached_tokens": 0,
+    "context": "exact"
+  }
+]

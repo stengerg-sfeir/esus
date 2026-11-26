@@ -1,0 +1,32 @@
+{
+  "prompt": "prompt_inventory",
+  "results": [
+    {
+      "name": "update_product_field",
+      "status": "unbound",
+      "reason": "setup needs a Category row required by CategoryNotFoundError",
+      "source": "update_product(id, data): updates a product's fields"
+    },
+    {
+      "name": "delete_product",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Product; a hard-deleted row has no state to read",
+      "source": "delete_product(id): deletes a product by ID"
+    },
+    {
+      "name": "list_products_by_category",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "list_products(category_id (Optional[int]), low_only (Optional[bool])): lists products filtered by optional category and optionally only low-stock ones; no filters returns all products"
+    },
+    {
+      "name": "list_low_stock_products",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "list_products(category_id (Optional[int]), low_only (Optional[bool])): lists products filtered by optional category and optionally only low-stock ones; no filters returns all products"
+    }
+  ],
+  "counts": {
+    "unbound": 4
+  }
+}

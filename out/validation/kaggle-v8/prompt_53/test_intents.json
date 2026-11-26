@@ -1,0 +1,90 @@
+{
+  "intents": [
+    {
+      "id": "order_with_insufficient_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "kind": "error",
+      "entity": "Order",
+      "action": "place_order",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 0
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        1
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "insufficient_stock",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "order_creation_decreases_stock",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "decrease_stock",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 2
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 2
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

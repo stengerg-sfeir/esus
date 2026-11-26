@@ -1,0 +1,397 @@
+{
+  "prompt": "prompt_inventory",
+  "results": [
+    {
+      "name": "scenario:oracle:product_list_with_category_filter",
+      "status": "passed",
+      "case": "product_list_with_category_filter",
+      "source": "product list [--category] [--low-only]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.list_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:product_restock_increments_stock",
+      "status": "passed",
+      "case": "product_restock_increments_stock",
+      "source": "product restock --id --qty",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.restock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:stock_value_by_category_returns_aggregate",
+      "status": "passed",
+      "case": "stock_value_by_category_returns_aggregate",
+      "source": "product report value",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          },
+          "category.id": {
+            "status": "aligned",
+            "canonical": "id",
+            "score": 10.0,
+            "evidence": [
+              "Category.id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.stock_value_by_category",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:category_add_with_optional_fields",
+      "status": "passed",
+      "case": "category_add_with_optional_fields",
+      "source": "category add --name [--description] [--threshold]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "category.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Category.name exists"
+            ],
+            "alternatives": []
+          },
+          "category.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Category.description exists"
+            ],
+            "alternatives": []
+          },
+          "category.reorder_threshold": {
+            "status": "aligned",
+            "canonical": "reorder_threshold",
+            "score": 10.0,
+            "evidence": [
+              "Category.reorder_threshold exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "InventoryService.add_product",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create",
+            "ProductRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:product_list_low_only_filter",
+      "status": "passed",
+      "case": "product_list_low_only_filter",
+      "source": "product list [--category] [--low-only]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_other": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category_other": {
+            "status": "alias",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.list_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 5
+  },
+  "triage_counts": {
+    "passed": 5
+  }
+}

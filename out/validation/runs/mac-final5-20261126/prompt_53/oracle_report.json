@@ -1,0 +1,56 @@
+{
+  "prompt": "prompt_53",
+  "results": [
+    {
+      "name": "scenario:oracle:place_order_with_sufficient_stock",
+      "status": "failed",
+      "reason": "raised AttributeError: 'str' object has no attribute 'get'; expected None",
+      "case": "place_order_with_sufficient_stock",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderManagementService.place_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    }
+  ],
+  "counts": {
+    "failed": 1
+  },
+  "triage_counts": {
+    "under_specified": 1
+  }
+}

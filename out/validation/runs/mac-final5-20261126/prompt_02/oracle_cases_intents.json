@@ -1,0 +1,163 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "addition",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "2",
+          "+",
+          "3"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument '2' is not stated in the target clause",
+        "argument '+' is not stated in the target clause",
+        "argument '3' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "subtraction",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "5",
+          "-",
+          "3"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "2",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument '5' is not stated in the target clause",
+        "argument '-' is not stated in the target clause",
+        "argument '3' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "multiplication",
+      "source": "It must support addition, subtraction, multiplication and division of two numbers.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "4",
+          "*",
+          "7"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "28",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument '4' is not stated in the target clause",
+        "argument '*' is not stated in the target clause",
+        "argument '7' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "display_result_on_command_line",
+      "source": "Display the result on the command line.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "2",
+          "+",
+          "3"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "argument '2' is not stated in the target clause",
+        "argument '+' is not stated in the target clause",
+        "argument '3' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "display_division_error",
+      "source": "Display the result on the command line.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "10",
+          "/",
+          "0"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "Error: Division by zero",
+        "exit_code": 1,
+        "error": "DivisionByZeroError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'DivisionByZeroError' is not stated in the target clause",
+        "argument '10' is not stated in the target clause",
+        "argument '/' is not stated in the target clause",
+        "argument '0' is not stated in the target clause",
+        "expected stdout is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements",
+        "error class 'DivisionByZeroError' is not named in the requirements"
+      ]
+    }
+  ]
+}

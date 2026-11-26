@@ -1,0 +1,42 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "track_stock_and_sales",
+      "source": "It should be possible to know what has been sold and what is still in stock.",
+      "given": {
+        "product": {
+          "stock_quantity": 10,
+          "name": "product name",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "list_stock_and_sales",
+        "args": [
+          {
+            "ref": "product.product_id"
+          }
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 10
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "what has been sold and what is still in stock",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application provides a list view that shows both sold quantities and remaining stock for each product."
+      ],
+      "ambiguities": [
+        "The exact format or fields displayed in the list (e.g., sold units, current stock) are not specified."
+      ]
+    }
+  ]
+}

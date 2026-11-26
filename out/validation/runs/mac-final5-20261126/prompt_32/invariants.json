@@ -1,0 +1,44 @@
+{
+  "invariants": [
+    {
+      "text": "Order.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An order must start in the pending state.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order in the confirmed state cannot transition to cancelled.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order in the shipped state cannot transition to cancelled.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order in the cancelled state cannot transition to shipped.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order in the pending state can transition to confirmed.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order in the pending state can transition to shipped.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order in the confirmed state can transition to shipped.",
+      "kind": "rule"
+    }
+  ]
+}

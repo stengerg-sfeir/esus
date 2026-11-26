@@ -1,0 +1,70 @@
+: {
+        "state": {"state": "cancelled"},
+        "error": "InvalidStateTransitionError",
+        "rows": null
+      },
+      "status": "confirmed",
+      "assumptions": []
+    },
+    {
+      "id": "order_cancellation_from_confirmed_alternative",
+      "source": "A shipped order cannot be cancelled",
+      "given": {
+        "state": "confirmed"
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": []
+      },
+      "then": {
+        "state": {"state": "confirmed"},  // Assumed unchanged if no error occurs
+        "error": null,
+        "rows": null
+      },
+      "status": "ambiguous",
+      "ambiguities": ["Requirement states shipped orders cannot be cancelled, but does not specify if a confirmed order can be cancelled without becoming shipped first."]
+    },
+    {
+      "id": "order_cancellation_from_confirmed_explicit",
+      "source": "A cancelled order cannot be shipped",
+      "given": {
+        "state": "confirmed"
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": []
+      },
+      "then": {
+        "state": {"state": "cancelled"},
+        "error": "InvalidStateTransitionError",
+        "rows": null
+      },
+      "status": "contradictory",
+      "ambiguities": [
+        "Contradicts with the assumption that a confirmed order can be cancelled directly to `cancelled` without becoming shipped first."
+      ],
+      "assumptions": [
+        "Assuming that a confirmed order can be cancelled directly to `cancelled` if no explicit transition to `shipped` occurs first."
+      ]
+    },
+    {
+      "id": "order_shipping_from_cancelled",
+      "source": "A cancelled order cannot be shipped",
+      "given": {
+        "state": "cancelled"
+      },
+      "when": {
+        "action": "ship_order",
+        "args": []
+      },
+      "then": {
+        "state": {"state": "cancelled"},
+        "error": "InvalidStateTransitionError",
+        "rows": null
+      },
+      "status": "confirmed",
+      "assumptions": []
+    }
+  ]
+}
+```

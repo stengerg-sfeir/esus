@@ -1,0 +1,20 @@
+{
+  "prompt": "prompt_21",
+  "results": [
+    {
+      "name": "list_orders_for_customer",
+      "status": "unbound",
+      "reason": "ambiguous action binding: OrderRepository.read_all, OrderRepository.read_all_orders",
+      "source": "allow users to list all orders belonging to a customer"
+    },
+    {
+      "name": "create_order_for_customer",
+      "status": "unbound",
+      "reason": "create case supplies no value for required field Order.order_date",
+      "source": "Provide CRUD operations for customers and orders"
+    }
+  ],
+  "counts": {
+    "unbound": 2
+  }
+}

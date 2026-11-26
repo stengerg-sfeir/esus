@@ -1,0 +1,142 @@
+{
+  "prompt": "prompt_27",
+  "results": [
+    {
+      "name": "create_reservation_adjacent_no_overlap",
+      "status": "unbound",
+      "reason": "setup needs a Room row for Reservation.room_id",
+      "source": "A room cannot have two overlapping reservations.",
+      "alignment": {
+        "entities": {
+          "reservation_1": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation_2": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation": {
+            "status": "aligned",
+            "canonical": "Reservation",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          }
+        },
+        "fields": {
+          "reservation.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Reservation"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ReservationService.create_reservation",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "create_reservation_different_room",
+      "status": "unbound",
+      "reason": "setup needs a Room row for Reservation.room_id",
+      "source": "A room cannot have two overlapping reservations.",
+      "alignment": {
+        "entities": {
+          "reservation_1": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation_2": {
+            "status": "alias",
+            "canonical": "Reservation",
+            "score": 8.333333333333332,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 8.3"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          },
+          "reservation": {
+            "status": "aligned",
+            "canonical": "Reservation",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Reservation",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Room"
+            ]
+          }
+        },
+        "fields": {
+          "reservation.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Reservation"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ReservationService.create_reservation",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 2
+  }
+}

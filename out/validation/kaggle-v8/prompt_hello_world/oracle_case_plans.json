@@ -1,0 +1,22 @@
+{
+  "plans": [
+    {
+      "id": "main_function_definition",
+      "source": "The script should define a `main()` function and include the standard `if __name__ == \"__main__\": main()` guard.",
+      "when": {
+        "action": "define_main_function",
+        "args": [
+          "main"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "rows": {
+          "main": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

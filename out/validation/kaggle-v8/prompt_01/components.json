@@ -1,0 +1,29 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [],
+        "options": [],
+        "commands": []
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "The",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update"
+        ]
+      }
+    ]
+  }
+}

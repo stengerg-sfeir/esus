@@ -1,0 +1,103 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "borrow_book_available",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "availability": "available"
+        },
+        "member": {
+          "id": 101
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "book.title",
+          "member.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.availability": "borrowed",
+          "book.title": "The Great Gatsby"
+        },
+        "rows": {
+          "Book": 1,
+          "Member": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 10.0"
+            ],
+            "alternatives": [
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.availability": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'availability'",
+              "not declared on Book"
+            ],
+            "alternatives": []
+          },
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

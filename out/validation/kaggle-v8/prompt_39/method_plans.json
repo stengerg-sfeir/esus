@@ -1,0 +1,46 @@
+{
+  "plans": [
+    {
+      "holder": "OrderService",
+      "method": "create_order",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Order",
+      "target_service": "OrderRepository",
+      "target_method": "create"
+    }
+  ],
+  "questions": [
+    {
+      "holder": "OrderService",
+      "method": "read_order_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ProductService",
+      "method": "read_product_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ProductService",
+      "method": "delete_product",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "UserService",
+      "method": "read_user_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "UserService",
+      "method": "delete_user",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    }
+  ],
+  "requirements_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+}

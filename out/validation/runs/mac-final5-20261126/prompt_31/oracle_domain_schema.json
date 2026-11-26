@@ -1,0 +1,30 @@
+{
+  "entities": [
+    {
+      "name": "Customer",
+      "fields": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "fields": [
+        {
+          "name": "customer_id",
+          "type": "integer",
+          "required": true,
+          "references": "Customer.id"
+        },
+        {
+          "name": "balance",
+          "type": "number",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

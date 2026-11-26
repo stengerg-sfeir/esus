@@ -1,0 +1,33 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22
+
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: OrderRepository.calculate_total_order_amount ...
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_22/generated/__init__.py
+methods: 17 implemented, 1 stubs (94% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: OrderRepository.calculate_total_order_amount
+  stub: OrderRepository.calculate_total_order_amount: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  cli Order add -> create_order [score 8]
+  cli Order delete -> delete_order [score 11]
+  cli Order list -> list_orders [score 9]
+  cli Order update -> update_order [score 11]
+  cli OrderItem add -> create_order_item [score 8]
+  cli OrderItem delete -> delete_order_item [score 11]
+  cli OrderItem list -> list_order_items [score 9]
+  cli OrderItem update -> update_order_item [score 11]
+  cli Product add -> create_product [score 8]
+  cli Product delete -> delete_product [score 11]
+  cli Product list -> list_products [score 9]
+  cli Product update -> update_product [score 11]
+
+
+

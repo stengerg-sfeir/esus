@@ -1,0 +1,28 @@
+gate passed (2 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: TaskAssignmentRepository.getTaskAssignmentCountByTaskId ...
+llm: raw answers -> /tmp/v8-work/prompt_47/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_47/generated/models.py
+[write] /tmp/v8-work/prompt_47/generated/errors.py
+[write] /tmp/v8-work/prompt_47/generated/repositories.py
+[write] /tmp/v8-work/prompt_47/generated/services.py
+[write] /tmp/v8-work/prompt_47/generated/schema.py
+[write] /tmp/v8-work/prompt_47/generated/store.py
+[write] /tmp/v8-work/prompt_47/generated/cli.py
+[write] /tmp/v8-work/prompt_47/generated/__init__.py
+methods: 23 implemented, 1 stubs (96% mechanical)
+llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: TaskAssignmentRepository.getTaskAssignmentCountByTaskId
+  stub: TaskAssignmentRepository.getTaskAssignmentCountByTaskId: pattern AGGREGATE_BY_FK: no mechanical reading
+  cli Project add -> create_project [score 8]
+  cli Project delete -> delete_project [score 11]
+  cli Project update -> update_project [score 11]
+  cli Task add -> create_task [score 8]
+  cli Task delete -> delete_task [score 11]
+  cli Task update -> update_task [score 11]
+  cli TaskAssignment add -> create_task_assignment [score 8]
+  cli TaskAssignment delete -> delete_task_assignment [score 11]
+  cli TaskAssignment update -> update_task_assignment [score 11]
+  cli TeamMember add -> create_team_member [score 8]
+  cli TeamMember delete -> delete_team_member [score 11]
+  cli TeamMember update -> update_team_member [score 11]

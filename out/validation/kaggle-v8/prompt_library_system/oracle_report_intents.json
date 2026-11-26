@@ -1,0 +1,362 @@
+{
+  "prompt": "prompt_library_system",
+  "results": [
+    {
+      "name": "scenario:oracle:borrow_final_copy",
+      "status": "passed",
+      "case": "borrow_final_copy",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:borrowing_final_copy_leaves_zero",
+      "status": "passed",
+      "case": "borrowing_final_copy_leaves_zero",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:return_already_returned_loan",
+      "status": "passed",
+      "case": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises `AlreadyReturnedLoanError` and changes neither the loan nor inventory. Include that error in the declared error set.",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member",
+              "Loan"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Loan",
+              "Author",
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Book",
+              "Loan"
+            ]
+          },
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:library_borrow_member_id_book_id",
+      "status": "passed",
+      "case": "library_borrow_member_id_book_id",
+      "source": "library borrow --member-id --book-id",
+      "alignment": {
+        "entities": {
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Author"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Member",
+              "Author"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:library book search --query",
+      "status": "passed",
+      "case": "library book search --query",
+      "source": "library book search --query",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.published_year": {
+            "status": "aligned",
+            "canonical": "published_year",
+            "score": 10.0,
+            "evidence": [
+              "Book.published_year exists"
+            ],
+            "alternatives": []
+          },
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.search_books",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 5
+  }
+}

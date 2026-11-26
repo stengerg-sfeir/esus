@@ -1,0 +1,54 @@
+{
+  "errors": [
+    {
+      "name": "AlreadyReturnedLoanError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to return a loan that is already marked as returned."
+    },
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a book is not found during lookup by title, ISBN, or author ID."
+    },
+    {
+      "name": "AuthorNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an author is not found during lookup by ID or name."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a member is not found during lookup by ID or email."
+    },
+    {
+      "name": "LoanNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a loan is not found during lookup by ID."
+    },
+    {
+      "name": "InvalidMemberIDError",
+      "base": "ValueError",
+      "description": "Raised when a member ID provided in a borrow or return command is not a valid integer or does not reference an existing member."
+    },
+    {
+      "name": "InvalidBookIDError",
+      "base": "ValueError",
+      "description": "Raised when a book ID provided in a borrow or return command is not a valid integer or does not reference an existing book."
+    },
+    {
+      "name": "NegativeAvailableCopiesError",
+      "base": "ValueError",
+      "description": "Raised when a book is attempted to be created or updated with a negative number of available copies."
+    },
+    {
+      "name": "MissingRequiredFieldError",
+      "base": "ValueError",
+      "description": "Raised when a required field (e.g., title, ISBN, member name, email) is missing in a command input."
+    },
+    {
+      "name": "DuplicateEmailError",
+      "base": "KeyError",
+      "description": "Raised when attempting to add a member with an email that already exists in the system."
+    }
+  ]
+}

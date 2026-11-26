@@ -1,0 +1,69 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "add_product_invalid_category",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "given": {
+        "product": {
+          "sku": "SKU789",
+          "name": "Keyboard",
+          "category_id": 999,
+          "price_cents": 1500,
+          "stock_qty": 3
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "SKU789",
+          "Keyboard",
+          "999",
+          "1500",
+          "3"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "CategoryNotFoundError",
+        "rows": {}
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

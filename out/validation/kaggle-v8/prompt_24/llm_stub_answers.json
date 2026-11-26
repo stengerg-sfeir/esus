@@ -1,0 +1,48 @@
+[
+  {
+    "label": "ProjectRepository.get_project_with_tasks",
+    "status": "written",
+    "note": "",
+    "answer": "project = self.read_one(project_id)\n    if not project:\n        return None, []\n    tasks = self._store.select(\"Task\", [(\"project_id\", \"eq\", project.project_id)])\n    return (project, [models.Task(**task) for task in tasks])",
+    "finish_reason": "stop",
+    "tokens": 57,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 11.25347375869751,
+    "decode_seconds": 1.4925950000000001,
+    "prompt_tokens": 3943,
+    "cached_tokens": 332,
+    "context": "exact"
+  },
+  {
+    "label": "ProjectRepository.get_projects_by_status",
+    "status": "kept",
+    "note": "still refused: the model kept it unimplemented",
+    "answer": "raise NotImplementedError(\"ProjectRepository.get_projects_by_status: crud:filter: parameter 'status' maps to no field\")",
+    "first_answer": "raise NotImplementedError(\"ProjectRepository.get_projects_by_status: crud:filter: parameter 'status' maps to no field\")",
+    "complaints": [
+      "the model kept it unimplemented"
+    ],
+    "second_complaints": [
+      "the model kept it unimplemented"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 24,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 6.107825994491577,
+    "first_decode_seconds": 0.625225,
+    "first_prompt_tokens": 3906,
+    "first_cached_tokens": 2002,
+    "finish_reason": "stop",
+    "tokens": 24,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.0105781555175781,
+    "decode_seconds": 0.6159349999999999,
+    "prompt_tokens": 3974,
+    "cached_tokens": 3875,
+    "context": "exact"
+  }
+]

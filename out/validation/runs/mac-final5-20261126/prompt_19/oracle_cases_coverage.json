@@ -1,0 +1,134 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_task",
+      "source": "CRUD operations",
+      "given": {
+        "task": {
+          "title": "Review design",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "create_task",
+        "args": [
+          "task.title",
+          "task.status"
+        ]
+      },
+      "then": {
+        "state": {
+          "Task": 1
+        },
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify whether the task creation requires a unique ID, or if it is auto-generated.",
+        "The exact fields required for task creation are not explicitly listed (e.g., is 'title' required? 'status'?)."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "update_task_status",
+      "source": "CRUD operations",
+      "given": {
+        "task": {
+          "id": 1,
+          "title": "Review design",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "update_task_status",
+        "args": [
+          "task.id",
+          "task.status",
+          "completed"
+        ]
+      },
+      "then": {
+        "state": {
+          "task.status": "completed"
+        },
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether 'completed' is a valid status or a field to set. The action 'update_task_status' is not clearly defined in terms of input or expected outcome.",
+        "The field 'completed' is not mentioned in the requirements, making its use ambiguous."
+      ]
+    },
+    {
+      "id": "delete_task",
+      "source": "CRUD operations",
+      "given": {
+        "task": {
+          "id": 1,
+          "title": "Review design"
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "Task": 0
+        },
+        "rows": {
+          "Task": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify whether deletion removes the task or just marks it as deleted.",
+        "No information is provided about whether the database should be updated or only the UI state changed."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "read_task",
+      "source": "CRUD operations",
+      "given": {
+        "task": {
+          "title": "Review documentation"
+        }
+      },
+      "when": {
+        "action": "read_task",
+        "args": [
+          "task.title"
+        ]
+      },
+      "then": {
+        "state": {
+          "Task.title": "Review documentation",
+          "Task.status": "pending"
+        },
+        "rows": {}
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'read_task'"
+      }
+    }
+  ]
+}

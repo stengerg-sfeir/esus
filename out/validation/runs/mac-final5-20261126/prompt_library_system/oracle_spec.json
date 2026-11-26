@@ -1,0 +1,201 @@
+{
+  "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "find_active_members() -> list[Member]: Returns all active members (is_active = True).",
+      "chosen": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "THRESHOLD_SCAN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "classification",
+      "source": "find_active_loans() -> list[Loan]: Returns all loans with status 'active' (i.e., not returned and not overdue).",
+      "chosen": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "THRESHOLD_SCAN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "LibraryService.borrow_book",
+      "chosen": {
+        "effects": [
+          {
+            "target": "book.available_copies",
+            "op": "decrement",
+            "by": "1",
+            "write": "BookRepository.update"
+          }
+        ],
+        "creates": [
+          {
+            "class": "Loan",
+            "call": "LoanRepository.create"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "book exists",
+            "error": "BookNotFoundError",
+            "raise_when": "false"
+          },
+          {
+            "check": "member exists",
+            "error": "MemberNotFoundError",
+            "raise_when": "false"
+          }
+        ],
+        "order": [
+          "preconditions",
+          "LoanRepository.create",
+          "BookRepository.update"
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "LibraryService.renew_membership",
+      "chosen": {
+        "effects": [
+          {
+            "target": "member.is_active",
+            "op": "set",
+            "value": "not is_active",
+            "write": "MemberRepository.update"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "member exists",
+            "error": "MemberNotFoundError",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "LoanRepository.find_active_loans",
+      "chosen": {
+        "derives": [
+          {
+            "target": "loan.status",
+            "value": "active"
+          },
+          {
+            "target": "loan.status",
+            "value": "returned"
+          },
+          {
+            "target": "loan.status",
+            "value": "overdue"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "LoanRepository.find_overdue_loans",
+      "chosen": {
+        "derives": [
+          {
+            "target": "loan.status",
+            "value": "overdue"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "method_contract",
+      "source": "LibraryService.return_book",
+      "chosen": {
+        "effects": [
+          {
+            "target": "loan.return_date",
+            "op": "set",
+            "value": "now",
+            "write": "LoanRepository.update"
+          },
+          {
+            "target": "loan.status",
+            "op": "set",
+            "value": "'returned'",
+            "write": "LoanRepository.update"
+          },
+          {
+            "target": "book.available_copies",
+            "op": "increment",
+            "by": "1",
+            "write": "BookRepository.update"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "loan exists",
+            "error": "LoanNotFoundError",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "drop-flag",
+      "source": "book add name",
+      "chosen": {},
+      "provenance": "surface_decisions.json"
+    },
+    {
+      "kind": "drop-flag",
+      "source": "book add email",
+      "chosen": {},
+      "provenance": "surface_decisions.json"
+    },
+    {
+      "kind": "drop-flag",
+      "source": "author add email",
+      "chosen": {},
+      "provenance": "surface_decisions.json"
+    },
+    {
+      "kind": "drop-flag",
+      "source": "overdue overdue",
+      "chosen": {},
+      "provenance": "surface_decisions.json"
+    }
+  ]
+}

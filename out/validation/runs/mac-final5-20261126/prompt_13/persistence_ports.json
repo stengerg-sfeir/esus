@@ -1,0 +1,146 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Product.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              },
+              {
+                "name": "sku",
+                "type": "string"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Product.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Product.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "stock_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "id",
+        "indexes": []
+      }
+    ]
+  }
+}

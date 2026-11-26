@@ -1,0 +1,52 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Account.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Account.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Account.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Account.customer_id must reference an existing Customer.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Account.balance must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Account.balance must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A withdrawal is rejected if the result of the withdrawal would make the account balance negative.",
+      "kind": "rule"
+    }
+  ]
+}

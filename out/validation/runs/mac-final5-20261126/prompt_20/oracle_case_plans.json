@@ -1,0 +1,108 @@
+{
+  "plans": [
+    {
+      "id": "create_sale_with_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "create_sale",
+        "args": [
+          "product_id",
+          "quantity",
+          "price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "Sale",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Sale": 1,
+          "Product": 1
+        }
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "update_product_price",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "update_product",
+        "args": [
+          "name",
+          "price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.price"
+        ],
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "delete_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "when": {
+        "action": "delete_sale",
+        "args": [
+          "sale_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "Sale",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Sale": 0
+        }
+      },
+      "status": "assumed"
+    }
+  ]
+}

@@ -1,0 +1,360 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "cancel_confirmed_order",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "given": {
+        "order": {
+          "status": "confirmed"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "error": "OrderCannotBeCancelledError",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement states a cancelled order cannot be shipped, but does not explicitly state that a confirmed order cannot be cancelled. This is a contradiction in the allowed transitions."
+      ],
+      "ambiguities": [
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "cancel_shipped_order",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "given": {
+        "order": {
+          "status": "shipped"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "shipped"
+        },
+        "error": "OrderCannotBeCancelledError",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement states a shipped order cannot be cancelled, but does not explicitly state that a confirmed order cannot be cancelled. This creates a contradiction in the allowed transitions when combined with the lack of explicit rules for confirmed orders."
+      ],
+      "ambiguities": [
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "order_status_transition_from_shipped_to_cancelled",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "given": {
+        "order": {
+          "status": "shipped"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "shipped"
+        },
+        "error": "OrderCannotBeCancelledError",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement explicitly states a shipped order cannot be cancelled, so this transition is invalid. However, the requirement does not define what happens when attempting to cancel a shipped order — it only prohibits it. This creates a contradiction in the behavior if the system allows cancellation at all."
+      ],
+      "ambiguities": [
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements",
+        "error class 'OrderCannotBeCancelledError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "order_status_transition_from_cancelled_to_confirmed",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "given": {
+        "order": {
+          "status": "cancelled"
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "error": "OrderCannotBeConfirmedError",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirement states a cancelled order cannot be shipped, but does not specify whether it can be confirmed. This is not explicitly defined, so the behavior is ambiguous.",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements",
+        "error class 'OrderCannotBeConfirmedError' is not named in the requirements"
+      ]
+    }
+  ]
+}

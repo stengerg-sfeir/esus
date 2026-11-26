@@ -1,0 +1,75 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Employee add",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "add",
+            "--name",
+            "value1",
+            "--department-id",
+            "1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee update",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
+            "--employee-id",
+            "1",
+            "--name",
+            "value1",
+            "--department-id",
+            "1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ],
+        "seed_overrides": {
+          "Employee": {
+            "name": "value1",
+            "department_id": 1,
+            "email": "cli1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Loan add",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--due-date",
+            "2024-01-01",
+            "--is-active"
+          ],
+          [
+            "Loan",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--due-date",
+            "2024-01-01",
+            "--is-active",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan update",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "update",
+            "--id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--due-date",
+            "2024-01-01",
+            "--is-active"
+          ],
+          [
+            "Loan",
+            "update",
+            "--id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--loan-date",
+            "2024-01-01T00:00:00",
+            "--due-date",
+            "2024-01-01",
+            "--is-active",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Loan": {
+            "book_id": 1,
+            "member_id": 1,
+            "loan_date": "2024-01-01T00:00:00",
+            "due_date": "2024-01-01"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Loan delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Loan",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

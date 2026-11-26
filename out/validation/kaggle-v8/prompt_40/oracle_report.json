@@ -1,0 +1,161 @@
+{
+  "prompt": "prompt_40",
+  "results": [
+    {
+      "name": "confirm_order_notification",
+      "status": "unbound",
+      "reason": "no generated method matches 'confirm_order'",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "notification_service_log",
+      "status": "unbound",
+      "reason": "cannot resolve given entity 'notification'",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "alignment": {
+        "entities": {
+          "notification": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'notification'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "NotificationService.send_notification",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "notification_on_pending",
+      "status": "unbound",
+      "reason": "no generated method matches 'confirm_order'",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "notification_on_order_creation",
+      "status": "unbound",
+      "reason": "no generated method matches 'confirm_order'",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 4
+  }
+}

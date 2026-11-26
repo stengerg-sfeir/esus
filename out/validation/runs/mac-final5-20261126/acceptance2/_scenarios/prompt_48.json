@@ -1,0 +1,104 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Book add",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "add",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--genre",
+            "value1",
+            "--publication-date",
+            "2024-01-01",
+            "--isbn",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book update",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--genre",
+            "value1",
+            "--publication-date",
+            "2024-01-01",
+            "--isbn",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "genre": "value1",
+            "publication_date": "2024-01-01",
+            "isbn": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "delete",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--genre",
+            "value1",
+            "--publication-date",
+            "2024-01-01",
+            "--isbn",
+            "value1"
+          ],
+          [
+            "Book",
+            "delete",
+            "--book-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "genre": "value1",
+            "publication_date": "2024-01-01",
+            "isbn": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

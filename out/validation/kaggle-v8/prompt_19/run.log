@@ -1,0 +1,87 @@
+[run] requirements: 231 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 109 tokens in 2.1s (53.2 tok/s, 61.3 decode, 81 prompt)
+[data_models] 444 tokens in 7.6s (58.1 tok/s, 59.3 decode, 614 prompt)
+[errors] 8 tokens in 0.3s (25.2 tok/s, 68.4 decode, 481 prompt)
+[invariants] 323 tokens in 5.5s (59.3 tok/s, 60.8 decode, 285 prompt)
+[ok] step invariants: 23 invariant(s) — 13 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 427 tokens in 7.8s (54.6 tok/s, 56.0 decode, 993 prompt)
+[ok] step components: normalized option '-export' to '--export'
+[ok] step components: normalized option '-import' to '--import'
+[ok] step components: normalized option '-format' to '--format'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-validate' to '--validate'
+[service_contracts] 476 tokens in 8.1s (58.6 tok/s, 60.5 decode, 487 prompt)
+[ok] step contracts: added 4 mechanical service method(s)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[ok] step errors: dropped unregistered validation raise 'InvalidTaskIdError' from TaskService.confirm_order
+[ok] step errors: registered raised error 'TaskStatusInvalidError' from TaskService.confirm_order
+[ok] step errors: dropped unregistered validation raise 'InvalidTaskIdError' from TaskService.cancel_order
+[ok] step errors: registered raised error 'TaskNotConfirmedError' from TaskService.cancel_order
+[ok] step errors: dropped unregistered validation raise 'InvalidTaskDataError' from TaskService.validate_imported_tasks
+[ok] step errors: registered raised error 'MissingRequiredFieldError' from TaskService.validate_imported_tasks
+[ok] step errors: dropped unregistered validation raise 'InvalidJsonFormatError' from TaskService.import_tasks_from_json
+[ok] step errors: dropped unregistered validation raise 'ValidationFailedError' from TaskService.import_tasks_from_json
+[persistence_ports] 493 tokens in 8.3s (59.3 tok/s, 60.7 decode, 390 prompt)
+[ok] step persistence: merged 6 custom repository method(s) into service_contracts
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/29] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/29] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [3/29] invariant -> STATE_TRANSITION_GUARD (0.95)
+  [4/29] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [5/29] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/29] invariant -> BUDGET_OVERFLOW_GUARD (0.71)
+  [7/29] invariant -> NO_PATTERN_IN_DOMAIN (0.99)  <- GAP: no pattern for this
+  [8/29] invariant -> STATE_TRANSITION_GUARD (0.98)
+  [9/29] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [10/29] invariant -> NO_PATTERN_IN_DOMAIN (0.97)  <- GAP: no pattern for this
+  [11/29] contract:TaskService.confirm_order -> STATE_TRANSITION_GUARD (1.00)
+  [12/29] contract:TaskService.cancel_order -> STATE_TRANSITION_GUARD (1.00)
+  [13/29] contract:TaskService.validate_imported_tasks -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns collection (list[str])
+  [14/29] contract:TaskService.export_tasks_to_json -> READ_ONE_BY_ID (0.00)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (str) (was AGGREGATE_BY_FK_AND_DATE)
+  [15/29] contract:TaskService.import_tasks_from_json -> NO_PATTERN_IN_DOMAIN (0.57)  <- GAP: no pattern for this
+  [16/29] contract:TaskService.create_task -> STANDARD_CRUD (1.00)
+  [17/29] contract:TaskService.read_all_tasks -> READ_ALL (0.31)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Task]) (was READ_ONE_BY_ID)
+  [18/29] contract:TaskService.update_task -> STANDARD_CRUD (1.00)
+  [19/29] contract:TaskService.delete_task -> STANDARD_CRUD (1.00)
+  [20/29] contract:TaskRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/29] contract:TaskRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/29] contract:TaskRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/29] contract:TaskRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/29] contract:TaskRepository.find_task_by_title -> READ_ONE_BY_ID (1.00)
+  [25/29] contract:TaskRepository.find_task_by_status -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [26/29] contract:TaskRepository.count_tasks_by_priority -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [27/29] contract:TaskRepository.get_tasks_with_due_date_in_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/29] contract:TaskRepository.export_tasks_to_json -> NO_PATTERN_IN_DOMAIN (0.01)  <- UNKNOWN: FILTER_BY_FIELD returns collection, but this method returns entity (str)
+  [29/29] contract:TaskRepository.import_tasks_from_json -> BUDGET_OVERFLOW_GUARD (0.59)
+[ok] step patterns: 29 item(s) — 6 standard CRUD, 18 pattern(s), 5 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: Exporting tasks to JSON must include all fields: title, description, status, priority, due_date, created_at, and updated_at.
+    gap [NO_PATTERN_IN_DOMAIN] invariant: The created_at field of a task must be set to the current timestamp when the task is created.
+    gap [NO_PATTERN_IN_DOMAIN] contract:TaskService.validate_imported_tasks: validate_imported_tasks(tasks_data: list[dict]) -> list[str]: Validates a list of tasks before importing them into the database. Ensures all required fields are present and valid.
+    gap [NO_PATTERN_IN_DOMAIN] contract:TaskService.import_tasks_from_json: import_tasks_from_json(json_data: str) -> bool: Imports tasks from a JSON file into the database. Validates the input data before any changes are made to the database.
+    gap [NO_PATTERN_IN_DOMAIN] contract:TaskRepository.export_tasks_to_json: export_tasks_to_json() -> str: Exports all tasks to a JSON file, including their id, title, description, status, priority, due_date, and timestamps.
+[ok] step adapters: derived 1 command group(s) from 19 service method(s)
+[ok] step adapters: 4 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: taskupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method TaskService.taskexport (export)
+[ok] step adapters: exposed prose import as Task import
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/method_plans.json
+[ok] method plans: 3 mechanical candidate(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_19/requirements.txt
+[run] 7 steps, 2280 generated tokens in 39.7s

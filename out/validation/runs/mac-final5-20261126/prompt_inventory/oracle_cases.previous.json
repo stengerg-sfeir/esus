@@ -1,0 +1,375 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "add_product_unique_sku",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "given": {
+        "product": {
+          "sku": "SKU123",
+          "name": "Laptop",
+          "category_id": 1,
+          "price_cents": 10000,
+          "stock_qty": 10
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "SKU123",
+          "Laptop",
+          "1",
+          "10000",
+          "10"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "SKU123",
+          "product.name": "Laptop",
+          "product.category_id": 1,
+          "product.price_cents": 10000,
+          "product.stock_qty": 10
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    },
+    {
+      "id": "add_product_category_exists",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "given": {
+        "product": {
+          "sku": "SKU456",
+          "name": "Mouse",
+          "category_id": 1,
+          "price_cents": 500,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "SKU456",
+          "Mouse",
+          "1",
+          "500",
+          "5"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "SKU456",
+          "product.name": "Mouse",
+          "product.category_id": 1,
+          "product.price_cents": 500,
+          "product.stock_qty": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    },
+    {
+      "id": "add_product_invalid_category",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "given": {
+        "product": {
+          "sku": "SKU789",
+          "name": "Keyboard",
+          "category_id": 999,
+          "price_cents": 1500,
+          "stock_qty": 3
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "SKU789",
+          "Keyboard",
+          "999",
+          "1500",
+          "3"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "CategoryNotFoundError",
+        "rows": {}
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_products_low_only",
+      "source": "list_products(category_id (Optional[int]), low_only (Optional[bool]))",
+      "given": {
+        "product": {
+          "category_id": 1,
+          "stock_qty": 3,
+          "reorder_threshold": 5
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "1",
+          true
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.list_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    }
+  ]
+}

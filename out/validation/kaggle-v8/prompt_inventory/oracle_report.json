@@ -1,0 +1,239 @@
+{
+  "prompt": "prompt_inventory",
+  "results": [
+    {
+      "name": "add_product_unique_sku",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "add_product_category_exists",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:add_product_invalid_category",
+      "status": "passed",
+      "case": "add_product_invalid_category",
+      "source": "add_product(sku, name, category_id, price_cents, stock_qty)",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "list_products_low_only",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "list_products(category_id (Optional[int]), low_only (Optional[bool]))",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.list_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 3,
+    "passed": 1
+  }
+}

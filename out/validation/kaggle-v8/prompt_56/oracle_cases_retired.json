@@ -1,0 +1,223 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "cancel_order_restore_stock",
+        "source": "cancelling an order must restore its product quantities",
+        "given": {
+          "order": {
+            "status": "pending",
+            "customer_id": 1
+          },
+          "product": {
+            "stock_quantity": 5
+          }
+        },
+        "when": {
+          "action": "cancel_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "cancelled",
+            "product.stock_quantity": 7
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "OrderProduct",
+                "Customer",
+                "Product"
+              ]
+            },
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "OrderProduct",
+                "Order"
+              ]
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Order.status exists"
+              ],
+              "alternatives": []
+            },
+            "product.stock_quantity": {
+              "status": "aligned",
+              "canonical": "stock_quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.stock_quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "ambiguous",
+            "canonical": "OrderRepository.cancel_order",
+            "score": 7.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "OrderRepository.cancel_order",
+              "OrderService.cancel_order",
+              "OrderProductRepository.get_order_product_details",
+              "OrderProductRepository.get_order_products_by_product_id"
+            ]
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "setup needs a Customer row for Order.customer_id"
+        }
+      },
+      "status": "unbound",
+      "reason": "setup needs a Customer row for Order.customer_id"
+    },
+    {
+      "case": {
+        "id": "atomic_transaction_persisted",
+        "source": "all modifications must be persisted atomically in SQLite",
+        "given": {
+          "order": {
+            "status": "pending",
+            "customer_id": 8
+          },
+          "product": {
+            "stock_quantity": 5
+          }
+        },
+        "when": {
+          "action": "cancel_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "cancelled",
+            "product.stock_quantity": 7
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 14.0"
+              ],
+              "alternatives": [
+                "OrderProduct",
+                "Customer"
+              ]
+            },
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 14.0"
+              ],
+              "alternatives": [
+                "OrderProduct"
+              ]
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Order.status exists"
+              ],
+              "alternatives": []
+            },
+            "product.stock_quantity": {
+              "status": "aligned",
+              "canonical": "stock_quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.stock_quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "ambiguous",
+            "canonical": "OrderRepository.cancel_order",
+            "score": 7.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "OrderRepository.cancel_order",
+              "OrderService.cancel_order",
+              "OrderProductRepository.get_order_product_details",
+              "OrderProductRepository.get_order_products_by_product_id"
+            ]
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "setup needs a Customer row for Order.customer_id"
+        }
+      },
+      "status": "unbound",
+      "reason": "setup needs a Customer row for Order.customer_id"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "track_stock_and_sales",
+      "source": "It should be possible to know what has been sold and what is still in stock.",
+      "given": {
+        "product": {
+          "stock_quantity": 5
+        },
+        "sale": {
+          "quantity": 2
+        }
+      },
+      "when": {
+        "action": "record_sale",
+        "args": [
+          "product.id",
+          "sale.quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Sale": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "create case supplies no value for required field Sale.customer_id"
+      }
+    }
+  ]
+}

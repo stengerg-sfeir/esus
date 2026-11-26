@@ -1,0 +1,10 @@
+{
+  "intentions": [
+    "Define order states: pending, confirmed, shipped, cancelled",
+    "Implement state transitions with explicit validation",
+    "Ensure only valid transitions are allowed (e.g., pending → confirmed, confirmed → shipped, confirmed → cancelled)",
+    "Enforce constraints: cancelled orders cannot be shipped, shipped orders cannot be cancelled",
+    "Maintain order state history and transition tracking",
+    "Provide methods to check current state and validate next state"
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "update_product_price",
+        "source": "Provide CRUD operations for products and sales.",
+        "given": {
+          "product": {
+            "name": "Mouse",
+            "price": 25
+          }
+        },
+        "when": {
+          "action": "update_product",
+          "args": [
+            "name",
+            "price"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.price": 30
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The product with name 'Mouse' exists and is uniquely identified"
+        ],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_product",
+        "source": "Provide CRUD operations for products and sales.",
+        "given": {
+          "product": {
+            "name": "Keyboard"
+          }
+        },
+        "when": {
+          "action": "delete_product",
+          "args": [
+            "name"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Product": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The product with name 'Keyboard' exists and is uniquely identified"
+        ],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "delete_sale",
+        "source": "Provide CRUD operations for products and sales.",
+        "given": {
+          "sale": {
+            "sale_id": 101
+          }
+        },
+        "when": {
+          "action": "delete_sale",
+          "args": [
+            "sale_id"
+          ]
+        },
+        "then": {
+          "rows": {
+            "Sale": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "The sale with sale_id 101 exists and is uniquely identified"
+        ],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

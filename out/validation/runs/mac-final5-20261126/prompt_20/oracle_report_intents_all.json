@@ -1,0 +1,100 @@
+{
+  "prompt": "prompt_20",
+  "results": [
+    {
+      "name": "scenario:oracle:create_sale",
+      "status": "passed",
+      "case": "create_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Sale"
+            ]
+          },
+          "sale": {
+            "status": "aligned",
+            "canonical": "Sale",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Sale",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "SaleRepository.create_sale",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "SaleRepository.create"
+          ]
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:list_sales",
+      "status": "passed",
+      "case": "list_sales",
+      "source": "Provide CRUD operations for products and sales.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Sale"
+            ]
+          },
+          "sale": {
+            "status": "aligned",
+            "canonical": "Sale",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Sale",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "SaleRepository.read_all_sales",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "SaleRepository.read_all"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 2
+  }
+}

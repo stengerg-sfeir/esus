@@ -1,0 +1,17 @@
+[
+  {
+    "label": "SalesReportService.generate_product_sales_report",
+    "status": "written",
+    "note": "",
+    "answer": "product_sales = self._repos['SaleRepository'].get_sales_by_product_id()\n    report = {}\n    for sale in product_sales:\n        product_id = sale.product_id\n        if product_id not in report:\n            report[product_id] = {\n                'total_sales_amount': 0,\n                'number_of_sales': 0\n            }\n        sale_amount = sale.quantity * self._repos['ProductRepository'].read_product_by_id(product_id).price\n        report[product_id]['total_sales_amount'] += sale_amount\n        report[product_id]['number_of_sales'] += 1\n    return report",
+    "finish_reason": "stop",
+    "tokens": 127,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 8.452228307723999,
+    "decode_seconds": 3.474431,
+    "prompt_tokens": 2427,
+    "cached_tokens": 658,
+    "context": "exact"
+  }
+]

@@ -1,0 +1,80 @@
+[run] requirements: 197 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 73 tokens in 1.3s (54.8 tok/s, 63.6 decode, 75 prompt)
+[data_models] 648 tokens in 10.8s (60.1 tok/s, 60.8 decode, 577 prompt)
+[errors] 58 tokens in 1.2s (50.3 tok/s, 63.0 decode, 487 prompt)
+[invariants] 28 tokens in 0.6s (48.1 tok/s, 64.0 decode, 291 prompt)
+[ok] step invariants: 20 invariant(s) — 19 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1337 tokens in 23.1s (57.8 tok/s, 58.1 decode, 999 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-sku' to '--sku'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-sku' to '--sku'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-product-id' to '--product-id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-output' to '--output'
+[service_contracts] 10 tokens in 0.5s (18.4 tok/s, 68.6 decode, 523 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'DuplicateSKUError' and it is named nowhere in the requirements — dropped
+[persistence_ports] 228 tokens in 3.9s (59.2 tok/s, 62.1 decode, 409 prompt)
+[ok] step persistence: merged 2 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+  [1/12] invariant -> BUDGET_OVERFLOW_GUARD (0.85)
+  [2/12] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [3/12] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [4/12] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [5/12] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/12] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/12] contract:ProductRepository.get_products_by_category_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [8/12] contract:ProductRepository.findProductBySkuAndCategory -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/12] contract:ProductRepository.countProductsBySku -> AGGREGATE_BY_FK_AND_DATE (0.71)
+  [10/12] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/12] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/12] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 12 item(s) — 4 standard CRUD, 8 pattern(s), 0 gap(s)
+[ok] step adapters: 6 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: productadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productlist.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 347 tokens in 6.0s (58.1 tok/s, 61.2 decode, 696 prompt)
+[ok] step adapters: productadd.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters still omits 2 unreachable field(s) (retry: 2) — kept first attempt; the probe will report it
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: product add lacked '--created-at' required by 'productadd' — added as str
+[ok] step adapters: product add lacked '--updated-at' required by 'productadd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_51/requirements.txt
+[run] 8 steps, 2729 generated tokens in 47.4s

@@ -1,0 +1,46 @@
+[run] requirements: 181 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 95 tokens in 2.6s (37.2 tok/s, 41.7 decode, 74 prompt)
+[data_models] 234 tokens in 6.4s (36.3 tok/s, 38.4 decode, 597 prompt)
+[ok] step data_models: uniqueness provenance — 1 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.4s (20.8 tok/s, 45.0 decode, 464 prompt)
+[invariants] 33 tokens in 1.0s (34.0 tok/s, 42.5 decode, 268 prompt)
+[ok] step invariants: 8 invariant(s) — 7 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 275 tokens in 8.1s (33.8 tok/s, 34.8 decode, 976 prompt)
+[ok] step components: normalized option '-action' to '--action'
+[ok] step components: normalized option '-sort-by' to '--sort-by'
+[ok] step components: normalized option '-order' to '--order'
+[service_contracts] 10 tokens in 0.5s (22.1 tok/s, 44.4 decode, 470 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Product add, Product list, Product update, Product delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 1.3s (33.7 tok/s, 42.7 decode, 376 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/6] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [2/6] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [3/6] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [4/6] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/6] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/6] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 6 item(s) — 3 standard CRUD, 3 pattern(s), 0 gap(s)
+[ok] step adapters: 4 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step components: added 1 CRUD subcommand(s) from the service contracts: Product list
+[ok] step adapters: added 1 missing adapter(s) mechanically: Product list
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_15/requirements.txt
+[run] 7 steps, 699 generated tokens in 20.3s

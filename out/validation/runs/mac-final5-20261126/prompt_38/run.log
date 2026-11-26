@@ -1,0 +1,99 @@
+[run] requirements: 178 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 76 tokens in 1.9s (39.7 tok/s, 42.0 decode, 73 prompt)
+[data_models] 595 tokens in 17.0s (35.0 tok/s, 35.6 decode, 578 prompt)
+[ok] step data_models: User.user_id became the integer primary key id
+[ok] step data_models: Document.document_id became the integer primary key id
+[ok] step data_models: Document.owner_user_id retyped to int for its User key
+[ok] step data_models: uniqueness provenance — 2 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 327 tokens in 9.0s (36.3 tok/s, 37.4 decode, 482 prompt)
+[invariants] 80 tokens in 2.2s (36.3 tok/s, 41.8 decode, 286 prompt)
+[ok] step invariants: 22 invariant(s) — 19 schema generated mechanically, 3 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1317 tokens in 40.4s (32.6 tok/s, 32.8 decode, 994 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-owner-id' to '--owner-id'
+[ok] step components: normalized option '-owner-id' to '--owner-id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-content' to '--content'
+[ok] step components: normalized option '-id' to '--id'
+[service_contracts] 10 tokens in 0.8s (12.2 tok/s, 43.4 decode, 633 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'UnauthorizedError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'InvalidPasswordError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'MissingEmailError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'MissingPasswordError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'InvalidEmailError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 519 tokens in 13.6s (38.1 tok/s, 39.1 decode, 404 prompt)
+[ok] step persistence: merged 6 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/17] invariant -> STATE_TRANSITION_GUARD (0.89)
+  [2/17] invariant -> STOCK_SUFFICIENCY_GUARD (0.91)
+  [3/17] invariant -> STATE_TRANSITION_GUARD (0.98)
+  [4/17] contract:UserRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [5/17] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [6/17] contract:UserRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [7/17] contract:UserRepository.find_user_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/17] contract:UserRepository.find_user_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [9/17] contract:DocumentRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/17] contract:DocumentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/17] contract:DocumentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/17] contract:DocumentRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/17] contract:DocumentRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/17] contract:DocumentRepository.find_document_by_owner_and_id -> READ_ONE_BY_ID (0.97)
+  [15/17] contract:DocumentRepository.find_document_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/17] contract:DocumentRepository.find_all_documents_by_owner -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/17] contract:DocumentRepository.count_documents_by_owner -> COUNT_ACTIVE_BY_FK (1.00)
+[ok] step patterns: 17 item(s) — 4 standard CRUD, 13 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (user login: no method matches the verb 'login'); retry after surface repairs declined (user login: no method matches the verb 'login') — asking the model
+[interaction_adapters] 1311 tokens in 36.3s (36.1 tok/s, 36.7 decode, 648 prompt)
+[ok] step adapters: read_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_document.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_document.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: list_documents_by_owner.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: find_document_by_owner_and_id.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: find_document_by_owner_and_id.document_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_user.password targets an entity but spells no model field — renamed to 'password_hash'
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 103 tokens in 2.9s (35.2 tok/s, 38.7 decode, 686 prompt)
+[ok] step adapters: list_documents_by_owner.owner_user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 10 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: document add lacked '--document-id' required by 'read_document' — added as str
+[ok] step adapters: document list lacked '--owner-user-id' required by 'list_documents_by_owner' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_38/requirements.txt
+[run] 9 steps, 4338 generated tokens in 124.2s

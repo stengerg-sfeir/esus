@@ -1,0 +1,205 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "OrderService",
+      "methods": [
+        {
+          "name": "confirm_order",
+          "description": "Transitions an order from pending to confirmed state. The order must be in pending state; cannot confirm a confirmed, shipped, or cancelled order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderStatusInvalidError",
+            "OrderAlreadyConfirmedError"
+          ]
+        },
+        {
+          "name": "cancel_order",
+          "description": "Transitions an order from confirmed to cancelled state. The order must be in confirmed state; cannot cancel a pending, shipped, or cancelled order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderStatusInvalidError",
+            "OrderNotConfirmedError"
+          ]
+        },
+        {
+          "name": "ship_order",
+          "description": "Transitions an order from confirmed to shipped state. The order must be in confirmed state; cannot ship a pending, cancelled, or shipped order.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "OrderStatusInvalidError",
+            "OrderNotConfirmedError"
+          ]
+        },
+        {
+          "name": "create_order",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_order_by_id",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Order | None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_all_orders",
+          "description": "Lists every Order.",
+          "params": [],
+          "return_type": "list[Order]",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "update_order",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "delete_order",
+          "description": "Deletes an existing Order.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "orderconfirm",
+          "description": "Orderconfirm.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "provenance": "capability_adapter",
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "service_name": "OrderRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Order; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Order.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Order.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "plans": [
+    {
+      "id": "create_employee_valid",
+      "source": "Create a Python 3.12 application for managing employees. An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive. Provide CRUD operations using SQLite.",
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.name",
+          "employee.email",
+          "employee.age",
+          "employee.salary"
+        ],
+        "rows": {
+          "Employee": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_employee_invalid_email",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "invalid_email",
+          "age",
+          "salary"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "invalid_email"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "create_employee_invalid_age",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "age_out_of_range"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "create_employee_negative_salary",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "salary_not_positive"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "read_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "when": {
+        "action": "read_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.name",
+          "employee.email",
+          "employee.age",
+          "employee.salary"
+        ],
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "when": {
+        "action": "update_employee",
+        "args": [
+          "employee.id",
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "employee.name",
+          "employee.email",
+          "employee.age",
+          "employee.salary"
+        ],
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "when": {
+        "action": "delete_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+[run] requirements: 212 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 125 tokens in 2.3s (55.2 tok/s, 60.7 decode, 83 prompt)
+[data_models] 285 tokens in 5.0s (56.6 tok/s, 58.2 decode, 630 prompt)
+[ok] step data_models: Product.sku became the integer primary key id
+[errors] 226 tokens in 4.0s (56.5 tok/s, 59.2 decode, 475 prompt)
+[invariants] 333 tokens in 5.8s (57.8 tok/s, 59.4 decode, 279 prompt)
+[ok] step invariants: 19 invariant(s) — 9 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 610 tokens in 11.3s (53.9 tok/s, 55.0 decode, 987 prompt)
+[ok] step components: normalized option '-action' to '--action'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-category-filter' to '--category-filter'
+[ok] step components: normalized option '-low-stock' to '--low-stock'
+[ok] step components: normalized option '-low-stock' to '--low-stock'
+[service_contracts] 10 tokens in 0.5s (20.6 tok/s, 66.3 decode, 591 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidProductPriceError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidProductStockError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidProductCategoryError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 44 tokens in 0.9s (50.7 tok/s, 61.2 decode, 387 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.68)
+  [2/15] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/15] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [4/15] invariant -> BUDGET_OVERFLOW_GUARD (0.87)
+  [5/15] invariant -> FILTER_WITH_PAGINATION (1.00)
+  [6/15] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [7/15] invariant -> THRESHOLD_SCAN (1.00)
+  [8/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.78)
+  [9/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.84)
+  [10/15] invariant -> STOCK_SUFFICIENCY_GUARD (0.93)
+  [11/15] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/15] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/15] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/15] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [15/15] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 15 item(s) — 3 standard CRUD, 12 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (search: no method matches the verb 'search') — asking the model
+[interaction_adapters] 1200 tokens in 20.9s (57.3 tok/s, 57.8 decode, 530 prompt)
+[ok] step adapters: read_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters has 6 unreachable field(s) — retrying once
+[interaction_adapters] 340 tokens in 6.1s (55.6 tok/s, 58.4 decode, 657 prompt)
+[ok] step adapters: create_product.sku was 'LOOKUP_ID' but its name or target type describes no such value — replaced with DIRECT
+[!] step interaction_adapters still omits 6 unreachable field(s) (retry: 6) — kept first attempt; the probe will report it
+[ok] step adapters: added capability method ProductRepository.search_products_by_category (search)
+[ok] step adapters: added capability method ProductRepository.report_low_stock (report)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--sku' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--name' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--category' required by 'create_product' — added as str
+[ok] step adapters: add  lacked '--price' required by 'create_product' — added as int
+[ok] step adapters: add  lacked '--stock-quantity' required by 'create_product' — added as int
+[ok] step adapters: search  lacked '--category' required by 'search_products_by_category' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 4 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_13/requirements.txt
+[run] 9 steps, 3173 generated tokens in 56.8s

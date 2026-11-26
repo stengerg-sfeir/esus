@@ -1,0 +1,88 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "categoryadd",
+      "target_service": "CategoryRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "categorydelete",
+      "target_service": "CategoryRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "productadd",
+      "target_service": "ProductRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "category_id",
+          "target_param": "category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "productupdate",
+      "target_service": "ProductRepository",
+      "target_method": "update_product_category",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": false
+        },
+        {
+          "field_name": "new_category_id",
+          "target_param": "new_category_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Category",
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "productdelete",
+      "target_service": "ProductRepository",
+      "target_method": "delete_product",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

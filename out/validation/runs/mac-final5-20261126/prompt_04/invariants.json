@@ -1,0 +1,52 @@
+{
+  "invariants": [
+    {
+      "text": "Task.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.is_completed must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.is_completed must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "When a task is marked as completed, its is_completed field must be set to true.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a task is deleted, it must be removed from the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "The list of tasks must include all tasks that have not been marked as completed.",
+      "kind": "rule"
+    },
+    {
+      "text": "Adding a new task must create a new record in the database with a unique id, a description, and the is_completed field set to false.",
+      "kind": "rule"
+    },
+    {
+      "text": "The created_at field of a task must be set to the current timestamp when the task is added.",
+      "kind": "rule"
+    }
+  ]
+}

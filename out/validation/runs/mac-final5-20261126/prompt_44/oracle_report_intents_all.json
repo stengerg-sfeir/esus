@@ -1,0 +1,52 @@
+{
+  "prompt": "prompt_44",
+  "results": [
+    {
+      "name": "scenario:oracle:track_stock_and_sales",
+      "status": "failed",
+      "reason": "result row count is 0, expected 1",
+      "case": "track_stock_and_sales",
+      "source": "It should be possible to know what has been sold and what is still in stock.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Customer",
+              "Sale"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "SaleRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "failed": 1
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "import_contacts",
+      "source": "Import contacts from CSV",
+      "given": {
+        "contact": {
+          "email": "bob@example.com",
+          "name": "Bob Smith"
+        }
+      },
+      "when": {
+        "action": "import_contacts",
+        "args": [
+          "contacts.csv"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "contact": {
+            "status": "aligned",
+            "canonical": "Contact",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Contact",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ContactService.import_contacts_from_csv",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "prompt": "prompt_23",
+  "run_id": "repro66-20261119-105248",
+  "prompt_file": "prompts/validation/prompt_23.txt",
+  "output_dir": "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23",
+  "sha256": "52c2a34e86d1d6497cd2eca71e55440dbfeaf8acec94ddf4d13bb49f36bbe874",
+  "bytes": 273,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 100.805,
+  "tokens": {
+    "calls": 8,
+    "tokens_out": 5775,
+    "tokens_prompt": 4362,
+    "decode_seconds": 96.456
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 1,
+    "open_ties": 0,
+    "rules": [
+      {
+        "rule": "open_human_review",
+        "message": "1 unanswered method contracts; run the attended review before generation"
+      }
+    ]
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/usr/bin/python3",
+      "/kaggle/working/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/validation/prompt_23.txt",
+      "--output",
+      "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_23",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

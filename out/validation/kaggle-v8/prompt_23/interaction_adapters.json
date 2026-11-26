@@ -1,0 +1,207 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_author",
+      "target_service": "AuthorRepository",
+      "target_method": "create_author",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_author",
+      "target_service": "AuthorRepository",
+      "target_method": "update_author",
+      "input_fields": [
+        {
+          "field_name": "author_id",
+          "target_param": "author_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_author",
+      "target_service": "AuthorRepository",
+      "target_method": "delete_author",
+      "input_fields": [
+        {
+          "field_name": "author_id",
+          "target_param": "author_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_post",
+      "target_service": "PostRepository",
+      "target_method": "create_post",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "author_id",
+          "target_param": "author_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_post",
+      "target_service": "PostRepository",
+      "target_method": "update_post",
+      "input_fields": [
+        {
+          "field_name": "post_id",
+          "target_param": "post_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Post",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "content",
+          "target_param": "content",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_post",
+      "target_service": "PostRepository",
+      "target_method": "delete_post",
+      "input_fields": [
+        {
+          "field_name": "post_id",
+          "target_param": "post_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Post",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_tag",
+      "target_service": "TagRepository",
+      "target_method": "create_tag",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "update_tag",
+      "target_service": "TagRepository",
+      "target_method": "update_tag",
+      "input_fields": [
+        {
+          "field_name": "tag_id",
+          "target_param": "tag_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Tag",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "delete_tag",
+      "target_service": "TagRepository",
+      "target_method": "delete_tag",
+      "input_fields": [
+        {
+          "field_name": "tag_id",
+          "target_param": "tag_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Tag",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_post_tag_association",
+      "target_service": "PostTagRepository",
+      "target_method": "create_post_tag_association",
+      "input_fields": [
+        {
+          "field_name": "post_id",
+          "target_param": "post_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Post",
+          "required": true
+        },
+        {
+          "field_name": "tag_id",
+          "target_param": "tag_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Tag",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

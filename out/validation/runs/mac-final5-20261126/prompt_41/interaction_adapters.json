@@ -1,0 +1,319 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "bookadd",
+      "target_service": "BookRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "availability_status",
+          "target_param": "availability_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "bookupdate",
+      "target_service": "BookRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "availability_status",
+          "target_param": "availability_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "bookdelete",
+      "target_service": "BookRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "availability_status",
+          "target_param": "availability_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "memberadd",
+      "target_service": "MemberRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "contact_details",
+          "target_param": "contact_details",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "membership_status",
+          "target_param": "membership_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "memberupdate",
+      "target_service": "MemberRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "contact_details",
+          "target_param": "contact_details",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "membership_status",
+          "target_param": "membership_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "memberdelete",
+      "target_service": "MemberRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "contact_details",
+          "target_param": "contact_details",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "membership_status",
+          "target_param": "membership_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "loanadd",
+      "target_service": "LoanRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        },
+        {
+          "field_name": "loan_date",
+          "target_param": "loan_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "loanupdate",
+      "target_service": "LoanRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Loan",
+          "required": true
+        },
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": false
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": false
+        },
+        {
+          "field_name": "loan_date",
+          "target_param": "loan_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "loandelete",
+      "target_service": "LoanRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Loan",
+          "required": true
+        },
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": false
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": false
+        },
+        {
+          "field_name": "loan_date",
+          "target_param": "loan_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

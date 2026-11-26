@@ -1,0 +1,37 @@
+{
+  "plans": [
+    {
+      "id": "allow_same_sku_different_categories",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "category",
+            "entity": "Category",
+            "reason": "required parameter category_id"
+          }
+        ],
+        "aliases": {
+          "product": "Product",
+          "product_2": "Product",
+          "category": "Category"
+        },
+        "target_usage": {
+          "entity": "Product",
+          "used_entities": [
+            "Category"
+          ],
+          "used": false
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "unique_sku_across_categories",
+      "errors": [
+        "reference field 'stock_qty' is not declared on Product"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

@@ -1,0 +1,617 @@
+{
+  "prompt": "prompt_59",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "code:modules",
+      "status": "passed",
+      "reason": "8 generated modules"
+    },
+    {
+      "name": "code:type-hints",
+      "status": "passed",
+      "reason": "annotated generated functions"
+    },
+    {
+      "name": "db:foreign-keys",
+      "status": "passed",
+      "reason": "SQLite foreign keys enabled"
+    },
+    {
+      "name": "db:persistence-across-executions",
+      "status": "passed",
+      "reason": "SQLite database file"
+    },
+    {
+      "name": "code:entry-point",
+      "status": "passed",
+      "reason": "main guard present"
+    },
+    {
+      "name": "models:primary-keys",
+      "status": "passed",
+      "reason": "every model declares a primary key"
+    },
+    {
+      "name": "api:CustomerRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:ProductRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.cancel_order",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.get_orders_by_customer_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.restore_stock_after_cancellation",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderLineRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderLineRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderLineRepository.get_order_lines_by_order_id",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderLineRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderLineRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:OrderLineRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DiscountRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DiscountRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DiscountRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DiscountRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:DiscountRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:TaxRepository.create",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:TaxRepository.delete",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:TaxRepository.read_all",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:TaxRepository.read_one",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:TaxRepository.update",
+      "status": "passed",
+      "reason": "generated service API present"
+    },
+    {
+      "name": "api:CustomerRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CustomerRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CustomerRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:CustomerRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:ProductRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.cancel_order",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.get_orders_by_customer_id",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.restore_stock_after_cancellation",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderLineRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderLineRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderLineRepository.get_order_lines_by_order_id",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderLineRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderLineRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:OrderLineRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DiscountRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DiscountRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DiscountRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DiscountRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:DiscountRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:TaxRepository.create",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:TaxRepository.delete",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:TaxRepository.read_all",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:TaxRepository.read_one",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "api:TaxRepository.update",
+      "status": "passed",
+      "reason": "generated repository API present"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order cancel",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Customer add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Customer update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Customer delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:OrderLine add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:OrderLine update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:OrderLine delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Discount add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Discount update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Discount delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Tax add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Tax update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Tax delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Customer",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Order",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:OrderLine",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Discount",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Tax",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CustomerRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderLineRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:DiscountRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:TaxRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Order.customer_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderLine.order_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderLine.product_id",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cancel_order_updates_status",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order cancel",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Customer add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Customer update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Customer delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:OrderLine add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:OrderLine update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:OrderLine delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Discount add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Discount update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Discount delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Tax add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Tax update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Tax delete",
+      "status": "passed"
+    }
+  ]
+}

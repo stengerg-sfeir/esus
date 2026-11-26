@@ -1,0 +1,93 @@
+[run] requirements: 194 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 112 tokens in 1.9s (58.0 tok/s, 63.7 decode, 75 prompt)
+[data_models] 795 tokens in 13.2s (60.2 tok/s, 60.8 decode, 615 prompt)
+[errors] 476 tokens in 8.0s (59.7 tok/s, 61.7 decode, 497 prompt)
+[invariants] 209 tokens in 3.5s (59.2 tok/s, 62.6 decode, 301 prompt)
+[ok] step invariants: 31 invariant(s) — 24 schema generated mechanically, 7 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1351 tokens in 23.5s (57.6 tok/s, 58.0 decode, 1009 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-availability-status' to '--availability-status'
+[ok] step components: normalized option '-available-only' to '--available-only'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-contact-details' to '--contact-details'
+[ok] step components: normalized option '-membership-status' to '--membership-status'
+[ok] step components: normalized option '-active-only' to '--active-only'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[ok] step components: normalized option '-loan-date' to '--loan-date'
+[ok] step components: normalized option '-return-date' to '--return-date'
+[ok] step components: normalized option '-member-id' to '--member-id'
+[ok] step components: normalized option '-book-id' to '--book-id'
+[service_contracts] 10 tokens in 0.7s (14.9 tok/s, 69.5 decode, 753 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidBookIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidMemberIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidLoanIdError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidLoanDateError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidReturnDateError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 293 tokens in 4.9s (59.7 tok/s, 62.2 decode, 437 prompt)
+[ok] step persistence: merged 3 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+  [1/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/26] invariant -> STOCK_SUFFICIENCY_GUARD (0.98)
+  [3/26] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/26] invariant -> STATE_TRANSITION_GUARD (0.80)
+  [6/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [7/26] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [8/26] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [9/26] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/26] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/26] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/26] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/26] contract:MemberRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/26] contract:MemberRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/26] contract:MemberRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/26] contract:MemberRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/26] contract:MemberRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/26] contract:LoanRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/26] contract:LoanRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [20/26] contract:LoanRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/26] contract:LoanRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [22/26] contract:LoanRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/26] contract:LoanRepository.get_loans_by_member_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [24/26] contract:LoanRepository.findLoansByMember -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [25/26] contract:LoanRepository.findLoansByBook -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [26/26] contract:LoanRepository.findOverdueLoans -> THRESHOLD_SCAN (1.00)
+[ok] step patterns: 26 item(s) — 9 standard CRUD, 17 pattern(s), 0 gap(s)
+[ok] step adapters: 7 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: loanadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanadd.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanlist.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: loanlist.book_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step adapters: 'booksearch' names Book but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_41/requirements.txt
+[run] 7 steps, 3246 generated tokens in 55.7s

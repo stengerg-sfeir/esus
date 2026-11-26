@@ -1,0 +1,44 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 1,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 1
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "remember_between_executions_action",
+        "source": "The application should remember the information between executions.",
+        "given": {
+          "book": {
+            "title": "1984",
+            "author": "George Orwell",
+            "isbn": "978-0-452-28423-4"
+          }
+        },
+        "when": {
+          "action": "remember_information",
+          "args": []
+        },
+        "then": {
+          "state": {
+            "book.title": "1984",
+            "book.author": "George Orwell",
+            "book.isbn": "978-0-452-28423-4"
+          },
+          "rows": {
+            "Book": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "division_by_zero_error",
+      "source": "Division by zero must produce a clear error message.",
+      "given": {
+        "numbers": {
+          "a": 10,
+          "b": 0
+        }
+      },
+      "when": {
+        "action": "calculate",
+        "args": [
+          "divide",
+          "10",
+          "0"
+        ]
+      },
+      "then": {
+        "stdout_contains": "Error: Division by zero is not allowed",
+        "exit_code": 1
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "cannot resolve given entity 'numbers'"
+      }
+    }
+  ]
+}

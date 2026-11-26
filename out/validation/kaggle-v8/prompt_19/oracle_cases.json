@@ -1,0 +1,57 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "export_tasks_to_json",
+      "source": "export all tasks to JSON",
+      "given": {
+        "task": {
+          "id": 1,
+          "title": "Complete project",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "export_tasks_to_json"
+      },
+      "then": {
+        "state": {},
+        "rows": {}
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 16.333333333333332,
+            "evidence": [
+              "name/fields match Task",
+              "score 16.3"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "TaskService.export_tasks_to_json",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

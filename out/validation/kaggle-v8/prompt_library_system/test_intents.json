@@ -1,0 +1,481 @@
+{
+  "intents": [
+    {
+      "id": "borrow_final_copy",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "kind": "error",
+      "entity": "Book",
+      "action": "borrow_book",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.available_copies": 1
+      },
+      "lookup": [
+        "book.isbn"
+      ],
+      "where": {},
+      "args": [
+        "book.id",
+        1
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "reject_negative_copies",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "kind": "error",
+      "entity": "Book",
+      "action": "borrow_book",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.available_copies": 1
+      },
+      "lookup": [
+        "book.isbn"
+      ],
+      "where": {},
+      "args": [
+        "book.id",
+        -1
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.available_copies": 1
+        },
+        "rows": {
+          "Book": 1
+        },
+        "error": "NegativeCopyCountError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "borrowing_final_copy_leaves_zero",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero.",
+      "kind": "update",
+      "entity": "Book",
+      "action": "borrow_book",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.available_copies": 1
+      },
+      "lookup": [
+        "book.isbn"
+      ],
+      "where": {},
+      "args": [
+        "book.id",
+        1
+      ],
+      "changes": {
+        "book.available_copies": 0
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises `AlreadyReturnedLoanError` and changes neither the loan nor inventory. Include that error in the declared error set.",
+      "kind": "error",
+      "entity": "Loan",
+      "action": "return_book",
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "loan.status": "returned"
+      },
+      "lookup": [
+        "loan.id"
+      ],
+      "where": {},
+      "args": [
+        "loan.id"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "AlreadyReturnedLoanError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "borrow_transaction_rollback",
+      "source": "Borrowing and returning each perform all related writes in one SQLite transaction. If any write fails, roll back every write in that operation.",
+      "kind": "error",
+      "entity": "Loan",
+      "action": "return_book",
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "loan.status": "active"
+      },
+      "lookup": [
+        "loan.id"
+      ],
+      "where": {
+        "loan.return_date": null
+      },
+      "args": [
+        "loan.id"
+      ],
+      "changes": {
+        "loan.return_date": "2023-10-01",
+        "loan.status": "returned"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "loan.return_date": null,
+          "loan.status": "active"
+        },
+        "rows": {
+          "Loan": 1
+        },
+        "error": "AlreadyReturnedLoanError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "borrow_insufficient_copies",
+      "source": "Borrowing and returning each perform all related writes in one SQLite transaction. If any write fails, roll back every write in that operation.",
+      "kind": "error",
+      "entity": "Book",
+      "action": "borrow_book",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.available_copies": 0
+      },
+      "lookup": [
+        "book.id"
+      ],
+      "where": {
+        "book.available_copies": 0
+      },
+      "args": [
+        "member_id",
+        "book.id"
+      ],
+      "changes": {
+        "book.available_copies": -1
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        },
+        "error": "InsufficientAvailableCopiesError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The system raises an error when attempting to borrow a book with zero available copies"
+      ],
+      "ambiguities": [
+        "The exact error type is not specified in the clause; only that a failure rolls back all writes"
+      ]
+    },
+    {
+      "id": "return_transaction_success",
+      "source": "Borrowing and returning each perform all related writes in one SQLite transaction. If any write fails, roll back every write in that operation.",
+      "kind": "update",
+      "entity": "Loan",
+      "action": "return_book",
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "loan.status": "active",
+        "loan.return_date": null
+      },
+      "lookup": [
+        "loan.id"
+      ],
+      "where": {
+        "loan.return_date": null
+      },
+      "args": [
+        "loan.id"
+      ],
+      "changes": {
+        "loan.return_date": "2023-10-01",
+        "loan.status": "returned"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "loan.return_date": "2023-10-01",
+          "loan.status": "returned"
+        },
+        "rows": {
+          "Loan": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "library_borrow_member_id_book_id",
+      "source": "library borrow --member-id --book-id",
+      "kind": "cli",
+      "entity": "Loan",
+      "action": "borrow_book",
+      "setup_entities": [
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "target"
+        },
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "member.is_active": true,
+        "book.available_copies": 1
+      },
+      "lookup": [
+        "member.id",
+        "book.id"
+      ],
+      "where": {
+        "book.available_copies": 1
+      },
+      "args": [
+        "member.id",
+        "book.id"
+      ],
+      "changes": {
+        "book.available_copies": 0
+      },
+      "cli": [
+        "library",
+        "borrow",
+        "--member-id",
+        "1",
+        "--book-id",
+        "1"
+      ],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Loan": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "library return --loan-id",
+      "source": "library return --loan-id",
+      "kind": "update",
+      "entity": "Loan",
+      "action": "return_book",
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "loan.loan_date": "2023-01-01",
+        "loan.due_date": "2023-01-15",
+        "loan.status": "active",
+        "loan.return_date": null
+      },
+      "lookup": [
+        "loan.id"
+      ],
+      "where": {
+        "loan.status": "active",
+        "loan.return_date": null
+      },
+      "args": [
+        "1"
+      ],
+      "changes": {
+        "loan.return_date": "2023-01-20",
+        "loan.status": "returned"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "loan.return_date": "2023-01-20",
+          "loan.status": "returned"
+        },
+        "rows": {
+          "Loan": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "expected date '2023-01-20' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "library book search --query",
+      "source": "library book search --query",
+      "kind": "list",
+      "entity": "Book",
+      "action": "search_books",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.title": "The Great Gatsby",
+        "book.isbn": "9780747532699",
+        "book.published_year": 1925,
+        "book.available_copies": 3
+      },
+      "lookup": [
+        "book.title",
+        "book.isbn"
+      ],
+      "where": {},
+      "args": [
+        "The Great Gatsby"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "The Great Gatsby"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {
+          "book.title": "The Great Gatsby",
+          "book.isbn": "9780747532699",
+          "book.published_year": 1925,
+          "book.available_copies": 3
+        },
+        "rows": {
+          "Book": 1
+        },
+        "error": null,
+        "stdout_contains": "The Great Gatsby",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 5,
+    "merged": 5
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "filter_with_no_matches",
+        "source": "All filters must be combinable",
+        "given": {
+          "product": {
+            "name": "Book",
+            "category": "books",
+            "price": 50,
+            "quantity": 2
+          }
+        },
+        "when": {
+          "action": "search_products",
+          "args": [
+            "name=laptop",
+            "category=electronics",
+            "max_price=100",
+            "min_quantity=5"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {
+            "Product": 0
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 14.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {},
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'search_products'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'search_products'"
+    }
+  ]
+}

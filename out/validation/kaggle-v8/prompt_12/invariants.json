@@ -1,0 +1,64 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be unique",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone_number must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.phone_number must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Each customer must have a unique email address.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer can be searched by name using a partial match on the name field.",
+      "kind": "rule"
+    },
+    {
+      "text": "Customers can be filtered by email domain, such as 'example.com' or 'gmail.com'.",
+      "kind": "rule"
+    },
+    {
+      "text": "Creating a new customer fails if the email address already exists in the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "Updating a customer's email address requires that the new email address is unique across all customers.",
+      "kind": "rule"
+    },
+    {
+      "text": "Deleting a customer removes the customer record from the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "The list of customers returned by a search or filter operation includes only those matching the specified criteria.",
+      "kind": "rule"
+    }
+  ]
+}

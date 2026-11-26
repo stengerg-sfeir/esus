@@ -1,0 +1,248 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Customer add",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer update",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "update",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test"
+          ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "cli1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Customer delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "seed1@example.test"
+          ],
+          [
+            "Customer",
+            "delete",
+            "--customer-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Customer": {
+            "name": "value1",
+            "email": "seed1@example.test"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room add",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "add",
+            "--room-number",
+            "value1",
+            "--capacity",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room update",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "update",
+            "--room-id",
+            "1",
+            "--room-number",
+            "value1",
+            "--capacity",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_number": "value1",
+            "capacity": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Room delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Room",
+            "delete",
+            "--room-id",
+            "1",
+            "--room-number",
+            "value1",
+            "--capacity",
+            "1"
+          ],
+          [
+            "Room",
+            "delete",
+            "--room-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Room": {
+            "room_number": "value1",
+            "capacity": 1
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation add",
+      "when": {
+        "cli_variants": [
+          [
+            "Reservation",
+            "add",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-date",
+            "2024-01-01T00:00:00",
+            "--end-date",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation update",
+      "when": {
+        "cli_variants": [
+          [
+            "Reservation",
+            "update",
+            "--reservation-id",
+            "1",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-date",
+            "2024-01-01T00:00:00",
+            "--end-date",
+            "2024-01-01T00:00:00"
+          ]
+        ],
+        "seed_overrides": {
+          "Reservation": {
+            "customer_id": 1,
+            "room_id": 1,
+            "start_date": "2024-01-01T00:00:00",
+            "end_date": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Reservation delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Reservation",
+            "delete",
+            "--reservation-id",
+            "1",
+            "--customer-id",
+            "1",
+            "--room-id",
+            "1",
+            "--start-date",
+            "2024-01-01T00:00:00",
+            "--end-date",
+            "2024-01-01T00:00:00"
+          ],
+          [
+            "Reservation",
+            "delete",
+            "--reservation-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Reservation": {
+            "customer_id": 1,
+            "room_id": 1,
+            "start_date": "2024-01-01T00:00:00",
+            "end_date": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

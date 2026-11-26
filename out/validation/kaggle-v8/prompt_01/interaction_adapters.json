@@ -1,0 +1,59 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create",
+      "target_service": "TheRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "read_one",
+      "target_service": "TheRepository",
+      "target_method": "read_one",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "The",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "read_all",
+      "target_service": "TheRepository",
+      "target_method": "read_all",
+      "input_fields": []
+    },
+    {
+      "action_name": "update",
+      "target_service": "TheRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "id",
+          "target_param": "id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "The",
+          "required": true
+        },
+        {
+          "field_name": "status",
+          "target_param": "status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+[run] requirements: 190 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 65 tokens in 1.3s (50.1 tok/s, 63.6 decode, 71 prompt)
+[data_models] 391 tokens in 6.6s (59.7 tok/s, 61.0 decode, 566 prompt)
+[errors] 8 tokens in 0.3s (26.4 tok/s, 70.1 decode, 468 prompt)
+[invariants] 7 tokens in 0.2s (31.3 tok/s, 72.4 decode, 272 prompt)
+[ok] step invariants: 12 invariant(s) — 12 schema generated mechanically, 0 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 489 tokens in 8.6s (56.5 tok/s, 58.0 decode, 980 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-author' to '--author'
+[ok] step components: normalized option '-genre' to '--genre'
+[ok] step components: normalized option '-isbn' to '--isbn'
+[ok] step components: normalized option '-find' to '--find'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 8 tokens in 0.4s (21.0 tok/s, 70.7 decode, 474 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 0.8s (52.5 tok/s, 63.6 decode, 380 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/5] contract:BookRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [2/5] contract:BookRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [3/5] contract:BookRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [4/5] contract:BookRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [5/5] contract:BookRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 5 item(s) — 3 standard CRUD, 2 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (find: no method matches the verb 'find') — asking the model
+[interaction_adapters] 815 tokens in 13.7s (59.4 tok/s, 60.9 decode, 543 prompt)
+[ok] step adapters: find_book_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_book.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[!] step adapters has 7 unreachable field(s) — retrying once
+[interaction_adapters] 380 tokens in 6.5s (58.7 tok/s, 61.2 decode, 689 prompt)
+[ok] step adapters: find_book_by_id.id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters still omits 7 unreachable field(s) (retry: 7) — kept first attempt; the probe will report it
+[ok] step adapters: added capability method BookRepository.find_books (search)
+[ok] step adapters: added capability method BookRepository.find_book_by_id (search)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: add  lacked '--title' required by 'add_book' — added as str
+[ok] step adapters: add  lacked '--author' required by 'add_book' — added as str
+[ok] step adapters: add  lacked '--genre' required by 'add_book' — added as str
+[ok] step adapters: add  lacked '--isbn' required by 'add_book' — added as str
+[ok] step adapters: add  lacked '--created-at' required by 'add_book' — added as str
+[ok] step adapters: add  lacked '--updated-at' required by 'add_book' — added as str
+[ok] step adapters: find  lacked '--id' required by 'find_book_by_id' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_48/requirements.txt
+[run] 9 steps, 2207 generated tokens in 38.4s

@@ -1,0 +1,194 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 1,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 1
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "delete_category_without_products",
+        "source": "A category cannot be deleted while products still belong to it",
+        "given": {
+          "category": {
+            "id": 2,
+            "name": "Furniture"
+          },
+          "product": {
+            "name": "Chair",
+            "category_id": 3
+          }
+        },
+        "when": {
+          "action": "delete_category",
+          "args": [
+            "category.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "category.deleted": true
+          },
+          "rows": {
+            "Category": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "category": {
+              "status": "aligned",
+              "canonical": "Category",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Category",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "Product"
+              ]
+            },
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "Category"
+              ]
+            }
+          },
+          "fields": {
+            "category.deleted": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "prompt mentions field 'deleted'",
+                "not declared on Category"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "alias",
+            "canonical": "CategoryRepository.delete",
+            "score": 4.0,
+            "evidence": [
+              "same operation with a different name"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "expected state field 'category.deleted' is not declared on Category"
+        }
+      },
+      "status": "unbound",
+      "reason": "expected state field 'category.deleted' is not declared on Category"
+    },
+    {
+      "case": {
+        "id": "delete_product_from_category",
+        "source": "A category cannot be deleted while products still belong to it",
+        "given": {
+          "product": {
+            "name": "Laptop",
+            "category_id": 1
+          },
+          "category": {
+            "id": 1,
+            "name": "Electronics"
+          }
+        },
+        "when": {
+          "action": "delete_product",
+          "args": [
+            "product.name"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.deleted": true
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "Category"
+              ]
+            },
+            "category": {
+              "status": "aligned",
+              "canonical": "Category",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Category",
+                "score 13.0"
+              ],
+              "alternatives": [
+                "Product"
+              ]
+            }
+          },
+          "fields": {
+            "product.deleted": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "prompt mentions field 'deleted'",
+                "not declared on Product"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "expected state field 'product.deleted' is not declared on Product"
+        }
+      },
+      "status": "unbound",
+      "reason": "expected state field 'product.deleted' is not declared on Product"
+    }
+  ]
+}

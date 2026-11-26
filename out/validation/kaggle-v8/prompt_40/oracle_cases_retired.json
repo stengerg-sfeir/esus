@@ -1,0 +1,289 @@
+{
+  "counts": {
+    "legacy": 4,
+    "kept": 0,
+    "retired": 4,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "confirm_order_notification",
+        "source": "When an order is confirmed, the application must send a notification.",
+        "given": {
+          "order": {
+            "status": "pending",
+            "order_id": 101
+          }
+        },
+        "when": {
+          "action": "confirm_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 13.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Order.status exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'confirm_order'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'confirm_order'"
+    },
+    {
+      "case": {
+        "id": "notification_service_log",
+        "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+        "given": {
+          "notification": {
+            "message": "Order 101 confirmed",
+            "recipient": "customer@example.com"
+          }
+        },
+        "when": {
+          "action": "send_notification",
+          "args": [
+            "notification.message",
+            "notification.recipient"
+          ]
+        },
+        "then": {
+          "state": {},
+          "rows": {}
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "notification": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "prompt mentions 'notification'",
+                "no extracted entity matches it"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {},
+          "action": {
+            "status": "aligned",
+            "canonical": "NotificationService.send_notification",
+            "score": 10.0,
+            "evidence": [
+              "exact generated method"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "cannot resolve given entity 'notification'"
+        }
+      },
+      "status": "unbound",
+      "reason": "cannot resolve given entity 'notification'"
+    },
+    {
+      "case": {
+        "id": "notification_on_pending",
+        "source": "When an order is confirmed, the application must send a notification.",
+        "given": {
+          "order": {
+            "status": "pending",
+            "order_id": 103
+          }
+        },
+        "when": {
+          "action": "confirm_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 13.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Order.status exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'confirm_order'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'confirm_order'"
+    },
+    {
+      "case": {
+        "id": "notification_on_order_creation",
+        "source": "When an order is confirmed, the application must send a notification.",
+        "given": {
+          "order": {
+            "status": "created",
+            "order_id": 106
+          }
+        },
+        "when": {
+          "action": "confirm_order",
+          "args": [
+            "order.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "order.status": "confirmed"
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "order": {
+              "status": "aligned",
+              "canonical": "Order",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Order",
+                "score 13.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "order.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Order.status exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'confirm_order'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'confirm_order'"
+    }
+  ]
+}

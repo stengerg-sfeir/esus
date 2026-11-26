@@ -1,0 +1,29 @@
+{
+  "errors": [
+    {
+      "name": "ClientNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an invoice or payment references a client that does not exist in the system."
+    },
+    {
+      "name": "InvoiceNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an invoice is referenced in a payment or lookup but does not exist in the system."
+    },
+    {
+      "name": "PaymentNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a payment is referenced but does not exist in the system."
+    },
+    {
+      "name": "MissingClientReferenceError",
+      "base": "KeyError",
+      "description": "Raised when an invoice is created without a valid client_id reference."
+    },
+    {
+      "name": "MissingInvoiceReferenceError",
+      "base": "KeyError",
+      "description": "Raised when a payment is created without a valid invoice_id reference."
+    }
+  ]
+}

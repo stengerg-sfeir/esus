@@ -1,0 +1,116 @@
+{
+  "invariants": [
+    {
+      "text": "Book.book_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.author must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.author must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.isbn must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.isbn must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.available_status must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.available_status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.member_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.borrow_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.book_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.book_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.book_id must reference an existing Book.book_id",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.member_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.member_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.member_id must reference an existing Member.member_id",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.borrow_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.borrow_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.return_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.is_returned must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "BorrowRecord.is_returned must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A book that is currently borrowed must not be shown as available.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a book is returned, its available status must be updated to available.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Event add",
+      "when": {
+        "cli_variants": [
+          [
+            "Event",
+            "add",
+            "--title",
+            "value1",
+            "--date",
+            "2024-01-01T00:00:00",
+            "--capacity",
+            "1",
+            "--current-attendees-count",
+            "2"
+          ]
+        ],
+        "seed_exclude": [
+          "Registration"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Event update",
+      "when": {
+        "cli_variants": [
+          [
+            "Event",
+            "update",
+            "--event-id",
+            "1",
+            "--title",
+            "value1",
+            "--date",
+            "2024-01-01T00:00:00",
+            "--capacity",
+            "1",
+            "--current-attendees-count",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Event": {
+            "title": "value1",
+            "date": "2024-01-01T00:00:00",
+            "capacity": 1,
+            "current_attendees_count": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Event delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Event",
+            "delete",
+            "--event-id",
+            "1",
+            "--title",
+            "value1",
+            "--date",
+            "2024-01-01T00:00:00",
+            "--capacity",
+            "1",
+            "--current-attendees-count",
+            "2"
+          ],
+          [
+            "Event",
+            "delete",
+            "--event-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Event": {
+            "title": "value1",
+            "date": "2024-01-01T00:00:00",
+            "capacity": 1,
+            "current_attendees_count": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Registration add",
+      "when": {
+        "cli_variants": [
+          [
+            "Registration",
+            "add",
+            "--event-id",
+            "1",
+            "--user-id",
+            "1"
+          ]
+        ],
+        "seed_exclude": [
+          "Registration"
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

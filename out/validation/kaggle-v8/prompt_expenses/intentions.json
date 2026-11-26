@@ -1,0 +1,19 @@
+{
+  "intentions": [
+    "Define and manage expense categories with unique names, descriptions, optional monthly budgets, and icons",
+    "Store and retrieve expenses with detailed metadata including amount in cents, date, category, payment method, and recurrence status",
+    "Enforce unique monthly budget constraints per category using SQLite table-level uniqueness",
+    "Implement repository patterns for SQLite-based data access with CRUD and filtering capabilities",
+    "Provide business logic services for expense operations including filtering, aggregation, budget checking, and reporting",
+    "Support filtering and querying expenses by date range, category, payment method, and recurrence",
+    "Enable monthly and yearly financial reports with budget status indicators",
+    "Allow CSV export of filtered expense data",
+    "Detect recurring expenses with consistent amount and category patterns",
+    "Build a CLI interface using Click with nested commands for managing categories, budgets, and expenses",
+    "Ensure all monetary values are stored as integers (cents) to avoid floating-point errors",
+    "Use auto-incremented primary keys with optional ID fields in domain models",
+    "Implement custom exception classes for domain-specific errors (CategoryNotFound, ExpenseNotFound, BudgetExceeded)",
+    "Enable foreign key constraints in SQLite to maintain referential integrity between models",
+    "Support optional parameters in commands and queries with default behavior for missing filters"
+  ]
+}

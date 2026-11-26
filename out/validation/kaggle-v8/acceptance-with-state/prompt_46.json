@@ -1,0 +1,81 @@
+{
+  "prompt": "prompt_46",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Client add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Invoice add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Payment add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Client",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Invoice",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Payment",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:ClientRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:InvoiceRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:PaymentRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Client.email",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Invoice.client_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Payment.invoice_id",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Client add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Invoice add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Payment add",
+      "status": "passed"
+    }
+  ]
+}

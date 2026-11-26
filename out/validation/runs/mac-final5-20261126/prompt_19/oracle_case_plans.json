@@ -1,0 +1,176 @@
+{
+  "plans": [
+    {
+      "id": "create_task",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "create_task",
+        "args": [
+          "title",
+          "description"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.title",
+          "task.description"
+        ],
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_all_tasks",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "read_all_tasks"
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.title",
+          "task.description"
+        ],
+        "rows": {
+          "Task": ">= 0"
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_task",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "update_task",
+        "args": [
+          "task.id",
+          "title",
+          "description"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.title",
+          "task.description"
+        ],
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_task",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.title"
+        ],
+        "rows": {
+          "Task": "1"
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "export_tasks_to_json",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "export_tasks_to_json"
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Task": ">= 0"
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "import_tasks_from_json",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "import_tasks_from_json",
+        "args": [
+          "json_file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Task": "same as before import"
+        },
+        "error": "InvalidTitleError"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "import_tasks_from_json_with_empty_title",
+      "source": "Create a Python 3.12 task management application using SQLite. Provide CRUD operations and commands to export all tasks to JSON and import tasks from JSON. The import operation must validate the input before modifying the database.",
+      "when": {
+        "action": "import_tasks_from_json",
+        "args": [
+          "json_file_path"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "InvalidTitleError"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

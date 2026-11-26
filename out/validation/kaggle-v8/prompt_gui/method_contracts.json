@@ -1,0 +1,50 @@
+{
+  "method_contracts": [
+    {
+      "holder": "WineInventoryService",
+      "method": "confirm_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "wine.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "WineRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "wine",
+          "repository": "WineRepository",
+          "method": "read_one",
+          "args": [
+            "wine_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "WineInventoryService",
+      "method": "cancel_order",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "wine.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "WineRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "wine",
+          "repository": "WineRepository",
+          "method": "read_one",
+          "args": [
+            "wine_id"
+          ]
+        }
+      ]
+    }
+  ]
+}

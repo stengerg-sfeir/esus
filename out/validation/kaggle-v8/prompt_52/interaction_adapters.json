@@ -1,0 +1,165 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "search_books",
+      "target_service": "BookRepository",
+      "target_method": "search_books",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "available_status",
+          "target_param": "available_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "update_book",
+      "target_service": "BookRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "available_status",
+          "target_param": "available_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "search_members",
+      "target_service": "MemberRepository",
+      "target_method": "search_members",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "create_member",
+      "target_service": "MemberRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "create_borrow_record",
+      "target_service": "BorrowRecordRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        },
+        {
+          "field_name": "borrow_date",
+          "target_param": "borrow_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "is_returned",
+          "target_param": "is_returned",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

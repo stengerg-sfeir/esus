@@ -1,0 +1,51 @@
+{
+  "method_contracts": [
+    {
+      "holder": "BookingService",
+      "method": "create_booking",
+      "decided_by": "user",
+      "requirements_sha": "f297bf6e3557e49b0e4cb550133e3fc4b57b7c2fda5ba32cc84a9779cb9097c7",
+      "creates": [
+        {
+          "class": "Booking",
+          "call": "BookingRepository.create"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "guest",
+          "repository": "GuestRepository",
+          "method": "read_one",
+          "args": [
+            "guest_id"
+          ]
+        },
+        {
+          "name": "room",
+          "repository": "RoomRepository",
+          "method": "read_one",
+          "args": [
+            "room_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "guest exists",
+          "error": "GuestNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "room exists",
+          "error": "RoomNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "any(str(row.room_id) == str(room_id) and str(row.check_in_date or '') < str(check_out_date) and str(check_in_date) < str(row.check_out_date or '') for row in self._repos['BookingRepository'].read_all())",
+          "error": "RoomConflictError",
+          "raise_when": "true"
+        }
+      ]
+    }
+  ]
+}

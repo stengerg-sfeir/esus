@@ -1,0 +1,124 @@
+{
+  "plans": [
+    {
+      "id": "order_state_transition_pending_to_confirmed",
+      "source": "An order starts in the pending state and can become confirmed, shipped or cancelled.",
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_state_transition_confirmed_to_shipped",
+      "source": "An order starts in the pending state and can become confirmed, shipped or cancelled.",
+      "when": {
+        "action": "ship_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_state_transition_pending_to_cancelled",
+      "source": "An order starts in the pending state and can become confirmed, shipped or cancelled.",
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "order_cannot_be_shipped_after_cancelled",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "when": {
+        "action": "ship_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "OrderCannotBeShippedError"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "order_cannot_be_cancelled_after_shipped",
+      "source": "A cancelled order cannot be shipped, and a shipped order cannot be cancelled.",
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "OrderCannotBeCancelledError"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

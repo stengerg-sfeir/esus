@@ -1,0 +1,221 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "update_user_role_normal_user",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "given": {
+        "user": {
+          "id": 102,
+          "role": "normal_user"
+        }
+      },
+      "when": {
+        "action": "update_user_role",
+        "args": [
+          "user.id",
+          "admin"
+        ]
+      },
+      "then": {
+        "error": "PermissionDeniedError",
+        "rows": {
+          "User": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "normal_user_cannot_update_product",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "given": {
+        "user": {
+          "id": 106,
+          "role": "normal_user"
+        },
+        "product": {
+          "id": 202,
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "update_product_stock",
+        "args": [
+          "product.id",
+          15
+        ]
+      },
+      "then": {
+        "error": "PermissionDeniedError",
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "modify_product_admin",
+      "source": "Administrators can manage products and users.",
+      "given": {
+        "product": {
+          "id": 201,
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product.id",
+          "stock_quantity",
+          20
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 20
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'product.stock_quantity' is not declared on Product"
+      }
+    },
+    {
+      "id": "modify_product_normal_user",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "given": {
+        "product": {
+          "id": 202,
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": [
+          "product.id",
+          "stock_quantity",
+          10
+        ]
+      },
+      "then": {
+        "error": "PermissionDeniedError",
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements",
+        "error class 'PermissionDeniedError' is not named in the requirements"
+      ]
+    }
+  ]
+}

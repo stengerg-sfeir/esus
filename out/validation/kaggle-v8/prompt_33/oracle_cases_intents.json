@@ -1,0 +1,173 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.create_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.update_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_customer_audit",
+      "source": "Provide CRUD operations for customers.",
+      "given": {
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.delete_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

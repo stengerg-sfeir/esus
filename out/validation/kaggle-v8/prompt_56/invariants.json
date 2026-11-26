@@ -1,0 +1,152 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderProduct.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "When an order is cancelled, the quantity of each product in that order must be added back to the product's stock_quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total quantity of a product across all orders must not exceed its stock_quantity unless the product is being reordered or restocked.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of quantities of products in an order must equal the total order quantity, and this sum must be consistent across all order product records.",
+      "kind": "rule"
+    },
+    {
+      "text": "Product stock_quantity must always be non-negative after any update or cancellation operation.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order can only be cancelled if it is in a status that allows cancellation, such as 'pending' or 'confirmed', and not 'completed' or 'cancelled'.",
+      "kind": "rule"
+    },
+    {
+      "text": "Product searches and filters must return only products that match the specified criteria, such as name, category, or price range.",
+      "kind": "rule"
+    },
+    {
+      "text": "All modifications to the database, including creating, updating, or cancelling orders and products, must be persisted atomically using a single transaction.",
+      "kind": "rule"
+    },
+    {
+      "text": "The order status must be updated to 'cancelled' when an order is successfully cancelled, and this status change must be reflected in the database immediately.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of quantities of products in all active orders must not exceed the total available stock of those products.",
+      "kind": "rule"
+    },
+    {
+      "text": "Product stock_quantity must be updated only when a product is added to an order or when an order is cancelled.",
+      "kind": "rule"
+    }
+  ]
+}

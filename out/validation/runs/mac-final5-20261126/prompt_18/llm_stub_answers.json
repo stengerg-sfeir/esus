@@ -1,0 +1,17 @@
+[
+  {
+    "label": "ContactService.import_contacts_from_csv",
+    "status": "written",
+    "note": "",
+    "answer": "with open(file_path, mode='r', encoding='utf-8') as file:\n        reader = csv.DictReader(file)\n        invalid_rows = 0\n        for row in reader:\n            try:\n                # Parse and validate fields\n                first_name = row.get('first_name')\n                last_name = row.get('last_name')\n                email = row.get('email')\n                phone = row.get('phone')\n                address = row.get('address')\n\n                # Validate required fields\n                if not first_name or not last_name:\n                    invalid_rows += 1\n                    continue\n\n                # Convert date fields to datetime.date if possible\n                created_at_str = row.get('created_at')\n                updated_at_str = row.get('updated_at')\n                created_at = _as_date(created_at_str)\n                updated_at = _as_date(updated_at_str)\n\n                # Create contact record\n                contact_data = {\n                    'first_name': first_name,\n                    'last_name': last_name,\n                    'email': email,\n                    'phone': phone,\n                    'address': address,\n                    'created_at': created_at,\n                    'updated_at': updated_at\n                }\n\n                # Create the contact in the repository\n                contact_id = self._repos['ContactRepository'].create(\n                    first_name=first_name,\n                    last_name=last_name,\n                    email=email,\n                    phone=phone,\n                    address=address,\n                    created_at=created_at,\n                    updated_at=updated_at\n                )\n\n                # If create returns an ID, we assume success\n                # No need to read back since we're not modifying\n            except (ValueError, KeyError) as e:\n                invalid_rows += 1\n                # Log or handle invalid row, but do not corrupt existing data\n        return invalid_rows\n```",
+    "finish_reason": "stop",
+    "tokens": 369,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 15.082857131958008,
+    "decode_seconds": 10.328498999999999,
+    "prompt_tokens": 2011,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

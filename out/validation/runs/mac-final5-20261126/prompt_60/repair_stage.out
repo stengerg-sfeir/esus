@@ -1,0 +1,39 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_60/persistence_ports.json
+
+
+[ok] step patterns: applied 1 recorded user decision(s)
+[ok] step grounding: dropped ExportService.export_orders_to_csv — no requirement/intention evidence for verb `export`
+[ok] step grounding: dropped ExportService.export_product_stock_to_csv — no requirement/intention evidence for verb `export`
+[ok] step grounding: dropped ProductService.add_product — parameter 'product_name' names no Product field
+[ok] step grounding: dropped CategoryService.add_category — parameter 'category_name' names no Category field
+[ok] step grounding: dropped ProductRepository.get_product_by_category_and_name — parameter 'category_name' names no Product field
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: ordership.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.category_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: invoiceadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: Product add lacked '--email' required by 'customeradd' — added as str
+[ok] step adapters: Category add lacked '--email' required by 'customeradd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 12 adapter(s)
+[ok] step persistence: 6 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: OrderService.cancel_order restores product.stock_quantity (increment)
+[ok] step data_models: applied 1 grouped uniqueness decision(s)
+

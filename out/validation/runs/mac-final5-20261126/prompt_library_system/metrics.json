@@ -1,0 +1,57 @@
+{
+  "prompt": "prompt_library_system",
+  "run_id": "mac-final5-20261126",
+  "prompt_file": "prompts/initial/prompt_library_system.txt",
+  "output_dir": "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_library_system",
+  "sha256": "1280d3a397f3a52d2e8078796ad293ae83769ed8972b946566af7e4e04ab546c",
+  "bytes": 4305,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 242.984,
+  "tokens": {
+    "calls": 14,
+    "tokens_out": 6197,
+    "tokens_prompt": 19463,
+    "decode_seconds": 183.509
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 4,
+    "open_ties": 2,
+    "rules": [
+      {
+        "rule": "ignored_cli_option",
+        "message": "interaction_adapters: overdue: --overdue — no adapter field reads it; the option parses but is not consumed by an effective action"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "1 unanswered surface questions; run the attended review before generation"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "2 unanswered pattern slots; run the attended review before generation"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "4 unanswered method contracts; run the attended review before generation"
+      }
+    ]
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/opt/homebrew/opt/python@3.12/bin/python3.12",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/initial/prompt_library_system.txt",
+      "--output",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_library_system",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

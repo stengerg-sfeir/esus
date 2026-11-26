@@ -1,0 +1,447 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_employee_invalid_email",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Bob Smith",
+          "email": "invalid-email",
+          "age": 25,
+          "salary": 50000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "invalid-email"
+        ]
+      },
+      "then": {
+        "error": "InvalidEmailError",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application raises an error for invalid email format, specifically 'InvalidEmailError'"
+      ],
+      "ambiguities": [
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements",
+        "error class 'InvalidEmailError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_employee_age_out_of_range",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Charlie Brown",
+          "email": "charlie.brown@example.com",
+          "age": 80,
+          "salary": 80000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "charlie.brown@example.com"
+        ]
+      },
+      "then": {
+        "error": "AgeOutOfRangeError",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application raises an error for age outside 18–70 range, specifically 'AgeOutOfRangeError'"
+      ],
+      "ambiguities": [
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_employee_negative_salary",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Diana Prince",
+          "email": "diana.prince@example.com",
+          "age": 28,
+          "salary": -10000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "diana.prince@example.com"
+        ]
+      },
+      "then": {
+        "error": "NegativeSalaryError",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application raises an error for negative salary, specifically 'NegativeSalaryError'"
+      ],
+      "ambiguities": [
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements",
+        "error class 'NegativeSalaryError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "update_employee_invalid_age",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Frank Miller",
+          "email": "frank.miller@example.com",
+          "age": 15,
+          "salary": 60000
+        }
+      },
+      "when": {
+        "action": "update_employee",
+        "args": [
+          "frank.miller@example.com",
+          "age",
+          15
+        ]
+      },
+      "then": {
+        "error": "AgeOutOfRangeError",
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The update operation validates age constraints and raises 'AgeOutOfRangeError' if outside 18–70"
+      ],
+      "ambiguities": [
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements",
+        "error class 'AgeOutOfRangeError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "delete_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "given": {
+        "employee": {
+          "name": "Grace Lee",
+          "email": "grace.lee@example.com",
+          "age": 32,
+          "salary": 72000
+        }
+      },
+      "when": {
+        "action": "delete_employee",
+        "args": [
+          "grace.lee@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Grace Lee",
+          "employee.email": "grace.lee@example.com",
+          "employee.age": 32,
+          "employee.salary": 72000
+        },
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The delete operation removes the employee record from the database, and the state reflects that the record is no longer present"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "create_employee_invalid_age",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Charlie Brown",
+          "email": "charlie.brown@example.com",
+          "age": 80,
+          "salary": 60000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "charlie.brown@example.com"
+        ]
+      },
+      "then": {
+        "error": "InvalidAgeError",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements",
+        "error class 'InvalidAgeError' is not named in the requirements"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "PurchaseHistoryService",
+      "methods": [
+        {
+          "name": "get_customer_purchase_history",
+          "description": "Retrieves the purchase history for a specific customer, including total spending amount.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": [
+            "CustomerNotFoundError",
+            "InvalidCustomerIdError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "SpendingAnalysisService",
+      "methods": [
+        {
+          "name": "calculate_total_spent_by_customer",
+          "description": "Calculates the total amount spent by a customer across all their purchases.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "float",
+          "raises": [
+            "CustomerNotFoundError",
+            "InvalidCustomerIdError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "PurchaseValidationService",
+      "methods": [
+        {
+          "name": "validate_purchase_amount",
+          "description": "Validates that a purchase amount is present and non-negative.",
+          "params": [
+            {
+              "name": "purchase_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool",
+          "raises": [
+            "PurchaseNotFoundError",
+            "InvalidPurchaseIdError",
+            "MissingPurchaseAmountError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerDataService",
+      "methods": [
+        {
+          "name": "customerreport",
+          "description": "Customerreport.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "PurchaseHistorySearchService",
+      "methods": [
+        {
+          "name": "search_purchases_by_customer_and_date_range",
+          "description": "Searches for purchases made by a customer within a specified date range.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "start_date",
+              "type": "datetime"
+            },
+            {
+              "name": "end_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": [
+            "CustomerNotFoundError",
+            "InvalidCustomerIdError"
+          ]
+        },
+        {
+          "name": "purchasesearch",
+          "description": "Purchasesearch.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "start_date",
+              "type": "str"
+            },
+            {
+              "name": "end_date",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "read_customer_purchases",
+          "description": "Retrieves all purchase records for a specific customer by their customer_id.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]"
+        },
+        {
+          "name": "get_total_spent_by_customer",
+          "description": "Calculates and returns the total amount spent by a customer across all their purchases.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "float"
+        }
+      ]
+    },
+    {
+      "service_name": "PurchaseRepository",
+      "methods": [
+        {
+          "name": "read_all",
+          "description": "Lists every Purchase; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            },
+            {
+              "name": "purchase_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Purchase by its key.",
+          "params": [
+            {
+              "name": "purchase_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Purchase",
+          "raises": [
+            "PurchaseNotFoundError"
+          ]
+        },
+        {
+          "name": "get_purchases_by_customer_id",
+          "description": "Lists the Purchase records belonging to one Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        },
+        {
+          "name": "read_all_purchases_for_customer",
+          "description": "Retrieves all purchase records for a specific customer by their customer_id.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]"
+        }
+      ]
+    }
+  ]
+}

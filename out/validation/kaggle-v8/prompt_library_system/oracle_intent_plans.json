@@ -1,0 +1,294 @@
+{
+  "plans": [
+    {
+      "id": "borrow_final_copy",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required parameter member_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          }
+        ],
+        "aliases": {
+          "book": "Book",
+          "member": "Member"
+        },
+        "target_usage": {
+          "entity": "Book",
+          "used_entities": [
+            "Book",
+            "Member"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "reject_negative_copies",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required parameter member_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          }
+        ],
+        "aliases": {
+          "book": "Book",
+          "member": "Member"
+        },
+        "target_usage": {
+          "entity": "Book",
+          "used_entities": [
+            "Book",
+            "Member"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "borrowing_final_copy_leaves_zero",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required parameter member_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          }
+        ],
+        "aliases": {
+          "book": "Book",
+          "member": "Member"
+        },
+        "target_usage": {
+          "entity": "Book",
+          "used_entities": [
+            "Book",
+            "Member"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "return_already_returned_loan",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "book",
+            "entity": "Book",
+            "reason": "required Loan.book_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          },
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required Loan.member_id"
+          }
+        ],
+        "aliases": {
+          "loan": "Loan"
+        },
+        "target_usage": {
+          "entity": "Loan",
+          "used_entities": [
+            "Loan"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "borrow_transaction_rollback",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "book",
+            "entity": "Book",
+            "reason": "required Loan.book_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          },
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required Loan.member_id"
+          }
+        ],
+        "aliases": {
+          "loan": "Loan"
+        },
+        "target_usage": {
+          "entity": "Loan",
+          "used_entities": [
+            "Loan"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "borrow_insufficient_copies",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required parameter member_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          }
+        ],
+        "aliases": {
+          "book": "Book",
+          "member": "Member"
+        },
+        "target_usage": {
+          "entity": "Book",
+          "used_entities": [
+            "Book",
+            "Member"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "return_transaction_success",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "book",
+            "entity": "Book",
+            "reason": "required Loan.book_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          },
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required Loan.member_id"
+          }
+        ],
+        "aliases": {
+          "loan": "Loan"
+        },
+        "target_usage": {
+          "entity": "Loan",
+          "used_entities": [
+            "Loan"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "library_borrow_member_id_book_id",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          }
+        ],
+        "aliases": {
+          "member": "Member",
+          "book": "Book"
+        },
+        "target_usage": {
+          "entity": "Member",
+          "used_entities": [
+            "Book",
+            "Member"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "library return --loan-id",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "book",
+            "entity": "Book",
+            "reason": "required Loan.book_id"
+          },
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          },
+          {
+            "alias": "member",
+            "entity": "Member",
+            "reason": "required Loan.member_id"
+          }
+        ],
+        "aliases": {
+          "loan": "Loan"
+        },
+        "target_usage": {
+          "entity": "Loan",
+          "used_entities": [
+            "Loan"
+          ],
+          "used": true
+        }
+      }
+    },
+    {
+      "id": "library book search --query",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "author",
+            "entity": "Author",
+            "reason": "required Book.author_id"
+          }
+        ],
+        "aliases": {
+          "book": "Book"
+        },
+        "target_usage": {
+          "entity": "Book",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    }
+  ],
+  "rejected": [],
+  "validation_errors": []
+}

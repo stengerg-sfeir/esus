@@ -1,0 +1,316 @@
+"""Command line. Every declared verb parses; bound verbs dispatch to
+their adapter's service method, unbound ones fail with the reason.
+
+Transforms follow the adapter document: DIRECT passes through, ISO_DATE
+validates ISO format, DECIMAL_TO_CENTS converts money to integer cents,
+CSV_LIST splits on commas, INT_LIST converts a list to integers,
+LOOKUP_ID coerces to int (existence is enforced by the repository's
+foreign-key check on write, or by the record lookup itself on read),
+BOOL_TO_ONE turns a selector such as --available-only into the
+minimum count of one.
+"""
+
+from __future__ import annotations
+
+import argparse
+import dataclasses
+import datetime
+import json
+import sys
+
+import models
+import errors
+from schema import SCHEMA
+from store import Store
+import repositories
+import services
+
+
+MODELS = ['Contact']
+REPOSITORIES = ['ContactRepository']
+SERVICES = ['ContactService']
+
+
+def _transform(kind, value, field):
+    if kind == "DIRECT" or value is None:
+        return value
+    if kind == "ISO_DATE":
+        text = str(value)
+        if "T" in text or " " in text:
+            return datetime.datetime.fromisoformat(text)
+        return datetime.date.fromisoformat(text)
+    if kind == "DECIMAL_TO_CENTS":
+        return int(round(float(value) * 100))
+    if kind == "CSV_LIST":
+        items = value if isinstance(value, (list, tuple)) else [value]
+        split = []
+        for part in items:
+            split.extend(p.strip() for p in str(part).split(",") if p.strip())
+        return split
+    if kind == "INT_LIST":
+        items = value if isinstance(value, (list, tuple)) else [value]
+        return [int(item) for item in items]
+    if kind == "LOOKUP_ID":
+        return int(value)
+    if kind == "ENUM_LOOKUP":
+        return str(value)
+    if kind == "BOOL_TO_ONE":
+        return 1 if value else 0
+    raise ValueError(f"unknown transform {kind!r} for {field!r}")
+
+
+def _show(result):
+    if result is None:
+        return
+    if isinstance(result, list):
+        for item in result:
+            _show(item)
+        return
+    if dataclasses.is_dataclass(result):
+        print(json.dumps(dataclasses.asdict(result), default=str))
+        return
+    if isinstance(result, (dict, tuple)):
+        print(json.dumps(result, default=str))
+        return
+    print(result)
+
+
+ADAPTERS = {
+    'create_contact': {
+        'service': 'ContactRepository',
+        'method': 'create',
+        'fields': [
+            ('first_name', ('first_name', 'DIRECT', True)),
+            ('last_name', ('last_name', 'DIRECT', True)),
+            ('email', ('email', 'DIRECT', True)),
+            ('phone', ('phone', 'DIRECT', False)),
+            ('address', ('address', 'DIRECT', False)),
+            ('created_at', ('created_at', 'ISO_DATE', True)),
+            ('updated_at', ('updated_at', 'ISO_DATE', True)),
+        ],
+        'argv': {'first_name': 'first_name', 'last_name': 'last_name', 'email': 'email', 'phone': 'phone', 'address': 'address', 'created_at': 'created_at', 'updated_at': 'updated_at'},
+        'targets': {'first_name': None, 'last_name': None, 'email': None, 'phone': None, 'address': None, 'created_at': None, 'updated_at': None},
+        'assembled': [],
+        'creates': True,
+    },
+    'delete_contact': {
+        'service': 'ContactRepository',
+        'method': 'delete',
+        'fields': [
+            ('id', ('id', 'LOOKUP_ID', True)),
+        ],
+        'argv': {'id': 'id'},
+        'targets': {'id': None},
+        'assembled': [],
+        'creates': False,
+    },
+    'update_contact': {
+        'service': 'ContactRepository',
+        'method': 'update',
+        'fields': [
+            ('id', ('id', 'LOOKUP_ID', True)),
+            ('first_name', ('first_name', 'DIRECT', False)),
+            ('last_name', ('last_name', 'DIRECT', False)),
+            ('email', ('email', 'DIRECT', False)),
+            ('phone', ('phone', 'DIRECT', False)),
+            ('address', ('address', 'DIRECT', False)),
+        ],
+        'argv': {'id': 'id', 'first_name': 'first_name', 'last_name': 'last_name', 'email': 'email', 'phone': 'phone', 'address': 'address'},
+        'targets': {'id': None, 'first_name': None, 'last_name': None, 'email': None, 'phone': None, 'address': None},
+        'assembled': [],
+        'creates': False,
+    },
+}
+
+
+BINDINGS = {  # (command, subcommand) -> [(action, score, need)]
+    ('Contact', 'add'): [('create_contact', 8, ())],
+    ('Contact', 'delete'): [('delete_contact', 11, ())],
+    ('Contact', 'update'): [('update_contact', 11, ())],
+}
+
+
+def _normalize(text):
+    return "".join(c for c in str(text).lower() if c.isalnum())
+
+
+def _needs_met(present, need):
+    for dest, kind, _flag in need:
+        value = present.get(_normalize(dest))
+        if kind == 'truthy':
+            if not value:
+                return False
+        elif value is None:
+            return False
+    return True
+
+
+def _choose(bound, values):
+    """The first choice whose flags are all passed: routes and
+    filters before the fallback, which needs nothing."""
+    present = {_normalize(k): v for k, v in values.items()}
+    for choice in bound:
+        if _needs_met(present, choice[2]):
+            return choice, present
+    return bound[-1], present
+
+
+def _incomplete(chosen, bound, present):
+    """Flags passed that select a choice also needing companions
+    (`--category` without `--month`): naming the missing flag beats
+    ignoring the one passed."""
+    consumed = {dest for dest, _kind, _flag in chosen[2]}
+    for action, _score, need in bound:
+        if action == chosen[0]:
+            continue
+        passed = [item for item in need if _needs_met(present, (item,))]
+        if not passed or len(passed) == len(need):
+            continue
+        if any(item[0] in consumed for item in passed):
+            continue
+        missing = ' and '.join(item[2] for item in need
+                               if item not in passed)
+        return f'{action!r} also needs {missing}'
+    return None
+
+
+def _error_text(error):
+    """A domain error keeps its class name when it carries no text."""
+    detail = str(error)
+    name = type(error).__name__
+    return f'{name}: {detail}' if detail else name
+
+
+DEFAULT_DB = 'prompt_18.db'
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(prog='prompt_18')
+    parser.add_argument('--db', default=None,
+                        help=('SQLite file for record storage (default: ' + DEFAULT_DB + ' in the working directory; use :memory: to stay in memory)'))
+    sub = parser.add_subparsers(dest='command')
+    p_Contact = sub.add_parser('Contact')
+    sub_Contact = p_Contact.add_subparsers(dest='subcommand')
+    p_Contact_add = sub_Contact.add_parser('add')
+    p_Contact_add.add_argument('--first-name', type=str, required=True, dest='first_name')
+    p_Contact_add.add_argument('--last-name', type=str, required=True, dest='last_name')
+    p_Contact_add.add_argument('--email', type=str, required=True, dest='email')
+    p_Contact_add.add_argument('--phone', type=str, required=False, dest='phone')
+    p_Contact_add.add_argument('--address', type=str, required=False, dest='address')
+    p_Contact_add.add_argument('--created-at', type=str, required=True, dest='created_at')
+    p_Contact_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
+    p_Contact_add.set_defaults(_binding=('Contact', 'add'))
+    p_Contact_update = sub_Contact.add_parser('update')
+    p_Contact_update.add_argument('--id', type=int, required=True, dest='id')
+    p_Contact_update.add_argument('--first-name', type=str, required=False, dest='first_name')
+    p_Contact_update.add_argument('--last-name', type=str, required=False, dest='last_name')
+    p_Contact_update.add_argument('--email', type=str, required=False, dest='email')
+    p_Contact_update.add_argument('--phone', type=str, required=False, dest='phone')
+    p_Contact_update.add_argument('--address', type=str, required=False, dest='address')
+    p_Contact_update.set_defaults(_binding=('Contact', 'update'))
+    p_Contact_delete = sub_Contact.add_parser('delete')
+    p_Contact_delete.add_argument('--id', type=int, required=True, dest='id')
+    p_Contact_delete.set_defaults(_binding=('Contact', 'delete'))
+    return parser
+
+
+def _call(bound, values, deps):
+    action = bound[0]
+    spec = ADAPTERS[action]
+    service = deps['services'][_sanitize(spec['service'])]
+    method = getattr(service, _sanitize(spec['method']))
+    present = {_normalize(k): v for k, v in values.items()}
+    argv = spec.get('argv', {})
+    targets = spec.get('targets', {})
+    assembled = set(spec.get('assembled', []))
+    grouped = {}
+    for field_name, (target_param, kind, required) in spec['fields']:
+        if field_name in assembled:
+            continue  # built from its sibling fields, not from argv
+        dest = argv.get(field_name)
+        given = present.get(_normalize(dest)) if dest is not None else None
+        # An absent no-value flag parses as False: it was not given, so the
+        # method's own default applies (`member list` without --active-only
+        # lists everyone, not the inactive).
+        if given is None or given is False:
+            if required and given is None:
+                raise ValueError(f"missing required field {field_name!r} for {action!r}")
+            if given is None and spec.get('creates') and str(field_name).endswith('date') and str(field_name) not in ('due_date', 'return_date', 'start_date', 'end_date', 'birth_date'):
+                given = datetime.date.today()
+            else:
+                continue
+        value = _transform(kind, given, field_name)
+        if targets.get(target_param) and targets[target_param].startswith('__mapping__:'):
+            grouped.setdefault(target_param, {})[field_name] = value
+        elif targets.get(target_param) is not None:
+            grouped.setdefault(target_param, {})[field_name] = value
+        else:
+            grouped[target_param] = value
+    call_kwargs = {}
+    for target_param, value in grouped.items():
+        model_name = targets.get(target_param)
+        if model_name and model_name.startswith('__mapping__:'):
+            call_kwargs[_sanitize(target_param)] = value
+        elif model_name is not None and isinstance(value, dict):
+            call_kwargs[_sanitize(target_param)] = getattr(models, model_name)(**value)
+        else:
+            call_kwargs[_sanitize(target_param)] = value
+    return method(**call_kwargs)
+
+
+def _sanitize(text):
+    cleaned = "".join(c if c.isalnum() or c == "_" else "_" for c in str(text))
+    cleaned = cleaned.strip("_") or "opt"
+    return "_" + cleaned if cleaned[:1].isdigit() else cleaned
+
+
+def build_cli(db_path=None):
+    store = Store(db_path, SCHEMA)
+    repos = {cls_name: getattr(repositories, cls_name)(store) for cls_name in REPOSITORIES}
+    hired = {cls_name: getattr(services, cls_name)(repos) for cls_name in SERVICES}
+    entities = {_normalize(name): getattr(models, name) for name in MODELS}
+    return build_parser(), {'store': store, 'repos': repos,
+                           'services': {**repos, **hired},
+                           'entities': entities}
+
+
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    _, deps = build_cli(args.db or DEFAULT_DB)
+    try:
+        return dispatch(parser, args, deps)
+    finally:
+        deps['store'].close()
+
+
+def dispatch(parser, args, deps):
+    """Run one parsed command against shared dependencies."""
+    binding = (getattr(args, '_binding', None)
+               or getattr(args, '_parent_binding', None))
+    if binding is None:
+        parser.print_usage()
+        return 2
+    bound = BINDINGS.get(tuple(binding))
+    if bound is None:
+        print(f"no adapter bound for {' '.join(binding)} — not implemented")
+        return 1
+    values = {key: value for key, value in vars(args).items()
+              if key not in ('command', 'subcommand', '_binding',
+                             '_parent_binding', 'db')}
+    choice, present = _choose(bound, values)
+    trouble = _incomplete(choice, bound, present)
+    if trouble:
+        print(f"error: {' '.join(binding)}: {trouble}")
+        return 1
+    try:
+        _show(_call(choice, values, deps))
+    except Exception as error:
+        print(f"error: {_error_text(error)}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+

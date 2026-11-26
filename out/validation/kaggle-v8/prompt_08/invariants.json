@@ -1,0 +1,44 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total quantity of products in a category must not exceed the sum of individual product quantities within that category.",
+      "kind": "rule"
+    }
+  ]
+}

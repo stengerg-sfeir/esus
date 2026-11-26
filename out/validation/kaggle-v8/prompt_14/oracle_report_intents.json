@@ -1,0 +1,66 @@
+{
+  "prompt": "prompt_14",
+  "results": [
+    {
+      "name": "scenario:oracle:soft_delete_project",
+      "status": "passed",
+      "case": "soft_delete_project",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "project.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Project.name exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          },
+          "project.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Project.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 1
+  }
+}

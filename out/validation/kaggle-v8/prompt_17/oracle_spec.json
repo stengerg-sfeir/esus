@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "0e98c5d4c8cda10d24da81fc7c25e833cea47c4c436343cf2d4430ab7a9b4239",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "When a product has a maximum price specified, only products with a price less than or equal to the maximum price are included.",
+      "chosen": "PRICE_MARGIN_GUARD",
+      "candidates": [
+        "PRICE_MARGIN_GUARD",
+        "BUDGET_OVERFLOW_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

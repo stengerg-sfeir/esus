@@ -1,0 +1,29 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_27/persistence_ports.json
+
+
+[ok] step adapters: update_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_customer.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_room.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_room.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.reservation_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_reservation.room_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step data_models: applied 1 grouped uniqueness decision(s)
+

@@ -1,0 +1,278 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "add_product_to_category",
+      "source": "every product must belong to an existing category",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category_id": 1
+        },
+        "category": {
+          "id": 1,
+          "name": "Electronics"
+        }
+      },
+      "when": {
+        "action": "add_product_to_category",
+        "args": [
+          "product.name",
+          "category.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.category_id": 1
+        },
+        "rows": {
+          "Product": 1,
+          "Category": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'add_product_to_category' is not explicitly defined in the requirements. The requirement only states that every product must belong to an existing category, not how to add a product to a category."
+      ],
+      "ambiguities": [
+        "No requirement specifies whether the category must exist prior to adding a product, or whether the action is allowed to create a new category."
+      ]
+    },
+    {
+      "id": "delete_category_with_products",
+      "source": "A category cannot be deleted while products still belong to it",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics"
+        },
+        "product": {
+          "name": "Laptop",
+          "category_id": 1
+        }
+      },
+      "when": {
+        "action": "delete_category",
+        "args": [
+          "category.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "category.deleted": false
+        },
+        "error": "CategoryCannotBeDeletedWhileProductsExistError",
+        "rows": {
+          "Category": 1,
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements",
+        "error class 'CategoryCannotBeDeletedWhileProductsExistError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "assign_product_to_nonexistent_category",
+      "source": "every product must belong to an existing category",
+      "given": {
+        "product": {
+          "name": "Tablet",
+          "category_id": 999
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product.name",
+          "product.category_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.category_id": 999
+        },
+        "error": "CategoryNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether creating a product with a non-existent category should fail or allow the product to be created with a missing category."
+      ],
+      "ambiguities": [
+        "No requirement defines the behavior when a product is assigned to a non-existent category. The requirement only states that every product must belong to an existing category, implying validation is required.",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements",
+        "error class 'CategoryNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_product_without_category",
+      "source": "Every product must belong to an existing category.",
+      "given": {
+        "product": {
+          "name": "Widget",
+          "category_id": 999
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product.name",
+          "product.category_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.category_id": 999
+        },
+        "error": "InvalidCategoryError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The action 'create_product' is not defined in the requirements. The requirement only states that products must belong to existing categories, not how validation is enforced."
+      ],
+      "ambiguities": [
+        "The requirements do not specify whether a product can be created without a valid category, or what error should be raised. The error 'InvalidCategoryError' is not stated.",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements",
+        "error class 'InvalidCategoryError' is not named in the requirements"
+      ]
+    }
+  ]
+}

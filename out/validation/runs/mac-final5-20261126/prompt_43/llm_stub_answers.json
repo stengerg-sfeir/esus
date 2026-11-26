@@ -1,0 +1,30 @@
+[
+  {
+    "label": "ProjectRepository.count_projects_with_pending_tasks",
+    "status": "written",
+    "note": "repaired: the body does not compile (invalid syntax)",
+    "answer": "pending_tasks = self._store.select(self.ENTITY, [])\n    count = 0\n    for project in pending_tasks:\n        project_id = project.get('id')\n        if project_id is None:\n            continue\n        tasks = self._store.select(\"Task\", [(\"project_id\", \"eq\", project_id)])\n        for task in tasks:\n            if task.get('status') == 'pending':\n                count += 1\n    return count",
+    "first_answer": "8 spaces:\n    pending_tasks = self._store.select(self.ENTITY, [])\n    count = 0\n    for project in pending_tasks:\n        project_id = project.get('id')\n        if project_id is None:\n            continue\n        tasks = self._store.select(\"Task\", [(\"project_id\", \"eq\", project_id)])\n        for task in tasks:\n            if task.get('status') == 'pending':\n                count += 1\n    return count",
+    "complaints": [
+      "the body does not compile (invalid syntax)"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 95,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 13.915955781936646,
+    "first_decode_seconds": 3.374314,
+    "first_prompt_tokens": 3828,
+    "first_cached_tokens": 92,
+    "finish_reason": "stop",
+    "tokens": 92,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 3.8926331996917725,
+    "decode_seconds": 3.220911,
+    "prompt_tokens": 3970,
+    "cached_tokens": 3796,
+    "context": "exact"
+  }
+]

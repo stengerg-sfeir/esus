@@ -1,0 +1,64 @@
+{
+  "invariants": [
+    {
+      "text": "Product.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A product's price must be greater than or equal to the specified minimum price when filtering by maximum price and minimum quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product's quantity must be greater than or equal to the specified minimum quantity when filtering by category, name, maximum price, and minimum quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "Products filtered by category must only include products that belong to the specified category.",
+      "kind": "rule"
+    },
+    {
+      "text": "Products filtered by name must only include products whose name matches the specified name.",
+      "kind": "rule"
+    },
+    {
+      "text": "Products filtered by maximum price must only include products whose price is less than or equal to the specified maximum price.",
+      "kind": "rule"
+    },
+    {
+      "text": "All filter conditions, including name, category, maximum price, and minimum quantity, are combinable in a single query.",
+      "kind": "rule"
+    }
+  ]
+}

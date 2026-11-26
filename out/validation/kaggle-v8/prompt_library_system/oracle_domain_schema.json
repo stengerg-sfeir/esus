@@ -1,0 +1,135 @@
+{
+  "entities": [
+    {
+      "name": "Book",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "isbn",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "published_year",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "available_copies",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "author_id",
+          "type": "int",
+          "required": true,
+          "references": "Author.id"
+        }
+      ]
+    },
+    {
+      "name": "Author",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "birth_year",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "biography",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "membership_date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "Loan",
+      "fields": [
+        {
+          "name": "id",
+          "type": "int",
+          "required": true
+        },
+        {
+          "name": "book_id",
+          "type": "int",
+          "required": true,
+          "references": "Book.id"
+        },
+        {
+          "name": "member_id",
+          "type": "int",
+          "required": true,
+          "references": "Member.id"
+        },
+        {
+          "name": "loan_date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "due_date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "name": "return_date",
+          "type": "date"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "intents": [
+    {
+      "id": "overlap_rejection",
+      "source": "A room cannot have two overlapping reservations.",
+      "kind": "error",
+      "entity": "Reservation",
+      "action": "create_reservation",
+      "setup_entities": [
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        },
+        {
+          "alias": "existing_reservation",
+          "entity": "Reservation",
+          "role": "existing"
+        }
+      ],
+      "setup_values": {
+        "room.room_id": "R001",
+        "existing_reservation.start_time": "2023-10-01T09:00:00Z",
+        "existing_reservation.end_time": "2023-10-01T17:00:00Z"
+      },
+      "lookup": [
+        "room.room_id"
+      ],
+      "where": {},
+      "args": [
+        "R001",
+        "2023-10-01T10:00:00Z",
+        "2023-10-01T16:00:00Z"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "OverlappingReservationError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "error class 'OverlappingReservationError' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "prompt": "prompt_59",
+  "run_id": "mac-final5-20261126",
+  "prompt_file": "prompts/validation/prompt_59.txt",
+  "output_dir": "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_59",
+  "sha256": "047f672d2360d839befadbd45674f327ddbbce59f3d5c7aea7bbdc491bb871e8",
+  "bytes": 288,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 158.668,
+  "tokens": {
+    "calls": 7,
+    "tokens_out": 5494,
+    "tokens_prompt": 4218,
+    "decode_seconds": 152.984
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 3,
+    "open_ties": 0,
+    "rules": [
+      {
+        "rule": "mismatched_transform",
+        "message": "interaction_adapters: 'taxadd.rate' is converted with DECIMAL_TO_CENTS, which is for a money amount — the field's name does not describe one"
+      },
+      {
+        "rule": "mismatched_transform",
+        "message": "interaction_adapters: 'taxdelete.rate' is converted with DECIMAL_TO_CENTS, which is for a money amount — the field's name does not describe one"
+      },
+      {
+        "rule": "mismatched_transform",
+        "message": "interaction_adapters: 'taxupdate.rate' is converted with DECIMAL_TO_CENTS, which is for a money amount — the field's name does not describe one"
+      }
+    ]
+  },
+  "classification": "not_generatable",
+  "outcome": "failed",
+  "commands": {
+    "extract": [
+      "/opt/homebrew/opt/python@3.12/bin/python3.12",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/validation/prompt_59.txt",
+      "--output",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_59",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

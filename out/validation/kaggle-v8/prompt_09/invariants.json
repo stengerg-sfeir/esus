@@ -1,0 +1,92 @@
+{
+  "invariants": [
+    {
+      "text": "Employee.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must be positive",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.age must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.age must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.age must be positive",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.salary must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.salary must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.salary must be positive",
+      "kind": "schema"
+    },
+    {
+      "text": "The email address of an employee must be valid.",
+      "kind": "rule"
+    },
+    {
+      "text": "The age of an employee must be between 18 and 70 inclusive.",
+      "kind": "rule"
+    },
+    {
+      "text": "The salary of an employee must be a positive number.",
+      "kind": "rule"
+    },
+    {
+      "text": "When creating an employee, if the email is invalid, the operation must fail.",
+      "kind": "rule"
+    },
+    {
+      "text": "When creating an employee, if the age is less than 18 or greater than 70, the operation must fail.",
+      "kind": "rule"
+    },
+    {
+      "text": "When creating an employee, if the salary is not positive, the operation must fail.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of all employee salaries must be updated whenever an employee's salary is modified.",
+      "kind": "rule"
+    },
+    {
+      "text": "Deleting an employee must remove the employee record from the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "Updating an employee's age must ensure it remains between 18 and 70.",
+      "kind": "rule"
+    },
+    {
+      "text": "Updating an employee's salary must ensure it remains positive.",
+      "kind": "rule"
+    }
+  ]
+}

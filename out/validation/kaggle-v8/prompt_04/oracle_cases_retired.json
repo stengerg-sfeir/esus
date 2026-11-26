@@ -1,0 +1,259 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 2,
+    "merged": 2
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "add_task",
+        "source": "Users can add, list, complete and delete tasks.",
+        "given": {
+          "task": {
+            "title": "Write documentation",
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "add_task",
+          "args": [
+            "Write documentation"
+          ]
+        },
+        "then": {
+          "state": {
+            "task.title": "Write documentation",
+            "task.status": "pending"
+          },
+          "rows": {
+            "Task": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "task": {
+              "status": "aligned",
+              "canonical": "Task",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Task",
+                "score 13.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "task.title": {
+              "status": "alias",
+              "canonical": "description",
+              "score": 8.0,
+              "evidence": [
+                "'title' aliases 'description'"
+              ],
+              "alternatives": []
+            },
+            "task.status": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no prompt evidence for field 'status'",
+                "not declared on Task"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "alias",
+            "canonical": "TaskRepository.create",
+            "score": 1.0,
+            "evidence": [
+              "same operation with a different name"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "expected state field 'task.title' is not declared on Task"
+        }
+      },
+      "status": "unbound",
+      "reason": "expected state field 'task.title' is not declared on Task"
+    },
+    {
+      "case": {
+        "id": "list_tasks",
+        "source": "Users can add, list, complete and delete tasks.",
+        "given": {
+          "task": {
+            "title": "Write documentation",
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "list_tasks"
+        },
+        "then": {
+          "state": {
+            "task.title": "Write documentation",
+            "task.status": "pending"
+          },
+          "rows": {
+            "Task": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "task": {
+              "status": "aligned",
+              "canonical": "Task",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Task",
+                "score 13.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "task.title": {
+              "status": "alias",
+              "canonical": "description",
+              "score": 8.0,
+              "evidence": [
+                "'title' aliases 'description'"
+              ],
+              "alternatives": []
+            },
+            "task.status": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no prompt evidence for field 'status'",
+                "not declared on Task"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "expected state field 'task.title' is not declared on Task"
+        }
+      },
+      "status": "unbound",
+      "reason": "expected state field 'task.title' is not declared on Task"
+    },
+    {
+      "case": {
+        "id": "complete_task",
+        "source": "Users can add, list, complete and delete tasks.",
+        "given": {
+          "task": {
+            "title": "Write documentation",
+            "status": "pending"
+          }
+        },
+        "when": {
+          "action": "complete_task",
+          "args": [
+            "Write documentation"
+          ]
+        },
+        "then": {
+          "state": {
+            "task.title": "Write documentation",
+            "task.status": "completed"
+          },
+          "rows": {
+            "Task": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "task": {
+              "status": "aligned",
+              "canonical": "Task",
+              "score": 13.0,
+              "evidence": [
+                "name/fields match Task",
+                "score 13.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "task.title": {
+              "status": "alias",
+              "canonical": "description",
+              "score": 8.0,
+              "evidence": [
+                "'title' aliases 'description'"
+              ],
+              "alternatives": []
+            },
+            "task.status": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "no prompt evidence for field 'status'",
+                "not declared on Task"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "case_defect: setup",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "expected state field 'task.title' is not declared on Task"
+        }
+      },
+      "status": "unbound",
+      "reason": "expected state field 'task.title' is not declared on Task"
+    }
+  ]
+}

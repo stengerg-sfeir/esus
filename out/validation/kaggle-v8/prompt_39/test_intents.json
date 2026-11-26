@@ -1,0 +1,153 @@
+{
+  "intents": [
+    {
+      "id": "manage_products_admin",
+      "source": "Administrators can manage products and users.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "update_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The term 'manage' implies the ability to update product attributes such as stock quantity."
+      ],
+      "ambiguities": [
+        "The clause does not specify which attributes or operations are part of 'manage products'."
+      ]
+    },
+    {
+      "id": "manage_users_admin",
+      "source": "Administrators can manage products and users.",
+      "kind": "update",
+      "entity": "User",
+      "action": "update_user",
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "user.role": "normal"
+      },
+      "lookup": [
+        "user.username"
+      ],
+      "where": {
+        "user.role": "normal"
+      },
+      "args": [
+        "user.username",
+        "admin"
+      ],
+      "changes": {
+        "user.role": "admin"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "user.role": "admin"
+        },
+        "rows": {
+          "User": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The term 'manage users' implies the ability to update user roles, such as changing from normal to admin."
+      ],
+      "ambiguities": [
+        "The clause does not specify which user attributes or operations are part of 'manage users'."
+      ]
+    },
+    {
+      "id": "normal_user_view_own_orders",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "kind": "list",
+      "entity": "Order",
+      "action": "view_orders",
+      "setup_entities": [
+        {
+          "alias": "user",
+          "entity": "User",
+          "role": "target"
+        },
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "related"
+        }
+      ],
+      "setup_values": {
+        "user.role": "normal"
+      },
+      "lookup": [],
+      "where": {
+        "order.user_id": "user.id"
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "list",
+          "orders"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {},
+        "rows": {
+          "Order": 1
+        },
+        "error": null,
+        "stdout_contains": "Order details for user",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

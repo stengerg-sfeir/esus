@@ -1,0 +1,184 @@
+{
+  "prompt": "prompt_expenses",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense category add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense category list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense category update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense category delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense report monthly",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense report yearly",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense export",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:expense recurring detect",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:budget list",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:budget add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:budget update",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:budget delete",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Category",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Expense",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Budget",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CategoryRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ExpenseRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:BudgetRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Category.name",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Expense.category_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Budget.category_id",
+      "status": "passed"
+    },
+    {
+      "name": "contract:ExpenseService.add_expense",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense category add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense category list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense category update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense category delete",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense report monthly",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense report yearly",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense export",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:expense recurring detect",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:budget list",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:budget add",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:budget update",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:budget delete",
+      "status": "passed"
+    }
+  ]
+}

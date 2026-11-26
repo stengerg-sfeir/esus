@@ -1,0 +1,38 @@
+{
+  "plans": [
+    {
+      "id": "create_order_with_invalid_line",
+      "source": "Creating an order must create the order and all its order lines atomically. If any order line is invalid, neither the order nor any of its lines should remain in the database.",
+      "when": {
+        "action": "create_order",
+        "args": [
+          "order.id",
+          "order.lines"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "line",
+          "entity": "OrderLine",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 0,
+          "OrderLine": 0
+        },
+        "error": "none"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

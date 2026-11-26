@@ -1,0 +1,320 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Category",
+        "interface_name": "CategoryRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Category.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "reorder_threshold",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Category",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Category by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Category",
+            "raises": [
+              "CategoryNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Category; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "reorder_threshold",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Category]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Category.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "reorder_threshold",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Category",
+            "raises": [
+              "CategoryNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Category.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "description",
+                "type": "str"
+              },
+              {
+                "name": "reorder_threshold",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "CategoryNotFoundError"
+            ]
+          },
+          {
+            "name": "find_products_by_category",
+            "description": "Returns all products that belong to a given category by category_id.",
+            "params": [
+              {
+                "name": "category_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]"
+          }
+        ]
+      },
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Product.",
+            "params": [
+              {
+                "name": "sku",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "price_cents",
+                "type": "int"
+              },
+              {
+                "name": "stock_qty",
+                "type": "int"
+              },
+              {
+                "name": "low_active",
+                "type": "bool"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "sku",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "price_cents",
+                "type": "int"
+              },
+              {
+                "name": "stock_qty",
+                "type": "int"
+              },
+              {
+                "name": "low_active",
+                "type": "bool"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Product.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "sku",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "price_cents",
+                "type": "int"
+              },
+              {
+                "name": "stock_qty",
+                "type": "int"
+              },
+              {
+                "name": "low_active",
+                "type": "bool"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Product.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              },
+              {
+                "name": "sku",
+                "type": "str"
+              },
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category_id",
+                "type": "int"
+              },
+              {
+                "name": "price_cents",
+                "type": "int"
+              },
+              {
+                "name": "stock_qty",
+                "type": "int"
+              },
+              {
+                "name": "low_active",
+                "type": "bool"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "ProductNotFoundError"
+            ]
+          },
+          {
+            "name": "find_low_stock_products",
+            "description": "Returns all products whose stock_qty is below the reorder_threshold of their category.",
+            "params": [],
+            "return_type": "list[Product]"
+          },
+          {
+            "name": "aggregate_stock_value_by_category",
+            "description": "Returns a dictionary mapping each category to the total stock value (price_cents * stock_qty) of all products in that category.",
+            "params": [],
+            "return_type": "dict[int: int]"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Category",
+        "table": "categories",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      },
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "id",
+        "indexes": [
+          "sku",
+          "category_id"
+        ]
+      }
+    ]
+  }
+}

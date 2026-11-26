@@ -1,0 +1,89 @@
+{
+  "intents": [
+    {
+      "id": "book_borrowed_not_available",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "kind": "list",
+      "entity": "Book",
+      "action": "list_available_books",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.is_borrowed": true
+      },
+      "lookup": [
+        "book.title"
+      ],
+      "where": {
+        "book.is_available": true
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.is_borrowed": true
+        },
+        "rows": {
+          "Book": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "book_return_becomes_available",
+      "source": "When it is returned, it should become available again.",
+      "kind": "update",
+      "entity": "Book",
+      "action": "return_book",
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "book.borrowed_by": "member1",
+        "book.available": false
+      },
+      "lookup": [
+        "book.isbn"
+      ],
+      "where": {},
+      "args": [
+        "book.isbn"
+      ],
+      "changes": {
+        "book.available": true
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "book.available": true
+        },
+        "rows": {
+          "Book": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

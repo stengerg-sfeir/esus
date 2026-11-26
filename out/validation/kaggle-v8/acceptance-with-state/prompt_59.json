@@ -1,0 +1,98 @@
+{
+  "prompt": "prompt_59",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Order cancel",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Customer",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Order",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:OrderLine",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Discount",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Tax",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:CustomerRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderRepository",
+      "status": "passed"
+    },
+    {
+      "name": "repository:OrderLineRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:DiscountRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:TaxRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Customer.email",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Order.customer_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderLine.order_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:OrderLine.product_id",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cancel_order_updates_status",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Order cancel",
+      "status": "passed"
+    }
+  ]
+}

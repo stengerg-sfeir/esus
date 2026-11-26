@@ -1,0 +1,86 @@
+{
+  "counts": {
+    "legacy": 1,
+    "kept": 0,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "place_order_with_sufficient_stock",
+        "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+        "given": {
+          "product": {
+            "stock_quantity": 5
+          }
+        },
+        "when": {
+          "action": "place_order",
+          "args": [
+            "product.id",
+            "quantity"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.stock_quantity": 3
+          },
+          "rows": {
+            "Order": 1
+          }
+        },
+        "status": "confirmed",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 14.0"
+              ],
+              "alternatives": [
+                "OrderItem",
+                "Order"
+              ]
+            }
+          },
+          "fields": {
+            "product.stock_quantity": {
+              "status": "aligned",
+              "canonical": "stock_quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.stock_quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "aligned",
+            "canonical": "OrderManagementService.place_order",
+            "score": 10.0,
+            "evidence": [
+              "exact generated method"
+            ],
+            "alternatives": []
+          }
+        },
+        "execution": {
+          "status": "failed",
+          "reason": "raised AttributeError: 'str' object has no attribute 'get'; expected None"
+        },
+        "triage": "under_specified",
+        "needs_review": false
+      },
+      "status": "failed",
+      "reason": "raised AttributeError: 'str' object has no attribute 'get'; expected None"
+    }
+  ]
+}

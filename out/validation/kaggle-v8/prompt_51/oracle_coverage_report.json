@@ -1,0 +1,38 @@
+{
+  "prompt": "prompt_51",
+  "results": [
+    {
+      "name": "allow_same_sku_different_categories",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories"
+    },
+    {
+      "name": "sku_constraint_override_by_category",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories"
+    },
+    {
+      "name": "product_creation_with_valid_sku",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "each product must have a unique SKU"
+    },
+    {
+      "name": "sku_uniqueness_policy_applied",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories"
+    },
+    {
+      "name": "create_product_with_valid_sku_different_category",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "each product must have a unique SKU"
+    }
+  ],
+  "counts": {
+    "unbound": 5
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "reservationadd",
+      "target_service": "ReservationService",
+      "target_method": "create_reservation",
+      "input_fields": [
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": true
+        },
+        {
+          "field_name": "room_id",
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Room",
+          "required": true
+        },
+        {
+          "field_name": "start_date",
+          "target_param": "start_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "end_date",
+          "target_param": "end_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "reservationupdate",
+      "target_service": "ReservationService",
+      "target_method": "update_reservation",
+      "input_fields": [
+        {
+          "field_name": "reservation_id",
+          "target_param": "reservation_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Reservation",
+          "required": false
+        },
+        {
+          "field_name": "customer_id",
+          "target_param": "customer_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Customer",
+          "required": false
+        },
+        {
+          "field_name": "room_id",
+          "target_param": "room_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Room",
+          "required": false
+        },
+        {
+          "field_name": "start_date",
+          "target_param": "start_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "end_date",
+          "target_param": "end_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "reservationdelete",
+      "target_service": "ReservationService",
+      "target_method": "delete_reservation",
+      "input_fields": [
+        {
+          "field_name": "reservation_id",
+          "target_param": "reservation_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Reservation",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

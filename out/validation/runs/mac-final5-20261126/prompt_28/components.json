@@ -1,0 +1,117 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "invoice_id",
+            "type": "int",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--output",
+            "short": "-o",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--format",
+            "short": "-f",
+            "type": "str",
+            "required": false,
+            "default": "json"
+          },
+          {
+            "name": "--show-lines",
+            "short": "-l",
+            "type": "bool",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Product",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "add",
+                "options": [
+                  {
+                    "name": "--invoice-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--product-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--quantity",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  },
+                  {
+                    "name": "--unit-price",
+                    "short": null,
+                    "type": "float",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Invoice",
+        "operations": [
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Customer",
+        "operations": [
+          "read_one",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "InvoiceLine",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all"
+        ]
+      }
+    ]
+  }
+}

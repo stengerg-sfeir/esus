@@ -1,0 +1,113 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "basic_stdout_output",
+      "source": "If no output path is given, print to stdout.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "test.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "test.csv": "header1,header2\nvalue1,value2"
+        }
+      },
+      "then": {
+        "stdout_contains": "[{\"header1\": \"value1\", \"header2\": \"value2\"}]",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "exit code 2, expected 0; stderr=llar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/var/folders/kk/xjh_78x515g6lld88l0c_q2m0000gp/T/esus-app-su3cqosh/out/validation/kaggle-v8/prompt_cli_tool/generated/app.py': [Errno 2] No such file or directory\n"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "explicit_output_file",
+      "source": "The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "test.csv",
+          "output.json"
+        ],
+        "stdin": "",
+        "files": {
+          "test.csv": "header1,header2\nvalue1,value2"
+        }
+      },
+      "then": {
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "exit code 2, expected 0; stderr=llar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/var/folders/kk/xjh_78x515g6lld88l0c_q2m0000gp/T/esus-app-cp4ai5s_/out/validation/kaggle-v8/prompt_cli_tool/generated/app.py': [Errno 2] No such file or directory\n"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "dynamic_column_names",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically. Do NOT assume specific column names like \"title\" or \"name\". Convert each row to a JSON object using the actual headers as keys.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "test.csv"
+        ],
+        "stdin": "",
+        "files": {
+          "test.csv": "col_a,col_b\nval1,val2\nval3,val4"
+        }
+      },
+      "then": {
+        "stdout_contains": "[{\"col_a\": \"val1\", \"col_b\": \"val2\"}, {\"col_a\": \"val3\", \"col_b\": \"val4\"}]",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "exit code 2, expected 0; stderr=llar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/private/var/folders/kk/xjh_78x515g6lld88l0c_q2m0000gp/T/esus-app-28vdc3id/out/validation/kaggle-v8/prompt_cli_tool/generated/app.py': [Errno 2] No such file or directory\n"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "missing_input_file",
+      "source": "Include error handling for missing files.",
+      "given": {},
+      "when": {
+        "app": true,
+        "args": [
+          "nonexistent.csv"
+        ],
+        "stdin": ""
+      },
+      "then": {
+        "stdout_contains": "Error: File not found",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

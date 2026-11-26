@@ -1,0 +1,25 @@
+gate passed (4 residual risk(s); gaps stay documented stubs)
+llm: 3 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: WineInventoryService.get_storage_location_summary ...
+llm: WineInventoryService.check_storage_location_capacity ...
+llm: WineInventoryService.check_storage_location_capacity refused (parameter `wine_id` is never used in the body) — repair ask 1
+llm: WineInventoryService.validate_wine_pricing ...
+llm: raw answers -> /tmp/v8-work/prompt_gui/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_gui/generated/models.py
+[write] /tmp/v8-work/prompt_gui/generated/errors.py
+[write] /tmp/v8-work/prompt_gui/generated/repositories.py
+[write] /tmp/v8-work/prompt_gui/generated/services.py
+[write] /tmp/v8-work/prompt_gui/generated/schema.py
+[write] /tmp/v8-work/prompt_gui/generated/store.py
+[write] /tmp/v8-work/prompt_gui/generated/cli.py
+[write] /tmp/v8-work/prompt_gui/generated/__init__.py
+[write] /tmp/v8-work/prompt_gui/generated/gui.py
+methods: 22 implemented, 3 stubs (88% mechanical)
+llm: 2 of 3 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: WineInventoryService.get_storage_location_summary
+  llm kept stub: WineInventoryService.check_storage_location_capacity — still refused: parameter `wine_id` is never used in the body
+  llm provisional: WineInventoryService.validate_wine_pricing
+  gui pyimgui panels: ['Wine', 'StorageLocation']
+  stub: WineInventoryService.validate_wine_pricing: pattern PRICE_MARGIN_GUARD: no mechanical reading
+  stub: WineInventoryService.check_storage_location_capacity: pattern QUOTA_CAPACITY_GUARD: no mechanical reading
+  stub: WineInventoryService.get_storage_location_summary: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading

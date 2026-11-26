@@ -1,0 +1,210 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "OrderManagementService",
+      "methods": [
+        {
+          "name": "place_order",
+          "description": "Places an order for a customer with specified products and quantities. Validates that all products have sufficient stock. If valid, reserves stock and creates the order.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_items",
+              "type": "array"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "CustomerNotFoundError",
+            "ProductNotFoundError",
+            "InsufficientStockError",
+            "ProductStockQuantityError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "check_product_stock",
+          "description": "Check product stock.",
+          "params": [
+            {
+              "name": "product_ids",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "OrderRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Order; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "OrderItemRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new OrderItem.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.OrderItem",
+          "raises": []
+        }
+      ]
+    }
+  ]
+}

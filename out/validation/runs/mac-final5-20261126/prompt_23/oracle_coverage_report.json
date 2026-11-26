@@ -1,0 +1,21 @@
+{
+  "prompt": "prompt_23",
+  "results": [
+    {
+      "name": "scenario:oracle:create_tag_without_post",
+      "status": "passed",
+      "case": "create_tag_without_post",
+      "source": "A tag can be associated with multiple posts."
+    },
+    {
+      "name": "create_author",
+      "status": "unbound",
+      "reason": "create case supplies no value for required field Author.email",
+      "source": "Authors can create posts. Each post belongs to one author and can have multiple tags."
+    }
+  ],
+  "counts": {
+    "passed": 1,
+    "unbound": 1
+  }
+}

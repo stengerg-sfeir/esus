@@ -1,0 +1,44 @@
+[run] requirements: 213 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 76 tokens in 2.0s (37.3 tok/s, 42.6 decode, 76 prompt)
+[data_models] 184 tokens in 5.0s (37.0 tok/s, 39.9 decode, 581 prompt)
+[ok] step data_models: uniqueness provenance — 1 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 73 tokens in 2.0s (36.8 tok/s, 41.1 decode, 465 prompt)
+[invariants] 32 tokens in 0.9s (35.2 tok/s, 43.8 decode, 269 prompt)
+[ok] step invariants: 6 invariant(s) — 5 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 297 tokens in 8.0s (37.1 tok/s, 38.1 decode, 977 prompt)
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 0.6s (17.7 tok/s, 45.0 decode, 516 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Appointment add, Appointment update, Appointment delete
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 44 tokens in 1.9s (23.2 tok/s, 42.3 decode, 377 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/6] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [2/6] contract:AppointmentRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [3/6] contract:AppointmentRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [4/6] contract:AppointmentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/6] contract:AppointmentRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/6] contract:AppointmentRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 6 item(s) — 3 standard CRUD, 3 pattern(s), 0 gap(s)
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: appointmentupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: appointmentdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_54/requirements.txt
+[run] 7 steps, 716 generated tokens in 20.4s

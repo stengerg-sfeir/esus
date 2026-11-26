@@ -1,0 +1,60 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.purchase_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.amount must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.amount must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.purchase_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Purchase.purchase_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total amount spent by a customer is the sum of all purchase amounts associated with that customer.",
+      "kind": "rule"
+    }
+  ]
+}

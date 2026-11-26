@@ -1,0 +1,34 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested by an ID that does not exist in the database."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested by an ID that does not exist in the database."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order is requested by an ID that does not exist in the database."
+    },
+    {
+      "name": "InvalidOrderStatusError",
+      "base": "ValueError",
+      "description": "Raised when an order status is set to a value not in the allowed set (e.g., 'cancelled', 'completed', 'pending')."
+    },
+    {
+      "name": "InsufficientStockError",
+      "base": "ValueError",
+      "description": "Raised when an order attempts to include a product that is out of stock."
+    },
+    {
+      "name": "AtomicOperationFailedError",
+      "base": "RuntimeError",
+      "description": "Raised when an atomic operation (such as creating an order or cancelling an order) fails due to a database constraint or transaction rollback, indicating the system cannot proceed with the current state."
+    }
+  ]
+}

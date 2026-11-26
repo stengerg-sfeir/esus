@@ -1,0 +1,38 @@
+{
+  "prompt": "prompt_19",
+  "results": [
+    {
+      "name": "scenario:oracle:export_tasks_to_json",
+      "status": "passed",
+      "case": "export_tasks_to_json",
+      "source": "export all tasks to JSON",
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 16.333333333333332,
+            "evidence": [
+              "name/fields match Task",
+              "score 16.3"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "TaskService.export_tasks_to_json",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 1
+  }
+}

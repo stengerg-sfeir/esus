@@ -1,0 +1,93 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_product_with_valid_category",
+      "source": "every product must belong to an existing category",
+      "given": {
+        "product": {
+          "name": "Smartphone",
+          "category_id": 1
+        },
+        "category": {
+          "id": 1,
+          "name": "Electronics"
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product.name",
+          "product.category_id"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.category_id": 1
+        },
+        "rows": {
+          "Product": 1,
+          "Category": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

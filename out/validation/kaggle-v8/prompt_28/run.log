@@ -1,0 +1,73 @@
+[run] requirements: 211 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 83 tokens in 1.4s (61.1 tok/s, 63.7 decode, 80 prompt)
+[data_models] 994 tokens in 16.5s (60.1 tok/s, 60.6 decode, 592 prompt)
+[ok] step data_models: Invoice.primary_key became the integer primary key id
+[ok] step data_models: InvoiceLine.primary_key became the integer primary key id
+[ok] step data_models: Product.primary_key became the integer primary key id
+[ok] step data_models: Customer.primary_key became the integer primary key id
+[errors] 396 tokens in 6.7s (59.2 tok/s, 61.9 decode, 507 prompt)
+[invariants] 196 tokens in 3.3s (58.9 tok/s, 62.6 decode, 311 prompt)
+[ok] step invariants: 38 invariant(s) — 32 schema generated mechanically, 6 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 318 tokens in 5.8s (55.1 tok/s, 57.7 decode, 1019 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-format' to '--format'
+[ok] step components: normalized option '-show-lines' to '--show-lines'
+[ok] step components: added 1 persisted dependent entity(ies) to crud_services: InvoiceLine
+[service_contracts] 10 tokens in 0.5s (18.9 tok/s, 69.4 decode, 705 prompt)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step contracts: normalized 5 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidInvoiceTotalError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidProductPriceError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidQuantityError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidUnitPriceError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'InvalidCustomerEmailError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 752 tokens in 12.4s (60.4 tok/s, 61.4 decode, 440 prompt)
+[ok] step persistence: merged 8 custom repository method(s) into service_contracts
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 1 generic type spelling(s) to Python annotations
+  [1/23] invariant -> BUDGET_OVERFLOW_GUARD (1.00)
+  [2/23] invariant -> PRICE_MARGIN_GUARD (0.81)
+  [3/23] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/23] invariant -> NO_PATTERN_IN_DOMAIN (0.40)  <- GAP: no pattern for this
+  [5/23] invariant -> STOCK_SUFFICIENCY_GUARD (0.75)
+  [6/23] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [7/23] contract:InvoiceRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/23] contract:InvoiceRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/23] contract:InvoiceRepository.read_one_by_customer_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [10/23] contract:InvoiceRepository.read_all_by_customer_email -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [11/23] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/23] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [13/23] contract:ProductRepository.read_one_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/23] contract:ProductRepository.read_all_by_price_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/23] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/23] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/23] contract:CustomerRepository.read_one_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/23] contract:CustomerRepository.read_all_active -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [19/23] contract:InvoiceLineRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/23] contract:InvoiceLineRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/23] contract:InvoiceLineRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/23] contract:InvoiceLineRepository.create_with_product_and_quantity -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/23] contract:InvoiceLineRepository.read_one_by_invoice_and_product -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 23 item(s) — 2 standard CRUD, 20 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: An invoice must reference a customer through the customer_id field.
+[ok] step adapters: derived 1 command group(s) from 17 service method(s)
+[ok] step adapters: 1 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: productadd.invoice_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_28/requirements.txt
+[run] 7 steps, 2749 generated tokens in 46.7s

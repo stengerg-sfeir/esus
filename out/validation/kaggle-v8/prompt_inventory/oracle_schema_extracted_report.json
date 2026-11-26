@@ -1,0 +1,39 @@
+{
+  "prompt": "prompt_inventory",
+  "results": [
+    {
+      "name": "product_list_with_category_filter",
+      "status": "unbound",
+      "reason": "case passes parameter name 'category_id' as a literal value",
+      "source": "product list [--category] [--low-only]"
+    },
+    {
+      "name": "product_list_without_filters",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "product list [--category] [--low-only]"
+    },
+    {
+      "name": "scenario:oracle:product_restock_increases_stock",
+      "status": "passed",
+      "case": "product_restock_increases_stock",
+      "source": "product restock --id --qty"
+    },
+    {
+      "name": "low_stock_report_returns_products_below_threshold",
+      "status": "unbound",
+      "reason": "expected state field 'product.reorder_threshold' is not declared on Product",
+      "source": "product report low-stock"
+    },
+    {
+      "name": "scenario:oracle:stock_value_by_category_returns_aggregate",
+      "status": "passed",
+      "case": "stock_value_by_category_returns_aggregate",
+      "source": "product report value"
+    }
+  ],
+  "counts": {
+    "unbound": 3,
+    "passed": 2
+  }
+}

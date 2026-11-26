@@ -1,0 +1,181 @@
+{
+  "prompt": "prompt_09",
+  "results": [
+    {
+      "name": "scenario:oracle:create_employee_valid",
+      "status": "passed",
+      "case": "create_employee_valid",
+      "source": "Create a Python 3.12 application for managing employees. An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive. Provide CRUD operations using SQLite.",
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "employee.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Employee.name exists"
+            ],
+            "alternatives": []
+          },
+          "employee.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Employee.email exists"
+            ],
+            "alternatives": []
+          },
+          "employee.age": {
+            "status": "aligned",
+            "canonical": "age",
+            "score": 10.0,
+            "evidence": [
+              "Employee.age exists"
+            ],
+            "alternatives": []
+          },
+          "employee.salary": {
+            "status": "aligned",
+            "canonical": "salary",
+            "score": 10.0,
+            "evidence": [
+              "Employee.salary exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_employee",
+      "status": "passed",
+      "case": "read_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "employee.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Employee.name exists"
+            ],
+            "alternatives": []
+          },
+          "employee.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Employee.email exists"
+            ],
+            "alternatives": []
+          },
+          "employee.age": {
+            "status": "aligned",
+            "canonical": "age",
+            "score": 10.0,
+            "evidence": [
+              "Employee.age exists"
+            ],
+            "alternatives": []
+          },
+          "employee.salary": {
+            "status": "aligned",
+            "canonical": "salary",
+            "score": 10.0,
+            "evidence": [
+              "Employee.salary exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_one",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.delete",
+            "EmployeeRepository.update"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_employee",
+      "status": "passed",
+      "case": "delete_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 3
+  },
+  "triage_counts": {
+    "passed": 3
+  }
+}

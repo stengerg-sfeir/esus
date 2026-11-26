@@ -1,0 +1,33 @@
+[
+  {
+    "label": "SaleRepository.getTopSellingProducts",
+    "status": "kept",
+    "note": "still refused: parameter `sale_id` is never used in the body",
+    "answer": "sale_records = self._store.select(self.ENTITY, [])\n    product_sales = {}\n    for record in sale_records:\n        product_id = record.get('product_id')\n        quantity = record.get('quantity')\n        if product_id is None or quantity is None:\n            continue\n        product_sales[product_id] = product_sales.get(product_id, 0) + quantity\n    top_selling = []\n    for product_id, total_quantity in sorted(product_sales.items(), key=lambda x: x[1], reverse=True):\n        if len(top_selling) >= 10:\n            break\n        product_record = self._store.select('Product', [(self.PK, 'eq', product_id)])\n        if product_record:\n            product = product_record[0]\n            top_selling.append(models.Product(**product))\n    return _model_list(top_selling, models.Product)",
+    "first_answer": "8 spaces:\n    sale_records = self._store.select(self.ENTITY, [])\n    product_sales = {}\n    for record in sale_records:\n        product_id = record.get('product_id')\n        quantity = record.get('quantity')\n        if product_id is None or quantity is None:\n            continue\n        product_sales[product_id] = product_sales.get(product_id, 0) + quantity\n    top_selling = []\n    for product_id, total_quantity in sorted(product_sales.items(), key=lambda x: x[1], reverse=True):\n        if len(top_selling) >= 10:\n            break\n        product = self._store.select(\"Product\", [(self.PK, \"eq\", product_id)])[0]\n        top_selling.append(models.Product(**product))\n    return top_selling",
+    "complaints": [
+      "the body does not compile (invalid syntax)"
+    ],
+    "second_complaints": [
+      "parameter `sale_id` is never used in the body"
+    ],
+    "repairs": 2,
+    "first_finish_reason": "stop",
+    "first_tokens": 165,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 22.98127007484436,
+    "first_decode_seconds": 6.206595,
+    "first_prompt_tokens": 5382,
+    "first_cached_tokens": 332,
+    "finish_reason": "stop",
+    "tokens": 180,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 7.799135208129883,
+    "decode_seconds": 6.75878,
+    "prompt_tokens": 5605,
+    "cached_tokens": 5361,
+    "context": "exact"
+  }
+]

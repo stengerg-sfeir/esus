@@ -1,0 +1,50 @@
+{
+  "prompt": "prompt_26",
+  "results": [
+    {
+      "name": "close_loan",
+      "status": "unbound",
+      "reason": "no generated method matches 'close_loan'",
+      "source": "Users must be able to create and close loans",
+      "alignment": {
+        "entities": {
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "LoanService.create_loan",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "LoanService.create_loan",
+            "LoanService.delete_loan",
+            "LoanService.read_loan_by_id",
+            "LoanService.update_loan"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action"
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  },
+  "triage_counts": {
+    "coverage_gap: ambiguous action": 1
+  }
+}

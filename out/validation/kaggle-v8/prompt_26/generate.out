@@ -1,0 +1,29 @@
+gate passed (1 residual risk(s); gaps stay documented stubs)
+llm: 3 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: LoanRepository.close_loan_by_id ...
+llm: LoanService.cancel_order ...
+llm: LoanService.cancel_order refused (calls `LoanRepository.read_one(...)`, but no repository declares that method) — repair ask 1
+llm: LoanService.cancel_order refused (calls `LoanRepository.read_one(...)`, but no repository declares that method) — repair ask 2
+llm: LoanService.confirm_order ...
+llm: LoanService.confirm_order refused (reads `loan_id` (line 2) before it is assigned (line 14)) — repair ask 1
+llm: LoanService.confirm_order refused (reads `loan_id` (line 2) before it is assigned (line 14)) — repair ask 2
+llm: raw answers -> /tmp/v8-work/prompt_26/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_26/generated/models.py
+[write] /tmp/v8-work/prompt_26/generated/errors.py
+[write] /tmp/v8-work/prompt_26/generated/repositories.py
+[write] /tmp/v8-work/prompt_26/generated/services.py
+[write] /tmp/v8-work/prompt_26/generated/schema.py
+[write] /tmp/v8-work/prompt_26/generated/store.py
+[write] /tmp/v8-work/prompt_26/generated/cli.py
+[write] /tmp/v8-work/prompt_26/generated/__init__.py
+methods: 12 implemented, 3 stubs (80% mechanical)
+llm: 1 of 3 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: LoanRepository.close_loan_by_id
+  llm kept stub: LoanService.cancel_order — still refused: calls `LoanRepository.read_one(...)`, but no repository declares that method; calls `BookRepository.read_one(...)`, but no repository declares that method; calls `BookRepository.update(...)`, but BookRepository does not define `update`; it is declared on `LoanRepository`
+  llm kept stub: LoanService.confirm_order — still refused: reads `loan_id` (line 2) before it is assigned (line 14); calls `LoanRepository.read_one(...)`, but no repository declares that method; calls `LoanRepository.read_all(...)`, but LoanRepository does not define `read_all`; it is declared on `BookRepository` or `MemberRepository`; calls `MemberRepository.read_one(...)`, but no repository declares that method; calls `BookRepository.read_one(...)`, but no repository declares that method; calls `BookRepository.update(...)`, but BookRepository does not define `update`; it is declared on `LoanRepository`
+  stub: LoanRepository.close_loan_by_id: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: LoanService.confirm_order: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: LoanService.cancel_order: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  cli Loan add -> loanadd [score 9]
+  cli Loan delete -> loandelete [score 11]
+  cli Loan update -> loanupdate [score 11]

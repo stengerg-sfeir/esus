@@ -1,0 +1,268 @@
+{
+  "prompt": "prompt_39",
+  "results": [
+    {
+      "name": "update_user_role_admin",
+      "status": "unbound",
+      "reason": "update case supplies no new value for 'user.role' (setup has 'normal_user')",
+      "source": "Administrators can manage products and users.",
+      "alignment": {
+        "entities": {
+          "user": {
+            "status": "aligned",
+            "canonical": "User",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match User",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "user.role": {
+            "status": "aligned",
+            "canonical": "role",
+            "score": 10.0,
+            "evidence": [
+              "User.role exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "UserService.update_user_role",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "create_order_normal_user",
+      "status": "unbound",
+      "reason": "expected state references unseeded alias 'order'",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "alignment": {
+        "entities": {
+          "user": {
+            "status": "aligned",
+            "canonical": "User",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match User",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Order",
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Order",
+              "User"
+            ]
+          },
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product",
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.create_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "view_own_orders_normal_user",
+      "status": "unbound",
+      "reason": "no generated method matches 'view_orders'",
+      "source": "Normal users can create orders and view their own orders but cannot modify products or other users.",
+      "alignment": {
+        "entities": {
+          "user": {
+            "status": "aligned",
+            "canonical": "User",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match User",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Order",
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "OrderRepository.find_order_by_order_id",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "OrderRepository.find_order_by_order_id",
+            "OrderRepository.get_order_count_by_status",
+            "OrderRepository.get_orders_by_user_id",
+            "OrderRepository.get_user_orders"
+          ]
+        }
+      }
+    },
+    {
+      "name": "create_order_admin",
+      "status": "unbound",
+      "reason": "expected state references unseeded alias 'order'",
+      "source": "Administrators can manage products and users.",
+      "alignment": {
+        "entities": {
+          "user": {
+            "status": "aligned",
+            "canonical": "User",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match User",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          },
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Product",
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.create_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "update_product_stock_admin",
+      "status": "unbound",
+      "reason": "expected state field 'product.stock_quantity' is not declared on Product",
+      "source": "Administrators can manage products and users.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'stock_quantity'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 5
+  }
+}

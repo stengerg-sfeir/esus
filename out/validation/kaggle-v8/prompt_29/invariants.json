@@ -1,0 +1,104 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.items must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.items must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An order must be associated with a valid customer through the customer_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of an order must be one of 'pending', 'completed', or 'cancelled'.",
+      "kind": "rule"
+    },
+    {
+      "text": "When an order is marked as completed, the status must be updated to 'completed' and no further status changes are allowed.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order cannot be created without at least one item in the items list.",
+      "kind": "rule"
+    },
+    {
+      "text": "The created_at field of an order must be set to the current timestamp when the order is created.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer must have a unique email address.",
+      "kind": "rule"
+    },
+    {
+      "text": "The customer_id in an order must reference a customer that exists in the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order cannot be cancelled if its status is already 'completed'.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total number of items in an order must be greater than zero if the order has items.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer can have multiple orders, but each order must be uniquely identified by its order_id.",
+      "kind": "rule"
+    }
+  ]
+}

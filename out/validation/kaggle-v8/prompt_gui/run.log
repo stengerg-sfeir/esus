@@ -1,0 +1,72 @@
+[run] requirements: 1764 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 188 tokens in 3.2s (57.9 tok/s, 62.4 decode, 397 prompt)
+[data_models] 807 tokens in 14.0s (57.5 tok/s, 59.8 decode, 1007 prompt)
+[ok] step data_models: Wine.primary_key became the integer primary key id
+[ok] step data_models: StorageLocation.primary_key became the integer primary key id
+[ok] step data_models: Wine.storage_location_id retyped to int for its StorageLocation key
+[errors] 264 tokens in 4.8s (54.6 tok/s, 61.4 decode, 823 prompt)
+[invariants] 167 tokens in 3.1s (54.1 tok/s, 62.3 decode, 627 prompt)
+[ok] step invariants: 33 invariant(s) — 28 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 160 tokens in 3.3s (49.0 tok/s, 56.3 decode, 1335 prompt)
+[components] 161 tokens in 3.3s (48.1 tok/s, 57.7 decode, 714 prompt)
+[ok] step components: prose facade is gui — kept the plan surface
+[ok] step components: GUI technology 'tkinter' has no emitter — using the supported pyimgui backend for the same panels
+[service_contracts] 1024 tokens in 17.7s (58.0 tok/s, 60.1 decode, 955 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 6 id parameter(s) to int
+[persistence_ports] 674 tokens in 11.7s (57.5 tok/s, 60.8 decode, 751 prompt)
+[ok] step persistence: merged 8 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/33] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [2/33] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/33] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [4/33] invariant -> STOCK_SUFFICIENCY_GUARD (0.99)
+  [5/33] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [6/33] contract:WineInventoryService.confirm_order -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [7/33] contract:WineInventoryService.cancel_order -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [8/33] contract:WineInventoryService.assign_wine_to_location -> QUOTA_CAPACITY_GUARD (1.00)
+  [9/33] contract:WineInventoryService.update_wine_stock -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [10/33] contract:WineInventoryService.validate_wine_pricing -> PRICE_MARGIN_GUARD (1.00)
+  [11/33] contract:WineInventoryService.check_storage_location_capacity -> QUOTA_CAPACITY_GUARD (1.00)
+  [12/33] contract:WineInventoryService.list_wines_by_type -> FILTER_BY_FIELD (0.02)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (list) (was AGGREGATE_BY_FK_AND_DATE)  <- undecided (pattern): FILTER_WITH_PAGINATION at 0.00
+  [13/33] contract:WineInventoryService.search_wines_by_name -> FILTER_WITH_PAGINATION (0.90)
+  [14/33] contract:WineInventoryService.export_inventory_to_csv -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns boolean (bool)
+  [15/33] contract:WineInventoryService.get_storage_location_summary -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [16/33] contract:WineRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/33] contract:WineRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/33] contract:WineRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/33] contract:WineRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/33] contract:WineRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [21/33] contract:WineRepository.find_wine_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [22/33] contract:WineRepository.get_wine_count_by_type -> AGGREGATE_BY_FK_AND_DATE (0.63)
+  [23/33] contract:WineRepository.get_wines_by_vintage_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [24/33] contract:WineRepository.get_wines_by_origin_country -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [25/33] contract:StorageLocationRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [26/33] contract:StorageLocationRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [27/33] contract:StorageLocationRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [28/33] contract:StorageLocationRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [29/33] contract:StorageLocationRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/33] contract:StorageLocationRepository.find_location_by_zone_name -> READ_ONE_BY_ID (1.00)
+  [31/33] contract:StorageLocationRepository.get_location_utilization_rate -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [32/33] contract:StorageLocationRepository.get_locations_by_capacity_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [33/33] contract:StorageLocationRepository.get_total_bottles_across_locations -> AGGREGATE_BY_FK_AND_DATE (1.00)
+[ok] step patterns: 33 item(s) — 6 standard CRUD, 26 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:WineInventoryService.export_inventory_to_csv: export_inventory_to_csv(file_path: str) -> bool: Exports the complete wine inventory and storage location assignments to a CSV file.
+[ok] step adapters: non-CLI facade — no CLI input adapters
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/method_plans.json
+[!] method plans: 1 ambiguous question(s) — human review required
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui/requirements.txt
+[run] 8 steps, 3445 generated tokens in 61.2s

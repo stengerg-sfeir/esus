@@ -1,0 +1,29 @@
+$ generator.py /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39
+
+gate passed (7 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: UserRepository.get_admin_users ...
+llm: UserRepository.get_admin_users refused (parameter `user_id` is never used in the body) — repair ask 1
+llm: raw answers -> /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/llm_stub_answers.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/models.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/errors.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/repositories.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/services.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/schema.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/store.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/cli.py
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/generated/__init__.py
+methods: 23 implemented, 1 stubs (96% mechanical)
+llm: 0 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: UserRepository.get_admin_users — still refused: parameter `user_id` is never used in the body
+  stub: UserRepository.get_admin_users: rule signature-pagination: method needs custom logic
+  cli Order add -> create_order [score 8]
+  cli Product add -> create_product [score 8]
+  cli Product delete -> delete_product [score 11]
+  cli Product update -> update_product [score 11]
+  cli User add -> create_user [score 8]
+  cli User delete -> delete_user [score 11]
+  cli User update -> update_user [score 11]
+
+
+

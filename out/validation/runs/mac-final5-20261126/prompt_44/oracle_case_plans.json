@@ -1,0 +1,99 @@
+{
+  "plans": [
+    {
+      "id": "track_products",
+      "source": "The shop needs to keep track of products, customers and sales.",
+      "when": {
+        "action": "track_products"
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        },
+        {
+          "alias": "sale",
+          "entity": "Sale",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.stock",
+          "product.price"
+        ],
+        "rows": {
+          "Product": 1,
+          "Customer": 1,
+          "Sale": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "know_what_sold",
+      "source": "It should be possible to know what has been sold and what is still in stock.",
+      "when": {
+        "action": "know_what_sold"
+      },
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "Sale",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "sale.product.name",
+          "sale.quantity",
+          "sale.sale_date"
+        ],
+        "rows": {
+          "Sale": 1,
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "know_stock_level",
+      "source": "It should be possible to know what has been sold and what is still in stock.",
+      "when": {
+        "action": "know_stock_level"
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.stock"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

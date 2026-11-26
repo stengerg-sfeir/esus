@@ -1,0 +1,39 @@
+{
+  "errors": [
+    {
+      "name": "BookNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested book is not found in the library database."
+    },
+    {
+      "name": "MemberNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested member is not found in the library database."
+    },
+    {
+      "name": "LoanNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a requested loan record is not found in the database."
+    },
+    {
+      "name": "BookAlreadyBorrowedError",
+      "base": "RuntimeError",
+      "description": "Raised when an attempt is made to loan a book that is already borrowed by another member."
+    },
+    {
+      "name": "MemberNotEligibleForLoanError",
+      "base": "RuntimeError",
+      "description": "Raised when a member is not eligible to borrow books due to inactive membership status."
+    },
+    {
+      "name": "LoanDateAfterReturnDateError",
+      "base": "ValueError",
+      "description": "Raised when a loan date is provided after the return date, which is logically invalid."
+    },
+    {
+      "name": "BookAvailabilityStatusError",
+      "base": "ValueError",
+      "description": "Raised when an invalid availability status (e.g., 'available', 'borrowed', 'reserved') is provided for a book."
+    }
+  ]
+}

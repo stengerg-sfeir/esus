@@ -1,0 +1,152 @@
+{
+  "invariants": [
+    {
+      "text": "Project.project_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.task_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must reference an existing Project.project_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.user_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "User.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A task must belong to a project.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's priority must be one of high, medium, or low.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's status must be one of pending, in-progress, or completed.",
+      "kind": "rule"
+    },
+    {
+      "text": "Only users with access to a project can view tasks within that project.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of a task can only be changed by a user who has access to the project containing the task.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project must have at least one task to be considered active.",
+      "kind": "rule"
+    },
+    {
+      "text": "Tasks with a high priority must be visible to users when viewing a project's task list.",
+      "kind": "rule"
+    }
+  ]
+}

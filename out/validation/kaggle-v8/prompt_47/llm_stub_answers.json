@@ -1,0 +1,17 @@
+[
+  {
+    "label": "TaskAssignmentRepository.getTaskAssignmentCountByTaskId",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        if taskId is not None:\n            criteria.append(('task_id', 'eq', taskId))\n        found = self._store.select(self.ENTITY, criteria)\n        return len(found)",
+    "finish_reason": "stop",
+    "tokens": 42,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 20.337098121643066,
+    "decode_seconds": 1.2422819999999999,
+    "prompt_tokens": 6653,
+    "cached_tokens": 332,
+    "context": "exact"
+  }
+]

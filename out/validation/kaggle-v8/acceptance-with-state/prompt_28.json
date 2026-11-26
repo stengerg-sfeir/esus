@@ -1,0 +1,76 @@
+{
+  "prompt": "prompt_28",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "import",
+      "status": "passed"
+    },
+    {
+      "name": "cli-help",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "cli-leaf:Product add",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Invoice",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:InvoiceLine",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Product",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "schema:Customer",
+      "status": "passed",
+      "reason": ""
+    },
+    {
+      "name": "repository:InvoiceRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:ProductRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:CustomerRepository:store",
+      "status": "passed"
+    },
+    {
+      "name": "repository:InvoiceLineRepository",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:Invoice.customer_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:InvoiceLine.invoice_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:fk:InvoiceLine.product_id",
+      "status": "passed"
+    },
+    {
+      "name": "invariant:unique:Customer.email",
+      "status": "passed"
+    },
+    {
+      "name": "scenario:cli:Product add",
+      "status": "passed"
+    }
+  ]
+}

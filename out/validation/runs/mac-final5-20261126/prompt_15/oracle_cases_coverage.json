@@ -1,0 +1,247 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations",
+      "given": {
+        "product": {
+          "name": "Tool",
+          "price": 15.0,
+          "quantity": 10
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "name=Tool"
+        ]
+      },
+      "then": {
+        "state": {
+          "Product.name": "Tool",
+          "Product.price": 15.0,
+          "Product.quantity": 10
+        },
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether deleting a product removes it from the system or just updates its status. No explicit behavior for deletion is defined."
+      ],
+      "ambiguities": [
+        "The requirement does not specify the outcome of a delete operation — whether the product is removed or marked as deleted. No mention of soft deletes or cascading effects."
+      ]
+    },
+    {
+      "id": "list_products_by_name_asc",
+      "source": "list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 1000,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Mouse",
+          "price": 25,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "sort_by=name",
+          "order=asc"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product_2.name": "Laptop"
+        },
+        "rows": {
+          "Product": 2
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "case supplies unknown argument 'sort_by'"
+      }
+    },
+    {
+      "id": "list_products_by_price_desc",
+      "source": "list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 1000,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Mouse",
+          "price": 25,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "sort_by=price",
+          "order=desc"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.price": 1000,
+          "product_2.price": 25
+        },
+        "rows": {
+          "Product": 2
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "case supplies unknown argument 'sort_by'"
+      }
+    },
+    {
+      "id": "list_products_by_quantity_asc",
+      "source": "list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 1000,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Mouse",
+          "price": 25,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "sort_by=quantity",
+          "order=asc"
+        ]
+      },
+      "then": {
+        "state": {
+          "product_2.quantity": 5,
+          "product.quantity": 10
+        },
+        "rows": {
+          "Product": 2
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "case supplies unknown argument 'sort_by'"
+      }
+    },
+    {
+      "id": "list_products_by_quantity_desc",
+      "source": "list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 1000,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Mouse",
+          "price": 25,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "sort_by=quantity",
+          "order=desc"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.quantity": 10,
+          "product_2.quantity": 5
+        },
+        "rows": {
+          "Product": 2
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "case supplies unknown argument 'sort_by'"
+      }
+    },
+    {
+      "id": "create_product",
+      "source": "Provide CRUD operations",
+      "given": {
+        "product": {
+          "name": "Keyboard",
+          "price": 75,
+          "quantity": 20
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "name=Keyboard",
+          "price=75",
+          "quantity=20"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Keyboard",
+          "product.price": 75,
+          "product.quantity": 20
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

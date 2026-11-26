@@ -1,0 +1,44 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested but not found in the system by customer_id."
+    },
+    {
+      "name": "RoomNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a room is requested but not found in the system by room_id."
+    },
+    {
+      "name": "ReservationNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a reservation is requested but not found in the system by reservation_id."
+    },
+    {
+      "name": "OverlappingReservationError",
+      "base": "ValueError",
+      "description": "Raised when a new reservation overlaps with an existing reservation in the same room."
+    },
+    {
+      "name": "InvalidStartDateError",
+      "base": "ValueError",
+      "description": "Raised when the start_date of a reservation is invalid (e.g., in the future or not properly formatted)."
+    },
+    {
+      "name": "InvalidEndDateError",
+      "base": "ValueError",
+      "description": "Raised when the end_date of a reservation is invalid (e.g., before the start_date or in the future)."
+    },
+    {
+      "name": "InvalidRoomIdError",
+      "base": "KeyError",
+      "description": "Raised when a room_id is provided in a reservation but not present in the room registry."
+    },
+    {
+      "name": "InvalidCustomerIdError",
+      "base": "KeyError",
+      "description": "Raised when a customer_id is provided in a reservation but not present in the customer registry."
+    }
+  ]
+}

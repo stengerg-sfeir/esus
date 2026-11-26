@@ -1,0 +1,116 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 2,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 2
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "read_employee_by_email",
+        "source": "Provide CRUD operations using SQLite.",
+        "given": {
+          "employee": {
+            "name": "Henry Ford",
+            "email": "henry.ford@example.com",
+            "age": 65,
+            "salary": 120000
+          }
+        },
+        "when": {
+          "action": "read_employee",
+          "args": [
+            "henry.ford@example.com"
+          ]
+        },
+        "then": {
+          "state": {
+            "employee.name": "Henry Ford",
+            "employee.email": "henry.ford@example.com",
+            "employee.age": 65,
+            "employee.salary": 120000
+          },
+          "rows": {
+            "Employee": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "unbound",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "employee": {
+              "status": "aligned",
+              "canonical": "Employee",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Employee",
+                "score 14.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "employee.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Employee.name exists"
+              ],
+              "alternatives": []
+            },
+            "employee.email": {
+              "status": "aligned",
+              "canonical": "email",
+              "score": 10.0,
+              "evidence": [
+                "Employee.email exists"
+              ],
+              "alternatives": []
+            },
+            "employee.age": {
+              "status": "aligned",
+              "canonical": "age",
+              "score": 10.0,
+              "evidence": [
+                "Employee.age exists"
+              ],
+              "alternatives": []
+            },
+            "employee.salary": {
+              "status": "aligned",
+              "canonical": "salary",
+              "score": 10.0,
+              "evidence": [
+                "Employee.salary exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt names the action",
+              "no generated method matches"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "coverage_gap: missing action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'read_employee'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'read_employee'"
+    }
+  ]
+}

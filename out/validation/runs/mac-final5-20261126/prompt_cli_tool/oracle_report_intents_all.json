@@ -1,0 +1,89 @@
+{
+  "prompt": "prompt_cli_tool",
+  "results": [
+    {
+      "name": "scenario:oracle:cli_no_output_path",
+      "status": "failed",
+      "reason": "stdout does not contain '{\"name\":\"Alice\",\"age\":30}': '[\\n  {\\n    \"name\": \"Alice\",\\n    \"age\": \"30\"\\n  },\\n  {\\n    \"name\": \"Bob\",\\n    \"age\": \"25\"\\n  }\\n]\\n'",
+      "case": "cli_no_output_path",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:cli_with_output_path",
+      "status": "passed",
+      "case": "cli_with_output_path",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:error_missing_input_file",
+      "status": "passed",
+      "case": "error_missing_input_file",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:error_malformed_csv",
+      "status": "failed",
+      "reason": "exit code 0, expected 1; stderr=",
+      "case": "error_malformed_csv",
+      "source": "Create a CLI tool that reads a CSV file and outputs JSON. The tool should accept the input file path and an optional output file path. If no output path is given, print to stdout. Include error handling for missing files and malformed CSV.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:critical-dynamic-header-read",
+      "status": "passed",
+      "case": "critical-dynamic-header-read",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:critical-dynamic-header-malformed",
+      "status": "failed",
+      "reason": "exit code 0, expected 1; stderr=",
+      "case": "critical-dynamic-header-malformed",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    },
+    {
+      "name": "scenario:oracle:critical-dynamic-header-missing",
+      "status": "passed",
+      "case": "critical-dynamic-header-missing",
+      "source": "CRITICAL: Read the CSV header row to determine column names dynamically.",
+      "alignment": {
+        "entities": {},
+        "fields": {},
+        "action": null
+      }
+    }
+  ],
+  "counts": {
+    "failed": 3,
+    "passed": 4
+  }
+}

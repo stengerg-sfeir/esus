@@ -1,0 +1,42 @@
+{
+  "intents": [
+    {
+      "id": "expense_add_missing_category_error",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "kind": "error",
+      "entity": "Expense",
+      "action": "add_expense",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [
+        "100",
+        "Coffee",
+        ""
+      ],
+      "changes": {},
+      "cli": [
+        "expense",
+        "add",
+        "--amount=100",
+        "--description=Coffee",
+        "--category="
+      ],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "CategoryNotFoundError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The system raises a CategoryNotFoundError if the category does not exist when adding an expense",
+        "error class 'CategoryNotFoundError' is only stated in another requirement"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

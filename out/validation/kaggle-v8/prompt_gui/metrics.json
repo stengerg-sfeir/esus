@@ -1,0 +1,49 @@
+{
+  "prompt": "prompt_gui",
+  "run_id": "repro66-20261119-105248",
+  "prompt_file": "prompts/initial/prompt_gui.txt",
+  "output_dir": "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui",
+  "sha256": "ee9db1c875cda6fca11a2dfb5a032db9aaccbef5264f9d5a1a9273a1b59dca88",
+  "bytes": 1767,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 64.382,
+  "tokens": {
+    "calls": 8,
+    "tokens_out": 3445,
+    "tokens_prompt": 6609,
+    "decode_seconds": 57.244
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 2,
+    "open_ties": 0,
+    "rules": [
+      {
+        "rule": "open_human_review",
+        "message": "1 unanswered pattern slots; run the attended review before generation"
+      },
+      {
+        "rule": "open_human_review",
+        "message": "2 unanswered method contracts; run the attended review before generation"
+      }
+    ]
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/usr/bin/python3",
+      "/kaggle/working/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/initial/prompt_gui.txt",
+      "--output",
+      "/kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_gui",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

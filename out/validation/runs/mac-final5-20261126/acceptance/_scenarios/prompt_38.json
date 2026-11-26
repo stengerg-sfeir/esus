@@ -1,0 +1,138 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:User add",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User list",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "list",
+            "--email",
+            "cli1@example.test",
+            "--created-at",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document add",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "add",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00",
+            "--owner-user-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document update",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "update",
+            "--document-id",
+            "1",
+            "--title",
+            "value1",
+            "--content",
+            "value1",
+            "--updated-at",
+            "2024-01-01T00:00:00"
+          ]
+        ],
+        "seed_overrides": {
+          "Document": {
+            "title": "value1",
+            "content": "value1",
+            "updated_at": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "delete",
+            "--document-id"
+          ],
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "1"
+          ],
+          [
+            "Document",
+            "delete",
+            "--document-id",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Document list",
+      "when": {
+        "cli_variants": [
+          [
+            "Document",
+            "list",
+            "--owner-user-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

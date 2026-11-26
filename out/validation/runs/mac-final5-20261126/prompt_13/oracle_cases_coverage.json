@@ -1,0 +1,44 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "sku_uniqueness_enforcement",
+      "source": "SKUs must be unique.",
+      "given": {
+        "product_1": {
+          "sku": "ABC123",
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000,
+          "stock_quantity": 5
+        },
+        "product_2": {
+          "sku": "ABC123",
+          "name": "Mouse",
+          "category": "Electronics",
+          "price": 25,
+          "stock_quantity": 10
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product_2"
+        ]
+      },
+      "then": {
+        "error": "DuplicateSkuError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'DuplicateSkuError' is not named in the requirements",
+        "error class 'DuplicateSkuError' is not named in the requirements"
+      ]
+    }
+  ]
+}

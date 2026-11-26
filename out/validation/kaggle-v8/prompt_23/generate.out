@@ -1,0 +1,30 @@
+gate passed (0 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: PostTagRepository.read_posts_by_tag_name ...
+llm: PostTagRepository.read_posts_by_tag_name refused (calls `self._store.select` with operator `in`; the store supports only `eq`, `ge`, `le`, `gt`, `lt`) — repair ask 1
+llm: PostTagRepository.read_post_tags_by_post_id ...
+llm: raw answers -> /tmp/v8-work/prompt_23/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_23/generated/models.py
+[write] /tmp/v8-work/prompt_23/generated/errors.py
+[write] /tmp/v8-work/prompt_23/generated/repositories.py
+[write] /tmp/v8-work/prompt_23/generated/services.py
+[write] /tmp/v8-work/prompt_23/generated/schema.py
+[write] /tmp/v8-work/prompt_23/generated/store.py
+[write] /tmp/v8-work/prompt_23/generated/cli.py
+[write] /tmp/v8-work/prompt_23/generated/__init__.py
+methods: 36 implemented, 2 stubs (95% mechanical)
+llm: 2 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: PostTagRepository.read_posts_by_tag_name — repaired: calls `self._store.select` with operator `in`; the store supports only `eq`, `ge`, `le`, `gt`, `lt`
+  llm provisional: PostTagRepository.read_post_tags_by_post_id
+  stub: PostTagRepository.read_post_tags_by_post_id: parameter 'post_id' maps to no field
+  stub: PostTagRepository.read_posts_by_tag_name: parameter 'tag_name' maps to no field
+  cli Author add -> create_author [score 8]
+  cli Author delete -> delete_author [score 11]
+  cli Author update -> update_author [score 11]
+  cli Post add -> create_post [score 8]
+  cli Post delete -> delete_post [score 11]
+  cli Post update -> update_post [score 11]
+  cli PostTag add -> create_post_tag_association [score 8]
+  cli Tag add -> create_tag [score 8]
+  cli Tag delete -> delete_tag [score 11]
+  cli Tag update -> update_tag [score 11]

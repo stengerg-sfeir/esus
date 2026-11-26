@@ -1,0 +1,175 @@
+{
+  "method_contracts": [
+    {
+      "holder": "LibraryService",
+      "method": "borrow_book",
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f",
+      "effects": [
+        {
+          "target": "book.available_copies",
+          "op": "decrement",
+          "by": "1",
+          "write": "BookRepository.update"
+        }
+      ],
+      "creates": [
+        {
+          "class": "Loan",
+          "call": "LoanRepository.create"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "book",
+          "repository": "BookRepository",
+          "method": "read_one",
+          "args": [
+            "book_id"
+          ]
+        },
+        {
+          "name": "member",
+          "repository": "MemberRepository",
+          "method": "read_one",
+          "args": [
+            "member_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "book exists",
+          "error": "BookNotFoundError",
+          "raise_when": "false"
+        },
+        {
+          "check": "member exists",
+          "error": "MemberNotFoundError",
+          "raise_when": "false"
+        }
+      ],
+      "order": [
+        "preconditions",
+        "LoanRepository.create",
+        "BookRepository.update"
+      ]
+    },
+    {
+      "holder": "LibraryService",
+      "method": "renew_membership",
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f",
+      "effects": [
+        {
+          "target": "member.is_active",
+          "op": "set",
+          "value": "not is_active",
+          "write": "MemberRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "member",
+          "repository": "MemberRepository",
+          "method": "read_one",
+          "args": [
+            "member_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "member exists",
+          "error": "MemberNotFoundError",
+          "raise_when": "false"
+        }
+      ]
+    },
+    {
+      "holder": "LoanRepository",
+      "method": "find_active_loans",
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f",
+      "derives": [
+        {
+          "target": "loan.status",
+          "value": "active"
+        },
+        {
+          "target": "loan.status",
+          "value": "returned"
+        },
+        {
+          "target": "loan.status",
+          "value": "overdue"
+        }
+      ],
+      "bindings": []
+    },
+    {
+      "holder": "LoanRepository",
+      "method": "find_overdue_loans",
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f",
+      "derives": [
+        {
+          "target": "loan.status",
+          "value": "overdue"
+        }
+      ],
+      "bindings": []
+    },
+    {
+      "holder": "LibraryService",
+      "method": "return_book",
+      "decided_by": "user",
+      "requirements_sha": "a52edca22d3a421c331dfb6c7d6fd00cb903dc10d12391c073fbe94b9e854b9f",
+      "effects": [
+        {
+          "target": "loan.return_date",
+          "op": "set",
+          "value": "now",
+          "write": "LoanRepository.update"
+        },
+        {
+          "target": "loan.status",
+          "op": "set",
+          "value": "'returned'",
+          "write": "LoanRepository.update"
+        },
+        {
+          "target": "book.available_copies",
+          "op": "increment",
+          "by": "1",
+          "write": "BookRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "loan",
+          "repository": "LoanRepository",
+          "method": "read_one",
+          "args": [
+            "loan_id"
+          ]
+        },
+        {
+          "name": "book",
+          "repository": "BookRepository",
+          "method": "read_one",
+          "args": [
+            "loan.book_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "loan exists",
+          "error": "LoanNotFoundError",
+          "raise_when": "false"
+        }
+      ]
+    }
+  ]
+}

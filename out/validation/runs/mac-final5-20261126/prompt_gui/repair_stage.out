@@ -1,0 +1,24 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_gui/persistence_ports.json
+
+
+[ok] step contracts: added the primary key to 2 parameterless lookup(s): WineRepository.get_wine_count_by_type(id), StorageLocationRepository.get_total_storage_capacity(id)
+[ok] step grounding: dropped WineInventoryService.confirm_order — no requirement/intention evidence for verb `confirm`
+[ok] step grounding: dropped WineInventoryService.cancel_order — no requirement/intention evidence for verb `cancel`
+[ok] step grounding: dropped WineInventoryService.search_wines_by_name — no requirement/intention evidence for verb `search`
+[ok] step grounding: dropped WineInventoryService.export_inventory_to_csv — no requirement/intention evidence for verb `export`
+[ok] step grounding: dropped WineRepository.get_wines_by_vintage_range — parameter 'min_vintage' names no Wine field
+[ok] step grounding: dropped WineRepository.get_wines_by_origin_country — parameter 'country' names no Wine field
+[ok] step grounding: dropped StorageLocationRepository.get_locations_by_capacity_range — parameter 'min_capacity' names no StorageLocation field
+[!] step adapters: mechanical re-derivation declined (no CLI leaves) — keeping the existing adapters
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+

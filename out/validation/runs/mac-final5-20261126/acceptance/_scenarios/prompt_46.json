@@ -1,0 +1,237 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Client add",
+      "when": {
+        "cli_variants": [
+          [
+            "Client",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1",
+            "--account-status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Client update",
+      "when": {
+        "cli_variants": [
+          [
+            "Client",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--phone",
+            "value1",
+            "--account-status",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Client": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "phone": "value1",
+            "account_status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Client delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Client",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Client",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Invoice add",
+      "when": {
+        "cli_variants": [
+          [
+            "Invoice",
+            "add",
+            "--client-id",
+            "1",
+            "--due-date",
+            "2024-01-01",
+            "--amount",
+            "2",
+            "--description",
+            "value1",
+            "--status",
+            "pending"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Invoice update",
+      "when": {
+        "cli_variants": [
+          [
+            "Invoice",
+            "update",
+            "--id",
+            "1",
+            "--client-id",
+            "1",
+            "--due-date",
+            "2024-01-01",
+            "--amount",
+            "2",
+            "--description",
+            "value1",
+            "--status",
+            "pending"
+          ]
+        ],
+        "seed_overrides": {
+          "Invoice": {
+            "client_id": 1,
+            "due_date": "2024-01-01",
+            "amount": 2.0,
+            "description": "value1",
+            "status": "pending"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Invoice delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Invoice",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Invoice",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Payment add",
+      "when": {
+        "cli_variants": [
+          [
+            "Payment",
+            "add",
+            "--invoice-id",
+            "1",
+            "--payment-date",
+            "2024-01-01",
+            "--amount",
+            "2",
+            "--payment-method",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Payment update",
+      "when": {
+        "cli_variants": [
+          [
+            "Payment",
+            "update",
+            "--id",
+            "1",
+            "--invoice-id",
+            "1",
+            "--payment-date",
+            "2024-01-01",
+            "--amount",
+            "2",
+            "--payment-method",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Payment": {
+            "invoice_id": 1,
+            "payment_date": "2024-01-01",
+            "amount": 2.0,
+            "payment_method": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Payment delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Payment",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Payment",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

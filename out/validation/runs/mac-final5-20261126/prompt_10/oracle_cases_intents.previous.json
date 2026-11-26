@@ -1,0 +1,189 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "create_note",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "note.title": "Meeting Notes",
+          "note.content": "Discuss project timeline",
+          "note.creation_date": "2025-04-05"
+        },
+        "rows": {
+          "Note": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "expected date '2025-04-05' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "list_notes",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "list_notes",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Note": 1
+        },
+        "stdout_contains": "Meeting Notes",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "note": {
+            "status": "aligned",
+            "canonical": "Note",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Note",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "NoteRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "update_note",
+        "args": {
+          "content": "Updated content"
+        }
+      },
+      "then": {
+        "state": {
+          "note.title": "Meeting Notes",
+          "note.content": "Updated content",
+          "note.creation_date": "2025-04-05"
+        },
+        "rows": {
+          "Note": 1
+        },
+        "stdout_contains": "Updated content",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "expected date '2025-04-05' is not stated in the target clause"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "delete_note",
+        "args": [
+          "Meeting Notes"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Note": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "note": {
+            "status": "aligned",
+            "canonical": "Note",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Note",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "NoteRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

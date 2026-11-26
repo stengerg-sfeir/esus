@@ -1,0 +1,68 @@
+{
+  "plans": [
+    {
+      "id": "create_sale",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "product",
+            "entity": "Product",
+            "reason": "required parameter product_id"
+          }
+        ],
+        "aliases": {
+          "sale": "Sale",
+          "product": "Product"
+        },
+        "target_usage": {
+          "entity": "Sale",
+          "used_entities": [
+            "Product"
+          ],
+          "used": false
+        }
+      }
+    },
+    {
+      "id": "list_sales",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "product",
+            "entity": "Product",
+            "reason": "required Sale.product_id"
+          }
+        ],
+        "aliases": {
+          "sale": "Sale"
+        },
+        "target_usage": {
+          "entity": "Sale",
+          "used_entities": [],
+          "used": null
+        }
+      }
+    }
+  ],
+  "rejected": [
+    {
+      "id": "create_product",
+      "errors": [
+        "reference field 'stock_qty' is not declared on Product"
+      ]
+    },
+    {
+      "id": "update_product_stock",
+      "errors": [
+        "reference field 'stock_qty' is not declared on Product"
+      ]
+    },
+    {
+      "id": "list_products",
+      "errors": [
+        "reference field 'stock_qty' is not declared on Product"
+      ]
+    }
+  ],
+  "validation_errors": []
+}

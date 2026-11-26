@@ -1,0 +1,359 @@
+{
+  "prompt": "prompt_37",
+  "results": [
+    {
+      "name": "delete_project_with_tasks",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Project; a hard-deleted row has no state to read",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          },
+          "task_1": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          },
+          "task_2": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          },
+          "task_3": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {
+          "project.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Project"
+            ],
+            "alternatives": []
+          },
+          "task_1.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          },
+          "task_2.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          },
+          "task_3.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete_project_with_tasks",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProjectRepository.delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "delete_project_with_no_tasks",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Project; a hard-deleted row has no state to read",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          }
+        },
+        "fields": {
+          "project.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Project"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete_project_with_tasks",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProjectRepository.delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "delete_project_atomicity_failure",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Project; a hard-deleted row has no state to read",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          },
+          "task_1": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          },
+          "task_2": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {
+          "project.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Project"
+            ],
+            "alternatives": []
+          },
+          "task_1.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          },
+          "task_2.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete_project_with_tasks",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProjectRepository.delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "delete_project_with_missing_tasks",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Project; a hard-deleted row has no state to read",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          }
+        },
+        "fields": {
+          "project.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Project"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete_project_with_tasks",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProjectRepository.delete"
+          ]
+        }
+      }
+    },
+    {
+      "name": "delete_project_with_concurrent_access",
+      "status": "unbound",
+      "reason": "delete case expects state on deleted Project; a hard-deleted row has no state to read",
+      "source": "Deleting a project must also remove its tasks. The operation must be atomic.",
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Task"
+            ]
+          },
+          "task_1": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {
+          "project.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Project"
+            ],
+            "alternatives": []
+          },
+          "task_1.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.delete_project_with_tasks",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProjectRepository.delete"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 5
+  }
+}

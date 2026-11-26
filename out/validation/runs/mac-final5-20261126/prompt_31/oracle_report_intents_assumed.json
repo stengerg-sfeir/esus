@@ -1,0 +1,112 @@
+{
+  "prompt": "prompt_31",
+  "results": [
+    {
+      "name": "deposit_withdrawal_balance_change",
+      "status": "unbound",
+      "reason": "no generated method matches 'update_balance'",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          },
+          "account": {
+            "status": "aligned",
+            "canonical": "Account",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Account",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "account.balance": {
+            "status": "aligned",
+            "canonical": "balance",
+            "score": 10.0,
+            "evidence": [
+              "Account.balance exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "AccountRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods could satisfy the action"
+          ],
+          "alternatives": [
+            "AccountRepository.update",
+            "AccountRepository.update"
+          ]
+        }
+      }
+    },
+    {
+      "name": "withdrawal-negative-balance-rejection",
+      "status": "unbound",
+      "reason": "no generated method matches 'withdraw'",
+      "source": "A withdrawal must be rejected if it would make the balance negative.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 14.0"
+            ],
+            "alternatives": []
+          },
+          "account": {
+            "status": "aligned",
+            "canonical": "Account",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Account",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "account.balance": {
+            "status": "aligned",
+            "canonical": "balance",
+            "score": 10.0,
+            "evidence": [
+              "Account.balance exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 2
+  }
+}

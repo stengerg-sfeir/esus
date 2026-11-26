@@ -1,0 +1,63 @@
+[run] requirements: 215 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 67 tokens in 1.2s (55.5 tok/s, 64.0 decode, 76 prompt)
+[data_models] 383 tokens in 6.4s (60.3 tok/s, 61.4 decode, 571 prompt)
+[errors] 8 tokens in 0.3s (26.8 tok/s, 72.2 decode, 475 prompt)
+[invariants] 130 tokens in 2.2s (59.2 tok/s, 62.9 decode, 279 prompt)
+[ok] step invariants: 17 invariant(s) — 12 schema generated mechanically, 5 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 396 tokens in 7.0s (56.9 tok/s, 58.6 decode, 987 prompt)
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-department-id' to '--department-id'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 0.4s (25.8 tok/s, 69.3 decode, 481 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 3 generic type spelling(s) to Python annotations
+[persistence_ports] 514 tokens in 8.4s (60.9 tok/s, 62.0 decode, 392 prompt)
+[ok] step persistence: merged 6 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/18] invariant -> STOCK_SUFFICIENCY_GUARD (0.84)
+  [2/18] invariant -> STOCK_SUFFICIENCY_GUARD (0.57)
+  [3/18] invariant -> STOCK_SUFFICIENCY_GUARD (0.62)
+  [4/18] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/18] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [6/18] contract:EmployeeRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/18] contract:EmployeeRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/18] contract:EmployeeRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [9/18] contract:EmployeeRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/18] contract:EmployeeRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [11/18] contract:EmployeeRepository.get_employees_by_department_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/18] contract:EmployeeRepository.create_employee -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/18] contract:EmployeeRepository.read_employee_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [14/18] contract:EmployeeRepository.read_all_employees -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+  [15/18] contract:EmployeeRepository.update_employee -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/18] contract:EmployeeRepository.delete_employee -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [17/18] contract:DepartmentRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [18/18] contract:DepartmentRepository.read_all_departments -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 18 item(s) — 6 standard CRUD, 12 pattern(s), 0 gap(s)
+[ok] step adapters: derived 1 command group(s) from 13 service method(s)
+[!] step adapters: mechanical derivation declined (Employee add: ambiguous methods: EmployeeRepository.create, EmployeeRepository.create_employee) — asking the model
+[interaction_adapters] 689 tokens in 11.5s (59.9 tok/s, 61.3 decode, 598 prompt)
+[ok] step adapters: create_employee.department_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_employee_by_id.employee_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: read_employees_by_department.department_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_employee.employee_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_employee.department_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_employee.employee_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_25/requirements.txt
+[run] 8 steps, 2197 generated tokens in 37.3s

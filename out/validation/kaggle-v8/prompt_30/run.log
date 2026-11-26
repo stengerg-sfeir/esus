@@ -1,0 +1,40 @@
+[run] requirements: 243 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 83 tokens in 1.5s (56.4 tok/s, 63.5 decode, 84 prompt)
+[data_models] 9 tokens in 0.3s (34.2 tok/s, 70.2 decode, 596 prompt)
+[ok] step data_models: no model was extracted; inferred Task from the application phrase
+[errors] 8 tokens in 0.3s (31.7 tok/s, 71.0 decode, 469 prompt)
+[invariants] 7 tokens in 0.2s (31.6 tok/s, 73.5 decode, 273 prompt)
+[ok] step invariants: 3 invariant(s) — 3 schema generated mechanically, 0 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 259 tokens in 4.7s (55.5 tok/s, 57.5 decode, 981 prompt)
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[service_contracts] 10 tokens in 0.4s (27.5 tok/s, 69.4 decode, 475 prompt)
+[ok] step contracts: added 1 mechanical repository entries
+[ok] step contracts: normalized 2 generic type spelling(s) to Python annotations
+[persistence_ports] 193 tokens in 3.2s (59.9 tok/s, 62.5 decode, 374 prompt)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/2] contract:TaskRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [2/2] contract:TaskRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 2 item(s) — 1 standard CRUD, 1 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (no CLI leaves) — asking the model
+[interaction_adapters] 219 tokens in 3.7s (59.6 tok/s, 62.2 decode, 478 prompt)
+[ok] step adapters: read_task.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_task_status.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/method_plans.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_30/requirements.txt
+[run] 8 steps, 788 generated tokens in 14.1s

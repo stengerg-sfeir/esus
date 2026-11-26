@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "3d7660bcd4f99fd883a16b3d79a413c3bc49dfc825889998c3fb8e16e4932e72",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "If any order line is invalid, the entire order and all its order lines must be rolled back and not persisted.",
+      "chosen": "STATE_TRANSITION_GUARD",
+      "candidates": [
+        "STATE_TRANSITION_GUARD",
+        "BUDGET_OVERFLOW_GUARD"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

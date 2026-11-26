@@ -1,0 +1,105 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Product",
+        "interface_name": "ProductRepository",
+        "methods": [
+          {
+            "name": "read_all",
+            "description": "Lists every Product; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "price",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Product by its key.",
+            "params": [
+              {
+                "name": "id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Product",
+            "raises": []
+          },
+          {
+            "name": "find_products_by_name_and_category_and_price_range_and_quantity_range",
+            "description": "Retrieves a list of products that match the specified name, category, maximum price, and minimum quantity. All filters are combinable and applied together.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "max_price",
+                "type": "float"
+              },
+              {
+                "name": "min_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]"
+          },
+          {
+            "name": "search_products",
+            "description": "Search products.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "max_price",
+                "type": "str"
+              },
+              {
+                "name": "min_quantity",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": []
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Product",
+        "table": "products",
+        "primary_key": "id",
+        "indexes": [
+          "name"
+        ]
+      }
+    ]
+  }
+}

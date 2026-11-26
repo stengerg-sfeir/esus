@@ -1,0 +1,209 @@
+{
+  "plans": [
+    {
+      "id": "create_customer",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "name",
+          "email",
+          "phone"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_customer",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "read_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_customer",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "customer.id",
+          "name",
+          "email",
+          "phone"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_customer",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "delete_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_by_name",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "search_by_name",
+        "args": [
+          "name"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "filter_by_email_domain",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "filter_by_email_domain",
+        "args": [
+          "domain"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "email_unique_constraint",
+      "source": "Customers have a name, email and phone number. Email addresses must be unique.",
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "name",
+          "email",
+          "phone"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "Email already exists",
+        "rows": {
+          "Customer": 0
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

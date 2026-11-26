@@ -1,0 +1,17 @@
+[
+  {
+    "label": "BorrowService.borrow_book",
+    "status": "written",
+    "note": "",
+    "answer": "member = self._repos['MemberRepository'].read_one(member_id=member_id)\n    if not member:\n        raise errors.MemberNotFoundError('member not found')\n    book = self._repos['BookRepository'].read_one(book_id=book_id)\n    if not book:\n        raise errors.BookNotFoundError('book not found')\n    if not book.available_status:\n        raise errors.BookNotFoundError('book is not available')\n    borrow_record = self._repos['BorrowRecordRepository'].create_borrow_record(\n        book_id=book_id,\n        member_id=member_id,\n        borrow_date=datetime.datetime.now()\n    )\n    self._repos['BookRepository'].update(book_id=book_id, available_status=False)",
+    "finish_reason": "stop",
+    "tokens": 145,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 10.294738054275513,
+    "decode_seconds": 4.562056999999999,
+    "prompt_tokens": 2718,
+    "cached_tokens": 658,
+    "context": "exact"
+  }
+]

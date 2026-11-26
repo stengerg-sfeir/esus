@@ -1,0 +1,136 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Employee",
+        "interface_name": "EmployeeRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one Employee by its key.",
+            "params": [
+              {
+                "name": "employee_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Employee",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Employee; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              },
+              {
+                "name": "department_id",
+                "type": "int"
+              },
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Employee]",
+            "raises": []
+          },
+          {
+            "name": "get_employees_by_department_id",
+            "description": "Lists the Employee records belonging to one Department.",
+            "params": [
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Employee]",
+            "raises": []
+          },
+          {
+            "name": "findEmployeeByDepartment",
+            "description": "Retrieves all employees belonging to a specific department by department ID.",
+            "params": [
+              {
+                "name": "departmentId",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[models.Employee]"
+          },
+          {
+            "name": "findEmployeeByEmail",
+            "description": "Retrieves an employee by their email address.",
+            "params": [
+              {
+                "name": "email",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Employee"
+          }
+        ]
+      },
+      {
+        "entity": "Department",
+        "interface_name": "DepartmentRepository",
+        "methods": [
+          {
+            "name": "read_all",
+            "description": "Lists every Department; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Department]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Department by its key.",
+            "params": [
+              {
+                "name": "department_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Department",
+            "raises": []
+          },
+          {
+            "name": "findDepartmentByName",
+            "description": "Retrieves a department by its name.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Department"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Employee",
+        "table": "employees",
+        "primary_key": "employee_id",
+        "indexes": [
+          "department_id",
+          "email"
+        ]
+      },
+      {
+        "entity": "Department",
+        "table": "departments",
+        "primary_key": "department_id",
+        "indexes": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,224 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "track_clients",
+        "source": "It should keep track of clients",
+        "given": {
+          "client": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com"
+          }
+        },
+        "when": {
+          "action": "track_clients"
+        },
+        "then": {
+          "state": {
+            "client.name": "Alice Johnson",
+            "client.email": "alice.johnson@example.com"
+          },
+          "rows": {
+            "Client": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "client": {
+              "status": "aligned",
+              "canonical": "Client",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Client",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "Invoice"
+              ]
+            }
+          },
+          "fields": {
+            "client.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Client.name exists"
+              ],
+              "alternatives": []
+            },
+            "client.email": {
+              "status": "aligned",
+              "canonical": "email",
+              "score": 10.0,
+              "evidence": [
+                "Client.email exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "ambiguous",
+            "canonical": "InvoiceRepository.create",
+            "score": 0.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "InvoiceRepository.create",
+              "InvoiceRepository.delete",
+              "InvoiceRepository.read_all",
+              "InvoiceRepository.update"
+            ]
+          }
+        },
+        "triage": "coverage_gap: ambiguous action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'track_clients'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'track_clients'"
+    },
+    {
+      "case": {
+        "id": "know_outstanding_invoices",
+        "source": "make it possible to know which invoices are still outstanding",
+        "given": {
+          "invoice": {
+            "id": 101,
+            "status": "outstanding",
+            "amount": 500.0,
+            "client": "Alice Johnson"
+          },
+          "payment": {
+            "id": 201,
+            "invoice_id": 101,
+            "amount": 200.0
+          }
+        },
+        "when": {
+          "action": "check_outstanding_invoices"
+        },
+        "then": {
+          "state": {
+            "invoice.id": 101,
+            "invoice.status": "outstanding",
+            "invoice.amount": 500.0,
+            "invoice.client_id": "Alice Johnson"
+          },
+          "rows": {
+            "Invoice": 1
+          }
+        },
+        "status": "unbound",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "invoice": {
+              "status": "aligned",
+              "canonical": "Invoice",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Invoice",
+                "score 14.0"
+              ],
+              "alternatives": [
+                "Payment",
+                "Client"
+              ]
+            },
+            "payment": {
+              "status": "aligned",
+              "canonical": "Payment",
+              "score": 14.0,
+              "evidence": [
+                "name/fields match Payment",
+                "score 14.0"
+              ],
+              "alternatives": [
+                "Invoice",
+                "Client"
+              ]
+            }
+          },
+          "fields": {
+            "invoice.id": {
+              "status": "aligned",
+              "canonical": "id",
+              "score": 10.0,
+              "evidence": [
+                "Invoice.id exists"
+              ],
+              "alternatives": []
+            },
+            "invoice.status": {
+              "status": "aligned",
+              "canonical": "status",
+              "score": 10.0,
+              "evidence": [
+                "Invoice.status exists"
+              ],
+              "alternatives": []
+            },
+            "invoice.amount": {
+              "status": "aligned",
+              "canonical": "amount",
+              "score": 10.0,
+              "evidence": [
+                "Invoice.amount exists"
+              ],
+              "alternatives": []
+            },
+            "invoice.client_id": {
+              "status": "aligned",
+              "canonical": "client_id",
+              "score": 10.0,
+              "evidence": [
+                "Invoice.client_id exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "ambiguous",
+            "canonical": "PaymentRepository.create",
+            "score": 0.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "PaymentRepository.create",
+              "PaymentRepository.delete",
+              "PaymentRepository.read_all",
+              "PaymentRepository.update"
+            ]
+          }
+        },
+        "triage": "coverage_gap: ambiguous action",
+        "needs_review": false,
+        "execution": {
+          "status": "unbound",
+          "reason": "no generated method matches 'check_outstanding_invoices'"
+        }
+      },
+      "status": "unbound",
+      "reason": "no generated method matches 'check_outstanding_invoices'"
+    }
+  ]
+}

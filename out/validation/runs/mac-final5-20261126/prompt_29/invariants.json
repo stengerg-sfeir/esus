@@ -1,0 +1,96 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_items must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_items must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An order must be associated with a valid customer through the customer_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of an order must be one of 'pending', 'completed', or 'cancelled'.",
+      "kind": "rule"
+    },
+    {
+      "text": "When an order status is changed to 'completed', the order_items must not be empty.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer's email must be unique across all customers.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order cannot be created without at least one order item.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total amount of an order is calculated as the sum of the prices of all order items.",
+      "kind": "rule"
+    },
+    {
+      "text": "If an order is marked as cancelled, no further status changes can be applied after that point.",
+      "kind": "rule"
+    },
+    {
+      "text": "A customer must have a valid name and email to be created.",
+      "kind": "rule"
+    },
+    {
+      "text": "Order items cannot be modified after an order has been marked as completed.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of an order must be updated only through the service layer, not directly in the repository.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "handle_missing_input_file",
+      "source": "Include error handling for missing files and malformed CSV.",
+      "given": {
+        "input_file": {
+          "path": "/nonexistent/file.csv"
+        }
+      },
+      "when": {
+        "action": "check_file_exists",
+        "args": [
+          "input_file.path"
+        ]
+      },
+      "then": {
+        "error": "FileNotFoundError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirement states to include error handling for missing files and malformed CSV, but does not specify whether the check for missing files is performed before parsing or whether the error is raised at parse time. The exact condition and timing are ambiguous.",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "handle_malformed_csv",
+      "source": "Include error handling for missing files and malformed CSV.",
+      "given": {
+        "csv_file": {
+          "path": "malformed.csv"
+        }
+      },
+      "when": {
+        "action": "parse_csv",
+        "args": [
+          "csv_file.path"
+        ]
+      },
+      "then": {
+        "error": "MalformedCSVError",
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirement does not specify what constitutes a malformed CSV or whether the error is raised during parsing or header reading. The exact conditions and error type are not defined, leading to ambiguity.",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements"
+      ]
+    }
+  ]
+}

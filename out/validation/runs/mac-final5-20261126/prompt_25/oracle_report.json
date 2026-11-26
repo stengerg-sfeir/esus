@@ -1,0 +1,46 @@
+{
+  "prompt": "prompt_25",
+  "results": [
+    {
+      "name": "scenario:oracle:list_employees_by_department",
+      "status": "passed",
+      "case": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
+}

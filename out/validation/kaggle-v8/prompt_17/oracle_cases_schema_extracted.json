@@ -1,0 +1,113 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000.0,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "search",
+        "args": [
+          "name"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop"
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'search'"
+      }
+    },
+    {
+      "id": "filters_combinable",
+      "source": "All filters must be combinable",
+      "given": {
+        "product_1": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000.0,
+          "quantity": 5
+        },
+        "product_2": {
+          "name": "Mouse",
+          "category": "Electronics",
+          "price": 25.0,
+          "quantity": 10
+        },
+        "product_3": {
+          "name": "Book",
+          "category": "Education",
+          "price": 15.0,
+          "quantity": 3
+        },
+        "product_4": {
+          "name": "Pen",
+          "category": "Office",
+          "price": 5.0,
+          "quantity": 2
+        }
+      },
+      "when": {
+        "action": "filter",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product_1.name": "Laptop",
+          "product_1.category": "Electronics",
+          "product_1.price": 1000.0,
+          "product_1.quantity": 5,
+          "product_2.name": "Mouse",
+          "product_2.category": "Electronics",
+          "product_2.price": 25.0,
+          "product_2.quantity": 10,
+          "product_3.name": "Book",
+          "product_3.category": "Education",
+          "product_3.price": 15.0,
+          "product_3.quantity": 3,
+          "product_4.name": "Pen",
+          "product_4.category": "Office",
+          "product_4.price": 5.0,
+          "product_4.quantity": 2
+        },
+        "rows": {
+          "Product": 4
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'filter'"
+      }
+    }
+  ]
+}

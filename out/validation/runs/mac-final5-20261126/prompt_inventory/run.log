@@ -1,0 +1,87 @@
+[run] requirements: 2312 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 223 tokens in 7.5s (29.9 tok/s, 36.4 decode, 559 prompt)
+[data_models] 645 tokens in 20.6s (31.3 tok/s, 34.2 decode, 1205 prompt)
+[ok] step data_models: uniqueness provenance — 4 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 84 tokens in 4.0s (21.0 tok/s, 34.9 decode, 970 prompt)
+[invariants] 392 tokens in 14.6s (26.9 tok/s, 29.8 decode, 774 prompt)
+[ok] step invariants: 30 invariant(s) — 20 schema generated mechanically, 10 rule(s) from the model
+[ok] step components: 11 command line(s) enumerated
+[components] 197 tokens in 8.6s (23.0 tok/s, 33.4 decode, 1246 prompt)
+[command_group] 784 tokens in 24.1s (32.5 tok/s, 35.6 decode, 854 prompt)
+[command_group] 431 tokens in 14.9s (28.9 tok/s, 34.7 decode, 771 prompt)
+[ok] step components: removed 1 exactly repeated name(s) from the merged split surface
+[service_contracts] 751 tokens in 22.9s (32.8 tok/s, 36.8 decode, 1010 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+[ok] step contracts: InventoryService.add_product is a create and cannot fail to find what it creates — dropped raises 'ProductNotFoundError'
+[persistence_ports] 319 tokens in 10.6s (30.0 tok/s, 37.8 decode, 896 prompt)
+[ok] step persistence: merged 4 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/32] invariant -> BUDGET_OVERFLOW_GUARD (0.87)
+  [2/32] invariant -> BUDGET_OVERFLOW_GUARD (0.74)
+  [3/32] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/32] invariant -> STATE_TRANSITION_GUARD (0.88)
+  [5/32] invariant -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [6/32] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [7/32] invariant -> FILTER_WITH_PAGINATION (0.64)
+  [8/32] invariant -> QUOTA_CAPACITY_GUARD (0.59)
+  [9/32] invariant -> STOCK_SUFFICIENCY_GUARD (0.90)
+  [10/32] invariant -> THRESHOLD_SCAN (1.00)
+  [11/32] contract:InventoryService.add_product -> BUDGET_OVERFLOW_GUARD (0.78)
+  [12/32] contract:InventoryService.update_product -> BUDGET_OVERFLOW_GUARD (0.96)
+  [13/32] contract:InventoryService.delete_product -> STANDARD_CRUD (1.00)
+  [14/32] contract:InventoryService.get_product_by_id -> STANDARD_CRUD (1.00)
+  [15/32] contract:InventoryService.list_products -> FILTER_WITH_PAGINATION (0.86)
+  [16/32] contract:InventoryService.restock -> STOCK_SUFFICIENCY_GUARD (0.89)
+  [17/32] contract:InventoryService.low_stock_report -> THRESHOLD_SCAN (1.00)
+  [18/32] contract:InventoryService.stock_value_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+  [19/32] contract:CategoryRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/32] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [21/32] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/32] contract:CategoryRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [23/32] contract:CategoryRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [24/32] contract:CategoryRepository.find_products_by_category -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [25/32] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [26/32] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [27/32] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [28/32] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [29/32] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/32] contract:ProductRepository.find_products_by_category -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [31/32] contract:ProductRepository.find_low_stock_products -> THRESHOLD_SCAN (1.00)
+  [32/32] contract:ProductRepository.aggregate_stock_value_by_category -> AGGREGATE_BY_FK_AND_DATE (1.00)
+[ok] step patterns: 32 item(s) — 8 standard CRUD, 24 pattern(s), 0 gap(s)
+[ok] step adapters: 11 adapter(s) derived mechanically from the explicit surface
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productrestock.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categoryupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: categorydelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productadd.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: productadd.price targets an entity but spells no model field — renamed to 'price_cents'
+[ok] step adapters: productadd.stock targets an entity but spells no model field — renamed to 'stock_qty'
+[ok] step adapters: productlist.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: productupdate.price targets an entity but spells no model field — renamed to 'price_cents'
+[ok] step adapters: productupdate.category targets an entity but spells no model field — renamed to 'category_id'
+[ok] step adapters: categoryadd.threshold targets an entity but spells no model field — renamed to 'reorder_threshold'
+[ok] step adapters: categoryupdate.threshold targets an entity but spells no model field — renamed to 'reorder_threshold'
+[ok] step adapters: added 1 missing method parameter(s) to adapters: productadd.low_active
+[!] step adapters: 'productrestock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportlowstock' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[!] step adapters: 'productreportvalue' names Product but no owning service declares it; adapter removed rather than attached to the wrong service
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: added 3 missing adapter(s) mechanically: product restock, product report low-stock, product report value
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/method_plans.json
+[!] method plans: 3 ambiguous question(s) — human review required
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/command_group.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_inventory/requirements.txt
+[run] 9 steps, 3826 generated tokens in 127.8s

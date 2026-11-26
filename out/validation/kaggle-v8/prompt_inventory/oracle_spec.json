@@ -1,0 +1,51 @@
+{
+  "requirements_sha": "b9c933fce0957b1671df5df7e30a5ef2b1c33e670df85753fae631f6cbb75716",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "InventoryService.restock",
+      "chosen": {
+        "effects": [
+          {
+            "target": "product.stock_qty",
+            "op": "increment",
+            "by": "qty",
+            "write": "ProductRepository.update"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "product exists",
+            "error": "ProductNotFoundError",
+            "raise_when": "false"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

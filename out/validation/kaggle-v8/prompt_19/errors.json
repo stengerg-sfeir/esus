@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "TaskStatusInvalidError",
+      "base": "ValueError",
+      "description": "Raised by TaskService.confirm_order when the requested operation is not valid."
+    },
+    {
+      "name": "TaskNotConfirmedError",
+      "base": "RuntimeError",
+      "description": "Raised by TaskService.cancel_order when the requested operation is not valid."
+    },
+    {
+      "name": "MissingRequiredFieldError",
+      "base": "LookupError",
+      "description": "Raised by TaskService.validate_imported_tasks when the requested operation is not valid."
+    }
+  ]
+}

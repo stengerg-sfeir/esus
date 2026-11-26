@@ -1,0 +1,32 @@
+[
+  {
+    "label": "PaymentRepository.find_paid_invoices",
+    "status": "written",
+    "note": "",
+    "answer": "found_payments = self._store.select(self.ENTITY, [])\n    if not found_payments:\n        return []\n    invoice_ids = {payment['invoice_id'] for payment in found_payments}\n    invoices = self._store.select(self.ENTITY, [])\n    paid_invoices = []\n    for invoice in invoices:\n        if invoice['id'] in invoice_ids:\n            paid_invoices.append(models.Invoice(**invoice))\n    return paid_invoices",
+    "finish_reason": "stop",
+    "tokens": 89,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 15.86343502998352,
+    "decode_seconds": 2.5258789999999998,
+    "prompt_tokens": 5025,
+    "cached_tokens": 332,
+    "context": "exact"
+  },
+  {
+    "label": "InvoiceRepository.find_outstanding_invoices",
+    "status": "written",
+    "note": "",
+    "answer": "found_invoices = self._store.select(self.ENTITY, [])\n    outstanding = []\n    for invoice in found_invoices:\n        # Check if invoice is not paid (status is not 'paid')\n        if invoice.get('status') != 'paid':\n            # Check if due date is in the future\n            if invoice.get('due_date') is not None:\n                today = datetime.date.today()\n                if invoice['due_date'] > today:\n                    outstanding.append(models.Invoice(**invoice))\n    return outstanding",
+    "finish_reason": "stop",
+    "tokens": 105,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 4.888650178909302,
+    "decode_seconds": 2.985637,
+    "prompt_tokens": 5106,
+    "cached_tokens": 4549,
+    "context": "exact"
+  }
+]

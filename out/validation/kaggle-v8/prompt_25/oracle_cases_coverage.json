@@ -1,0 +1,168 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "department": {
+          "name": "Engineering"
+        }
+      },
+      "when": {
+        "action": "list_employees",
+        "args": [
+          "department.name"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Employee": 3
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The exact output format or number of employees returned is not specified. The requirement only states that employees belonging to a department can be listed."
+      ],
+      "ambiguities": [
+        "The requirement does not specify whether the list includes only active employees, or if it returns a list, a count, or a specific format.",
+        "No concrete example of employee data or department name is provided to validate the expected output."
+      ]
+    },
+    {
+      "id": "create_employee",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "name": "Alice",
+          "department": "Engineering"
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "employee.name",
+          "employee.department"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Alice",
+          "employee.department": "Engineering"
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether the employee creation requires a unique identifier or validation rules (e.g., name uniqueness)."
+      ],
+      "ambiguities": [
+        "No explicit field or constraint (e.g., required fields, unique constraints) is defined for employee creation.",
+        "The action 'create_employee' is not explicitly named or described in the requirements."
+      ]
+    },
+    {
+      "id": "update_employee_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "name": "Bob",
+          "department": "Marketing"
+        }
+      },
+      "when": {
+        "action": "update_employee",
+        "args": [
+          "employee.name",
+          "department:Sales"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Bob",
+          "employee.department": "Sales"
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether updating a department requires validation or if the employee must exist first."
+      ],
+      "ambiguities": [
+        "The action 'update_employee' is not explicitly defined in the requirements.",
+        "No field or constraint (e.g., department name validity) is specified for updates."
+      ]
+    },
+    {
+      "id": "delete_employee",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "name": "Charlie",
+          "department": "HR"
+        }
+      },
+      "when": {
+        "action": "delete_employee",
+        "args": [
+          "employee.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Charlie"
+        },
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether deletion is soft or hard, or whether it affects department membership counts."
+      ],
+      "ambiguities": [
+        "The requirement does not define the behavior of deletion — whether it removes the employee or just marks them inactive.",
+        "No example of the expected state after deletion is provided."
+      ]
+    },
+    {
+      "id": "list_department_employees",
+      "source": "allow users to list employees belonging to a department.",
+      "given": {
+        "department": {
+          "name": "Sales"
+        }
+      },
+      "when": {
+        "action": "list_employees",
+        "args": [
+          "department.name"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Employee": 2
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether the list includes only active employees or all employees, including inactive ones."
+      ],
+      "ambiguities": [
+        "No example of the output format or number of employees is provided.",
+        "The exact behavior of the list action (e.g., returns list, count, or error) is not defined."
+      ]
+    }
+  ]
+}

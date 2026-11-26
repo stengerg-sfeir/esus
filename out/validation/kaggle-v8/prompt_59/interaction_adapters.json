@@ -1,0 +1,18 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "ordercancel",
+      "target_service": "OrderRepository",
+      "target_method": "cancel_order",
+      "input_fields": [
+        {
+          "field_name": "order_id",
+          "target_param": "order_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Order",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

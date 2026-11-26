@@ -1,0 +1,59 @@
+[run] requirements: 197 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 83 tokens in 2.3s (35.6 tok/s, 38.7 decode, 75 prompt)
+[data_models] 619 tokens in 17.2s (35.9 tok/s, 36.8 decode, 587 prompt)
+[ok] step data_models: Product.primary_key became the integer primary key id
+[ok] step data_models: Category.primary_key became the integer primary key id
+[ok] step data_models: uniqueness provenance — 3 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 58 tokens in 1.7s (33.5 tok/s, 40.9 decode, 482 prompt)
+[invariants] 28 tokens in 0.9s (30.5 tok/s, 43.8 decode, 286 prompt)
+[ok] step invariants: 20 invariant(s) — 19 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 441 tokens in 11.9s (36.9 tok/s, 37.9 decode, 994 prompt)
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-category-id' to '--category-id'
+[ok] step components: normalized option '-force' to '--force'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 10 tokens in 0.6s (16.4 tok/s, 43.8 decode, 518 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Product add, Product update, Product delete
+[ok] step contracts: normalized 4 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'DuplicateSKUError' and it is named nowhere in the requirements — dropped
+[persistence_ports] 428 tokens in 11.0s (38.9 tok/s, 40.2 decode, 402 prompt)
+[ok] step persistence: merged 5 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 7 generic type spelling(s) to Python annotations
+  [1/13] invariant -> BUDGET_OVERFLOW_GUARD (0.84)
+  [2/13] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [3/13] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [4/13] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [5/13] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/13] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [7/13] contract:ProductRepository.findProductBySkuAndCategory -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/13] contract:ProductRepository.countProductsBySku -> AGGREGATE_BY_FK_AND_DATE (0.85)
+  [9/13] contract:ProductRepository.getProductsByCategory -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/13] contract:CategoryRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [11/13] contract:CategoryRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/13] contract:CategoryRepository.findCategoryByName -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [13/13] contract:CategoryRepository.listCategoriesWithProductCount -> READ_ALL (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 13 item(s) — 3 standard CRUD, 10 pattern(s), 0 gap(s)
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_51/requirements.txt
+[run] 7 steps, 1667 generated tokens in 45.8s

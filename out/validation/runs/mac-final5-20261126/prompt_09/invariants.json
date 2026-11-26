@@ -1,0 +1,80 @@
+{
+  "invariants": [
+    {
+      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.age must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.age must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.salary must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.salary must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The email address of an employee must be valid.",
+      "kind": "rule"
+    },
+    {
+      "text": "The age of an employee must be between 18 and 70 inclusive.",
+      "kind": "rule"
+    },
+    {
+      "text": "The salary of an employee must be a positive number.",
+      "kind": "rule"
+    },
+    {
+      "text": "When creating an employee, the email must pass validation before being stored.",
+      "kind": "rule"
+    },
+    {
+      "text": "When creating an employee, the age must be within the range of 18 to 70.",
+      "kind": "rule"
+    },
+    {
+      "text": "When creating an employee, the salary must be greater than zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "Updating an employee's age must ensure it remains between 18 and 70.",
+      "kind": "rule"
+    },
+    {
+      "text": "Updating an employee's salary must ensure it remains positive.",
+      "kind": "rule"
+    },
+    {
+      "text": "Deleting an employee removes the employee record from the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "The salary field cannot be set to zero or negative values.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_project_with_invalid_name",
+      "source": "Users can create, update, list and delete projects.",
+      "given": {
+        "project": {
+          "name": "",
+          "description": "Empty name",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name",
+          "project.description",
+          "project.status"
+        ]
+      },
+      "then": {
+        "error": "InvalidProjectNameError",
+        "rows": {
+          "Project": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify validation rules for project name",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements",
+        "error class 'InvalidProjectNameError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "delete_project_with_nonexistent_id",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "given": {
+        "project": {
+          "name": "Non-existent Project",
+          "description": "Does not exist",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "delete_project",
+        "args": [
+          "project.id"
+        ]
+      },
+      "then": {
+        "error": "ProjectNotFoundError",
+        "rows": {
+          "Project": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify behavior when deleting a non-existent project",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements",
+        "error class 'ProjectNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "project_status_update_after_creation",
+      "source": "Projects have a name, description and status.",
+      "given": {
+        "project": {
+          "name": "Initial Project",
+          "description": "Created with default status",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "update_project",
+        "args": [
+          "project.id",
+          "project.status",
+          "active"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "update case supplies no new value for 'project.status' (setup has 'pending')"
+      }
+    },
+    {
+      "id": "project_creation_with_missing_field",
+      "source": "Projects have a name, description and status.",
+      "given": {
+        "project": {
+          "name": "Missing Description",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "create_project",
+        "args": [
+          "project.name",
+          "project.status"
+        ]
+      },
+      "then": {
+        "state": {
+          "project.name": "Missing Description",
+          "project.status": "active",
+          "project.description": ""
+        },
+        "rows": {
+          "Project": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application allows creation of projects with missing description, and sets it to empty string"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

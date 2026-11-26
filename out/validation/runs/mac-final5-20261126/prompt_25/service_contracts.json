@@ -1,0 +1,237 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "EmployeeRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Employee.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "department_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Employee",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Employee by its key.",
+          "params": [
+            {
+              "name": "employee_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Employee",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Employee; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "department_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Employee]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Employee.",
+          "params": [
+            {
+              "name": "employee_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "department_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Employee",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Employee.",
+          "params": [
+            {
+              "name": "employee_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "department_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "get_employees_by_department_id",
+          "description": "Lists the Employee records belonging to one Department.",
+          "params": [
+            {
+              "name": "department_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Employee]",
+          "raises": []
+        },
+        {
+          "name": "create_employee",
+          "description": "Creates a new employee record with the provided name, department ID, and email.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "department_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Employee"
+        },
+        {
+          "name": "read_employee_by_id",
+          "description": "Retrieves an employee record by their unique employee ID.",
+          "params": [
+            {
+              "name": "employee_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Employee | None"
+        },
+        {
+          "name": "read_all_employees",
+          "description": "Returns a list of all employee records.",
+          "params": [],
+          "return_type": "list[Employee]"
+        },
+        {
+          "name": "update_employee",
+          "description": "Updates an existing employee's name, department ID, and email based on the provided employee ID.",
+          "params": [
+            {
+              "name": "employee_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "department_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "delete_employee",
+          "description": "Deletes an employee record by their employee ID.",
+          "params": [
+            {
+              "name": "employee_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "DepartmentRepository",
+      "methods": [
+        {
+          "name": "read_all",
+          "description": "Lists every Department; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Department]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Department by its key.",
+          "params": [
+            {
+              "name": "department_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Department",
+          "raises": []
+        },
+        {
+          "name": "read_department_by_id",
+          "description": "Retrieves a department record by its unique department ID.",
+          "params": [
+            {
+              "name": "department_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Department | None"
+        },
+        {
+          "name": "read_all_departments",
+          "description": "Returns a list of all department records.",
+          "params": [],
+          "return_type": "list[Department]"
+        }
+      ]
+    }
+  ]
+}

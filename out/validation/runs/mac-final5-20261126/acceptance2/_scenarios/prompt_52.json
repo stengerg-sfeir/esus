@@ -1,0 +1,175 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:BorrowRecord add",
+      "when": {
+        "cli_variants": [
+          [
+            "BorrowRecord",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01T00:00:00",
+            "--is-returned"
+          ],
+          [
+            "BorrowRecord",
+            "add",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01T00:00:00",
+            "--is-returned",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:BorrowRecord update",
+      "when": {
+        "cli_variants": [
+          [
+            "BorrowRecord",
+            "update",
+            "--borrow-id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01T00:00:00",
+            "--is-returned"
+          ],
+          [
+            "BorrowRecord",
+            "update",
+            "--borrow-id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01T00:00:00",
+            "--is-returned",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "BorrowRecord": {
+            "book_id": 1,
+            "member_id": 1,
+            "borrow_date": "2024-01-01T00:00:00",
+            "return_date": "2024-01-01T00:00:00"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:BorrowRecord delete",
+      "when": {
+        "cli_variants": [
+          [
+            "BorrowRecord",
+            "delete",
+            "--borrow-id",
+            "1",
+            "--book-id",
+            "1",
+            "--member-id",
+            "1",
+            "--borrow-date",
+            "2024-01-01T00:00:00",
+            "--return-date",
+            "2024-01-01T00:00:00",
+            "--is-returned",
+            "false"
+          ],
+          [
+            "BorrowRecord",
+            "delete",
+            "--borrow-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "BorrowRecord": {
+            "book_id": 1,
+            "member_id": 1,
+            "borrow_date": "2024-01-01T00:00:00",
+            "return_date": "2024-01-01T00:00:00",
+            "is_returned": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Book update",
+      "when": {
+        "cli_variants": [
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available-status"
+          ],
+          [
+            "Book",
+            "update",
+            "--book-id",
+            "1",
+            "--title",
+            "value1",
+            "--author",
+            "value1",
+            "--isbn",
+            "value1",
+            "--available-status",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "Book": {
+            "title": "value1",
+            "author": "value1",
+            "isbn": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

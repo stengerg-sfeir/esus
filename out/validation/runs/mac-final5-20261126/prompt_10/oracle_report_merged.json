@@ -1,0 +1,42 @@
+{
+  "prompt": "prompt_10",
+  "results": [
+    {
+      "name": "scenario:oracle:list_notes",
+      "status": "passed",
+      "case": "list_notes",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "alignment": {
+        "entities": {
+          "note": {
+            "status": "aligned",
+            "canonical": "Note",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Note",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "NoteRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
+}

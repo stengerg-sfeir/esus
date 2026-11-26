@@ -1,0 +1,135 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "sku_uniqueness_create",
+      "source": "SKUs must be unique.",
+      "given": {
+        "product": {
+          "stock_quantity": 5,
+          "sku": "SKU123",
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          {
+            "ref": "product.sku"
+          },
+          "SKU123"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "SKU123",
+          "product.stock_quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "sku_uniqueness_conflict",
+      "source": "SKUs must be unique.",
+      "given": {
+        "product": {
+          "stock_quantity": 5,
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0,
+          "sku": "PRODUCT-1"
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          {
+            "ref": "product.sku"
+          },
+          "SKU123"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "DuplicateSKUError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system raises an error when attempting to create a product with a duplicate SKU",
+        "error class 'DuplicateSKUError' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "The exact error type or message is not specified in the requirement",
+        "error class 'DuplicateSKUError' is not named in the requirements",
+        "error class 'DuplicateSKUError' is not named in the requirements",
+        "error class 'DuplicateSKUError' is not named in the requirements",
+        "error class 'DuplicateSKUError' is not named in the requirements"
+      ]
+    }
+  ]
+}

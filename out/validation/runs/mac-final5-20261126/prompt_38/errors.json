@@ -1,0 +1,19 @@
+{
+  "errors": [
+    {
+      "name": "UserNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a user is requested but not found in the system."
+    },
+    {
+      "name": "DocumentNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a document is requested but not found in the system."
+    },
+    {
+      "name": "DocumentOwnershipError",
+      "base": "RuntimeError",
+      "description": "Raised when a user tries to perform an action on a document that is not owned by them."
+    }
+  ]
+}

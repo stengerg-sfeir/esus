@@ -1,0 +1,115 @@
+{
+  "scenarios": [
+    {
+      "name": "place_order_reserves_stock",
+      "setup": [
+        {
+          "entity": "Customer",
+          "as": "customer",
+          "values": {
+            "name": "Ada",
+            "email": "ada@example.test"
+          }
+        },
+        {
+          "entity": "Product",
+          "as": "product",
+          "values": {
+            "name": "Widget",
+            "stock_quantity": 5
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderManagementService",
+        "method": "place_order",
+        "args": [
+          {
+            "ref": "customer.id"
+          },
+          [
+            {
+              "product_id": {
+                "ref": "product.id"
+              },
+              "quantity": 2
+            }
+          ]
+        ]
+      },
+      "expect": {
+        "fields": {
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Order": 1,
+          "OrderItem": 1
+        }
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--id",
+            "1",
+            "--name",
+            "value1",
+            "--stock-quantity",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "stock_quantity": 2
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--customer-id",
+            "1",
+            "--order-date",
+            "2024-01-01T00:00:00"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderItem add",
+      "when": {
+        "cli_variants": [
+          [
+            "OrderItem",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

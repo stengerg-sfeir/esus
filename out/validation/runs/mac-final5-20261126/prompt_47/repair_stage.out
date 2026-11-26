@@ -1,0 +1,35 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_47/persistence_ports.json
+
+
+[ok] step patterns: applied 1 recorded user decision(s)
+[ok] step contracts: retyped 2 id parameter(s) to int
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): TaskAssignmentRepository.getTaskAssignmentCountByProject(id)
+[ok] step adapters: projectupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: projectdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskadd.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: teammemberupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: teammemberdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentupdate.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentupdate.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentdelete.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentdelete.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentdelete.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentadd.task_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: taskassignmentadd.member_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 12 adapter(s)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step data_models: applied 1 grouped uniqueness decision(s)
+

@@ -1,0 +1,105 @@
+{
+  "prompt": "prompt_53",
+  "results": [
+    {
+      "name": "scenario:oracle:order_with_insufficient_stock",
+      "status": "failed",
+      "reason": "raised TypeError: 'int' object is not iterable; expected 'insufficient_stock'",
+      "case": "order_with_insufficient_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Customer",
+              "OrderItem",
+              "Order"
+            ]
+          },
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product",
+              "Order",
+              "OrderItem"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderManagementService.place_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "order_creation_decreases_stock",
+      "status": "unbound",
+      "reason": "bulk collection parameter requires a scalar collection",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Customer",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.check_product_stock",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProductRepository.read_all",
+            "ProductRepository.update"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "failed": 1,
+    "unbound": 1
+  }
+}

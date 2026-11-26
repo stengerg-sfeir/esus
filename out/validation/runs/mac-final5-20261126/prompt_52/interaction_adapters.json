@@ -1,0 +1,186 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "borrowrecordadd",
+      "target_service": "BorrowRecordRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        },
+        {
+          "field_name": "borrow_date",
+          "target_param": "borrow_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "is_returned",
+          "target_param": "is_returned",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "borrowrecordupdate",
+      "target_service": "BorrowRecordRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "borrow_id",
+          "target_param": "borrow_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "BorrowRecord",
+          "required": true
+        },
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": false
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": false
+        },
+        {
+          "field_name": "borrow_date",
+          "target_param": "borrow_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "is_returned",
+          "target_param": "is_returned",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "borrowrecorddelete",
+      "target_service": "BorrowRecordRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "borrow_id",
+          "target_param": "borrow_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "BorrowRecord",
+          "required": true
+        },
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": false
+        },
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": false
+        },
+        {
+          "field_name": "borrow_date",
+          "target_param": "borrow_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "return_date",
+          "target_param": "return_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "is_returned",
+          "target_param": "is_returned",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "bookupdate",
+      "target_service": "BookRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Book",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "author",
+          "target_param": "author",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "available_status",
+          "target_param": "available_status",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

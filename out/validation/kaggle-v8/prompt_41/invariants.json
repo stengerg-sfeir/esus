@@ -1,0 +1,128 @@
+{
+  "invariants": [
+    {
+      "text": "Book.book_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.author must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.author must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.availability_status must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.availability_status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.member_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.contact_details must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.contact_details must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.membership_status must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.membership_status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.loan_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.member_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.member_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.member_id must reference an existing Member.member_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.book_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.book_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.book_id must reference an existing Book.book_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.loan_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.loan_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.return_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "A book's availability status must be either 'available' or 'checked out'.",
+      "kind": "rule"
+    },
+    {
+      "text": "A loan record must have a member_id that corresponds to an existing member in the Member table.",
+      "kind": "rule"
+    },
+    {
+      "text": "A loan record must have a book_id that corresponds to an existing book in the Book table.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a book is loaned out, its availability_status must be updated to 'checked out'.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a loan is returned, the book's availability_status must be updated to 'available'.",
+      "kind": "rule"
+    },
+    {
+      "text": "A member can only loan a book if their membership_status is active.",
+      "kind": "rule"
+    },
+    {
+      "text": "A loan record must have a loan_date and a return_date, with the return_date being on or after the loan_date.",
+      "kind": "rule"
+    }
+  ]
+}

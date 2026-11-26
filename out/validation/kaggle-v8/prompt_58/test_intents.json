@@ -1,0 +1,58 @@
+{
+  "intents": [
+    {
+      "id": "external_service_unavailable",
+      "source": "The application should continue to operate correctly when the external service is unavailable.",
+      "kind": "error",
+      "entity": "Customer",
+      "action": "retrieve_additional_info",
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "customer.id": "C123"
+      },
+      "lookup": [
+        "customer.id"
+      ],
+      "where": {},
+      "args": [
+        "customer.id"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {
+        "args": [
+          "retrieve",
+          "additional",
+          "info"
+        ],
+        "stdin": "",
+        "files": {}
+      },
+      "expect": {
+        "state": {
+          "customer.id": "C123"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "error": "ConnectionError",
+        "stdout_contains": "Failed to retrieve additional customer information from external service. Falling back to local data.",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The application detects external service unavailability and logs a fallback message.",
+        "error class 'ConnectionError' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "The exact error type or message format when the external service is unavailable is not specified."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "expense_add_missing_category_error",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "given": {
+        "category": {
+          "name": "category name"
+        },
+        "expense": {
+          "category_id": {
+            "ref": "category.id"
+          },
+          "amount_cents": 1,
+          "expense_date": "2024-01-01",
+          "payment_method": "expense value",
+          "is_recurring": false
+        }
+      },
+      "when": {
+        "action": "add_expense",
+        "args": [
+          "100",
+          "Coffee",
+          ""
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "CategoryNotFoundError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The system raises a CategoryNotFoundError if the category does not exist when adding an expense",
+        "error class 'CategoryNotFoundError' is only stated in another requirement"
+      ],
+      "ambiguities": [
+        "target entity Expense is not used by the action; the action uses Category"
+      ]
+    }
+  ]
+}

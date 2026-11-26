@@ -1,0 +1,84 @@
+[run] requirements: 245 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 101 tokens in 3.0s (33.4 tok/s, 36.4 decode, 89 prompt)
+[data_models] 538 tokens in 16.0s (33.7 tok/s, 34.7 decode, 616 prompt)
+[ok] step data_models: uniqueness provenance — 2 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 8 tokens in 0.5s (15.4 tok/s, 45.6 decode, 493 prompt)
+[invariants] 173 tokens in 4.7s (37.0 tok/s, 39.3 decode, 297 prompt)
+[ok] step invariants: 22 invariant(s) — 15 schema generated mechanically, 7 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1158 tokens in 33.6s (34.4 tok/s, 34.8 decode, 1005 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-priority' to '--priority'
+[service_contracts] 10 tokens in 0.6s (17.7 tok/s, 44.0 decode, 499 prompt)
+[ok] step contracts: added 2 mechanical repository entries
+[ok] step contracts: normalized 6 generic type spelling(s) to Python annotations
+[persistence_ports] 401 tokens in 11.5s (35.0 tok/s, 38.2 decode, 419 prompt)
+[ok] step persistence: merged 4 custom repository method(s) into service_contracts
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/22] invariant -> STATE_TRANSITION_GUARD (0.75)
+  [2/22] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [3/22] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [4/22] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/22] invariant -> STATE_TRANSITION_GUARD (0.95)
+  [6/22] invariant -> STOCK_SUFFICIENCY_GUARD (0.91)
+  [7/22] invariant -> BUDGET_OVERFLOW_GUARD (0.68)
+  [8/22] contract:ProjectRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [9/22] contract:ProjectRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [10/22] contract:ProjectRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/22] contract:ProjectRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [12/22] contract:ProjectRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/22] contract:ProjectRepository.get_projects_by_status -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [14/22] contract:ProjectRepository.get_project_with_tasks -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (tuple[Project, list[Task]])
+  [15/22] contract:TaskRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [16/22] contract:TaskRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/22] contract:TaskRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [18/22] contract:TaskRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [19/22] contract:TaskRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [20/22] contract:TaskRepository.get_tasks_by_project_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [21/22] contract:TaskRepository.get_tasks_by_priority -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [22/22] contract:TaskRepository.get_tasks_by_status_and_project -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 22 item(s) — 6 standard CRUD, 15 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:ProjectRepository.get_project_with_tasks: get_project_with_tasks(project_id: int) -> tuple[Project, list[Task]]: Retrieves a project along with all its associated tasks, including task titles, descriptions, status, and priority.
+[ok] step adapters: 8 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 1 unreachable field(s) — retrying once
+[interaction_adapters] 257 tokens in 7.5s (34.2 tok/s, 38.0 decode, 684 prompt)
+[ok] step adapters: taskcreate.project_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 8 in the first attempt — kept the fuller first attempt; its 1 unreachable field(s) stay reported
+[ok] step persistence: 2 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: task create lacked '--project-id' required by 'taskcreate' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 6 adapter(s)
+[ok] step components: added 2 CRUD subcommand(s) from the service contracts: Project list, Task list
+[ok] step adapters: added 2 missing adapter(s) mechanically: Project list, Task list
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_24/requirements.txt
+[run] 8 steps, 2646 generated tokens in 77.4s

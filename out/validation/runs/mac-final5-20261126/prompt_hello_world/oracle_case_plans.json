@@ -1,0 +1,65 @@
+{
+  "plans": [
+    {
+      "id": "hello_world_print",
+      "source": "prints \"Hello, World!\"",
+      "when": {
+        "action": "print",
+        "args": [
+          "Hello, World!"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "stdout_contains": "Hello, World!",
+        "exit_code": 0
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "main_function_definition",
+      "source": "define a `main()` function",
+      "when": {
+        "action": "define_function",
+        "args": [
+          "main"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "source_contains": "pass"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "if_name_main_guard",
+      "source": "include the standard `if __name__ == \"__main__\": main()` guard",
+      "when": {
+        "action": "include_guard",
+        "args": [
+          "if __name__ == \"__main__\": main()"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "source_contains": "if __name__ == \"__main__\": main()"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "type_hints",
+      "source": "with type hints",
+      "when": {
+        "action": "add_type_hints",
+        "args": [
+          "main"
+        ]
+      },
+      "setup_entities": [],
+      "expect": {
+        "source_contains": "pass"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

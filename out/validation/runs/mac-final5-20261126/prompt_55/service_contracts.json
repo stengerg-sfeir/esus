@@ -1,0 +1,244 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Product.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "get_product_by_name",
+          "description": "Retrieves a product by its name, ensuring the product exists in the inventory.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Product"
+        },
+        {
+          "name": "get_product_by_id",
+          "description": "Retrieves a product by its unique identifier, ensuring the product exists in the inventory.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product"
+        },
+        {
+          "name": "get_all_products_with_stock",
+          "description": "Retrieves all products with their current stock quantities, used for inventory audits and reporting.",
+          "params": [],
+          "return_type": "list[Product]"
+        },
+        {
+          "name": "update_product_stock",
+          "description": "Updates the stock quantity of a product, ensuring that stock never goes below zero and maintaining inventory integrity.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "new_stock_quantity",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "SaleRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Sale.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_timestamp",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Sale",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Sale; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_timestamp",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Sale]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Sale by its key.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Sale",
+          "raises": []
+        },
+        {
+          "name": "create_sale",
+          "description": "Creates a new sale record, deducts the sold quantity from the product's stock, and ensures inventory remains accurate after the transaction.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_timestamp",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "models.Sale"
+        },
+        {
+          "name": "get_sale_by_product_and_timestamp",
+          "description": "Retrieves a sale record by product ID and sale timestamp, used for transaction verification and audit trails.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "sale_timestamp",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "models.Sale"
+        },
+        {
+          "name": "get_all_sales_for_product",
+          "description": "Retrieves all sale records for a specific product, used for sales history and inventory tracking.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Sale]"
+        }
+      ]
+    }
+  ]
+}

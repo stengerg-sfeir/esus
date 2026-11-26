@@ -1,0 +1,96 @@
+{
+  "invariants": [
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The total sales amount for a product is calculated by multiplying the product's price by the sum of the quantities sold in all sales records for that product.",
+      "kind": "rule"
+    },
+    {
+      "text": "The number of sales per product is the count of sale records associated with each product's product_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "A sale record must reference a product that exists in the Product table via the product_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sale_date field in the Sale table must not be null and must represent a valid date.",
+      "kind": "rule"
+    },
+    {
+      "text": "The quantity field in the Sale table must be greater than zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "The price field in the Product table must be greater than zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "The product_id in the Sale table must uniquely identify a product in the Product table.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total sales amount reported must aggregate across all sales records for each product.",
+      "kind": "rule"
+    },
+    {
+      "text": "The number of sales per product must be computed by counting distinct sale records per product_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product must have a unique name across all products in the database.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "invariants": [
+    {
+      "text": "Product.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.product_id must reference an existing Product.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_timestamp must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Sale.sale_timestamp must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The stock quantity of a product must not go below zero after a sale.",
+      "kind": "rule"
+    },
+    {
+      "text": "The quantity sold in a sale must be greater than zero.",
+      "kind": "rule"
+    },
+    {
+      "text": "The sum of all quantities sold for a product must equal the difference between its initial stock quantity and its current stock quantity.",
+      "kind": "rule"
+    },
+    {
+      "text": "A sale can only be recorded if the product's stock quantity is sufficient to cover the sale quantity.",
+      "kind": "rule"
+    }
+  ]
+}

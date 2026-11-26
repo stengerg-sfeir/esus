@@ -1,0 +1,43 @@
+{
+  "prompt": "prompt_02",
+  "results": [
+    {
+      "name": "division_by_zero_error",
+      "status": "under_specified",
+      "reason": "cannot resolve given entity 'numbers'",
+      "source": "Division by zero must produce a clear error message.",
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    }
+  ],
+  "counts": {
+    "under_specified": 1
+  },
+  "triage_counts": {
+    "under_specified": 1
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "invariants": [
+    {
+      "text": "Product.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.category must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "The SKU of a product must be unique across all products in the inventory.",
+      "kind": "rule"
+    },
+    {
+      "text": "The stock quantity of a product must be non-negative.",
+      "kind": "rule"
+    },
+    {
+      "text": "The price of a product must be a positive value.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a product is updated, its SKU must remain unchanged if it is already in the inventory.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product search operation must return only products that match the specified name or category.",
+      "kind": "rule"
+    },
+    {
+      "text": "Category filtering must return only products that belong to the specified category.",
+      "kind": "rule"
+    },
+    {
+      "text": "Low-stock reporting must identify products with a stock quantity less than or equal to 10.",
+      "kind": "rule"
+    },
+    {
+      "text": "Adding a product with a SKU that already exists in the inventory must fail.",
+      "kind": "rule"
+    },
+    {
+      "text": "Deleting a product must remove it from the inventory and update the stock quantity of any related operations that depend on it.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total stock quantity across all products must be recalculated whenever a product's stock quantity is updated.",
+      "kind": "rule"
+    }
+  ]
+}

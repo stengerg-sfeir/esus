@@ -1,0 +1,77 @@
+{
+  "counts": {
+    "legacy": 2,
+    "kept": 0,
+    "retired": 2,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "admin_manage_products",
+        "source": "Administrators can manage products and users.",
+        "given": {
+          "product": {
+            "name": "Laptop",
+            "price": 999.99
+          }
+        },
+        "when": {
+          "action": "manage_products",
+          "args": [
+            "product.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Laptop",
+            "product.price": 999.99
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "admin_manage_users",
+        "source": "Administrators can manage products and users.",
+        "given": {
+          "user": {
+            "email": "admin@example.com",
+            "role": "admin"
+          }
+        },
+        "when": {
+          "action": "manage_users",
+          "args": [
+            "user.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "user.email": "admin@example.com",
+            "user.role": "admin"
+          },
+          "rows": {
+            "User": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

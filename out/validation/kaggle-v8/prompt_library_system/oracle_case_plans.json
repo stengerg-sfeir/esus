@@ -1,0 +1,179 @@
+{
+  "plans": [
+    {
+      "id": "book_available_only_flag",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "when": {
+        "action": "book list",
+        "args": [
+          "--author",
+          "123",
+          "--available-only"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.available_copies"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "book_available_only_absent",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "when": {
+        "action": "book list",
+        "args": [
+          "--author",
+          "123"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.available_copies"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises AlreadyReturnedLoanError and changes neither the loan nor inventory.",
+      "when": {
+        "action": "return",
+        "args": [
+          "loan.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "AlreadyReturnedLoanError"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "borrow_final_copy",
+      "source": "Borrowing the final copy leaves the count at zero.",
+      "when": {
+        "action": "borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.available_copies"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "borrow_negative_copies_rejected",
+      "source": "Reject only negative copy counts.",
+      "when": {
+        "action": "borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "error": "BookCopyCountError"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "borrow_transaction_rollback",
+      "source": "Borrowing and returning each perform all related writes in one SQLite transaction. If any write fails, roll back every write in that operation.",
+      "when": {
+        "action": "borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

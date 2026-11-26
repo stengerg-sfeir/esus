@@ -1,0 +1,33 @@
+{
+  "method_contracts": [
+    {
+      "holder": "ExpenseService",
+      "method": "add_expense",
+      "decided_by": "user",
+      "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50",
+      "creates": [
+        {
+          "class": "Expense",
+          "call": "ExpenseRepository.create"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "category",
+          "repository": "CategoryRepository",
+          "method": "read_one",
+          "args": [
+            "category_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "category exists",
+          "error": "CategoryNotFoundError",
+          "raise_when": "false"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+gate passed (7 residual risk(s); gaps stay documented stubs)
+llm: 10 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: OrderProductRepository.get_order_product_details ...
+llm: CustomerRepository.find_customers_by_name_pattern ...
+llm: CustomerService.list_customers ...
+llm: CustomerService.list_customers refused (the body does not compile (invalid syntax)) — repair ask 1
+llm: CustomerService.get_customer_by_id ...
+llm: CustomerService.get_customer_by_id refused (`customer.name`: Order has no field `name` (fields: order_id, customer_id, order_date, status)) — repair ask 1
+llm: ProductService.productsearch ...
+llm: ProductService.productsearch refused (passes keyword `query` to `ProductRepository.search_products_by_name_or_category`, whose declared parameter is `search_term`; pass the value positionally or use the declared keyword) — repair ask 1
+llm: ProductService.get_product_by_id ...
+llm: ProductService.search_products ...
+llm: OrderService.orderconfirm ...
+llm: OrderService.get_order_with_products ...
+llm: OrderService.confirm_order ...
+llm: raw answers -> /tmp/v8-work/prompt_56/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_56/generated/models.py
+[write] /tmp/v8-work/prompt_56/generated/errors.py
+[write] /tmp/v8-work/prompt_56/generated/repositories.py
+[write] /tmp/v8-work/prompt_56/generated/services.py
+[write] /tmp/v8-work/prompt_56/generated/schema.py
+[write] /tmp/v8-work/prompt_56/generated/store.py
+[write] /tmp/v8-work/prompt_56/generated/cli.py
+[write] /tmp/v8-work/prompt_56/generated/__init__.py
+methods: 42 implemented, 10 stubs (81% mechanical)
+llm: 10 of 10 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: OrderProductRepository.get_order_product_details
+  llm provisional: CustomerRepository.find_customers_by_name_pattern
+  llm provisional: CustomerService.list_customers — repaired: the body does not compile (invalid syntax)
+  llm provisional: CustomerService.get_customer_by_id — repaired: `customer.name`: Order has no field `name` (fields: order_id, customer_id, order_date, status); `customer.email`: Order has no field `email` (fields: order_id, customer_id, order_date, status); calls `CustomerRepository.find_order_by_id(...)`, but CustomerRepository does not define `find_order_by_id`; it is declared on `OrderRepository`
+  llm provisional: ProductService.productsearch — repaired: passes keyword `query` to `ProductRepository.search_products_by_name_or_category`, whose declared parameter is `search_term`; pass the value positionally or use the declared keyword; passes keyword `query` to `ProductRepository.search_products_by_name_or_category`, whose declared parameter is `search_term`; pass the value positionally or use the declared keyword
+  llm provisional: ProductService.get_product_by_id
+  llm provisional: ProductService.search_products
+  llm provisional: OrderService.orderconfirm — passed the arguments of OrderProductRepository.get_order_products_by_product_id positionally to match the declared parameter
+  llm provisional: OrderService.get_order_with_products
+  llm provisional: OrderService.confirm_order
+  stub: CustomerRepository.find_customers_by_name_pattern: parameter 'name_pattern' maps to no field
+  stub: OrderProductRepository.get_order_product_details: gap NO_PATTERN_IN_DOMAIN: AGGREGATE_BY_FK_AND_DATE refused (AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (int | None))
+  stub: OrderService.confirm_order: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  stub: OrderService.get_order_with_products: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: OrderService.orderconfirm: no pattern entry and an ambiguous method name
+  stub: ProductService.search_products: pattern FILTER_WITH_PAGINATION: no mechanical reading
+  stub: ProductService.get_product_by_id: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: ProductService.productsearch: name-only: step F never saw this method; by parameter shape
+  stub: CustomerService.get_customer_by_id: gap NO_PATTERN_IN_DOMAIN: READ_ONE_BY_ID refused (READ_ONE_BY_ID returns entity, but this method returns mapping (dict))
+  stub: CustomerService.list_customers: READ_ALL
+  cli Customer add -> customeradd [score 9]
+  cli Customer delete -> customerdelete [score 11]
+  cli Customer list -> customerlist [score 11]
+  cli Customer update -> customerupdate [score 11]
+  cli Order add -> orderadd [score 9]
+  cli Order cancel -> ordercancel [score 11]
+  cli Order delete -> orderdelete [score 11]
+  cli Order update -> orderupdate [score 11]
+  cli Product add -> productadd [score 9]
+  cli Product delete -> productdelete [score 11]
+  cli Product update -> productupdate [score 11]

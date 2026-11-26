@@ -1,0 +1,208 @@
+{
+  "intents": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "search_by_name",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.name": "Laptop"
+      },
+      "lookup": [
+        "product.name"
+      ],
+      "where": {},
+      "args": [
+        "Laptop"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "Laptop",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "filter_by_category",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "filter_by_category",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.category": "Electronics"
+      },
+      "lookup": [
+        "product.category"
+      ],
+      "where": {},
+      "args": [
+        "Electronics"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "Electronics",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "specify_maximum_price",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "filter_by_max_price",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.price": 1000
+      },
+      "lookup": [
+        "product.price"
+      ],
+      "where": {},
+      "args": [
+        1000
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "1000",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "specify_minimum_quantity",
+      "source": "Users must be able to search by name, filter by category, specify a maximum price and specify a minimum quantity.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "filter_by_min_quantity",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.stock_qty"
+      ],
+      "where": {},
+      "args": [
+        5
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "filters_combinable",
+      "source": "All filters must be combinable",
+      "kind": "list",
+      "entity": "Product",
+      "action": "search_products",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.name": "Laptop",
+        "product.category": "Electronics",
+        "product.price": 1000,
+        "product.quantity": 10
+      },
+      "lookup": [
+        "product.name"
+      ],
+      "where": {
+        "product.category": "Electronics",
+        "product.price": 1000,
+        "product.quantity": 10
+      },
+      "args": [
+        "Electronics",
+        1000,
+        10
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "Laptop",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

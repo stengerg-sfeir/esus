@@ -1,0 +1,96 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Employee add",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "add",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--age",
+            "2",
+            "--salary",
+            "2"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee update",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "update",
+            "--employee-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "cli1@example.test",
+            "--age",
+            "2",
+            "--salary",
+            "2"
+          ]
+        ],
+        "seed_overrides": {
+          "Employee": {
+            "name": "value1",
+            "email": "cli1@example.test",
+            "age": 2,
+            "salary": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Employee delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1",
+            "--name",
+            "value1",
+            "--email",
+            "seed1@example.test",
+            "--age",
+            "2",
+            "--salary",
+            "2.0"
+          ],
+          [
+            "Employee",
+            "delete",
+            "--employee-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Employee": {
+            "name": "value1",
+            "email": "seed1@example.test",
+            "age": 2,
+            "salary": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

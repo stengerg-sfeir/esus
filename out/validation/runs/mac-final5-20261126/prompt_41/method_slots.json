@@ -1,0 +1,26 @@
+{
+  "slots": [
+    {
+      "holder": "MemberRepository",
+      "method": "findActiveMembers",
+      "pattern": "FILTER_CRITERION",
+      "slots": {
+        "criterion_field": "membership_status",
+        "criterion_value": "True"
+      },
+      "decided_by": "user",
+      "requirements_sha": "392fd36e0fc370d6d911d02ae15ee7c9357c82b24f9da1be18c3074e49e2842b"
+    },
+    {
+      "holder": "BookRepository",
+      "method": "findAvailableBooks",
+      "pattern": "FILTER_CRITERION",
+      "slots": {
+        "criterion_field": "availability_status",
+        "criterion_value": "True"
+      },
+      "decided_by": "user",
+      "requirements_sha": "392fd36e0fc370d6d911d02ae15ee7c9357c82b24f9da1be18c3074e49e2842b"
+    }
+  ]
+}

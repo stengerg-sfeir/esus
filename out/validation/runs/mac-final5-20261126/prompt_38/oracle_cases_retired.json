@@ -1,0 +1,283 @@
+{
+  "counts": {
+    "legacy": 3,
+    "kept": 0,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 0
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "auth_required_to_access_documents",
+        "source": "Users must authenticate before accessing documents.",
+        "given": {
+          "user": {
+            "id": 101,
+            "authenticated": false
+          }
+        },
+        "when": {
+          "action": "access_documents",
+          "args": []
+        },
+        "then": {
+          "state": {
+            "user.authenticated": true
+          },
+          "error": "AuthenticationRequired"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements",
+          "error class 'AuthenticationRequired' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "user_can_only_access_own_documents",
+        "source": "A user can only read, modify or delete their own documents.",
+        "given": {
+          "user": {
+            "id": 101,
+            "authenticated": true
+          },
+          "document": {
+            "id": 201,
+            "owner.id": 102
+          }
+        },
+        "when": {
+          "action": "read_document",
+          "args": [
+            "document.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "user.id": 101,
+            "document.owner.id": 102
+          },
+          "error": "UnauthorizedAccess"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "user_can_modify_own_documents",
+        "source": "A user can only read, modify or delete their own documents.",
+        "given": {
+          "user": {
+            "id": 101,
+            "authenticated": true
+          },
+          "document": {
+            "id": 201,
+            "owner.id": 101
+          }
+        },
+        "when": {
+          "action": "modify_document",
+          "args": [
+            "document.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "user.id": 101,
+            "document.owner.id": 101
+          },
+          "error": "UnauthorizedAccess"
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements",
+          "error class 'UnauthorizedAccess' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
+}

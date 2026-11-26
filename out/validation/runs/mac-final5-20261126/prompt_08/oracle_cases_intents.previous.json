@@ -1,0 +1,277 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_product",
+      "source": "Provide CRUD operations.",
+      "given": {
+        "product": {
+          "quantity": 5,
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "product.quantity": 5
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_product",
+      "source": "Provide CRUD operations.",
+      "given": {
+        "product": {
+          "quantity": 5,
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "update_product",
+        "args": {
+          "quantity": 3
+        }
+      },
+      "then": {
+        "state": {
+          "product.quantity": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations.",
+      "given": {
+        "product": {
+          "quantity": 5,
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          {
+            "ref": "product.product_id"
+          }
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_products_by_category",
+      "source": "Provide CRUD operations.",
+      "given": {
+        "product": {
+          "category": "electronics",
+          "quantity": 10,
+          "name": "product name",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": {
+          "category": "electronics"
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "electronics",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The list operation returns products filtered by category"
+      ],
+      "ambiguities": [
+        "The exact output format or field names are not specified"
+      ]
+    },
+    {
+      "id": "list_products_below_threshold",
+      "source": "Provide CRUD operations.",
+      "given": {
+        "product": {
+          "quantity": 3,
+          "name": "product name",
+          "category": "product value",
+          "price": 10.0
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": {
+          "quantity": 3
+        }
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "3",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The list operation returns products with stock below a threshold"
+      ],
+      "ambiguities": [
+        "The threshold value is not explicitly defined in the requirement"
+      ]
+    }
+  ]
+}

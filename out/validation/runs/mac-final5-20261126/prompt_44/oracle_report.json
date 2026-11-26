@@ -1,0 +1,65 @@
+{
+  "prompt": "prompt_44",
+  "results": [
+    {
+      "name": "know_stock_level",
+      "status": "under_specified",
+      "reason": "no generated method matches 'know_stock_level'",
+      "source": "It should be possible to know what has been sold and what is still in stock.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 12.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'stock'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    }
+  ],
+  "counts": {
+    "under_specified": 1
+  },
+  "triage_counts": {
+    "under_specified": 1
+  }
+}

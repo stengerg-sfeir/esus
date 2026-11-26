@@ -1,0 +1,133 @@
+{
+  "scenarios": [
+    {
+      "name": "confirm pending order",
+      "setup": [
+        {
+          "entity": "Order",
+          "as": "order",
+          "values": {
+            "state": "pending"
+          }
+        }
+      ],
+      "when": {
+        "service": "OrderService",
+        "method": "confirm_order",
+        "args": [
+          {
+            "ref": "order.id"
+          }
+        ]
+      },
+      "expect": {
+        "fields": {
+          "order.state": "confirmed"
+        }
+      }
+    },
+    {
+      "name": "cli:Order cancel",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "cancel",
+            "--order-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "confirmed"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order ship",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "ship",
+            "--order-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "confirmed"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--id",
+            "1",
+            "--status",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

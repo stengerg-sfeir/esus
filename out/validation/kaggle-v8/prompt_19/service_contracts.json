@@ -1,0 +1,345 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "TaskService",
+      "methods": [
+        {
+          "name": "validate_imported_tasks",
+          "description": "Validates a list of tasks before importing them into the database. Ensures all required fields are present and valid.",
+          "params": [
+            {
+              "name": "tasks_data",
+              "type": "list[dict]"
+            }
+          ],
+          "return_type": "list[str]",
+          "raises": [
+            "MissingRequiredFieldError"
+          ]
+        },
+        {
+          "name": "export_tasks_to_json",
+          "description": "Exports all tasks from the database to a JSON format, including their status, priority, due date, and other metadata.",
+          "params": [],
+          "return_type": "str",
+          "raises": []
+        },
+        {
+          "name": "import_tasks_from_json",
+          "description": "Imports tasks from a JSON file into the database. Validates the input data before any changes are made to the database.",
+          "params": [
+            {
+              "name": "json_data",
+              "type": "str"
+            },
+            {
+              "name": "file_path",
+              "type": "str"
+            }
+          ],
+          "return_type": "bool",
+          "raises": []
+        },
+        {
+          "name": "create_task",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "read_all_tasks",
+          "description": "Lists every Task.",
+          "params": [],
+          "return_type": "list[Task]",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "update_task",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        },
+        {
+          "name": "delete_task",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "mechanical": true
+        }
+      ]
+    },
+    {
+      "service_name": "TaskRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Task.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Task; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Task]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Task",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Task.",
+          "params": [
+            {
+              "name": "id",
+              "type": "int"
+            },
+            {
+              "name": "title",
+              "type": "str"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            },
+            {
+              "name": "priority",
+              "type": "str"
+            },
+            {
+              "name": "due_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "created_at",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "updated_at",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "find_task_by_title",
+          "description": "Retrieves a task by its title, returning the task object if found, otherwise None.",
+          "params": [
+            {
+              "name": "title",
+              "type": "str"
+            }
+          ],
+          "return_type": "Task | None"
+        },
+        {
+          "name": "find_task_by_status",
+          "description": "Retrieves all tasks with a specific status, returning a list of task objects.",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Task]"
+        },
+        {
+          "name": "count_tasks_by_priority",
+          "description": "Returns the count of tasks grouped by priority level (e.g., low, medium, high).",
+          "params": [],
+          "return_type": "dict[str, int]"
+        },
+        {
+          "name": "get_tasks_with_due_date_in_range",
+          "description": "Returns all tasks whose due_date falls within a specified date range (inclusive).",
+          "params": [
+            {
+              "name": "start_date",
+              "type": "datetime.date"
+            },
+            {
+              "name": "end_date",
+              "type": "datetime.date"
+            }
+          ],
+          "return_type": "list[Task]"
+        }
+      ]
+    }
+  ]
+}

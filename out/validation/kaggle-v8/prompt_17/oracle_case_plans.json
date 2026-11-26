@@ -1,0 +1,37 @@
+{
+  "plans": [
+    {
+      "id": "filter_combinable",
+      "source": "All filters must be combinable.",
+      "when": {
+        "action": "search_products",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.quantity"
+        ],
+        "rows": {
+          "Product": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

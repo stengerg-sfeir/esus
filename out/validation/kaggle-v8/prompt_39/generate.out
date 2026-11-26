@@ -1,0 +1,32 @@
+gate passed (3 residual risk(s); gaps stay documented stubs)
+llm: 3 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: ProductRepository.get_product_count ...
+llm: ProductRepository.get_product_count used its final block (the first was a draft)
+llm: UserRepository.get_user_count ...
+llm: UserRepository.get_user_count refused (the body does not compile (invalid syntax)) — repair ask 1
+llm: OrderService.orderconfirm ...
+llm: raw answers -> /tmp/v8-work/prompt_39/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_39/generated/models.py
+[write] /tmp/v8-work/prompt_39/generated/errors.py
+[write] /tmp/v8-work/prompt_39/generated/repositories.py
+[write] /tmp/v8-work/prompt_39/generated/services.py
+[write] /tmp/v8-work/prompt_39/generated/schema.py
+[write] /tmp/v8-work/prompt_39/generated/store.py
+[write] /tmp/v8-work/prompt_39/generated/cli.py
+[write] /tmp/v8-work/prompt_39/generated/__init__.py
+methods: 39 implemented, 3 stubs (93% mechanical)
+llm: 3 of 3 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: ProductRepository.get_product_count — used the final block of a deliberating answer
+  llm provisional: UserRepository.get_user_count — repaired: the body does not compile (invalid syntax)
+  llm provisional: OrderService.orderconfirm
+  stub: UserRepository.get_user_count: pattern COUNT_ACTIVE_BY_FK: no mechanical reading
+  stub: ProductRepository.get_product_count: pattern COUNT_ACTIVE_BY_FK: no mechanical reading
+  stub: OrderService.orderconfirm: no pattern entry and an ambiguous method name
+  cli Order add -> orderadd [score 9]
+  cli Order cancel -> ordercancel [score 11]
+  cli Product add -> productadd [score 9]
+  cli Product delete -> productdelete [score 11]
+  cli Product update -> productupdate [score 11]
+  cli User add -> useradd [score 9]
+  cli User delete -> userdelete [score 11]
+  cli User update -> userupdate [score 11]

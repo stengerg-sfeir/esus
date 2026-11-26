@@ -1,0 +1,25 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "list_all_employees",
+      "target_service": "EmployeeRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "department_id",
+          "target_param": "department_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Department",
+          "required": false
+        },
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "intents": [
+    {
+      "id": "create_product",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "kind": "create",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The application supports adding a product via CRUD operations."
+      ],
+      "ambiguities": [
+        "The exact input format or fields for creating a product are not specified."
+      ]
+    },
+    {
+      "id": "update_product_stock",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "update_product_stock",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "3",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The update operation is named 'update_product_stock' and directly modifies stock quantity."
+      ],
+      "ambiguities": [
+        "The exact field or operation name for updating stock is not explicitly defined in the requirements."
+      ]
+    },
+    {
+      "id": "bulk_update_stock",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "bulk_update_product_stock",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "3",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The bulk update operation exists and modifies stock quantity for multiple products in a single transaction."
+      ],
+      "ambiguities": [
+        "The requirements do not specify how the bulk update is invoked or which products are selected."
+      ]
+    },
+    {
+      "id": "bulk_update_transactional",
+      "source": "The entire bulk update must succeed or fail as a single transaction.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "bulk_update_stock",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

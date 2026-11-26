@@ -1,0 +1,48 @@
+[
+  {
+    "label": "OrderRepository.get_orders_with_customer_name",
+    "status": "kept",
+    "note": "still refused: calls models.OrderWithCustomerName, which models.py does not define",
+    "answer": "records = self._store.select(self.ENTITY, [])\ncustomer_records = self._store.select(\"Customer\", [])\norders_with_customer_name = []\nfor order_record in records:\n    order_id = order_record.get(\"order_id\")\n    customer_id = order_record.get(\"customer_id\")\n    if customer_id is None:\n        continue\n    customer_record = next((c for c in customer_records if c.get(\"customer_id\") == customer_id), None)\n    if customer_record is not None:\n        customer_name = customer_record.get(\"name\")\n        orders_with_customer_name.append(\n            models.OrderWithCustomerName(\n                order_id=order_id,\n                items=order_record.get(\"items\"),\n                status=order_record.get(\"status\"),\n                created_at=order_record.get(\"created_at\"),\n                customer_name=customer_name\n            )\n        )\nreturn orders_with_customer_name",
+    "first_answer": "records = self._store.select(self.ENTITY, [])\n    customer_records = self._store.select(\"Customer\", [])\n    orders_with_customer_name = []\n    for order_record in records:\n        order_id = order_record.get(\"order_id\")\n        customer_id = order_record.get(\"customer_id\")\n        if customer_id is None:\n            continue\n        customer_record = next((c for c in customer_records if c.get(\"customer_id\") == customer_id), None)\n        if customer_record is not None:\n            customer_name = customer_record.get(\"name\")\n            orders_with_customer_name.append(models.OrderWithCustomerName(\n                order_id=order_id,\n                items=order_record.get(\"items\"),\n                status=order_record.get(\"status\"),\n                created_at=order_record.get(\"created_at\"),\n                customer_name=customer_name\n            ))\n    return orders_with_customer_name\n```",
+    "complaints": [
+      "calls models.OrderWithCustomerName, which models.py does not define"
+    ],
+    "second_complaints": [
+      "calls models.OrderWithCustomerName, which models.py does not define"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 179,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 13.38038182258606,
+    "first_decode_seconds": 4.693731,
+    "first_prompt_tokens": 3569,
+    "first_cached_tokens": 332,
+    "finish_reason": "stop",
+    "tokens": 176,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 5.452285051345825,
+    "decode_seconds": 4.666696,
+    "prompt_tokens": 3793,
+    "cached_tokens": 3537,
+    "context": "exact"
+  },
+  {
+    "label": "OrderRepository.get_order_by_customer_and_date",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        if customer_id is not None:\n            criteria.append(('customer_id', 'eq', customer_id))\n        if from_date is not None:\n            # Convert from_date to string in ISO format for comparison\n            from_date_str = from_date.isoformat()\n            # Select orders where created_at is on or after from_date\n            # We compare the ISO string of created_at with from_date_str\n            criteria.append(('created_at', 'ge', from_date_str))\n        found = self._store.select(self.ENTITY, criteria)\n        return [models.Order(**r) for r in found]",
+    "finish_reason": "stop",
+    "tokens": 126,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 4.367379188537598,
+    "decode_seconds": 3.2806219999999997,
+    "prompt_tokens": 3583,
+    "cached_tokens": 3235,
+    "context": "exact"
+  }
+]

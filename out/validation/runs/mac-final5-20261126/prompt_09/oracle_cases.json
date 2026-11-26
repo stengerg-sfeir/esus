@@ -1,0 +1,535 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_employee_valid",
+      "source": "Create a Python 3.12 application for managing employees. An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive. Provide CRUD operations using SQLite.",
+      "given": {
+        "employee": {
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "age": 35,
+          "salary": 75000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Alice Johnson",
+          "employee.email": "alice.johnson@example.com",
+          "employee.age": 35,
+          "employee.salary": 75000
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "employee.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Employee.name exists"
+            ],
+            "alternatives": []
+          },
+          "employee.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Employee.email exists"
+            ],
+            "alternatives": []
+          },
+          "employee.age": {
+            "status": "aligned",
+            "canonical": "age",
+            "score": 10.0,
+            "evidence": [
+              "Employee.age exists"
+            ],
+            "alternatives": []
+          },
+          "employee.salary": {
+            "status": "aligned",
+            "canonical": "salary",
+            "score": 10.0,
+            "evidence": [
+              "Employee.salary exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_employee_invalid_email",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Bob Smith",
+          "email": "invalid-email",
+          "age": 25,
+          "salary": 60000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "invalid_email",
+          "age",
+          "salary"
+        ]
+      },
+      "then": {
+        "error": "invalid_email",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements",
+        "error class 'invalid_email' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_employee_invalid_age",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Charlie Brown",
+          "email": "charlie.brown@example.com",
+          "age": 80,
+          "salary": 80000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "then": {
+        "error": "age_out_of_range",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements",
+        "error class 'age_out_of_range' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_employee_negative_salary",
+      "source": "An employee has a name, email address, age and salary. The email must be valid, age must be between 18 and 70, and salary must be positive.",
+      "given": {
+        "employee": {
+          "name": "Diana Prince",
+          "email": "diana.prince@example.com",
+          "age": 28,
+          "salary": -5000
+        }
+      },
+      "when": {
+        "action": "create_employee",
+        "args": [
+          "name",
+          "email",
+          "age",
+          "salary"
+        ]
+      },
+      "then": {
+        "error": "salary_not_positive",
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements",
+        "error class 'salary_not_positive' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "read_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "given": {
+        "employee": {
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "age": 35,
+          "salary": 75000
+        }
+      },
+      "when": {
+        "action": "read_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "employee.name": "Alice Johnson",
+          "employee.email": "alice.johnson@example.com",
+          "employee.age": 35,
+          "employee.salary": 75000
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "employee.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Employee.name exists"
+            ],
+            "alternatives": []
+          },
+          "employee.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Employee.email exists"
+            ],
+            "alternatives": []
+          },
+          "employee.age": {
+            "status": "aligned",
+            "canonical": "age",
+            "score": 10.0,
+            "evidence": [
+              "Employee.age exists"
+            ],
+            "alternatives": []
+          },
+          "employee.salary": {
+            "status": "aligned",
+            "canonical": "salary",
+            "score": 10.0,
+            "evidence": [
+              "Employee.salary exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_one",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.delete",
+            "EmployeeRepository.update"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_employee",
+      "source": "Provide CRUD operations using SQLite.",
+      "given": {
+        "employee": {
+          "name": "Alice Johnson",
+          "email": "alice.johnson@example.com",
+          "age": 35,
+          "salary": 75000
+        }
+      },
+      "when": {
+        "action": "delete_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

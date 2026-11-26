@@ -1,0 +1,60 @@
+{
+  "prompt": "prompt_20",
+  "results": [
+    {
+      "name": "update_product_stock",
+      "status": "unbound",
+      "reason": "expected state field 'product.stock_quantity' is not declared on Product",
+      "source": "Provide CRUD operations for products and sales.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Sale"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'stock_quantity'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.update_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  }
+}

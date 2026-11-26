@@ -1,0 +1,115 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "deposit_increase_balance",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "given": {
+        "account": {
+          "id": "acc_123",
+          "balance": 100
+        },
+        "customer": {
+          "id": "cust_456"
+        }
+      },
+      "when": {
+        "action": "deposit",
+        "args": [
+          "account.id",
+          "amount"
+        ]
+      },
+      "then": {
+        "state": {
+          "account.balance": 150
+        },
+        "rows": {
+          "Account": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'deposit'"
+      }
+    },
+    {
+      "id": "withdrawal_decrease_balance",
+      "source": "Deposits increase the balance and withdrawals decrease it.",
+      "given": {
+        "account": {
+          "id": "acc_123",
+          "balance": 100
+        },
+        "customer": {
+          "id": "cust_456"
+        }
+      },
+      "when": {
+        "action": "withdraw",
+        "args": [
+          "account.id",
+          "amount"
+        ]
+      },
+      "then": {
+        "state": {
+          "account.balance": 50
+        },
+        "rows": {
+          "Account": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'withdraw'"
+      }
+    },
+    {
+      "id": "withdrawal_rejected_negative_balance",
+      "source": "A withdrawal must be rejected if it would make the balance negative.",
+      "given": {
+        "account": {
+          "id": "acc_123",
+          "balance": 50
+        },
+        "customer": {
+          "id": "cust_456"
+        }
+      },
+      "when": {
+        "action": "withdraw",
+        "args": [
+          "account.id",
+          "amount"
+        ]
+      },
+      "then": {
+        "state": {
+          "account.balance": 50
+        },
+        "rows": {
+          "Account": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "error is not a class name: 'Insufficient funds'"
+      ]
+    }
+  ]
+}

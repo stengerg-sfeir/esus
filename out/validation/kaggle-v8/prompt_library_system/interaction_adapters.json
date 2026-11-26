@@ -1,0 +1,206 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "bookadd",
+      "target_service": "BookRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "author_id",
+          "target_param": "author_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "isbn",
+          "target_param": "isbn",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "published_year",
+          "target_param": "published_year",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "copies",
+          "target_param": "available_copies",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "booklist",
+      "target_service": "BookRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "author",
+          "target_param": "author_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Author",
+          "required": false
+        },
+        {
+          "field_name": "available_only",
+          "target_param": "available_copies",
+          "transform": "BOOL_TO_ONE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "booksearch",
+      "target_service": "LibraryService",
+      "target_method": "search_books",
+      "input_fields": [
+        {
+          "field_name": "query",
+          "target_param": "query",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "memberadd",
+      "target_service": "MemberRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "email",
+          "target_param": "email",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "membership_date",
+          "target_param": "membership_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "memberlist",
+      "target_service": "MemberRepository",
+      "target_method": "read_all",
+      "input_fields": [
+        {
+          "field_name": "active_only",
+          "target_param": "is_active",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "memberhistory",
+      "target_service": "LoanRepository",
+      "target_method": "get_member_loan_history",
+      "input_fields": [
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Member",
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "borrow",
+      "target_service": "LibraryService",
+      "target_method": "borrow_book",
+      "input_fields": [
+        {
+          "field_name": "member_id",
+          "target_param": "member_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "book_id",
+          "target_param": "book_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "return",
+      "target_service": "LibraryService",
+      "target_method": "return_book",
+      "input_fields": [
+        {
+          "field_name": "loan_id",
+          "target_param": "loan_id",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    },
+    {
+      "action_name": "overdue",
+      "target_service": "LibraryService",
+      "target_method": "get_overdue_loans",
+      "input_fields": []
+    },
+    {
+      "action_name": "authoradd",
+      "target_service": "AuthorRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "birth_year",
+          "target_param": "birth_year",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "biography",
+          "target_param": "biography",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

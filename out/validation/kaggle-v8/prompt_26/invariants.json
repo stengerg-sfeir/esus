@@ -1,0 +1,144 @@
+{
+  "invariants": [
+    {
+      "text": "Book.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.isbn must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.isbn must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.available must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Book.available must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Member.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.book_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.book_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.book_id must reference an existing Book.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.member_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.member_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.member_id must reference an existing Member.id",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.loan_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.loan_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.due_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.due_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.is_active must be a boolean",
+      "kind": "schema"
+    },
+    {
+      "text": "Loan.is_active must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A book can have at most one active loan at any time.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a loan is closed, the book's available status is updated to true.",
+      "kind": "rule"
+    },
+    {
+      "text": "A loan is considered active if its is_active field is true.",
+      "kind": "rule"
+    },
+    {
+      "text": "A member can have multiple loans, each associated with a different book.",
+      "kind": "rule"
+    },
+    {
+      "text": "A loan must be associated with a book and a member.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a book has an active loan, it is not available for borrowing.",
+      "kind": "rule"
+    },
+    {
+      "text": "Closing a loan removes the loan record from active loans for that book.",
+      "kind": "rule"
+    },
+    {
+      "text": "The due date of a loan is calculated based on the loan date and a fixed loan period.",
+      "kind": "rule"
+    },
+    {
+      "text": "A book is considered available if it does not have an active loan.",
+      "kind": "rule"
+    },
+    {
+      "text": "A loan cannot be created if the book is already actively loaned out.",
+      "kind": "rule"
+    }
+  ]
+}

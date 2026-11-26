@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Department list",
+      "when": {
+        "cli_variants": [
+          [
+            "Department",
+            "list",
+            "--name",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

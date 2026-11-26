@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "name": "UserNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a user is requested but not found in the system by user_id."
+    },
+    {
+      "name": "ProductNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a product is requested but not found in the system by product_id."
+    },
+    {
+      "name": "OrderNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an order is requested but not found in the system by order_id."
+    },
+    {
+      "name": "OrderCreationFailedError",
+      "base": "RuntimeError",
+      "description": "Raised when an order cannot be created due to an internal inconsistency, such as a user not being logged in or a required field being missing."
+    }
+  ]
+}

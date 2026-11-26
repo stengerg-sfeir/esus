@@ -1,0 +1,33 @@
+{
+  "plans": [
+    {
+      "holder": "TaskService",
+      "method": "create_task",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Task",
+      "target_service": "TaskRepository",
+      "target_method": "create"
+    },
+    {
+      "holder": "TaskService",
+      "method": "update_task",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Task",
+      "target_service": "TaskRepository",
+      "target_method": "update"
+    },
+    {
+      "holder": "TaskService",
+      "method": "delete_task",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Task",
+      "target_service": "TaskRepository",
+      "target_method": "delete"
+    }
+  ],
+  "questions": [],
+  "requirements_sha": "345a33c4919b49987a778df6fdca9fd6ff688ea401f8d21e381c91ada9f72373"
+}

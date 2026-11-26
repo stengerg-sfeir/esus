@@ -1,0 +1,90 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "find_employee_by_department",
+      "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+      "given": {
+        "department": {
+          "department_id": 101,
+          "name": "Engineering"
+        },
+        "employee": {
+          "employee_id": 1001,
+          "name": "Alice Johnson",
+          "department_id": 101
+        }
+      },
+      "when": {
+        "action": "find_employees",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "employee.department_id": 101
+        },
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          },
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {
+          "employee.department_id": {
+            "status": "aligned",
+            "canonical": "department_id",
+            "score": 10.0,
+            "evidence": [
+              "Employee.department_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.findEmployeeByDepartment",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "plans": [
+    {
+      "id": "create_booking_with_nonexistent_guest",
+      "source": "Staff should be able to manage rooms, guests and bookings and should not accidentally book the same room twice for the same period.",
+      "when": {
+        "action": "create_booking",
+        "args": [
+          "guest.id",
+          "room.id",
+          "check_in_date",
+          "check_out_date"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "guest",
+          "entity": "Guest",
+          "role": "target"
+        },
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "GuestNotFoundError"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "create_booking_with_nonexistent_room",
+      "source": "Staff should be able to manage rooms, guests and bookings and should not accidentally book the same room twice for the same period.",
+      "when": {
+        "action": "create_booking",
+        "args": [
+          "guest.id",
+          "room.id",
+          "check_in_date",
+          "check_out_date"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "guest",
+          "entity": "Guest",
+          "role": "target"
+        },
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "RoomNotFoundError"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "create_booking_with_conflicting_room_reservation",
+      "source": "Staff should be able to manage rooms, guests and bookings and should not accidentally book the same room twice for the same period.",
+      "when": {
+        "action": "create_booking",
+        "args": [
+          "guest.id",
+          "room.id",
+          "check_in_date",
+          "check_out_date"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "guest",
+          "entity": "Guest",
+          "role": "target"
+        },
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "error": "RoomConflictError"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

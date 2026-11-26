@@ -1,0 +1,201 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "book_available_only_flag",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "published_year": 1925,
+          "available_copies": 3,
+          "author_id": 123
+        },
+        "author": {
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1896
+        }
+      },
+      "when": {
+        "action": "book list",
+        "args": [
+          "--author",
+          "123",
+          "--available-only"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 3
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "book_available_only_absent",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "isbn": "978-0-7475-3269-9",
+          "published_year": 1925,
+          "available_copies": 3,
+          "author_id": 123
+        },
+        "author": {
+          "name": "F. Scott Fitzgerald",
+          "birth_year": 1896
+        }
+      },
+      "when": {
+        "action": "book list",
+        "args": [
+          "--author",
+          "123"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 3
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value"
+      },
+      "triage": "behavior: other",
+      "needs_review": true
+    },
+    {
+      "id": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises AlreadyReturnedLoanError and changes neither the loan nor inventory.",
+      "given": {
+        "loan": {
+          "id": 101,
+          "book_id": 5,
+          "member_id": 2,
+          "loan_date": "2023-01-01",
+          "due_date": "2023-01-15",
+          "return_date": "2023-01-20",
+          "status": "returned"
+        }
+      },
+      "when": {
+        "action": "return",
+        "args": [
+          "loan.id"
+        ]
+      },
+      "then": {
+        "error": "AlreadyReturnedLoanError"
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'return'"
+      }
+    },
+    {
+      "id": "borrow_final_copy",
+      "source": "Borrowing the final copy leaves the count at zero.",
+      "given": {
+        "book": {
+          "title": "1984",
+          "isbn": "978-0-452-28423-4",
+          "published_year": 1949,
+          "available_copies": 1,
+          "author_id": 123
+        },
+        "member": {
+          "name": "Alice Smith",
+          "email": "alice@example.com",
+          "membership_date": "2023-01-01",
+          "is_active": true
+        }
+      },
+      "when": {
+        "action": "borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.available_copies": 0
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The book starts with exactly one available copy and is borrowed by a valid member"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "borrow_negative_copies_rejected",
+      "source": "Reject only negative copy counts.",
+      "given": {
+        "book": {
+          "title": "Brave New World",
+          "isbn": "978-0-14-143951-8",
+          "published_year": 1932,
+          "available_copies": 0,
+          "author_id": 124
+        },
+        "member": {
+          "name": "Bob Johnson",
+          "email": "bob@example.com",
+          "membership_date": "2023-01-01",
+          "is_active": true
+        }
+      },
+      "when": {
+        "action": "borrow",
+        "args": [
+          "member.id",
+          "book.id"
+        ]
+      },
+      "then": {
+        "error": "BookCopyCountError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirement says 'Reject only negative copy counts', but does not specify whether zero copies should be allowed or rejected. Borrowing the final copy (zero) is explicitly allowed in the 'borrow_final_copy' case, suggesting zero is valid. However, the rejection of negative counts implies that zero is not a rejection case. This creates ambiguity in whether the system should reject zero or allow it.",
+        "error class 'BookCopyCountError' is not named in the requirements",
+        "error class 'BookCopyCountError' is not named in the requirements"
+      ]
+    }
+  ]
+}

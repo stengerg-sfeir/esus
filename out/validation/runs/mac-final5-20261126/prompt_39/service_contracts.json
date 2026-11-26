@@ -1,0 +1,395 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "UserRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new User.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "is_admin",
+              "type": "bool"
+            }
+          ],
+          "return_type": "models.User",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one User by its key.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.User",
+          "raises": [
+            "UserNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every User; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "is_admin",
+              "type": "bool"
+            }
+          ],
+          "return_type": "list[User]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing User.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "is_admin",
+              "type": "bool"
+            }
+          ],
+          "return_type": "models.User",
+          "raises": [
+            "UserNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing User.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            },
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "password_hash",
+              "type": "str"
+            },
+            {
+              "name": "is_admin",
+              "type": "bool"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "UserNotFoundError"
+          ]
+        },
+        {
+          "name": "find_user_by_email",
+          "description": "Retrieves a user record by their email address.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "User | None"
+        },
+        {
+          "name": "find_user_by_id",
+          "description": "Retrieves a user record by their primary key (user_id).",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "User | None"
+        },
+        {
+          "name": "get_admin_users",
+          "description": "Retrieves all users who have the is_admin flag set to True.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[User]"
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            }
+          ],
+          "return_type": "None",
+          "raises": [
+            "ProductNotFoundError"
+          ]
+        },
+        {
+          "name": "find_product_by_name",
+          "description": "Retrieves a product record by its name.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "Product | None"
+        },
+        {
+          "name": "find_product_by_id",
+          "description": "Retrieves a product record by its primary key (product_id).",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Product | None"
+        },
+        {
+          "name": "get_all_active_products",
+          "description": "Retrieves all products with a non-null and valid status (active).",
+          "params": [],
+          "return_type": "list[Product]"
+        }
+      ]
+    },
+    {
+      "service_name": "OrderRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Order.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Order by its key.",
+          "params": [
+            {
+              "name": "order_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Order",
+          "raises": [
+            "OrderNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Order; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime.datetime"
+            },
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "get_orders_by_user_id",
+          "description": "Lists the Order records belonging to one User.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Order]",
+          "raises": []
+        },
+        {
+          "name": "find_order_by_user_id_and_date",
+          "description": "Retrieves an order by user_id and order_date to allow users to view their own order history.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            },
+            {
+              "name": "order_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "Order | None"
+        },
+        {
+          "name": "get_user_orders",
+          "description": "Retrieves all orders for a specific user, ordered by order_date in descending order.",
+          "params": [
+            {
+              "name": "user_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Order]"
+        },
+        {
+          "name": "get_orders_by_status",
+          "description": "Retrieves all orders with a specific status (e.g., 'pending', 'shipped').",
+          "params": [
+            {
+              "name": "status",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Order]"
+        }
+      ]
+    }
+  ]
+}

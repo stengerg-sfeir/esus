@@ -1,0 +1,45 @@
+steps:
+  intentions: the program's own phrases from the requirements
+  data_models: entities and their fields
+  errors: application error types
+  invariants: rules the program must always hold
+  components: CLI surface and CRUD services
+  service_contracts: service methods with params and raises
+  errors_repair: deterministic error-registry fix (no model call)
+  pattern_matches: pattern classification of invariants and methods
+  interaction_adapters: CLI input to service-method mapping
+  persistence_ports: repository interfaces for the entities
+intentions: 22 phrase(s)
+data_models: 4 entities, 22 field(s)
+errors: 15 error(s)
+invariants: 54 invariant(s)
+components: 6 command(s)
+service_contracts: 5 service(s), 25 method(s)
+errors_repair: 10 error(s), 5 service(s) after repair
+persistence_ports: 4 repositor(y/ies)
+pattern_matches: 44 item(s)
+interaction_adapters: 21 adapter(s)
+[intentions] 541 tokens in 16.5s (32.8 tok/s, 38.2 decode, 998 prompt)
+[data_models] 1296 tokens in 43.4s (29.8 tok/s, 33.2 decode, 1947 prompt)
+[errors] 701 tokens in 23.1s (30.3 tok/s, 34.8 decode, 1441 prompt)
+[invariants] 437 tokens in 15.0s (29.0 tok/s, 36.3 decode, 1245 prompt)
+[components] 333 tokens in 14.9s (22.3 tok/s, 33.5 decode, 1564 prompt)
+[command_group] 533 tokens in 20.1s (26.5 tok/s, 33.3 decode, 1269 prompt)
+[command_group] 307 tokens in 11.6s (26.4 tok/s, 35.6 decode, 1211 prompt)
+[command_group] 102 tokens in 6.8s (15.1 tok/s, 36.5 decode, 1176 prompt)
+[command_group] 66 tokens in 5.6s (11.9 tok/s, 35.1 decode, 1170 prompt)
+[command_group] 125 tokens in 6.5s (19.2 tok/s, 34.7 decode, 1167 prompt)
+[command_group] 234 tokens in 10.5s (22.3 tok/s, 34.4 decode, 1177 prompt)
+[service_contracts] 576 tokens in 22.9s (25.1 tok/s, 31.3 decode, 1811 prompt)
+[persistence_ports] 729 tokens in 26.9s (27.1 tok/s, 31.1 decode, 1395 prompt)
+[interaction_adapters] 217 tokens in 11.5s (18.9 tok/s, 32.7 decode, 1892 prompt)
+[run] 14 steps, 6197 generated tokens in 235.3s
+==== SUMMARY ====
+review: none — the documents are unreviewed
+blockers: 4, open tie(s): 2
+GENERATABLE: NO — `generator.py` will refuse this output
+  - [ignored_cli_option] interaction_adapters: overdue: --overdue — no adapter field reads it; the option parses but is not consumed by an effective action
+  - [open_human_review] 1 unanswered surface questions; run the attended review before generation
+  - [open_human_review] 2 unanswered pattern slots; run the attended review before generation
+  - [open_human_review] 4 unanswered method contracts; run the attended review before generation
+  - 2 tie(s) still need a human answer (`review_ties.py`)

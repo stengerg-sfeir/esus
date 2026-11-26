@@ -1,0 +1,114 @@
+[run] requirements: 215 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 86 tokens in 1.7s (50.8 tok/s, 63.6 decode, 80 prompt)
+[data_models] 713 tokens in 11.9s (60.0 tok/s, 60.7 decode, 594 prompt)
+[errors] 374 tokens in 6.3s (59.2 tok/s, 61.6 decode, 495 prompt)
+[invariants] 303 tokens in 5.1s (59.9 tok/s, 62.3 decode, 299 prompt)
+[ok] step invariants: 32 invariant(s) — 22 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1100 tokens in 19.1s (57.5 tok/s, 58.2 decode, 1007 prompt)
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-user' to '--user'
+[ok] step components: normalized option '-product' to '--product'
+[ok] step components: normalized option '-order' to '--order'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-password' to '--password'
+[ok] step components: normalized option '-role' to '--role'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-description' to '--description'
+[ok] step components: normalized option '-id' to '--id'
+[ok] step components: normalized option '-user-id' to '--user-id'
+[service_contracts] 768 tokens in 13.1s (58.6 tok/s, 60.7 decode, 693 prompt)
+[ok] step contracts: added 9 mechanical service method(s)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step contracts: normalized 8 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 4 id parameter(s) to int
+[persistence_ports] 821 tokens in 13.7s (60.0 tok/s, 61.3 decode, 431 prompt)
+[ok] step persistence: merged 11 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/50] invariant -> BUDGET_OVERFLOW_GUARD (0.39)  <- undecided (pattern): STATE_TRANSITION_GUARD at 0.32
+  [2/50] invariant -> STATE_TRANSITION_GUARD (0.94)
+  [3/50] invariant -> STATE_TRANSITION_GUARD (0.99)
+  [4/50] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/50] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [6/50] invariant -> PRICE_MARGIN_GUARD (1.00)
+  [7/50] invariant -> STOCK_SUFFICIENCY_GUARD (0.93)
+  [8/50] invariant -> STATE_TRANSITION_GUARD (0.94)
+  [9/50] invariant -> NO_PATTERN_IN_DOMAIN (0.60)  <- GAP: no pattern for this
+  [10/50] invariant -> STATE_TRANSITION_GUARD (0.86)
+  [11/50] contract:OrderService.confirm_order -> STATE_TRANSITION_GUARD (1.00)
+  [12/50] contract:OrderService.cancel_order -> STATE_TRANSITION_GUARD (1.00)
+  [13/50] contract:OrderService.create_order -> STANDARD_CRUD (1.00)
+  [14/50] contract:OrderService.read_order_by_id -> STANDARD_CRUD (1.00)
+  [15/50] contract:OrderService.read_all_orders -> READ_ALL (0.50)
+  [16/50] contract:ProductService.create_product -> PRICE_MARGIN_GUARD (1.00)
+  [17/50] contract:ProductService.update_product -> PRICE_MARGIN_GUARD (0.73)
+  [18/50] contract:ProductService.read_product_by_id -> STANDARD_CRUD (1.00)
+  [19/50] contract:ProductService.read_all_products -> READ_ALL (0.26)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[Product]) (was READ_ONE_BY_ID)
+  [20/50] contract:ProductService.delete_product -> STANDARD_CRUD (1.00)
+  [21/50] contract:UserService.create_user -> BUDGET_OVERFLOW_GUARD (0.69)
+  [22/50] contract:UserService.update_user_role -> STATE_TRANSITION_GUARD (1.00)
+  [23/50] contract:UserService.read_user_by_id -> STANDARD_CRUD (1.00)
+  [24/50] contract:UserService.read_all_users -> READ_ALL (0.44)  <- corrected: READ_ONE_BY_ID returns entity, but this method returns collection (list[User]) (was READ_ONE_BY_ID)
+  [25/50] contract:UserService.delete_user -> STANDARD_CRUD (1.00)
+  [26/50] contract:UserRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [27/50] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [28/50] contract:UserRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [29/50] contract:UserRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [30/50] contract:UserRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [31/50] contract:UserRepository.find_user_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [32/50] contract:UserRepository.find_user_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [33/50] contract:UserRepository.get_user_count -> COUNT_ACTIVE_BY_FK (0.99)
+  [34/50] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [35/50] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [36/50] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [37/50] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [38/50] contract:ProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [39/50] contract:ProductRepository.find_product_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [40/50] contract:ProductRepository.find_product_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [41/50] contract:ProductRepository.get_product_count -> COUNT_ACTIVE_BY_FK (0.91)
+  [42/50] contract:ProductRepository.get_products_by_price_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [43/50] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [44/50] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [45/50] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [46/50] contract:OrderRepository.get_orders_by_user_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [47/50] contract:OrderRepository.find_order_by_user_id_and_date -> READ_ONE_BY_ID (1.00)
+  [48/50] contract:OrderRepository.find_order_by_order_id -> READ_ONE_BY_ID (1.00)
+  [49/50] contract:OrderRepository.get_user_orders -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [50/50] contract:OrderRepository.get_order_count_by_status -> AGGREGATE_BY_FK (0.94)
+[ok] step patterns: 50 item(s) — 13 standard CRUD, 36 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] invariant: A product must have a name and a description.
+[ok] step adapters: derived 3 command group(s) from 40 service method(s)
+[ok] step adapters: 9 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: orderconfirm.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderadd.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: userupdate.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: userdelete.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method OrderService.orderconfirm (confirm)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 8 adapter(s)
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/method_plans.json
+[ok] method plans: 1 mechanical candidate(s)
+[!] method plans: 5 ambiguous question(s) — human review required
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/intentions.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/data_models.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/errors.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/invariants.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/components.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/service_contracts.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/persistence_ports.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/pattern_matches.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/interaction_adapters.json
+[write] /kaggle/working/esus/out/validation/runs/repro66-20261119-105248/prompt_39/requirements.txt
+[run] 7 steps, 4165 generated tokens in 70.9s

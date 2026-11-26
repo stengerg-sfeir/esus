@@ -1,0 +1,124 @@
+{
+  "invariants": [
+    {
+      "text": "Author.author_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Author.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Author.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Author.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Author.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.post_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.content must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.content must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.author_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.author_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Post.author_id must reference an existing Author.author_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Tag.tag_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Tag.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Tag.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "PostTag.post_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "PostTag.tag_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "PostTag.tag_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "PostTag.tag_id must reference an existing Tag.tag_id",
+      "kind": "schema"
+    },
+    {
+      "text": "A post must belong to exactly one author, as specified by the author_id field in the Post entity.",
+      "kind": "rule"
+    },
+    {
+      "text": "A post can have zero or more tags, as defined by the PostTag junction table linking post_id and tag_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "A tag can be associated with zero or more posts, as defined by the PostTag junction table linking post_id and tag_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a post is searched by tag, only posts that are explicitly linked to that tag through the PostTag table are returned.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each post must have a title and content, as required by the Post entity schema.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each tag must have a unique name, as enforced by the tag name field in the Tag entity.",
+      "kind": "rule"
+    },
+    {
+      "text": "An author must have a name and email, as defined in the Author entity schema.",
+      "kind": "rule"
+    },
+    {
+      "text": "The PostTag table enforces a many-to-many relationship between posts and tags, ensuring that each post-tag association is uniquely identified by a combination of post_id and tag_id.",
+      "kind": "rule"
+    },
+    {
+      "text": "A post cannot be created without an associated author, as the author_id field in the Post entity references the author_id in the Author entity.",
+      "kind": "rule"
+    },
+    {
+      "text": "A tag cannot be created without a unique name, as duplicate tag names are not allowed in the Tag entity.",
+      "kind": "rule"
+    }
+  ]
+}

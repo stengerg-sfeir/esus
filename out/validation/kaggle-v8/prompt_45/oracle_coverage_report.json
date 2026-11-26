@@ -1,0 +1,20 @@
+{
+  "prompt": "prompt_45",
+  "results": [
+    {
+      "name": "book_room_with_no_overlap",
+      "status": "unbound",
+      "reason": "no generated method matches 'book_room'",
+      "source": "should not accidentally book the same room twice for the same period"
+    },
+    {
+      "name": "add_room_without_capacity",
+      "status": "unbound",
+      "reason": "expected state field 'room.capacity' is not declared on Room",
+      "source": "staff should be able to manage rooms, guests and bookings"
+    }
+  ],
+  "counts": {
+    "unbound": 2
+  }
+}

@@ -1,0 +1,365 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "given": {
+        "book": {
+          "title": "1984",
+          "author": "George Orwell",
+          "isbn": "9780452284234",
+          "publication_year": 1949
+        }
+      },
+      "when": {
+        "action": "create_book",
+        "args": [
+          "title",
+          "author",
+          "isbn",
+          "publication_year"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "1984",
+          "book.author": "George Orwell",
+          "book.isbn": "9780452284234",
+          "book.publication_year": 1949
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.publication_year": {
+            "status": "aligned",
+            "canonical": "publication_year",
+            "score": 10.0,
+            "evidence": [
+              "Book.publication_year exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_books",
+      "source": "Users can create, list, update, search and delete books.",
+      "given": {
+        "book": {
+          "title": "1984",
+          "author": "George Orwell",
+          "isbn": "9780452284234",
+          "publication_year": 1949
+        }
+      },
+      "when": {
+        "action": "list_books"
+      },
+      "then": {
+        "state": {
+          "book.title": "1984",
+          "book.author": "George Orwell",
+          "book.isbn": "9780452284234",
+          "book.publication_year": 1949
+        },
+        "rows": {
+          "Book": ">=0"
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.publication_year": {
+            "status": "aligned",
+            "canonical": "publication_year",
+            "score": 10.0,
+            "evidence": [
+              "Book.publication_year exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "search_books",
+      "source": "Users can create, list, update, search and delete books.",
+      "given": {
+        "book": {
+          "title": "1984",
+          "author": "George Orwell",
+          "isbn": "9780452284234",
+          "publication_year": 1949
+        }
+      },
+      "when": {
+        "action": "search_books",
+        "args": [
+          "title",
+          "author",
+          "isbn"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "1984",
+          "book.author": "George Orwell",
+          "book.isbn": "9780452284234",
+          "book.publication_year": 1949
+        },
+        "rows": {
+          "Book": ">=0"
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.publication_year": {
+            "status": "aligned",
+            "canonical": "publication_year",
+            "score": 10.0,
+            "evidence": [
+              "Book.publication_year exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "case passes parameter/field name 'title' as a value"
+      }
+    },
+    {
+      "id": "delete_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "given": {
+        "book": {
+          "title": "1984",
+          "author": "George Orwell",
+          "isbn": "9780452284234",
+          "publication_year": 1949
+        }
+      },
+      "when": {
+        "action": "delete_book",
+        "args": [
+          "book.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Book": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

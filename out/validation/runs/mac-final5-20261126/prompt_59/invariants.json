@@ -1,0 +1,176 @@
+{
+  "invariants": [
+    {
+      "text": "Customer.customer_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Customer.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_level must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.stock_level must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.customer_id must reference an existing Customer.customer_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.order_line_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.order_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.order_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.order_id must reference an existing Order.order_id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.product_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.product_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.product_id must reference an existing Product.product_id",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.quantity must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.quantity must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.unit_price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "OrderLine.unit_price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.discount_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.value must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.value must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.type must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Discount.type must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Tax.tax_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Tax.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Tax.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Tax.rate must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Tax.rate must not be null",
+      "kind": "schema"
+    }
+  ]
+}

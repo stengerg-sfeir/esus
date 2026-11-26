@@ -1,0 +1,96 @@
+{
+  "invariants": [
+    {
+      "text": "Task.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.due_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A task's status must be one of 'pending', 'in-progress', 'completed', or 'cancelled'.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's priority must be one of 'low', 'medium', 'high', or 'urgent'.",
+      "kind": "rule"
+    },
+    {
+      "text": "The due_date of a task must be a valid date in the past or future, and cannot be in the past if the task status is 'completed'.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a task is imported from JSON, all fields must match the schema defined by the Task entity.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a task's due_date is set to a date in the past and its status is not 'completed', the import operation must reject the task.",
+      "kind": "rule"
+    },
+    {
+      "text": "The total number of tasks in the database must remain consistent after import or export operations.",
+      "kind": "rule"
+    },
+    {
+      "text": "A task's status cannot be changed to 'completed' if its due_date is in the past.",
+      "kind": "rule"
+    },
+    {
+      "text": "When exporting tasks to JSON, all task fields including status, priority, and due_date must be included.",
+      "kind": "rule"
+    },
+    {
+      "text": "Imported tasks must have valid titles, and a task with an empty or null title must be rejected.",
+      "kind": "rule"
+    },
+    {
+      "text": "The created_at timestamp of a new task must be set to the current time when the task is imported or created.",
+      "kind": "rule"
+    }
+  ]
+}

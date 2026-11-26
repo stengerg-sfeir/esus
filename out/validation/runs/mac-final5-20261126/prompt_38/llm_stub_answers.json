@@ -1,0 +1,17 @@
+[
+  {
+    "label": "DocumentRepository.count_documents_by_owner",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n    if owner_user_id is not None:\n        criteria.append(('owner_user_id', 'eq', owner_user_id))\n    found = self._store.select(self.ENTITY, criteria)\n    return len(found)",
+    "finish_reason": "stop",
+    "tokens": 47,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 11.247031927108765,
+    "decode_seconds": 1.500743,
+    "prompt_tokens": 3644,
+    "cached_tokens": 92,
+    "context": "exact"
+  }
+]

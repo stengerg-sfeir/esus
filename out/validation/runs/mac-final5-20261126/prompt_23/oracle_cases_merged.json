@@ -1,0 +1,358 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_post_by_author",
+      "source": "Authors can create posts.",
+      "given": {
+        "author": {
+          "id": 1,
+          "name": "Alice"
+        },
+        "post": {
+          "title": "My First Post",
+          "content": "This is the content of my first post."
+        }
+      },
+      "when": {
+        "action": "create_post",
+        "args": [
+          "author.id",
+          "post.title",
+          "post.content"
+        ]
+      },
+      "then": {
+        "state": {
+          "post.author_id": 1,
+          "post.title": "My First Post",
+          "post.content": "This is the content of my first post."
+        },
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Post",
+              "Tag",
+              "PostTag"
+            ]
+          },
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Post",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          }
+        },
+        "fields": {
+          "post.author_id": {
+            "status": "aligned",
+            "canonical": "author_id",
+            "score": 10.0,
+            "evidence": [
+              "Post.author_id exists"
+            ],
+            "alternatives": []
+          },
+          "post.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Post.title exists"
+            ],
+            "alternatives": []
+          },
+          "post.content": {
+            "status": "aligned",
+            "canonical": "content",
+            "score": 10.0,
+            "evidence": [
+              "Post.content exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "PostRepository.create_post",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_author",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "given": {
+        "author": {
+          "name": "Bob"
+        }
+      },
+      "when": {
+        "action": "create_author",
+        "args": [
+          "author.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "author.name": "Bob"
+        },
+        "rows": {
+          "Author": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Post",
+              "Tag",
+              "PostTag"
+            ]
+          }
+        },
+        "fields": {
+          "author.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Author.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "AuthorRepository.create_author",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_tag",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "given": {
+        "tag": {
+          "name": "Programming"
+        }
+      },
+      "when": {
+        "action": "create_tag",
+        "args": [
+          "tag.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "tag.name": "Programming"
+        },
+        "rows": {
+          "Tag": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "tag": {
+            "status": "aligned",
+            "canonical": "Tag",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Tag",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Post"
+            ]
+          }
+        },
+        "fields": {
+          "tag.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Tag.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "TagRepository.create_tag",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_post_by_id",
+      "source": "Provide CRUD operations for authors, posts and tags",
+      "given": {
+        "post": {
+          "id": 1,
+          "title": "My First Post",
+          "content": "This is the content of my first post.",
+          "author_id": 1
+        }
+      },
+      "when": {
+        "action": "read_post",
+        "args": [
+          "post.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "post.title": "My First Post",
+          "post.content": "This is the content of my first post.",
+          "post.author_id": 1
+        },
+        "rows": {
+          "Post": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Post",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          }
+        },
+        "fields": {
+          "post.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Post.title exists"
+            ],
+            "alternatives": []
+          },
+          "post.content": {
+            "status": "aligned",
+            "canonical": "content",
+            "score": 10.0,
+            "evidence": [
+              "Post.content exists"
+            ],
+            "alternatives": []
+          },
+          "post.author_id": {
+            "status": "aligned",
+            "canonical": "author_id",
+            "score": 10.0,
+            "evidence": [
+              "Post.author_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "PostRepository.read_all_posts",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "PostRepository.read_all_posts",
+            "PostRepository.read_post_by_id",
+            "PostTagRepository.read_all_post_tags",
+            "PostTagRepository.read_post_tags_by_tag"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

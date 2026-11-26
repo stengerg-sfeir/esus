@@ -1,0 +1,26 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_39/persistence_ports.json
+
+
+[ok] step patterns: applied 2 recorded user decision(s)
+[ok] step components: aligned 3 option type(s) with the data model: --price -> float (Product.price), --price -> float (Product.price), --price -> float (Product.price)
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): UserRepository.get_admin_users(user_id)
+[ok] step adapters: update_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_user.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: update_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_order.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 7 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: added OrderRepository.update for Order named by a contract
+[ok] step data_models: applied 1 grouped uniqueness decision(s)
+

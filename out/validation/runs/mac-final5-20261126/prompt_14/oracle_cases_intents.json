@@ -1,0 +1,135 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "soft_delete_project",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "given": {
+        "project": {
+          "name": "Example Project",
+          "description": "A sample project",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "list_projects",
+        "args": {
+          "status": "active"
+        }
+      },
+      "then": {
+        "state": {
+          "project.name": "Example Project",
+          "project.description": "A sample project",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        },
+        "stdout_contains": "Example Project",
+        "exit_code": 0
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [
+        "retired: the legacy case supplied an unsupported status filter to list_projects"
+      ],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "project": {
+            "status": "aligned",
+            "canonical": "Project",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Project",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "project.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Project.name exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          },
+          "project.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Project.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProjectRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "soft_delete_project_list_after_deletion",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "given": {
+        "project": {
+          "name": "Example Project",
+          "description": "A sample project",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "list_projects",
+        "args": {
+          "status": "active"
+        }
+      },
+      "then": {
+        "state": {
+          "project.name": "Example Project",
+          "project.description": "A sample project",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        },
+        "stdout_contains": "Example Project",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The deletion is soft, so the project remains in the database but is not visible in active listings."
+      ],
+      "ambiguities": [
+        "The requirement does not specify how the soft delete status is represented (e.g., a status field like 'deleted' or 'archived') or whether listing operations filter by active status."
+      ]
+    }
+  ]
+}

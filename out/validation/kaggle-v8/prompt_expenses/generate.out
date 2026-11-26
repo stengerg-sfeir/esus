@@ -1,0 +1,53 @@
+gate passed (8 residual risk(s); gaps stay documented stubs)
+llm: 8 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: ExpenseRepository.get_budget_status_for_category ...
+llm: ExpenseService.expenseexport ...
+llm: ExpenseService.expensereportyearly ...
+llm: ExpenseService.expensereportmonthly ...
+llm: ExpenseService.get_yearly_summary ...
+llm: ExpenseService.get_monthly_report ...
+llm: ExpenseService.update_expense ...
+llm: ExpenseService.update_expense refused (uses `data`, which neither the module nor the body binds) — repair ask 1
+llm: ExpenseService.add_expense ...
+llm: raw answers -> /tmp/v8-work/prompt_expenses/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_expenses/generated/models.py
+[write] /tmp/v8-work/prompt_expenses/generated/errors.py
+[write] /tmp/v8-work/prompt_expenses/generated/repositories.py
+[write] /tmp/v8-work/prompt_expenses/generated/services.py
+[write] /tmp/v8-work/prompt_expenses/generated/schema.py
+[write] /tmp/v8-work/prompt_expenses/generated/store.py
+[write] /tmp/v8-work/prompt_expenses/generated/cli.py
+[write] /tmp/v8-work/prompt_expenses/generated/__init__.py
+methods: 28 implemented, 8 stubs (78% mechanical)
+llm: 8 of 8 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: ExpenseRepository.get_budget_status_for_category
+  llm provisional: ExpenseService.expenseexport
+  llm provisional: ExpenseService.expensereportyearly
+  llm provisional: ExpenseService.expensereportmonthly
+  llm provisional: ExpenseService.get_yearly_summary
+  llm provisional: ExpenseService.get_monthly_report
+  llm provisional: ExpenseService.update_expense — repaired: uses `data`, which neither the module nor the body binds
+  llm provisional: ExpenseService.add_expense
+  stub: ExpenseRepository.get_budget_status_for_category: pattern READ_ONE_BY_ID: needs scalar key parameters and an entity return
+  stub: ExpenseService.add_expense: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (models.Expense)); read-one by parameter shape
+  stub: ExpenseService.update_expense: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns entity (models.Expense))
+  stub: ExpenseService.get_monthly_report: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: ExpenseService.get_yearly_summary: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: ExpenseService.expensereportmonthly: no pattern entry and an ambiguous method name
+  stub: ExpenseService.expensereportyearly: no pattern entry and an ambiguous method name
+  stub: ExpenseService.expenseexport: no pattern entry and an ambiguous method name
+  cli budget add -> budgetadd [score 9]
+  cli budget delete -> budgetdelete [score 11]
+  cli budget list -> budgetlist [score 9]
+  cli budget update -> budgetupdate [score 11]
+  cli expense add -> expenseadd [score 11]
+  cli expense category add -> expensecategoryadd [score 5]
+  cli expense category delete -> expensecategorydelete [score 7]
+  cli expense category list -> expensecategorylist [score 5]
+  cli expense category update -> expensecategoryupdate [score 7]
+  cli expense export -> expenseexport [score 11]
+  cli expense list -> expenselist [score 11]
+  cli expense recurring detect -> expenserecurringdetect [score 7]
+  cli expense report monthly -> expensereportmonthly [score 3]
+  cli expense report yearly -> expensereportmonthly [score 3]
+  cli route: expense report yearly: --year -> get_yearly_summary_year

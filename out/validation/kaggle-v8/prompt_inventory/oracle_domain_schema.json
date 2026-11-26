@@ -1,0 +1,69 @@
+{
+  "entities": [
+    {
+      "name": "Category",
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": true,
+          "references": "Category.id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "reorder_threshold",
+          "type": "integer"
+        }
+      ]
+    },
+    {
+      "name": "Product",
+      "fields": [
+        {
+          "name": "id",
+          "type": "integer",
+          "required": true,
+          "references": "Product.id"
+        },
+        {
+          "name": "sku",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "category_id",
+          "type": "integer",
+          "required": true,
+          "references": "Category.id"
+        },
+        {
+          "name": "price_cents",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "stock_qty",
+          "type": "integer",
+          "required": true
+        },
+        {
+          "name": "low_active",
+          "type": "boolean"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "CustomerPurchaseService",
+      "methods": [
+        {
+          "name": "get_customer_purchase_history",
+          "description": "Retrieves the purchase history for a specific customer, including total spending amount.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": [
+            "CustomerNotFoundError",
+            "InvalidCustomerIdError"
+          ]
+        },
+        {
+          "name": "calculate_total_spent_by_customer",
+          "description": "Calculates the total amount spent by a customer across all their purchases.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "float",
+          "raises": [
+            "CustomerNotFoundError",
+            "InvalidCustomerIdError"
+          ]
+        }
+      ]
+    },
+    {
+      "service_name": "CustomerRepository",
+      "methods": [
+        {
+          "name": "read_one",
+          "description": "Reads one Customer by its key.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Customer",
+          "raises": [
+            "CustomerNotFoundError"
+          ]
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Customer; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": []
+        },
+        {
+          "name": "read_one_by_email",
+          "description": "Fetches a customer record by their email address.",
+          "params": [
+            {
+              "name": "email",
+              "type": "str"
+            }
+          ],
+          "return_type": "models.Customer"
+        }
+      ]
+    },
+    {
+      "service_name": "PurchaseRepository",
+      "methods": [
+        {
+          "name": "read_all",
+          "description": "Lists every Purchase; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            },
+            {
+              "name": "amount",
+              "type": "int"
+            },
+            {
+              "name": "purchase_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Purchase by its key.",
+          "params": [
+            {
+              "name": "purchase_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Purchase",
+          "raises": [
+            "PurchaseNotFoundError"
+          ]
+        },
+        {
+          "name": "get_purchases_by_customer_id",
+          "description": "Lists the Purchase records belonging to one Customer.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]",
+          "raises": []
+        },
+        {
+          "name": "read_all_by_customer_id",
+          "description": "Fetches all purchases made by a specific customer, identified by customer_id.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Purchase]"
+        },
+        {
+          "name": "calculate_total_spent_by_customer",
+          "description": "Computes the total amount spent by a customer across all their purchases.",
+          "params": [
+            {
+              "name": "customer_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "float"
+        }
+      ]
+    }
+  ]
+}

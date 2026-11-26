@@ -1,0 +1,50 @@
+{
+  "requirements_sha": "02506b4b27c3f5a7b1f9b68779584740126a82437a6d59d68c354813003de67e",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "OrderManagementService.place_order",
+      "chosen": {
+        "effects": [
+          {
+            "target": "product.stock_quantity",
+            "op": "decrement",
+            "by": "quantity",
+            "write": "ProductRepository.update"
+          }
+        ],
+        "creates": [
+          {
+            "class": "OrderItem",
+            "call": "OrderItemRepository.create"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

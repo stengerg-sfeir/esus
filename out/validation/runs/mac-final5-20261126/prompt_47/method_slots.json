@@ -1,0 +1,15 @@
+{
+  "slots": [
+    {
+      "holder": "TaskAssignmentRepository",
+      "method": "getTaskAssignmentCountByProject",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "slots": {
+        "aggregate_func": "COUNT",
+        "date_field": "assigned_at"
+      },
+      "decided_by": "user",
+      "requirements_sha": "2e19be02fc104d8e32f141ae9d3a859cfae395b41f80f13d3c3a07eb8d950964"
+    }
+  ]
+}

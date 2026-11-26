@@ -1,0 +1,45 @@
+gate passed (8 residual risk(s); gaps stay documented stubs)
+llm: 8 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: TaskRepository.import_tasks_from_json ...
+llm: TaskRepository.import_tasks_from_json refused (parameter `title` is never used in the body) — repair ask 1
+llm: TaskRepository.import_tasks_from_json refused (the model kept it unimplemented) — repair ask 2
+llm: TaskRepository.export_tasks_to_json ...
+llm: TaskRepository.get_tasks_with_due_date_in_range ...
+llm: TaskService.taskexport ...
+llm: TaskService.taskexport refused (the body does not compile (invalid syntax)) — repair ask 1
+llm: TaskService.import_tasks_from_json ...
+llm: TaskService.validate_imported_tasks ...
+llm: TaskService.cancel_order ...
+llm: TaskService.cancel_order refused (calls errors.TaskNotFoundError, which errors.py does not define) — repair ask 1
+llm: TaskService.confirm_order ...
+llm: TaskService.confirm_order refused (calls errors.TaskNotFoundError, which errors.py does not define) — repair ask 1
+llm: raw answers -> /tmp/v8-work/prompt_19/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_19/generated/models.py
+[write] /tmp/v8-work/prompt_19/generated/errors.py
+[write] /tmp/v8-work/prompt_19/generated/repositories.py
+[write] /tmp/v8-work/prompt_19/generated/services.py
+[write] /tmp/v8-work/prompt_19/generated/schema.py
+[write] /tmp/v8-work/prompt_19/generated/store.py
+[write] /tmp/v8-work/prompt_19/generated/cli.py
+[write] /tmp/v8-work/prompt_19/generated/__init__.py
+methods: 12 implemented, 8 stubs (60% mechanical)
+llm: 5 of 8 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: TaskRepository.import_tasks_from_json — still refused: the model kept it unimplemented
+  llm provisional: TaskRepository.export_tasks_to_json — added import json
+  llm provisional: TaskRepository.get_tasks_with_due_date_in_range
+  llm provisional: TaskService.taskexport — repaired: the body does not compile (invalid syntax)
+  llm provisional: TaskService.import_tasks_from_json
+  llm provisional: TaskService.validate_imported_tasks
+  llm kept stub: TaskService.cancel_order — still refused: calls errors.TaskNotFoundError, which errors.py does not define
+  llm kept stub: TaskService.confirm_order — still refused: calls errors.TaskNotFoundError, which errors.py does not define
+  stub: TaskRepository.get_tasks_with_due_date_in_range: parameter 'start_date' maps to no field
+  stub: TaskRepository.export_tasks_to_json: gap NO_PATTERN_IN_DOMAIN: FILTER_BY_FIELD refused (FILTER_BY_FIELD returns collection, but this method returns entity (str))
+  stub: TaskRepository.import_tasks_from_json: pattern BUDGET_OVERFLOW_GUARD: no mechanical reading
+  stub: TaskService.confirm_order: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: TaskService.cancel_order: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  stub: TaskService.validate_imported_tasks: gap NO_PATTERN_IN_DOMAIN: BUDGET_OVERFLOW_GUARD refused (BUDGET_OVERFLOW_GUARD returns boolean/none, but this method returns collection (list[str]))
+  stub: TaskService.import_tasks_from_json: gap NO_PATTERN_IN_DOMAIN: NO_PATTERN_IN_DOMAIN refused (None)
+  stub: TaskService.taskexport: no pattern entry and an ambiguous method name
+  cli Task add -> taskadd [score 9]
+  cli Task delete -> taskdelete [score 11]
+  cli Task update -> taskupdate [score 11]

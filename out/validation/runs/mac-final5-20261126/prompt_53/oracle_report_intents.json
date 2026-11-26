@@ -1,0 +1,55 @@
+{
+  "prompt": "prompt_53",
+  "results": [
+    {
+      "name": "order_creation_decreases_stock",
+      "status": "unbound",
+      "reason": "bulk collection parameter requires a scalar collection",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Customer",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.check_product_stock",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProductRepository.read_all",
+            "ProductRepository.update"
+          ]
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 1
+  }
+}

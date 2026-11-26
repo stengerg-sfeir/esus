@@ -1,0 +1,432 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "create_contact",
+        "args": [
+          "alice.j@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Alice Johnson",
+          "contact.email": "alice.j@example.com",
+          "contact.phone": "555-1234"
+        },
+        "rows": {
+          "Contact": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact",
+        "contradicts case create_duplicate_contact"
+      ]
+    },
+    {
+      "id": "delete_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "delete_contact",
+        "args": [
+          "alice.j@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": null,
+          "contact.email": null,
+          "contact.phone": null
+        },
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirements do not specify whether deletion removes the contact record or marks it as deleted. No behavior for soft-delete or hard-delete is stated."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "create_contact_with_missing_field",
+      "source": "A contact has a name, email address and phone number.",
+      "given": {
+        "contact": {
+          "name": "Bob Smith",
+          "email": "bob.s@example.com"
+        }
+      },
+      "when": {
+        "action": "create_contact",
+        "args": [
+          "bob.s@example.com"
+        ]
+      },
+      "then": {
+        "error": "MissingPhoneNumberError",
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify what happens if a required field (like phone number) is missing. No error class or behavior is defined.",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements",
+        "error class 'MissingPhoneNumberError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_duplicate_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com",
+          "phone": "555-1234"
+        }
+      },
+      "when": {
+        "action": "create_contact",
+        "args": [
+          "alice.j@example.com"
+        ]
+      },
+      "then": {
+        "error": "DuplicateContactError",
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify whether creating a contact with an existing email address is allowed or results in an error. No behavior for uniqueness constraints is defined.",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "contradicts case create_contact",
+        "contradicts case create_contact",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements",
+        "error class 'DuplicateContactError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "create_duplicate_email",
+      "source": "A contact has a name, email address and phone number.",
+      "given": {
+        "contact": {
+          "name": "Charlie Brown",
+          "email": "alice.j@example.com",
+          "phone": "555-8765"
+        }
+      },
+      "when": {
+        "action": "create_contact",
+        "args": [
+          "alice.j@example.com"
+        ]
+      },
+      "then": {
+        "state": {
+          "contact.name": "Charlie Brown",
+          "contact.email": "alice.j@example.com",
+          "contact.phone": "555-8765"
+        },
+        "rows": {
+          "Contact": 2
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements state unique_policy is false, so duplicates should be allowed. However, no explicit behavior is defined for handling duplicate emails during creation. This case assumes the system allows duplicates, but the requirements do not specify whether the system validates or rejects duplicates. Without explicit rules, the behavior is ambiguous."
+      ]
+    },
+    {
+      "id": "update_nonexistent_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "David Lee",
+          "email": "david.l@example.com",
+          "phone": "555-3456"
+        }
+      },
+      "when": {
+        "action": "update_contact",
+        "args": [
+          "david.l@example.com",
+          "phone",
+          "555-0000"
+        ]
+      },
+      "then": {
+        "error": "ContactNotFoundError",
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify what happens when attempting to update a contact that does not exist. The behavior of returning an error or silently failing is not defined. This case assumes a 'ContactNotFoundError' is raised, but this is not explicitly stated in the requirements.",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "delete_nonexistent_contact",
+      "source": "Provide operations to create, list, update and delete contacts.",
+      "given": {
+        "contact": {
+          "name": "Eve Davis",
+          "email": "eve.d@example.com",
+          "phone": "555-2345"
+        }
+      },
+      "when": {
+        "action": "delete_contact",
+        "args": [
+          "eve.d@example.com"
+        ]
+      },
+      "then": {
+        "error": "ContactNotFoundError",
+        "rows": {
+          "Contact": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify what happens when attempting to delete a contact that does not exist. The behavior of returning an error or silently failing is not defined. This case assumes a 'ContactNotFoundError' is raised, but this is not explicitly stated in the requirements.",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements",
+        "error class 'ContactNotFoundError' is not named in the requirements"
+      ]
+    }
+  ]
+}

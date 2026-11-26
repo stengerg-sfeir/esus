@@ -1,0 +1,35 @@
+{
+  "plans": [
+    {
+      "id": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "when": {
+        "action": "list_employees",
+        "args": [
+          "department.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
+        },
+        {
+          "alias": "employee",
+          "entity": "Employee",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Employee": 0
+        },
+        "state": [
+          "employee.department_id"
+        ]
+      },
+      "status": "confirmed"
+    }
+  ]
+}

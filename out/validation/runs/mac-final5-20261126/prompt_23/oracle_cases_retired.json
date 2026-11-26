@@ -1,0 +1,124 @@
+{
+  "counts": {
+    "legacy": 5,
+    "kept": 4,
+    "retired": 1,
+    "confirmed_intents": 0,
+    "merged": 4
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "create_tag_association",
+        "source": "A tag can be associated with multiple posts.",
+        "given": {
+          "tag": {
+            "name": "Python"
+          },
+          "post": {
+            "id": 1,
+            "title": "My First Post",
+            "content": "This is the content of my first post."
+          }
+        },
+        "when": {
+          "action": "associate_tag_with_post",
+          "args": [
+            "tag.name",
+            "post.id"
+          ]
+        },
+        "then": {
+          "state": {
+            "post.tags": "Python",
+            "tag.posts": 1
+          },
+          "rows": {
+            "Post": 1,
+            "Tag": 1
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "tag": {
+              "status": "aligned",
+              "canonical": "Tag",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Tag",
+                "score 15.0"
+              ],
+              "alternatives": [
+                "PostTag",
+                "Post",
+                "Author"
+              ]
+            },
+            "post": {
+              "status": "aligned",
+              "canonical": "Post",
+              "score": 13.666666666666666,
+              "evidence": [
+                "name/fields match Post",
+                "score 13.7"
+              ],
+              "alternatives": [
+                "PostTag",
+                "Tag",
+                "Author"
+              ]
+            }
+          },
+          "fields": {
+            "post.tags": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "prompt mentions field 'tags'",
+                "not declared on Post"
+              ],
+              "alternatives": []
+            },
+            "tag.posts": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "prompt mentions field 'posts'",
+                "not declared on Tag"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "ambiguous",
+            "canonical": "PostTagRepository.create_post_tag",
+            "score": 8.0,
+            "evidence": [
+              "several generated methods have the same action score"
+            ],
+            "alternatives": [
+              "PostTagRepository.create_post_tag",
+              "PostTagRepository.get_post_tags_by_tag_id",
+              "PostTagRepository.read_all_post_tags",
+              "PostTagRepository.read_post_tags_by_tag"
+            ]
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "expected relation 'post.tags' is represented by join model PostTag"
+        }
+      },
+      "status": "under_specified",
+      "reason": "expected relation 'post.tags' is represented by join model PostTag"
+    }
+  ]
+}

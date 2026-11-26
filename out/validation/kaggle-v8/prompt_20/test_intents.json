@@ -1,0 +1,198 @@
+{
+  "intents": [
+    {
+      "id": "create_product",
+      "source": "Provide CRUD operations for products and sales.",
+      "kind": "create",
+      "entity": "Product",
+      "action": "add_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 5
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "update_product_stock",
+      "source": "Provide CRUD operations for products and sales.",
+      "kind": "update",
+      "entity": "Product",
+      "action": "update_product",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [
+        "product.sku"
+      ],
+      "where": {
+        "product.active": true
+      },
+      "args": [
+        "product.sku",
+        3
+      ],
+      "changes": {
+        "product.stock_qty": 3
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_products",
+      "source": "Provide CRUD operations for products and sales.",
+      "kind": "list",
+      "entity": "Product",
+      "action": "list_products",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5
+      },
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "error": null,
+        "stdout_contains": "sku",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The list operation returns at least one product record"
+      ],
+      "ambiguities": [
+        "The exact output format or fields returned is not specified"
+      ]
+    },
+    {
+      "id": "create_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "kind": "create",
+      "entity": "Sale",
+      "action": "add_sale",
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "Sale",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Sale": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_sales",
+      "source": "Provide CRUD operations for products and sales.",
+      "kind": "list",
+      "entity": "Sale",
+      "action": "list_sales",
+      "setup_entities": [
+        {
+          "alias": "sale",
+          "entity": "Sale",
+          "role": "target"
+        }
+      ],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Sale": 1
+        },
+        "error": null,
+        "stdout_contains": "sale_id",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The list operation returns at least one sale record"
+      ],
+      "ambiguities": [
+        "The exact output format or fields returned is not specified"
+      ]
+    }
+  ]
+}

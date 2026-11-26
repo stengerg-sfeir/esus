@@ -1,0 +1,145 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "create_event",
+      "target_service": "EventRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "date",
+          "target_param": "date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "capacity",
+          "target_param": "capacity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "current_attendees_count",
+          "target_param": "current_attendees_count",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true,
+          "status": "deduced"
+        }
+      ]
+    },
+    {
+      "action_name": "eventupdate",
+      "target_service": "EventRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "event_id",
+          "target_param": "event_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Event",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "date",
+          "target_param": "date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "capacity",
+          "target_param": "capacity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "current_attendees_count",
+          "target_param": "current_attendees_count",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "eventdelete",
+      "target_service": "EventRepository",
+      "target_method": "delete",
+      "input_fields": [
+        {
+          "field_name": "event_id",
+          "target_param": "event_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Event",
+          "required": true
+        },
+        {
+          "field_name": "title",
+          "target_param": "title",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "date",
+          "target_param": "date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "capacity",
+          "target_param": "capacity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        },
+        {
+          "field_name": "current_attendees_count",
+          "target_param": "current_attendees_count",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "action_name": "registrationadd",
+      "target_service": "RegistrationRepository",
+      "target_method": "create",
+      "input_fields": [
+        {
+          "field_name": "event_id",
+          "target_param": "event_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Event",
+          "required": false
+        },
+        {
+          "field_name": "user_id",
+          "target_param": "user_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "User",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

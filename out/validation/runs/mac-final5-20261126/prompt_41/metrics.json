@@ -1,0 +1,45 @@
+{
+  "prompt": "prompt_41",
+  "run_id": "mac-final5-20261126",
+  "prompt_file": "prompts/validation/prompt_41.txt",
+  "output_dir": "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41",
+  "sha256": "b3d17fff620ca85d1e6978f95699cc7a7a640102fd3b03b3620cf31bbbb90aad",
+  "bytes": 195,
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 103.903,
+  "tokens": {
+    "calls": 7,
+    "tokens_out": 3473,
+    "tokens_prompt": 3643,
+    "decode_seconds": 98.617
+  },
+  "summary": {
+    "generatable": false,
+    "verdict_note": "",
+    "blockers": 1,
+    "open_ties": 1,
+    "rules": [
+      {
+        "rule": "open_human_review",
+        "message": "1 unanswered pattern slots; run the attended review before generation"
+      }
+    ]
+  },
+  "classification": "review",
+  "outcome": "review",
+  "commands": {
+    "extract": [
+      "/opt/homebrew/opt/python@3.12/bin/python3.12",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/extract_arch.py",
+      "--model",
+      "server",
+      "--requirements",
+      "prompts/validation/prompt_41.txt",
+      "--output",
+      "/Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_41",
+      "--no-chat",
+      "--quiet"
+    ]
+  }
+}

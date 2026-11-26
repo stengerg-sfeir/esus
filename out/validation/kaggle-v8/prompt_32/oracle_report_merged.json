@@ -1,0 +1,168 @@
+{
+  "prompt": "prompt_32",
+  "results": [
+    {
+      "name": "scenario:oracle:cancel_pending_order",
+      "status": "passed",
+      "case": "cancel_pending_order",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.cancel_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:order_status_transition_from_pending_to_confirmed",
+      "status": "passed",
+      "case": "order_status_transition_from_pending_to_confirmed",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.confirm_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:order_status_transition_from_confirmed_to_shipped",
+      "status": "passed",
+      "case": "order_status_transition_from_confirmed_to_shipped",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.ship_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:order_status_transition_from_pending_to_shipped",
+      "status": "passed",
+      "case": "order_status_transition_from_pending_to_shipped",
+      "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.ship_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "passed": 4
+  }
+}

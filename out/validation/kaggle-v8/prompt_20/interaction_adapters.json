@@ -1,0 +1,32 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "update_sale",
+      "target_service": "SaleRepository",
+      "target_method": "update",
+      "input_fields": [
+        {
+          "field_name": "product_id",
+          "target_param": "product_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Product",
+          "required": true
+        },
+        {
+          "field_name": "quantity",
+          "target_param": "quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "sale_date",
+          "target_param": "sale_date",
+          "transform": "ISO_DATE",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

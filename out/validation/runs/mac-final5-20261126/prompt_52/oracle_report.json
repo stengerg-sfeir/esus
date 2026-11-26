@@ -1,0 +1,43 @@
+{
+  "prompt": "prompt_52",
+  "results": [
+    {
+      "name": "book_not_available_while_borrowed",
+      "status": "under_specified",
+      "reason": "no generated method matches 'check_availability'",
+      "source": "A book that is currently being borrowed should not appear as available.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    }
+  ],
+  "counts": {
+    "under_specified": 1
+  },
+  "triage_counts": {
+    "under_specified": 1
+  }
+}

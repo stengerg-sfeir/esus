@@ -1,0 +1,32 @@
+[
+  {
+    "label": "InvoiceRepository.read_all_by_customer_email",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n    customer = self._store.select(\"Customer\", [('email', 'eq', email)])\n    if not customer:\n        return []\n    customer_id = customer[0]['id']\n    criteria = [('customer_id', 'eq', customer_id)]\n    found = self._store.select(self.ENTITY, criteria)\n    return [models.Invoice(**r) for r in found]",
+    "finish_reason": "stop",
+    "tokens": 81,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 13.138405084609985,
+    "decode_seconds": 2.123945,
+    "prompt_tokens": 3985,
+    "cached_tokens": 92,
+    "context": "exact"
+  },
+  {
+    "label": "InvoiceRepository.read_one_by_customer_email",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        customer = self._store.select('Customer', [('email', 'eq', email)])\n        if not customer:\n            return None\n        customer_id = customer[0]['id']\n        record = self._store.get(self.ENTITY, self.PK, customer_id, error=errors.InvoiceNotFoundError)\n        return models.Invoice(**record)",
+    "finish_reason": "stop",
+    "tokens": 75,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 9.365726232528687,
+    "decode_seconds": 2.0250440000000003,
+    "prompt_tokens": 4044,
+    "cached_tokens": 1487,
+    "context": "exact"
+  }
+]

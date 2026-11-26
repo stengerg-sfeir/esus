@@ -1,0 +1,156 @@
+{
+  "prompt": "prompt_04",
+  "results": [
+    {
+      "name": "add_task",
+      "status": "under_specified",
+      "reason": "create case expects task.description = 'Write documentation' but supplies 'task description'",
+      "source": "Users can add, list, complete and delete tasks.",
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "task.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.create_task",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "TaskRepository.create"
+          ]
+        }
+      },
+      "triage": "under_specified"
+    },
+    {
+      "name": "scenario:oracle:list_tasks",
+      "status": "failed",
+      "reason": "task_1.description is 'value3', expected 'Write documentation'",
+      "case": "list_tasks",
+      "source": "Users can add, list, complete and delete tasks.",
+      "alignment": {
+        "entities": {
+          "task_1": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 9.0"
+            ],
+            "alternatives": []
+          },
+          "task_2": {
+            "status": "alias",
+            "canonical": "Task",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 9.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "task_1.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          },
+          "task_2.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.read_all_tasks",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "TaskRepository.read_all"
+          ]
+        }
+      },
+      "triage": "under_specified"
+    },
+    {
+      "name": "complete_task",
+      "status": "unbound",
+      "reason": "no generated method matches 'complete_task'",
+      "source": "Users can add, list, complete and delete tasks.",
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "TaskRepository.create_task",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "TaskRepository.create_task",
+            "TaskRepository.delete_task",
+            "TaskRepository.read_all_tasks",
+            "TaskRepository.read_task_by_id"
+          ]
+        }
+      },
+      "triage": "coverage_gap: ambiguous action"
+    }
+  ],
+  "counts": {
+    "under_specified": 1,
+    "failed": 1,
+    "unbound": 1
+  },
+  "triage_counts": {
+    "under_specified": 2,
+    "coverage_gap: ambiguous action": 1
+  }
+}

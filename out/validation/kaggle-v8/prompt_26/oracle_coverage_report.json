@@ -1,0 +1,32 @@
+{
+  "prompt": "prompt_26",
+  "results": [
+    {
+      "name": "close_loan",
+      "status": "unbound",
+      "reason": "setup needs a Book row for Loan.book_id",
+      "source": "close loan"
+    },
+    {
+      "name": "create_loan",
+      "status": "unbound",
+      "reason": "expected state field 'book.stock_quantity' is not declared on Book",
+      "source": "create and close loans"
+    },
+    {
+      "name": "borrow_book",
+      "status": "unbound",
+      "reason": "expected state field 'book.stock_quantity' is not declared on Book",
+      "source": "a member can borrow multiple books"
+    },
+    {
+      "name": "return_book",
+      "status": "unbound",
+      "reason": "setup needs a Book row for Loan.book_id",
+      "source": "close loans"
+    }
+  ],
+  "counts": {
+    "unbound": 4
+  }
+}

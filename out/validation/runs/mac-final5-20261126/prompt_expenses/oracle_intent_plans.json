@@ -1,0 +1,28 @@
+{
+  "plans": [
+    {
+      "id": "expense_add_missing_category_error",
+      "diagnostics": {
+        "synthetic": [
+          {
+            "alias": "category",
+            "entity": "Category",
+            "reason": "required Expense.category_id"
+          }
+        ],
+        "aliases": {
+          "expense": "Expense"
+        },
+        "target_usage": {
+          "entity": "Expense",
+          "used_entities": [
+            "Category"
+          ],
+          "used": false
+        }
+      }
+    }
+  ],
+  "rejected": [],
+  "validation_errors": []
+}

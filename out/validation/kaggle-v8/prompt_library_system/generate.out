@@ -1,0 +1,29 @@
+gate passed (7 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: LibraryService.renew_membership ...
+llm: LibraryService.borrow_book ...
+llm: raw answers -> /tmp/v8-work/prompt_library_system/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_library_system/generated/models.py
+[write] /tmp/v8-work/prompt_library_system/generated/errors.py
+[write] /tmp/v8-work/prompt_library_system/generated/repositories.py
+[write] /tmp/v8-work/prompt_library_system/generated/services.py
+[write] /tmp/v8-work/prompt_library_system/generated/schema.py
+[write] /tmp/v8-work/prompt_library_system/generated/store.py
+[write] /tmp/v8-work/prompt_library_system/generated/cli.py
+[write] /tmp/v8-work/prompt_library_system/generated/__init__.py
+methods: 32 implemented, 2 stubs (94% mechanical)
+llm: 2 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: LibraryService.renew_membership
+  llm provisional: LibraryService.borrow_book
+  stub: LibraryService.borrow_book: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  stub: LibraryService.renew_membership: pattern STATE_TRANSITION_GUARD: no mechanical reading
+  cli author add -> authoradd [score 9]
+  cli book add -> bookadd [score 9]
+  cli book list -> booklist [score 9]
+  cli book search -> booksearch [score 3]
+  cli borrow -> borrow [score 7]
+  cli member add -> memberadd [score 9]
+  cli member history -> memberhistory [score 7]
+  cli member list -> memberlist [score 9]
+  cli overdue -> overdue [score 7]
+  cli return -> return [score 7]

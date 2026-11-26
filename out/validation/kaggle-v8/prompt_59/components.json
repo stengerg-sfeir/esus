@@ -1,0 +1,186 @@
+{
+  "components": {
+    "facade": {
+      "type": "cli",
+      "technology": "argparse",
+      "invocation": {
+        "positional": [
+          {
+            "name": "command",
+            "type": "str",
+            "required": true
+          }
+        ],
+        "options": [
+          {
+            "name": "--help",
+            "short": "-h",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--version",
+            "short": "-v",
+            "type": "bool",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--export",
+            "short": "-e",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--format",
+            "short": "-f",
+            "type": "str",
+            "required": false,
+            "default": "csv"
+          },
+          {
+            "name": "--filter",
+            "short": "-f",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--date-from",
+            "short": "-d",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--date-to",
+            "short": "-t",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--customer-id",
+            "short": "-c",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--product-id",
+            "short": "-p",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--status",
+            "short": "-s",
+            "type": "str",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--stock-level",
+            "short": "-l",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--discount-id",
+            "short": "-d",
+            "type": "int",
+            "required": false,
+            "default": null
+          },
+          {
+            "name": "--tax-id",
+            "short": "-x",
+            "type": "int",
+            "required": false,
+            "default": null
+          }
+        ],
+        "commands": [
+          {
+            "name": "Order",
+            "options": [],
+            "subcommands": [
+              {
+                "name": "cancel",
+                "options": [
+                  {
+                    "name": "--order-id",
+                    "short": null,
+                    "type": "int",
+                    "required": true,
+                    "default": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "persistence": {
+      "required": true,
+      "technology": "sqlite3"
+    },
+    "external_access": [],
+    "crud_services": [
+      {
+        "entity": "Customer",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update"
+        ]
+      },
+      {
+        "entity": "Product",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update"
+        ]
+      },
+      {
+        "entity": "Order",
+        "operations": [
+          "create",
+          "read_one",
+          "read_all",
+          "update",
+          "delete"
+        ]
+      },
+      {
+        "entity": "OrderLine",
+        "operations": [
+          "create",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Discount",
+        "operations": [
+          "create",
+          "read_all"
+        ]
+      },
+      {
+        "entity": "Tax",
+        "operations": [
+          "create",
+          "read_all"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "counts": {
+    "legacy": 5,
+    "kept": 2,
+    "retired": 3,
+    "confirmed_intents": 0,
+    "merged": 2
+  },
+  "cases": [
+    {
+      "case": {
+        "id": "list_products_by_name_asc",
+        "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+        "given": {
+          "product": {
+            "name": "Laptop",
+            "price": 1000.0,
+            "quantity": 5
+          }
+        },
+        "when": {
+          "action": "list_products",
+          "args": [
+            "asc"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Laptop",
+            "product.price": 1000.0,
+            "product.quantity": 5
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "product.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "alias",
+            "canonical": "ProductRepository.read_all",
+            "score": 1.0,
+            "evidence": [
+              "same operation with a different name"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "list case supplies a sort direction but no sort field; the directive does not determine which field to sort"
+        }
+      },
+      "status": "under_specified",
+      "reason": "list case supplies a sort direction but no sort field; the directive does not determine which field to sort"
+    },
+    {
+      "case": {
+        "id": "list_products_by_price_desc",
+        "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+        "given": {
+          "product": {
+            "name": "Mouse",
+            "price": 25.0,
+            "quantity": 10
+          }
+        },
+        "when": {
+          "action": "list_products",
+          "args": [
+            "desc"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Mouse",
+            "product.price": 25.0,
+            "product.quantity": 10
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "product.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "alias",
+            "canonical": "ProductRepository.read_all",
+            "score": 1.0,
+            "evidence": [
+              "same operation with a different name"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "list case supplies a sort direction but no sort field; the directive does not determine which field to sort"
+        }
+      },
+      "status": "under_specified",
+      "reason": "list case supplies a sort direction but no sort field; the directive does not determine which field to sort"
+    },
+    {
+      "case": {
+        "id": "list_products_by_quantity_asc",
+        "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+        "given": {
+          "product": {
+            "name": "Keyboard",
+            "price": 75.0,
+            "quantity": 3
+          }
+        },
+        "when": {
+          "action": "list_products",
+          "args": [
+            "asc"
+          ]
+        },
+        "then": {
+          "state": {
+            "product.name": "Keyboard",
+            "product.price": 75.0,
+            "product.quantity": 3
+          },
+          "rows": {
+            "Product": 1
+          }
+        },
+        "status": "under_specified",
+        "base_status": "confirmed",
+        "assumptions": [],
+        "ambiguities": [],
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 15.0,
+              "evidence": [
+                "name/fields match Product",
+                "score 15.0"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "product.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            },
+            "product.price": {
+              "status": "aligned",
+              "canonical": "price",
+              "score": 10.0,
+              "evidence": [
+                "Product.price exists"
+              ],
+              "alternatives": []
+            },
+            "product.quantity": {
+              "status": "aligned",
+              "canonical": "quantity",
+              "score": 10.0,
+              "evidence": [
+                "Product.quantity exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "alias",
+            "canonical": "ProductRepository.read_all",
+            "score": 1.0,
+            "evidence": [
+              "same operation with a different name"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "list case supplies a sort direction but no sort field; the directive does not determine which field to sort"
+        }
+      },
+      "status": "under_specified",
+      "reason": "list case supplies a sort direction but no sort field; the directive does not determine which field to sort"
+    }
+  ]
+}

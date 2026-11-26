@@ -1,0 +1,45 @@
+[
+  {
+    "label": "ProductRepository.get_product_count_in_category",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n    if category_id is not None:\n        criteria.append(('category_id', 'eq', category_id))\n    found = self._store.select(self.ENTITY, criteria)\n    return len(found)",
+    "finish_reason": "stop",
+    "tokens": 44,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 6.951277017593384,
+    "decode_seconds": 1.087945,
+    "prompt_tokens": 2685,
+    "cached_tokens": 351,
+    "context": "exact"
+  },
+  {
+    "label": "CategoryRepository.get_category_count",
+    "status": "written",
+    "note": "repaired: the body does not compile (invalid syntax)",
+    "answer": "return len(self._store.select(self.ENTITY, []))",
+    "first_answer": "8 spaces:\n    return len(self._store.select(self.ENTITY, []))",
+    "complaints": [
+      "the body does not compile (invalid syntax)"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 17,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 1.2883460521697998,
+    "first_decode_seconds": 0.405577,
+    "first_prompt_tokens": 2684,
+    "first_cached_tokens": 2373,
+    "finish_reason": "stop",
+    "tokens": 14,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 0.6267611980438232,
+    "decode_seconds": 0.330278,
+    "prompt_tokens": 2747,
+    "cached_tokens": 2654,
+    "context": "exact"
+  }
+]

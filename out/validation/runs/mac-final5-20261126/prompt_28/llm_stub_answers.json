@@ -1,0 +1,30 @@
+[
+  {
+    "label": "InvoiceRepository.read_all_by_date_range",
+    "status": "written",
+    "note": "repaired: the model kept it unimplemented",
+    "answer": "criteria = []\n        if start_date is not None:\n            criteria.append(('created_at', 'ge', start_date))\n        if end_date is not None:\n            criteria.append(('created_at', 'le', end_date))\n        found = self._store.select(self.ENTITY, criteria)\n        return [models.Invoice(**r) for r in found]",
+    "first_answer": "raise NotImplementedError(\"InvoiceRepository.read_all_by_date_range: crud:read_all: parameter 'start_date' maps to no field\")",
+    "complaints": [
+      "the model kept it unimplemented"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 28,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 12.09501314163208,
+    "first_decode_seconds": 0.911415,
+    "first_prompt_tokens": 4133,
+    "first_cached_tokens": 332,
+    "finish_reason": "stop",
+    "tokens": 74,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 2.931164026260376,
+    "decode_seconds": 2.483794,
+    "prompt_tokens": 4204,
+    "cached_tokens": 4101,
+    "context": "exact"
+  }
+]

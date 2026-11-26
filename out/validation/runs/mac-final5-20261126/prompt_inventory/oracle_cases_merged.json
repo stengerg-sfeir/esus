@@ -1,0 +1,584 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "product_list_with_category_filter",
+      "source": "product list [--category] [--low-only]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "name": "Smartphone",
+          "sku": "ELEC001",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          1,
+          false
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Smartphone",
+          "product.sku": "ELEC001",
+          "product.category_id": 1,
+          "product.price_cents": 5000,
+          "product.stock_qty": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.list_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "product_restock_increments_stock",
+      "source": "product restock --id --qty",
+      "given": {
+        "product": {
+          "id": 1,
+          "sku": "ELEC001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "restock",
+        "args": [
+          1,
+          3
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 8
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.restock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "stock_value_by_category_returns_aggregate",
+      "source": "product report value",
+      "given": {
+        "product": {
+          "name": "Smartphone",
+          "sku": "ELEC001",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        },
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "stock_value_by_category"
+      },
+      "then": {
+        "state": {
+          "product.price_cents": 5000,
+          "product.stock_qty": 5,
+          "category.id": 1
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          },
+          "category.id": {
+            "status": "aligned",
+            "canonical": "id",
+            "score": 10.0,
+            "evidence": [
+              "Category.id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.stock_value_by_category",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "category_add_with_optional_fields",
+      "source": "category add --name [--description] [--threshold]",
+      "given": {
+        "category": {
+          "name": "Books",
+          "description": "Fiction and non-fiction",
+          "reorder_threshold": 5
+        }
+      },
+      "when": {
+        "action": "add_category",
+        "args": [
+          "Books",
+          "Fiction and non-fiction",
+          5
+        ]
+      },
+      "then": {
+        "state": {
+          "category.name": "Books",
+          "category.description": "Fiction and non-fiction",
+          "category.reorder_threshold": 5
+        },
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "category.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Category.name exists"
+            ],
+            "alternatives": []
+          },
+          "category.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Category.description exists"
+            ],
+            "alternatives": []
+          },
+          "category.reorder_threshold": {
+            "status": "aligned",
+            "canonical": "reorder_threshold",
+            "score": 10.0,
+            "evidence": [
+              "Category.reorder_threshold exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "InventoryService.add_product",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create",
+            "ProductRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "product_list_low_only_filter",
+      "source": "product list [--category] [--low-only]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "name": "Laptop",
+          "sku": "LAP001",
+          "category_id": 1,
+          "price_cents": 8000,
+          "stock_qty": 3
+        },
+        "product_other": {
+          "name": "Laptop",
+          "sku": "LAP001-other",
+          "category_id": 2,
+          "price_cents": 8000,
+          "stock_qty": 11,
+          "id": 2
+        },
+        "category_other": {
+          "id": 2,
+          "name": "category name"
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          1,
+          true
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.sku": "LAP001",
+          "product.category_id": 1,
+          "product.price_cents": 8000,
+          "product.stock_qty": 3
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_other": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "category_other": {
+            "status": "alias",
+            "canonical": "Category",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Product.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "product.price_cents": {
+            "status": "aligned",
+            "canonical": "price_cents",
+            "score": 10.0,
+            "evidence": [
+              "Product.price_cents exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.list_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

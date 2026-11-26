@@ -1,0 +1,44 @@
+{
+  "plans": [
+    {
+      "holder": "ExpenseService",
+      "method": "get_category_spending",
+      "strategy": "mechanical",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "entity": "Expense",
+      "slots": {
+        "fk_field": "category_id",
+        "date_field": "expense_date",
+        "target_field": "amount_cents",
+        "aggregate_func": "SUM"
+      }
+    }
+  ],
+  "questions": [
+    {
+      "holder": "ExpenseService",
+      "method": "get_expense_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ExpenseService",
+      "method": "delete_expense",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ExpenseService",
+      "method": "get_monthly_report",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "reason": "report structure needs human review"
+    },
+    {
+      "holder": "ExpenseService",
+      "method": "get_yearly_summary",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "reason": "report structure needs human review"
+    }
+  ],
+  "requirements_sha": "0165d441bca97899220fe4b75355a25deb0db465b0ef4ce2bc92730833904f50"
+}

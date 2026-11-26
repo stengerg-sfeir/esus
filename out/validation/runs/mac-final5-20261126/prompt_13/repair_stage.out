@@ -1,0 +1,23 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_13/persistence_ports.json
+
+
+[ok] step data_models: added Product.sku from the requirement field list
+[ok] step components: aligned 3 option type(s) with the data model: --price -> float (Product.price), --price -> float (Product.price), --price -> float (Product.price)
+[ok] step persistence: ProductRepository.create cannot receive required 'sku' — added as str
+[ok] step contracts: added sku to ProductRepository.create from the requirement field list
+[ok] step adapters: update_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: delete_product.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_product.sku went to 'name' while the method declares 'sku' — redirected to 'sku'
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[ok] step persistence: 1 repository interface(s) adopted from service_contracts, so both documents declare one method set
+

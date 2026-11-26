@@ -1,0 +1,36 @@
+gate passed (6 residual risk(s); gaps stay documented stubs)
+llm: 7 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: CustomerRepository.get_total_spent_by_customer ...
+llm: SpendingReportService.generate_customer_spending_report ...
+llm: CustomerDataService.customerreport ...
+llm: CustomerDataService.ensure_customer_email_is_present ...
+llm: PurchaseValidationService.validate_purchase_amount ...
+llm: SpendingAnalysisService.calculate_total_spent_by_customer ...
+llm: PurchaseHistoryService.get_customer_purchase_history ...
+llm: raw answers -> /tmp/v8-work/prompt_42/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_42/generated/models.py
+[write] /tmp/v8-work/prompt_42/generated/errors.py
+[write] /tmp/v8-work/prompt_42/generated/repositories.py
+[write] /tmp/v8-work/prompt_42/generated/services.py
+[write] /tmp/v8-work/prompt_42/generated/schema.py
+[write] /tmp/v8-work/prompt_42/generated/store.py
+[write] /tmp/v8-work/prompt_42/generated/cli.py
+[write] /tmp/v8-work/prompt_42/generated/__init__.py
+methods: 9 implemented, 7 stubs (56% mechanical)
+llm: 7 of 7 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: CustomerRepository.get_total_spent_by_customer
+  llm provisional: SpendingReportService.generate_customer_spending_report
+  llm provisional: CustomerDataService.customerreport
+  llm provisional: CustomerDataService.ensure_customer_email_is_present
+  llm provisional: PurchaseValidationService.validate_purchase_amount
+  llm provisional: SpendingAnalysisService.calculate_total_spent_by_customer
+  llm provisional: PurchaseHistoryService.get_customer_purchase_history
+  stub: CustomerRepository.get_total_spent_by_customer: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: PurchaseHistoryService.get_customer_purchase_history: rule signature-pagination: method needs custom logic
+  stub: SpendingAnalysisService.calculate_total_spent_by_customer: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  stub: PurchaseValidationService.validate_purchase_amount: pattern BUDGET_OVERFLOW_GUARD: no mechanical reading
+  stub: CustomerDataService.ensure_customer_email_is_present: pattern STOCK_SUFFICIENCY_GUARD: no mechanical reading
+  stub: CustomerDataService.customerreport: no pattern entry and an ambiguous method name
+  stub: SpendingReportService.generate_customer_spending_report: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading
+  cli Customer report -> customerreport [score 7]
+  cli Purchase search -> purchasesearch [score 7]

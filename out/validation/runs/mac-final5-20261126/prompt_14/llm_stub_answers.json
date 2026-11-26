@@ -1,0 +1,17 @@
+[
+  {
+    "label": "ProjectRepository.soft_delete_project",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        if project_id is not None:\n            criteria.append(('project_id', 'eq', project_id))\n        found = self._store.select(self.ENTITY, criteria)\n        if not found:\n            return False\n        for record in found:\n            self._store.update(self.ENTITY, self.PK, record[self.PK], {'is_deleted': True})\n        return True",
+    "finish_reason": "stop",
+    "tokens": 81,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 11.354346990585327,
+    "decode_seconds": 2.6660410000000003,
+    "prompt_tokens": 3187,
+    "cached_tokens": 0,
+    "context": "exact"
+  }
+]

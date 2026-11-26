@@ -1,0 +1,120 @@
+{
+  "invariants": [
+    {
+      "text": "Room.room_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_number must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_number must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_type must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.room_type must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.price_per_night must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Room.price_per_night must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.guest_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.first_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.first_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.last_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.last_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Guest.phone_number must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.booking_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.guest_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.guest_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.guest_id must reference an existing Guest.guest_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.room_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.room_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.room_id must reference an existing Room.room_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.check_in_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.check_in_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.check_out_date must be a date",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.check_out_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Booking.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "A booking cannot be created if the room is already booked during the same check-in and check-out period.",
+      "kind": "rule"
+    }
+  ]
+}

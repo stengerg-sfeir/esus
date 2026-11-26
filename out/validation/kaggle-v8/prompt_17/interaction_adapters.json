@@ -1,0 +1,39 @@
+{
+  "interaction_adapters": [
+    {
+      "action_name": "search_products",
+      "target_service": "ProductRepository",
+      "target_method": "search_products",
+      "input_fields": [
+        {
+          "field_name": "name",
+          "target_param": "name",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "category",
+          "target_param": "category",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "max_price",
+          "target_param": "max_price",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        },
+        {
+          "field_name": "min_quantity",
+          "target_param": "min_quantity",
+          "transform": "DIRECT",
+          "lookup_entity": null,
+          "required": true
+        }
+      ]
+    }
+  ]
+}

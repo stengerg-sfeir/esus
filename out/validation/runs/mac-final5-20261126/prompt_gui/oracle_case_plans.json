@@ -1,0 +1,17 @@
+{
+  "plans": [
+    {
+      "id": "cancel_order",
+      "source": "invalid",
+      "when": {
+        "action": "cancel_order",
+        "args": []
+      },
+      "setup_entities": [],
+      "expect": {
+        "error": "ErrorName or omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

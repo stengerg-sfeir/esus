@@ -1,0 +1,50 @@
+{
+  "method_contracts": [
+    {
+      "holder": "SaleRepository",
+      "method": "record_sale",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update_product_stock"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "product",
+          "repository": "ProductRepository",
+          "method": "read_one",
+          "args": [
+            "product_id"
+          ]
+        }
+      ]
+    },
+    {
+      "holder": "SaleRepository",
+      "method": "create_sale",
+      "decided_by": "inferred",
+      "effects": [
+        {
+          "target": "product.stock_quantity",
+          "op": "decrement",
+          "by": "quantity",
+          "write": "ProductRepository.update_product_stock"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "product",
+          "repository": "ProductRepository",
+          "method": "read_one",
+          "args": [
+            "product_id"
+          ]
+        }
+      ]
+    }
+  ]
+}

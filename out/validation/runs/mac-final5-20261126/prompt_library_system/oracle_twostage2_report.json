@@ -1,0 +1,29 @@
+{
+  "prompt": "prompt_library_system",
+  "results": [
+    {
+      "name": "oracle:book_available_only_filter",
+      "status": "failed",
+      "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value",
+      "case": "book_available_only_filter",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count."
+    },
+    {
+      "name": "oracle:return_already_returned_loan",
+      "status": "failed",
+      "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value",
+      "case": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises AlreadyReturnedLoanError and changes neither the loan nor inventory."
+    },
+    {
+      "name": "borrow_final_copy",
+      "status": "unbound",
+      "reason": "setup needs a Author row for Book.author_id",
+      "source": "Zero available copies is valid. Reject only negative copy counts. Borrowing the final copy leaves the count at zero."
+    }
+  ],
+  "counts": {
+    "failed": 2,
+    "unbound": 1
+  }
+}

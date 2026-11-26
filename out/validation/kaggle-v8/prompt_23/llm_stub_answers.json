@@ -1,0 +1,45 @@
+[
+  {
+    "label": "PostTagRepository.read_posts_by_tag_name",
+    "status": "written",
+    "note": "repaired: calls `self._store.select` with operator `in`; the store supports only `eq`, `ge`, `le`, `gt`, `lt`",
+    "answer": "tags = self._store.select('Tag', [('name', 'eq', tag_name)])\n    if not tags:\n        return []\n    tag_ids = [tag['tag_id'] for tag in tags]\n    post_tags = self._store.select('PostTag', [('tag_id', 'eq', tag_id) for tag_id in tag_ids])\n    posts = []\n    for post_tag in post_tags:\n        post_id = post_tag['post_id']\n        post = self._store.get('Post', post_id)\n        if post:\n            posts.append(models.Post(**post))\n    return posts",
+    "first_answer": "tags = self._store.select(\"Tag\", [(\"name\", \"eq\", tag_name)])\n    if not tags:\n        return []\n    tag_ids = [tag[\"tag_id\"] for tag in tags]\n    post_tags = self._store.select(\"PostTag\", [(\"tag_id\", \"in\", tag_ids)])\n    posts = []\n    for post_tag in post_tags:\n        post_id = post_tag[\"post_id\"]\n        post = self._store.get(\"Post\", post_id)\n        if post:\n            posts.append(models.Post(**post))\n    return posts",
+    "complaints": [
+      "calls `self._store.select` with operator `in`; the store supports only `eq`, `ge`, `le`, `gt`, `lt`"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 115,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 7.9023096561431885,
+    "first_decode_seconds": 2.842734,
+    "first_prompt_tokens": 2265,
+    "first_cached_tokens": 332,
+    "finish_reason": "stop",
+    "tokens": 122,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 3.704010009765625,
+    "decode_seconds": 3.073319,
+    "prompt_tokens": 2454,
+    "cached_tokens": 2232,
+    "context": "exact"
+  },
+  {
+    "label": "PostTagRepository.read_post_tags_by_post_id",
+    "status": "written",
+    "note": "",
+    "answer": "found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_id)])\n    if not found:\n        return []\n    tag_ids = [post_tag['tag_id'] for post_tag in found]\n    tags = self._store.select('Tag', [('tag_id', 'eq', tag_id) for tag_id in tag_ids])\n    return [models.Tag(**tag) for tag in tags]",
+    "finish_reason": "stop",
+    "tokens": 88,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 3.436800956726074,
+    "decode_seconds": 2.167993,
+    "prompt_tokens": 2296,
+    "cached_tokens": 1827,
+    "context": "exact"
+  }
+]

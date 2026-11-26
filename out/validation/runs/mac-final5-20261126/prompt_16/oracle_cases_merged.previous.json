@@ -1,0 +1,464 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": [
+          "alice.j@example.com",
+          "Alice Johnson"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.id": 1,
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice.j@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.create_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'customer.name' is not declared on Customer"
+      }
+    },
+    {
+      "id": "update_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "id": 1,
+          "name": "Alice Johnson",
+          "email": "alice.j@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": [
+          "1",
+          "alice.j@example.com",
+          "Alice Johnson"
+        ]
+      },
+      "then": {
+        "state": {
+          "customer.id": 1,
+          "customer.name": "Alice Johnson",
+          "customer.email": "alice.j@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 11.333333333333334,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.3"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.id": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions field 'id'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.update_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'customer.name' is not declared on Customer"
+      }
+    },
+    {
+      "id": "create_customer_intent_2",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "John Doe",
+          "email": "john@example.com"
+        }
+      },
+      "when": {
+        "action": "create_customer",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "customer.name": "John Doe",
+          "customer.email": "john@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.create_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'customer.name' is not declared on Customer"
+      }
+    },
+    {
+      "id": "update_customer_intent_2",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Jane Doe",
+          "email": "jane@example.com"
+        }
+      },
+      "when": {
+        "action": "update_customer",
+        "args": {
+          "name": "Jane Smith"
+        }
+      },
+      "then": {
+        "state": {
+          "customer.name": "Jane Smith",
+          "customer.email": "jane@example.com"
+        },
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "customer.name": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'name'",
+              "not declared on Customer"
+            ],
+            "alternatives": []
+          },
+          "customer.email": {
+            "status": "aligned",
+            "canonical": "email",
+            "score": 10.0,
+            "evidence": [
+              "Customer.email exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.update_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'customer.name' is not declared on Customer"
+      }
+    },
+    {
+      "id": "delete_customer",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Alice Johnson",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "delete_customer",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 0
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.delete_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_paginated_customers_3",
+      "source": "Provide CRUD operations and a paginated listing operation.",
+      "given": {
+        "customer": {
+          "name": "Customer 1",
+          "email": "c1@example.com"
+        }
+      },
+      "when": {
+        "action": "list_customers",
+        "args": [
+          "1",
+          "10"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Customer": 1
+        },
+        "stdout_contains": "10",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.read_all_customers_paginated",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

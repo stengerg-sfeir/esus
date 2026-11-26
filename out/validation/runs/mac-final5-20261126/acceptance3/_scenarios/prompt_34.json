@@ -1,0 +1,212 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--order-data",
+            "value1",
+            "--status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order update",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "update",
+            "--order-id",
+            "1",
+            "--created-at",
+            "2024-01-01T00:00:00",
+            "--updated-at",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Order": {
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00",
+            "status": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ],
+          [
+            "Order",
+            "delete",
+            "--order-id",
+            "1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine add",
+      "when": {
+        "cli_variants": [
+          [
+            "OrderLine",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "value1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2",
+            "--total-price",
+            "2",
+            "--is-valid"
+          ],
+          [
+            "OrderLine",
+            "add",
+            "--order-id",
+            "1",
+            "--product-id",
+            "value1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2",
+            "--total-price",
+            "2",
+            "--is-valid",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine update",
+      "when": {
+        "cli_variants": [
+          [
+            "OrderLine",
+            "update",
+            "--order-line-id",
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "value1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2",
+            "--total-price",
+            "2",
+            "--is-valid"
+          ],
+          [
+            "OrderLine",
+            "update",
+            "--order-line-id",
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "value1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2",
+            "--total-price",
+            "2",
+            "--is-valid",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "OrderLine": {
+            "order_id": 1,
+            "product_id": "value1",
+            "quantity": 2,
+            "unit_price": 2.0,
+            "total_price": 2.0
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:OrderLine delete",
+      "when": {
+        "cli_variants": [
+          [
+            "OrderLine",
+            "delete",
+            "--order-line-id",
+            "1",
+            "--order-id",
+            "1",
+            "--product-id",
+            "1",
+            "--quantity",
+            "2",
+            "--unit-price",
+            "2.0",
+            "--total-price",
+            "2.0",
+            "--is-valid",
+            "false"
+          ],
+          [
+            "OrderLine",
+            "delete",
+            "--order-line-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "OrderLine": {
+            "order_id": 1,
+            "product_id": "1",
+            "quantity": 2,
+            "unit_price": 2.0,
+            "total_price": 2.0,
+            "is_valid": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

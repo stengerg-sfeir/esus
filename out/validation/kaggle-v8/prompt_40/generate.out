@@ -1,0 +1,20 @@
+gate passed (1 residual risk(s); gaps stay documented stubs)
+llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: NotificationService.send_notification ...
+llm: NotificationService.send_notification refused (the body does not compile (invalid syntax)) — repair ask 1
+llm: raw answers -> /tmp/v8-work/prompt_40/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_40/generated/models.py
+[write] /tmp/v8-work/prompt_40/generated/errors.py
+[write] /tmp/v8-work/prompt_40/generated/repositories.py
+[write] /tmp/v8-work/prompt_40/generated/services.py
+[write] /tmp/v8-work/prompt_40/generated/schema.py
+[write] /tmp/v8-work/prompt_40/generated/store.py
+[write] /tmp/v8-work/prompt_40/generated/cli.py
+[write] /tmp/v8-work/prompt_40/generated/__init__.py
+methods: 4 implemented, 1 stubs (80% mechanical)
+llm: 0 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm kept stub: NotificationService.send_notification — still refused: the body does not compile (invalid syntax)
+  stub: NotificationService.send_notification: gap NO_MATCH: NO_MATCH refused (None)
+  cli Order add -> create_order [score 8]
+  cli Order list -> list_orders [score 9]
+  cli Order update -> update_order_status [score 11]

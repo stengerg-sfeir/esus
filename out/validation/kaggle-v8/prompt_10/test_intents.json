@@ -1,0 +1,171 @@
+{
+  "intents": [
+    {
+      "id": "create_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "kind": "create",
+      "entity": "Note",
+      "action": "create_note",
+      "setup_entities": [
+        {
+          "alias": "note",
+          "entity": "Note",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "note.title": "Meeting Notes",
+        "note.content": "Discuss project timeline",
+        "note.created_at": "2025-04-05"
+      },
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "note.title": "Meeting Notes",
+          "note.content": "Discuss project timeline",
+          "note.created_at": "2025-04-05"
+        },
+        "rows": {
+          "Note": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "list_notes",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "kind": "list",
+      "entity": "Note",
+      "action": "list_notes",
+      "setup_entities": [
+        {
+          "alias": "note",
+          "entity": "Note",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "note.title": "Meeting Notes",
+        "note.content": "Discuss project timeline",
+        "note.created_at": "2025-04-05"
+      },
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Note": 1
+        },
+        "error": null,
+        "stdout_contains": "Meeting Notes",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "update_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "kind": "update",
+      "entity": "Note",
+      "action": "update_note",
+      "setup_entities": [
+        {
+          "alias": "note",
+          "entity": "Note",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "note.title": "Meeting Notes",
+        "note.content": "Discuss project timeline",
+        "note.created_at": "2025-04-05"
+      },
+      "lookup": [
+        "note.title"
+      ],
+      "where": {},
+      "args": [
+        "Meeting Notes",
+        "Updated content"
+      ],
+      "changes": {
+        "note.content": "Updated content"
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "note.title": "Meeting Notes",
+          "note.content": "Updated content",
+          "note.created_at": "2025-04-05"
+        },
+        "rows": {
+          "Note": 1
+        },
+        "error": null,
+        "stdout_contains": "Updated content",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "delete_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "kind": "delete",
+      "entity": "Note",
+      "action": "delete_note",
+      "setup_entities": [
+        {
+          "alias": "note",
+          "entity": "Note",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "note.title": "Meeting Notes",
+        "note.content": "Discuss project timeline",
+        "note.created_at": "2025-04-05"
+      },
+      "lookup": [
+        "note.title"
+      ],
+      "where": {},
+      "args": [
+        "Meeting Notes"
+      ],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {
+          "Note": 0
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}

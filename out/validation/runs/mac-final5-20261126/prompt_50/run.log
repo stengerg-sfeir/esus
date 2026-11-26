@@ -1,0 +1,84 @@
+[run] requirements: 177 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 71 tokens in 2.0s (35.2 tok/s, 39.7 decode, 69 prompt)
+[data_models] 642 tokens in 17.0s (37.8 tok/s, 38.4 decode, 569 prompt)
+[ok] step data_models: uniqueness provenance — 3 explicit, 0 inferred (inferred fields are not enforced until confirmed)
+[errors] 183 tokens in 4.8s (38.1 tok/s, 40.5 decode, 484 prompt)
+[invariants] 35 tokens in 1.1s (31.8 tok/s, 42.4 decode, 288 prompt)
+[ok] step invariants: 20 invariant(s) — 19 schema generated mechanically, 1 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 410 tokens in 11.5s (35.7 tok/s, 36.7 decode, 996 prompt)
+[ok] step components: normalized option '-title' to '--title'
+[ok] step components: normalized option '-date' to '--date'
+[ok] step components: normalized option '-capacity' to '--capacity'
+[ok] step components: normalized option '-register' to '--register'
+[service_contracts] 320 tokens in 8.7s (36.7 tok/s, 39.2 decode, 579 prompt)
+[ok] step contracts: added 3 mechanical repository entries
+[ok] step components: added 4 CRUD subcommand(s) from the service contracts: Event add, Event update, Event delete, Registration add
+[ok] step contracts: normalized 11 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 4 id parameter(s) to int
+[persistence_ports] 508 tokens in 13.9s (36.4 tok/s, 37.4 decode, 411 prompt)
+[ok] step persistence: merged 6 custom repository method(s) into service_contracts
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step contracts: normalized 8 generic type spelling(s) to Python annotations
+  [1/20] invariant -> QUOTA_CAPACITY_GUARD (1.00)
+  [2/20] contract:EventRegistrationService.confirm_order -> STATE_TRANSITION_GUARD (0.98)
+  [3/20] contract:EventRegistrationService.cancel_order -> STATE_TRANSITION_GUARD (0.99)
+  [4/20] contract:EventRegistrationService.check_event_capacity -> QUOTA_CAPACITY_GUARD (1.00)
+  [5/20] contract:EventRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [6/20] contract:EventRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [7/20] contract:EventRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [8/20] contract:EventRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [9/20] contract:EventRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/20] contract:EventRepository.get_event_by_date -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/20] contract:EventRepository.get_event_by_title -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [12/20] contract:EventRepository.get_event_with_registration_count -> READ_ONE_BY_ID (0.00)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (models.Event) (was AGGREGATE_BY_FK_AND_DATE)
+  [13/20] contract:RegistrationRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [14/20] contract:RegistrationRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [15/20] contract:RegistrationRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [16/20] contract:RegistrationRepository.get_registrations_by_event_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [17/20] contract:RegistrationRepository.register_user_for_event -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [18/20] contract:RegistrationRepository.check_registration_capacity -> QUOTA_CAPACITY_GUARD (1.00)
+  [19/20] contract:UserRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [20/20] contract:UserRepository.get_user_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 20 item(s) — 5 standard CRUD, 15 pattern(s), 0 gap(s)
+[!] step adapters: mechanical derivation declined (create: ambiguous methods: EventRepository.create, RegistrationRepository.create); retry after surface repairs declined (create: ambiguous methods: EventRepository.create, RegistrationRepository.create) — asking the model
+[interaction_adapters] 726 tokens in 21.2s (34.3 tok/s, 35.5 decode, 681 prompt)
+[ok] step adapters: create_event.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: get_all_events.capacity was 'DECIMAL_TO_CENTS' but its name or target type describes no such value — replaced with DIRECT
+[ok] step adapters: register_for_event.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: check_event_capacity.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 1 required create field(s)
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 144 tokens in 4.2s (34.6 tok/s, 36.7 decode, 737 prompt)
+[ok] step adapters: register_for_event.event_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: register_for_event.user_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 6 in the first attempt — kept the fuller first attempt; its 2 unreachable field(s) stay reported
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: create  lacked '--title' required by 'create_event' — added as str
+[ok] step adapters: create  lacked '--date' required by 'create_event' — added as str
+[ok] step adapters: create  lacked '--capacity' required by 'create_event' — added as int
+[ok] step adapters: create  lacked '--current-attendees-count' required by 'create_event' — added as int
+[ok] step adapters: register  lacked '--event-id' required by 'register_for_event' — added as int
+[ok] step adapters: register  lacked '--user-id' required by 'register_for_event' — added as int
+[ok] step adapters: Registration add lacked '--title' required by 'create_event' — added as str
+[ok] step adapters: Registration add lacked '--date' required by 'create_event' — added as str
+[ok] step adapters: Registration add lacked '--capacity' required by 'create_event' — added as int
+[ok] step adapters: Registration add lacked '--current-attendees-count' required by 'create_event' — added as int
+[ok] step adapters: rebuilt prose-derived surface from 1 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Event update, Event delete, Registration add
+[ok] step adapters: added 3 missing adapter(s) mechanically: Event update, Event delete, Registration add
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_50/requirements.txt
+[run] 9 steps, 3039 generated tokens in 84.4s

@@ -1,0 +1,24 @@
+{
+  "decisions": [
+    {
+      "text": "The list of tasks must include all tasks that have not been marked as completed.",
+      "chosen_pattern_id": "FILTER_BY_FIELD",
+      "candidates": [
+        "FILTER_BY_FIELD",
+        "AGGREGATE_BY_FK_AND_DATE"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "02ada7efeac58d57b1ea0667b3650cb7b03d5ec44478dc49b6a34e6e3a9ed98f"
+    },
+    {
+      "text": "The total number of tasks in the database must equal the sum of completed and uncompleted tasks.",
+      "chosen_pattern_id": "BUDGET_OVERFLOW_GUARD",
+      "candidates": [
+        "BUDGET_OVERFLOW_GUARD",
+        "STATE_TRANSITION_GUARD"
+      ],
+      "decided_by": "user",
+      "requirements_sha": "02ada7efeac58d57b1ea0667b3650cb7b03d5ec44478dc49b6a34e6e3a9ed98f"
+    }
+  ]
+}

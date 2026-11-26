@@ -1,0 +1,214 @@
+{
+  "plans": [
+    {
+      "id": "create_product",
+      "source": "Create a Python 3.12 inventory application. Products have a SKU, name, category, price and stock quantity.",
+      "when": {
+        "action": "create_product",
+        "args": [
+          "sku",
+          "name",
+          "category",
+          "price",
+          "stock_quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "read_product",
+        "args": [
+          "sku"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "update_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "update_product",
+        "args": [
+          "sku",
+          "field",
+          "value"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "sku"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku"
+        ],
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_products",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "search_products",
+        "args": [
+          "search_term"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": ">=0"
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "filter_by_category",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "filter_by_category",
+        "args": [
+          "category"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": ">=0"
+        }
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "report_low_stock",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "report_low_stock",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
+          "product.stock_quantity"
+        ],
+        "rows": {
+          "Product": ">=0"
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

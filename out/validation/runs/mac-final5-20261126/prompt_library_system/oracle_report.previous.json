@@ -1,0 +1,405 @@
+{
+  "prompt": "prompt_library_system",
+  "results": [
+    {
+      "name": "borrow_book_with_available_copy",
+      "status": "unbound",
+      "reason": "expected state references unseeded alias 'loan'",
+      "source": "library borrow --member-id --book-id",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Member",
+              "Author"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Author"
+            ]
+          },
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          },
+          "loan.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Loan.status exists"
+            ],
+            "alternatives": []
+          },
+          "loan.loan_date": {
+            "status": "aligned",
+            "canonical": "loan_date",
+            "score": 10.0,
+            "evidence": [
+              "Loan.loan_date exists"
+            ],
+            "alternatives": []
+          },
+          "loan.due_date": {
+            "status": "aligned",
+            "canonical": "due_date",
+            "score": 10.0,
+            "evidence": [
+              "Loan.due_date exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "return_book_with_active_loan",
+      "status": "unbound",
+      "reason": "setup needs a Member row for Loan.member_id",
+      "source": "library return --loan-id",
+      "alignment": {
+        "entities": {
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          },
+          "loan.return_date": {
+            "status": "aligned",
+            "canonical": "return_date",
+            "score": 10.0,
+            "evidence": [
+              "Loan.return_date exists"
+            ],
+            "alternatives": []
+          },
+          "loan.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Loan.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:return_already_returned_loan",
+      "status": "passed",
+      "case": "return_already_returned_loan",
+      "source": "library return --loan-id",
+      "alignment": {
+        "entities": {
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {
+          "book.available_copies": {
+            "status": "aligned",
+            "canonical": "available_copies",
+            "score": 10.0,
+            "evidence": [
+              "Book.available_copies exists"
+            ],
+            "alternatives": []
+          },
+          "loan.return_date": {
+            "status": "aligned",
+            "canonical": "return_date",
+            "score": 10.0,
+            "evidence": [
+              "Loan.return_date exists"
+            ],
+            "alternatives": []
+          },
+          "loan.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Loan.status exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "search_books_by_title_and_author",
+      "status": "unbound",
+      "reason": "case passes parameter name 'query' as a literal value",
+      "source": "library book search --query",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.search_books",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "search_books_with_missing_isbn",
+      "status": "unbound",
+      "reason": "setup needs a Author row for Book.author_id",
+      "source": "library book search --query",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "LibraryService.search_books",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "scenario:oracle:list_books_by_author_id",
+      "status": "passed",
+      "case": "list_books_by_author_id",
+      "source": "library book list [--author]",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Author",
+              "Member"
+            ]
+          },
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 4,
+    "passed": 2
+  }
+}

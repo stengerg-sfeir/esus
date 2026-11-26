@@ -1,0 +1,462 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "product_add_sku_unique_validation",
+      "source": "product add --sku --name --category --price --stock [--stock]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "sku",
+          "name",
+          "category_id",
+          "price_cents",
+          "stock_qty"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "ELEC-001",
+          "product.name": "Smartphone",
+          "product.category_id": 1,
+          "product.price_cents": 5000,
+          "product.stock_qty": 5
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The category exists with id 1 and name 'Electronics'",
+        "The product with sku 'ELEC-001' does not already exist in the system",
+        "The action adds a product with all provided fields and no validation on uniqueness beyond existence of category"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "product_list_with_category_filter",
+      "source": "product list [--category] [--low-only]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "id": 1,
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5,
+          "low_active": false
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "category_id",
+          "low_only"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.id": 1,
+          "product.sku": "ELEC-001",
+          "product.name": "Smartphone",
+          "product.category_id": 1,
+          "product.price_cents": 5000,
+          "product.stock_qty": 5,
+          "product.low_active": false
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "case passes parameter name 'category_id' as a literal value"
+      }
+    },
+    {
+      "id": "product_list_without_filters",
+      "source": "product list [--category] [--low-only]",
+      "given": {
+        "product": {
+          "id": 1,
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5,
+          "low_active": false
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "product.id": 1,
+          "product.sku": "ELEC-001",
+          "product.name": "Smartphone",
+          "product.category_id": 1,
+          "product.price_cents": 5000,
+          "product.stock_qty": 5,
+          "product.low_active": false
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    },
+    {
+      "id": "product_delete_by_id",
+      "source": "product delete --id",
+      "given": {
+        "product": {
+          "id": 1,
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5,
+          "low_active": false
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "id"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.id": 1,
+          "product.sku": "ELEC-001",
+          "product.name": "Smartphone",
+          "product.category_id": 1,
+          "product.price_cents": 5000,
+          "product.stock_qty": 5,
+          "product.low_active": false
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The product with id 1 exists and is deleted",
+        "After deletion, no product with id 1 remains in the system"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "product_restock_increases_stock",
+      "source": "product restock --id --qty",
+      "given": {
+        "product": {
+          "id": 1,
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "restock",
+        "args": [
+          "id",
+          "qty"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 10
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "low_stock_report_returns_products_below_threshold",
+      "source": "product report low-stock",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "id": 1,
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 3,
+          "low_active": false
+        }
+      },
+      "when": {
+        "action": "low_stock_report"
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 3,
+          "product.reorder_threshold": 10
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'product.reorder_threshold' is not declared on Product"
+      }
+    },
+    {
+      "id": "stock_value_by_category_returns_aggregate",
+      "source": "product report value",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "id": 1,
+          "sku": "ELEC-001",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "stock_value_by_category"
+      },
+      "then": {
+        "state": {
+          "product.price_cents": 5000,
+          "product.stock_qty": 5,
+          "category.id": 1
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "category_add_with_optional_fields",
+      "source": "category add --name [--description] [--threshold]",
+      "given": {
+        "category": {
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "add_category",
+        "args": [
+          "name",
+          "description",
+          "reorder_threshold"
+        ]
+      },
+      "then": {
+        "state": {
+          "category.name": "Electronics",
+          "category.description": "Electronic devices",
+          "category.reorder_threshold": 10
+        },
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The category with name 'Electronics' is added with description and threshold provided",
+        "All optional fields are included if provided"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "category_list_all_categories",
+      "source": "category list",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "list_categories"
+      },
+      "then": {
+        "state": {
+          "category.id": 1,
+          "category.name": "Electronics",
+          "category.description": "Electronic devices",
+          "category.reorder_threshold": 10
+        },
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The category exists and is listed",
+        "Only one category is present in the system"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "category_update_field_change",
+      "source": "category update --id [--name] [--description] [--threshold]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "update_category",
+        "args": [
+          "id",
+          "name",
+          "description",
+          "reorder_threshold"
+        ]
+      },
+      "then": {
+        "state": {
+          "category.name": "Electronics",
+          "category.description": "Electronic devices",
+          "category.reorder_threshold": 10
+        },
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The category with id 1 exists and is updated with all fields",
+        "All fields are updated if provided"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "category_delete_by_id",
+      "source": "category delete --id",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Electronic devices",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "delete_category",
+        "args": [
+          "id"
+        ]
+      },
+      "then": {
+        "state": {
+          "category.id": 1,
+          "category.name": "Electronics",
+          "category.description": "Electronic devices",
+          "category.reorder_threshold": 10
+        },
+        "rows": {
+          "Category": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The category with id 1 exists and is deleted",
+        "After deletion, no category with id 1 remains in the system"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

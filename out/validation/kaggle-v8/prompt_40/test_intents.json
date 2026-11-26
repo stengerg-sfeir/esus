@@ -1,0 +1,91 @@
+{
+  "intents": [
+    {
+      "id": "order_confirmation_notification",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "kind": "error",
+      "entity": "Order",
+      "action": "confirm_order",
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "order.status": "pending"
+      },
+      "lookup": [
+        "order.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        },
+        "error": "NotificationServiceError",
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The notification service logs the message when an order is confirmed.",
+        "error class 'NotificationServiceError' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "The clause does not specify whether the notification is sent or logged, or what the error condition is if logging fails."
+      ]
+    },
+    {
+      "id": "notification_on_order_confirmation",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "kind": "error",
+      "entity": "Order",
+      "action": "confirm_order",
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "order.status": "pending"
+      },
+      "lookup": [
+        "order.id"
+      ],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        },
+        "error": null,
+        "stdout_contains": "Notification logged for order id: 123",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The notification service logs a message when an order is confirmed, and the log message includes the order ID."
+      ],
+      "ambiguities": [
+        "The exact format or content of the logged notification is not specified in the requirements."
+      ]
+    }
+  ]
+}

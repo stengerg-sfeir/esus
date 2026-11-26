@@ -1,0 +1,303 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "notification_service_abstraction",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "given": {
+        "notification": {
+          "message": "Order 101 confirmed",
+          "recipient": "customer@example.com"
+        }
+      },
+      "when": {
+        "action": "send_notification",
+        "args": [
+          "notification.message",
+          "notification.recipient"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The notification service abstraction is defined, but the exact interface or method signature is not specified in the requirements."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "notification_on_cancel",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "order_id": 102
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements only specify notification on confirmation, not on cancellation. There is no mention of whether a notification should be sent when an order is cancelled."
+      ]
+    },
+    {
+      "id": "notification_on_invalid_order",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "given": {
+        "order": {
+          "status": "invalid",
+          "order_id": 104
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "invalid"
+        },
+        "error": "InvalidOrderError",
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "The requirements do not specify what happens when an order is in an invalid state. There is no mention of error handling or validation during confirmation.",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements",
+        "error class 'InvalidOrderError' is not named in the requirements"
+      ]
+    },
+    {
+      "id": "notification_service_implementations",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "given": {
+        "notification": {
+          "message": "Order 105 confirmed",
+          "recipient": "customer@example.com"
+        }
+      },
+      "when": {
+        "action": "send_notification",
+        "args": [
+          "notification.message",
+          "notification.recipient"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {}
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The implementation logs the notification, but the exact logging behavior (e.g., log level, format, destination) is not specified in the requirements."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "notification_service_log_only",
+      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
+      "given": {
+        "order": {
+          "status": "confirmed",
+          "customer_id": 201
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The notification service logs the message instead of sending it, so no actual message is sent."
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "order_status_transition_pending_to_confirmed",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 301
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'confirm_order'"
+      }
+    },
+    {
+      "id": "order_status_transition_confirmed_to_cancelled",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "given": {
+        "order": {
+          "status": "confirmed",
+          "customer_id": 401
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "Cancellation does not trigger a notification, as only confirmation triggers one."
+      ],
+      "ambiguities": [
+        "The requirement does not specify whether a notification is sent on cancellation. This behavior is not defined."
+      ]
+    },
+    {
+      "id": "order_with_no_customer_id",
+      "source": "When an order is confirmed, the application must send a notification.",
+      "given": {
+        "order": {
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "confirm_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "confirmed"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The requirement does not specify whether a customer_id is required for order confirmation."
+      ],
+      "ambiguities": [
+        "The requirement does not define what happens if an order lacks a customer_id. This is not specified."
+      ]
+    }
+  ]
+}

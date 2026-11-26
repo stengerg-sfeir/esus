@@ -1,0 +1,350 @@
+{
+  "service_contracts": [
+    {
+      "service_name": "SalesReportService",
+      "methods": [
+        {
+          "name": "generate_product_sales_report",
+          "description": "Generates a report showing the total sales amount and number of sales per product.",
+          "params": [],
+          "return_type": "dict",
+          "raises": []
+        }
+      ]
+    },
+    {
+      "service_name": "ProductRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Product.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Product by its key.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Product; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Product]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Product",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "create_product",
+          "description": "Creates a new product with the given name and price.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "read_product_by_id",
+          "description": "Retrieves a product by its product_id.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Product | None"
+        },
+        {
+          "name": "read_all_products",
+          "description": "Retrieves all products from the database.",
+          "params": [],
+          "return_type": "list[Product]"
+        },
+        {
+          "name": "update_product",
+          "description": "Updates the name and price of a product by its product_id.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "name",
+              "type": "str"
+            },
+            {
+              "name": "price",
+              "type": "float"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "delete_product",
+          "description": "Deletes a product by its product_id.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    },
+    {
+      "service_name": "SaleRepository",
+      "methods": [
+        {
+          "name": "create",
+          "description": "Creates a new Sale.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Sale",
+          "raises": []
+        },
+        {
+          "name": "read_one",
+          "description": "Reads one Sale by its key.",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "models.Sale",
+          "raises": []
+        },
+        {
+          "name": "read_all",
+          "description": "Lists every Sale; optional fields narrow the result.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "list[Sale]",
+          "raises": []
+        },
+        {
+          "name": "update",
+          "description": "Updates an existing Sale.",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "models.Sale",
+          "raises": []
+        },
+        {
+          "name": "delete",
+          "description": "Deletes an existing Sale.",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            },
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime.datetime"
+            }
+          ],
+          "return_type": "None",
+          "raises": []
+        },
+        {
+          "name": "get_sales_by_product_id",
+          "description": "Lists the Sale records belonging to one Product.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "list[Sale]",
+          "raises": []
+        },
+        {
+          "name": "create_sale",
+          "description": "Creates a new sale with the given product_id, quantity, and sale_date.",
+          "params": [
+            {
+              "name": "product_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "read_sale_by_id",
+          "description": "Retrieves a sale by its sale_id.",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "Sale | None"
+        },
+        {
+          "name": "read_all_sales",
+          "description": "Retrieves all sales from the database.",
+          "params": [],
+          "return_type": "list[Sale]"
+        },
+        {
+          "name": "update_sale",
+          "description": "Updates the quantity and sale_date of a sale by its sale_id.",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "sale_date",
+              "type": "datetime"
+            }
+          ],
+          "return_type": "bool"
+        },
+        {
+          "name": "delete_sale",
+          "description": "Deletes a sale by its sale_id.",
+          "params": [
+            {
+              "name": "sale_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "bool"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "errors": [
+    {
+      "name": "CustomerNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a customer is requested but not found in the system by customer_id."
+    },
+    {
+      "name": "PurchaseNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a purchase is requested but not found in the system by purchase_id."
+    },
+    {
+      "name": "InvalidCustomerIdError",
+      "base": "ValueError",
+      "description": "Raised when a customer_id provided is not a valid integer or is otherwise malformed."
+    },
+    {
+      "name": "InvalidPurchaseIdError",
+      "base": "ValueError",
+      "description": "Raised when a purchase_id provided is not a valid integer or is otherwise malformed."
+    },
+    {
+      "name": "MissingCustomerEmailError",
+      "base": "KeyError",
+      "description": "Raised when attempting to access a customer's email but the email field is missing from the customer record."
+    },
+    {
+      "name": "MissingPurchaseAmountError",
+      "base": "KeyError",
+      "description": "Raised when attempting to access a purchase's amount but the amount field is missing from the purchase record."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "plans": [
+    {
+      "id": "view_responsibility",
+      "source": "The team needs projects, tasks and people, and should be able to see who is responsible for what.",
+      "when": {
+        "action": "see_responsibility"
+      },
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        },
+        {
+          "alias": "task",
+          "entity": "Task",
+          "role": "target"
+        },
+        {
+          "alias": "person",
+          "entity": "Person",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "task.project.id",
+          "task.responsible.person.id"
+        ],
+        "rows": {
+          "Project": 1,
+          "Task": 1,
+          "Person": 1
+        }
+      },
+      "status": "confirmed"
+    }
+  ]
+}

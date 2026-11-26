@@ -1,0 +1,128 @@
+{
+  "invariants": [
+    {
+      "text": "User.user_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.password_hash must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.password_hash must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "User.role must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "User.role must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.product_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must be a number",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.price must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Product.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.user_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.user_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.user_id must reference an existing User.user_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.order_date must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Order.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An order must be associated with a user through the user_id field.",
+      "kind": "rule"
+    },
+    {
+      "text": "Only users with the role 'administrator' can modify products.",
+      "kind": "rule"
+    },
+    {
+      "text": "Only users with the role 'administrator' can modify other users' records.",
+      "kind": "rule"
+    },
+    {
+      "text": "A user can only create orders if they exist in the system.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order's status must be one of 'pending', 'completed', or 'cancelled'.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product's price must be a positive number.",
+      "kind": "rule"
+    },
+    {
+      "text": "A user's email must be unique across all users.",
+      "kind": "rule"
+    },
+    {
+      "text": "Only users with the role 'normal' can view their own orders.",
+      "kind": "rule"
+    },
+    {
+      "text": "A product must have a name and a description.",
+      "kind": "rule"
+    },
+    {
+      "text": "An order must have an order_date that is not in the future.",
+      "kind": "rule"
+    }
+  ]
+}

@@ -1,0 +1,302 @@
+{
+  "persistence_ports": {
+    "repositories": [
+      {
+        "entity": "Event",
+        "interface_name": "EventRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Event.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "capacity",
+                "type": "int"
+              },
+              {
+                "name": "current_attendees_count",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Event",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Event; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "capacity",
+                "type": "int"
+              },
+              {
+                "name": "current_attendees_count",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Event]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Event by its key.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Event",
+            "raises": [
+              "EventNotFoundError"
+            ]
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing Event.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "capacity",
+                "type": "int"
+              },
+              {
+                "name": "current_attendees_count",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Event",
+            "raises": [
+              "EventNotFoundError"
+            ]
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing Event.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              },
+              {
+                "name": "title",
+                "type": "str"
+              },
+              {
+                "name": "date",
+                "type": "datetime.datetime"
+              },
+              {
+                "name": "capacity",
+                "type": "int"
+              },
+              {
+                "name": "current_attendees_count",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [
+              "EventNotFoundError"
+            ]
+          },
+          {
+            "name": "get_event_by_date",
+            "description": "Retrieves an event by its date, useful for users to view upcoming or past events.",
+            "params": [
+              {
+                "name": "date",
+                "type": "datetime"
+              }
+            ],
+            "return_type": "models.Event"
+          },
+          {
+            "name": "get_event_by_title",
+            "description": "Retrieves an event by its title, allowing users to search for events by name.",
+            "params": [
+              {
+                "name": "title",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.Event"
+          }
+        ]
+      },
+      {
+        "entity": "Registration",
+        "interface_name": "RegistrationRepository",
+        "methods": [
+          {
+            "name": "create",
+            "description": "Creates a new Registration.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              },
+              {
+                "name": "user_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Registration",
+            "raises": []
+          },
+          {
+            "name": "read_all",
+            "description": "Lists every Registration; optional fields narrow the result.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              },
+              {
+                "name": "user_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Registration]",
+            "raises": []
+          },
+          {
+            "name": "read_one",
+            "description": "Reads one Registration by its key.",
+            "params": [
+              {
+                "name": "registration_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.Registration",
+            "raises": [
+              "RegistrationNotFoundError"
+            ]
+          },
+          {
+            "name": "get_registrations_by_event_id",
+            "description": "Lists the Registration records belonging to one Event.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Registration]",
+            "raises": []
+          },
+          {
+            "name": "register_user_for_event",
+            "description": "Registers a user for an event, only if the event has available capacity. Returns true if registration is successful, false otherwise.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              },
+              {
+                "name": "user_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "bool"
+          },
+          {
+            "name": "get_registrations_for_event",
+            "description": "Returns all registrations for a specific event, useful for event organizers to view who has signed up.",
+            "params": [
+              {
+                "name": "event_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Registration]"
+          }
+        ]
+      },
+      {
+        "entity": "User",
+        "interface_name": "UserRepository",
+        "methods": [
+          {
+            "name": "read_one",
+            "description": "Reads one User by its key.",
+            "params": [
+              {
+                "name": "user_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "models.User",
+            "raises": [
+              "UserNotFoundError"
+            ]
+          },
+          {
+            "name": "get_user_by_name",
+            "description": "Retrieves a user by their name, enabling users to search for themselves or others in the system.",
+            "params": [
+              {
+                "name": "name",
+                "type": "str"
+              }
+            ],
+            "return_type": "models.User"
+          }
+        ]
+      }
+    ],
+    "entity_mappings": [
+      {
+        "entity": "Event",
+        "table": "events",
+        "primary_key": "event_id",
+        "indexes": [
+          "date"
+        ]
+      },
+      {
+        "entity": "Registration",
+        "table": "registrations",
+        "primary_key": "registration_id",
+        "indexes": [
+          "event_id",
+          "user_id"
+        ]
+      },
+      {
+        "entity": "User",
+        "table": "users",
+        "primary_key": "user_id",
+        "indexes": []
+      }
+    ]
+  }
+}

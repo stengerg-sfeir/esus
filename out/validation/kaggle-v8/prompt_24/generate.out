@@ -1,0 +1,26 @@
+gate passed (1 residual risk(s); gaps stay documented stubs)
+llm: 2 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
+llm: ProjectRepository.get_project_with_tasks ...
+llm: ProjectRepository.get_projects_by_status ...
+llm: ProjectRepository.get_projects_by_status refused (the model kept it unimplemented) — repair ask 1
+llm: raw answers -> /tmp/v8-work/prompt_24/llm_stub_answers.json
+[write] /tmp/v8-work/prompt_24/generated/models.py
+[write] /tmp/v8-work/prompt_24/generated/errors.py
+[write] /tmp/v8-work/prompt_24/generated/repositories.py
+[write] /tmp/v8-work/prompt_24/generated/services.py
+[write] /tmp/v8-work/prompt_24/generated/schema.py
+[write] /tmp/v8-work/prompt_24/generated/store.py
+[write] /tmp/v8-work/prompt_24/generated/cli.py
+[write] /tmp/v8-work/prompt_24/generated/__init__.py
+methods: 13 implemented, 2 stubs (87% mechanical)
+llm: 1 of 2 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
+  llm provisional: ProjectRepository.get_project_with_tasks
+  llm kept stub: ProjectRepository.get_projects_by_status — still refused: the model kept it unimplemented
+  stub: ProjectRepository.get_projects_by_status: parameter 'status' maps to no field
+  stub: ProjectRepository.get_project_with_tasks: gap NO_PATTERN_IN_DOMAIN: AGGREGATE_BY_FK_AND_DATE refused (AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (tuple[Project, list[Task]]))
+  cli Project add -> projectcreate [score 8]
+  cli Project delete -> projectdelete [score 11]
+  cli Project update -> projectupdate [score 3]
+  cli Task add -> taskcreate [score 8]
+  cli Task delete -> taskdelete [score 11]
+  cli Task update -> projectupdate [score 11]

@@ -1,0 +1,16 @@
+{
+  "slots": [
+    {
+      "holder": "SaleRepository",
+      "method": "getTotalRevenueByMonth",
+      "pattern": "AGGREGATE_BY_FK_AND_DATE",
+      "slots": {
+        "aggregate_func": "SUM",
+        "target_field": "total_price",
+        "date_field": "sale_date"
+      },
+      "decided_by": "user",
+      "requirements_sha": "fe9b7f94158770858ac7e524ce07dc32166f3bb34234af4587ac4c008397326c"
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "prompt": "prompt_21",
+  "results": [
+    {
+      "name": "scenario:oracle:delete_order",
+      "status": "passed",
+      "case": "delete_order",
+      "source": "Provide CRUD operations for customers and orders",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderRepository.delete_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_customer",
+      "status": "passed",
+      "case": "delete_customer",
+      "source": "Provide CRUD operations for customers and orders",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Order"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.delete_customer",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 2
+  },
+  "triage_counts": {
+    "passed": 2
+  }
+}

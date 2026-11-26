@@ -1,0 +1,236 @@
+{
+  "prompt": "prompt_51",
+  "results": [
+    {
+      "name": "sku_duplicate_allowed",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product_2.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "alias",
+            "canonical": "category_id",
+            "score": 7.0,
+            "evidence": [
+              "'category' maps to the id field"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "sku_cross_category_allowed",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product_2.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "alias",
+            "canonical": "category_id",
+            "score": 7.0,
+            "evidence": [
+              "'category' maps to the id field"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "sku_validation_on_create",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "Each product must have a unique SKU",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    },
+    {
+      "name": "sku_creation_with_duplicate_across_categories",
+      "status": "unbound",
+      "reason": "setup needs a Category row for Product.category_id",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product_2.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      }
+    }
+  ],
+  "counts": {
+    "unbound": 4
+  }
+}

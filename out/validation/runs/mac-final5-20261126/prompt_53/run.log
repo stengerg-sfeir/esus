@@ -1,0 +1,68 @@
+[run] requirements: 265 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 60 tokens in 1.6s (37.4 tok/s, 43.6 decode, 83 prompt)
+[data_models] 839 tokens in 22.7s (37.0 tok/s, 37.6 decode, 572 prompt)
+[ok] step data_models: Customer.customer_id became the integer primary key id
+[ok] step data_models: Product.product_id became the integer primary key id
+[ok] step data_models: Order.order_id became the integer primary key id
+[ok] step data_models: OrderItem.order_item_id became the integer primary key id
+[ok] step data_models: Order.customer_id retyped to int for its Customer key
+[ok] step data_models: OrderItem.order_id retyped to int for its Order key
+[ok] step data_models: OrderItem.product_id retyped to int for its Product key
+[ok] step data_models: uniqueness provenance — 4 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 220 tokens in 5.7s (38.8 tok/s, 40.8 decode, 502 prompt)
+[invariants] 71 tokens in 1.9s (37.1 tok/s, 42.6 decode, 306 prompt)
+[ok] step invariants: 27 invariant(s) — 25 schema generated mechanically, 2 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 359 tokens in 10.0s (36.0 tok/s, 37.1 decode, 1014 prompt)
+[ok] step components: normalized option '-output' to '--output'
+[ok] step components: normalized option '-debug' to '--debug'
+[ok] step components: added read_one to 1 persisted entity operation set(s)
+[service_contracts] 164 tokens in 4.8s (34.0 tok/s, 38.5 decode, 612 prompt)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: Product update, Order add, OrderItem add
+[ok] step contracts: normalized 9 generic type spelling(s) to Python annotations
+[ok] step contracts: retyped 1 id parameter(s) to int
+[persistence_ports] 840 tokens in 22.1s (38.0 tok/s, 38.7 decode, 436 prompt)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/13] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/13] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/13] contract:OrderManagementService.place_order -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: STOCK_SUFFICIENCY_GUARD returns boolean/none, but this method returns entity (models.Order)
+  [4/13] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [5/13] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [6/13] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [7/13] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [8/13] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [9/13] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [10/13] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [11/13] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [12/13] contract:OrderItemRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [13/13] contract:OrderItemRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+[ok] step patterns: 13 item(s) — 3 standard CRUD, 9 pattern(s), 1 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderManagementService.place_order: place_order(customer_id: int, order_items: array) -> models.Order: Places an order for a customer with specified products and quantities. Validates that all products have sufficient stock. If valid, reserves stock and creates the order.
+[ok] step adapters: 3 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: productupdate.id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderitemadd.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added 2 required create field(s)
+[!] step adapters has 2 unreachable field(s) — retrying once
+[interaction_adapters] 136 tokens in 4.1s (33.2 tok/s, 39.5 decode, 646 prompt)
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[!] step interaction_adapters retry has 1 item(s) versus 3 in the first attempt — kept the fuller first attempt; its 2 unreachable field(s) stay reported
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: Order add lacked '--customer-id' required by 'orderadd' — added as int
+[ok] step adapters: Order add lacked '--order-date' required by 'orderadd' — added as str
+[ok] step adapters: rebuilt prose-derived surface from 3 adapter(s)
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/method_plans.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_53/requirements.txt
+[run] 8 steps, 2689 generated tokens in 72.9s

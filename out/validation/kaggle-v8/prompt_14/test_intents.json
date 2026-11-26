@@ -1,0 +1,98 @@
+{
+  "intents": [
+    {
+      "id": "soft_delete_project",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "kind": "list",
+      "entity": "Project",
+      "action": "list_projects",
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "project.name": "Example Project",
+        "project.description": "A sample project",
+        "project.status": "active"
+      },
+      "lookup": [
+        "project.name"
+      ],
+      "where": {
+        "project.status": "active"
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "project.name": "Example Project",
+          "project.description": "A sample project",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        },
+        "error": null,
+        "stdout_contains": "Example Project",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "soft_delete_project_list_after_deletion",
+      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "kind": "list",
+      "entity": "Project",
+      "action": "list_projects",
+      "setup_entities": [
+        {
+          "alias": "project",
+          "entity": "Project",
+          "role": "target"
+        }
+      ],
+      "setup_values": {
+        "project.name": "Example Project",
+        "project.description": "A sample project",
+        "project.status": "active"
+      },
+      "lookup": [
+        "project.name"
+      ],
+      "where": {
+        "project.status": "active"
+      },
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "project.name": "Example Project",
+          "project.description": "A sample project",
+          "project.status": "active"
+        },
+        "rows": {
+          "Project": 1
+        },
+        "error": null,
+        "stdout_contains": "Example Project",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The deletion is soft, so the project remains in the database but is not visible in active listings."
+      ],
+      "ambiguities": [
+        "The requirement does not specify how the soft delete status is represented (e.g., a status field like 'deleted' or 'archived') or whether listing operations filter by active status."
+      ]
+    }
+  ]
+}

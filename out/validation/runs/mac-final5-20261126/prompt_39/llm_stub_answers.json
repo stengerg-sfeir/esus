@@ -1,0 +1,33 @@
+[
+  {
+    "label": "UserRepository.get_admin_users",
+    "status": "kept",
+    "note": "still refused: parameter `user_id` is never used in the body",
+    "answer": "criteria = []\n        criteria.append(('is_admin', 'eq', True))\n        found = self._store.select(self.ENTITY, criteria)\n        return [models.User(**r) for r in found]",
+    "first_answer": "criteria = []\n        criteria.append(('is_admin', 'eq', True))\n        found = self._store.select(self.ENTITY, criteria)\n        return [models.User(**r) for r in found]",
+    "complaints": [
+      "parameter `user_id` is never used in the body"
+    ],
+    "second_complaints": [
+      "parameter `user_id` is never used in the body"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 43,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 15.506043910980225,
+    "first_decode_seconds": 1.6095760000000001,
+    "first_prompt_tokens": 5049,
+    "first_cached_tokens": 335,
+    "finish_reason": "stop",
+    "tokens": 43,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.9861760139465332,
+    "decode_seconds": 1.4754369999999999,
+    "prompt_tokens": 5143,
+    "cached_tokens": 5019,
+    "context": "exact"
+  }
+]

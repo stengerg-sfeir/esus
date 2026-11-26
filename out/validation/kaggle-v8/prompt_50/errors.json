@@ -1,0 +1,24 @@
+{
+  "errors": [
+    {
+      "name": "EventNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when an event is requested by an event ID that does not exist in the system."
+    },
+    {
+      "name": "RegistrationNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a registration is requested by a registration ID that does not exist in the system."
+    },
+    {
+      "name": "UserNotFoundError",
+      "base": "LookupError",
+      "description": "Raised when a user is requested by a user ID that does not exist in the system."
+    },
+    {
+      "name": "EventCapacityExceededError",
+      "base": "ValueError",
+      "description": "Raised when an attempt is made to register for an event that has reached its capacity."
+    }
+  ]
+}

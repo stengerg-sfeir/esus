@@ -1,0 +1,29 @@
+{
+  "prompt": "prompt_library_system",
+  "results": [
+    {
+      "name": "oracle:book_available_only_flag",
+      "status": "failed",
+      "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value",
+      "case": "book_available_only_flag",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count."
+    },
+    {
+      "name": "oracle:book_available_only_absent",
+      "status": "failed",
+      "reason": "harness error: UnboundLocalError: cannot access local variable 'tempfile' where it is not associated with a value",
+      "case": "book_available_only_absent",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count."
+    },
+    {
+      "name": "return_already_returned_loan",
+      "status": "unbound",
+      "reason": "no generated method matches 'return'",
+      "source": "Returning an already returned loan raises AlreadyReturnedLoanError and changes neither the loan nor inventory."
+    }
+  ],
+  "counts": {
+    "failed": 2,
+    "unbound": 1
+  }
+}

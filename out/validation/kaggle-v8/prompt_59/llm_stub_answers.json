@@ -1,0 +1,48 @@
+[
+  {
+    "label": "TaxRepository.get_tax_rates_by_region",
+    "status": "kept",
+    "note": "still refused: the model kept it unimplemented",
+    "answer": "8 spaces:\nraise NotImplementedError(\"Tax.get_tax_rates_by_region: stub: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading\")",
+    "first_answer": "8 spaces:\nraise NotImplementedError(\"Tax.get_tax_rates_by_region: stub: pattern AGGREGATE_BY_FK_AND_DATE: no mechanical reading\")",
+    "complaints": [
+      "the model kept it unimplemented"
+    ],
+    "second_complaints": [
+      "the model kept it unimplemented"
+    ],
+    "repairs": 1,
+    "first_finish_reason": "stop",
+    "first_tokens": 31,
+    "first_budget": 3584,
+    "first_truncated": false,
+    "first_seconds": 20.8686420917511,
+    "first_decode_seconds": 0.931947,
+    "first_prompt_tokens": 6607,
+    "first_cached_tokens": 92,
+    "finish_reason": "stop",
+    "tokens": 31,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 1.4209449291229248,
+    "decode_seconds": 0.9261309999999999,
+    "prompt_tokens": 6682,
+    "cached_tokens": 6575,
+    "context": "exact"
+  },
+  {
+    "label": "DiscountRepository.get_active_discounts",
+    "status": "written",
+    "note": "",
+    "answer": "criteria = []\n        if self.ENTITY == \"Discount\":\n            criteria.append(('value', 'gt', 0))\n        found = self._store.select(self.ENTITY, criteria)\n        return [models.Discount(**r) for r in found]",
+    "finish_reason": "stop",
+    "tokens": 53,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 2.8513972759246826,
+    "decode_seconds": 1.642382,
+    "prompt_tokens": 6646,
+    "cached_tokens": 6336,
+    "context": "exact"
+  }
+]

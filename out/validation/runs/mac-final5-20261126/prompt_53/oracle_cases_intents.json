@@ -1,0 +1,121 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "order_with_insufficient_stock",
+      "source": "A customer must not be able to place an order if any product has insufficient stock.",
+      "given": {
+        "product": {
+          "stock_quantity": 0,
+          "name": "product name"
+        },
+        "customer": {
+          "name": "customer name",
+          "email": "customer@example.test"
+        }
+      },
+      "when": {
+        "action": "place_order",
+        "args": [
+          {
+            "ref": "product.id"
+          },
+          1
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "insufficient_stock"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "target entity Product is not used by the action; the action uses Customer"
+      ]
+    },
+    {
+      "id": "order_creation_decreases_stock",
+      "source": "When an order is successfully created, the corresponding stock quantities must be decreased.",
+      "given": {
+        "product": {
+          "stock_quantity": 5,
+          "name": "product name"
+        }
+      },
+      "when": {
+        "action": "decrease_stock",
+        "args": [
+          {
+            "ref": "product.id"
+          },
+          3
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 2
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Customer",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.check_product_stock",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "ProductRepository.read_all",
+            "ProductRepository.update"
+          ]
+        }
+      },
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "bulk collection parameter requires a scalar collection"
+      }
+    }
+  ]
+}

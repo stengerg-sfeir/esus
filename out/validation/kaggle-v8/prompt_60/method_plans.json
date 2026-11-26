@@ -1,0 +1,97 @@
+{
+  "plans": [
+    {
+      "holder": "OrderService",
+      "method": "create_order",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Order",
+      "target_service": "OrderRepository",
+      "target_method": "create"
+    },
+    {
+      "holder": "CustomerService",
+      "method": "create_customer",
+      "strategy": "delegate",
+      "pattern": "STANDARD_CRUD",
+      "entity": "Customer",
+      "target_service": "CustomerRepository",
+      "target_method": "create"
+    }
+  ],
+  "questions": [
+    {
+      "holder": "OrderService",
+      "method": "read_order_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "OrderService",
+      "method": "update_order",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "OrderService",
+      "method": "delete_order",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ProductService",
+      "method": "add_product",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ProductService",
+      "method": "update_product_stock",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ProductService",
+      "method": "read_product_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ProductService",
+      "method": "delete_product",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "CategoryService",
+      "method": "add_category",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "CategoryService",
+      "method": "update_category",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "CustomerService",
+      "method": "read_customer_by_id",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "CustomerService",
+      "method": "update_customer",
+      "pattern": "STANDARD_CRUD",
+      "reason": "CRUD method declares custom errors"
+    },
+    {
+      "holder": "ReportService",
+      "method": "get_order_status_report",
+      "pattern": "AGGREGATE_BY_FK",
+      "reason": "report structure needs human review"
+    }
+  ],
+  "requirements_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+}

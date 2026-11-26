@@ -1,0 +1,211 @@
+{
+  "scenarios": [
+    {
+      "name": "cli:User add",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--is-admin"
+          ],
+          [
+            "User",
+            "add",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--is-admin",
+            "true"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User update",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "update",
+            "--user-id",
+            "1",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--is-admin"
+          ],
+          [
+            "User",
+            "update",
+            "--user-id",
+            "1",
+            "--email",
+            "cli1@example.test",
+            "--password-hash",
+            "value1",
+            "--is-admin",
+            "true"
+          ]
+        ],
+        "seed_overrides": {
+          "User": {
+            "email": "cli1@example.test",
+            "password_hash": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:User delete",
+      "when": {
+        "cli_variants": [
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1",
+            "--email",
+            "seed1@example.test",
+            "--password-hash",
+            "value1",
+            "--is-admin",
+            "false"
+          ],
+          [
+            "User",
+            "delete",
+            "--user-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "User": {
+            "email": "seed1@example.test",
+            "password_hash": "value1",
+            "is_admin": false
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product add",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "add",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--description",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product update",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "update",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2",
+            "--description",
+            "value1"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0,
+            "description": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Product delete",
+      "when": {
+        "cli_variants": [
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1",
+            "--name",
+            "value1",
+            "--price",
+            "2.0",
+            "--description",
+            "value1"
+          ],
+          [
+            "Product",
+            "delete",
+            "--product-id",
+            "1"
+          ]
+        ],
+        "seed_overrides": {
+          "Product": {
+            "name": "value1",
+            "price": 2.0,
+            "description": "value1"
+          }
+        }
+      },
+      "expect": {
+        "exit": 0
+      }
+    },
+    {
+      "name": "cli:Order add",
+      "when": {
+        "cli_variants": [
+          [
+            "Order",
+            "add",
+            "--user-id",
+            "1",
+            "--order-date",
+            "2024-01-01T00:00:00",
+            "--status",
+            "value1"
+          ]
+        ]
+      },
+      "expect": {
+        "exit": 0
+      }
+    }
+  ]
+}

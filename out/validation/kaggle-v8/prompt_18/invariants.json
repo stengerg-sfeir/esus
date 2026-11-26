@@ -1,0 +1,92 @@
+{
+  "invariants": [
+    {
+      "text": "Contact.id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.first_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.first_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.last_name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.last_name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.phone must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.address must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.created_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.created_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.updated_at must be a datetime",
+      "kind": "schema"
+    },
+    {
+      "text": "Contact.updated_at must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "When a contact is imported from CSV, any row with invalid data (such as missing required fields or malformed values) must be rejected and not added to the database.",
+      "kind": "rule"
+    },
+    {
+      "text": "The export to CSV command must include all contact fields: first_name, last_name, email, phone, and address.",
+      "kind": "rule"
+    },
+    {
+      "text": "The import from CSV command must validate that each row contains at least the required fields: first_name, last_name, email, and phone.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a contact's email is provided, it must be in a valid format (e.g., contain an @ symbol and a domain).",
+      "kind": "rule"
+    },
+    {
+      "text": "When a contact is created or updated, the updated_at timestamp must be set to the current time.",
+      "kind": "rule"
+    },
+    {
+      "text": "The created_at timestamp for a new contact must be set to the current time.",
+      "kind": "rule"
+    },
+    {
+      "text": "If a contact is updated, the phone field must not be set to an empty string or null.",
+      "kind": "rule"
+    },
+    {
+      "text": "The address field is optional and may be omitted during creation or update.",
+      "kind": "rule"
+    },
+    {
+      "text": "All operations must maintain data integrity and not allow duplicate contacts based on email address.",
+      "kind": "rule"
+    }
+  ]
+}

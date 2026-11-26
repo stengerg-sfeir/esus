@@ -1,0 +1,88 @@
+{
+  "intents": [
+    {
+      "id": "cancel_order_restore_stock",
+      "source": "cancelling an order must restore its product quantities",
+      "kind": "delete",
+      "entity": "Order",
+      "action": "cancel_order",
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        },
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "cancelling"
+        }
+      ],
+      "setup_values": {
+        "product.stock_qty": 5,
+        "order.product_id": "prod123"
+      },
+      "lookup": [
+        "product.sku",
+        "order.id"
+      ],
+      "where": {
+        "product.active": true,
+        "order.status": "active"
+      },
+      "args": [
+        "order.id"
+      ],
+      "changes": {
+        "product.stock_qty": 8
+      },
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {
+          "product.stock_qty": 8
+        },
+        "rows": {
+          "Product": 1,
+          "Order": 1
+        },
+        "error": null,
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "atomic_modification_product_stock",
+      "source": "all modifications must be persisted atomically in SQLite",
+      "kind": "error",
+      "entity": "Product",
+      "action": "restore_stock_on_order_cancellation",
+      "setup_entities": [],
+      "setup_values": {},
+      "lookup": [],
+      "where": {},
+      "args": [],
+      "changes": {},
+      "cli": [],
+      "app": {},
+      "expect": {
+        "state": {},
+        "rows": {},
+        "error": "SQLiteTransactionError",
+        "stdout_contains": "",
+        "exit_code": 1
+      },
+      "status": "assumed",
+      "assumptions": [
+        "The system uses SQLite and transactions are not properly committed or rolled back on failure.",
+        "error class 'SQLiteTransactionError' is not stated in the target clause"
+      ],
+      "ambiguities": [
+        "The clause does not specify which modification is atomic or under what conditions failure occurs."
+      ]
+    }
+  ]
+}

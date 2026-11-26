@@ -1,0 +1,84 @@
+{
+  "invariants": [
+    {
+      "text": "Project.project_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Project.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.task_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.title must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.description must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.status must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.priority must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Task.project_id must reference an existing Project.project_id",
+      "kind": "schema"
+    },
+    {
+      "text": "A task must belong to exactly one project.",
+      "kind": "rule"
+    },
+    {
+      "text": "The status of a task must be one of the defined task status values.",
+      "kind": "rule"
+    },
+    {
+      "text": "The priority of a task must be one of the defined priority levels.",
+      "kind": "rule"
+    },
+    {
+      "text": "A project must have at least one task to be considered active.",
+      "kind": "rule"
+    },
+    {
+      "text": "When a task is deleted, its associated project is not affected unless the project has no other tasks.",
+      "kind": "rule"
+    }
+  ]
+}

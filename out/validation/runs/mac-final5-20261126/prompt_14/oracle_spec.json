@@ -1,0 +1,39 @@
+{
+  "requirements_sha": "38c006a09a269a49561c79b6661d78ff72405e1238ace66045923299a3777a55",
+  "decisions": [
+    {
+      "kind": "classification",
+      "source": "get_projects_with_recent_updates() -> list[Project]: Returns a list of projects that were last updated within the last 7 days, sorted by update timestamp in descending order.",
+      "chosen": "FILTER_WITH_PAGINATION",
+      "candidates": [
+        "FILTER_WITH_PAGINATION",
+        "THRESHOLD_SCAN"
+      ],
+      "provenance": "decisions.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

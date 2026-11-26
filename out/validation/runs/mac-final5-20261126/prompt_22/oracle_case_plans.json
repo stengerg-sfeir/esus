@@ -1,0 +1,237 @@
+{
+  "plans": [
+    {
+      "id": "create_order",
+      "source": "Create a Python 3.12 order management application.",
+      "when": {
+        "action": "create_order",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "create_order_with_products",
+      "source": "An order contains multiple products.",
+      "when": {
+        "action": "create_order_with_products",
+        "args": [
+          "product.id",
+          "quantity",
+          "unit_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 1,
+          "OrderItem": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "add_product_to_order",
+      "source": "A product can appear in multiple orders.",
+      "when": {
+        "action": "add_product_to_order",
+        "args": [
+          "order.id",
+          "product.id",
+          "quantity",
+          "unit_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "OrderItem": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "update_order_item_quantity",
+      "source": "Each order item contains a quantity and unit price.",
+      "when": {
+        "action": "update_order_item_quantity",
+        "args": [
+          "order.id",
+          "order_item.id",
+          "new_quantity"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "order_item",
+          "entity": "OrderItem",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order_item.quantity"
+        ],
+        "rows": {
+          "OrderItem": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "update_order_item_unit_price",
+      "source": "Each order item contains a quantity and unit price.",
+      "when": {
+        "action": "update_order_item_unit_price",
+        "args": [
+          "order.id",
+          "order_item.id",
+          "new_unit_price"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "order_item",
+          "entity": "OrderItem",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order_item.unit_price"
+        ],
+        "rows": {
+          "OrderItem": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "calculate_total_order_amount",
+      "source": "calculate the total order amount.",
+      "when": {
+        "action": "calculate_total_order_amount",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.total_amount"
+        ],
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "delete_order",
+      "source": "Provide CRUD operations",
+      "when": {
+        "action": "delete_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Order": 0,
+          "OrderItem": 0
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    },
+    {
+      "id": "delete_order_item",
+      "source": "Provide CRUD operations",
+      "when": {
+        "action": "delete_order_item",
+        "args": [
+          "order.id",
+          "order_item.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "order_item",
+          "entity": "OrderItem",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "OrderItem": 0
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
+}

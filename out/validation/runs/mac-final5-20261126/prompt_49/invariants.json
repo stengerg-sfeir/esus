@@ -1,0 +1,60 @@
+{
+  "invariants": [
+    {
+      "text": "Employee.employee_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.department_id must be an integer",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.department_id must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.department_id must reference an existing Department.department_id",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Employee.email must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "Department.department_id must be an auto-incremented integer primary key with default value None",
+      "kind": "schema"
+    },
+    {
+      "text": "Department.name must be a string",
+      "kind": "schema"
+    },
+    {
+      "text": "Department.name must not be null",
+      "kind": "schema"
+    },
+    {
+      "text": "An employee must belong to a department.",
+      "kind": "rule"
+    },
+    {
+      "text": "Each department must have at least one employee.",
+      "kind": "rule"
+    },
+    {
+      "text": "The department_id of an employee must reference a valid department_id in the Department table.",
+      "kind": "rule"
+    }
+  ]
+}

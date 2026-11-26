@@ -1,0 +1,151 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2023-10-01"
+        }
+      },
+      "when": {
+        "action": "create_note",
+        "args": [
+          "note.title",
+          "note.content",
+          "note.creation_date"
+        ]
+      },
+      "then": {
+        "state": {
+          "note.id": 1,
+          "note.title": "Meeting Notes",
+          "note.content": "Discuss project timeline",
+          "note.creation_date": "2023-10-01"
+        },
+        "rows": {
+          "Note": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "note.creation_date is datetime.datetime(2023, 10, 1, 0, 0), expected '2023-10-01'"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "list_notes",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2023-10-01"
+        }
+      },
+      "when": {
+        "action": "list_notes"
+      },
+      "then": {
+        "state": {
+          "note.title": "Meeting Notes",
+          "note.content": "Discuss project timeline",
+          "note.creation_date": "2023-10-01"
+        },
+        "rows": {
+          "Note": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "note.creation_date is datetime.datetime(2023, 10, 1, 0, 0), expected '2023-10-01'"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "update_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2023-10-01"
+        }
+      },
+      "when": {
+        "action": "update_note",
+        "args": [
+          "note.id",
+          "note.title",
+          "note.content"
+        ]
+      },
+      "then": {
+        "state": {
+          "note.title": "Updated Meeting Notes",
+          "note.content": "Discuss project timeline and next steps",
+          "note.creation_date": "2023-10-01"
+        },
+        "rows": {
+          "Note": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "update case supplies no new value for 'note.title' (setup has 'Meeting Notes')"
+      }
+    },
+    {
+      "id": "delete_note",
+      "source": "Provide create, list, update and delete operations using SQLite.",
+      "given": {
+        "note": {
+          "title": "Meeting Notes",
+          "content": "Discuss project timeline",
+          "creation_date": "2023-10-01"
+        }
+      },
+      "when": {
+        "action": "delete_note",
+        "args": [
+          "note.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Note": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
+}

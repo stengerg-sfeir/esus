@@ -1,0 +1,155 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "close_loan",
+      "source": "close loan",
+      "given": {
+        "loan": {
+          "status": "active",
+          "book_id": "book_1",
+          "member_id": "member_1"
+        }
+      },
+      "when": {
+        "action": "close_loan",
+        "args": [
+          "loan.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.status": "closed"
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Book row for Loan.book_id"
+      }
+    },
+    {
+      "id": "create_loan",
+      "source": "create and close loans",
+      "given": {
+        "member": {
+          "id": "member_1"
+        },
+        "book": {
+          "id": "book_1",
+          "stock_quantity": 3
+        }
+      },
+      "when": {
+        "action": "create_loan",
+        "args": [
+          "book.id",
+          "member.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.status": "active",
+          "book.stock_quantity": 2
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'book.stock_quantity' is not declared on Book"
+      }
+    },
+    {
+      "id": "borrow_book",
+      "source": "a member can borrow multiple books",
+      "given": {
+        "member": {
+          "id": "member_1"
+        },
+        "book": {
+          "id": "book_2",
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "book.id",
+          "member.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.status": "active",
+          "book.stock_quantity": 4
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state field 'book.stock_quantity' is not declared on Book"
+      }
+    },
+    {
+      "id": "return_book",
+      "source": "close loans",
+      "given": {
+        "loan": {
+          "status": "active",
+          "book_id": "book_1",
+          "member_id": "member_1"
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "book.id",
+          "member.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "loan.status": "closed",
+          "book.stock_quantity": 3
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Book row for Loan.book_id"
+      }
+    }
+  ]
+}

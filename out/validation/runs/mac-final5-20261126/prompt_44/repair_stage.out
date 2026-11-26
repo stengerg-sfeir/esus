@@ -1,0 +1,31 @@
+$ /opt/homebrew/opt/python@3.12/bin/python3.12 extract_arch.py --repair --output /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44 --quiet
+
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_44/persistence_ports.json
+
+
+[ok] step components: aligned 2 option type(s) with the data model: --price -> float (2 models agreeing on float), --total_price -> float (2 models agreeing on float)
+[ok] step contracts: added the primary key to 1 parameterless lookup(s): SaleRepository.getTopSellingProducts(sale_id)
+[ok] step adapters: create_sale.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: create_sale.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productdelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerdelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: saleupdate.sale_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: saleupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: saleupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: saledelete.sale_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: saledelete.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: saledelete.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: rebuilt prose-derived surface from 12 adapter(s)
+[ok] step persistence: 3 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step data_models: applied 1 grouped uniqueness decision(s)
+

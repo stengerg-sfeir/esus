@@ -1,0 +1,347 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "sku_duplicate_allowed",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "given": {
+        "product_1": {
+          "sku": "ABC123",
+          "category": "electronics"
+        },
+        "product_2": {
+          "sku": "ABC123",
+          "category": "furniture"
+        }
+      },
+      "when": {
+        "action": "validate_product_creation",
+        "args": [
+          "product_2"
+        ]
+      },
+      "then": {
+        "state": {
+          "product_2.status": "created",
+          "product_2.category": "furniture"
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product_2.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "alias",
+            "canonical": "category_id",
+            "score": 7.0,
+            "evidence": [
+              "'category' maps to the id field"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    },
+    {
+      "id": "sku_cross_category_allowed",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "given": {
+        "product_1": {
+          "sku": "XYZ789",
+          "category": "clothing"
+        },
+        "product_2": {
+          "sku": "XYZ789",
+          "category": "books"
+        }
+      },
+      "when": {
+        "action": "validate_product_creation",
+        "args": [
+          "product_2"
+        ]
+      },
+      "then": {
+        "state": {
+          "product_2.status": "created",
+          "product_2.category": "books"
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product_2.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "alias",
+            "canonical": "category_id",
+            "score": 7.0,
+            "evidence": [
+              "'category' maps to the id field"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    },
+    {
+      "id": "sku_validation_on_create",
+      "source": "Each product must have a unique SKU",
+      "given": {
+        "product": {
+          "sku": "DEF456",
+          "category": "toys"
+        }
+      },
+      "when": {
+        "action": "validate_product_creation",
+        "args": [
+          "product"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.status": "created"
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    },
+    {
+      "id": "sku_creation_with_duplicate_across_categories",
+      "source": "the system must allow multiple products to use the same SKU when they belong to different categories",
+      "given": {
+        "product_1": {
+          "sku": "MNO300",
+          "category": "electronics"
+        },
+        "product_2": {
+          "sku": "MNO300",
+          "category": "home"
+        }
+      },
+      "when": {
+        "action": "validate_product_creation",
+        "args": [
+          "product_2"
+        ]
+      },
+      "then": {
+        "state": {
+          "product_2.status": "created"
+        }
+      },
+      "status": "unbound",
+      "base_status": "unbound",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product_1": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 9.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 9.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product_2.status": {
+            "status": "invented",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "no prompt evidence for field 'status'",
+              "not declared on Product"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt names the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "setup needs a Category row for Product.category_id"
+      }
+    }
+  ]
+}

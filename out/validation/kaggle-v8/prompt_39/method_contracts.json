@@ -1,0 +1,95 @@
+{
+  "method_contracts": [
+    {
+      "holder": "UserService",
+      "method": "update_user_role",
+      "decided_by": "user",
+      "requirements_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53",
+      "effects": [
+        {
+          "target": "user.role",
+          "op": "set",
+          "value": "new_role",
+          "write": "UserRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "user",
+          "repository": "UserRepository",
+          "method": "read_one",
+          "args": [
+            "user_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "user exists",
+          "error": "UserNotFoundError",
+          "raise_when": "false"
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "confirm_order",
+      "decided_by": "auto",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'confirmed'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "order.status == 'pending'",
+          "error": "ValueError",
+          "raise_when": "false"
+        }
+      ]
+    },
+    {
+      "holder": "OrderService",
+      "method": "cancel_order",
+      "decided_by": "auto",
+      "effects": [
+        {
+          "target": "order.status",
+          "op": "set",
+          "value": "'cancelled'",
+          "write": "OrderRepository.update"
+        }
+      ],
+      "bindings": [
+        {
+          "name": "order",
+          "repository": "OrderRepository",
+          "method": "read_one",
+          "args": [
+            "order_id"
+          ]
+        }
+      ],
+      "preconditions": [
+        {
+          "check": "order.status == 'confirmed'",
+          "error": "ValueError",
+          "raise_when": "false"
+        }
+      ]
+    }
+  ]
+}

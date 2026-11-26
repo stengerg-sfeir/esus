@@ -1,0 +1,279 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "add_product_unique_sku",
+      "source": "product add --sku --name --category --price --stock",
+      "given": {
+        "product": {
+          "sku": "ABC123",
+          "name": "Laptop",
+          "category_id": 1,
+          "price_cents": 10000,
+          "stock_qty": 10
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "ABC123",
+          "Laptop",
+          1,
+          10000,
+          10
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "ABC123",
+          "product.name": "Laptop",
+          "product.category_id": 1,
+          "product.price_cents": 10000,
+          "product.stock_qty": 10
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "raised CategoryNotFoundError: Product.category_id=1 references missing Category.id; expected 'ProductNotFoundError'"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "add_product_category_exists",
+      "source": "product add --sku --name --category --price --stock",
+      "given": {
+        "product": {
+          "sku": "DEF456",
+          "name": "Mouse",
+          "category_id": 1,
+          "price_cents": 500,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "DEF456",
+          "Mouse",
+          1,
+          500,
+          5
+        ]
+      },
+      "then": {
+        "state": {
+          "product.sku": "DEF456",
+          "product.name": "Mouse",
+          "product.category_id": 1,
+          "product.price_cents": 500,
+          "product.stock_qty": 5
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "raised CategoryNotFoundError: Product.category_id=1 references missing Category.id; expected 'ProductNotFoundError'"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "delete_product",
+      "source": "product delete --id",
+      "given": {
+        "product": {
+          "id": 1
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "1"
+        ]
+      },
+      "then": {
+        "state": {},
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "expected ProductNotFoundError, no error was raised"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "restock_product",
+      "source": "product restock --id --qty",
+      "given": {
+        "product": {
+          "id": 1,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "restock",
+        "args": [
+          1,
+          10
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 15
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "expected ProductNotFoundError, no error was raised"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "low_stock_report",
+      "source": "product report low-stock",
+      "given": {
+        "category": {
+          "id": 1,
+          "reorder_threshold": 10
+        },
+        "product": {
+          "id": 1,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "low_stock_report"
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 5
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "execution": {
+        "status": "failed",
+        "reason": "expected ProductNotFoundError, no error was raised"
+      },
+      "triage": "case_defect: setup",
+      "needs_review": false
+    },
+    {
+      "id": "stock_value_by_category",
+      "source": "product report value",
+      "given": {
+        "category": {
+          "id": 1,
+          "reorder_threshold": 10
+        },
+        "product": {
+          "id": 1,
+          "price_cents": 10000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "stock_value_by_category"
+      },
+      "then": {
+        "state": {
+          "category.id": 1,
+          "total_stock_value": 50000
+        },
+        "error": "ProductNotFoundError",
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "case_defect: setup",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "expected state references unseeded alias 'total_stock_value'"
+      }
+    },
+    {
+      "id": "category_add",
+      "source": "category add --name [--description] [--threshold]",
+      "given": {
+        "category": {
+          "name": "Electronics",
+          "description": "Devices and gadgets",
+          "reorder_threshold": 20
+        }
+      },
+      "when": {
+        "action": "category_add",
+        "args": [
+          "Electronics",
+          "--description=Devices and gadgets",
+          "--threshold=20"
+        ]
+      },
+      "then": {
+        "state": {
+          "category.name": "Electronics",
+          "category.description": "Devices and gadgets",
+          "category.reorder_threshold": 20
+        },
+        "error": "CategoryNotFoundError",
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "triage": "coverage_gap: missing action",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "no generated method matches 'category_add'"
+      }
+    }
+  ]
+}

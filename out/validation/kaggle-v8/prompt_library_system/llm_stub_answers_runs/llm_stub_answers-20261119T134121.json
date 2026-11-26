@@ -1,0 +1,32 @@
+[
+  {
+    "label": "LibraryService.renew_membership",
+    "status": "written",
+    "note": "",
+    "answer": "member = self._repos['MemberRepository'].read_one(member_id)\n    if member is None:\n        raise errors.MemberNotFoundError\n    self._repos['MemberRepository'].update(member.id, is_active=not member.is_active)",
+    "finish_reason": "stop",
+    "tokens": 48,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 13.899149179458618,
+    "decode_seconds": 1.326379,
+    "prompt_tokens": 4546,
+    "cached_tokens": 658,
+    "context": "exact"
+  },
+  {
+    "label": "LibraryService.borrow_book",
+    "status": "written",
+    "note": "",
+    "answer": "member = self._repos['MemberRepository'].read_one(member_id)\n        if member is None:\n            raise errors.MemberNotFoundError\n        book = self._repos['BookRepository'].read_one(book_id)\n        if book is None:\n            raise errors.BookNotFoundError\n        if book.available_copies <= 0:\n            raise errors.InvalidBookCopiesError\n        loan = self._repos['LoanRepository'].create(\n            book_id=book.id,\n            member_id=member.id,\n            loan_date=datetime.date.today(),\n            due_date=datetime.date.today() + datetime.timedelta(days=14)\n        )\n        self._repos['BookRepository'].update(\n            book.id,\n            available_copies=book.available_copies - 1\n        )",
+    "finish_reason": "stop",
+    "tokens": 153,
+    "budget": 3584,
+    "truncated": false,
+    "seconds": 7.123087167739868,
+    "decode_seconds": 4.3608270000000005,
+    "prompt_tokens": 4811,
+    "cached_tokens": 3970,
+    "context": "exact"
+  }
+]

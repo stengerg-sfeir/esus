@@ -1,0 +1,309 @@
+{
+  "plans": [
+    {
+      "id": "borrow_book_action",
+      "source": "library borrow --member-id --book-id",
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "member_id",
+          "book_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "target"
+        },
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.available_copies",
+          "loan.status",
+          "loan.return_date"
+        ],
+        "rows": {
+          "Loan": 1
+        },
+        "error": "MemberNotFoundError|BookNotFoundError|AlreadyReturnedLoanError"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "return_book_action",
+      "source": "library return --loan-id",
+      "when": {
+        "action": "return_book",
+        "args": [
+          "loan_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        },
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "loan.return_date",
+          "loan.status",
+          "book.available_copies"
+        ],
+        "rows": {
+          "Loan": 1
+        },
+        "error": "LoanNotFoundError"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_books_action",
+      "source": "library book search --query",
+      "when": {
+        "action": "search_books",
+        "args": [
+          "query"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.isbn",
+          "book.author_id"
+        ],
+        "rows": {
+          "Book": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "book_list_with_author_filter",
+      "source": "library book list [--author]",
+      "when": {
+        "action": "list_books",
+        "args": [
+          "author"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "filter"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.isbn",
+          "book.available_copies"
+        ],
+        "rows": {
+          "Book": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "member_list_active_only",
+      "source": "library member list [--active-only]",
+      "when": {
+        "action": "list_members",
+        "args": [
+          "active_only"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "member.name",
+          "member.email",
+          "member.is_active"
+        ],
+        "rows": {
+          "Member": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "overdue_loans_report",
+      "source": "library overdue",
+      "when": {
+        "action": "get_overdue_loans",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "loan.due_date",
+          "loan.return_date",
+          "loan.status"
+        ],
+        "rows": {
+          "Loan": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "member_history_query",
+      "source": "library member history --member-id",
+      "when": {
+        "action": "get_member_history",
+        "args": [
+          "member_id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "member",
+          "entity": "Member",
+          "role": "target"
+        },
+        {
+          "alias": "loan",
+          "entity": "Loan",
+          "role": "related"
+        }
+      ],
+      "expect": {
+        "state": [
+          "loan.book_id",
+          "loan.member_id",
+          "loan.loan_date",
+          "loan.due_date",
+          "loan.return_date"
+        ],
+        "rows": {
+          "Loan": 0
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "author_add_command",
+      "source": "library author add --name --birth-year [--biography]",
+      "when": {
+        "action": "add_author",
+        "args": [
+          "name",
+          "birth_year",
+          "biography"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "author.name",
+          "author.birth_year",
+          "author.biography"
+        ],
+        "rows": {
+          "Author": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "book_add_with_author_id",
+      "source": "library book add --title --isbn --author-id --published-year --copies",
+      "when": {
+        "action": "add_book",
+        "args": [
+          "title",
+          "isbn",
+          "author_id",
+          "published_year",
+          "copies"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "book",
+          "entity": "Book",
+          "role": "target"
+        },
+        {
+          "alias": "author",
+          "entity": "Author",
+          "role": "reference"
+        }
+      ],
+      "expect": {
+        "state": [
+          "book.title",
+          "book.isbn",
+          "book.author_id",
+          "book.published_year",
+          "book.available_copies"
+        ],
+        "rows": {
+          "Book": 1
+        },
+        "error": "AuthorNotFoundError"
+      },
+      "status": "confirmed"
+    }
+  ]
+}

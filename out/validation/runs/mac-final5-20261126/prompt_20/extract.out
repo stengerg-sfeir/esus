@@ -1,0 +1,33 @@
+steps:
+  intentions: the program's own phrases from the requirements
+  data_models: entities and their fields
+  errors: application error types
+  invariants: rules the program must always hold
+  components: CLI surface and CRUD services
+  service_contracts: service methods with params and raises
+  errors_repair: deterministic error-registry fix (no model call)
+  pattern_matches: pattern classification of invariants and methods
+  interaction_adapters: CLI input to service-method mapping
+  persistence_ports: repository interfaces for the entities
+intentions: 5 phrase(s)
+data_models: 2 entities, 7 field(s)
+errors: 0 error(s)
+invariants: 23 invariant(s)
+components: 2 command(s)
+service_contracts: 3 service(s), 12 method(s)
+errors_repair: 0 error(s), 3 service(s) after repair
+persistence_ports: 2 repositor(y/ies)
+pattern_matches: 32 item(s)
+interaction_adapters: 6 adapter(s)
+[intentions] 86 tokens in 2.3s (37.4 tok/s, 41.9 decode, 84 prompt)
+[data_models] 435 tokens in 11.7s (37.2 tok/s, 38.4 decode, 599 prompt)
+[errors] 8 tokens in 0.5s (16.7 tok/s, 41.9 decode, 486 prompt)
+[invariants] 349 tokens in 9.5s (36.8 tok/s, 38.0 decode, 290 prompt)
+[components] 1283 tokens in 37.8s (33.9 tok/s, 34.2 decode, 998 prompt)
+[service_contracts] 92 tokens in 3.8s (24.3 tok/s, 37.4 decode, 492 prompt)
+[persistence_ports] 790 tokens in 21.9s (36.1 tok/s, 36.7 decode, 412 prompt)
+[run] 7 steps, 3043 generated tokens in 87.5s
+==== SUMMARY ====
+review: none — the documents are unreviewed
+blockers: 0, open tie(s): 0
+GENERATABLE: YES (UNREVIEWED) — `generator.py` can run, but no human review ran; the generated code may be incomplete or wrong

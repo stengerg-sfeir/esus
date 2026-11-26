@@ -1,0 +1,59 @@
+{
+  "requirements_sha": "f297bf6e3557e49b0e4cb550133e3fc4b57b7c2fda5ba32cc84a9779cb9097c7",
+  "decisions": [
+    {
+      "kind": "method_contract",
+      "source": "BookingService.create_booking",
+      "chosen": {
+        "creates": [
+          {
+            "class": "Booking",
+            "call": "BookingRepository.create"
+          }
+        ],
+        "preconditions": [
+          {
+            "check": "guest exists",
+            "error": "GuestNotFoundError",
+            "raise_when": "false"
+          },
+          {
+            "check": "room exists",
+            "error": "RoomNotFoundError",
+            "raise_when": "false"
+          },
+          {
+            "check": "any(str(row.room_id) == str(room_id) and str(row.check_in_date or '') < str(check_out_date) and str(check_in_date) < str(row.check_out_date or '') for row in self._repos['BookingRepository'].read_all())",
+            "error": "RoomConflictError",
+            "raise_when": "true"
+          }
+        ]
+      },
+      "provenance": "method_contracts.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "conventional",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "display",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    },
+    {
+      "kind": "unique_policy",
+      "source": "other",
+      "chosen": {
+        "unique": false
+      },
+      "provenance": "unique_policy.json"
+    }
+  ]
+}

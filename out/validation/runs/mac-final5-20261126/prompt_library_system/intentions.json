@@ -1,0 +1,26 @@
+{
+  "intentions": [
+    "Define a Book model with required fields: id, title, isbn (unique), published_year, available_copies (default 1), and a foreign key author_id.",
+    "Define an Author model with required fields: id, name, birth_year, and optional biography.",
+    "Define a Member model with required fields: id, name, email (unique), membership_date (default today), and is_active (default True).",
+    "Define a Loan model with required fields: id, book_id (foreign key), member_id (foreign key), loan_date, due_date, return_date (nullable), and status (active/returned/overdue).",
+    "Implement a BookRepository with SQLite storage supporting CRUD operations and search/filtering by title, author, ISBN, and available copies.",
+    "Implement an AuthorRepository with SQLite storage supporting CRUD operations and finding books by author.",
+    "Implement a MemberRepository with SQLite storage supporting CRUD operations and filtering active or inactive members.",
+    "Implement a LoanRepository with SQLite storage supporting CRUD operations and queries for active, overdue loans, and member/book loan history.",
+    "Create a LibraryService layer with business logic including borrow_book, return_book, get_overdue_loans, renew_membership, and search_books with proper validation and transactional integrity.",
+    "Build a CLI interface using Click with commands for managing books, authors, members, and loans, including validation and optional flags.",
+    "Enforce referential integrity in the database schema using foreign key constraints with CASCADE on delete for books and loans.",
+    "Ensure all IDs are auto-incremented primary keys and are optional (int | None) in domain models.",
+    "Validate input constraints: ISBN uniqueness, email uniqueness, non-negative available copies, valid author ID references.",
+    "Support case-insensitive substring search across title, author name, and ISBN in book search.",
+    "Handle transactional borrowing and returning with full rollback on failure.",
+    "Enforce that a loan is overdue only when due_date < today and return_date is null.",
+    "Raise an error when attempting to return an already returned loan.",
+    "Ensure that borrowing reduces available copies to zero when the final copy is borrowed.",
+    "Ensure that returning increases available copies by one and updates status to 'returned'.",
+    "Allow filtering in CLI commands (e.g., --author, --available-only, --active-only) with appropriate logic in repositories and service layer.",
+    "Use type hints throughout the codebase for clarity and maintainability.",
+    "Separate concerns using clean architecture: domain models, repositories, service layer, and CLI interface."
+  ]
+}

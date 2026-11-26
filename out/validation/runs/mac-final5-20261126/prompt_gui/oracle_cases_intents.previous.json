@@ -1,0 +1,191 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "price_greater_than_cost",
+      "source": "The selling price of a wine bottle must always be strictly greater than its cost price.",
+      "given": {
+        "storagelocation": {
+          "zone_name": "storagelocation value",
+          "row_number": 1,
+          "shelf_number": 1,
+          "maximum_capacity": 1
+        },
+        "wine": {
+          "cost_price": 10.0,
+          "selling_price": 10.0,
+          "storage_location_id": {
+            "ref": "storagelocation.id"
+          },
+          "name": "wine name",
+          "vintage_year": 1,
+          "wine_type": "wine value",
+          "country_of_origin": "wine value",
+          "stock_quantity": 1
+        }
+      },
+      "when": {
+        "action": "validate_selling_price",
+        "args": [
+          {
+            "ref": "wine.id"
+          }
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "InvalidPricingException"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'InvalidPricingException' is only stated in another requirement"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "stock_never_below_zero",
+      "source": "A wine's stock quantity can never drop below zero.",
+      "given": {
+        "storagelocation": {
+          "zone_name": "storagelocation value",
+          "row_number": 1,
+          "shelf_number": 1,
+          "maximum_capacity": 1
+        },
+        "wine": {
+          "stock_quantity": 5,
+          "storage_location_id": {
+            "ref": "storagelocation.id"
+          },
+          "name": "wine name",
+          "vintage_year": 1,
+          "wine_type": "wine value",
+          "country_of_origin": "wine value",
+          "cost_price": 10.0,
+          "selling_price": 10.0
+        }
+      },
+      "when": {
+        "action": "update_stock_quantity",
+        "args": {
+          "stock_quantity": 0
+        }
+      },
+      "then": {
+        "state": {
+          "wine.stock_quantity": 0
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "NegativeStockError"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'NegativeStockError' is only stated in another requirement"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "location_capacity_exceeded_error",
+      "source": "The total number of bottles assigned to a specific storage location cannot exceed that location's defined maximum bottle capacity.",
+      "given": {
+        "location": {
+          "maximum_capacity": 2,
+          "zone_name": "location value",
+          "row_number": 1,
+          "shelf_number": 1
+        },
+        "wine": {
+          "stock_quantity": 1,
+          "storage_location_id": {
+            "ref": "location.id"
+          },
+          "name": "wine name",
+          "vintage_year": 1,
+          "wine_type": "wine value",
+          "country_of_origin": "wine value",
+          "cost_price": 10.0,
+          "selling_price": 10.0
+        }
+      },
+      "when": {
+        "action": "assign_bottle_to_location",
+        "args": [
+          {
+            "ref": "wine.id"
+          },
+          {
+            "ref": "location.id"
+          },
+          3
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "LocationOverCapacityException"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'LocationOverCapacityException' is only stated in another requirement"
+      ],
+      "ambiguities": []
+    },
+    {
+      "id": "prevent_removal_if_assigned",
+      "source": "Prevent the removal of a storage location if wine bottles are currently assigned to it.",
+      "given": {
+        "location": {
+          "zone_name": "Main Cellar",
+          "row_number": 1,
+          "shelf_number": 3,
+          "maximum_capacity": 10
+        },
+        "wine": {
+          "stock_quantity": 1,
+          "storage_location_id": {
+            "ref": "location.id"
+          },
+          "name": "wine name",
+          "vintage_year": 1,
+          "wine_type": "wine value",
+          "country_of_origin": "wine value",
+          "cost_price": 10.0,
+          "selling_price": 10.0
+        }
+      },
+      "when": {
+        "action": "remove_storage_location",
+        "args": [
+          {
+            "ref": "location.id"
+          }
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {},
+        "stdout_contains": "",
+        "exit_code": 1,
+        "error": "LocationOverCapacityException"
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "error class 'LocationOverCapacityException' is only stated in another requirement"
+      ],
+      "ambiguities": []
+    }
+  ]
+}

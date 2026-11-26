@@ -1,0 +1,138 @@
+[run] requirements: 353 characters
+[run] temperature=0.0 seed=20261012
+[intentions] 112 tokens in 3.0s (37.7 tok/s, 42.0 decode, 103 prompt)
+[data_models] 939 tokens in 25.6s (36.7 tok/s, 37.4 decode, 641 prompt)
+[ok] step data_models: uniqueness provenance — 4 explicit, 1 inferred (inferred fields are not enforced until confirmed)
+[errors] 481 tokens in 13.3s (36.0 tok/s, 39.5 decode, 529 prompt)
+[invariants] 379 tokens in 9.7s (39.2 tok/s, 40.8 decode, 333 prompt)
+[ok] step invariants: 37 invariant(s) — 27 schema generated mechanically, 10 rule(s) from the model
+[!] step components: no command lines extracted — deriving the surface from prose
+[ok] step components: split disabled — no command lines to divide into groups
+[components] 1427 tokens in 41.3s (34.6 tok/s, 34.9 decode, 1041 prompt)
+[ok] step components: normalized option '-search' to '--search'
+[ok] step components: normalized option '-filter' to '--filter'
+[ok] step components: normalized option '-cancel' to '--cancel'
+[ok] step components: normalized option '-help' to '--help'
+[ok] step components: normalized option '-version' to '--version'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-email' to '--email'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-category' to '--category'
+[ok] step components: normalized option '-name' to '--name'
+[ok] step components: normalized option '-price' to '--price'
+[ok] step components: normalized option '-stock' to '--stock'
+[ok] step components: normalized option '-customer-id' to '--customer-id'
+[ok] step components: normalized option '-date' to '--date'
+[ok] step components: normalized option '-status' to '--status'
+[ok] step components: normalized option '-order-id' to '--order-id'
+[service_contracts] 789 tokens in 21.8s (36.1 tok/s, 37.9 decode, 789 prompt)
+[ok] step contracts: added 9 mechanical service method(s)
+[ok] step contracts: added 4 mechanical repository entries
+[ok] step components: added 6 CRUD subcommand(s) from the service contracts: customer update, order update, order delete, OrderProduct add, OrderProduct update, OrderProduct delete
+[ok] step contracts: normalized 12 generic type spelling(s) to Python annotations
+[ok] step errors: no method raises 'InvalidProductQuantityError' and it is a validation shape the requirements never name — dropped
+[ok] step errors: no method raises 'PermissionError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'DatabaseConnectionError' and it is named nowhere in the requirements — dropped
+[ok] step errors: no method raises 'MalformedCSVError' and it is a validation shape the requirements never name — dropped
+[persistence_ports] 882 tokens in 25.4s (34.7 tok/s, 35.5 decode, 480 prompt)
+[ok] step persistence: merged 10 custom repository method(s) into service_contracts
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+  [1/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [2/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [3/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [4/57] invariant -> STATE_TRANSITION_GUARD (1.00)
+  [5/57] invariant -> FILTER_WITH_PAGINATION (1.00)
+  [6/57] invariant -> BUDGET_OVERFLOW_GUARD (0.94)
+  [7/57] invariant -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [8/57] invariant -> STOCK_SUFFICIENCY_GUARD (0.92)
+  [9/57] invariant -> PRICE_MARGIN_GUARD (0.99)
+  [10/57] invariant -> STOCK_SUFFICIENCY_GUARD (0.91)
+  [11/57] contract:OrderService.confirm_order -> STOCK_SUFFICIENCY_GUARD (0.97)
+  [12/57] contract:OrderService.cancel_order -> STATE_TRANSITION_GUARD (0.54)  <- undecided (pattern): STOCK_SUFFICIENCY_GUARD at 0.45
+  [13/57] contract:OrderService.get_order_with_products -> NO_PATTERN_IN_DOMAIN (0.01)  <- UNKNOWN: READ_ONE_BY_ID returns entity, but this method returns mapping (dict)
+  [14/57] contract:OrderService.create_order -> STANDARD_CRUD (1.00)
+  [15/57] contract:OrderService.read_all_orders -> READ_ALL (0.64)
+  [16/57] contract:OrderService.read_order_by_id -> STANDARD_CRUD (1.00)
+  [17/57] contract:OrderService.update_order -> STANDARD_CRUD (1.00)
+  [18/57] contract:OrderService.delete_order -> STANDARD_CRUD (1.00)
+  [19/57] contract:ProductService.search_products -> FILTER_WITH_PAGINATION (1.00)
+  [20/57] contract:ProductService.get_product_by_id -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: READ_ONE_BY_ID returns entity, but this method returns mapping (dict)
+  [21/57] contract:ProductService.update_product_stock -> STOCK_SUFFICIENCY_GUARD (1.00)
+  [22/57] contract:ProductService.create_product -> STANDARD_CRUD (1.00)
+  [23/57] contract:ProductService.read_all_products -> READ_ALL (0.49)
+  [24/57] contract:CustomerService.get_customer_by_id -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: READ_ONE_BY_ID returns entity, but this method returns mapping (dict)
+  [25/57] contract:CustomerService.list_customers -> READ_ALL (0.17)  <- corrected: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns collection (list[dict]) (was AGGREGATE_BY_FK_AND_DATE)
+  [26/57] contract:CustomerService.create_customer -> STANDARD_CRUD (1.00)
+  [27/57] contract:CustomerService.update_customer -> STANDARD_CRUD (1.00)
+  [28/57] contract:CustomerRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [29/57] contract:CustomerRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [30/57] contract:CustomerRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [31/57] contract:CustomerRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [32/57] contract:CustomerRepository.find_customer_by_email -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [33/57] contract:CustomerRepository.find_customers_by_name_pattern -> FILTER_WITH_PAGINATION (1.00)
+  [34/57] contract:ProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [35/57] contract:ProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [36/57] contract:ProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [37/57] contract:ProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [38/57] contract:ProductRepository.find_product_by_name -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [39/57] contract:ProductRepository.find_products_by_category -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [40/57] contract:ProductRepository.find_products_by_price_range -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [41/57] contract:OrderRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [42/57] contract:OrderRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [43/57] contract:OrderRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [44/57] contract:OrderRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [45/57] contract:OrderRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [46/57] contract:OrderRepository.get_orders_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [47/57] contract:OrderRepository.find_order_by_id -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [48/57] contract:OrderRepository.find_orders_by_customer_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [49/57] contract:OrderRepository.find_orders_by_status -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [50/57] contract:OrderRepository.cancel_order -> STATE_TRANSITION_GUARD (0.90)
+  [51/57] contract:OrderProductRepository.create -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [52/57] contract:OrderProductRepository.read_all -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [53/57] contract:OrderProductRepository.read_one -> READ_ONE_BY_ID (1.00)  <- deterministic (repository CRUD)
+  [54/57] contract:OrderProductRepository.update -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [55/57] contract:OrderProductRepository.delete -> STANDARD_CRUD (1.00)  <- deterministic (repository CRUD)
+  [56/57] contract:OrderProductRepository.get_order_products_by_product_id -> FILTER_BY_FIELD (1.00)  <- deterministic (repository CRUD)
+  [57/57] contract:OrderProductRepository.get_order_product_details -> NO_PATTERN_IN_DOMAIN (0.00)  <- UNKNOWN: AGGREGATE_BY_FK_AND_DATE returns mapping/scalar, but this method returns entity (int | None)
+[ok] step patterns: 57 item(s) — 17 standard CRUD, 36 pattern(s), 4 gap(s)
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderService.get_order_with_products: get_order_with_products(order_id: int) -> dict: Retrieves an order with its associated products and their quantities, including the order status and customer name.
+    gap [NO_PATTERN_IN_DOMAIN] contract:ProductService.get_product_by_id: get_product_by_id(product_id: int) -> dict: Retrieves a product by its product ID, including its name, price, and stock quantity.
+    gap [NO_PATTERN_IN_DOMAIN] contract:CustomerService.get_customer_by_id: get_customer_by_id(customer_id: int) -> dict: Retrieves a customer by their customer ID, including their name and email.
+    gap [NO_PATTERN_IN_DOMAIN] contract:OrderProductRepository.get_order_product_details: get_order_product_details(order_id: int, product_id: int) -> int | None: Retrieves the quantity of a product in a specific order, by order and product ID.
+[ok] step adapters: derived 3 command group(s) from 47 service method(s)
+[ok] step adapters: 11 adapter(s) derived mechanically from the model-chosen prose surface
+[ok] step adapters: orderconfirm.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: ordercancel.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderadd.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: orderdelete.order_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: productupdate.product_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: customerupdate.customer_id targets an integer key — changed DIRECT to LOOKUP_ID
+[ok] step adapters: added capability method OrderService.orderconfirm (confirm)
+[ok] step adapters: added capability method ProductService.productsearch (search)
+[ok] step persistence: 4 repository interface(s) adopted from service_contracts, so both documents declare one method set
+[ok] step adapters: rebuilt prose-derived surface from 9 adapter(s)
+[ok] step components: added 3 CRUD subcommand(s) from the service contracts: OrderProduct add, OrderProduct update, OrderProduct delete
+[ok] step adapters: added 3 missing adapter(s) mechanically: OrderProduct add, OrderProduct update, OrderProduct delete
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/method_plans.json
+[ok] method plans: 3 mechanical candidate(s)
+[!] method plans: 4 ambiguous question(s) — human review required
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/intentions.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/data_models.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/errors.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/invariants.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/components.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/service_contracts.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/persistence_ports.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/pattern_matches.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/interaction_adapters.json
+[write] /Users/gillesstenger/Documents/Projets SFEIR/esus/out/validation/runs/mac-final5-20261126/prompt_56/requirements.txt
+[run] 7 steps, 5009 generated tokens in 140.1s

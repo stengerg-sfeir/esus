@@ -1,0 +1,100 @@
+```json
+{
+  "cases": [
+    {
+      "id": "book_available_only_filter",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "given": {
+        "book_1": {"title": "The Great Gatsby", "isbn": "9780747532699", "available_copies": 3},
+        "book_2": {"title": "1984", "isbn": "9780452284234", "available_copies": 0},
+        "book_3": {"title": "Brave New World", "isbn": "9780141439518", "available_copies": 5}
+      },
+      "when": {
+        "action": "library book list",
+        "args": ["--author", "1", "--available-only"]
+      },
+      "then": {
+        "state": {
+          "book_1": "available_copies": 3,
+          "book_2": "available_copies": 0,
+          "book_3": "available_copies": 5
+        },
+        "rows": {
+          "Book": 2
+        }
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "book_available_only_absent_filter",
+      "source": "--available-only is a no-value boolean flag. When present, it returns books with at least one available copy; when absent, it does not filter by copy count.",
+      "given": {
+        "book_1": {"title": "The Great Gatsby", "isbn": "9780747532699", "available_copies": 3},
+        "book_2": {"title": "1984", "isbn": "9780452284234", "available_copies": 0},
+        "book_3": {"title": "Brave New World", "isbn": "9780141439518", "available_copies": 5}
+      },
+      "when": {
+        "action": "library book list",
+        "args": ["--author", "1"]
+      },
+      "then": {
+        "state": {
+          "book_1": "available_copies": 3,
+          "book_2": "available_copies": 0,
+          "book_3": "available_copies": 5
+        },
+        "rows": {
+          "Book": 3
+        }
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "return_already_returned_loan",
+      "source": "Returning an already returned loan raises AlreadyReturnedLoanError and changes neither the loan nor inventory.",
+      "given": {
+        "loan_1": {"id": 1, "book_id": 1, "member_id": 1, "loan_date": "2023-01-01", "due_date": "2023-01-15", "return_date": "2023-01-10", "status": "returned"}
+      },
+      "when": {
+        "action": "library return",
+        "args": ["1"]
+      },
+      "then": {
+        "error": "AlreadyReturnedLoanError",
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    },
+    {
+      "id": "borrow_final_copy",
+      "source": "Borrowing the final copy leaves the count at zero.",
+      "given": {
+        "book_1": {"title": "The Great Gatsby", "isbn": "9780747532699", "available_copies": 1}
+      },
+      "when": {
+        "action": "library borrow",
+        "args": ["1", "1"]
+      },
+      "then": {
+        "state": {
+          "book_1": "available_copies": 0
+        },
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "confirmed",
+      "assumptions": [],
+      "ambiguities": []
+    }
+  ]
+}
+```

@@ -1,0 +1,148 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "create_product",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "given": {
+        "product": {
+          "name": "product name",
+          "category": "product value",
+          "stock_quantity": 1
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The application supports adding a product via CRUD operations."
+      ],
+      "ambiguities": [
+        "The exact input format or fields for creating a product are not specified."
+      ]
+    },
+    {
+      "id": "bulk_update_stock",
+      "source": "Provide normal product CRUD operations and a bulk update operation that changes the stock quantity of multiple products.",
+      "given": {
+        "product": {
+          "stock_quantity": 5,
+          "name": "product name",
+          "category": "product value"
+        }
+      },
+      "when": {
+        "action": "bulk_update_product_stock",
+        "args": [
+          {
+            "ref": "product.product_id"
+          },
+          3
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "3",
+        "exit_code": 0
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "The bulk update operation exists and modifies stock quantity for multiple products in a single transaction."
+      ],
+      "ambiguities": [
+        "The requirements do not specify how the bulk update is invoked or which products are selected."
+      ]
+    },
+    {
+      "id": "bulk_update_transactional",
+      "source": "The entire bulk update must succeed or fail as a single transaction.",
+      "given": {
+        "product": {
+          "stock_quantity": 5,
+          "name": "product name",
+          "category": "product value"
+        }
+      },
+      "when": {
+        "action": "bulk_update_stock",
+        "args": [
+          {
+            "ref": "product.product_id"
+          },
+          3
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_quantity": 3
+        },
+        "rows": {
+          "Product": 1
+        },
+        "stdout_contains": "",
+        "exit_code": 0
+      },
+      "status": "unbound",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.bulk_update_stock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "coverage_gap: other",
+      "needs_review": false,
+      "execution": {
+        "status": "unbound",
+        "reason": "bulk collection parameter requires a scalar collection"
+      }
+    }
+  ]
+}

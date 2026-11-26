@@ -1,0 +1,352 @@
+{
+  "prompt_sha": null,
+  "cases": [
+    {
+      "id": "search_by_name",
+      "source": "Users must be able to search by name",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "category": "Electronics",
+          "price": 1000,
+          "quantity": 5
+        }
+      },
+      "when": {
+        "action": "search",
+        "args": [
+          "name"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop"
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt exposes the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "case passes parameter/field name 'name' as a value"
+      }
+    },
+    {
+      "id": "combinable_filters",
+      "source": "All filters must be combinable",
+      "given": {
+        "product": {
+          "name": "Wireless Mouse",
+          "category": "Electronics",
+          "price": 25,
+          "quantity": 100
+        },
+        "product_2": {
+          "name": "Mechanical Keyboard",
+          "category": "Electronics",
+          "price": 75,
+          "quantity": 50
+        },
+        "product_3": {
+          "name": "Coffee Mug",
+          "category": "Kitchen",
+          "price": 15,
+          "quantity": 200
+        },
+        "product_4": {
+          "name": "Desk Lamp",
+          "category": "Office",
+          "price": 40,
+          "quantity": 30
+        }
+      },
+      "when": {
+        "action": "filter",
+        "args": [
+          "name",
+          "category",
+          "max_price",
+          "min_quantity"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Wireless Mouse",
+          "product.category": "Electronics",
+          "product.price": 25,
+          "product.quantity": 100,
+          "product_2.name": "Mechanical Keyboard",
+          "product_2.category": "Electronics",
+          "product_2.price": 75,
+          "product_2.quantity": 50,
+          "product_3.name": "Coffee Mug",
+          "product_3.category": "Kitchen",
+          "product_3.price": 15,
+          "product_3.quantity": 200,
+          "product_4.name": "Desk Lamp",
+          "product_4.category": "Office",
+          "product_4.price": 40,
+          "product_4.quantity": 30
+        },
+        "rows": {
+          "Product": 4
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 10.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 10.0"
+            ],
+            "alternatives": []
+          },
+          "product_4": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_4.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_4.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product_4.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_4.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "ProductRepository.filter_by_category",
+          "score": 3.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "ProductRepository.filter_by_category",
+            "ProductRepository.filter_by_max_price",
+            "ProductRepository.filter_by_min_quantity",
+            "ProductRepository.find_all_products_with_filters"
+          ]
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "case passes parameter/field name 'name' as a value"
+      }
+    }
+  ]
+}
