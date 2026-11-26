@@ -52,4 +52,26 @@ def complete_crud_entities(components, data_models, log=None):
             f"[ok] step components: added {len(added)} persisted dependent "
             f"entity(ies) to crud_services: {', '.join(added)}"
         )
+    # Every persisted entity has a primary key, so one-row reads are a
+    # structural operation even when the model omitted it from an entity's
+    # declared minimum. Service bodies need it for existence/relationship
+    # checks (`guest exists`, `room exists`); without it the body filler can
+    # only reject the call or leave a stub.
+    completed = []
+    for item in components.get("crud_services") or []:
+        if not isinstance(item, dict):
+            continue
+        operations = item.get("operations")
+        if not isinstance(operations, list):
+            continue
+        if "read_one" not in operations:
+            operations.append("read_one")
+            name = item.get("entity")
+            if isinstance(name, str) and name:
+                completed.append(name)
+    if completed and log is not None:
+        log.write(
+            f"[ok] step components: added read_one to {len(completed)} "
+            f"persisted entity operation set(s)"
+        )
     return components

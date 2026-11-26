@@ -1497,6 +1497,26 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "text search")
                 continue
+            mark_state = _repo_mark_state_body(ctx, entity, method)
+            if mark_state is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical named state update]"""']
+                lines.extend("        " + line if line else "" for line in mark_state)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "named state update")
+                continue
+            capacity_check = _repo_capacity_check_body(ctx, entity, method)
+            if capacity_check is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical capacity check]"""']
+                lines.extend("        " + line if line else "" for line in capacity_check)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "capacity check")
+                continue
             count_by = _repo_count_by_field_body(ctx, entity, method)
             if count_by is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -1876,6 +1896,84 @@ def _repo_check_stock_body(ctx, entity, model_cls, method):
     ]
 
 
+def _repo_mark_state_body(ctx, entity, method):
+    """Set a named entity's status field when a method says mark-as-state."""
+    name = normalize(method.get("name") or "")
+    if not name.startswith("mark") or "as" not in name:
+        return None
+    parts = str(method.get("name") or "").lower().split("_")
+    if "as" not in parts:
+        return None
+    state = "_".join(parts[parts.index("as") + 1:]).strip()
+    target_name = "_".join(parts[1:parts.index("as")])
+    target = next((item for item in ctx.get("entity_names") or []
+                   if normalize(item) == normalize(target_name)), None)
+    if not target or not state:
+        return None
+    model = model_of(ctx, target) or {}
+    status = next((field.get("name") for field in model.get("fields") or []
+                   if isinstance(field, dict)
+                   and normalize(field.get("name") or "") in (
+                       "status", "state", "availablestatus", "availabilitystatus")), None)
+    if not status:
+        return None
+    status_field = next((field for field in model.get("fields") or []
+                         if isinstance(field, dict) and field.get("name") == status), {})
+    if str(status_field.get("type") or "").lower() in ("bool", "boolean"):
+        value = str(state).lower() in ("available", "active", "true", "yes", "published")
+    else:
+        value = state
+    pk = primary_key_of(ctx, target)
+    params = [item.get("name") for item in method.get("params") or []
+              if isinstance(item, dict) and item.get("name")]
+    if not params:
+        return None
+    key = codegen.sanitize(params[0], "key")
+    return [
+        f"record = self._store.get({target!r}, {pk!r}, {key})",
+        "if record is None:",
+        "    return False",
+        f"self._store.update({target!r}, {pk!r}, record.get({pk!r}), "
+        f"{{{status!r}: {value!r}}})",
+        "return True",
+    ]
+
+
+def _repo_capacity_check_body(ctx, entity, method):
+    """Count child rows against a parent's capacity field."""
+    name = normalize(method.get("name") or "")
+    if "capacity" not in name or "check" not in name:
+        return None
+    params = [item.get("name") for item in method.get("params") or []
+              if isinstance(item, dict) and item.get("name")]
+    if len(params) != 1:
+        return None
+    relation = next(((field_name, field) for field_name, field in fields_of(ctx, entity)
+                     if isinstance(field, dict)
+                     and isinstance(field.get("foreign_key"), dict)
+                     and normalize(field["foreign_key"].get("target_entity"))
+                     in {normalize(item) for item in ctx["entity_names"]}), None)
+    if relation is None:
+        return None
+    fk_name, fk_field = relation
+    parent = fk_field["foreign_key"]["target_entity"]
+    parent_model = model_of(ctx, parent) or {}
+    capacity = next((field.get("name") for field in parent_model.get("fields") or []
+                     if isinstance(field, dict)
+                     and "capacity" in normalize(field.get("name") or "")), None)
+    if not capacity:
+        return None
+    parent_pk = primary_key_of(ctx, parent)
+    key = codegen.sanitize(params[0], "key")
+    return [
+        f"event = self._store.get({parent!r}, {parent_pk!r}, {key})",
+        "if event is None:",
+        "    return False",
+        f"used = len(self._store.select(self.ENTITY, [({fk_name!r}, 'eq', {key})]))",
+        f"return used < (event.get({capacity!r}) or 0)",
+    ]
+
+
 def _repo_low_stock_body(ctx, entity, model_cls, method):
     """Products below their category's reorder threshold."""
     name = normalize(method.get("name") or "")
@@ -2099,7 +2197,11 @@ def _service_search_delegate_body(ctx, method, params, returns):
 def _repo_count_by_field_body(ctx, entity, method):
     """Count records grouped by one categorical field."""
     name = normalize(method.get("name") or "")
-    if "count" not in name or method.get("params"):
+    if "count" not in name:
+        return None
+    params = [item for item in method.get("params") or []
+              if isinstance(item, dict) and item.get("name")]
+    if params and any(normalize(item["name"]) not in ("id", "key") for item in params):
         return None
     fields = {normalize(field_name): field_name for field_name, field in fields_of(ctx, entity)
               if isinstance(field, dict)
@@ -6164,7 +6266,9 @@ def _repo_slot_body(ctx, entity, model_cls, field_types, method, pattern, slots)
     """An aggregate, threshold, or budget-check body from answered slots."""
     fname = method.get("name") if isinstance(method.get("name"), str) else "?"
     if pattern.startswith("AGGREGATE"):
-        return _repo_aggregate_body(entity, model_cls, method, fname, slots)
+        model = next((item for item in ctx.get("models") or []
+                  if isinstance(item, dict) and item.get("name") == entity), None)
+        return _repo_aggregate_body(entity, model_cls, method, fname, slots, model)
     if pattern == "THRESHOLD_SCAN":
         return _repo_threshold_body(entity, model_cls, field_types, method,
                                     fname, slots)
@@ -6290,22 +6394,57 @@ def _repo_budget_check_body(ctx, entity, method, fname, slots):
     return lines
 
 
-def _repo_aggregate_body(entity, model_cls, method, fname, slots):
-    """SUM/COUNT/AVG/MIN/MAX over records matching the fk and date slices."""
+def _repo_aggregate_body(entity, model_cls, method, fname, slots, model=None):
+    """SUM/COUNT/AVG/MIN/MAX over records matching the fk and date slices.
+
+    A mapping return is a grouping aggregate, not a scalar total. The old
+    emitter ignored the declared `Dict[...]` return and returned one number,
+    so a body iterating its result crashed on `int.items()`. Group by the
+    method's named dimension when it has one, by the date prefix for a
+    summary, and by the first foreign key otherwise.
+    """
     func = slots.get("aggregate_func")
     target = slots.get("target_field")
     fk_param = _slot_fk_param(method, slots.get("fk_field"))
     date_role = _slot_date_role(method)
     date_field = slots.get("date_field")
+    annotation = str(method.get("return_type") or "")
+    grouped = bool(re.search(r"\b(?:Dict|dict|Mapping|Map)\s*\[", annotation))
+    group_field = None
+    group_prefix = False
+    if grouped:
+        group_field = slots.get("fk_field")
+        if not group_field:
+            match = re.search(r"_by_([a-z][a-z0-9_]*)", str(method.get("name") or "").lower())
+            if match:
+                wanted = match.group(1)
+                candidates = [field.get("name") for field in ((model or {}).get("fields") or [])
+                              if isinstance(field, dict) and field.get("name")]
+                group_field = next((name for name in candidates
+                                    if normalize(name) == normalize(wanted)
+                                    or normalize(name).startswith(normalize(wanted) + "id")),
+                                   None)
+        if not group_field and isinstance(date_role, tuple) \
+                and date_role[0] == "prefix" \
+                and any(word in str(method.get("name") or "").lower()
+                        for word in ("summary", "yearly", "monthly", "report")):
+            group_prefix = True
+        if not group_field and not group_prefix:
+            group_field = next((field.get("name") for field in ((model or {}).get("fields") or [])
+                                if isinstance(field, dict) and field.get("foreign_key")),
+                               None)
     lines = []
-    if func == "COUNT":
-        lines.append("count = 0")
-    elif func == "AVG":
-        lines += ["total = 0", "count = 0"]
-    elif func in ("MIN", "MAX"):
-        lines.append("best = None")
-    else:
-        lines.append("total = 0")
+    if grouped:
+        lines.append("result = {}")
+    if not grouped:
+        if func == "COUNT":
+            lines.append("count = 0")
+        elif func == "AVG":
+            lines += ["total = 0", "count = 0"]
+        elif func in ("MIN", "MAX"):
+            lines.append("best = None")
+        else:
+            lines.append("total = 0")
     lines.append(f"for record in self._store.select(self.ENTITY, []):")
     if fk_param:
         lines.append(f"    if {codegen.sanitize(fk_param, 'param')} is not None and "
@@ -6326,27 +6465,56 @@ def _repo_aggregate_body(entity, model_cls, method, fname, slots):
         lines.append(f"    if {param} is not None and not "
                      f"str(record.get({date_field!r}) or '').startswith(str({param})):")
         lines.append(f"        continue")
-    if func == "COUNT":
-        lines.append("    count += 1")
-    elif func == "AVG":
-        lines.append(f"    total += record.get({target!r}) or 0")
-        lines.append("    count += 1")
-    elif func == "MIN":
-        lines.append(f"    value = record.get({target!r})")
-        lines.append("    best = value if best is None or (value is not None and value < best) else best")
-    elif func == "MAX":
-        lines.append(f"    value = record.get({target!r})")
-        lines.append("    best = value if best is None or (value is not None and value > best) else best")
+    if grouped:
+        if group_prefix:
+            key_expr = f"str(record.get({date_field!r}) or '')[:7]"
+        else:
+            key_expr = f"record.get({group_field!r})"
+        if func == "COUNT":
+            lines.append(f"    key = {key_expr}")
+            lines.append("    result[key] = result.get(key, 0) + 1")
+        elif func == "AVG":
+            lines.append(f"    key = {key_expr}")
+            lines.append(f"    value = record.get({target!r}) or 0")
+            lines.append("    total, count = result.get(key, (0, 0))")
+            lines.append("    result[key] = (total + value, count + 1)")
+        elif func in ("MIN", "MAX"):
+            lines.append(f"    key = {key_expr}")
+            lines.append(f"    value = record.get({target!r})")
+            lines.append(f"    current = result.get(key)")
+            if func == "MIN":
+                lines.append("    result[key] = value if current is None or (value is not None and value < current) else current")
+            else:
+                lines.append("    result[key] = value if current is None or (value is not None and value > current) else current")
+        else:
+            lines.append(f"    key = {key_expr}")
+            lines.append(f"    result[key] = result.get(key, 0) + (record.get({target!r}) or 0)")
+        if func == "AVG":
+            lines.append("return {key: (total / count) if count else 0 for key, (total, count) in result.items()}")
+        else:
+            lines.append("return result")
     else:
-        lines.append(f"    total += record.get({target!r}) or 0")
-    if func == "COUNT":
-        lines.append("return count")
-    elif func == "AVG":
-        lines.append("return (total / count) if count else 0")
-    elif func in ("MIN", "MAX"):
-        lines.append("return best")
-    else:
-        lines.append("return total")
+        if func == "COUNT":
+            lines.append("    count += 1")
+        elif func == "AVG":
+            lines.append(f"    total += record.get({target!r}) or 0")
+            lines.append("    count += 1")
+        elif func == "MIN":
+            lines.append(f"    value = record.get({target!r})")
+            lines.append("    best = value if best is None or (value is not None and value < best) else best")
+        elif func == "MAX":
+            lines.append(f"    value = record.get({target!r})")
+            lines.append("    best = value if best is None or (value is not None and value > best) else best")
+        else:
+            lines.append(f"    total += record.get({target!r}) or 0")
+        if func == "COUNT":
+            lines.append("return count")
+        elif func == "AVG":
+            lines.append("return (total / count) if count else 0")
+        elif func in ("MIN", "MAX"):
+            lines.append("return best")
+        else:
+            lines.append("return total")
     return lines
 
 
@@ -8228,6 +8396,18 @@ def _stub_params(info):
     return names
 
 
+def _stub_parameter_optional(info, wanted):
+    """True when the stub's signature gives `wanted` a default value."""
+    match = re.match(r"def \w+\(([^)]*)\)", info.get("def") or "")
+    if not match:
+        return False
+    for piece in _split_signature(match.group(1)):
+        name = piece.strip().split(":")[0].split("=")[0].strip()
+        if name == wanted:
+            return "=" in piece
+    return False
+
+
 def _first_model(annotation):
     """`models.X` from an annotation, or None for plain types."""
     match = re.search(r"models\.(\w+)", annotation or "")
@@ -9740,8 +9920,15 @@ def _body_complaints(body, info, module_text, references_text, files,
     for name in sorted(set(loads) - known):
         found.append(f"uses `{name}`, which neither the module nor the "
                      "body binds")
+    returns_bool = _return_annotation(info).strip().lower() in (
+        "bool", "boolean", "bool | none", "optional[bool]")
     for param in params:
-        if param not in loads:
+        if param not in loads and not (returns_bool
+                                        and _stub_parameter_optional(info, param)):
+            # A boolean validation body may legitimately ignore optional
+            # metadata (`description`, audit timestamps) while checking the
+            # fields it was written for. A required input, or an optional input
+            # of a method that returns a value, is still a contract miss.
             found.append(f"parameter `{param}` is never used in the body")
     fields = _field_map(files.get("models.py") or "")
     parents = {}
@@ -11802,6 +11989,245 @@ def _archive_previous_dump(dump_path):
     return candidate
 
 
+def fill_simple_service_crud(files, ctx):
+    """Replace a refused add/update service stub with direct repository CRUD.
+
+    This is the fallback for a service method whose only job is the ordinary
+    add/update of one entity. The model body is attempted first; if it still
+    fails validation, the adapter facts already name the repository method and
+    the parameters, so a direct delegation is mechanical rather than invented.
+    Custom guards and multi-entity services are not touched.
+    """
+    text = files.get("services.py")
+    if not isinstance(text, str):
+        return files, []
+    services = {item.get("service_name"): item for item in ctx.get("services") or []
+                if isinstance(item, dict) and item.get("service_name")}
+    repositories = {item.get("entity"): item for item in ctx.get("repositories") or []
+                    if isinstance(item, dict) and item.get("entity")}
+    replaced = []
+    blocked = set()
+    while True:
+        target = next((span for span in find_stub_spans(text)
+                       if span[2].get("cls") in services
+                       and f"{span[2].get('cls')}.{_stub_method(span[2])}" not in blocked), None)
+        if target is None:
+            break
+        start, end, info = target
+        cls = info.get("cls")
+        method = _stub_method(info)
+        lowered = normalize(method)
+        label = f"{cls}.{method}"
+        if not lowered.startswith(("add", "update")):
+            blocked.add(label)
+            continue
+        entity = cls[:-len("Service")] if cls.endswith("Service") else cls
+        repo = repositories.get(entity)
+        if repo is None:
+            blocked.add(label)
+            continue
+        repo_name = repo.get("interface_name") or f"{entity}Repository"
+        wanted = "create" if lowered.startswith("add") else "update"
+        repo_method = next((item for item in repo.get("methods") or []
+                            if isinstance(item, dict) and item.get("name") == wanted), None)
+        service = services[cls]
+        service_method = next((item for item in service.get("methods") or []
+                               if isinstance(item, dict) and item.get("name") == method), {})
+        if repo_method is None:
+            break
+        params = [item.get("name") for item in repo_method.get("params") or []
+                  if isinstance(item, dict) and item.get("name")]
+        service_params = [item.get("name") for item in service_method.get("params") or []
+                          if isinstance(item, dict) and item.get("name")]
+        pairs = []
+        used = set()
+        for name in service_params:
+            target = name if name in params else codegen.bind_field(
+                [p for p in params if p not in used], name)
+            if target is None:
+                lowered = name.lower()
+                for prefix in ("new_", "updated_", "current_"):
+                    if lowered.startswith(prefix):
+                        target = codegen.bind_field(
+                            [p for p in params if p not in used],
+                            name[len(prefix):])
+                        if target is not None:
+                            break
+            if target is None:
+                pairs = None
+                break
+            pairs.append((target, name))
+            used.add(target)
+        if pairs is None:
+            blocked.add(label)
+            continue
+        args = ", ".join(f"{target}={name}" for target, name in pairs)
+        body = [f"return self._repos[{repo_name!r}].{wanted}({args})"]
+        candidate = _spliced_candidate(text, start, end, info, body,
+                                       "generator-mechanical-fallback")
+        try:
+            compile(candidate, "services.py", "exec")
+        except SyntaxError:
+            break
+        text = candidate
+        replaced.append(f"{cls}.{method}")
+        if len(replaced) > 64:
+            break
+    files["services.py"] = text
+    return files, replaced
+
+def fill_simple_service_reads(files, ctx):
+    """Fill a service `get_<entity>_by_id` stub that returns a mapping."""
+    text = files.get("services.py")
+    if not isinstance(text, str):
+        return files, []
+    services = {item.get("service_name"): item for item in ctx.get("services") or []
+                if isinstance(item, dict) and item.get("service_name")}
+    repositories = {item.get("entity"): item for item in ctx.get("repositories") or []
+                    if isinstance(item, dict) and item.get("entity")}
+    replaced = []
+    blocked = set()
+    while True:
+        target = next((span for span in find_stub_spans(text)
+                       if span[2].get("cls") in services
+                       and f"{span[2].get('cls')}.{_stub_method(span[2])}" not in blocked), None)
+        if target is None:
+            break
+        start, end, info = target
+        cls = info.get("cls")
+        method = _stub_method(info)
+        label = f"{cls}.{method}"
+        lowered = normalize(method)
+        if not lowered.startswith(("get", "read", "find", "list")):
+            blocked.add(label)
+            continue
+        if not _return_annotation(info).strip().lower().startswith(("dict", "mapping")):
+            blocked.add(label)
+            continue
+        entity = cls[:-len("Service")] if cls.endswith("Service") else cls
+        repo = repositories.get(entity)
+        if repo is None:
+            blocked.add(label)
+            continue
+        repo_name = repo.get("interface_name") or f"{entity}Repository"
+        read = next((item for item in repo.get("methods") or []
+                     if isinstance(item, dict)
+                     and normalize(item.get("name") or "") in ("readone", "readonebyid")), None)
+        if read is None:
+            blocked.add(label)
+            continue
+        service = services[cls]
+        service_method = next((item for item in service.get("methods") or []
+                               if isinstance(item, dict) and item.get("name") == method), {})
+        params = [item.get("name") for item in read.get("params") or []
+                  if isinstance(item, dict) and item.get("name")]
+        names = [item.get("name") for item in service_method.get("params") or []
+                 if isinstance(item, dict) and item.get("name") in params]
+        if len(names) != len(service_method.get("params") or []):
+            blocked.add(label)
+            continue
+        key = names[0] if names else "id"
+        body = [
+            f"record = self._repos[{repo_name!r}].{read['name']}({key}={key})",
+            "if record is None:",
+            "    return None",
+            "return vars(record) if hasattr(record, '__dict__') else record",
+        ]
+        candidate = _spliced_candidate(text, start, end, info, body,
+                                       "generator-read-fallback")
+        try:
+            compile(candidate, "services.py", "exec")
+        except SyntaxError:
+            blocked.add(label)
+            continue
+        text = candidate
+        replaced.append(label)
+    files["services.py"] = text
+    return files, replaced
+
+
+def fill_contract_create_bodies(files, ctx):
+    """Write a refused create from its create/precondition contract.
+
+    The contract names the repository call and, when the condition is Python,
+    the guard expression verbatim. This is the same information the model gets;
+    the fallback is used only when the model body still fails validation, and
+    only for create methods with a concrete target call.
+    """
+    text = files.get("services.py")
+    if not isinstance(text, str):
+        return files, []
+    contracts = ctx.get("contracts") or []
+    if isinstance(contracts, dict):
+        contracts = [{"holder": holder, "method": method, **(record or {})}
+                     for (holder, method), record in contracts.items()
+                     if isinstance(record, dict)]
+    by_label = {(item.get("holder"), item.get("method")): item
+                for item in contracts if isinstance(item, dict)}
+    repositories = {item.get("interface_name") or item.get("entity"): item
+                    for item in ctx.get("repositories") or []
+                    if isinstance(item, dict)}
+    services = {item.get("service_name"): item for item in ctx.get("services") or []
+                if isinstance(item, dict) and item.get("service_name")}
+    replaced = []
+    for span in list(find_stub_spans(text)):
+        start, end, info = span
+        holder, method_name = info.get("cls"), _stub_method(info)
+        if not holder or not method_name.lower().startswith("create"):
+            continue
+        contract = by_label.get((holder, method_name))
+        if not contract or not contract.get("creates"):
+            continue
+        creates = contract["creates"][0]
+        target = str(creates.get("call") or "")
+        if "." not in target:
+            continue
+        repo, repo_method = target.split(".", 1)
+        if repo not in repositories:
+            continue
+        service = services.get(holder) or {}
+        method = next((item for item in service.get("methods") or []
+                       if isinstance(item, dict) and item.get("name") == method_name), {})
+        repo_def = next((item for item in repositories[repo].get("methods") or []
+                         if isinstance(item, dict) and item.get("name") == repo_method), {})
+        params = {item.get("name") for item in repo_def.get("params") or []
+                  if isinstance(item, dict) and item.get("name")}
+        names = [item.get("name") for item in method.get("params") or []
+                 if isinstance(item, dict) and item.get("name") in params]
+        if len(names) != len([item for item in method.get("params") or []
+                              if isinstance(item, dict) and item.get("name")]):
+            continue
+        lines = []
+        valid = True
+        for precondition in contract.get("preconditions") or []:
+            if not isinstance(precondition, dict):
+                continue
+            check = precondition.get("check")
+            error = precondition.get("error")
+            when = precondition.get("raise_when")
+            if not isinstance(check, str) or not isinstance(error, str)                     or when not in ("true", "false"):
+                continue
+            try:
+                compile(check, "<contract>", "eval")
+            except SyntaxError:
+                continue
+            condition = check if when == "true" else f"not ({check})"
+            lines += [f"if {condition}:",
+                      f"    raise errors.{error}('confirmed precondition failed')"]
+        args = ", ".join(f"{name}={name}" for name in names)
+        lines.append(f"return self._repos[{repo!r}].{repo_method}({args})")
+        candidate = _spliced_candidate(text, start, end, info, lines,
+                                       "generator-contract-fallback")
+        try:
+            compile(candidate, "services.py", "exec")
+        except SyntaxError:
+            continue
+        text = candidate
+        replaced.append(f"{holder}.{method_name}")
+    files["services.py"] = text
+    return files, replaced
+
+
 def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                context=DEFAULT_STUB_CONTEXT, contracts=None, repairs_by_method=None):
     """Ask the model for the bodies the mechanical emitter refused.
@@ -12386,6 +12812,18 @@ def main(argv=None):
             dump_path=os.path.join(args.out_dir, "llm_stub_answers.json"),
             context=args.stub_context, contracts=ctx.get("contracts"),
             repairs_by_method=repairs_by_method)
+    files, mechanical_fallbacks = fill_simple_service_crud(files, ctx)
+    files, read_fallbacks = fill_simple_service_reads(files, ctx)
+    files, contract_fallbacks = fill_contract_create_bodies(files, ctx)
+    if read_fallbacks:
+        stats["read_fallbacks"] = read_fallbacks
+        print("read fallback: " + ", ".join(read_fallbacks))
+    if mechanical_fallbacks:
+        stats["mechanical_fallbacks"] = mechanical_fallbacks
+        print("mechanical fallback: " + ", ".join(mechanical_fallbacks))
+    if contract_fallbacks:
+        stats["contract_fallbacks"] = contract_fallbacks
+        print("contract fallback: " + ", ".join(contract_fallbacks))
     repair_invented_state_guards(files, ctx)
     aggregate_decisions = load_aggregate_decisions(
         args.out_dir, requirements_sha(ctx.get("requirements") or ""))

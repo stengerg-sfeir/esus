@@ -340,7 +340,11 @@ def repair_existing(output_dir):
     """
     from kernel.consistency.loader import load_documents, load_requirements
     from kernel.consistency.report import Report
-    from kernel.extraction import components_completion, dedupe, interfaces, repairs
+    from types import SimpleNamespace
+    from kernel.extraction import (
+        adapters_mechanical, components_completion, dedupe, interfaces,
+        repairs, repository_contracts, surface_completion,
+    )
 
     directory = Path(output_dir)
     report = Report(directory.name)
@@ -356,6 +360,13 @@ def repair_existing(output_dir):
         return 1
 
     log = writer.RunLog(None)
+    recorded = load_decisions(str(directory))
+    if recorded and isinstance(
+            documents.get(pipeline_module.PATTERN_MATCHES), list):
+        documents[pipeline_module.PATTERN_MATCHES] = apply_decisions(
+            documents.get(pipeline_module.PATTERN_MATCHES), recorded, log,
+            requirements_text=requirements,
+        )
     components = documents.get(pipeline_module.COMPONENTS)
     models = documents.get(pipeline_module.DATA_MODELS)
     adapters = documents.get(pipeline_module.INTERACTION_ADAPTERS)
@@ -382,6 +393,8 @@ def repair_existing(output_dir):
             )
         errors, services = repairs.repair_unknown_raises(
             errors, services, requirements, log)
+        services = repairs.repair_nested_declarations(
+            services, log, document=pipeline_module.SERVICE_CONTRACTS)
         documents[pipeline_module.ERRORS] = errors
         documents[pipeline_module.SERVICE_CONTRACTS] = services
     if isinstance(components, dict):
@@ -391,6 +404,7 @@ def repair_existing(output_dir):
         if not (isinstance(persistence, dict) and persistence.get("required")):
             documents.pop(pipeline_module.PERSISTENCE_PORTS, None)
         repairs.repair_missing_surface(components, requirements, models, log)
+        repairs.repair_option_types(components, models, log)
         repairs.repair_missing_method_flags(
             components, requirements, services, log,
             decisions=repairs.load_flag_decisions(str(directory)))
@@ -419,6 +433,35 @@ def repair_existing(output_dir):
             models, log)
         repairs.repair_create_missing_fields(ports, models, log)
         repairs.repair_required_create_fields(ports, models, log)
+    repairs.repair_create_signature_fields(
+        documents.get(pipeline_module.SERVICE_CONTRACTS) or [],
+        documents.get(pipeline_module.DATA_MODELS) or [], log)
+    ports_for_signature = documents.get(pipeline_module.PERSISTENCE_PORTS)
+    if isinstance(ports_for_signature, dict):
+        repairs.repair_create_signature_fields(
+            ports_for_signature.get("repositories") or [],
+            documents.get(pipeline_module.DATA_MODELS) or [], log)
+    services = documents.get(pipeline_module.SERVICE_CONTRACTS) or []
+    if isinstance(services, list) and isinstance(components, dict):
+        crud_ops = [
+            SimpleNamespace(entity=item.get("entity"),
+                            operations=item.get("operations") or [])
+            for item in components.get("crud_services") or []
+            if isinstance(item, dict) and item.get("entity")
+        ]
+        services = repository_contracts.complete_methods(
+            services, models, crud_ops, errors, log)
+        services = repairs.repair_missing_key_parameters(services, models, log)
+        documents[pipeline_module.SERVICE_CONTRACTS] = services
+        if isinstance(ports_for_signature, dict):
+            ports_for_signature["repositories"] = (
+                repository_contracts.complete_methods(
+                    ports_for_signature.get("repositories") or [],
+                    models, crud_ops, errors, log))
+            documents[pipeline_module.PERSISTENCE_PORTS] = ports_for_signature
+        surface_completion.complete(
+            components, services, models, requirements, log)
+        documents[pipeline_module.COMPONENTS] = components
     repairs.repair_ungrounded_methods(
         documents, requirements, documents.get(pipeline_module.INTENTIONS), log)
     services = documents.get(pipeline_module.SERVICE_CONTRACTS) or []
@@ -443,6 +486,10 @@ def repair_existing(output_dir):
         repairs.repair_adapter_targets(adapters, services, log)
         repairs.repair_adapter_field_names(adapters, services, models, log)
         repairs.repair_create_adapter_fields(adapters, services, models, log)
+        repairs.repair_adapter_missing_params(
+            adapters, services, models, log)
+        adapters = repairs.repair_duplicate_adapters(adapters, log)
+        documents[pipeline_module.INTERACTION_ADAPTERS] = adapters
         repairs.repair_missing_adapter_flags(
             components, adapters, services, models, log)
         repairs.repair_missing_filter_actions(
@@ -462,6 +509,9 @@ def repair_existing(output_dir):
             log.write(
                 f"[!] step adapters: mechanical re-derivation declined "
                 f"({reason}) — keeping the existing adapters")
+        adapters = adapters_mechanical.complete_missing(
+            components, services, models, adapters, requirements, log)
+        documents[pipeline_module.INTERACTION_ADAPTERS] = adapters
         if isinstance(ports, dict):
             # Step H can discover a custom repository method that step E did
             # not write; merge it before unification, as the live pipeline

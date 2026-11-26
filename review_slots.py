@@ -80,6 +80,11 @@ def collect_slots(output_dir):
     stats = {"source": output_dir, "implemented": 0, "stubs": 0,
              "stub_reasons": [], "prog": os.path.basename(output_dir)}
     generator.render_program(ctx, stats)
+    implemented = {
+        (row.get("holder"), row.get("method"))
+        for row in stats.get("methods") or []
+        if isinstance(row, dict) and row.get("implemented")
+    }
     decided = {(r.get("holder"), r.get("method")) for r in load_method_slots(output_dir)
                if isinstance(r, dict)}
     questions = []
@@ -88,7 +93,8 @@ def collect_slots(output_dir):
         for method in repo.get("methods") or []:
             if not isinstance(method, dict) or not method.get("name"):
                 continue
-            if (holder, method["name"]) in decided:
+            if (holder, method["name"]) in decided \
+                    or (holder, method["name"]) in implemented:
                 continue
             pattern, slots = generator._slot_pattern(ctx, holder, method)
             if pattern is None:
@@ -115,7 +121,8 @@ def collect_slots(output_dir):
         for method in service.get("methods") or []:
             if not isinstance(method, dict) or not method.get("name"):
                 continue
-            if (holder, method["name"]) in decided:
+            if (holder, method["name"]) in decided \
+                    or (holder, method["name"]) in implemented:
                 continue
             pattern, slots = generator._slot_pattern(ctx, holder, method)
             if pattern != "BUDGET_OVERFLOW_GUARD":

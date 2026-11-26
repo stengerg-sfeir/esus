@@ -169,6 +169,50 @@ def _shell(entity, fields, operations, errors):
     return {"service_name": f"{entity}Repository", "methods": methods}
 
 
+def complete_methods(services, data_models, crud_operations, errors, log=None):
+    """Add standard methods an existing repository omitted.
+
+    A repository the model declared is kept, but its operation set is still
+    the minimum step D recorded. A service body that checks a relation or a
+    row exists needs the repository's one-row read even when the model left it
+    out; the method shape is derived from the data model, not guessed.
+    """
+    services = list(services) if isinstance(services, list) else []
+    fields_by_entity = _fields_by_entity(data_models)
+    by_name = {
+        normalize(service.get("service_name")): service
+        for service in services
+        if isinstance(service, dict) and service.get("service_name")
+    }
+    added = 0
+    for requirement in crud_operations or ():
+        entity = requirement.entity
+        operations = requirement.operations or DEFAULT_OPERATIONS
+        existing = by_name.get(normalize(f"{entity}Repository"))
+        if existing is None:
+            continue
+        fields = fields_by_entity.get(entity, [])
+        shell = _shell(entity, fields, operations, errors)
+        methods = existing.setdefault("methods", [])
+        names = {
+            normalize(method.get("name"))
+            for method in methods
+            if isinstance(method, dict) and method.get("name")
+        }
+        for method in shell["methods"]:
+            if normalize(method["name"]) in names:
+                continue
+            methods.append(method)
+            names.add(normalize(method["name"]))
+            added += 1
+    if log is not None and added:
+        log.write(
+            f"[ok] step contracts: added {added} missing standard repository "
+            f"method(s)"
+        )
+    return services
+
+
 def complete(services, data_models, crud_operations, errors, log=None):
     """Add one repository for every entity with declared CRUD operations.
 

@@ -36,6 +36,7 @@ from kernel.extraction import (
     runner,
     schema_invariants,
     service_contracts,
+    surface_completion,
     uniqueness,
     vocabulary,
 )
@@ -551,6 +552,8 @@ class Pipeline:
             repairs.repair_option_defaults(
                 body, self.documents.get(DATA_MODELS), self.log,
                 requirements)
+            repairs.repair_option_types(
+                body, self.documents.get(DATA_MODELS), self.log)
         # A flat `a_b` duplicating a declared `a b` pair goes last: the pair
         # itself may have been added by the surface repair just above (the
         # retry body lacked `member history` while keeping a flat
@@ -605,6 +608,8 @@ class Pipeline:
                 repairs.repair_option_defaults(
                     retry, self.documents.get(DATA_MODELS), self.log,
                     requirements)
+                repairs.repair_option_types(
+                    retry, self.documents.get(DATA_MODELS), self.log)
                 repairs.repair_flat_command_duplicates(retry, self.log)
                 repairs.repair_misread_flat_commands(retry, self.log)
                 repairs.repair_program_word_subcommands(
@@ -684,6 +689,26 @@ class Pipeline:
             self.documents.get(DATA_MODELS),
             vocab.crud_operations,
             self.documents.get(ERRORS),
+            self.log,
+        )
+        body = repository_contracts.complete_methods(
+            body,
+            self.documents.get(DATA_MODELS),
+            vocab.crud_operations,
+            self.documents.get(ERRORS),
+            self.log,
+        )
+        body = repairs.repair_missing_key_parameters(
+            body, self.documents.get(DATA_MODELS), self.log
+        )
+        repairs.repair_create_signature_fields(
+            body, self.documents.get(DATA_MODELS), self.log
+        )
+        self.documents[COMPONENTS] = surface_completion.complete(
+            self.documents.get(COMPONENTS),
+            body,
+            self.documents.get(DATA_MODELS),
+            requirements,
             self.log,
         )
         # A signature is a specification the generated body must honour, so a
@@ -901,6 +926,14 @@ class Pipeline:
                 grammar,
             )
         self._repair_adapters()
+        self.documents[INTERACTION_ADAPTERS] = repairs.repair_duplicate_adapters(
+            self.documents.get(INTERACTION_ADAPTERS), self.log)
+        repairs.repair_adapter_missing_params(
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS),
+            self.log,
+        )
         # An adapter assembling an undeclared model field (`author_id` into a
         # `Book` with no such field) fails at construction no matter what the
         # CLI supplies, and a required field no bound leaf flag supplies
@@ -1006,6 +1039,25 @@ class Pipeline:
             self.documents.get(INTERACTION_ADAPTERS),
             self.documents.get(DATA_MODELS),
             self.documents.get(SERVICE_CONTRACTS),
+            requirements,
+            self.log,
+        )
+        # Rebuild the explicit prose surface after the adapter repairs: the
+        # surface-from-adapters pass can shrink it to the actions the model
+        # happened to emit. The CRUD completion then restores the commands the
+        # service contracts prove, and the adapter completion binds them.
+        self.documents[COMPONENTS] = surface_completion.complete(
+            self.documents.get(COMPONENTS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS),
+            requirements,
+            self.log,
+        )
+        self.documents[INTERACTION_ADAPTERS] = adapters_mechanical.complete_missing(
+            self.documents.get(COMPONENTS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS),
+            self.documents.get(INTERACTION_ADAPTERS),
             requirements,
             self.log,
         )

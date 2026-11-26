@@ -16,6 +16,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import signal
 import subprocess
 import sys
 from collections import Counter
@@ -23,6 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKER = ROOT / "tests" / "runtime" / "worker.py"
+SCENARIO_SOURCE = ROOT / "tests" / "runtime" / "scenarios"
 sys.path.insert(0, str(WORKER.parent))
 sys.path.insert(0, str(ROOT / "scripts"))
 
@@ -30,13 +33,55 @@ import requirement_trace  # noqa: E402
 import worker  # noqa: E402
 
 
+def current_scenarios(root: Path, output: Path) -> str:
+    """Regenerate CLI scenarios from the surface each project actually emits.
+
+    The checked-in scenario files are prompt fixtures: their semantic cases
+    are still useful, but their `cli:` cases describe the surface of the run
+    that generated the files. A fresh extraction can legitimately have a
+    different command table, so replaying the old CLI cases would reject the
+    generated program for not implementing commands the current documents do
+    not declare. Copy the fixtures, then regenerate only their `cli:` cases
+    against the current effective components and parser.
+    """
+    target = output / "_scenarios"
+    if target.exists():
+        shutil.rmtree(target)
+    target.mkdir(parents=True)
+    if SCENARIO_SOURCE.is_dir():
+        for source in SCENARIO_SOURCE.glob("*.json"):
+            shutil.copy2(source, target / source.name)
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "generate_cli_scenarios.py"),
+         str(root), str(target)],
+        cwd=str(ROOT), capture_output=True, text=True, timeout=300)
+    if result.returncode:
+        raise SystemExit(
+            "could not regenerate CLI scenarios:\n"
+            + (result.stderr or result.stdout)[-2000:])
+    return str(target)
+
+
 def run_one(prompt_dir: Path, output_dir: Path, scenarios: str | None = None) -> dict:
     env = os.environ.copy()
     if scenarios:
         env["ESUS_SCENARIOS_DIR"] = scenarios
-    result = subprocess.run(
+    process = subprocess.Popen(
         [sys.executable, str(WORKER), str(prompt_dir)],
-        cwd=str(ROOT), capture_output=True, text=True, env=env)
+        cwd=str(ROOT), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, env=env, start_new_session=True)
+    try:
+        stdout, stderr = process.communicate(timeout=180)
+        result = subprocess.CompletedProcess(
+            process.args, process.returncode, stdout, stderr)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except OSError:
+            process.kill()
+        stdout, stderr = process.communicate()
+        result = subprocess.CompletedProcess(
+            process.args, -9, stdout, stderr + "\nworker timed out after 180s")
     try:
         payload = json.loads(result.stdout)
     except ValueError:
@@ -64,6 +109,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     root = Path(args.root)
     output = Path(args.output) if args.output else root / "acceptance"
+    scenarios = args.scenarios or current_scenarios(root, output)
     selected = ({item.strip() for item in args.only.split(",") if item.strip()}
                 if args.only else None)
     prompts = [path for path in worker.discover_projects(root)
@@ -73,7 +119,7 @@ def main(argv=None):
         return 2
     results = []
     for prompt in prompts:
-        payload = run_one(prompt, output, scenarios=args.scenarios)
+        payload = run_one(prompt, output, scenarios=scenarios)
         results.append(payload)
         passed = sum(1 for check in payload["checks"]
                      if check.get("status") == "passed")

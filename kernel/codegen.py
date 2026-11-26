@@ -446,6 +446,8 @@ def bind_field(dests, field):
     CLI flags abbreviate (`--price` for `price_cents`, `--category` for
     `category_id`, `--from-date` for `start_date`); containment in either
     direction resolves those, and an ambiguous or absent match is None.
+    When several containments match, the longest one wins: `category` is a
+    better spelling of `category_id` than the generic `id` suffix.
     """
     wanted = "".join(canon_tokens(field))
     if not wanted:
@@ -458,7 +460,12 @@ def bind_field(dests, field):
         return None
     fuzzy = [d for d, flat in flats.items()
              if flat and (flat in wanted or wanted in flat)]
-    return fuzzy[0] if len(fuzzy) == 1 else None
+    if not fuzzy:
+        return None
+    fuzzy.sort(key=lambda d: len(flats[d]), reverse=True)
+    if len(fuzzy) > 1 and len(flats[fuzzy[0]]) == len(flats[fuzzy[1]]):
+        return None
+    return fuzzy[0]
 
 
 def surface_dests(invocation):
@@ -628,6 +635,11 @@ def _best_path_adapter(adapters, verb_stems, command, sub, unmapped):
         score = 0
         if any(_word_tokens(noun) <= words_in_adapter for noun in nouns):
             score += 4
+        # `expense category add` and a top-level `category add` share the
+        # path nouns; the command word disambiguates the two adapters.
+        if _word_tokens(command) <= words_in_adapter \
+                or normalize(command) in action:
+            score += 1
         if verb and verb in method:
             score += 2
         if verb and verb in action:
@@ -891,6 +903,10 @@ def unknown_model_fields(adapters, services, repositories, models):
                 if not isinstance(field, dict) or not field.get("field_name"):
                     continue
                 if field.get("target_param") != target_param:
+                    continue
+                if normalize(field["field_name"]) == normalize(target_param):
+                    # The adapter's field is the mapping parameter itself
+                    # (`order_data`), not a keyword for an entity constructor.
                     continue
                 if is_assembly_field(adapter, field["field_name"], spec):
                     continue

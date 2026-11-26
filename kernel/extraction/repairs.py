@@ -77,10 +77,10 @@ def repair_nested_declarations(holders, log, document="document"):
         kept = []
         for method in methods:
             name = method.get("name") if isinstance(method, dict) else None
-            if (isinstance(name, str) and normalize(name) in declared
+            if (isinstance(name, str)
                     and name.endswith(("Repository", "Service"))
                     and not method.get("params")
-                    and method.get("return_type") in (None, "", "None")):
+                    and method.get("return_type") in (None, "", "None", "void")):
                 if log is not None:
                     log.write(
                         f"[ok] step {document}: dropped nested declaration "
@@ -1536,6 +1536,79 @@ def repair_requirement_create_params(services, repositories, models, log=None):
                         f"{name}.{method['name']} from the requirement field list")
 
 
+def repair_create_signature_fields(holders, models, log=None):
+    """Add a required model field a create method's description names.
+
+    This is the list form used for both step-E services and step-H ports. It
+    covers custom create spellings (`create_audit_log`), not only the literal
+    `create`; the description is the evidence that the field belongs.
+    """
+    if not isinstance(holders, list) or not isinstance(models, list):
+        return holders
+    from kernel.codegen import classify_crud
+
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        name = holder.get("service_name") or holder.get("interface_name") \
+            or holder.get("entity") or ""
+        base = normalize(name)
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        model = next((m for m in models if isinstance(m, dict)
+                      and normalize(m.get("name") or "") == base), None)
+        if model is None:
+            continue
+        for method in holder.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            if classify_crud(method.get("name") or "") != "create":
+                continue
+            params = method.get("params")
+            if not isinstance(params, list):
+                continue
+            if any(is_entity_type(p.get("type"), [m.get("name") for m in models
+                                                  if isinstance(m, dict)])
+                   for p in params if isinstance(p, dict)):
+                continue
+            taken = {normalize(p.get("name")) for p in params
+                     if isinstance(p, dict) and p.get("name")}
+            description = str(method.get("description") or "").lower()
+            for field in model.get("fields") or []:
+                if not isinstance(field, dict) or not field.get("name"):
+                    continue
+                field_name = field["name"]
+                if (field.get("primary_key") or field.get("nullable")
+                        or normalize(field_name) in taken):
+                    continue
+                spelled = "(?:" + "|".join(
+                    re.escape(form) for form in (field_name.lower(),
+                                                 field_name.lower().replace("_", " "))
+                ) + ")"
+                described = re.search(r"\b" + spelled + r"\b", description)
+                # A deduced state column is still a required create value:
+                # the emitted create cannot insert NULL and the prompt does
+                # not give it a default. Expose it rather than let every call
+                # fail at the store. `timestamp` covers audit-style creates.
+                if not described and field_name not in (
+                        "status", "state", "timestamp"):
+                    continue
+                declared = str(field.get("type") or "").strip()
+                params.append({
+                    "name": field_name,
+                    "type": _PORT_TYPES.get(declared.lower(), declared),
+                    "status": _field_status(field)})
+                taken.add(normalize(field_name))
+                if log is not None:
+                    log.write(
+                        f"[ok] step contracts: {name}.{method.get('name')} "
+                        f"describes '{field_name}' but takes no such parameter "
+                        f"— added")
+    return holders
+
+
 def repair_create_missing_fields(ports, models, log):
     """Add the required field a create describes but does not take.
 
@@ -1581,7 +1654,13 @@ def repair_create_missing_fields(ports, models, log):
                     re.escape(form) for form in (name.lower(),
                                                  name.lower().replace("_", " "))
                 ) + ")"
-                if not re.search(r"\b" + spelled + r"\b", description):
+                described = re.search(r"\b" + spelled + r"\b", description)
+                # A deduced state column is still a required create value:
+                # the emitted create cannot insert NULL and the prompt does
+                # not give it a default. Expose it rather than let every call
+                # fail at the store. `timestamp` covers audit-style creates.
+                if not described and name not in (
+                        "status", "state", "timestamp"):
                     continue
                 declared = str(field.get("type") or "").strip()
                 params.append({
@@ -1900,6 +1979,9 @@ def _lookup_entity_candidates(adapter, method, field):
         for token in re.findall(r"[A-Za-z][A-Za-z0-9]*", str(text or "")):
             if normalize(token) not in _LOOKUP_STOPWORDS:
                 candidates.append(token)
+                for suffix in ("Repository", "Service"):
+                    if token.endswith(suffix) and len(token) > len(suffix):
+                        candidates.append(token[:-len(suffix)])
     return candidates
 
 
@@ -1932,6 +2014,14 @@ def repair_adapter_lookup_entities(adapters, services, repositories, models,
                 continue
             lookup = field.get("lookup_entity")
             if isinstance(lookup, str) and normalize(lookup) in entities:
+                canonical = entities[normalize(lookup)]
+                if lookup != canonical:
+                    field["lookup_entity"] = canonical
+                    if log is not None:
+                        log.write(
+                            f"[ok] step adapters: {adapter.get('action_name')}."
+                            f"{field.get('field_name')} lookup entity "
+                            f"{lookup!r} canonicalized to {canonical}")
                 continue
             resolved = next((entities[normalize(candidate)]
                              for candidate in _lookup_entity_candidates(
@@ -2215,8 +2305,6 @@ def repair_ungrounded_methods(documents, requirements, intentions=None, log=None
     models = documents.get("data_models") or []
     drops = ungrounded_methods(services, repositories, models, requirements,
                                intentions)
-    if not drops:
-        return []
     dropped = {(normalize(holder), normalize(method))
                for holder, method, _reason in drops}
 
@@ -2265,13 +2353,25 @@ def repair_ungrounded_methods(documents, requirements, intentions=None, log=None
                 and (normalize(adapter.get("target_service")),
                      normalize(adapter.get("target_method"))) in available]
     documents["interaction_adapters"] = adapters
+    available = {
+        (normalize(service.get("service_name")), normalize(m.get("name")))
+        for service in kept_services for m in service.get("methods") or []
+        if isinstance(m, dict)
+    }
+    available.update({
+        (normalize(repo.get("interface_name") or repo.get("entity")),
+         normalize(m.get("name")))
+        for repo in (ports.get("repositories") if isinstance(ports, dict) else [])
+        for m in repo.get("methods") or [] if isinstance(m, dict)
+    })
     matches = []
     for match in documents.get("pattern_matches") or []:
         source = str(match.get("source") or "") if isinstance(match, dict) else ""
-        source = source.removeprefix("contract:")
-        holder, _, method = source.partition(".")
-        if keep_method(holder, method):
-            matches.append(match)
+        if source.startswith("contract:"):
+            holder, _, method = source.removeprefix("contract:").partition(".")
+            if (normalize(holder), normalize(method)) not in available:
+                continue
+        matches.append(match)
     documents["pattern_matches"] = matches
     if log is not None:
         for holder, method, reason in drops:
@@ -2805,6 +2905,55 @@ OPTION_TYPES_BY_MODEL = {
     "datetime": "str",
     "date": "str",
 }
+
+
+def repair_option_types(components, models, log=None):
+    """Align a CLI option's parser type with its uniquely bound model field.
+
+    Command extraction is allowed to spell a flag without its type; the data
+    model is the authority. A `--price` emitted as text made an update compare
+    the string `"2"` with the seeded numeric `2.0` and match no row. Only a
+    flag whose name binds exactly one model field (or several agreeing on one
+    type) is touched; an ambiguous spelling stays as written.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    if not isinstance(invocation, dict):
+        return components
+    fields = _model_fields(models)
+    if not fields:
+        return components
+    changed = []
+
+    def visit(node):
+        for option in node.get("options") or []:
+            if not isinstance(option, dict):
+                continue
+            flag = option_dest(option)
+            if not flag:
+                continue
+            typed = _typed_model_field(fields, flag)
+            if typed is None:
+                continue
+            label, option_type = typed
+            if option.get("type") == option_type:
+                continue
+            option["type"] = option_type
+            changed.append(f"--{flag} -> {option_type} ({label})")
+        for child in node.get("subcommands") or []:
+            visit(child)
+
+    for command in invocation.get("commands") or []:
+        if isinstance(command, dict):
+            visit(command)
+    if changed and log is not None:
+        log.write(
+            f"[ok] step components: aligned {len(changed)} option type(s) "
+            f"with the data model: {', '.join(changed[:8])}"
+        )
+    return components
 
 
 def repair_option_defaults(components, models, log=None, requirements=""):
@@ -3784,6 +3933,64 @@ def repair_missing_method_flags(components, requirements, services, log=None,
     return components
 
 
+def repair_missing_key_parameters(services, models, log=None):
+    """Give a parameterless entity lookup the entity's primary key.
+
+    A repository method such as ``get_event_with_registration_count`` was
+    emitted with no parameters while its body must identify one Event. The
+    body filler then rejected the only reasonable body (`event_id` is not
+    bound) and left a stub. A one-row lookup over a persisted entity always
+    has its primary key available from the model; adding it is a structural
+    completion, not a guessed domain rule.
+    """
+    if not isinstance(services, list):
+        return services
+    fields_by_entity = {}
+    for model in models or ():
+        if not isinstance(model, dict) or not isinstance(model.get("name"), str):
+            continue
+        fields_by_entity[model["name"]] = [
+            field for field in model.get("fields") or []
+            if isinstance(field, dict) and isinstance(field.get("name"), str)
+        ]
+    added = []
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        holder = service.get("interface_name") or service.get("service_name")
+        if not isinstance(holder, str) or not holder.endswith("Repository"):
+            continue
+        entity = holder[:-len("Repository")]
+        primary = next(
+            (field["name"] for field in fields_by_entity.get(entity, [])
+             if field.get("primary_key")),
+            "id" if fields_by_entity.get(entity) else None,
+        )
+        if not primary:
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            name = method.get("name")
+            params = method.get("params")
+            if not isinstance(name, str) or params:
+                continue
+            lowered = normalize(name)
+            if not lowered.startswith(("get", "find", "read", "lookup")):
+                continue
+            if lowered.startswith(("getall", "readall", "findall", "listall",
+                                   "count", "total")):
+                continue
+            method["params"] = [{"name": primary, "type": "int"}]
+            added.append(f"{holder}.{name}({primary})")
+    if added and log is not None:
+        log.write(
+            f"[ok] step contracts: added the primary key to "
+            f"{len(added)} parameterless lookup(s): {', '.join(added[:6])}"
+        )
+    return services
+
+
 def repair_missing_surface(components, requirements, models, log):
     """Ensure every attributable command line exists on the surface.
 
@@ -4310,6 +4517,115 @@ def repair_create_adapter_fields(adapters, services, models, log=None):
     return adapters
 
 
+def repair_duplicate_adapters(adapters, log=None):
+    """Keep one adapter per target method, preferring the fullest mapping.
+
+    Repeated deterministic repairs can append the same action again with a
+    `_2` suffix. The duplicate may lack fields the first one has, and the
+    command binder can then choose the poorer copy. Target service and method
+    identify one call; the mapping with the most fields is the useful one.
+    """
+    if not isinstance(adapters, list):
+        return adapters
+    groups = {}
+    order = []
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        key = (normalize(adapter.get("target_service") or ""),
+               normalize(adapter.get("target_method") or ""))
+        if key not in groups:
+            groups[key] = []
+            order.append(key)
+        groups[key].append(adapter)
+    kept = []
+    removed = 0
+    for key in order:
+        candidates = groups[key]
+        candidates.sort(
+            key=lambda item: (len(item.get("input_fields") or []),
+                              -len(str(item.get("action_name") or ""))),
+            reverse=True)
+        kept.append(candidates[0])
+        removed += len(candidates) - 1
+    if removed and log is not None:
+        log.write(f"[ok] step adapters: removed {removed} duplicate adapter(s)")
+    return kept
+
+
+def repair_adapter_missing_params(adapters, services, models, log=None):
+    """Expose a required method parameter the adapter never mapped.
+
+    A custom create such as `create_audit_log` can gain a required `timestamp`
+    parameter from the description while the adapter still lists only the
+    original fields. The CLI then has no flag, the create inserts NULL, and
+    acceptance fails at the store. The parameter and the model field are both
+    authoritative; this adds the missing direct mapping, and the existing
+    flag repair exposes it on the surface.
+    """
+    if not isinstance(adapters, list) or not isinstance(services, list):
+        return adapters
+    index = _service_method_index(services)
+    model_fields = {}
+    for model in models or ():
+        if not isinstance(model, dict) or not isinstance(model.get("name"), str):
+            continue
+        model_fields[normalize(model["name"])] = {
+            normalize(field.get("name")): field
+            for field in model.get("fields") or ()
+            if isinstance(field, dict) and field.get("name")
+        }
+    added = []
+    for adapter in adapters:
+        if not isinstance(adapter, dict):
+            continue
+        method = _resolve_adapter_method(adapter, index)
+        if method is None:
+            continue
+        from kernel.codegen import classify_crud
+        if classify_crud(method.get("name") or "") != "create":
+            continue
+        holder = adapter.get("target_service")
+        base = normalize(holder or "")
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        fields = model_fields.get(base) or {}
+        if not fields:
+            continue
+        present = {
+            normalize(field.get("target_param") or field.get("field_name") or "")
+            for field in adapter.get("input_fields") or ()
+            if isinstance(field, dict)
+        }
+        for param in method.get("params") or ():
+            if not isinstance(param, dict) or not param.get("name"):
+                continue
+            name = param["name"]
+            if normalize(name) in present:
+                continue
+            field = fields.get(normalize(name))
+            if field is None:
+                continue
+            foreign = field.get("foreign_key")
+            adapter.setdefault("input_fields", []).append({
+                "field_name": name,
+                "target_param": name,
+                "transform": "LOOKUP_ID" if isinstance(foreign, dict) else "DIRECT",
+                "lookup_entity": foreign.get("target_entity") if isinstance(foreign, dict) else None,
+                "required": field.get("nullable") is False,
+            })
+            present.add(normalize(name))
+            added.append(f"{adapter.get('action_name')}.{name}")
+    if added and log is not None:
+        log.write(
+            f"[ok] step adapters: added {len(added)} missing method parameter(s) "
+            f"to adapters: {', '.join(added[:8])}"
+        )
+    return adapters
+
+
 def repair_missing_adapter_flags(components, adapters, services, models, log):
     """Add an optional CLI flag for every required adapter field it lacks.
 
@@ -4616,6 +4932,14 @@ def _rename_to_model_field(adapter, field_entry, ptypes, model_fields):
     if not isinstance(field_name, str) or not isinstance(target, str):
         return None
     ptype = ptypes.get(normalize(target))
+    # A scalar parameter is its own target: the adapter field is the value
+    # passed to the method, so the method's parameter spelling is the
+    # canonical name (`--budget` -> `monthly_budget`). Mapping parameters are
+    # left to the entity rename below.
+    if not is_mapping_type(ptype) and normalize(field_name) != normalize(target) \
+            and normalize(field_name) in normalize(target):
+        field_entry["field_name"] = target
+        return field_name, target
     entity = _entity_of(ptype, model_fields)
     if entity is None and is_mapping_type(ptype):
         # `update(id, data: dict[str, any])` carries the entity only in the

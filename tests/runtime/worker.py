@@ -418,6 +418,38 @@ def _allowed_values(docs, entity, field):
     return []
 
 
+def _method_state_start(docs, entity, field, method):
+    """A valid starting state for a contract call whose method names a verb.
+
+    A contract may record only the effects after `confirm_order`, while the
+    generated body correctly guards the starting status. The generic contract
+    fixture seeded `status = "value1"` and reported the guard as a failure.
+    When the requirements document an allowed state set and the method name
+    names a conventional transition, start from the state that transition
+    expects. This is fixture setup, not a relaxation of the guard.
+    """
+    if str(field).lower() not in ("status", "state"):
+        return None
+    allowed = _allowed_values(docs, entity, field)
+    if not allowed:
+        return None
+    name = str((method or {}).get("name") or "").lower()
+    preferred = []
+    if "cancel" in name:
+        preferred = ["confirmed", "active", "approved", "pending"]
+    elif "ship" in name:
+        preferred = ["confirmed", "active", "approved", "pending"]
+    elif "confirm" in name or "approve" in name:
+        preferred = ["pending", "new", "draft", "open"]
+    elif "close" in name:
+        preferred = ["confirmed", "pending", "active", "open"]
+    for wanted in preferred:
+        for value in allowed:
+            if str(value).lower() == wanted:
+                return value
+    return None
+
+
 def _state_start_value(docs, entity, field, target, method):
     """A documented starting state that differs from the effect target.
 
@@ -548,6 +580,13 @@ def _check_contract(docs, deps, contract, store, sequence, covered=None):
                     "reason": f"unknown binding entity {entity!r}"}
         overrides = dict(state_starts.get(
             binding.get("name") or "", {}))
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            inferred = _method_state_start(
+                docs, entity, field["name"], method)
+            if inferred is not None:
+                overrides.setdefault(field["name"], inferred)
         overrides.update(_precondition_values(
             contract, binding.get("name") or ""))
         record, pk = _seed(store, model, sequence + 1000 + binding_index * 10,
@@ -839,9 +878,13 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
         last = None
         for cli_args in cli_variants:
             cli_args = _materialize_file_args(docs, cli_args)
-            result = subprocess.run(
-                [sys.executable, str(cli_path), "--db", str(db), *cli_args],
-                capture_output=True, text=True)
+            try:
+                result = subprocess.run(
+                    [sys.executable, str(cli_path), "--db", str(db), *cli_args],
+                    capture_output=True, text=True, timeout=30)
+            except subprocess.TimeoutExpired:
+                return {"name": name, "status": "failed",
+                        "reason": "CLI subprocess timed out after 30s"}
             last = result
             if result.returncode == 0 and not expected:
                 return {"name": name, "status": "passed"}

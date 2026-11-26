@@ -174,6 +174,20 @@ def _pick_method(index, command, sub, options):
         # tie without letting a generic method outrank an entity match.
         coverage = _coverage(options, method)
         score = 5 * noun_hits + 2 + (0 if is_repo else 3) + 3 * coverage
+        # An exact noun holder outranks a holder that merely contains the
+        # noun: `OrderRepository` for `Order list`, not `OrderItemRepository`.
+        role_words = {"repository", "repo", "service", "manager"}
+        if nouns and set(nouns) <= service_tokens \
+                and not (service_tokens - set(nouns) - role_words):
+            score += 3
+        # The canonical repository verb is the least surprising target for a
+        # generic command. A custom `create_borrow_record` may have stronger
+        # domain behavior, but `BorrowRecord add` is the ordinary create
+        # leaf; without this tie-break the mechanical pass declines and the
+        # model fallback can leave the leaf unbound.
+        if normalize(method["name"]) in ("create", "readall", "readone",
+                                         "update", "delete"):
+            score += 1
         scored.append((score, is_repo, service_name, method))
 
     if not scored:
@@ -385,3 +399,71 @@ def _model_fields(models):
             if isinstance(field, dict) and field.get("name")
         }
     return fields
+
+
+def complete_missing(components, services, models, adapters, requirements,
+                     log=None):
+    """Add adapters for leaves the model omitted but the documents prove.
+
+    ``derive_adapters`` is all-or-nothing: one ambiguous leaf makes it decline
+    and the model fallback can return a shorter list. That leaves some emitted
+    CLI leaves with no action ("no adapter bound ..."), even though another
+    leaf's target choice says nothing about this one. Fill each missing leaf
+    independently; an ambiguous leaf stays missing and the probe reports it.
+    """
+    from kernel.codegen import bind_commands
+    from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+
+    if not isinstance(components, dict):
+        return adapters or []
+    invocation = ((components.get("facade") or {}).get("invocation")
+                  if isinstance(components.get("facade"), dict) else None)
+    if not isinstance(invocation, dict):
+        return adapters or []
+    leaves = _leaves(components)
+    if not leaves:
+        return adapters or []
+    method_index = _method_index(services)
+    model_fields = _model_fields(models)
+    current = list(adapters or [])
+    bindings, _unmapped = bind_commands(
+        current, invocation, COMMAND_VERB_STEMS)
+    used = {item.get("action_name") for item in current
+            if isinstance(item, dict)}
+    added = []
+    by_action = {item.get("action_name"): item for item in current
+                 if isinstance(item, dict)}
+    for command, sub, options in leaves:
+        bound = bindings.get((command, sub))
+        if bound is not None:
+            adapter = by_action.get(bound[0]) or {}
+            target = " ".join(str(adapter.get(key) or "") for key in
+                              ("target_service", "target_method", "action_name"))
+            if normalize(command) in normalize(target):
+                continue
+            # A weak binding to another entity's action (`Guest add` bound to
+            # `roomadd` because both are generic add verbs) is not coverage;
+            # add the document-proven adapter below.
+        choice, _reason = _pick_method(method_index, command, sub, options)
+        if choice is None:
+            continue
+        service_name, method = choice
+        fields, _reason = _fields_for(
+            options, method, service_name, model_fields)
+        if fields is None:
+            continue
+        action = _action_name(command, sub, used)
+        used.add(action)
+        current.append({
+            "action_name": action,
+            "target_service": service_name,
+            "target_method": method["name"],
+            "input_fields": fields,
+        })
+        added.append(_leaf_name(command, sub))
+    if added and log is not None:
+        log.write(
+            f"[ok] step adapters: added {len(added)} missing adapter(s) "
+            f"mechanically: {', '.join(added[:8])}"
+        )
+    return current
