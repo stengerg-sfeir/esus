@@ -1953,6 +1953,62 @@ def repair_total_count_parameters(holders, models, log=None):
     return holders
 
 
+def repair_create_parameter_names(holders, models, log=None):
+    """Spell a create parameter as the model field it clearly names.
+
+    Custom contracts can use camelCase (`orderId`, `productId`) while the
+    generated store reads snake_case columns.  A parameter whose normalized
+    name equals exactly one model field is that field, not a new value.
+    """
+    from kernel.codegen import classify_crud
+
+    if not isinstance(holders, list) or not isinstance(models, list):
+        return holders
+    by_model = {
+        normalize(model.get("name")): model
+        for model in models
+        if isinstance(model, dict) and model.get("name")
+    }
+    changed = 0
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        name = holder.get("service_name") or holder.get("interface_name") \
+            or holder.get("entity") or ""
+        base = normalize(name)
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        model = by_model.get(base)
+        if model is None:
+            continue
+        fields = {
+            normalize(field.get("name")): field.get("name")
+            for field in model.get("fields") or []
+            if isinstance(field, dict) and field.get("name")
+        }
+        for method in holder.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            if classify_crud(method.get("name") or "") != "create":
+                continue
+            for param in method.get("params") or []:
+                if not isinstance(param, dict) or not param.get("name"):
+                    continue
+                canonical = fields.get(normalize(param["name"]))
+                if canonical is not None and canonical != param["name"]:
+                    old = param["name"]
+                    param["name"] = canonical
+                    changed += 1
+                    if log is not None:
+                        log.write(
+                            f"[ok] step contracts: "
+                            f"{name}.{method.get('name')} parameter "
+                            f"'{old}' is model field '{canonical}'")
+    return holders
+
+
 def repair_create_missing_fields(ports, models, log):
     """Add the required field a create describes but does not take.
 
@@ -1975,7 +2031,10 @@ def repair_create_missing_fields(ports, models, log):
         if model is None:
             continue
         for method in repository.get("methods") or []:
-            if not isinstance(method, dict) or method.get("name") != "create":
+            if not isinstance(method, dict):
+                continue
+            from kernel.codegen import classify_crud
+            if classify_crud(method.get("name") or "") != "create":
                 continue
             params = method.get("params")
             if not isinstance(params, list):
@@ -2058,7 +2117,10 @@ def repair_required_create_fields(ports, models, log=None):
         if model is None:
             continue
         for method in repository.get("methods") or []:
-            if not isinstance(method, dict) or method.get("name") != "create":
+            if not isinstance(method, dict):
+                continue
+            from kernel.codegen import classify_crud
+            if classify_crud(method.get("name") or "") != "create":
                 continue
             params = method.get("params")
             if not isinstance(params, list):
@@ -2598,6 +2660,21 @@ def ungrounded_methods(services, repositories, models, requirements,
             return
         model = model_for(holder)
         if model is None:
+            # A composite service such as BorrowingReportService has no
+            # entity to strip from its name; a return type naming no declared
+            # model (`BookBorrowReport`) is still an ungrounded invention.
+            known = set(model_by_name) | {
+                "list", "dict", "tuple", "set", "optional", "union", "any",
+                "none", "str", "int", "float", "bool", "datetime", "date",
+            }
+            returns = str(method.get("return_type") or "")
+            for token in re.findall(r"[A-Z][A-Za-z0-9_]*", returns):
+                key_type = normalize(token)
+                if key_type in known or key_type in normalize(requirements):
+                    continue
+                reasons[key] = (
+                    f"return type {token!r} is not a declared model or prompt type")
+                return
             return
         fields = {normalize(field.get("name"))
                   for field in model.get("fields") or []
@@ -4452,33 +4529,159 @@ def repair_crud_requirements(components, models, requirements, log=None):
         for model in models or []
         if isinstance(model, dict) and model.get("name")
     }
-    for command, sub, _flags in command_lines.attribute_lines(
-            spans, list(model_names.values())):
-        entity = model_names.get(normalize(command))
-        if entity is None:
-            continue
+    verb_operations = {
+        "add": "create", "create": "create", "register": "create",
+        "new": "create", "list": "read_all", "read": "read_all",
+        "show": "read_all", "update": "update", "edit": "update",
+        "delete": "delete", "remove": "delete",
+    }
+
+    def ensure(entity, operation):
         item = by_entity.get(normalize(entity))
         if item is None:
             item = {"entity": entity, "operations": []}
             crud.append(item)
             by_entity[normalize(entity)] = item
         operations = item.setdefault("operations", [])
-        verb = (sub or "").split()[-1].lower() if sub else ""
-        operation = {
-            "add": "create", "create": "create", "register": "create",
-            "new": "create", "list": "read_all", "read": "read_all",
-            "show": "read_all", "update": "update", "edit": "update",
-            "delete": "delete", "remove": "delete",
-        }.get(verb)
-        wanted_operations = [op for op in (operation, "read_one") if op]
-        for op in wanted_operations:
-            if op not in operations:
+        for op in (operation, "read_one"):
+            if op and op not in operations:
                 operations.append(op)
                 added.append(f"{entity}.{op}")
+
+    for command, sub, _flags in command_lines.attribute_lines(
+            spans, list(model_names.values())):
+        entity = model_names.get(normalize(command))
+        if entity is None:
+            continue
+        verb = (sub or "").split()[-1].lower() if sub else ""
+        ensure(entity, verb_operations.get(verb))
+
+    # A prose prompt can expose an entity through the surface without a
+    # backticked command line (`Product add` in prompt_39).  The model entity
+    # and the emitted command prove persistence; without a CRUD entry the
+    # repository is never generated and the service body is a stub.
+    persistence = components.get("persistence")
+    if isinstance(persistence, dict) and persistence.get("required"):
+        facade = components.get("facade")
+        invocation = facade.get("invocation") if isinstance(facade, dict) else None
+        for command in (invocation or {}).get("commands") or []:
+            if not isinstance(command, dict) or not command.get("name"):
+                continue
+            entity = model_names.get(normalize(command["name"]))
+            if entity is None:
+                continue
+            operations = [verb_operations.get(
+                str(sub.get("name") or "").split()[-1].lower())
+                for sub in command.get("subcommands") or []
+                if isinstance(sub, dict) and sub.get("name")]
+            operations = [op for op in operations if op]
+            if not operations:
+                continue
+            for operation in operations:
+                ensure(entity, operation)
     if added and log is not None:
         log.write(
             f"[ok] step components: CRUD prose added "
             f"{len(added)} operation(s): {', '.join(added[:8])}")
+    return components
+
+
+def repair_service_entities(components, models, services, log=None):
+    """Add a persisted entity a service clearly acts on.
+
+    `BookService.get_available_books` names Book in its return type, but the
+    surface may expose only Loan/Member; without a Book CRUD entry no
+    BookRepository exists and the service body is a stub.  A model referenced
+    by a service signature is a stored entity when persistence is required.
+    """
+    if not isinstance(components, dict) or not isinstance(models, list):
+        return components
+    persistence = components.get("persistence")
+    if not isinstance(persistence, dict) or not persistence.get("required"):
+        return components
+    if not isinstance(services, list):
+        return components
+    referenced = set()
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            text = normalize(str(method.get("return_type") or ""))
+            for model in models:
+                if isinstance(model, dict) and model.get("name") \
+                        and normalize(model["name"]) in text:
+                    referenced.add(normalize(model["name"]))
+            for param in method.get("params") or []:
+                if not isinstance(param, dict):
+                    continue
+                kind = normalize(str(param.get("type") or ""))
+                for model in models:
+                    if isinstance(model, dict) and model.get("name") \
+                            and normalize(model["name"]) in kind:
+                        referenced.add(normalize(model["name"]))
+    if not referenced:
+        return components
+    crud = components.get("crud_services")
+    if not isinstance(crud, list):
+        crud = []
+        components["crud_services"] = crud
+    known = {normalize(item.get("entity")) for item in crud
+             if isinstance(item, dict) and item.get("entity")}
+    added = []
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        key = normalize(model["name"])
+        if key not in referenced or key in known:
+            continue
+        crud.append({"entity": model["name"],
+                     "operations": ["create", "read_one", "read_all"]})
+        known.add(key)
+        added.append(model["name"])
+    state_verbs = ("return", "update", "cancel", "confirm", "close",
+                   "reopen", "ship", "receive", "approve", "reject")
+    for service in services:
+        if not isinstance(service, dict):
+            continue
+        for method in service.get("methods") or []:
+            if not isinstance(method, dict) or not method.get("name"):
+                continue
+            if not any(str(method["name"]).lower().startswith(verb)
+                       for verb in state_verbs):
+                continue
+            for param in method.get("params") or []:
+                if not isinstance(param, dict) or not param.get("name"):
+                    continue
+                stem = normalize(str(param["name"]))
+                if stem.endswith("id"):
+                    stem = stem[:-2]
+                candidates = [
+                    model.get("name") for model in models
+                    if isinstance(model, dict) and model.get("name")
+                    and (normalize(model["name"]).startswith(stem)
+                         or stem.startswith(normalize(model["name"])))
+                ]
+                if len(candidates) != 1:
+                    continue
+                entity = candidates[0]
+                item = next((entry for entry in crud
+                             if isinstance(entry, dict)
+                             and normalize(entry.get("entity"))
+                             == normalize(entity)), None)
+                if item is None:
+                    item = {"entity": entity,
+                            "operations": ["create", "read_one", "read_all"]}
+                    crud.append(item)
+                operations = item.setdefault("operations", [])
+                if "update" not in operations:
+                    operations.append("update")
+                    added.append(f"{entity}.update")
+    if added and log is not None:
+        log.write(
+            f"[ok] step components: added {len(added)} entity(ies) named by "
+            f"service signatures: {', '.join(added[:8])}")
     return components
 
 

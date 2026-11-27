@@ -422,7 +422,19 @@ def _allowed_values(docs, entity, field):
         if quoted:
             return quoted
     # A prose rule may name a concrete value without the "must be one of"
-    # shape (`Only users with the role 'administrator' ...`).
+    # shape (`Only users with the role 'administrator' ...`).  Only string
+    # fields can take those values: an integer `available_copies` must not
+    # inherit the quoted `'returned'` from a nearby loan-status sentence.
+    numeric_field = None
+    for model in docs.get("models") or []:
+        if not isinstance(model, dict) or model.get("name") != entity:
+            continue
+        for candidate in model.get("fields") or []:
+            if isinstance(candidate, dict) and candidate.get("name") == field:
+                numeric_field = str(candidate.get("type") or "").lower()
+                break
+    if numeric_field not in (None, "", "str", "string", "text"):
+        return []
     for invariant in docs.get("invariants") or []:
         text = invariant.get("text") if isinstance(invariant, dict) else ""
         if field.lower() not in str(text).lower():

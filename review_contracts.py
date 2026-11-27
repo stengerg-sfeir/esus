@@ -627,20 +627,28 @@ def _stock_reservation_effect(ctx, role, text):
     `quantity` the prose names. The exact loop remains model-written; the
     contract tells the body what must change.
     """
-    if role != "service" or "stock" not in text.lower():
+    if role != "service":
         return None
-    if not re.search(r"\b(reserv|decreas|reduc|deduct)", text, re.IGNORECASE):
+    lowered = text.lower()
+    restore = bool(re.search(
+        r"\b(return|restor|increas|increment)", lowered))
+    reserve = bool(re.search(
+        r"\b(reserv|decreas|reduc|deduct)", lowered))
+    if not (restore or reserve):
+        return None
+    if "stock" not in lowered and "copies" not in lowered:
         return None
     for class_name, field_name, field_type, field in _fields(ctx):
-        if "stock" not in normalize(field_name):
+        name = normalize(field_name)
+        if "stock" not in name and "copies" not in name:
             continue
         if field_type not in ("int", "integer", "float", "double",
                               "decimal", "number"):
             continue
         return {
             "target": f"{class_name.lower()}.{field_name}",
-            "op": "decrement",
-            "by": "quantity",
+            "op": "increment" if restore and not reserve else "decrement",
+            "by": "1" if restore and not reserve else "quantity",
             "write": _repo_call(ctx, class_name, "update_"),
         }
     return None

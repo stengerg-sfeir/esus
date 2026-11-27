@@ -701,6 +701,14 @@ class Pipeline:
         # `EntityRepository` under their expected names.
         repairs.repair_holder_names(self.documents, log=self.log)
         body = self.documents.get(SERVICE_CONTRACTS)
+        repairs.repair_create_parameter_names(
+            body, self.documents.get(DATA_MODELS), self.log)
+        repairs.repair_service_entities(
+            self.documents.get(COMPONENTS),
+            self.documents.get(DATA_MODELS),
+            body,
+            self.log,
+        )
         # Repositories are derived facts, not a judgement the open grammar can
         # safely leave out.  Fill every required repository and required CRUD
         # method mechanically, keeping any custom methods the model supplied.
@@ -1413,6 +1421,10 @@ class Pipeline:
             self.documents.get(DATA_MODELS),
             (self.documents.get(PERSISTENCE_PORTS) or {}).get("repositories"),
             self.log)
+        repairs.repair_create_parameter_names(
+            (self.documents.get(PERSISTENCE_PORTS) or {}).get("repositories")
+            if isinstance(self.documents.get(PERSISTENCE_PORTS), dict) else [],
+            self.documents.get(DATA_MODELS), self.log)
         # A create that describes a required field its parameters omit can
         # never succeed at the store; the description is the evidence.
         repairs.repair_create_missing_fields(

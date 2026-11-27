@@ -36,6 +36,7 @@ from pathlib import Path
 
 from kernel.extraction import adapters_mechanical
 from kernel.extraction import generation_plans
+from kernel.extraction import mappings
 from kernel.extraction import pipeline as pipeline_module
 from kernel.extraction import runner, triage, uniqueness, writer
 from kernel.extraction.aliases import apply_aliases, apply_model_fields, load_aliases
@@ -445,6 +446,13 @@ def repair_existing(output_dir):
             models, log)
         repairs.repair_create_missing_fields(ports, models, log)
         repairs.repair_required_create_fields(ports, models, log)
+    repairs.repair_create_parameter_names(
+        documents.get(pipeline_module.SERVICE_CONTRACTS) or [],
+        documents.get(pipeline_module.DATA_MODELS) or [], log)
+    if isinstance(documents.get(pipeline_module.PERSISTENCE_PORTS), dict):
+        repairs.repair_create_parameter_names(
+            documents[pipeline_module.PERSISTENCE_PORTS].get("repositories") or [],
+            documents.get(pipeline_module.DATA_MODELS) or [], log)
     repairs.repair_create_signature_fields(
         documents.get(pipeline_module.SERVICE_CONTRACTS) or [],
         documents.get(pipeline_module.DATA_MODELS) or [], log)
@@ -468,6 +476,9 @@ def repair_existing(output_dir):
             documents.get(pipeline_module.DATA_MODELS) or [], log)
     services = documents.get(pipeline_module.SERVICE_CONTRACTS) or []
     if isinstance(services, list) and isinstance(components, dict):
+        components = repairs.repair_service_entities(
+            components, models, services, log)
+        documents[pipeline_module.COMPONENTS] = components
         crud_ops = [
             SimpleNamespace(entity=item.get("entity"),
                             operations=item.get("operations") or [])
@@ -483,6 +494,22 @@ def repair_existing(output_dir):
         if isinstance(ports_for_signature, dict):
             ports_for_signature = interfaces.complete_missing_repositories(
                 ports_for_signature, services, log)
+            mapped = {
+                item.get("entity")
+                for item in ports_for_signature.get("entity_mappings") or []
+                if isinstance(item, dict) and item.get("entity")
+            }
+            missing_entities = [
+                repository.get("entity")
+                for repository in ports_for_signature.get("repositories") or []
+                if isinstance(repository, dict)
+                and repository.get("entity") not in mapped
+            ]
+            if missing_entities:
+                ports_for_signature.setdefault("entity_mappings", []).extend(
+                    mappings.entity_mappings(
+                        documents.get(pipeline_module.DATA_MODELS) or [],
+                        missing_entities))
             ports_for_signature["repositories"] = (
                 repository_contracts.complete_methods(
                     ports_for_signature.get("repositories") or [],
@@ -558,6 +585,16 @@ def repair_existing(output_dir):
             documents[pipeline_module.SERVICE_CONTRACTS] = services
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
+    # A custom create method can be added by the repository completion after
+    # the first required-field pass. Re-run both passes on the final method
+    # set so `createOrderItem` receives the model fields it cannot insert.
+    ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
+    if isinstance(ports, dict):
+        repairs.repair_create_parameter_names(
+            ports.get("repositories") or [],
+            documents.get(pipeline_module.DATA_MODELS) or [], log)
+        repairs.repair_required_create_fields(
+            ports, documents.get(pipeline_module.DATA_MODELS) or [], log)
     services = repairs.repair_orphan_capability_methods(
         documents.get(pipeline_module.SERVICE_CONTRACTS),
         documents.get(pipeline_module.INTERACTION_ADAPTERS), log)
