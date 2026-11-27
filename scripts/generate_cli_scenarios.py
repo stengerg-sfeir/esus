@@ -127,6 +127,63 @@ def _update_seed_overrides(docs, path, args):
     return overrides
 
 
+_UNIQUE_COUNTER = 0
+
+
+def _coerce_declared(value, declared):
+    """Spell a fixture value the parser's declared option type accepts."""
+    kind = str(declared or "").lower()
+    if value is None:
+        return value
+    if kind in ("int", "integer"):
+        try:
+            return str(int(float(str(value))))
+        except (TypeError, ValueError):
+            return value
+    if kind in ("float", "double", "decimal", "money"):
+        try:
+            return str(float(value))
+        except (TypeError, ValueError):
+            return value
+    return value
+
+
+def _unique_value(value):
+    """Make a generated string unique across scenarios."""
+    global _UNIQUE_COUNTER
+    if not isinstance(value, str) or not value.startswith("value"):
+        return value
+    _UNIQUE_COUNTER += 1
+    return f"{value}-{_UNIQUE_COUNTER}"
+
+
+def _coerce_args(args, declared):
+    for index, item in enumerate(args):
+        if not isinstance(item, str) or item not in declared:
+            continue
+        if index + 1 >= len(args) or str(args[index + 1]).startswith("--"):
+            continue
+        args[index + 1] = _coerce_declared(args[index + 1], declared[item])
+    return args
+
+
+def _repair_total(args):
+    """Keep quantity x unit-price consistent with a total/line-total flag."""
+    positions = {str(value): index for index, value in enumerate(args)
+                 if isinstance(value, str) and value.startswith("--")}
+    quantity = positions.get("--quantity")
+    unit = positions.get("--unit-price")
+    total = positions.get("--total-price", positions.get("--line-total"))
+    if quantity is None or unit is None or total is None:
+        return args
+    try:
+        product = float(args[quantity + 1]) * float(args[unit + 1])
+    except (IndexError, TypeError, ValueError):
+        return args
+    args[total + 1] = str(int(product)) if product.is_integer() else str(product)
+    return args
+
+
 def _seed_args_from_flags(docs, flags, node=None):
     declared = getattr(_seed_args_from_flags, "declared", {})
     if node is not None:
@@ -149,7 +206,10 @@ def _seed_args_from_flags(docs, flags, node=None):
                 break
         if found is not None:
             args.append(_seed_arg_value(found))
-    return args
+    kinds = {name: str(option.get("type") or "")
+             for name, option in declared.items()
+             if isinstance(option, dict)}
+    return _coerce_args(args, kinds)
 
 
 def _args_from_flags(docs, flags, node=None, path=None):
@@ -206,12 +266,14 @@ def _args_from_flags(docs, flags, node=None, path=None):
         else:
             value = worker._cli_value(docs, flag, declared.get(flag, ""), 1)
         if value is not None:
+            if field is not None and field.get("unique"):
+                value = _unique_value(value)
             args += [flag, value]
     # A model can require a non-null field whose CLI option is optional or
     # absent. Only create-like commands need those fields; update/sort/delete
     # commands should exercise their required lookup surface.
     if not path or str(path[-1]).lower() not in ("add", "create", "register"):
-        return args
+        return _coerce_args(_repair_total(args), declared)
     for field in (model or {}).get("fields") or []:
         if not isinstance(field, dict) or not field.get("name"):
             continue
@@ -224,8 +286,11 @@ def _args_from_flags(docs, flags, node=None, path=None):
                      if worker.normalize(item.lstrip("-").replace("-", "_")) == key
                      or key.endswith(worker.normalize(item.lstrip("-").replace("-", "_")))
                      or worker.normalize(item.lstrip("-").replace("-", "_")) in key),
-                    "--" + field["name"].replace("_", "-"))
-        if flag in args:
+                    None)
+        # Never invent a flag the emitted parser does not accept: a scenario
+        # that passes `--balance` when the surface declares
+        # `--initial-balance` tests argparse, not the application.
+        if flag is None or flag in args:
             continue
         if str(field.get("type") or "").lower() in ("bool", "boolean"):
             args.append(flag)
@@ -238,8 +303,10 @@ def _args_from_flags(docs, flags, node=None, path=None):
                     docs, model.get("name"), field["name"])
             value = ("100" if key == "capacity"
                      else allowed[0] if allowed else _seed_arg_value(field))
+            if field.get("unique"):
+                value = _unique_value(value)
             args += [flag, value]
-    return args
+    return _coerce_args(_repair_total(args), declared)
 
 
 def main(argv=None):

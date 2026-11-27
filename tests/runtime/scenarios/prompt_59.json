@@ -16,7 +16,7 @@
           "as": "order",
           "values": {
             "customer_id": {
-              "ref": "customer.customer_id"
+              "ref": "customer.id"
             },
             "status": "confirmed"
           }
@@ -27,7 +27,7 @@
         "method": "cancel_order",
         "args": [
           {
-            "ref": "order.order_id"
+            "ref": "order.id"
           }
         ]
       },
