@@ -3,15 +3,15 @@
     "label": "ContactService.import_contacts_from_csv",
     "status": "written",
     "note": "",
-    "answer": "with open(file_path, 'r', encoding='utf-8') as handle:\n            reader = csv.reader(handle)\n            header = next(reader)\n            if header != ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'created_at', 'updated_at']:\n                raise errors.AppError(\"Invalid CSV header: expected ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'created_at', 'updated_at']\")\n            \n            invalid_rows = 0\n            for row in reader:\n                try:\n                    if len(row) != 8:\n                        invalid_rows += 1\n                        continue\n                    contact = models.Contact(\n                        first_name=row[1] if row[1] else None,\n                        last_name=row[2] if row[2] else None,\n                        email=row[3] if row[3] else None,\n                        phone=row[4] if row[4] else None,\n                        address=row[5] if row[5] else None,\n                        created_at=_as_date(row[6]) if row[6] else None,\n                        updated_at=_as_date(row[7]) if row[7] else None\n                    )\n                    # Create the contact in the repository\n                    contact_id = self._repos['ContactRepository'].create(\n                        first_name=contact.first_name,\n                        last_name=contact.last_name,\n                        email=contact.email,\n                        phone=contact.phone,\n                        address=contact.address,\n                        created_at=contact.created_at,\n                        updated_at=contact.updated_at\n                    )\n                    # If create returns an id, we assume it's valid\n                    # We don't need to read back since create returns the new id\n                except (ValueError, IndexError) as e:\n                    invalid_rows += 1\n            return invalid_rows\n```",
+    "answer": "with open(file_path, 'r', encoding='utf-8') as handle:\n            reader = csv.reader(handle)\n            header = next(reader)\n            if header != ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'created_at', 'updated_at']:\n                raise errors.AppError(\"Invalid CSV header: expected ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'created_at', 'updated_at']\")\n            valid_count = 0\n            for row in reader:\n                if len(row) != 8:\n                    raise errors.AppError(f\"Invalid row length: expected 8 columns, got {len(row)}\")\n                try:\n                    first_name = row[1] if row[1] else None\n                    last_name = row[2] if row[2] else None\n                    email = row[3] if row[3] else None\n                    phone = row[4] if row[4] else None\n                    address = row[5] if row[5] else None\n                    created_at = _as_date(row[6]) if row[6] else None\n                    updated_at = _as_date(row[7]) if row[7] else None\n                    # Create new contact\n                    contact_id = self._repos['ContactRepository'].create(\n                        first_name=first_name,\n                        last_name=last_name,\n                        email=email,\n                        phone=phone,\n                        address=address,\n                        created_at=created_at,\n                        updated_at=updated_at\n                    )\n                    valid_count += 1\n                except Exception as e:\n                    # Log or handle invalid row, but do not corrupt data\n                    continue\n        return valid_count",
     "finish_reason": "stop",
-    "tokens": 383,
+    "tokens": 362,
     "budget": 3584,
     "truncated": false,
-    "seconds": 3.3233418464660645,
-    "decode_seconds": 2.548546,
+    "seconds": 2.9151856899261475,
+    "decode_seconds": 2.363156,
     "prompt_tokens": 2271,
-    "cached_tokens": 658,
+    "cached_tokens": 92,
     "context": "exact"
   }
 ]

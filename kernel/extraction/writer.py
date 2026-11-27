@@ -10,6 +10,8 @@ import sys
 import threading
 from pathlib import Path
 
+from kernel.extraction import ordering
+
 RUN_LOG_NAME = "run.log"
 
 # The requirements the run was given, written beside the documents so the checker
@@ -93,7 +95,14 @@ def write_documents(output_dir, documents):
     written = []
     for name, body in documents.items():
         path = directory / f"{name}.json"
-        payload = json.dumps({name: body}, indent=2, ensure_ascii=False)
+        # The model chooses the content; the order of name-keyed collections
+        # is presentation.  Canonicalising here makes two runs that extracted
+        # the same facts write the same bytes, which is what lets a diff show
+        # a real change instead of a reordering.  `sort_keys` does the same for
+        # object members; list order is handled by `ordering`.
+        body = ordering.canonicalize(name, body)
+        payload = json.dumps({name: body}, indent=2, ensure_ascii=False,
+                             sort_keys=True)
         path.write_text(payload + "\n", encoding="utf-8")
         written.append(path)
     return written

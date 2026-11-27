@@ -228,6 +228,14 @@
           "transform": "LOOKUP_ID",
           "lookup_entity": "Tag",
           "required": false
+        },
+        {
+          "field_name": "post_id",
+          "target_param": "post_id",
+          "transform": "LOOKUP_ID",
+          "lookup_entity": "Post",
+          "required": true,
+          "status": "deduced"
         }
       ]
     }

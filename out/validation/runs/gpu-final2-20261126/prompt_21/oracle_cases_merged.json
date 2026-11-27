@@ -1,4 +1,100 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "list_orders_by_customer",
+      "source": "list all orders belonging to a customer",
+      "given": {
+        "customer": {
+          "id": 101
+        },
+        "order": {
+          "status": "pending",
+          "date": "2023-10-01"
+        }
+      },
+      "when": {
+        "action": "list_orders",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "pending",
+          "order.order_date": "2023-10-01"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Order"
+            ]
+          },
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          },
+          "order.order_date": {
+            "status": "aligned",
+            "canonical": "order_date",
+            "score": 10.0,
+            "evidence": [
+              "Order.order_date exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "OrderRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

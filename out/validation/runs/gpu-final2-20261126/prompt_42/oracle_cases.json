@@ -27,7 +27,7 @@
           "Purchase": 1
         }
       },
-      "status": "unbound",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -70,22 +70,21 @@
           }
         },
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "alias",
+          "canonical": "PurchaseRepository.find_customer_purchases",
+          "score": 7.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "same operation with a different name"
           ],
           "alternatives": []
         }
       },
-      "triage": "coverage_gap: ambiguous action",
-      "needs_review": false,
       "execution": {
-        "status": "unbound",
-        "reason": "ambiguous action binding: PurchaseRepository.find_customer_purchases, PurchaseRepository.get_purchases_by_customer_id, PurchaseRepository.get_total_spent_by_customer"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     }
   ]
 }

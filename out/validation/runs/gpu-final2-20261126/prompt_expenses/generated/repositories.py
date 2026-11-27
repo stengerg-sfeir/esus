@@ -305,24 +305,25 @@ class ExpenseRepository:
         if not month:
             raise ValueError("budget check needs a month scope: an empty month matches every record")
         budgets = self._store.select(self.ENTITY, [])
-        match = [record for record in budgets
-                 if record.get('category_id') == category_id
-                 and record.get('month') == month]
-        if not match:
+        budget_record = None
+        for record in budgets:
+            if record.get('category_id') == category_id and record.get('month') == month:
+                budget_record = record
+                break
+        if not budget_record:
             return False
-        limit = match[0].get('amount_limit_cents')
+        limit = budget_record.get('amount_limit_cents')
+        if limit is None:
+            return False
         spent = 0
-        for record in self._store.select('Expense', []):
-            if record.get('category_id') != category_id:
+        for expense in self._store.select('Expense', []):
+            expense_date_str = str(expense.get('expense_date') or '')
+            if expense.get('category_id') != category_id:
                 continue
-            expense_date_str = str(record.get('expense_date') or '')
-            if not expense_date_str:
+            if not expense_date_str.startswith(month):
                 continue
-            date_key = expense_date_str[:10]
-            if not date_key.startswith(month):
-                continue
-            spent += record.get('amount_cents') or 0
-        return spent > limit if limit is not None else False
+            spent += expense.get('amount_cents', 0)
+        return spent > limit
 
 
 class BudgetRepository:

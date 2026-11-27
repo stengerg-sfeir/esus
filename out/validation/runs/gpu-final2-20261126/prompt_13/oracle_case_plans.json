@@ -36,7 +36,7 @@
       "status": "confirmed"
     },
     {
-      "id": "read_product_by_sku",
+      "id": "read_product",
       "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
       "when": {
         "action": "read_product",
@@ -67,74 +67,15 @@
       "status": "confirmed"
     },
     {
-      "id": "read_product_by_category",
-      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
-      "when": {
-        "action": "read_product",
-        "args": [
-          "category"
-        ]
-      },
-      "setup_entities": [
-        {
-          "alias": "product",
-          "entity": "Product",
-          "role": "target"
-        }
-      ],
-      "expect": {
-        "state": [
-          "product.sku",
-          "product.name",
-          "product.category",
-          "product.price",
-          "product.stock_quantity"
-        ],
-        "rows": {
-          "Product": "variable"
-        },
-        "error": "omitted"
-      },
-      "status": "confirmed"
-    },
-    {
-      "id": "search_product_by_name",
-      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
-      "when": {
-        "action": "search_product",
-        "args": [
-          "name"
-        ]
-      },
-      "setup_entities": [
-        {
-          "alias": "product",
-          "entity": "Product",
-          "role": "target"
-        }
-      ],
-      "expect": {
-        "state": [
-          "product.sku",
-          "product.name",
-          "product.category",
-          "product.price",
-          "product.stock_quantity"
-        ],
-        "rows": {
-          "Product": "variable"
-        },
-        "error": "omitted"
-      },
-      "status": "confirmed"
-    },
-    {
-      "id": "update_product_stock",
+      "id": "update_product",
       "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
       "when": {
         "action": "update_product",
         "args": [
           "sku",
+          "name",
+          "category",
+          "price",
           "stock_quantity"
         ]
       },
@@ -147,6 +88,10 @@
       ],
       "expect": {
         "state": [
+          "product.sku",
+          "product.name",
+          "product.category",
+          "product.price",
           "product.stock_quantity"
         ],
         "rows": {
@@ -184,21 +129,70 @@
       "status": "confirmed"
     },
     {
-      "id": "report_low_stock",
+      "id": "search_products",
       "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
       "when": {
-        "action": "report_low_stock"
+        "action": "search_products",
+        "args": [
+          "query"
+        ]
       },
       "setup_entities": [
         {
           "alias": "product",
           "entity": "Product",
-          "role": "source"
+          "role": "target"
         }
       ],
       "expect": {
         "rows": {
-          "Product": "variable"
+          "Product": ">=0"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "filter_by_category",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "filter_by_category",
+        "args": [
+          "category"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": ">=0"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "report_low_stock",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "when": {
+        "action": "report_low_stock",
+        "args": []
+      },
+      "setup_entities": [
+        {
+          "alias": "product",
+          "entity": "Product",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Product": ">=0"
         },
         "error": "omitted"
       },

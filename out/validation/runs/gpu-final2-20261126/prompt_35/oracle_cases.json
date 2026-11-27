@@ -145,15 +145,15 @@
           }
         },
         "action": {
-          "status": "alias",
-          "canonical": "ProductRepository.read_one",
+          "status": "ambiguous",
+          "canonical": "ProductRepository.read_all",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "several generated methods have the same action score"
           ],
           "alternatives": [
-            "ProductRepository.delete",
-            "ProductRepository.update"
+            "ProductRepository.read_all",
+            "ProductRepository.read_one"
           ]
         }
       },
@@ -192,7 +192,7 @@
           "Product": 1
         }
       },
-      "status": "unbound",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -239,12 +239,12 @@
           "alternatives": []
         }
       },
-      "triage": "coverage_gap: other",
-      "needs_review": false,
       "execution": {
-        "status": "unbound",
-        "reason": "update case supplies 'description' for 'product.name', but expects 'Gaming Laptop'"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     },
     {
       "id": "delete_product",

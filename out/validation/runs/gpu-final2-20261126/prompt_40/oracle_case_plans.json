@@ -28,12 +28,12 @@
       "status": "confirmed"
     },
     {
-      "id": "notification_service_log",
+      "id": "notification_service_abstraction",
       "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
       "when": {
         "action": "notify",
         "args": [
-          "notification.message"
+          "message"
         ]
       },
       "setup_entities": [
@@ -52,7 +52,7 @@
         },
         "error": "omitted"
       },
-      "status": "confirmed"
+      "status": "assumed"
     }
   ]
 }

@@ -2,9 +2,9 @@
   "prompt": "prompt_23",
   "results": [
     {
-      "name": "create_post_by_author",
-      "status": "unbound",
-      "reason": "ambiguous action binding: PostRepository.create, PostTagRepository.create",
+      "name": "scenario:oracle:create_post_by_author",
+      "status": "passed",
+      "case": "create_post_by_author",
       "source": "Authors can create posts.",
       "alignment": {
         "entities": {
@@ -38,7 +38,7 @@
           }
         },
         "fields": {
-          "post.author.id": {
+          "post.author_id": {
             "status": "aligned",
             "canonical": "author_id",
             "score": 10.0,
@@ -61,12 +61,12 @@
           ]
         }
       },
-      "triage": "coverage_gap: ambiguous action"
+      "triage": "passed"
     },
     {
-      "name": "create_tag_association",
-      "status": "under_specified",
-      "reason": "expected relation 'post.tags' is represented by join model PostTag",
+      "name": "scenario:oracle:create_tag_association",
+      "status": "passed",
+      "case": "create_tag_association",
       "source": "Each post belongs to one author and can have multiple tags. A tag can be associated with multiple posts.",
       "alignment": {
         "entities": {
@@ -99,80 +99,18 @@
             ]
           }
         },
-        "fields": {
-          "post.tags": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions field 'tags'",
-              "not declared on Post"
-            ],
-            "alternatives": []
-          },
-          "tag.posts": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions field 'posts'",
-              "not declared on Tag"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "alias",
-          "canonical": "PostTagRepository.get_post_tags_by_tag_id",
-          "score": 8.0,
-          "evidence": [
-            "highest action-name specificity"
-          ],
-          "alternatives": [
-            "PostRepository.get_posts_by_author_id",
-            "PostTagRepository.read_one",
-            "PostRepository.delete",
-            "PostRepository.read_one"
-          ]
-        }
-      },
-      "triage": "under_specified"
-    },
-    {
-      "name": "search_posts_by_tag",
-      "status": "unbound",
-      "reason": "ambiguous action binding: PostTagRepository.get_post_tags_by_tag_id, PostTagRepository.read_all, TagRepository.read_one",
-      "source": "Allow posts to be searched by tag.",
-      "alignment": {
-        "entities": {
-          "tag": {
-            "status": "aligned",
-            "canonical": "Tag",
-            "score": 13.0,
-            "evidence": [
-              "name/fields match Tag",
-              "score 13.0"
-            ],
-            "alternatives": [
-              "PostTag",
-              "Post",
-              "Author"
-            ]
-          }
-        },
         "fields": {},
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "aligned",
+          "canonical": "PostTagRepository.associate_tag_with_post",
+          "score": 10.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "exact generated method"
           ],
           "alternatives": []
         }
       },
-      "triage": "coverage_gap: ambiguous action"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:create_author",
@@ -184,10 +122,10 @@
           "author": {
             "status": "aligned",
             "canonical": "Author",
-            "score": 15.0,
+            "score": 13.0,
             "evidence": [
               "name/fields match Author",
-              "score 15.0"
+              "score 13.0"
             ],
             "alternatives": [
               "Post",
@@ -222,19 +160,19 @@
       "triage": "passed"
     },
     {
-      "name": "create_tag",
-      "status": "unbound",
-      "reason": "ambiguous action binding: TagRepository.create, PostTagRepository.create",
+      "name": "scenario:oracle:create_tag",
+      "status": "passed",
+      "case": "create_tag",
       "source": "Provide CRUD operations for authors, posts and tags.",
       "alignment": {
         "entities": {
           "tag": {
             "status": "aligned",
             "canonical": "Tag",
-            "score": 15.0,
+            "score": 13.0,
             "evidence": [
               "name/fields match Tag",
-              "score 15.0"
+              "score 13.0"
             ],
             "alternatives": [
               "PostTag",
@@ -267,17 +205,13 @@
           ]
         }
       },
-      "triage": "coverage_gap: ambiguous action"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "unbound": 3,
-    "under_specified": 1,
-    "passed": 1
+    "passed": 4
   },
   "triage_counts": {
-    "coverage_gap: ambiguous action": 3,
-    "under_specified": 1,
-    "passed": 1
+    "passed": 4
   }
 }

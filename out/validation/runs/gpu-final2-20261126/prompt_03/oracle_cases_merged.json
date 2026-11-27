@@ -1,4 +1,60 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "add_task",
+      "source": "Users can add tasks",
+      "given": {
+        "task": {
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "add_task",
+        "args": [
+          "task"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

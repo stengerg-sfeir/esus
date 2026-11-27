@@ -464,12 +464,12 @@ class TaskAssignmentRepository:
     def getAssignmentCountByTask(self, id: int = None) -> dict[str, int]:
         """Count the number of assignments associated with each task. [llm-written by server — review]"""
         count_map = {}
-        criteria = []
         if id is not None:
-            criteria.append(('task_id', 'eq', id))
-        found = self._store.select(self.ENTITY, criteria)
-        for record in found:
-            task_id = record.get('task_id')
-            if task_id is not None:
-                count_map[task_id] = count_map.get(task_id, 0) + 1
+            # Get all task assignments for the given task_id
+            assignments = self._store.select(self.ENTITY, [('task_id', 'eq', id)])
+            for assignment in assignments:
+                task_id = assignment.get('task_id')
+                # Count assignments per task_id, but only if task_id matches
+                if task_id == id:
+                    count_map[str(task_id)] = count_map.get(str(task_id), 0) + 1
         return count_map

@@ -30,21 +30,72 @@
         },
         "then": {
           "state": {
-            "product.status": "active",
             "product.name": "Laptop"
           },
           "rows": {
             "Product": 1
           }
         },
-        "status": "confirmed",
+        "status": "under_specified",
         "base_status": "confirmed",
         "assumptions": [],
         "ambiguities": [],
-        "prompt_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+        "alignment": {
+          "entities": {
+            "product": {
+              "status": "aligned",
+              "canonical": "Product",
+              "score": 13.666666666666666,
+              "evidence": [
+                "name/fields match Product",
+                "score 13.7"
+              ],
+              "alternatives": [
+                "Order",
+                "User"
+              ]
+            },
+            "admin": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 1.0,
+              "evidence": [
+                "prompt mentions 'admin'",
+                "no sufficiently close extracted entity"
+              ],
+              "alternatives": []
+            }
+          },
+          "fields": {
+            "product.name": {
+              "status": "aligned",
+              "canonical": "name",
+              "score": 10.0,
+              "evidence": [
+                "Product.name exists"
+              ],
+              "alternatives": []
+            }
+          },
+          "action": {
+            "status": "under_specified",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "manage is a role/permission, not a concrete action"
+            ],
+            "alternatives": []
+          }
+        },
+        "triage": "under_specified",
+        "needs_review": false,
+        "execution": {
+          "status": "under_specified",
+          "reason": "no generated method matches 'manage_product'"
+        }
       },
-      "status": "not_run",
-      "reason": ""
+      "status": "under_specified",
+      "reason": "no generated method matches 'manage_product'"
     },
     {
       "case": {
@@ -78,9 +129,32 @@
         "assumptions": [],
         "ambiguities": [
           "The requirement does not specify whether the action is attempted or blocked, and whether the error is raised at the API level or during authorization.",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
           "error class 'PermissionDenied' is not named in the requirements"
-        ],
-        "prompt_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -113,9 +187,32 @@
         "assumptions": [],
         "ambiguities": [
           "The requirement does not specify whether the action is attempted or blocked, and whether the error is raised at the API level or during authorization.",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
+          "error class 'PermissionDenied' is not named in the requirements",
           "error class 'PermissionDenied' is not named in the requirements"
-        ],
-        "prompt_sha": "9c305f225a90fbf2dcda6397be1046f0e012db344d27dd08dff5e81c435dee53"
+        ]
       },
       "status": "not_run",
       "reason": ""

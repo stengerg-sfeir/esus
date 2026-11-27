@@ -1,5 +1,66 @@
 {
   "prompt": "prompt_42",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:find_purchase_history",
+      "status": "passed",
+      "case": "find_purchase_history",
+      "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Purchase"
+            ]
+          },
+          "purchase": {
+            "status": "aligned",
+            "canonical": "Purchase",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Purchase",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {
+          "purchase.amount": {
+            "status": "aligned",
+            "canonical": "amount",
+            "score": 10.0,
+            "evidence": [
+              "Purchase.amount exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "PurchaseRepository.find_customer_purchases",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

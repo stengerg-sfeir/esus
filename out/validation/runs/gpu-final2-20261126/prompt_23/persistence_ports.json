@@ -294,6 +294,10 @@
               {
                 "name": "tag_id",
                 "type": "int"
+              },
+              {
+                "name": "post_id",
+                "type": "int"
               }
             ],
             "return_type": "models.PostTag",
@@ -304,7 +308,7 @@
             "description": "Reads one PostTag by its key.",
             "params": [
               {
-                "name": "post_id",
+                "name": "post_tag_id",
                 "type": "int"
               }
             ],
@@ -334,6 +338,36 @@
             ],
             "return_type": "list[PostTag]",
             "raises": []
+          },
+          {
+            "name": "get_post_tags_by_post_id",
+            "description": "Lists the PostTag records belonging to one Post.",
+            "params": [
+              {
+                "name": "post_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[PostTag]",
+            "raises": []
+          },
+          {
+            "name": "associate_tag_with_post",
+            "description": "Associates a Tag with a Post.",
+            "params": [
+              {
+                "name": "post_id",
+                "type": "int"
+              },
+              {
+                "name": "tag_id",
+                "type": "int"
+              }
+            ],
+            "return_type": "None",
+            "raises": [],
+            "provenance": "prose_association",
+            "review_required": true
           }
         ]
       }
@@ -366,8 +400,9 @@
       {
         "entity": "PostTag",
         "table": "post_tags",
-        "primary_key": "post_id",
+        "primary_key": "post_tag_id",
         "indexes": [
+          "post_id",
           "tag_id"
         ]
       }

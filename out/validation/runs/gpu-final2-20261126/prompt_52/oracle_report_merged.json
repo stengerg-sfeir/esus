@@ -1,5 +1,87 @@
 {
   "prompt": "prompt_52",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:borrow_book",
+      "status": "passed",
+      "case": "borrow_book",
+      "source": "A book can be borrowed by members.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Book"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "BookRepository.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:return_book",
+      "status": "passed",
+      "case": "return_book",
+      "source": "When it is returned, it should become available again.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 2
+  },
+  "triage_counts": {
+    "passed": 2
+  }
 }

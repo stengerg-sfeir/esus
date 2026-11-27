@@ -1,4 +1,78 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "find_employees_by_department",
+      "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+      "given": {
+        "department": {
+          "name": "Engineering"
+        },
+        "employee": {
+          "name": "Alice Johnson",
+          "department": "Engineering"
+        }
+      },
+      "when": {
+        "action": "find_employees_by_department",
+        "args": [
+          "department.name"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          },
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "EmployeeRepository.find_employees_by_department",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

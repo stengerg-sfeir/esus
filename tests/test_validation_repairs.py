@@ -275,6 +275,48 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertEqual(adapters[0]["target_method"],
                          "search_products_by_category")
 
+    def test_a_paginated_listing_gets_a_page_read_and_retargets(self):
+        models = [{"name": "Customer", "fields": [
+            {"name": "customer_id", "type": "int", "primary_key": True},
+            {"name": "first_name", "type": "string"},
+            {"name": "last_name", "type": "string"}]}]
+        services = [{"service_name": "CustomerRepository", "methods": [{
+            "name": "read_all",
+            "params": [{"name": "first_name", "type": "str"},
+                       {"name": "last_name", "type": "str"}],
+            "return_type": "list[Customer]"}]}]
+        adapters = [{"action_name": "list_customers_paginated",
+                     "target_service": "CustomerRepository",
+                     "target_method": "read_all",
+                     "input_fields": [
+                         {"field_name": "page_number",
+                          "target_param": "first_name",
+                          "transform": "DIRECT", "required": True},
+                         {"field_name": "page_size",
+                          "target_param": "last_name",
+                          "transform": "DIRECT", "required": True}]}]
+        requirements = (
+            "Provide CRUD operations and a paginated listing operation. "
+            "The caller specifies page number and page size.")
+        repairs.repair_capability_adapters(
+            None, services, adapters, models, requirements)
+        method = next(m for m in services[0]["methods"]
+                      if m["name"] == "read_all_paginated")
+        self.assertEqual([p["name"] for p in method["params"]],
+                         ["page_number", "page_size"])
+        self.assertEqual(method["provenance"], "capability_adapter")
+        self.assertTrue(method["review_required"])
+        self.assertEqual(adapters[0]["target_method"], "read_all_paginated")
+        self.assertEqual(
+            [f["target_param"] for f in adapters[0]["input_fields"]],
+            ["page_number", "page_size"])
+        # Idempotent: a second repair adds no duplicate method.
+        repairs.repair_capability_adapters(
+            None, services, adapters, models, requirements)
+        self.assertEqual(
+            sum(1 for m in services[0]["methods"]
+                if m["name"] == "read_all_paginated"), 1)
+
     def test_export_and_prose_import_get_a_service_adapter_and_leaf(self):
         models = [{"name": "Contact", "fields": [
             {"name": "first_name", "type": "string"}]}]
@@ -362,6 +404,83 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertIn("sort_products",
                       {m["name"] for m in
                        ports["persistence_ports"]["repositories"][0]["methods"]})
+
+
+class ProseServiceMethodTests(unittest.TestCase):
+    def test_a_named_service_method_is_added_with_entity_fields_and_errors(self):
+        models = [{"name": "Expense", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "amount_cents", "type": "int"},
+            {"name": "description", "type": "string"},
+            {"name": "expense_date", "type": "date"},
+            {"name": "category_id", "type": "int"},
+            {"name": "is_recurring", "type": "bool"}]}]
+        services = [{"service_name": "ExpenseService", "methods": []}]
+        errors = [{"name": "CategoryNotFoundError"},
+                  {"name": "ExpenseNotFoundError"},
+                  {"name": "BudgetExceededException"}]
+        requirements = (
+            "**ExpenseService** — business logic:\n"
+            "- add_expense: validates category exists, adds expense, checks "
+            "if budget exceeded after insertion\n")
+        repairs.repair_named_service_methods(
+            services, models, errors, requirements)
+        method = services[0]["methods"][0]
+        self.assertEqual(method["name"], "add_expense")
+        self.assertEqual(
+            [param["name"] for param in method["params"]],
+            ["amount_cents", "description", "expense_date", "category_id",
+             "is_recurring"])
+        self.assertEqual(method["return_type"], "models.Expense")
+        self.assertIn("BudgetExceededException", method["raises"])
+        self.assertIn("CategoryNotFoundError", method["raises"])
+        self.assertNotIn("ExpenseNotFoundError", method["raises"])
+
+
+class ProseQueryTests(unittest.TestCase):
+    def test_filter_and_low_stock_are_added(self):
+        models = [{"name": "Product", "fields": [
+            {"name": "id", "type": "int", "primary_key": True},
+            {"name": "category", "type": "string"},
+            {"name": "quantity", "type": "int"}]}]
+        services = [{"service_name": "ProductRepository", "methods": []}]
+        requirements = (
+            "Users must be able to filter products by category and display "
+            "products whose quantity is below a specified threshold. "
+            "Provide low-stock reporting.")
+        repairs.repair_prose_query_actions(
+            services, models, requirements)
+        names = {method["name"] for method in services[0]["methods"]}
+        self.assertIn("filter_products", names)
+        self.assertIn("report_low_stock", names)
+        method = next(method for method in services[0]["methods"]
+                      if method["name"] == "filter_products")
+        self.assertIn("below_quantity",
+                      [param["name"] for param in method["params"]])
+
+
+class JoinModelTests(unittest.TestCase):
+    def test_a_many_to_many_join_gets_a_surrogate_key(self):
+        models = [
+            {"name": "Post", "fields": [
+                {"name": "post_id", "type": "int", "primary_key": True}]},
+            {"name": "Tag", "fields": [
+                {"name": "tag_id", "type": "int", "primary_key": True}]},
+            {"name": "PostTag", "fields": [
+                {"name": "post_id", "type": "int", "primary_key": True,
+                 "unique": True},
+                {"name": "tag_id", "type": "int", "foreign_key": {
+                    "target_entity": "Tag", "target_field": "tag_id"}}]},
+        ]
+        repairs.repair_join_models(
+            models, "A tag can be associated with multiple posts.")
+        join = next(model for model in models if model["name"] == "PostTag")
+        self.assertEqual(join["fields"][0]["name"], "post_tag_id")
+        self.assertTrue(join["fields"][0]["primary_key"])
+        post_id = next(field for field in join["fields"]
+                       if field["name"] == "post_id")
+        self.assertFalse(post_id["primary_key"])
+        self.assertEqual(post_id["foreign_key"]["target_entity"], "Post")
 
 
 class CapabilityOwnershipTests(unittest.TestCase):

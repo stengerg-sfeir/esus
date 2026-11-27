@@ -1,49 +1,10 @@
 {
   "counts": {
     "legacy": 1,
-    "kept": 0,
-    "retired": 1,
+    "kept": 1,
+    "retired": 0,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
-  "cases": [
-    {
-      "case": {
-        "id": "find_purchase_history",
-        "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
-        "given": {
-          "customer": {
-            "id": 101
-          },
-          "purchase": {
-            "amount": 250.0,
-            "date": "2023-10-01"
-          }
-        },
-        "when": {
-          "action": "find_purchase_history",
-          "args": [
-            "customer.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "customer.id": 101,
-            "purchase.amount": 250.0,
-            "purchase.date": "2023-10-01"
-          },
-          "rows": {
-            "Purchase": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "62c0f6d4baa7cb4c23f2b81aad1763b4fea31d309a4791267f72f1030e9a80b0"
-      },
-      "status": "not_run",
-      "reason": ""
-    }
-  ]
+  "cases": []
 }

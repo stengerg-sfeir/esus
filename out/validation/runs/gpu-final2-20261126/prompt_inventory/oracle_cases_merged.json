@@ -1,4 +1,432 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "add_product_with_valid_category",
+      "source": "product add --sku --name --category --price --stock [--stock]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "",
+          "reorder_threshold": 10
+        },
+        "product": {
+          "sku": "EL123",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "add_product",
+        "args": [
+          "EL123",
+          "Smartphone",
+          "1",
+          "5000",
+          "5"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_product_by_id",
+      "source": "product delete --id",
+      "given": {
+        "product": {
+          "id": 1,
+          "sku": "EL123",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 5
+        }
+      },
+      "when": {
+        "action": "delete_product",
+        "args": [
+          "1"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Product": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.delete_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "restock_product_by_id",
+      "source": "product restock --id --qty",
+      "given": {
+        "product": {
+          "id": 1,
+          "sku": "EL123",
+          "name": "Smartphone",
+          "category_id": 1,
+          "price_cents": 5000,
+          "stock_qty": 3
+        }
+      },
+      "when": {
+        "action": "restock",
+        "args": [
+          "1",
+          "2"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.stock_qty": 5
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.restock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "add_category_with_threshold",
+      "source": "category add --name [--description] [--threshold]",
+      "given": {
+        "category": {
+          "name": "Electronics",
+          "description": "Devices and gadgets",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "add_category",
+        "args": [
+          "Electronics",
+          "Devices and gadgets",
+          "10"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "InventoryService.add_product",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create",
+            "ProductRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_category_with_threshold",
+      "source": "category update --id [--name] [--description] [--threshold]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Devices and gadgets",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "update_category",
+        "args": [
+          "1",
+          "Electronics (Updated)",
+          "Updated devices and gadgets",
+          "15"
+        ]
+      },
+      "then": {
+        "state": {
+          "category.id": 1,
+          "category.reorder_threshold": 15
+        },
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "category.id": {
+            "status": "aligned",
+            "canonical": "id",
+            "score": 10.0,
+            "evidence": [
+              "Category.id exists"
+            ],
+            "alternatives": []
+          },
+          "category.reorder_threshold": {
+            "status": "aligned",
+            "canonical": "reorder_threshold",
+            "score": 10.0,
+            "evidence": [
+              "Category.reorder_threshold exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CategoryRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_category_by_id",
+      "source": "category delete --id",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Devices and gadgets",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "delete_category",
+        "args": [
+          "1"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Category": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CategoryRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

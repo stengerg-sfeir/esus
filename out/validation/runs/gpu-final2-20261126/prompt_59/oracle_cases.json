@@ -1,4 +1,39 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "cancel_order_action",
+      "source": "support customers, products, stock, orders, order lines, discounts, taxes, order cancellation, stock restoration, reporting and CSV export",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "customer": {
+          "id": 1,
+          "name": "Alice Johnson"
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [],
+      "ambiguities": [
+        "the requirement does not specify how stock quantity should change upon cancellation, or whether stock restoration is triggered"
+      ]
+    }
+  ]
 }

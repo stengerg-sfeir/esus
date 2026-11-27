@@ -1,3 +1,36 @@
 {
-  "plans": []
+  "plans": [
+    {
+      "id": "cancel_order_action",
+      "source": "support customers, products, stock, orders, order lines, discounts, taxes, order cancellation, stock restoration, reporting and CSV export",
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "order",
+          "entity": "Order",
+          "role": "target"
+        },
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "order.status"
+        ],
+        "rows": {
+          "Order": 1
+        },
+        "error": "omitted"
+      },
+      "status": "ambiguous"
+    }
+  ]
 }

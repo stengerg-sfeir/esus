@@ -3,10 +3,10 @@ llm: 6 refused stub(s) — server writes them body by body (chat template; exact
 llm: ExpenseRepository.check_budget_exceeded ...
 llm: ExpenseService.expenseexport ...
 llm: ExpenseService.expensereportyearly ...
-llm: ExpenseService.expensereportyearly refused (sets `start_date` from an arithmetic expression that is not a date; use a date/datetime or `datetime.timedelta`) — repair ask 1
 llm: ExpenseService.expensereportmonthly ...
 llm: ExpenseService.get_yearly_summary ...
 llm: ExpenseService.get_monthly_report ...
+llm: previous raw answers archived -> out/validation/runs/gpu-final2-20261126/prompt_expenses/llm_stub_answers_runs/llm_stub_answers-20261127T070813.json
 llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_expenses/llm_stub_answers.json
 [write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/models.py
 [write] out/validation/runs/gpu-final2-20261126/prompt_expenses/generated/errors.py
@@ -20,7 +20,7 @@ methods: 28 implemented, 6 stubs (82% mechanical)
 llm: 6 of 6 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
   llm provisional: ExpenseRepository.check_budget_exceeded
   llm provisional: ExpenseService.expenseexport
-  llm provisional: ExpenseService.expensereportyearly — repaired: sets `start_date` from an arithmetic expression that is not a date; use a date/datetime or `datetime.timedelta`; sets `end_date` from an arithmetic expression that is not a date; use a date/datetime or `datetime.timedelta`
+  llm provisional: ExpenseService.expensereportyearly
   llm provisional: ExpenseService.expensereportmonthly
   llm provisional: ExpenseService.get_yearly_summary
   llm provisional: ExpenseService.get_monthly_report

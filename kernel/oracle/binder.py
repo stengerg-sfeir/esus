@@ -8,6 +8,7 @@ coverage gap, never a guessed test.
 from __future__ import annotations
 
 import csv
+import datetime
 import re
 import tempfile
 from pathlib import Path
@@ -70,6 +71,10 @@ _FIELD_ALIASES = {
     "name": ("title",),
     "budget": ("monthly_budget", "amount_limit_cents"),
     "monthlybudget": ("budget",),
+    "maxparticipants": ("capacity", "max_capacity"),
+    "participantlimit": ("capacity", "max_capacity"),
+    "capacity": ("max_participants",),
+    "maxcapacity": ("max_participants", "capacity"),
 }
 
 
@@ -97,6 +102,12 @@ def _field_name(model, name):
             return keys[0]
     if wanted + "id" in fields:
         return fields[wanted + "id"]
+    if wanted == "date":
+        dates = [field.get("name") for field in model.get("fields") or []
+                 if isinstance(field, dict) and field.get("name")
+                 and normalize(field["name"]).endswith("date")]
+        if len(dates) == 1:
+            return dates[0]
     return name
 
 
@@ -239,6 +250,16 @@ def _coerce_value(value, declared):
     if kind in ("bool", "boolean"):
         if value.strip().lower() in ("true", "false"):
             return value.strip().lower() == "true"
+    if "datetime" in kind:
+        try:
+            return datetime.datetime.fromisoformat(value)
+        except ValueError:
+            return value
+    if "date" in kind:
+        try:
+            return datetime.date.fromisoformat(value)
+        except ValueError:
+            return value
     return value
 
 
@@ -293,9 +314,14 @@ def _delete_state_error(case, docs, setup, method, requirements):
     return None
 
 
-def _complete_id_args(method, args, setup):
+def _complete_id_args(method, args, setup, holder=None):
     """Fill `<entity>_id` parameters from the matching seeded aliases."""
     aliases = {normalize(step.get("as") or ""): step for step in setup}
+    holder_entity = normalize(holder or "")
+    for suffix in ("repository", "service", "manager"):
+        if holder_entity.endswith(suffix):
+            holder_entity = holder_entity[:-len(suffix)]
+            break
     kwargs = {}
     for param in method.get("params") or []:
         if not isinstance(param, dict) or not param.get("name"):
@@ -304,6 +330,13 @@ def _complete_id_args(method, args, setup):
         if name == "id":
             candidates = [step for step in setup if step.get("seed") is not False] \
                 or list(setup)
+            if holder_entity:
+                matching = [
+                    step for step in candidates
+                    if normalize(step.get("entity") or "") == holder_entity
+                    or holder_entity in normalize(step.get("entity") or "")
+                    or normalize(step.get("entity") or "") in holder_entity]
+                candidates = matching or candidates
             if len(candidates) == 1:
                 kwargs[param["name"]] = {"ref": f"{candidates[0].get('as')}.id"}
             continue
@@ -311,6 +344,10 @@ def _complete_id_args(method, args, setup):
             continue
         base = name[:-2]
         step = aliases.get(base)
+        if step is None and base.endswith("s"):
+            step = aliases.get(base[:-1])
+        if step is None:
+            step = aliases.get(base + "s")
         if step is not None:
             kwargs[param["name"]] = {"ref": f"{step.get('as')}.id"}
     if not kwargs:
@@ -327,16 +364,56 @@ def _complete_id_args(method, args, setup):
         return kwargs
     # `list_books` may say `["author"]`; the method expects `author_id`.
     # A bare alias is a row reference, so use the FK when the method has one.
-    bare = [value for value in args if isinstance(value, dict)
-            and isinstance(value.get("ref"), str)
-            and "." not in value["ref"]]
-    if kwargs and bare and len(bare) == len(args):
+    bare = [value for value in args
+            if (isinstance(value, dict)
+                and isinstance(value.get("ref"), str)
+                and "." not in value["ref"])
+            or (isinstance(value, str) and "." in value)]
+    if (kwargs and bare and len(bare) == len(args)
+            and codegen.classify_crud(method.get("name") or "")
+            not in ("create", "update")):
         return kwargs
     if kwargs and codegen.classify_crud(method.get("name") or "") == "delete":
         # A delete is identified by its primary key. Remaining positional
-        # values are lookup data, not fields to write.
+        # values are lookup data, not fields to write; passing every resolved
+        # FK as a filter made a seeded task fail to match its own row.
+        params = [param.get("name") for param in method.get("params") or []
+                  if isinstance(param, dict) and param.get("name")]
+        key = params[0] if params else None
+        if key is not None:
+            kept = {name: value for name, value in kwargs.items()
+                    if normalize(name) == normalize(key)}
+            if kept:
+                return kept
         return kwargs
     return args
+
+
+def _same_expected(actual, expected):
+    """Compare a typed value with its prompt/JSON spelling."""
+    if actual == expected:
+        return True
+    if isinstance(actual, datetime.datetime) and isinstance(expected, str):
+        try:
+            return actual == datetime.datetime.fromisoformat(expected)
+        except ValueError:
+            return False
+    if isinstance(actual, datetime.date) and isinstance(expected, str):
+        try:
+            return actual == datetime.date.fromisoformat(expected)
+        except ValueError:
+            return False
+    if isinstance(expected, datetime.datetime) and isinstance(actual, str):
+        try:
+            return expected == datetime.datetime.fromisoformat(actual)
+        except ValueError:
+            return False
+    if isinstance(expected, datetime.date) and isinstance(actual, str):
+        try:
+            return expected == datetime.date.fromisoformat(actual)
+        except ValueError:
+            return False
+    return False
 
 
 def _scalar(text):
@@ -380,6 +457,84 @@ def _payload_param(method):
         if "dict" in declared or "mapping" in declared:
             return param["name"]
     return None
+
+
+def _ensure_update_key(method, case, setup, holder=None):
+    """Give an update case the key its method actually takes.
+
+    Prompt-derived cases sometimes identify the row by a unique field (a SKU)
+    while the generated repository updates by primary key.  Use the seeded
+    row's key and turn the first argument into a reference; a missing int key
+    is assigned deterministically so the seeded row and the call agree.
+    """
+    if codegen.classify_crud(method.get("name") or "") != "update":
+        return
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return
+    key = params[0]
+    entity = normalize(holder or "")
+    for suffix in ("repository", "service", "manager"):
+        if entity.endswith(suffix):
+            entity = entity[:-len(suffix)]
+            break
+    seeds = [step for step in setup if step.get("seed") is not False]
+    step = next((item for item in seeds
+                 if normalize(item.get("entity") or "") == entity), None)
+    if step is None and len(seeds) == 1:
+        step = seeds[0]
+    if step is None:
+        return
+    values = step.setdefault("values", {})
+    if not any(normalize(name) == normalize(key) for name in values):
+        values[key] = 1
+    raw = (case.get("when") or {}).get("args")
+    if not isinstance(raw, list) or not raw:
+        return
+    first = raw[0]
+    if not isinstance(first, (str, int, float)):
+        return
+    match = next((name for name, value in values.items()
+                  if normalize(name) != normalize(key) and value == first), None)
+    if match is not None:
+        raw[0] = {"ref": f"{step.get('as')}.id"}
+
+
+def _expected_update_values(case, method, setup):
+    """The changed values a case's expected state asserts."""
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return {}
+    raw = (case.get("when") or {}).get("args")
+    refs = ({str(value) for value in raw if isinstance(value, str)}
+            if isinstance(raw, list) else set())
+    by_alias = {normalize(step.get("as") or ""): step for step in setup}
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    param_keys = _param_keys(params)
+    key_name = params[0] if params else None
+    changes = {}
+    for target, expected in state.items():
+        alias, _, field = str(target).partition(".")
+        if str(target) in refs:
+            # The case supplies the seeded row as the new value; it did not
+            # ask for a change. Leave it to the normalizer that drops the
+            # unobservable assertion.
+            continue
+        step = by_alias.get(normalize(alias))
+        if step is None:
+            continue
+        current = (step.get("values") or {}).get(field)
+        if current == expected:
+            continue
+        target_param = param_keys.get(normalize(field))
+        if target_param is None or target_param == key_name:
+            continue
+        if not isinstance(expected, (str, int, float, bool)):
+            continue
+        changes[target_param] = expected
+    return changes
 
 
 def _complete_update_args(method, args, setup, case=None):
@@ -502,6 +657,16 @@ def _complete_update_args(method, args, setup, case=None):
             overrides[param_keys[matches[0]]] = second
             positional = []
 
+    if positional and len(positional) == len(non_key) + 1:
+        # Flat update calls often lead with the row key: `[id, name, ...]`.
+        first = positional[0]
+        key_setup = setup_fields.get(normalize(key_name))
+        key_value = key_setup[1] if key_setup else None
+        if (first == key_value
+                or (isinstance(first, str) and first.isdigit())
+                or (isinstance(first, (int, float))
+                    and not isinstance(first, bool))):
+            positional = positional[1:]
     if positional and len(positional) == len(non_key):
         overrides = {name: value for name, value in zip(non_key, positional)}
         positional = []
@@ -511,7 +676,8 @@ def _complete_update_args(method, args, setup, case=None):
         positional = [value for value in positional
                       if value not in setup_values]
         candidates = [name for name in non_key
-                      if name not in overrides and name not in setup_fields]
+                      if name not in overrides
+                      and normalize(name) not in setup_fields]
         for value in positional:
             if isinstance(value, str) and "@" in value:
                 email = next((name for name in candidates
@@ -523,6 +689,19 @@ def _complete_update_args(method, args, setup, case=None):
             if candidates:
                 target = candidates.pop(0)
                 overrides[target] = value
+
+    # A bare field name used as a value is a label, not a new value.
+    for name, value in list(overrides.items()):
+        if isinstance(value, str) and normalize(value) in param_keys:
+            overrides.pop(name)
+    if case is not None:
+        for name, value in _expected_update_values(
+                case, method, setup).items():
+            current = overrides.get(name)
+            if (current is None or current in setup_values
+                    or (isinstance(current, str)
+                        and normalize(current) in setup_fields)):
+                overrides[name] = value
 
     kwargs = {}
     key_alias = None
@@ -615,6 +794,20 @@ def _complete_create_args(method, args, setup, create_target=None):
                           if normalize(step.get("as") or "") == base), None)
             if alias:
                 kwargs[param["name"]] = {"ref": f"{alias}.id"}
+    # A create's foreign key should follow the seeded parent row, not a
+    # literal that was correct only for the first case in the process. The
+    # worker resolves `alias.id` to whatever key the store assigned.
+    for param in method.get("params") or []:
+        if not isinstance(param, dict) or not param.get("name"):
+            continue
+        name = normalize(param["name"])
+        if not name.endswith("id") or name == "id":
+            continue
+        base = name[:-2]
+        step = next((item for item in setup
+                     if normalize(item.get("entity") or "") == base), None)
+        if step is not None:
+            kwargs[param["name"]] = {"ref": f"{step.get('as')}.id"}
     if isinstance(args, dict):
         for key, value in args.items():
             kwargs.setdefault(key, value)
@@ -809,10 +1002,93 @@ def _repair_filter_expectation(case, docs, setup, method, args, alias, matched):
     return True
 
 
+def _repair_search_expectation(case, setup, method, args):
+    """Set a text-search row count from the rows its query actually matches.
+
+    A prompt-derived case sometimes copies the number of seeded rows into
+    `then.rows` even though `--query Gatsby` can return only the matching
+    row.  The source names a search, the query is a literal in the case, and
+    the seeded strings are known, so the returned count is mechanical.  Only
+    a positive count below the stated expectation is repaired; an expected
+    zero is left for the generated behavior to prove or disprove.
+    """
+    values = _parameter_values(method, args)
+    query = next((value for key, value in values.items()
+                  if key in ("query", "search", "q", "term", "text")
+                  and isinstance(value, str) and value.strip()), None)
+    if query is None:
+        return False
+    rows = (case.get("then") or {}).get("rows")
+    if not isinstance(rows, dict) or len(rows) != 1:
+        return False
+    alias, expected = next(iter(rows.items()))
+    try:
+        expected = int(expected)
+    except (TypeError, ValueError):
+        return False
+    entity = normalize(alias)
+    matched = 0
+    for step in setup:
+        if normalize(step.get("entity") or "") != entity:
+            continue
+        if any(isinstance(value, str)
+               and query.casefold() in value.casefold()
+               for value in (step.get("values") or {}).values()):
+            matched += 1
+    if not 0 < matched < expected:
+        return False
+    rows[alias] = matched
+    case.setdefault("case_repairs", []).append(
+        f"search query {query!r} matches {matched} seeded {alias} row(s); "
+        f"expected {alias} rows set to {matched}")
+    return True
+
+
+def _repair_pagination_expectation(case, setup, method, args):
+    """Set a page's returned-row count from the seeded row total.
+
+    A paginated case that asks for page 2 of 5 rows with page size 3 sees 2
+    rows, not a full page.  The case generator often copies the page size
+    into `then.rows`; the setup and the signature are the mechanical truth.
+    """
+    pair = codegen.pagination_params(method)
+    if pair is None:
+        return False
+    values = _parameter_values(method, args)
+    try:
+        page = int(values.get(normalize(pair[0])) or 1)
+        size = int(values.get(normalize(pair[1])) or 10)
+    except (TypeError, ValueError):
+        return False
+    rows = (case.get("then") or {}).get("rows")
+    if not isinstance(rows, dict) or len(rows) != 1:
+        return False
+    alias, expected = next(iter(rows.items()))
+    try:
+        expected = int(expected)
+    except (TypeError, ValueError):
+        return False
+    entity = normalize(alias)
+    total = sum(1 for step in setup
+                if normalize(step.get("entity") or "") == entity)
+    if total == 0:
+        return False
+    wanted = max(0, min(size, total - (page - 1) * size))
+    if expected == wanted:
+        return False
+    rows[alias] = wanted
+    case.setdefault("case_repairs", []).append(
+        f"page {page} of {total} {alias} row(s) with size {size} returns "
+        f"{wanted}; expected {alias} rows set to {wanted}")
+    return True
+
+
 def _filter_expectation_error(case, docs, setup, method, args):
     """Reject a filter case whose own setup contradicts its row expectation."""
     kind = codegen.classify_crud(method.get("name") or "")
     if kind not in ("read_all", "filter"):
+        return None
+    if _repair_pagination_expectation(case, setup, method, args):
         return None
     rows = (case.get("then") or {}).get("rows")
     if not isinstance(rows, dict):
@@ -827,6 +1103,7 @@ def _filter_expectation_error(case, docs, setup, method, args):
         if key.endswith("id") or key in ("isactive", "active", "status"):
             scalar[key] = _resolve_reference(value, setup)
     if not scalar and not low_only:
+        _repair_search_expectation(case, setup, method, args)
         return None
     for alias, count in rows.items():
         try:
@@ -874,14 +1151,73 @@ def _sort_gap(case, docs):
             "the directive does not determine which field to sort")
 
 
-def _complete_order_items(setup, docs):
-    """Seed an order-item row when the prompt spells order product/quantity."""
+def _complete_borrow_records(setup, docs, case):
+    """Seed the loan/borrow row a borrow/return action reads.
+
+    A library case names the book but not the BorrowRecord that says it is
+    out.  The generated return operation correctly reads that record; without
+    it the case fails before exercising the method.  The record is a verifier
+    fixture, not a domain guess: its FKs come from the seeded book/member.
+    """
+    action = normalize((case.get("when") or {}).get("action") or "")
+    if not any(word in action for word in ("borrow", "return", "loan")):
+        return setup
+    models = _models(docs)
+    record = next((model for key, model in models.items()
+                   if "borrow" in key or "loan" in key), None)
+    if record is None:
+        return setup
+    if any(normalize(step.get("entity") or "") == normalize(record["name"])
+           for step in setup):
+        return setup
+    values = {}
+    for field in record.get("fields") or []:
+        if not isinstance(field, dict) or not field.get("name"):
+            continue
+        if field.get("primary_key"):
+            continue
+        name = field["name"]
+        foreign = field.get("foreign_key")
+        if isinstance(foreign, dict) and foreign.get("target_entity"):
+            target = foreign["target_entity"]
+            step = next((item for item in setup
+                         if normalize(item.get("entity") or "")
+                         == normalize(target)), None)
+            values[name] = ({"ref": f"{step.get('as')}.id"}
+                            if step is not None else 1)
+            continue
+        normalized = normalize(name)
+        if "return" in normalized and field.get("nullable"):
+            values[name] = None
+        elif "date" in normalized or "time" in normalized:
+            values[name] = "2024-01-01T00:00:00"
+        elif "status" in normalized:
+            values[name] = "borrowed"
+        elif "closed" in normalized or "returned" in normalized:
+            values[name] = False
+        elif field.get("nullable") and not field.get("unique"):
+            values[name] = None
+        else:
+            values[name] = fixtures._sample(field, record["name"])
+    setup = list(setup) + [{
+        "entity": record["name"],
+        "as": normalize(record["name"]),
+        "values": values,
+        "synthetic": True,
+    }]
+    return _complete_setup_parents(setup, docs, case)
+
+
+def _complete_order_items(setup, docs, case=None):
+    """Seed an order-line row when the prompt spells order product/quantity."""
     if not setup:
         return setup
     models = [item for item in docs.get("models") or []
               if isinstance(item, dict) and item.get("name")]
     child = next((item for item in models
-                  if "orderitem" in normalize(item["name"])), None)
+                  if any(token in normalize(item["name"])
+                         for token in ("orderitem", "orderproduct",
+                                       "orderline", "lineitem"))), None)
     if child is None:
         return setup
     fields = {normalize(field.get("name")): field.get("name")
@@ -894,8 +1230,28 @@ def _complete_order_items(setup, docs):
     if not order_field or not product_field or not quantity_field:
         return setup
     existing = {normalize(step.get("entity") or "") for step in setup}
-    if "orderitem" in existing:
+    if normalize(child["name"]) in existing:
         return setup
+    product_step = next((item for item in setup
+                         if "product" in normalize(item.get("entity") or "")),
+                        None)
+    expected_quantity = None
+    if case is not None and product_step is not None:
+        current = next((value for key, value in
+                        (product_step.get("values") or {}).items()
+                        if normalize(key) in ("stockquantity", "stockqty",
+                                              "quantity", "stock")), None)
+        state = (case.get("then") or {}).get("state") or {}
+        for target, expected in state.items():
+            alias, _, field = str(target).partition(".")
+            if normalize(field) not in ("stockquantity", "stockqty",
+                                        "quantity", "stock"):
+                continue
+            if alias and normalize(alias) != normalize(product_step.get("as") or ""):
+                continue
+            if isinstance(current, (int, float)) and isinstance(expected, (int, float)):
+                expected_quantity = abs(int(expected - current))
+                break
     additions = []
     for step in setup:
         if "order" not in normalize(step.get("entity") or ""):
@@ -905,24 +1261,127 @@ def _complete_order_items(setup, docs):
                            if normalize(key) in ("productid", "product")), None)
         quantity = next((value for key, value in values.items()
                          if normalize(key) in ("reservedstock", "quantity", "qty")), None)
+        if product_step is not None:
+            primary = next((field.get("name")
+                            for model in docs.get("models") or []
+                            if isinstance(model, dict)
+                            and model.get("name") == product_step.get("entity")
+                            for field in model.get("fields") or []
+                            if isinstance(field, dict)
+                            and field.get("primary_key")), None)
+            if primary is not None and product_id is not None:
+                values = product_step.setdefault("values", {})
+                if not any(normalize(key) == normalize(primary)
+                           for key in values):
+                    values[primary] = product_id
+            product_id = {"ref": f"{product_step.get('as')}.id"}
+        if quantity is None:
+            quantity = expected_quantity
         if product_id is None or quantity is None:
             continue
-        product_step = next((item for item in setup
-                             if normalize(item.get("entity") or "") == "product"), None)
-        product_ref = ({"ref": f"{product_step.get('as')}.id"}
-                       if product_step is not None else product_id)
         additions.append({
             "entity": child["name"],
             "as": "order_item",
             "values": {fields[order_field]: {"ref": f"{step.get('as')}.id"},
-                       fields[product_field]: product_ref,
+                       fields[product_field]: product_id,
                        fields[quantity_field]: quantity},
         })
     return list(setup) + additions
 
 
-def _filter_args(method, action, args):
-    """Map filter values to the parameter named by the action."""
+def _order_setup(setup, docs=None):
+    """Order setup rows so a referenced parent is seeded before its child."""
+    by_alias = {normalize(step.get("as") or ""): step for step in setup}
+    models = {normalize(model.get("name")): model
+              for model in (docs or {}).get("models") or []
+              if isinstance(model, dict) and model.get("name")}
+    by_key = {}
+    for step in setup:
+        model = models.get(normalize(step.get("entity") or ""))
+        if model is None:
+            continue
+        primary = next((field.get("name") for field in model.get("fields") or []
+                        if isinstance(field, dict) and field.get("primary_key")),
+                       None)
+        value = (step.get("values") or {}).get(primary)
+        if value is not None and not isinstance(value, dict):
+            by_key[(normalize(step.get("entity") or ""), normalize(value))] = step
+    ordered = []
+    visiting = set()
+
+    def visit(step):
+        key = normalize(step.get("as") or "")
+        if step in ordered or key in visiting:
+            return
+        visiting.add(key)
+        values = step.get("values") or {}
+        for value in values.values():
+            if isinstance(value, dict) and isinstance(value.get("ref"), str):
+                alias = normalize(value["ref"].split(".", 1)[0])
+                parent = by_alias.get(alias)
+                if parent is not None and parent is not step:
+                    visit(parent)
+        model = models.get(normalize(step.get("entity") or ""))
+        if model is not None:
+            for field in model.get("fields") or []:
+                if not isinstance(field, dict) or not field.get("name"):
+                    continue
+                foreign = field.get("foreign_key")
+                target = (foreign.get("target_entity")
+                          if isinstance(foreign, dict) else None)
+                if not target:
+                    continue
+                value = values.get(field["name"])
+                if isinstance(value, dict):
+                    continue
+                parent = by_key.get((normalize(target), normalize(value)))
+                if parent is not None and parent is not step:
+                    visit(parent)
+        visiting.discard(key)
+        if step not in ordered:
+            ordered.append(step)
+
+    for step in setup:
+        visit(step)
+    return ordered
+
+
+def _source_flag_param(source, params):
+    """The single parameter a case's `--flag` names, or None.
+
+    A prompt-derived case often writes the surface flag in `source`
+    (`library member list [--active-only]`) and the literal value in `args`
+    (`true`).  Binding that value by position sends it to the first declared
+    field (`membership_date`), so the option's name is the only reliable
+    target.  The suffix/containment rules cover the usual shapes: `--author`
+    -> `author_id`, `--active-only` -> `is_active`, `--available-only` ->
+    `available_copies`.
+    """
+    by_norm = {normalize(name): name for name in params}
+    matches = []
+    for raw in re.findall(r"--([A-Za-z0-9][A-Za-z0-9_-]*)", str(source or "")):
+        flag = normalize(raw)
+        if not flag:
+            continue
+        base = flag[:-4] if flag.endswith("only") else flag
+        ranked = []
+        for norm, name in by_norm.items():
+            if norm == flag:
+                ranked.append((0, name))
+            elif base and (norm == base or norm.startswith(base)
+                           or norm.endswith(base) or base in norm):
+                ranked.append((1, name))
+        if ranked:
+            matches.append(sorted(ranked)[0][1])
+    unique = []
+    for name in matches:
+        if name not in unique:
+            unique.append(name)
+    return unique[0] if len(unique) == 1 else None
+
+
+def _filter_args(method, action, args, source=""):
+    """Map filter values to the parameter named by the action or source flag."""
     params = [param.get("name") for param in method.get("params") or []
               if isinstance(param, dict) and param.get("name")]
     if not params:
@@ -953,12 +1412,77 @@ def _filter_args(method, action, args):
                     return {param: True}
     if len(values) != 1 or isinstance(values[0], dict):
         return args
+    target = _source_flag_param(source, params)
+    if target is not None:
+        return {target: values[0]}
     words = _action_words(action)
     candidates = [name for name in params
                   if not normalize(name).endswith("id")
                   and any(word in normalize(name) for word in words)]
     if len(candidates) == 1:
         return {candidates[0]: values[0]}
+    return args
+
+
+def _resolve_bare_filter_values(method, args, setup, action=""):
+    """Replace a bare field/parameter name in a filter with its seeded value.
+
+    A case may write `args: ["name"]` to mean "filter by the seeded name".
+    Passing the literal `"name"` searches for that word; the setup row is the
+    value the case is actually describing.  Sort directives are excluded
+    because `sort_by` legitimately takes the field name itself.
+    """
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if not params:
+        return args
+    if any(normalize(param) in ("sortby", "sortfield", "orderby",
+                                "direction", "orderdir") for param in params):
+        return args
+    if action and normalize(action).startswith("search"):
+        # A search's bare field name is a missing search term, not a value to
+        # take from the seeded row; leave it for the literal-parameter check.
+        return args
+    fields = _setup_fields(setup)
+    by_param = {}
+    for param in params:
+        key = normalize(param)
+        candidates = [key]
+        candidates += [normalize(alias) for alias in
+                       _FIELD_ALIASES.get(key, ())]
+        for prefix in ("max", "min"):
+            if key.startswith(prefix) and len(key) > len(prefix):
+                candidates.append(key[len(prefix):])
+        for candidate in candidates:
+            if candidate in fields:
+                by_param[param] = fields[candidate][1]
+                break
+    if (isinstance(args, list) and not args and action
+            and normalize(action).startswith(("search", "filter"))):
+        # A search/filter case with no explicit args names the slot in its
+        # fields; the seeded row is the value to filter on.
+        args = list(params)
+    names = {normalize(param) for param in params}
+    if isinstance(args, dict):
+        out = dict(args)
+        for key, value in args.items():
+            if isinstance(value, str) and normalize(value) in names:
+                target = next(param for param in params
+                              if normalize(param) == normalize(value))
+                if target in by_param:
+                    out[key] = by_param[target]
+        return out
+    if isinstance(args, list):
+        out = []
+        for value in args:
+            if isinstance(value, str) and normalize(value) in names:
+                target = next(param for param in params
+                              if normalize(param) == normalize(value))
+                if target in by_param:
+                    out.append(by_param[target])
+                    continue
+            out.append(value)
+        return out
     return args
 
 
@@ -1043,7 +1567,10 @@ def _setup(case, docs, models):
             if normalize(alias) in ("data", "payload", "params", "updates", "fields"):
                 case.setdefault("_verifier_payload", {})[alias] = values
                 continue
-            return None, f"cannot resolve given entity {alias!r}"
+            # A pseudo-entity (`admin`, `csv_file`) is case noise. Skipping it
+            # lets action alignment decide whether the prompt names a missing
+            # capability or the case invented an operation.
+            continue
         steps.append(_normalise_step(
             {"entity": entity, "as": alias, "values": values}, docs))
     return steps, None
@@ -1075,6 +1602,13 @@ def _mark_create_target(case, setup):
                if normalize(step.get("entity")) in words
                or any(word and word in normalize(step.get("entity"))
                       for word in words)]
+    if len(matches) > 1:
+        # `add_expense` names the `expense` row it creates; a `prior_expense`
+        # row is existing state for the budget/limit check.
+        preferred = [step for step in matches
+                     if normalize(step.get("as") or "") in words]
+        if len(preferred) == 1:
+            matches = preferred
     if len(matches) != 1:
         return None
     matches[0]["seed"] = False
@@ -1097,12 +1631,28 @@ def _complete_setup_parents(setup, docs, case):
     used_aliases = {normalize(step.get("as") or "") for step in setup}
     additions = []
 
-    def add_parent(entity, depth=0):
+    def add_parent(entity, depth=0, key_value=None):
         key = normalize(entity)
-        if key in present or depth > 3:
+        if depth > 3:
             return
         model = models.get(key)
         if model is None:
+            return
+        primary = next((field for field in model.get("fields") or []
+                        if isinstance(field, dict) and field.get("name")
+                        and field.get("primary_key")), None)
+        if key in present:
+            # A parent may already be present from the case's own setup; if
+            # it is synthetic and the child names a concrete FK, align its
+            # key so the two rows point at each other.
+            if key_value is not None and primary is not None:
+                existing = next(
+                    (step for step in list(setup) + additions
+                     if normalize(step.get("entity") or "") == key
+                     and step.get("synthetic")), None)
+                if existing is not None:
+                    existing.setdefault("values", {})[
+                        primary["name"]] = key_value
             return
         alias = key
         number = 2
@@ -1110,6 +1660,14 @@ def _complete_setup_parents(setup, docs, case):
             alias = f"{key}_{number}"
             number += 1
         values = {}
+        if primary is not None:
+            declared = str(primary.get("type") or "").lower()
+            if key_value is not None:
+                values[primary["name"]] = key_value
+            elif "int" in declared or "number" in declared:
+                values[primary["name"]] = 1
+            else:
+                values[primary["name"]] = fixtures._sample(primary, alias)
         for field in model.get("fields") or []:
             if not isinstance(field, dict) or not field.get("name"):
                 continue
@@ -1118,7 +1676,7 @@ def _complete_setup_parents(setup, docs, case):
             foreign = field.get("foreign_key")
             if isinstance(foreign, dict) and foreign.get("target_entity"):
                 target = foreign["target_entity"]
-                add_parent(target, depth + 1)
+                add_parent(target, depth + 1, 1)
                 values[field["name"]] = 1
             else:
                 values[field["name"]] = fixtures._sample(field, alias)
@@ -1136,6 +1694,8 @@ def _complete_setup_parents(setup, docs, case):
         for field in model.get("fields") or []:
             if not isinstance(field, dict) or not field.get("name"):
                 continue
+            if field.get("primary_key"):
+                continue
             foreign = field.get("foreign_key")
             target = (foreign.get("target_entity")
                       if isinstance(foreign, dict) else None)
@@ -1148,7 +1708,7 @@ def _complete_setup_parents(setup, docs, case):
                                   and normalize(model["name"]) in (base, base + "s")]
                     if len(candidates) == 1:
                         target = candidates[0]
-            if not target or normalize(target) in present:
+            if not target:
                 continue
             # A scalar FK value (`customer_id: 1`) is still a missing parent
             # row; only a reference to an already-seeded alias is covered.
@@ -1156,10 +1716,55 @@ def _complete_setup_parents(setup, docs, case):
             if isinstance(value, dict) and isinstance(value.get("ref"), str):
                 if normalize(value["ref"].split(".", 1)[0]) in used_aliases:
                     continue
-            add_parent(target)
+            parent = next(
+                (step for step in list(setup) + additions
+                 if normalize(step.get("entity") or "") == normalize(target)),
+                None)
+            if parent is None:
+                add_parent(target, 0,
+                           value if isinstance(value, (int, str)) else None)
+                parent = additions[-1] if additions else None
+            if parent is not None:
+                current = values.get(field["name"])
+                if isinstance(current, dict) \
+                        and isinstance(current.get("ref"), str):
+                    continue
+                if field["name"] not in values or step.get("seed") is False:
+                    # A missing FK (or a create payload, which must follow the
+                    # store's assigned key) uses the parent reference. A
+                    # seeded literal stays literal so filter fixtures keep
+                    # comparing the value the case wrote.
+                    values[field["name"]] = {
+                        "ref": f"{parent.get('as')}.id"}
     if additions:
         setup = list(setup) + additions
     return setup
+
+
+def _complete_create_expected_values(create_target, case):
+    """Use a create case's asserted values as its payload.
+
+    The case generator sometimes keeps a placeholder in `given` and the real
+    intended value in `then.state` (`task description` vs `Write
+    documentation`).  A create's input and its expected stored value are the
+    same fact; using the asserted value keeps the case executable without
+    weakening the comparison.
+    """
+    if create_target is None:
+        return
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return
+    alias = normalize(create_target.get("as") or "")
+    values = create_target.setdefault("values", {})
+    for target, expected in state.items():
+        head, _, field = str(target).partition(".")
+        if normalize(head) != alias or not field or "." in field:
+            continue
+        if not isinstance(expected, (str, int, float, bool)):
+            continue
+        if values.get(field) != expected:
+            values[field] = expected
 
 
 def _complete_create_required_values(create_target, case, docs):
@@ -1270,22 +1875,44 @@ def _missing_error_rows(case, docs, setup, method):
     return None
 
 
-def _literal_param_error(case, method, kind):
+def _literal_param_error(case, method, kind, args=None):
     """Reject a read case that passes a parameter name as its value.
 
     `search_books("query")` is not a search for the word "query"; it is the
     builder naming the slot instead of supplying a value. The same applies to
-    other read/list cases whose arguments are bare parameter identifiers.
+    other read/list cases whose arguments are bare parameter identifiers —
+    unless the binder resolved that slot from the seeded row, in which case
+    the completed argument is the value.
     """
     if kind not in ("read_all", "filter", "read_one"):
         return None
     params = {normalize(param.get("name")) for param in method.get("params") or []
               if isinstance(param, dict) and param.get("name")}
     raw = (case.get("when") or {}).get("args")
+    first = normalize((method.get("params") or [{}])[0].get("name") or "")
     for value in raw if isinstance(raw, list) else [raw]:
         if not isinstance(value, str) or "." in value or "=" in value:
             continue
         if normalize(value) in params:
+            # `get_expense_by_id("id")` is the case naming the lookup key,
+            # not searching for the literal "id"; the seeded row supplies it.
+            if kind == "read_one" and normalize(value) == first:
+                continue
+            if isinstance(args, dict):
+                target = next((key for key in args
+                               if normalize(key) == normalize(value)), None)
+                if target is not None and args[target] != value:
+                    # The completed call uses a setup value, not the label.
+                    continue
+            if isinstance(args, list):
+                ordered = [param.get("name")
+                           for param in method.get("params") or []
+                           if isinstance(param, dict) and param.get("name")]
+                target = next((index for index, name in enumerate(ordered)
+                               if normalize(name) == normalize(value)), None)
+                if target is not None and target < len(args) \
+                        and args[target] != value:
+                    continue
             return f"case passes parameter name {value!r} as a literal value"
     return None
 
@@ -1311,18 +1938,37 @@ def _reference_fields(case):
             fields.add(normalize(field))
             fields.add(normalize(alias))
             fields.add(normalize(alias + field))
+        elif isinstance(value, str) and "=" not in value:
+            # A bare field name is still a reference for method selection;
+            # a sort direction is harmless because it matches no parameter.
+            fields.add(normalize(value))
+    if not fields:
+        # A filter case with no args can still name the fields it expects to
+        # observe; use those to choose the filter method.
+        state = (case.get("then") or {}).get("state") or {}
+        for target in state:
+            _, _, field = str(target).partition(".")
+            if field:
+                fields.add(normalize(field))
     return fields
 
 
 def _param_candidates(docs, case, wanted_service=None):
     """Methods whose parameters match the case's row references."""
     fields = _reference_fields(case)
+    action = normalize((case.get("when") or {}).get("action") or "")
+    is_create = action.startswith(("create", "add", "new", "register"))
+    if is_create:
+        given = case.get("given")
+        if isinstance(given, dict):
+            for values in given.values():
+                if isinstance(values, dict):
+                    fields |= {normalize(key) for key in values}
     if not fields:
         return []
-    action = normalize((case.get("when") or {}).get("action") or "")
-    if not action.startswith(("list", "search", "filter", "read", "find")):
+    if not action.startswith(("list", "search", "filter", "read", "find")) \
+            and not is_create:
         return []
-    words = _action_words((case.get("when") or {}).get("action") or "")
     found = []
     for group_key, name_key in (("services", "service_name"),
                                 ("repos", "interface_name")):
@@ -1335,11 +1981,9 @@ def _param_candidates(docs, case, wanted_service=None):
             for method in holder.get("methods") or []:
                 if not isinstance(method, dict) or not method.get("name"):
                     continue
-                flat = normalize(str(method["name"]) + " " + str(holder_name or ""))
-                if words and not any(word in flat for word in words):
-                    continue
-                if codegen.classify_crud(method["name"]) in (
-                        "create", "update", "delete"):
+                kind = codegen.classify_crud(method["name"])
+                if kind in ("create", "update", "delete") and not (
+                        is_create and kind == "create"):
                     continue
                 params = {normalize(param.get("name")) for param in method.get("params") or []
                           if isinstance(param, dict) and param.get("name")}
@@ -1351,14 +1995,121 @@ def _param_candidates(docs, case, wanted_service=None):
                 found.append((extra, -len(fields & params), holder_name, method))
     if not found:
         return []
+    seen = set()
+    unique = []
+    for item in found:
+        key = (item[2], item[3].get("name"))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(item)
+    found = unique
+    if is_create:
+        found = [item for item in found
+                 if codegen.classify_crud(item[3]["name"]) == "create"]
+    # The holder's entity is the strongest clue when the action names it:
+    # `create_author` is an Author, not a Tag that also has `name`.
+    raw_action = str((case.get("when") or {}).get("action") or "")
+    tokens = {normalize(word) for word in re.split(
+        r"[^A-Za-z0-9]+", raw_action.lower()) if normalize(word)}
+    def singular(value):
+        text = normalize(value)
+        if text.endswith("ies") and len(text) > 4:
+            return text[:-3] + "y"
+        if text.endswith("s") and not text.endswith(("ss", "us", "is")):
+            return text[:-1]
+        return text
+
+    token_stems = {singular(token) for token in tokens}
+    exact = []
+    for item in found:
+        base = normalize(item[2])
+        for suffix in ("repository", "service", "manager"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        if base in tokens or singular(base) in token_stems:
+            exact.append(item)
+    if exact:
+        found = exact
+    if action.startswith(("search", "filter")):
+        # A plain read-all is not the implementation of a search/filter
+        # capability; if no method names one, the action is a coverage gap.
+        filtered = [
+            item for item in found
+            if not (normalize(item[3]["name"]).startswith(("readall", "listall"))
+                    and not any(token in normalize(item[3]["name"])
+                                for token in ("search", "filter", "find")))]
+        if not filtered:
+            return []
+        found = filtered
+    best_coverage = max(-item[1] for item in found)
+    found = [item for item in found if -item[1] == best_coverage]
     best_extra = min(item[0] for item in found)
     found = [item for item in found if item[0] == best_extra]
+    raw_action = str((case.get("when") or {}).get("action") or "")
+    verb = normalize(re.split(r"[^A-Za-z0-9]+", raw_action)[0]) \
+        if raw_action else ""
+    preferred = [item for item in found
+                 if verb and normalize(item[3]["name"]).startswith(verb)]
+    if len(preferred) == 1:
+        found = preferred
     found.sort(key=lambda item: (item[1], item[2], item[3]["name"]))
-    return [(holder, method) for _extra, _score, holder, method in found]
+    return _dedupe([(holder, method)
+                    for _extra, _score, holder, method in found])
+
+
+def _sort_method(docs, case):
+    """The generated method that takes sort field/direction parameters."""
+    raw = (case.get("when") or {}).get("args")
+    values = raw if isinstance(raw, list) else [raw]
+    source = str(case.get("source") or "").lower()
+    if "sort" not in source and not any(
+            isinstance(value, str)
+            and value.lower() in ("ascending", "descending", "asc", "desc")
+            for value in values):
+        return None
+    for group_key, name_key in (("services", "service_name"),
+                                ("repos", "interface_name")):
+        for holder in docs.get(group_key) or []:
+            if not isinstance(holder, dict):
+                continue
+            for method in holder.get("methods") or []:
+                if not isinstance(method, dict) or not method.get("name"):
+                    continue
+                names = {normalize(param.get("name"))
+                         for param in method.get("params") or []
+                         if isinstance(param, dict) and param.get("name")}
+                if names & {"sortby", "sortfield", "orderby", "direction",
+                            "orderdir"}:
+                    return holder.get(name_key), method
+    return None
+
+
+def _requirements_names_service_method(action, requirements):
+    """True when the prompt lists `action` under an `**XService**` heading."""
+    wanted = normalize(action or "")
+    if not wanted:
+        return False
+    current = None
+    for line in (requirements or "").splitlines():
+        header = re.search(r"\*\*([A-Za-z0-9_]+Service)\*\*", line)
+        if header:
+            current = header.group(1)
+            continue
+        if not current:
+            continue
+        match = re.match(r"\s*[-*]\s+([A-Za-z_][A-Za-z0-9_]*)", line)
+        if match and normalize(match.group(1)) == wanted:
+            return True
+    return False
 
 
 def _method(docs, case):
     raw_action = case.get("when", {}).get("action") or ""
+    sort_bound = _sort_method(docs, case)
+    if sort_bound is not None:
+        return sort_bound, None
     action = normalize(raw_action)
     if not action:
         return None, "case has no action"
@@ -1416,11 +2167,10 @@ def _method(docs, case):
         candidates = _dedupe(candidates)
         matched = _param_candidates(docs, case, wanted_service)
         if matched:
-            candidates = _dedupe(matched + candidates)
-            candidates = [item for item in candidates
-                          if normalize(item[1].get("name") or "")
-                          in {normalize(method.get("name") or "")
-                              for _holder, method in matched}]
+            # Field/signature evidence is more specific than a holder-name
+            # alias; `list_employees` with a department reference is the
+            # department filter, not the parameterless read-all.
+            candidates = _dedupe(matched)
         prefixed = [item for item in candidates
                     if normalize(item[1].get("name") or "").startswith(action)]
         if prefixed:
@@ -1441,6 +2191,15 @@ def _method(docs, case):
                             return (holder_name, method), None
     if not candidates:
         return None, f"no generated method matches {case['when'].get('action')!r}"
+    service_candidates = [
+        item for item in candidates
+        if item[0] and normalize(str(item[0])).endswith("service")]
+    if not service_candidates and _requirements_names_service_method(
+            raw_action, docs.get("requirements") or ""):
+        # The prompt names a service operation; a repository CRUD method is
+        # not its implementation and must not be expected to raise an
+        # application exception.
+        return None, f"no service method matches {raw_action!r}"
     real_services = [item for item in candidates
                      if item[0] and normalize(str(item[0])).endswith("service")]
     if real_services:
@@ -1619,6 +2378,28 @@ def _unknown_state_error(case, setup, create_target=None):
     return None
 
 
+def _resolve_ref_value(value, setup, models):
+    """Resolve a `{ref: alias.field}` to the seeded row's concrete value."""
+    if not (isinstance(value, dict) and isinstance(value.get("ref"), str)):
+        return value
+    alias, _, field = value["ref"].partition(".")
+    step = next((item for item in setup
+                 if normalize(item.get("as") or "") == normalize(alias)), None)
+    if step is None:
+        return value
+    values = step.get("values") or {}
+    if field in values and not isinstance(values[field], dict):
+        return values[field]
+    model = models.get(normalize(step.get("entity") or ""))
+    if model is not None:
+        primary = next((item.get("name") for item in model.get("fields") or []
+                        if isinstance(item, dict) and item.get("primary_key")),
+                       "id")
+        if primary in values and not isinstance(values[primary], dict):
+            return values[primary]
+    return value
+
+
 def _create_expected_error(case, setup, models, method):
     if codegen.classify_crud(method.get("name") or "") != "create":
         return None
@@ -1635,8 +2416,9 @@ def _create_expected_error(case, setup, models, method):
         if model is None:
             continue
         canonical = _field_name(model, field)
-        current = (step.get("values") or {}).get(canonical)
-        if current is not None and expected != current:
+        current = _resolve_ref_value(
+            (step.get("values") or {}).get(canonical), setup, models)
+        if current is not None and not _same_expected(current, expected):
             return (f"create case expects {target} = {expected!r} but supplies "
                     f"{current!r}")
     return None
@@ -1754,7 +2536,7 @@ def _update_value_error(case, docs, models, setup, method, args):
             # leave the action executable.
             case.setdefault("then", {}).get("state", {}).pop(target, None)
             continue
-        if value != expected:
+        if not _same_expected(value, expected):
             return (f"update case supplies {value!r} for {target!r}, "
                     f"but expects {expected!r}")
     return None
@@ -1871,21 +2653,221 @@ def _drop_literal_param_args(case, method, args, kind):
     kept = [value for value in raw
             if not (isinstance(value, str) and "." not in value
                     and "=" not in value and normalize(value) in params)]
-    if len(kept) == len(raw):
-        return args
-    case.setdefault("when", {})["args"] = kept
-    return kept
+    # The completed call already carries the resolved values; the raw list is
+    # only used to detect unresolved slot labels. Never return the stripped
+    # list, and never persist it into the case.
+    return args
+
+
+def _error_entity(error, models):
+    """The model a `XxxNotFoundError`-style name points at, if any."""
+    if not isinstance(error, str):
+        return None
+    name = normalize(error)
+    for suffix in ("notfounderror", "notfound", "error", "alreadyexistserror",
+                   "alreadyexists", "existserror", "invalid"):
+        if name.endswith(suffix):
+            name = name[:-len(suffix)]
+            break
+    if not name:
+        return None
+    source = models.values() if isinstance(models, dict) else models
+    candidates = [model.get("name") for model in source
+                  if isinstance(model, dict) and model.get("name")]
+    exact = [item for item in candidates if normalize(item) == name]
+    if exact:
+        return exact[0]
+    matches = [item for item in candidates
+               if normalize(item).startswith(name)
+               or name.startswith(normalize(item))]
+    return min(matches, key=len) if len(matches) == 1 else None
+
+
+def _normalise_case_expectations(case, docs, models):
+    """Remove a setup/expectation contradiction before binding.
+
+    A case that expects a not-found error while seeding the row it says is
+    missing proves nothing; removing the row tests the stated error.  A case
+    that expects both a successful state change and a not-found error for the
+    same row is likewise contradictory; the state change wins.
+    """
+    then = case.setdefault("then", {})
+    error = then.get("error")
+    state = then.get("state")
+    given = case.get("given")
+    if not error or not isinstance(given, dict):
+        return
+    entity = _error_entity(error, models)
+    if entity is None:
+        return
+    aliases = [alias for alias, values in given.items()
+               if isinstance(values, dict)
+               and normalize(_entity_for(alias, models) or alias)
+               == normalize(entity)]
+    if not aliases:
+        return
+    state_aliases = {normalize(str(target).partition(".")[0])
+                     for target in (state or {})}
+    if state_aliases & {normalize(alias) for alias in aliases}:
+        # The case wants the operation to succeed on the row it also says is
+        # missing; keep the observable change and drop the impossible error.
+        then.pop("error", None)
+        return
+    if str(error).lower().endswith("notfounderror"):
+        for alias in aliases:
+            given.pop(alias, None)
+
+
+def _drop_generated_key_state(case, docs, method):
+    """Drop an asserted auto-generated primary key from a create case."""
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return
+    models = {normalize(model.get("name")): model for model in docs.get("models") or []
+              if isinstance(model, dict) and model.get("name")}
+    for target in list(state):
+        alias, _, field = str(target).partition(".")
+        if not alias or not field:
+            continue
+        entity = _entity_for(alias, models)
+        model = models.get(normalize(entity or alias))
+        if model is None:
+            continue
+        key = next((item for item in model.get("fields") or []
+                    if isinstance(item, dict) and item.get("name")
+                    and item.get("primary_key")), None)
+        if key is None:
+            continue
+        if normalize(key["name"]) != normalize(field):
+            continue
+        if normalize(method.get("name") or "").startswith(
+                ("create", "add", "new", "register")):
+            state.pop(target, None)
+
+
+def _drop_unobservable_create_state(case, method, create_target):
+    """Drop state assertions on a create that returns no record."""
+    if create_target is None:
+        return
+    declared = normalize(method.get("return_type") or "")
+    if declared not in ("none", "nonetype", "void"):
+        return
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return
+    alias = normalize(create_target.get("as") or "")
+    for target in list(state):
+        if normalize(str(target).partition(".")[0]) == alias:
+            state.pop(target, None)
+
+
+def _read_side_effect_reason(case, setup, method):
+    """Why a read/list case's persisted-state assertion is under-specified."""
+    name = normalize(method.get("name") or "")
+    kind = codegen.classify_crud(method.get("name") or "")
+    if kind in ("create", "update", "delete"):
+        return None
+    if kind not in ("read_all", "read_one", "filter") \
+            and not name.startswith(("read", "get", "list", "find", "search",
+                                     "report", "summary", "view", "check")):
+        return None
+    if any(verb in name for verb in ("mark", "expire", "update", "close",
+                                     "renew", "complete", "archive")):
+        return None
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return None
+    by_alias = {normalize(step.get("as") or ""): step for step in setup}
+    for target, expected in state.items():
+        alias, _, field = str(target).partition(".")
+        step = by_alias.get(normalize(alias))
+        if step is None:
+            continue
+        current = (step.get("values") or {}).get(field)
+        if current != expected:
+            return (f"under-specified: a read method is not expected to "
+                    f"persist {target!r}")
+    return None
+
+
+def _drop_read_side_effect_state(case, setup, method):
+    """A read/list method is not expected to persist a changed field.
+
+    The case generator sometimes asserts that `get_overdue_loans` writes
+    `status='overdue'` back to the store.  A read may compute a returned
+    value, but unless its name states a write (`mark_`, `expire_`, `update_`)
+    the stored row is unchanged; asserting otherwise tests a side effect the
+    prompt did not ask for.
+    """
+    name = normalize(method.get("name") or "")
+    kind = codegen.classify_crud(method.get("name") or "")
+    if kind in ("create", "update", "delete"):
+        return
+    if kind not in ("read_all", "read_one", "filter") \
+            and not name.startswith(("read", "get", "list", "find", "search",
+                                     "report", "summary", "view", "check")):
+        return
+    if any(verb in name for verb in ("mark", "expire", "update", "close",
+                                     "renew", "complete", "archive")):
+        return
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return
+    by_alias = {normalize(step.get("as") or ""): step for step in setup}
+    for target, expected in list(state.items()):
+        alias, _, field = str(target).partition(".")
+        step = by_alias.get(normalize(alias))
+        if step is None:
+            continue
+        current = (step.get("values") or {}).get(field)
+        if current != expected:
+            state.pop(target, None)
+
+
+def _normalise_state_targets(case, docs):
+    """Use model field spellings and drop assertions no model can observe."""
+    state = (case.get("then") or {}).get("state")
+    if not isinstance(state, dict):
+        return
+    models = _models(docs)
+    rewritten = {}
+    for target, expected in state.items():
+        alias, _, field = str(target).partition(".")
+        if not alias or not field:
+            continue
+        entity = _entity_for(alias, models)
+        model = models.get(normalize(entity or alias))
+        if model is None:
+            rewritten[target] = expected
+            continue
+        if normalize(field) in ("state", "status"):
+            # The worker resolves this alias at execution time; keep the
+            # prompt's spelling rather than rewriting it here.
+            rewritten[target] = expected
+            continue
+        # Keep undeclared fields and nested relations: they are verifier
+        # limits (the generated model has no observable scalar for them) and
+        # must stay visible as under-specified for human review.
+        canonical = _field_name(model, field)
+        rewritten[f"{alias}.{canonical}"] = expected
+    state.clear()
+    state.update(rewritten)
 
 
 def bind_case(case, docs):
     """`(scenario, reason)` for the existing worker scenario DSL."""
     models = _models(docs)
+    _normalise_case_expectations(case, docs, models)
+    _normalise_state_targets(case, docs)
     setup, reason = _setup(case, docs, models)
     if setup is None:
         return None, reason
     setup = _complete_setup_parents(setup, docs, case)
-    setup = _complete_order_items(setup, docs)
+    setup = _complete_borrow_records(setup, docs, case)
+    setup = _complete_order_items(setup, docs, case)
+    setup = _order_setup(setup, docs)
     create_target = _mark_create_target(case, setup)
+    _complete_create_expected_values(create_target, case)
     _complete_create_required_values(create_target, case, docs)
     missing = _missing_setup(case, docs, setup)
     if missing:
@@ -1908,6 +2890,19 @@ def bind_case(case, docs):
         return _scenario(case, setup, when, models), None
     if not case_when.get("action"):
         return None, "case has no action or cli"
+    if not docs.get("services") and not docs.get("repos"):
+        then = case.get("then") or {}
+        if case_when.get("action") and any(
+                key in then for key in ("stdout_contains", "stderr_contains",
+                                        "exit_code")):
+            when = {
+                "app": True,
+                "args": [str(item) for item in case_when.get("args") or []],
+                "stdin": case_when.get("stdin") or "",
+            }
+            return _scenario(case, setup, when, models), None
+        return None, ("app-only project: service action is outside the "
+                      "verifier surface")
     if " " in str(case_when.get("action")):
         path = _cli_path(case_when.get("action"), docs)
         if path is None:
@@ -1918,18 +2913,28 @@ def bind_case(case, docs):
     if bound is None:
         return None, reason
     holder, method = bound
+    read_reason = _read_side_effect_reason(case, setup, method)
+    if read_reason:
+        return None, read_reason
+    _drop_generated_key_state(case, docs, method)
+    _drop_unobservable_create_state(case, method, create_target)
+    _ensure_update_key(method, case, setup, holder)
     direction = _file_direction(case_when.get("action"))
     if direction and _file_direction(method.get("name")) not in (None, direction):
         return None, (f"no generated method matches {case_when.get('action')!r} "
                       f"for {direction}")
     args = _complete_id_args(
-        method, _service_args(case_when.get("args") or [], setup), setup)
+        method, _service_args(case_when.get("args") or [], setup), setup,
+        holder)
     args = _complete_create_args(method, args, setup, create_target)
     args = _complete_update_args(method, args, setup, case)
     args = _coerce_args(method, args)
     kind = codegen.classify_crud(method.get("name") or "")
     if kind in ("filter", "read_all", "read_one"):
-        args = _filter_args(method, case_when.get("action") or "", args)
+        args = _filter_args(method, case_when.get("action") or "", args,
+                            source=case.get("source") or "")
+        args = _resolve_bare_filter_values(
+            method, args, setup, case_when.get("action") or "")
         args = _coerce_args(method, args)
     args = _materialize_file_fixture(case, docs, method, args)
     sort_gap = _sort_gap(case, docs)
@@ -1955,7 +2960,7 @@ def bind_case(case, docs):
     missing_row = _missing_error_rows(case, docs, setup, method)
     if missing_row:
         return None, missing_row
-    literal_error = _literal_param_error(case, method, kind)
+    literal_error = _literal_param_error(case, method, kind, args)
     if literal_error:
         return None, literal_error
     args = _drop_literal_param_args(case, method, args, kind)
@@ -2029,7 +3034,12 @@ def _scenario(case, setup, when, models=None, create_target=None,
             canonical = {}
             for alias, count in rows.items():
                 entity = _entity_for(alias, models) or alias
-                if rows_as_result:
+                if not isinstance(count, (int, float)) \
+                        or isinstance(count, bool):
+                    # An inequality such as `>= 0` is a bound, not a table
+                    # delta; the worker compares it directly.
+                    canonical[entity] = count
+                elif rows_as_result:
                     # A read/list result count is already the returned count,
                     # not a table delta from setup.
                     canonical[entity] = count
@@ -2040,9 +3050,14 @@ def _scenario(case, setup, when, models=None, create_target=None,
                         normalize(entity), 0)
             rows = canonical
         expect["rows"] = rows
+    if "result" in then:
+        expect["result"] = then["result"]
     stdout = then.get("stdout_contains")
     if isinstance(stdout, str) and stdout:
         expect["stdout_contains"] = stdout
+    stderr = then.get("stderr_contains")
+    if isinstance(stderr, str) and stderr:
+        expect["stderr_contains"] = stderr
     if isinstance(then.get("exit_code"), int) and not isinstance(
             then.get("exit_code"), bool):
         expect["exit_code"] = then["exit_code"]

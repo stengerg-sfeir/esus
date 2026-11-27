@@ -3,15 +3,15 @@
     "label": "LoanRepository.close_loan_by_id",
     "status": "written",
     "note": "",
-    "answer": "record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)\n        book_id = record.get(\"book_id\")\n        if book_id is None:\n            return False\n        book = self._store.get(\"Book\", self.PK, book_id, error=errors.BookNotFoundError)\n        book_available = book.get(\"available\")\n        if book_available is None:\n            book_available = False\n        if book_available:\n            book[\"available\"] = False\n        self._store.update(\"Book\", self.PK, book)\n        record[\"closed\"] = True\n        self._store.update(self.ENTITY, self.PK, record)\n        return True",
+    "answer": "record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)\n    if record is None:\n        return False\n    record['closed'] = True\n    self._store.update(self.ENTITY, self.PK, loan_id, record)\n    book_id = record.get('book_id')\n    if book_id is not None:\n        book_record = self._store.get(\"Book\", \"id\", book_id, error=errors.BookNotFoundError)\n        if book_record is not None:\n            book_record['available'] = True\n            self._store.update(\"Book\", \"id\", book_id, book_record)\n    return True",
     "finish_reason": "stop",
-    "tokens": 145,
+    "tokens": 140,
     "budget": 3584,
     "truncated": false,
-    "seconds": 1.736692190170288,
-    "decode_seconds": 0.984253,
-    "prompt_tokens": 3062,
-    "cached_tokens": 92,
+    "seconds": 1.6924357414245605,
+    "decode_seconds": 0.940418,
+    "prompt_tokens": 3175,
+    "cached_tokens": 332,
     "context": "exact"
   },
   {
@@ -23,10 +23,10 @@
     "tokens": 91,
     "budget": 3584,
     "truncated": false,
-    "seconds": 1.1700749397277832,
-    "decode_seconds": 0.604588,
+    "seconds": 1.2036182880401611,
+    "decode_seconds": 0.5977830000000001,
     "prompt_tokens": 2477,
-    "cached_tokens": 92,
+    "cached_tokens": 658,
     "context": "exact"
   }
 ]

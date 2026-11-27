@@ -4,9 +4,8 @@
     "projects": 66,
     "requirements": 328,
     "counts": {
-      "mapped_tested": 291,
-      "under_specified": 36,
-      "partial": 1
+      "mapped_tested": 300,
+      "under_specified": 28
     }
   },
   "projects": [
@@ -55,8 +54,8 @@
       "project": "prompt_02",
       "requirements": 4,
       "counts": {
-        "mapped_tested": 2,
-        "under_specified": 2
+        "mapped_tested": 3,
+        "under_specified": 1
       },
       "rows": [
         {
@@ -65,15 +64,27 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:app-fallback",
-              "kind": "check",
-              "label": "app-fallback",
+              "id": "oracle:addition_operation",
+              "kind": "oracle",
+              "label": "oracle:addition_operation",
               "tested": true
             },
             {
-              "id": "component:codebase",
-              "kind": "component",
-              "label": "application codebase",
+              "id": "oracle:division_operation",
+              "kind": "oracle",
+              "label": "oracle:division_operation",
+              "tested": true
+            },
+            {
+              "id": "oracle:multiplication_operation",
+              "kind": "oracle",
+              "label": "oracle:multiplication_operation",
+              "tested": true
+            },
+            {
+              "id": "oracle:subtraction_operation",
+              "kind": "oracle",
+              "label": "oracle:subtraction_operation",
               "tested": true
             }
           ]
@@ -81,13 +92,37 @@
         {
           "index": 2,
           "text": "It must support addition, subtraction, multiplication and division of two numbers.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
               "id": "component:arithmetic",
               "kind": "component",
               "label": "arithmetic operations",
               "tested": false
+            },
+            {
+              "id": "oracle:addition_operation",
+              "kind": "oracle",
+              "label": "oracle:addition_operation",
+              "tested": true
+            },
+            {
+              "id": "oracle:division_operation",
+              "kind": "oracle",
+              "label": "oracle:division_operation",
+              "tested": true
+            },
+            {
+              "id": "oracle:multiplication_operation",
+              "kind": "oracle",
+              "label": "oracle:multiplication_operation",
+              "tested": true
+            },
+            {
+              "id": "oracle:subtraction_operation",
+              "kind": "oracle",
+              "label": "oracle:subtraction_operation",
+              "tested": true
             }
           ]
         },
@@ -110,9 +145,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "invariant:1",
-              "kind": "invariant",
-              "label": "rule 1",
+              "id": "oracle:division_by_zero_error",
+              "kind": "oracle",
+              "label": "oracle:division_by_zero_error",
               "tested": true
             }
           ]
@@ -253,39 +288,27 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Task add",
-              "kind": "check",
-              "label": "cli-leaf:Task add",
+              "id": "oracle:add_task",
+              "kind": "oracle",
+              "label": "oracle:add_task",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Task delete",
-              "kind": "check",
-              "label": "cli-leaf:Task delete",
+              "id": "oracle:complete_task",
+              "kind": "oracle",
+              "label": "oracle:complete_task",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Task list",
-              "kind": "check",
-              "label": "cli-leaf:Task list",
+              "id": "oracle:delete_task",
+              "kind": "oracle",
+              "label": "oracle:delete_task",
               "tested": true
             },
             {
-              "id": "check:scenario:cli:Task add",
-              "kind": "check",
-              "label": "scenario:cli:Task add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Task delete",
-              "kind": "check",
-              "label": "scenario:cli:Task delete",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Task list",
-              "kind": "check",
-              "label": "scenario:cli:Task list",
+              "id": "oracle:list_tasks",
+              "kind": "oracle",
+              "label": "oracle:list_tasks",
               "tested": true
             }
           ]
@@ -408,6 +431,24 @@
               "kind": "component",
               "label": "crud operations",
               "tested": false
+            },
+            {
+              "id": "oracle:create_contact",
+              "kind": "oracle",
+              "label": "oracle:create_contact",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_contact",
+              "kind": "oracle",
+              "label": "oracle:delete_contact",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_contacts",
+              "kind": "oracle",
+              "label": "oracle:list_contacts",
+              "tested": true
             }
           ]
         },
@@ -507,10 +548,22 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "component:crud",
-              "kind": "component",
-              "label": "crud operations",
-              "tested": false
+              "id": "oracle:create_product",
+              "kind": "oracle",
+              "label": "oracle:create_product",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_product",
+              "kind": "oracle",
+              "label": "oracle:delete_product",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_product",
+              "kind": "oracle",
+              "label": "oracle:read_product",
+              "tested": true
             }
           ]
         }
@@ -572,39 +625,21 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Book delete",
-              "kind": "check",
-              "label": "cli-leaf:Book delete",
+              "id": "oracle:create_book",
+              "kind": "oracle",
+              "label": "oracle:create_book",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Book update",
-              "kind": "check",
-              "label": "cli-leaf:Book update",
+              "id": "oracle:delete_book",
+              "kind": "oracle",
+              "label": "oracle:delete_book",
               "tested": true
             },
             {
-              "id": "check:scenario:cli:Book delete",
-              "kind": "check",
-              "label": "scenario:cli:Book delete",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Book update",
-              "kind": "check",
-              "label": "scenario:cli:Book update",
-              "tested": true
-            },
-            {
-              "id": "method:BookRepository.delete",
-              "kind": "method",
-              "label": "BookRepository.delete",
-              "tested": true
-            },
-            {
-              "id": "method:BookRepository.update",
-              "kind": "method",
-              "label": "BookRepository.update",
+              "id": "oracle:list_books",
+              "kind": "oracle",
+              "label": "oracle:list_books",
               "tested": true
             }
           ]
@@ -615,21 +650,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "field:Book.title",
-              "kind": "field",
-              "label": "Book.title",
-              "tested": false
-            },
-            {
-              "id": "method:BookRepository.search",
-              "kind": "method",
-              "label": "BookRepository.search",
-              "tested": true
-            },
-            {
-              "id": "model:Book",
-              "kind": "model",
-              "label": "Book",
+              "id": "oracle:search_books_by_title",
+              "kind": "oracle",
+              "label": "oracle:search_books_by_title",
               "tested": true
             }
           ]
@@ -703,6 +726,24 @@
               "kind": "invariant",
               "label": "rule 15",
               "tested": false
+            },
+            {
+              "id": "oracle:create_product",
+              "kind": "oracle",
+              "label": "oracle:create_product",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_product",
+              "kind": "oracle",
+              "label": "oracle:delete_product",
+              "tested": true
+            },
+            {
+              "id": "oracle:update_product_quantity",
+              "kind": "oracle",
+              "label": "oracle:update_product_quantity",
+              "tested": true
             }
           ]
         },
@@ -738,9 +779,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "model:Product",
-              "kind": "model",
-              "label": "Product",
+              "id": "oracle:read_products_below_threshold",
+              "kind": "oracle",
+              "label": "oracle:read_products_below_threshold",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_products_by_category",
+              "kind": "oracle",
+              "label": "oracle:read_products_by_category",
               "tested": true
             }
           ]
@@ -969,39 +1016,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Book delete",
-              "kind": "check",
-              "label": "cli-leaf:Book delete",
+              "id": "oracle:create_book",
+              "kind": "oracle",
+              "label": "oracle:create_book",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Book list",
-              "kind": "check",
-              "label": "cli-leaf:Book list",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Book update",
-              "kind": "check",
-              "label": "cli-leaf:Book update",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Book delete",
-              "kind": "check",
-              "label": "scenario:cli:Book delete",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Book list",
-              "kind": "check",
-              "label": "scenario:cli:Book list",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Book update",
-              "kind": "check",
-              "label": "scenario:cli:Book update",
+              "id": "oracle:delete_book",
+              "kind": "oracle",
+              "label": "oracle:delete_book",
               "tested": true
             }
           ]
@@ -1112,6 +1135,30 @@
               "kind": "model",
               "label": "Customer",
               "tested": true
+            },
+            {
+              "id": "oracle:create_customer",
+              "kind": "oracle",
+              "label": "oracle:create_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_customer",
+              "kind": "oracle",
+              "label": "oracle:delete_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:filter_customers_by_email_domain",
+              "kind": "oracle",
+              "label": "oracle:filter_customers_by_email_domain",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_all_customers",
+              "kind": "oracle",
+              "label": "oracle:read_all_customers",
+              "tested": true
             }
           ]
         },
@@ -1140,10 +1187,40 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "component:crud",
-              "kind": "component",
-              "label": "crud operations",
-              "tested": false
+              "id": "oracle:create_customer",
+              "kind": "oracle",
+              "label": "oracle:create_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_customer",
+              "kind": "oracle",
+              "label": "oracle:delete_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:filter_customers_by_email_domain",
+              "kind": "oracle",
+              "label": "oracle:filter_customers_by_email_domain",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_all_customers",
+              "kind": "oracle",
+              "label": "oracle:read_all_customers",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_customer_by_id",
+              "kind": "oracle",
+              "label": "oracle:read_customer_by_id",
+              "tested": true
+            },
+            {
+              "id": "oracle:search_customers_by_name",
+              "kind": "oracle",
+              "label": "oracle:search_customers_by_name",
+              "tested": true
             }
           ]
         },
@@ -1172,8 +1249,7 @@
       "project": "prompt_13",
       "requirements": 4,
       "counts": {
-        "mapped_tested": 3,
-        "under_specified": 1
+        "mapped_tested": 4
       },
       "rows": [
         {
@@ -1199,13 +1275,19 @@
               "kind": "model",
               "label": "Product",
               "tested": true
+            },
+            {
+              "id": "oracle:create_product",
+              "kind": "oracle",
+              "label": "oracle:create_product",
+              "tested": true
             }
           ]
         },
         {
           "index": 3,
           "text": "SKUs must be unique.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
               "id": "field:Product.sku",
@@ -1221,27 +1303,39 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "component:crud",
-              "kind": "component",
-              "label": "crud operations",
-              "tested": false
+              "id": "oracle:delete_product",
+              "kind": "oracle",
+              "label": "oracle:delete_product",
+              "tested": true
             },
             {
-              "id": "field:Product.category",
-              "kind": "field",
-              "label": "Product.category",
-              "tested": false
+              "id": "oracle:filter_by_category",
+              "kind": "oracle",
+              "label": "oracle:filter_by_category",
+              "tested": true
             },
             {
-              "id": "invariant:17",
-              "kind": "invariant",
-              "label": "rule 17",
-              "tested": false
+              "id": "oracle:read_product",
+              "kind": "oracle",
+              "label": "oracle:read_product",
+              "tested": true
             },
             {
-              "id": "model:Product",
-              "kind": "model",
-              "label": "Product",
+              "id": "oracle:report_low_stock",
+              "kind": "oracle",
+              "label": "oracle:report_low_stock",
+              "tested": true
+            },
+            {
+              "id": "oracle:search_products",
+              "kind": "oracle",
+              "label": "oracle:search_products",
+              "tested": true
+            },
+            {
+              "id": "oracle:update_product",
+              "kind": "oracle",
+              "label": "oracle:update_product",
               "tested": true
             }
           ]
@@ -1317,39 +1411,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Project delete",
-              "kind": "check",
-              "label": "cli-leaf:Project delete",
+              "id": "oracle:create_project",
+              "kind": "oracle",
+              "label": "oracle:create_project",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Project update",
-              "kind": "check",
-              "label": "cli-leaf:Project update",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Project delete",
-              "kind": "check",
-              "label": "scenario:cli:Project delete",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Project update",
-              "kind": "check",
-              "label": "scenario:cli:Project update",
-              "tested": true
-            },
-            {
-              "id": "method:ProjectRepository.delete",
-              "kind": "method",
-              "label": "ProjectRepository.delete",
-              "tested": true
-            },
-            {
-              "id": "method:ProjectRepository.update",
-              "kind": "method",
-              "label": "ProjectRepository.update",
+              "id": "oracle:list_projects",
+              "kind": "oracle",
+              "label": "oracle:list_projects",
               "tested": true
             }
           ]
@@ -1425,9 +1495,33 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "model:Product",
-              "kind": "model",
-              "label": "Product",
+              "id": "oracle:list_products_ascending",
+              "kind": "oracle",
+              "label": "oracle:list_products_ascending",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_products_by_name",
+              "kind": "oracle",
+              "label": "oracle:list_products_by_name",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_products_by_price",
+              "kind": "oracle",
+              "label": "oracle:list_products_by_price",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_products_by_quantity",
+              "kind": "oracle",
+              "label": "oracle:list_products_by_quantity",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_products_descending",
+              "kind": "oracle",
+              "label": "oracle:list_products_descending",
               "tested": true
             }
           ]
@@ -1438,8 +1532,7 @@
       "project": "prompt_16",
       "requirements": 4,
       "counts": {
-        "mapped_tested": 1,
-        "under_specified": 3
+        "mapped_tested": 4
       },
       "rows": [
         {
@@ -1488,39 +1581,99 @@
         {
           "index": 2,
           "text": "Provide CRUD operations and a paginated listing operation.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
               "id": "component:crud",
               "kind": "component",
               "label": "crud operations",
               "tested": false
+            },
+            {
+              "id": "oracle:create_customer",
+              "kind": "oracle",
+              "label": "oracle:create_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_customer",
+              "kind": "oracle",
+              "label": "oracle:delete_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_customers_paginated",
+              "kind": "oracle",
+              "label": "oracle:list_customers_paginated",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_customer",
+              "kind": "oracle",
+              "label": "oracle:read_customer",
+              "tested": true
             }
           ]
         },
         {
           "index": 3,
           "text": "The caller specifies page number and page size.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
-              "id": "invariant:13",
-              "kind": "invariant",
-              "label": "rule 13",
-              "tested": false
+              "id": "oracle:create_customer",
+              "kind": "oracle",
+              "label": "oracle:create_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_customer",
+              "kind": "oracle",
+              "label": "oracle:delete_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_customers_paginated",
+              "kind": "oracle",
+              "label": "oracle:list_customers_paginated",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_customer",
+              "kind": "oracle",
+              "label": "oracle:read_customer",
+              "tested": true
             }
           ]
         },
         {
           "index": 4,
           "text": "The application must return the requested items and enough information to determine the total number of pages.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
-              "id": "invariant:13",
-              "kind": "invariant",
-              "label": "rule 13",
-              "tested": false
+              "id": "oracle:create_customer",
+              "kind": "oracle",
+              "label": "oracle:create_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_customer",
+              "kind": "oracle",
+              "label": "oracle:delete_customer",
+              "tested": true
+            },
+            {
+              "id": "oracle:list_customers_paginated",
+              "kind": "oracle",
+              "label": "oracle:list_customers_paginated",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_customer",
+              "kind": "oracle",
+              "label": "oracle:read_customer",
+              "tested": true
             }
           ]
         }
@@ -1530,9 +1683,8 @@
       "project": "prompt_17",
       "requirements": 4,
       "counts": {
-        "mapped_tested": 2,
-        "under_specified": 1,
-        "partial": 1
+        "mapped_tested": 3,
+        "under_specified": 1
       },
       "rows": [
         {
@@ -1570,42 +1722,12 @@
         {
           "index": 4,
           "text": "All filters must be combinable.",
-          "status": "partial",
+          "status": "mapped_tested",
           "evidence": [
             {
-              "id": "invariant:19",
-              "kind": "invariant",
-              "label": "rule 19",
-              "tested": false
-            },
-            {
-              "id": "invariant:20",
-              "kind": "invariant",
-              "label": "rule 20",
-              "tested": false
-            },
-            {
-              "id": "invariant:21",
-              "kind": "invariant",
-              "label": "rule 21",
-              "tested": false
-            },
-            {
-              "id": "invariant:22",
-              "kind": "invariant",
-              "label": "rule 22",
-              "tested": false
-            },
-            {
-              "id": "method:ProductRepository.filter_by_category",
-              "kind": "method",
-              "label": "ProductRepository.filter_by_category",
-              "tested": true
-            },
-            {
-              "id": "method:ProductRepository.filter_by_max_price",
-              "kind": "method",
-              "label": "ProductRepository.filter_by_max_price",
+              "id": "oracle:combinable_filters",
+              "kind": "oracle",
+              "label": "oracle:combinable_filters",
               "tested": true
             }
           ]
@@ -1891,39 +2013,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Product add",
-              "kind": "check",
-              "label": "cli-leaf:Product add",
+              "id": "oracle:create_product",
+              "kind": "oracle",
+              "label": "oracle:create_product",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Product delete",
-              "kind": "check",
-              "label": "cli-leaf:Product delete",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Product list",
-              "kind": "check",
-              "label": "cli-leaf:Product list",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Product update",
-              "kind": "check",
-              "label": "cli-leaf:Product update",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Product add",
-              "kind": "check",
-              "label": "scenario:cli:Product add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Product delete",
-              "kind": "check",
-              "label": "scenario:cli:Product delete",
+              "id": "oracle:create_sale",
+              "kind": "oracle",
+              "label": "oracle:create_sale",
               "tested": true
             }
           ]
@@ -1938,6 +2036,24 @@
               "kind": "component",
               "label": "crud operations",
               "tested": false
+            },
+            {
+              "id": "oracle:create_product",
+              "kind": "oracle",
+              "label": "oracle:create_product",
+              "tested": true
+            },
+            {
+              "id": "oracle:create_sale",
+              "kind": "oracle",
+              "label": "oracle:create_sale",
+              "tested": true
+            },
+            {
+              "id": "oracle:delete_sale",
+              "kind": "oracle",
+              "label": "oracle:delete_sale",
+              "tested": true
             }
           ]
         },
@@ -2072,6 +2188,12 @@
               "kind": "method",
               "label": "OrderRepository.get_orders_by_customer_id",
               "tested": true
+            },
+            {
+              "id": "oracle:list_orders_by_customer",
+              "kind": "oracle",
+              "label": "oracle:list_orders_by_customer",
+              "tested": true
             }
           ]
         }
@@ -2137,6 +2259,18 @@
               "kind": "invariant",
               "label": "rule 27",
               "tested": false
+            },
+            {
+              "id": "oracle:read_order",
+              "kind": "oracle",
+              "label": "oracle:read_order",
+              "tested": true
+            },
+            {
+              "id": "oracle:update_order",
+              "kind": "oracle",
+              "label": "oracle:update_order",
+              "tested": true
             }
           ]
         },
@@ -2150,6 +2284,18 @@
               "kind": "invariant",
               "label": "rule 26",
               "tested": false
+            },
+            {
+              "id": "oracle:read_order",
+              "kind": "oracle",
+              "label": "oracle:read_order",
+              "tested": true
+            },
+            {
+              "id": "oracle:update_order",
+              "kind": "oracle",
+              "label": "oracle:update_order",
+              "tested": true
             }
           ]
         },
@@ -2163,6 +2309,18 @@
               "kind": "invariant",
               "label": "rule 27",
               "tested": false
+            },
+            {
+              "id": "oracle:read_order",
+              "kind": "oracle",
+              "label": "oracle:read_order",
+              "tested": true
+            },
+            {
+              "id": "oracle:update_order",
+              "kind": "oracle",
+              "label": "oracle:update_order",
+              "tested": true
             }
           ]
         },
@@ -2172,15 +2330,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "component:crud",
-              "kind": "component",
-              "label": "crud operations",
-              "tested": false
+              "id": "oracle:read_order",
+              "kind": "oracle",
+              "label": "oracle:read_order",
+              "tested": true
             },
             {
-              "id": "method:OrderRepository.calculate_total_order_amount",
-              "kind": "method",
-              "label": "OrderRepository.calculate_total_order_amount",
+              "id": "oracle:update_order",
+              "kind": "oracle",
+              "label": "oracle:update_order",
               "tested": true
             }
           ]
@@ -2219,9 +2377,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "field:Post.author_id",
-              "kind": "field",
-              "label": "Post.author_id",
+              "id": "oracle:create_tag_association",
+              "kind": "oracle",
+              "label": "oracle:create_tag_association",
               "tested": true
             }
           ]
@@ -2232,39 +2390,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Post add",
-              "kind": "check",
-              "label": "cli-leaf:Post add",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Post delete",
-              "kind": "check",
-              "label": "cli-leaf:Post delete",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Post update",
-              "kind": "check",
-              "label": "cli-leaf:Post update",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Tag delete",
-              "kind": "check",
-              "label": "cli-leaf:Tag delete",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Tag update",
-              "kind": "check",
-              "label": "cli-leaf:Tag update",
-              "tested": true
-            },
-            {
-              "id": "check:invariant:fk:Post.author_id",
-              "kind": "check",
-              "label": "invariant:fk:Post.author_id",
+              "id": "oracle:create_tag_association",
+              "kind": "oracle",
+              "label": "oracle:create_tag_association",
               "tested": true
             }
           ]
@@ -2275,15 +2403,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "component:crud",
-              "kind": "component",
-              "label": "crud operations",
-              "tested": false
+              "id": "oracle:create_author",
+              "kind": "oracle",
+              "label": "oracle:create_author",
+              "tested": true
             },
             {
-              "id": "field:Post.author_id",
-              "kind": "field",
-              "label": "Post.author_id",
+              "id": "oracle:create_tag",
+              "kind": "oracle",
+              "label": "oracle:create_tag",
               "tested": true
             }
           ]
@@ -2372,39 +2500,39 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Project delete",
-              "kind": "check",
-              "label": "cli-leaf:Project delete",
+              "id": "oracle:create_project",
+              "kind": "oracle",
+              "label": "oracle:create_project",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Project update",
-              "kind": "check",
-              "label": "cli-leaf:Project update",
+              "id": "oracle:create_task",
+              "kind": "oracle",
+              "label": "oracle:create_task",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Task delete",
-              "kind": "check",
-              "label": "cli-leaf:Task delete",
+              "id": "oracle:delete_project",
+              "kind": "oracle",
+              "label": "oracle:delete_project",
               "tested": true
             },
             {
-              "id": "check:cli-leaf:Task update",
-              "kind": "check",
-              "label": "cli-leaf:Task update",
+              "id": "oracle:delete_task",
+              "kind": "oracle",
+              "label": "oracle:delete_task",
               "tested": true
             },
             {
-              "id": "check:scenario:cli:Project delete",
-              "kind": "check",
-              "label": "scenario:cli:Project delete",
+              "id": "oracle:list_projects",
+              "kind": "oracle",
+              "label": "oracle:list_projects",
               "tested": true
             },
             {
-              "id": "check:scenario:cli:Project update",
-              "kind": "check",
-              "label": "scenario:cli:Project update",
+              "id": "oracle:list_tasks",
+              "kind": "oracle",
+              "label": "oracle:list_tasks",
               "tested": true
             }
           ]
@@ -2493,21 +2621,21 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "component:crud",
-              "kind": "component",
-              "label": "crud operations",
-              "tested": false
-            },
-            {
-              "id": "field:Employee.department_id",
-              "kind": "field",
-              "label": "Employee.department_id",
+              "id": "oracle:list_employees_by_department",
+              "kind": "oracle",
+              "label": "oracle:list_employees_by_department",
               "tested": true
             },
             {
-              "id": "method:EmployeeRepository.get_employees_by_department_id",
-              "kind": "method",
-              "label": "EmployeeRepository.get_employees_by_department_id",
+              "id": "oracle:read_department_by_id",
+              "kind": "oracle",
+              "label": "oracle:read_department_by_id",
+              "tested": true
+            },
+            {
+              "id": "oracle:read_employee_by_id",
+              "kind": "oracle",
+              "label": "oracle:read_employee_by_id",
               "tested": true
             }
           ]
@@ -2559,21 +2687,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "field:Book.available",
-              "kind": "field",
-              "label": "Book.available",
-              "tested": false
-            },
-            {
-              "id": "field:Loan.book_id",
-              "kind": "field",
-              "label": "Loan.book_id",
+              "id": "oracle:close_loan",
+              "kind": "oracle",
+              "label": "oracle:close_loan",
               "tested": true
             },
             {
-              "id": "model:Book",
-              "kind": "model",
-              "label": "Book",
+              "id": "oracle:determine_available_books",
+              "kind": "oracle",
+              "label": "oracle:determine_available_books",
               "tested": true
             }
           ]
@@ -3053,27 +3175,21 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:scenario:confirm pending order",
-              "kind": "check",
-              "label": "scenario:confirm pending order",
+              "id": "oracle:cancel_pending_order",
+              "kind": "oracle",
+              "label": "oracle:cancel_pending_order",
               "tested": true
             },
             {
-              "id": "method:OrderService.cancel_order",
-              "kind": "method",
-              "label": "OrderService.cancel_order",
+              "id": "oracle:confirm_pending_order",
+              "kind": "oracle",
+              "label": "oracle:confirm_pending_order",
               "tested": true
             },
             {
-              "id": "method:OrderService.confirm_order",
-              "kind": "method",
-              "label": "OrderService.confirm_order",
-              "tested": true
-            },
-            {
-              "id": "method:OrderService.ship_order",
-              "kind": "method",
-              "label": "OrderService.ship_order",
+              "id": "oracle:ship_confirmed_order",
+              "kind": "oracle",
+              "label": "oracle:ship_confirmed_order",
               "tested": true
             }
           ]
@@ -3149,10 +3265,10 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "invariant:20",
-              "kind": "invariant",
-              "label": "rule 20",
-              "tested": false
+              "id": "oracle:create_customer_audit",
+              "kind": "oracle",
+              "label": "oracle:create_customer_audit",
+              "tested": true
             }
           ]
         }
@@ -3653,40 +3769,10 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Order add",
-              "kind": "check",
-              "label": "cli-leaf:Order add",
+              "id": "oracle:notify_on_confirm",
+              "kind": "oracle",
+              "label": "oracle:notify_on_confirm",
               "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Order update",
-              "kind": "check",
-              "label": "cli-leaf:Order update",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Order add",
-              "kind": "check",
-              "label": "scenario:cli:Order add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Order update",
-              "kind": "check",
-              "label": "scenario:cli:Order update",
-              "tested": true
-            },
-            {
-              "id": "check:schema:Order",
-              "kind": "check",
-              "label": "schema:Order",
-              "tested": true
-            },
-            {
-              "id": "field:Order.id",
-              "kind": "field",
-              "label": "Order.id",
-              "tested": false
             }
           ]
         },
@@ -3827,9 +3913,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "field:Purchase.customer_id",
-              "kind": "field",
-              "label": "Purchase.customer_id",
+              "id": "oracle:find_purchase_history",
+              "kind": "oracle",
+              "label": "oracle:find_purchase_history",
               "tested": true
             }
           ]
@@ -4211,10 +4297,10 @@
               "tested": true
             },
             {
-              "id": "field:Book.author",
-              "kind": "field",
-              "label": "Book.author",
-              "tested": false
+              "id": "oracle:add_book_action",
+              "kind": "oracle",
+              "label": "oracle:add_book_action",
+              "tested": true
             }
           ]
         },
@@ -4289,9 +4375,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "field:Employee.department_id",
-              "kind": "field",
-              "label": "Employee.department_id",
+              "id": "oracle:find_employees_by_department",
+              "kind": "oracle",
+              "label": "oracle:find_employees_by_department",
               "tested": true
             }
           ]
@@ -4354,39 +4440,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Event add",
-              "kind": "check",
-              "label": "cli-leaf:Event add",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Event delete",
-              "kind": "check",
-              "label": "cli-leaf:Event delete",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:Event update",
-              "kind": "check",
-              "label": "cli-leaf:Event update",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Event add",
-              "kind": "check",
-              "label": "scenario:cli:Event add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Event delete",
-              "kind": "check",
-              "label": "scenario:cli:Event delete",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Event update",
-              "kind": "check",
-              "label": "scenario:cli:Event update",
+              "id": "oracle:create_event",
+              "kind": "oracle",
+              "label": "oracle:create_event",
               "tested": true
             }
           ]
@@ -4494,8 +4550,7 @@
       "project": "prompt_52",
       "requirements": 3,
       "counts": {
-        "mapped_tested": 2,
-        "under_specified": 1
+        "mapped_tested": 3
       },
       "rows": [
         {
@@ -4575,13 +4630,13 @@
         {
           "index": 3,
           "text": "When it is returned, it should become available again.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
-              "id": "invariant:28",
-              "kind": "invariant",
-              "label": "rule 28",
-              "tested": false
+              "id": "oracle:return_book",
+              "kind": "oracle",
+              "label": "oracle:return_book",
+              "tested": true
             }
           ]
         }
@@ -4701,8 +4756,7 @@
       "project": "prompt_54",
       "requirements": 3,
       "counts": {
-        "mapped_tested": 2,
-        "under_specified": 1
+        "mapped_tested": 3
       },
       "rows": [
         {
@@ -4764,19 +4818,25 @@
               "kind": "invariant",
               "label": "rule 6",
               "tested": false
+            },
+            {
+              "id": "oracle:appointment_start_end_validity",
+              "kind": "oracle",
+              "label": "oracle:appointment_start_end_validity",
+              "tested": true
             }
           ]
         },
         {
           "index": 3,
           "text": "An appointment must always end after it starts, but the application must also support appointments whose start and end time are identical.",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
-              "id": "error:AppointmentStartTimeEqualsEndTimeError",
-              "kind": "error",
-              "label": "AppointmentStartTimeEqualsEndTimeError",
-              "tested": false
+              "id": "oracle:appointment_start_end_validity",
+              "kind": "oracle",
+              "label": "oracle:appointment_start_end_validity",
+              "tested": true
             }
           ]
         }
@@ -4945,6 +5005,12 @@
               "id": "method:OrderService.cancel_order",
               "kind": "method",
               "label": "OrderService.cancel_order",
+              "tested": true
+            },
+            {
+              "id": "oracle:cancel_order_action",
+              "kind": "oracle",
+              "label": "oracle:cancel_order_action",
               "tested": true
             }
           ]
@@ -5302,6 +5368,12 @@
               "kind": "invariant",
               "label": "rule 51",
               "tested": false
+            },
+            {
+              "id": "oracle:cancel_confirmed_order",
+              "kind": "oracle",
+              "label": "oracle:cancel_confirmed_order",
+              "tested": true
             }
           ]
         },
@@ -5530,8 +5602,7 @@
       "project": "prompt_expenses",
       "requirements": 36,
       "counts": {
-        "mapped_tested": 35,
-        "under_specified": 1
+        "mapped_tested": 36
       },
       "rows": [
         {
@@ -5580,6 +5651,12 @@
               "id": "method:ExpenseRepository.update",
               "kind": "method",
               "label": "ExpenseRepository.update",
+              "tested": true
+            },
+            {
+              "id": "method:ExpenseService.add_expense",
+              "kind": "method",
+              "label": "ExpenseService.add_expense",
               "tested": true
             }
           ]
@@ -5750,19 +5827,13 @@
         {
           "index": 10,
           "text": "add_expense: validates category exists, adds expense, checks if budget exceeded after insertion",
-          "status": "under_specified",
+          "status": "mapped_tested",
           "evidence": [
             {
-              "id": "contract:ExpenseService.add_expense",
-              "kind": "contract",
+              "id": "method:ExpenseService.add_expense",
+              "kind": "method",
               "label": "ExpenseService.add_expense",
-              "tested": false
-            },
-            {
-              "id": "invariant:32",
-              "kind": "invariant",
-              "label": "rule 32",
-              "tested": false
+              "tested": true
             }
           ]
         },
@@ -5982,39 +6053,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:Category add",
-              "kind": "check",
-              "label": "cli-leaf:Category add",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:budget add",
-              "kind": "check",
-              "label": "cli-leaf:budget add",
-              "tested": true
-            },
-            {
-              "id": "check:cli-leaf:expense category add",
-              "kind": "check",
-              "label": "cli-leaf:expense category add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:Category add",
-              "kind": "check",
-              "label": "scenario:cli:Category add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:budget add",
-              "kind": "check",
-              "label": "scenario:cli:budget add",
-              "tested": true
-            },
-            {
-              "id": "check:scenario:cli:expense category add",
-              "kind": "check",
-              "label": "scenario:cli:expense category add",
+              "id": "oracle:budget_add_with_params",
+              "kind": "oracle",
+              "label": "oracle:budget_add_with_params",
               "tested": true
             }
           ]
@@ -6051,27 +6092,15 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "check:cli-leaf:expense category add",
-              "kind": "check",
-              "label": "cli-leaf:expense category add",
+              "id": "oracle:add_expense_with_category_not_found",
+              "kind": "oracle",
+              "label": "oracle:add_expense_with_category_not_found",
               "tested": true
             },
             {
-              "id": "check:scenario:cli:expense category add",
-              "kind": "check",
-              "label": "scenario:cli:expense category add",
-              "tested": true
-            },
-            {
-              "id": "invariant:34",
-              "kind": "invariant",
-              "label": "rule 34",
-              "tested": false
-            },
-            {
-              "id": "model:Expense",
-              "kind": "model",
-              "label": "Expense",
+              "id": "oracle:expense_add_with_valid_params",
+              "kind": "oracle",
+              "label": "oracle:expense_add_with_valid_params",
               "tested": true
             }
           ]
@@ -6103,6 +6132,12 @@
               "id": "method:ExpenseService.list_expenses",
               "kind": "method",
               "label": "ExpenseService.list_expenses",
+              "tested": true
+            },
+            {
+              "id": "oracle:expense_get_by_id",
+              "kind": "oracle",
+              "label": "oracle:expense_get_by_id",
               "tested": true
             }
           ]
@@ -6832,15 +6867,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "method:InventoryService.add_product",
-              "kind": "method",
-              "label": "InventoryService.add_product",
-              "tested": true
-            },
-            {
-              "id": "model:Product",
-              "kind": "model",
-              "label": "Product",
+              "id": "oracle:add_product_with_valid_category",
+              "kind": "oracle",
+              "label": "oracle:add_product_with_valid_category",
               "tested": true
             }
           ]
@@ -7010,6 +7039,12 @@
               "id": "model:Category",
               "kind": "model",
               "label": "Category",
+              "tested": true
+            },
+            {
+              "id": "oracle:add_category_with_threshold",
+              "kind": "oracle",
+              "label": "oracle:add_category_with_threshold",
               "tested": true
             }
           ]
@@ -7434,6 +7469,12 @@
               "kind": "field",
               "label": "Book.author_id",
               "tested": true
+            },
+            {
+              "id": "oracle:book_list_author_filter",
+              "kind": "oracle",
+              "label": "oracle:book_list_author_filter",
+              "tested": true
             }
           ]
         },
@@ -7455,9 +7496,9 @@
               "tested": true
             },
             {
-              "id": "field:Book.author_id",
-              "kind": "field",
-              "label": "Book.author_id",
+              "id": "oracle:search_books_query",
+              "kind": "oracle",
+              "label": "oracle:search_books_query",
               "tested": true
             }
           ]
@@ -7493,9 +7534,9 @@
               "tested": true
             },
             {
-              "id": "field:Member.email",
-              "kind": "field",
-              "label": "Member.email",
+              "id": "oracle:member_list_active_only",
+              "kind": "oracle",
+              "label": "oracle:member_list_active_only",
               "tested": true
             }
           ]
@@ -7720,9 +7761,9 @@
           "status": "mapped_tested",
           "evidence": [
             {
-              "id": "model:Author",
-              "kind": "model",
-              "label": "Author",
+              "id": "oracle:author_add_name_birth_year",
+              "kind": "oracle",
+              "label": "oracle:author_add_name_birth_year",
               "tested": true
             }
           ]

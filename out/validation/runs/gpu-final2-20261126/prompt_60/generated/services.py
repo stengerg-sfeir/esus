@@ -47,25 +47,28 @@ class OrderService:
 
     def confirm_order(self, order_id: int = None) -> None:
         """Reserves stock for products in the order and creates an invoice. Only allowed for pending orders. Throws InsufficientStockError if stock is insufficient. [llm-written by server — review]"""
-        order = self._repos['OrderRepository'].read_one(order_id)
+        order = self._repos['OrderRepository'].read_one(order_id=order_id)
         if order is None:
             raise errors.OrderNotFoundError('order not found')
         if order.status != 'pending':
             raise errors.InvalidOrderStatusError('order must be pending to confirm')
-        order_items = self._repos['OrderItemRepository'].find_order_items_by_order(order_id=order_id)
+        order_items = self._repos['OrderItemRepository'].get_order_items_by_order_id(order_id=order_id)
         for item in order_items:
-            product_id = item.product_id
-            quantity = item.quantity
-            unit_price = item.unit_price
+            item_row = item if isinstance(item, dict) else vars(item)
+            product_id = item_row.get('product_id')
+            if product_id is None:
+                continue
             product = self._repos['ProductRepository'].read_one(product_id=product_id)
             if product is None:
-                raise errors.ProductNotFoundError('product not found')
-            if product.stock_quantity is None or product.stock_quantity < quantity:
-                raise errors.InsufficientStockError('insufficient stock for product')
-            product.stock_quantity -= quantity
-            self._repos['ProductRepository'].update(product_id=product_id, stock_quantity=product.stock_quantity)
-        self._repos['OrderRepository'].update(order.order_id, status='confirmed', confirmed_at=datetime.datetime.now())
-        invoice = self._repos['InvoiceRepository'].create(order_id=order.order_id, total_amount=sum((item.unit_price * item.quantity for item in order_items)), generated_at=datetime.datetime.now(), customer_id=order.customer_id)
+                continue
+            product_row = product if isinstance(product, dict) else vars(product)
+            current_stock = product_row.get('stock_quantity', 0)
+            if current_stock < item_row.get('quantity', 0):
+                raise errors.InsufficientStockError(f'insufficient stock for product {product_id}: {current_stock} < {item_row.get('quantity')}')
+            new_stock = current_stock - item_row.get('quantity', 0)
+            self._repos['ProductRepository'].update(product_id=product_id, stock_quantity=new_stock)
+        self._repos['OrderRepository'].update(order_id=order_id, status='confirmed')
+        self._repos['InvoiceRepository'].create(order_id=order_id, total_amount=0, generated_at=datetime.datetime.now(), customer_id=order.customer_id)
 
     def cancel_order(self, order_id: int = None) -> None:
         """Releases reserved stock for products in the order. Only allowed for confirmed orders. Throws OrderCannotBeCancelledError if order is not confirmed. [llm-written by server — review]"""
@@ -73,19 +76,21 @@ class OrderService:
         if order is None:
             raise errors.OrderNotFoundError('order not found')
         if order.status != 'confirmed':
-            raise errors.OrderCannotBeCancelledError('order must be confirmed to cancel')
-        order_items = self._repos['OrderItemRepository'].find_order_items_by_order(order_id=order_id)
+            raise errors.OrderCannotBeCancelledError('order not confirmed')
+        order_items = self._repos['OrderItemRepository'].get_order_items_by_order_id(order_id=order.order_id)
         for item in order_items:
-            product_id = item.product_id
-            quantity = item.quantity
+            item_row = item if isinstance(item, dict) else vars(item)
+            product_id = item_row.get('product_id')
+            if product_id is None:
+                continue
             product = self._repos['ProductRepository'].read_one(product_id=product_id)
             if product is None:
-                raise errors.ProductNotFoundError('product not found')
-            if product.stock_quantity is None:
-                product.stock_quantity = 0
-            product.stock_quantity += quantity
-            self._repos['ProductRepository'].update(product_id=product_id, stock_quantity=product.stock_quantity)
-        self._repos['OrderRepository'].update(order.order_id, status='cancelled', cancelled_at=datetime.datetime.now())
+                continue
+            product_row = product if isinstance(product, dict) else vars(product)
+            current_stock = product_row.get('stock_quantity', 0)
+            new_stock = current_stock + item_row.get('quantity', 0)
+            self._repos['ProductRepository'].update(product_id=product_id, stock_quantity=new_stock)
+        self._repos['OrderRepository'].update(order_id=order.order_id, status='cancelled')
 
     def ship_order(self, order_id: int = None) -> None:
         """Marks an order as shipped. Only allowed for confirmed orders. Throws OrderCannotBeShippedError if order is not confirmed. [closed contract: closed scalar contract]"""
@@ -127,61 +132,6 @@ class OrderService:
         """Deletes an existing Order. [mechanical CRUD wrapper]"""
         self._repos['OrderRepository'].delete(order_id=order_id)
 
-    def orderconfirm(self, order_id: int = None) -> None:
-        """Orderconfirm. [llm-written by server — review]"""
-        order = self._repos['OrderRepository'].read_one(order_id)
-        if order is None:
-            raise errors.OrderNotFoundError('order not found')
-        if order.status != 'pending':
-            raise errors.InvalidOrderStatusError('order must be pending to confirm')
-        order_items = self._repos['OrderItemRepository'].find_order_items_by_order(order_id=order_id)
-        for item in order_items:
-            product_id = item.product_id
-            quantity = item.quantity
-            unit_price = item.unit_price
-            product = self._repos['ProductRepository'].read_one(product_id=product_id)
-            if product is None:
-                raise errors.ProductNotFoundError('product not found')
-            if product.stock_quantity is None or product.stock_quantity < quantity:
-                raise errors.InsufficientStockError('insufficient stock for product')
-            product.stock_quantity -= quantity
-            self._repos['ProductRepository'].update(product_id=product_id, stock_quantity=product.stock_quantity)
-        self._repos['OrderRepository'].update(order.order_id, status='confirmed', confirmed_at=datetime.datetime.now())
-        invoice = self._repos['InvoiceRepository'].create(order_id=order.order_id, total_amount=sum((item.unit_price * item.quantity for item in order_items)), generated_at=datetime.datetime.now(), customer_id=order.customer_id)
-
-    def ordersearch(self, customer_id: int = None) -> list[models.Order]:
-        """Ordersearch. [delegates the list filter to read_all]"""
-        return self._repos['OrderRepository'].read_all(customer_id=customer_id)
-
-    def orderreport(self) -> None:
-        """Orderreport. [llm-written by server — review]"""
-        orders = self._repos['OrderRepository'].read_all()
-        total_spent = 0
-        order_status_count = {}
-        for order in orders:
-            row = order if isinstance(order, dict) else vars(order)
-            status = row.get('status')
-            if status is not None:
-                order_status_count[status] = order_status_count.get(status, 0) + 1
-            if 'order_id' in row and 'customer_id' in row:
-                invoice = self._repos['InvoiceRepository'].find_invoices_by_order(order_id=row['order_id'])
-                if invoice is not None:
-                    total_spent += invoice.total_amount
-        return {'total_spent': total_spent, 'order_status_count': order_status_count}
-
-    def orderexport(self) -> None:
-        """Orderexport. [llm-written by server — review]"""
-        try:
-            orders = self._repos['OrderRepository'].read_all()
-            with open('orders.csv', 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['order_id', 'customer_id', 'status', 'created_at', 'confirmed_at', 'shipped_at', 'cancelled_at'])
-                for order in orders:
-                    row = vars(order)
-                    writer.writerow([row.get('order_id'), row.get('customer_id'), row.get('status'), row.get('created_at'), row.get('confirmed_at'), row.get('shipped_at'), row.get('cancelled_at')])
-        except OSError as e:
-            raise ValueError(f'failed to write file: {str(e)}') from None
-
 
 class ProductService:
 
@@ -191,14 +141,20 @@ class ProductService:
 
     def add_product(self, product_id: int = None, name: str = None, category_id: int = None, price: float = None, stock_quantity: int = None) -> None:
         """Adds a new product to the catalog with specified name, category ID, price, and stock quantity. Throws InvalidPriceError if price is invalid, InvalidProductIdError if product ID is invalid. [llm-written by server — review]"""
+        if name is None:
+            raise ValueError('missing required field')
+        if category_id is None:
+            raise ValueError('missing required field')
         if price is not None and price < 0:
             raise errors.InvalidPriceError('price is negative')
         if product_id is not None and product_id <= 0:
             raise errors.InvalidProductIdError('product_id is invalid')
-        if category_id is not None:
+        try:
             category = self._repos['CategoryRepository'].read_one(category_id=category_id)
             if category is None:
                 raise errors.CategoryNotFoundError('category not found')
+        except errors.CategoryNotFoundError:
+            raise errors.CategoryNotFoundError('category not found')
         self._repos['ProductRepository'].create(name=name, category_id=category_id, price=price, stock_quantity=stock_quantity)
 
     def update_product_stock(self, product_id: int = None, stock_quantity: int = None) -> None:
@@ -235,12 +191,10 @@ class CategoryService:
         self._repos = repos
 
 
-    def add_category(self, category_id: int = None, name: str = None) -> None:
-        """Adds a new category to the system with a specified name. Throws a CategoryNotFoundError if category already exists (assumed unique). [llm-written by server — review]"""
+    def add_category(self, name: str = None) -> None:
+        """Adds a new category to the system with a specified name. Throws a CategoryNotFoundError if category already exists (assumed unique). [mechanical CRUD wrapper]"""
         if name is None:
             raise ValueError('missing required field')
-        if category_id is not None and category_id <= 0:
-            raise errors.InvalidProductIdError('category_id is invalid')
         self._repos['CategoryRepository'].create(name=name)
 
     def read_all_categories(self) -> list[models.Category]:
@@ -347,15 +301,48 @@ class ReportService:
 
     def generate_order_summary_report(self) -> Dict[str, Any]:
         """Generates a summary report of all orders by status (pending, confirmed, shipped, cancelled). [llm-written by server — review]"""
-        records = self._repos['OrderRepository'].read_all()
-        status_count = {}
-        for record in records:
-            row = record if isinstance(record, dict) else vars(record)
+        order_status_counts = {}
+        orders = self._repos['OrderRepository'].read_all()
+        for order in orders:
+            row = order if isinstance(order, dict) else vars(order)
             status = row.get('status')
             if status is None:
                 continue
-            status_count[status] = status_count.get(status, 0) + 1
-        return status_count
+            order_status_counts[status] = order_status_counts.get(status, 0) + 1
+        categories = self._repos['CategoryRepository'].read_all()
+        category_map = {}
+        for category in categories:
+            row = category if isinstance(category, dict) else vars(category)
+            category_name = row.get('name')
+            if category_name is None:
+                continue
+            category_map[category_name] = 0
+        for order in orders:
+            row = order if isinstance(order, dict) else vars(order)
+            if row.get('customer_id') is None:
+                continue
+            order_items = self._repos['OrderItemRepository'].get_order_items_by_order_id(order_id=row.get('order_id'))
+            for item in order_items:
+                item_row = item if isinstance(item, dict) else vars(item)
+                product_id = item_row.get('product_id')
+                if product_id is None:
+                    continue
+                product = self._repos['ProductRepository'].read_one(product_id=product_id)
+                if product is None:
+                    continue
+                product_row = product if isinstance(product, dict) else vars(product)
+                category_id = product_row.get('category_id')
+                if category_id is None:
+                    continue
+                category_name = None
+                category_record = self._repos['CategoryRepository'].read_one(category_id=category_id)
+                if category_record is None:
+                    continue
+                category_name = category_record.name
+                if category_name not in category_map:
+                    category_map[category_name] = 0
+                category_map[category_name] += product_row.get('stock_quantity', 0)
+        return {'total_pending': order_status_counts.get('pending', 0), 'total_confirmed': order_status_counts.get('confirmed', 0), 'total_shipped': order_status_counts.get('shipped', 0), 'total_cancelled': order_status_counts.get('cancelled', 0), 'stock_levels': list(category_map.items())}
 
     def generate_product_stock_report(self) -> Dict[str, Any]:
         """Generates a report showing product names, categories, and current stock levels. [llm-written by server — review]"""
@@ -374,7 +361,15 @@ class ReportService:
             if category_name not in category_map:
                 category_map[category_name] = 0
             category_map[category_name] += row.get('stock_quantity', 0)
-        return category_map
+        all_categories = self._repos['CategoryRepository'].read_all()
+        for category in all_categories:
+            row = category if isinstance(category, dict) else vars(category)
+            category_name = row.get('name')
+            if category_name is None:
+                continue
+            if category_name not in category_map:
+                category_map[category_name] = 0
+        return {'stock_levels': list(category_map.items())}
 
 
 def _atomic(method):

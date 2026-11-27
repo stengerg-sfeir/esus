@@ -3,15 +3,15 @@
     "label": "ProjectRepository.soft_delete_project",
     "status": "written",
     "note": "",
-    "answer": "criteria = []\n        if project_id is not None:\n            criteria.append(('project_id', 'eq', project_id))\n        found = self._store.select(self.ENTITY, criteria)\n        if not found:\n            return False\n        record = found[0]\n        self._store.update(self.ENTITY, self.PK, record[self.PK], {'is_deleted': True})\n        return True",
+    "answer": "criteria = [('project_id', 'eq', project_id)]\n        found = self._store.select(self.ENTITY, criteria)\n        if not found:\n            return False\n        record = found[0]\n        self._store.update(self.ENTITY, self.PK, record[self.PK], {'is_deleted': True})\n        return True",
     "finish_reason": "stop",
-    "tokens": 82,
+    "tokens": 70,
     "budget": 3584,
     "truncated": false,
-    "seconds": 1.2953996658325195,
-    "decode_seconds": 0.5529769999999999,
-    "prompt_tokens": 3224,
-    "cached_tokens": 332,
+    "seconds": 0.907738208770752,
+    "decode_seconds": 0.46736500000000003,
+    "prompt_tokens": 3337,
+    "cached_tokens": 0,
     "context": "exact"
   }
 ]

@@ -162,12 +162,9 @@ class UserRepository:
         record = found[0]
         return models.User(**record)
 
-    def get_user_count(self, user_id: int = None) -> int:
+    def get_user_count(self) -> int:
         """Count the total number of users in the system, used for reporting and analytics. [llm-written by server — review]"""
-        criteria = []
-        if user_id is not None:
-            criteria.append(('user_id', 'eq', user_id))
-        found = self._store.select(self.ENTITY, criteria)
+        found = self._store.select(self.ENTITY, [])
         return len(found)
 
 
@@ -295,12 +292,9 @@ class ProductRepository:
         record = found[0]
         return models.Product(**record)
 
-    def get_product_count(self, product_id: int = None) -> int:
+    def get_product_count(self) -> int:
         """Count the total number of products in the system, used for inventory reporting. [llm-written by server — review]"""
-        criteria = []
-        if product_id is not None:
-            criteria.append(('product_id', 'eq', product_id))
-        found = self._store.select(self.ENTITY, criteria)
+        found = self._store.select(self.ENTITY, [])
         return len(found)
 
     def get_products_by_price_range(self, min_price: float = None, max_price: float = None) -> list[models.Product]:
@@ -393,8 +387,12 @@ class OrderRepository:
         if order_id is not None:
             criteria.append(('order_id', 'eq', order_id))
         found = self._store.select(self.ENTITY, criteria)
-        active_orders = [order for order in found if order.get('status') == 'pending' or order.get('status') == 'active']
-        return len(active_orders)
+        active_orders = 0
+        for record in found:
+            status = record.get('status')
+            if status == 'pending' or status == 'active':
+                active_orders += 1
+        return active_orders
 
 
 class OrderItemRepository:

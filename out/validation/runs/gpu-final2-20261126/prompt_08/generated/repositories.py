@@ -144,3 +144,13 @@ class ProductRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def filter_products(self, category: str = None, below_quantity: int = None) -> list[models.Product]:
+        """Filters Product records by category and a maximum quantity. [crud:filter: name-only: step F never saw this method]"""
+        criteria = []
+        if category is not None:
+            criteria.append(('category', 'eq', category))
+        if below_quantity is not None:
+            criteria.append(('quantity', 'lt', below_quantity))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]

@@ -158,3 +158,19 @@ class CustomerRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def read_all_paginated(self, page_number: int = None, page_size: int = None) -> list[models.Customer]:
+        """Lists Customer records with the requested page number and page size. [mechanical pagination]"""
+        criteria = []
+        records = self._store.select(self.ENTITY, criteria)
+        total = len(records)
+        page_number = page_number if page_number is not None else 1
+        page_size = page_size if page_size is not None else 10
+        if page_size <= 0:
+            page_size = 10
+        total_pages = (total + page_size - 1) // page_size
+        start = max(0, (page_number - 1) * page_size)
+        end = start + page_size
+        page_records = records[start:end]
+        items = [models.Customer(**row) for row in page_records]
+        return items

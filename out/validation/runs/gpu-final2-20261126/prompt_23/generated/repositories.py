@@ -206,12 +206,12 @@ class PostRepository:
         return None
 
     def get_posts_by_author_id(self, author_id: int = None) -> list[models.Post]:
-        """Lists the Post records belonging to one Author. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        """Lists the Post records belonging to one Author. [mechanical contained-name filter]"""
         criteria = []
         if author_id is not None:
             criteria.append(('author_id', 'eq', author_id))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Post(**r) for r in found]
+        return _model_list([models.Post(**row) for row in found], models.Post)
 
 
 class TagRepository:
@@ -242,12 +242,12 @@ class TagRepository:
         return models.Tag(**record)
 
     def read_all(self, name: str = None) -> list[models.Tag]:
-        """Lists every Tag; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        """Lists every Tag; optional fields narrow the result. [mechanical contained-name filter]"""
         criteria = []
         if name is not None:
             criteria.append(('name', 'eq', name))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.Tag(**r) for r in found]
+        return _model_list([models.Tag(**row) for row in found], models.Tag)
 
     def update(self, tag_id: int = None, name: str = None) -> Any:
         """Updates an existing Tag. [crud:update: STANDARD_CRUD]"""
@@ -282,43 +282,61 @@ class TagRepository:
 
 class PostTagRepository:
     ENTITY = "PostTag"
-    PK = "post_id"
+    PK = "post_tag_id"
 
     def __init__(self, store):
         self._store = store
 
 
-    def create(self, tag_id: int = None) -> Any:
+    def create(self, tag_id: int = None, post_id: int = None) -> Any:
         """Creates a new PostTag. [crud:create: STANDARD_CRUD]"""
         values = {}
         if tag_id is not None:
             values['tag_id'] = tag_id
-        unknown = [k for k in values if k not in ['post_id', 'tag_id']]
+        if post_id is not None:
+            values['post_id'] = post_id
+        unknown = [k for k in values if k not in ['post_tag_id', 'post_id', 'tag_id']]
         if unknown:
             raise ValueError(f"cannot create PostTag from {unknown}")
-        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("tag_id", "Tag", "tag_id", None)])
+        record = self._store.add(self.ENTITY, self.PK, values, check_fk=[("post_id", "Post", "post_id", None), ("tag_id", "Tag", "tag_id", None)])
         return models.PostTag(**record)
 
-    def read_one(self, post_id: int = None) -> Any:
+    def read_one(self, post_tag_id: int = None) -> Any:
         """Reads one PostTag by its key. [crud:read_one: READ_ONE_BY_ID]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_id)])
+        found = self._store.select(self.ENTITY, [(self.PK, 'eq', post_tag_id)])
         if not found:
             return None
         record = found[0]
         return models.PostTag(**record)
 
     def read_all(self, tag_id: int = None) -> list[models.PostTag]:
-        """Lists every PostTag; optional fields narrow the result. [crud:read_all: FILTER_BY_FIELD]"""
+        """Lists every PostTag; optional fields narrow the result. [mechanical contained-name filter]"""
         criteria = []
         if tag_id is not None:
             criteria.append(('tag_id', 'eq', tag_id))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.PostTag(**r) for r in found]
+        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
 
     def get_post_tags_by_tag_id(self, tag_id: int = None) -> list[models.PostTag]:
-        """Lists the PostTag records belonging to one Tag. [crud:filter: FILTER_BY_FIELD: by parameter shape]"""
+        """Lists the PostTag records belonging to one Tag. [mechanical contained-name filter]"""
         criteria = []
         if tag_id is not None:
             criteria.append(('tag_id', 'eq', tag_id))
         found = self._store.select(self.ENTITY, criteria)
-        return [models.PostTag(**r) for r in found]
+        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
+
+    def get_post_tags_by_post_id(self, post_id: int = None) -> list[models.PostTag]:
+        """Lists the PostTag records belonging to one Post. [mechanical contained-name filter]"""
+        criteria = []
+        if post_id is not None:
+            criteria.append(('post_id', 'eq', post_id))
+        found = self._store.select(self.ENTITY, criteria)
+        return _model_list([models.PostTag(**row) for row in found], models.PostTag)
+
+    def associate_tag_with_post(self, post_id: int = None, tag_id: int = None) -> None:
+        """Associates a Tag with a Post. [mechanical join association]"""
+        values = {}
+        if post_id is not None: values['post_id'] = post_id
+        if tag_id is not None: values['tag_id'] = tag_id
+        self._store.add(self.ENTITY, self.PK, values, check_fk=[('post_id', 'Post', 'post_id', None), ('tag_id', 'Tag', 'tag_id', None)])
+        return None

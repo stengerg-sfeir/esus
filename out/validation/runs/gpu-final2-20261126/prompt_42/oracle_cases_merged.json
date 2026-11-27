@@ -1,4 +1,90 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "find_purchase_history",
+      "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
+      "given": {
+        "customer": {
+          "id": 101
+        },
+        "purchase": {
+          "amount": 250.0,
+          "date": "2023-10-01"
+        }
+      },
+      "when": {
+        "action": "find_purchase_history",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "purchase.amount": 250.0
+        },
+        "rows": {
+          "Purchase": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Purchase"
+            ]
+          },
+          "purchase": {
+            "status": "aligned",
+            "canonical": "Purchase",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Purchase",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Customer"
+            ]
+          }
+        },
+        "fields": {
+          "purchase.amount": {
+            "status": "aligned",
+            "canonical": "amount",
+            "score": 10.0,
+            "evidence": [
+              "Purchase.amount exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "PurchaseRepository.find_customer_purchases",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

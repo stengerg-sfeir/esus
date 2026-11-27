@@ -124,7 +124,8 @@
       "expect": {
         "state": [
           "post.title",
-          "post.content"
+          "post.content",
+          "post.status"
         ],
         "rows": {
           "Post": 1
@@ -178,7 +179,8 @@
       ],
       "expect": {
         "state": [
-          "author.name"
+          "author.name",
+          "author.status"
         ],
         "rows": {
           "Author": 1
@@ -205,10 +207,38 @@
       ],
       "expect": {
         "state": [
-          "tag.name"
+          "tag.name",
+          "tag.status"
         ],
         "rows": {
           "Tag": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "delete_tag",
+      "source": "Provide CRUD operations for authors, posts and tags.",
+      "when": {
+        "action": "delete_tag",
+        "args": [
+          "tag.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "tag",
+          "entity": "Tag",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "tag.status"
+        ],
+        "rows": {
+          "Tag": 0
         },
         "error": "omitted"
       },

@@ -3,8 +3,7 @@
   "results": [
     {
       "name": "scenario:oracle:close_loan",
-      "status": "failed",
-      "reason": "raised TypeError: Store.update() missing 1 required positional argument: 'values'; expected None",
+      "status": "passed",
       "case": "close_loan",
       "source": "Users must be able to create and close loans and determine which books are currently available.",
       "alignment": {
@@ -29,17 +28,12 @@
           "canonical": "LoanRepository.close_loan_by_id",
           "score": 7.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "LoanRepository.get_active_loans_for_member",
-            "LoanService.create_loan",
-            "LoanService.delete_loan",
-            "LoanService.read_loan_by_id"
-          ]
+          "alternatives": []
         }
       },
-      "triage": "behavior: wrong error"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:determine_available_books",
@@ -92,11 +86,9 @@
     }
   ],
   "counts": {
-    "failed": 1,
-    "passed": 1
+    "passed": 2
   },
   "triage_counts": {
-    "behavior: wrong error": 1,
-    "passed": 1
+    "passed": 2
   }
 }

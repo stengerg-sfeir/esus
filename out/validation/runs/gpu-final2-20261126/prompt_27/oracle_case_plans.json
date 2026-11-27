@@ -1,3 +1,110 @@
 {
-  "plans": []
+  "plans": [
+    {
+      "id": "reject_overlap_1",
+      "source": "reject reservations that overlap an existing reservation",
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "room.id",
+          "start_time",
+          "end_time"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        },
+        {
+          "alias": "existing_reservation",
+          "entity": "Reservation",
+          "role": "setup"
+        }
+      ],
+      "expect": {
+        "state": [
+          "existing_reservation.status"
+        ],
+        "rows": {
+          "Reservation": 0
+        },
+        "error": "overlap_error"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "create_reservation_1",
+      "source": "A customer can make multiple reservations",
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "customer.id",
+          "room.id",
+          "start_time",
+          "end_time"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        },
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.reservations_count",
+          "room.status"
+        ],
+        "rows": {
+          "Reservation": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    },
+    {
+      "id": "create_reservation_2",
+      "source": "A customer can make multiple reservations",
+      "when": {
+        "action": "create_reservation",
+        "args": [
+          "customer.id",
+          "room.id",
+          "start_time",
+          "end_time"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "setup"
+        },
+        {
+          "alias": "room",
+          "entity": "Room",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.reservations_count",
+          "room.status"
+        ],
+        "rows": {
+          "Reservation": 1
+        },
+        "error": "omitted"
+      },
+      "status": "assumed"
+    }
+  ]
 }

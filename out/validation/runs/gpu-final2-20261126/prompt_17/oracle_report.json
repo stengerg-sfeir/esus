@@ -2,53 +2,9 @@
   "prompt": "prompt_17",
   "results": [
     {
-      "name": "search_by_name",
-      "status": "under_specified",
-      "reason": "ambiguous action binding: ProductRepository.filter_by_category, ProductRepository.filter_by_max_price, ProductRepository.filter_by_min_quantity, ProductRepository.find_all_with_filters, ProductRepository.find_all_products_with_filters",
-      "source": "Users must be able to search by name",
-      "alignment": {
-        "entities": {
-          "product": {
-            "status": "aligned",
-            "canonical": "Product",
-            "score": 14.0,
-            "evidence": [
-              "name/fields match Product",
-              "score 14.0"
-            ],
-            "alternatives": [
-              "User"
-            ]
-          }
-        },
-        "fields": {
-          "product.name": {
-            "status": "aligned",
-            "canonical": "name",
-            "score": 10.0,
-            "evidence": [
-              "Product.name exists"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "coverage_gap",
-          "canonical": null,
-          "score": 0.0,
-          "evidence": [
-            "prompt exposes the action",
-            "no generated method matches"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "under_specified"
-    },
-    {
-      "name": "combinable_filters",
-      "status": "under_specified",
-      "reason": "ambiguous action binding: ProductRepository.filter_by_category, ProductRepository.filter_by_max_price, ProductRepository.filter_by_min_quantity",
+      "name": "scenario:oracle:combinable_filters",
+      "status": "passed",
+      "case": "combinable_filters",
       "source": "All filters must be combinable",
       "alignment": {
         "entities": {
@@ -102,27 +58,23 @@
           }
         },
         "action": {
-          "status": "ambiguous",
-          "canonical": "ProductRepository.filter_by_category",
-          "score": 3.0,
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
           "evidence": [
-            "several generated methods have the same action score"
+            "prompt exposes the action",
+            "no generated method matches"
           ],
-          "alternatives": [
-            "ProductRepository.filter_by_category",
-            "ProductRepository.filter_by_max_price",
-            "ProductRepository.filter_by_min_quantity",
-            "ProductRepository.find_all_products_with_filters"
-          ]
+          "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "under_specified": 2
+    "passed": 1
   },
   "triage_counts": {
-    "under_specified": 2
+    "passed": 1
   }
 }

@@ -1,10 +1,10 @@
 {
   "counts": {
     "legacy": 3,
-    "kept": 0,
-    "retired": 3,
+    "kept": 1,
+    "retired": 2,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
   "cases": [
     {
@@ -17,9 +17,8 @@
             "customer_id": 102,
             "product_id": 202
           },
-          "customer": {
-            "id": 102,
-            "name": "Bob Smith"
+          "product": {
+            "stock_quantity": 5
           }
         },
         "when": {
@@ -30,7 +29,8 @@
         },
         "then": {
           "state": {
-            "order.status": "confirmed"
+            "order.status": "confirmed",
+            "product.stock_quantity": 2
           },
           "rows": {
             "Order": 1
@@ -41,8 +41,9 @@
         "assumptions": [
           "stock reservation is applied when order status changes to confirmed"
         ],
-        "ambiguities": [],
-        "prompt_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+        "ambiguities": [
+          "exact amount of stock reserved is not specified in requirements"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -54,7 +55,7 @@
         "given": {
           "customer": {
             "id": 103,
-            "name": "Charlie Brown"
+            "name": "Carol Davis"
           }
         },
         "when": {
@@ -70,46 +71,12 @@
         },
         "status": "assumed",
         "base_status": "assumed",
-        "assumptions": [],
-        "ambiguities": [
-          "It is unclear whether the search returns only orders for the customer or also includes invoices",
-          "No specification on whether the search is filtered by customer ID or name"
-        ],
-        "prompt_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "create_invoice_on_confirm",
-        "source": "An invoice is created when an order is confirmed.",
-        "given": {
-          "order": {
-            "status": "pending",
-            "customer_id": 104,
-            "product_id": 203
-          }
-        },
-        "when": {
-          "action": "confirm_order",
-          "args": [
-            "order.id"
-          ]
-        },
-        "then": {
-          "rows": {
-            "Invoice": 1
-          }
-        },
-        "status": "assumed",
-        "base_status": "assumed",
         "assumptions": [
-          "An invoice is created exactly once per confirmed order",
-          "The invoice is linked to the order via order_id"
+          "search returns exactly one order per customer when that customer has one order"
         ],
-        "ambiguities": [],
-        "prompt_sha": "009bd41c9b1bbcbf35e2a0ad999fde416e3655fdaf079841b11cac78d84edd9f"
+        "ambiguities": [
+          "no specification of whether search returns all orders or only active ones"
+        ]
       },
       "status": "not_run",
       "reason": ""

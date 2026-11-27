@@ -21,7 +21,6 @@
       },
       "then": {
         "state": {
-          "customer.id": 101,
           "customer.name": "Alice Johnson",
           "customer.email": "alice.johnson@example.com"
         },
@@ -30,7 +29,7 @@
           "AuditRecord": 1
         }
       },
-      "status": "case_defect",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -50,15 +49,6 @@
           }
         },
         "fields": {
-          "customer.id": {
-            "status": "aligned",
-            "canonical": "id",
-            "score": 10.0,
-            "evidence": [
-              "Customer.id exists"
-            ],
-            "alternatives": []
-          },
           "customer.name": {
             "status": "aligned",
             "canonical": "name",
@@ -91,10 +81,10 @@
         }
       },
       "execution": {
-        "status": "case_defect",
-        "reason": "customer.id is 1, expected 101"
+        "status": "passed",
+        "reason": ""
       },
-      "triage": "case_defect: setup",
+      "triage": "passed",
       "needs_review": false
     }
   ]

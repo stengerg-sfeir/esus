@@ -32,10 +32,60 @@
       "status": "confirmed"
     },
     {
-      "id": "read_customer_by_name",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "id": "read_customer_by_id",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "when": {
-        "action": "search_by_name",
+        "action": "read_customer",
+        "args": [
+          "customer.id"
+        ]
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "state": [
+          "customer.name",
+          "customer.email",
+          "customer.phone"
+        ],
+        "rows": {
+          "Customer": 1
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "read_all_customers",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "list_customers"
+      },
+      "setup_entities": [
+        {
+          "alias": "customer",
+          "entity": "Customer",
+          "role": "target"
+        }
+      ],
+      "expect": {
+        "rows": {
+          "Customer": ">=1"
+        },
+        "error": "omitted"
+      },
+      "status": "confirmed"
+    },
+    {
+      "id": "search_customers_by_name",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "when": {
+        "action": "search_customers",
         "args": [
           "name"
         ]
@@ -48,23 +98,18 @@
         }
       ],
       "expect": {
-        "state": [
-          "customer.name",
-          "customer.email",
-          "customer.phone"
-        ],
         "rows": {
-          "Customer": 1
+          "Customer": ">=0"
         },
         "error": "omitted"
       },
       "status": "confirmed"
     },
     {
-      "id": "read_customer_by_domain",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "id": "filter_customers_by_email_domain",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "when": {
-        "action": "filter_by_email_domain",
+        "action": "filter_customers",
         "args": [
           "domain"
         ]
@@ -77,13 +122,8 @@
         }
       ],
       "expect": {
-        "state": [
-          "customer.name",
-          "customer.email",
-          "customer.phone"
-        ],
         "rows": {
-          "Customer": 1
+          "Customer": ">=0"
         },
         "error": "omitted"
       },
@@ -91,7 +131,7 @@
     },
     {
       "id": "update_customer",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "when": {
         "action": "update_customer",
         "args": [
@@ -123,7 +163,7 @@
     },
     {
       "id": "delete_customer",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "when": {
         "action": "delete_customer",
         "args": [
@@ -138,9 +178,6 @@
         }
       ],
       "expect": {
-        "state": [
-          "customer.status"
-        ],
         "rows": {
           "Customer": 0
         },

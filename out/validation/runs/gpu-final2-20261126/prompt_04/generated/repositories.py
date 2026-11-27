@@ -144,3 +144,7 @@ class TaskRepository:
             return None
         record = found[0]
         return models.Task(**record)
+
+    def complete_task(self, id: int = None) -> None:
+        """Completes a Task. [mechanical boolean filter]"""
+        return _model_list(self._store.select(self.ENTITY, [('is_complete', 'eq', True)]), models.Task)

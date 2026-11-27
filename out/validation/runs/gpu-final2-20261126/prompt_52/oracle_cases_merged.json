@@ -1,4 +1,135 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "borrow_book",
+      "source": "A book can be borrowed by members.",
+      "given": {
+        "book": {
+          "id": "book_1",
+          "status": "available"
+        },
+        "member": {
+          "id": "member_1"
+        }
+      },
+      "when": {
+        "action": "borrow_book",
+        "args": [
+          "book_1.id",
+          "member_1.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Member"
+            ]
+          },
+          "member": {
+            "status": "aligned",
+            "canonical": "Member",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Member",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Book"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "BookRepository.borrow_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "return_book",
+      "source": "When it is returned, it should become available again.",
+      "given": {
+        "book": {
+          "id": "book_1",
+          "status": "borrowed"
+        }
+      },
+      "when": {
+        "action": "return_book",
+        "args": [
+          "book_1.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 10.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "BorrowService.return_book",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

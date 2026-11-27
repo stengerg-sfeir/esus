@@ -1,108 +1,12 @@
 {
   "counts": {
     "legacy": 6,
-    "kept": 0,
-    "retired": 6,
+    "kept": 3,
+    "retired": 3,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 3
   },
   "cases": [
-    {
-      "case": {
-        "id": "confirm_pending_order",
-        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
-        "given": {
-          "order": {
-            "status": "pending"
-          }
-        },
-        "when": {
-          "action": "confirm_order",
-          "args": [
-            "order.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "order.status": "confirmed"
-          },
-          "rows": {
-            "Order": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "ship_confirmed_order",
-        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
-        "given": {
-          "order": {
-            "status": "confirmed"
-          }
-        },
-        "when": {
-          "action": "ship_order",
-          "args": [
-            "order.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "order.status": "shipped"
-          },
-          "rows": {
-            "Order": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "cancel_pending_order",
-        "source": "An order starts in the `pending` state and can become `confirmed`, `shipped` or `cancelled`.",
-        "given": {
-          "order": {
-            "status": "pending"
-          }
-        },
-        "when": {
-          "action": "cancel_order",
-          "args": [
-            "order.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "order.status": "cancelled"
-          },
-          "rows": {
-            "Order": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
     {
       "case": {
         "id": "cancel_confirmed_order",
@@ -122,18 +26,33 @@
           "state": {
             "order.status": "cancelled"
           },
-          "error": "OrderStateException",
-          "rows": {
-            "Order": 1
-          }
+          "error": "OrderStateException"
         },
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [],
         "ambiguities": [
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
           "error class 'OrderStateException' is not named in the requirements"
-        ],
-        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -157,18 +76,34 @@
           "state": {
             "order.status": "cancelled"
           },
-          "error": "OrderStateException",
-          "rows": {
-            "Order": 1
-          }
+          "error": "OrderStateException"
         },
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [],
         "ambiguities": [
+          "The requirement states a cancelled order cannot be shipped, but does not specify whether the state remains cancelled or transitions to another state upon failure. The expected outcome in the plan does not specify a state change, implying the state is unchanged, which contradicts the requirement that a shipped order cannot be cancelled — but this is not directly relevant here. The ambiguity arises because the state transition is blocked, yet the final state is not clearly defined in the requirement.",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
           "error class 'OrderStateException' is not named in the requirements"
-        ],
-        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -192,18 +127,34 @@
           "state": {
             "order.status": "shipped"
           },
-          "error": "OrderStateException",
-          "rows": {
-            "Order": 1
-          }
+          "error": "OrderStateException"
         },
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [],
         "ambiguities": [
+          "The requirement states a shipped order cannot be cancelled, but does not specify whether the state remains shipped or if an error is raised. The expected outcome in the plan shows an error but no state change, which implies the state remains 'shipped'. However, the requirement does not define what happens to the state when an invalid operation is attempted. This creates ambiguity in whether the state should be preserved or modified.",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
+          "error class 'OrderStateException' is not named in the requirements",
           "error class 'OrderStateException' is not named in the requirements"
-        ],
-        "prompt_sha": "f1c572048902c0ff85e162e71635ffc995675ce87a0338ded3e30bfc085cfa54"
+        ]
       },
       "status": "not_run",
       "reason": ""

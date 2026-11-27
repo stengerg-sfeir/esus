@@ -3,8 +3,7 @@
   "results": [
     {
       "name": "scenario:oracle:add_product_with_valid_category",
-      "status": "case_defect",
-      "reason": "cannot read Product: 'Product with id=None not found'",
+      "status": "passed",
       "case": "add_product_with_valid_category",
       "source": "product add --sku --name --category --price --stock [--stock]",
       "alignment": {
@@ -34,53 +33,7 @@
             ]
           }
         },
-        "fields": {
-          "product.sku": {
-            "status": "aligned",
-            "canonical": "sku",
-            "score": 10.0,
-            "evidence": [
-              "Product.sku exists"
-            ],
-            "alternatives": []
-          },
-          "product.name": {
-            "status": "aligned",
-            "canonical": "name",
-            "score": 10.0,
-            "evidence": [
-              "Product.name exists"
-            ],
-            "alternatives": []
-          },
-          "product.category_id": {
-            "status": "aligned",
-            "canonical": "category_id",
-            "score": 10.0,
-            "evidence": [
-              "Product.category_id exists"
-            ],
-            "alternatives": []
-          },
-          "product.price_cents": {
-            "status": "aligned",
-            "canonical": "price_cents",
-            "score": 10.0,
-            "evidence": [
-              "Product.price_cents exists"
-            ],
-            "alternatives": []
-          },
-          "product.stock_qty": {
-            "status": "aligned",
-            "canonical": "stock_qty",
-            "score": 10.0,
-            "evidence": [
-              "Product.stock_qty exists"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "aligned",
           "canonical": "InventoryService.add_product",
@@ -91,7 +44,7 @@
           "alternatives": []
         }
       },
-      "triage": "case_defect: setup"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:delete_product_by_id",
@@ -128,8 +81,7 @@
     },
     {
       "name": "scenario:oracle:restock_product_by_id",
-      "status": "case_defect",
-      "reason": "expected ProductNotFoundError, no error was raised",
+      "status": "passed",
       "case": "restock_product_by_id",
       "source": "product restock --id --qty",
       "alignment": {
@@ -168,7 +120,7 @@
           "alternatives": []
         }
       },
-      "triage": "case_defect: setup"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:add_category_with_threshold",
@@ -190,22 +142,49 @@
             ]
           }
         },
-        "fields": {
-          "category.name": {
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "InventoryService.add_product",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create",
+            "ProductRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:update_category_with_threshold",
+      "status": "passed",
+      "case": "update_category_with_threshold",
+      "source": "category update --id [--name] [--description] [--threshold]",
+      "alignment": {
+        "entities": {
+          "category": {
             "status": "aligned",
-            "canonical": "name",
-            "score": 10.0,
+            "canonical": "Category",
+            "score": 15.0,
             "evidence": [
-              "Category.name exists"
+              "name/fields match Category",
+              "score 15.0"
             ],
-            "alternatives": []
-          },
-          "category.description": {
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "category.id": {
             "status": "aligned",
-            "canonical": "description",
+            "canonical": "id",
             "score": 10.0,
             "evidence": [
-              "Category.description exists"
+              "Category.id exists"
             ],
             "alternatives": []
           },
@@ -221,15 +200,12 @@
         },
         "action": {
           "status": "alias",
-          "canonical": "InventoryService.add_product",
-          "score": 3.0,
+          "canonical": "CategoryRepository.update",
+          "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "CategoryRepository.create",
-            "ProductRepository.create"
-          ]
+          "alternatives": []
         }
       },
       "triage": "passed"
@@ -260,22 +236,18 @@
           "canonical": "CategoryRepository.delete",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "ProductRepository.delete"
-          ]
+          "alternatives": []
         }
       },
       "triage": "passed"
     }
   ],
   "counts": {
-    "case_defect": 2,
-    "passed": 3
+    "passed": 6
   },
   "triage_counts": {
-    "case_defect: setup": 2,
-    "passed": 3
+    "passed": 6
   }
 }

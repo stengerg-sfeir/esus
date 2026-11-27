@@ -1,5 +1,92 @@
 {
   "prompt": "prompt_22",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:read_order",
+      "status": "passed",
+      "case": "read_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "OrderRepository.read_all",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "OrderRepository.read_all",
+            "OrderRepository.read_one"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:update_order",
+      "status": "passed",
+      "case": "update_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "order.created_at": {
+            "status": "aligned",
+            "canonical": "created_at",
+            "score": 10.0,
+            "evidence": [
+              "Order.created_at exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "OrderRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 2
+  },
+  "triage_counts": {
+    "passed": 2
+  }
 }

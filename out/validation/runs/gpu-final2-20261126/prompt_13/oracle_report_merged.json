@@ -1,5 +1,369 @@
 {
   "prompt": "prompt_13",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:create_product",
+      "status": "passed",
+      "case": "create_product",
+      "source": "Create a Python 3.12 inventory application. Products have a SKU, name, category, price and stock quantity. SKUs must be unique.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_product",
+      "status": "passed",
+      "case": "read_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:update_product",
+      "status": "passed",
+      "case": "update_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.sku": {
+            "status": "aligned",
+            "canonical": "sku",
+            "score": 10.0,
+            "evidence": [
+              "Product.sku exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_product",
+      "status": "passed",
+      "case": "delete_product",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:search_products",
+      "status": "passed",
+      "case": "search_products",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.search_products",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:filter_by_category",
+      "status": "passed",
+      "case": "filter_by_category",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.filter_by_category",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:report_low_stock",
+      "status": "passed",
+      "case": "report_low_stock",
+      "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ProductRepository.report_low_stock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 7
+  },
+  "triage_counts": {
+    "passed": 7
+  }
 }

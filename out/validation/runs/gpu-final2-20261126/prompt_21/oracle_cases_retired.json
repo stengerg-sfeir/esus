@@ -1,45 +1,50 @@
 {
   "counts": {
-    "legacy": 3,
-    "kept": 0,
+    "legacy": 4,
+    "kept": 1,
     "retired": 3,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
   "cases": [
     {
       "case": {
-        "id": "list_orders_by_customer",
-        "source": "list all orders belonging to a customer",
+        "id": "create_order_for_customer",
+        "source": "Create a Python 3.12 order management application. Customers can have multiple orders. Each order belongs to exactly one customer and has a date and status.",
         "given": {
           "customer": {
             "id": 101
           },
           "order": {
-            "status": "pending",
-            "date": "2023-10-01"
+            "date": "2023-10-02",
+            "status": "pending"
           }
         },
         "when": {
-          "action": "list_orders",
+          "action": "create_order",
           "args": [
-            "customer.id"
+            "customer.id",
+            "order.date",
+            "order.status"
           ]
         },
         "then": {
           "state": {
             "order.status": "pending",
-            "order.date": "2023-10-01"
+            "order.date": "2023-10-02"
           },
           "rows": {
             "Order": 1
           }
         },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "6e4bf045f2e272b7e75d3afa0736196ff6f84ba2edf6215542eeaf7991f0e08f"
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "order.status is set to 'pending' by default if not provided"
+        ],
+        "ambiguities": [
+          "the exact default value for order.status is not specified in requirements"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -58,7 +63,7 @@
           "action": "update_order",
           "args": [
             "order.id",
-            "status"
+            "order.status"
           ]
         },
         "then": {
@@ -69,12 +74,11 @@
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [
-          "the new status value 'shipped' is assumed based on typical order lifecycle; requirement does not specify value"
+          "the new status value is provided in the args and applied directly"
         ],
         "ambiguities": [
-          "the requirement does not specify which status value should be set, so the exact value is ambiguous"
-        ],
-        "prompt_sha": "6e4bf045f2e272b7e75d3afa0736196ff6f84ba2edf6215542eeaf7991f0e08f"
+          "the requirements do not specify how status transitions are validated or constrained"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -102,12 +106,11 @@
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [
-          "deletion removes the order from the system; no explicit state change is required beyond row count"
+          "deletion removes the order and no other state is affected"
         ],
         "ambiguities": [
-          "the requirement does not specify whether deletion affects related entities or triggers cascades"
-        ],
-        "prompt_sha": "6e4bf045f2e272b7e75d3afa0736196ff6f84ba2edf6215542eeaf7991f0e08f"
+          "the requirements do not specify whether deletion affects related entities or triggers cascades"
+        ]
       },
       "status": "not_run",
       "reason": ""

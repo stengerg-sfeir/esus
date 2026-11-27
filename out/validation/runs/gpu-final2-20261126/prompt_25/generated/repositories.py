@@ -172,11 +172,10 @@ class EmployeeRepository:
 
     def read_employee_by_id(self, employee_id: int = None) -> Dict[str, Any] | None:
         """Retrieves an employee record by employee ID. [llm-written by server — review]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', employee_id)])
-        if not found:
+        found = self._store.get(self.ENTITY, self.PK, employee_id)
+        if found is None:
             return None
-        record = found[0]
-        return models.Employee(**record)
+        return found
 
     def update_employee(self, employee_id: int = None, first_name: str = None, last_name: str = None, email: str = None, department_id: int = None) -> None:
         """Updates an existing employee's first name, last name, email, or department ID. [crud:update: STANDARD_CRUD]"""
@@ -267,8 +266,7 @@ class DepartmentRepository:
 
     def read_department_by_id(self, department_id: int = None) -> Dict[str, Any] | None:
         """Retrieves a department record by department ID. [llm-written by server — review]"""
-        found = self._store.select(self.ENTITY, [(self.PK, 'eq', department_id)])
-        if not found:
+        found = self._store.get(self.ENTITY, self.PK, department_id)
+        if found is None:
             return None
-        record = found[0]
-        return models.Department(**record)
+        return found

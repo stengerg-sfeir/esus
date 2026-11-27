@@ -2,6 +2,41 @@
   "prompt": "prompt_25",
   "results": [
     {
+      "name": "scenario:oracle:list_employees_by_department",
+      "status": "passed",
+      "case": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
       "name": "scenario:oracle:read_employee_by_id",
       "status": "passed",
       "case": "read_employee_by_id",
@@ -21,29 +56,16 @@
             ]
           }
         },
-        "fields": {
-          "employee.department_id": {
-            "status": "aligned",
-            "canonical": "department_id",
-            "score": 10.0,
-            "evidence": [
-              "Employee.department_id exists"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
-          "status": "ambiguous",
+          "status": "alias",
           "canonical": "EmployeeRepository.read_all_employees",
           "score": 7.0,
           "evidence": [
-            "several generated methods have the same action score"
+            "highest action-name specificity"
           ],
           "alternatives": [
-            "EmployeeRepository.read_all_employees",
-            "EmployeeRepository.read_employee_by_id",
-            "EmployeeRepository.create_employee",
-            "EmployeeRepository.delete_employee"
+            "EmployeeRepository.read_all"
           ]
         }
       },
@@ -71,16 +93,13 @@
         },
         "fields": {},
         "action": {
-          "status": "ambiguous",
+          "status": "alias",
           "canonical": "DepartmentRepository.read_all_departments",
           "score": 7.0,
           "evidence": [
-            "several generated methods have the same action score"
+            "highest action-name specificity"
           ],
           "alternatives": [
-            "DepartmentRepository.read_all_departments",
-            "DepartmentRepository.read_department_by_id",
-            "DepartmentRepository.create_department",
             "DepartmentRepository.read_all"
           ]
         }
@@ -89,9 +108,9 @@
     }
   ],
   "counts": {
-    "passed": 2
+    "passed": 3
   },
   "triage_counts": {
-    "passed": 2
+    "passed": 3
   }
 }

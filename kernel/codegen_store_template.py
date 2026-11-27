@@ -450,7 +450,8 @@ def match_criterion(field_names, param):
             return (field, "eq")
     for prefix, operator in (("start", "ge"), ("from", "ge"),
                              ("end", "le"), ("to", "le"),
-                             ("min", "ge"), ("max", "le")):
+                             ("min", "ge"), ("max", "le"),
+                             ("below", "lt"), ("under", "lt")):
         if wanted.startswith(prefix) and len(wanted) > len(prefix):
             rest = wanted[len(prefix):]
             candidates = []

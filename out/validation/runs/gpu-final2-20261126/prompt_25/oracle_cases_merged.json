@@ -1,4 +1,186 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "department": {
+          "id": 1,
+          "name": "Engineering"
+        }
+      },
+      "when": {
+        "action": "list_employees",
+        "args": [
+          "department.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_employee_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "id": 101,
+          "name": "Bob Smith",
+          "email": "bob.smith@company.com"
+        }
+      },
+      "when": {
+        "action": "read_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Employee": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 12.333333333333334,
+            "evidence": [
+              "name/fields match Employee",
+              "score 12.3"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "read_department_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "department": {
+          "id": 1,
+          "name": "Engineering"
+        }
+      },
+      "when": {
+        "action": "read_department",
+        "args": [
+          "department.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Department": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "DepartmentRepository.read_all_departments",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "DepartmentRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

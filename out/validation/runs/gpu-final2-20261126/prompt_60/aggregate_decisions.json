@@ -4,11 +4,20 @@
   "decisions": [
     {
       "holder": "ReportService",
-      "method": "get_order_status_report",
-      "layer": "service",
       "include_empty_groups": false,
-      "parent_entity": "Order",
       "key_field": "status",
+      "layer": "service",
+      "method": "get_order_status_report",
+      "parent_entity": "Order",
+      "question": "Omit empty groups"
+    },
+    {
+      "holder": "ReportService",
+      "include_empty_groups": false,
+      "key_field": "status",
+      "layer": "service",
+      "method": "generate_order_summary_report",
+      "parent_entity": "Order",
       "question": "Omit empty groups"
     }
   ]

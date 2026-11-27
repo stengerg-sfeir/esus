@@ -2,7 +2,7 @@
   "plans": [
     {
       "id": "list_products_by_name",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "when": {
         "action": "list_products",
         "args": [
@@ -24,7 +24,7 @@
           "product.quantity"
         ],
         "rows": {
-          "Product": 1
+          "Product": ">=1"
         },
         "error": "omitted"
       },
@@ -32,7 +32,7 @@
     },
     {
       "id": "list_products_by_price",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "when": {
         "action": "list_products",
         "args": [
@@ -54,7 +54,7 @@
           "product.quantity"
         ],
         "rows": {
-          "Product": 1
+          "Product": ">=1"
         },
         "error": "omitted"
       },
@@ -62,7 +62,7 @@
     },
     {
       "id": "list_products_by_quantity",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "when": {
         "action": "list_products",
         "args": [
@@ -84,21 +84,20 @@
           "product.quantity"
         ],
         "rows": {
-          "Product": 1
+          "Product": ">=1"
         },
         "error": "omitted"
       },
       "status": "confirmed"
     },
     {
-      "id": "create_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "id": "list_products_ascending",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "when": {
-        "action": "create_product",
+        "action": "list_products",
         "args": [
-          "name",
-          "price",
-          "quantity"
+          "sort_by",
+          "order"
         ]
       },
       "setup_entities": [
@@ -115,19 +114,20 @@
           "product.quantity"
         ],
         "rows": {
-          "Product": 1
+          "Product": ">=1"
         },
         "error": "omitted"
       },
-      "status": "assumed"
+      "status": "confirmed"
     },
     {
-      "id": "read_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "id": "list_products_descending",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "when": {
-        "action": "read_product",
+        "action": "list_products",
         "args": [
-          "product.id"
+          "sort_by",
+          "order"
         ]
       },
       "setup_entities": [
@@ -144,72 +144,11 @@
           "product.quantity"
         ],
         "rows": {
-          "Product": 1
+          "Product": ">=1"
         },
         "error": "omitted"
       },
-      "status": "assumed"
-    },
-    {
-      "id": "update_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
-      "when": {
-        "action": "update_product",
-        "args": [
-          "product.id",
-          "name",
-          "price",
-          "quantity"
-        ]
-      },
-      "setup_entities": [
-        {
-          "alias": "product",
-          "entity": "Product",
-          "role": "target"
-        }
-      ],
-      "expect": {
-        "state": [
-          "product.name",
-          "product.price",
-          "product.quantity"
-        ],
-        "rows": {
-          "Product": 1
-        },
-        "error": "omitted"
-      },
-      "status": "assumed"
-    },
-    {
-      "id": "delete_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
-      "when": {
-        "action": "delete_product",
-        "args": [
-          "product.id"
-        ]
-      },
-      "setup_entities": [
-        {
-          "alias": "product",
-          "entity": "Product",
-          "role": "target"
-        }
-      ],
-      "expect": {
-        "state": [
-          "product.name",
-          "product.price",
-          "product.quantity"
-        ],
-        "rows": {
-          "Product": 0
-        },
-        "error": "omitted"
-      },
-      "status": "assumed"
+      "status": "confirmed"
     }
   ]
 }

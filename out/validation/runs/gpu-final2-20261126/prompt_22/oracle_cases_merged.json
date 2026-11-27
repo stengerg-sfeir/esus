@@ -1,4 +1,137 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "read_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "given": {
+        "order": {
+          "id": 101
+        }
+      },
+      "when": {
+        "action": "read_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "OrderRepository.read_all",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "OrderRepository.read_all",
+            "OrderRepository.read_one"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_order",
+      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
+      "given": {
+        "order": {
+          "id": 101,
+          "created_at": "2024-01-01T00:00:00"
+        }
+      },
+      "when": {
+        "action": "update_order",
+        "args": [
+          "order.id",
+          "2024-06-01T00:00:00"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.created_at": "2024-06-01T00:00:00"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "order.created_at": {
+            "status": "aligned",
+            "canonical": "created_at",
+            "score": 10.0,
+            "evidence": [
+              "Order.created_at exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "OrderRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

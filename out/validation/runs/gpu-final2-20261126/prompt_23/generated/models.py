@@ -34,5 +34,6 @@ class Tag:
 
 @dataclass
 class PostTag:
+    post_tag_id: int = None
     post_id: int = None
     tag_id: int = None

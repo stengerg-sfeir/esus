@@ -161,52 +161,6 @@
             "OrderNotFoundError"
           ],
           "mechanical": true
-        },
-        {
-          "name": "orderconfirm",
-          "description": "Orderconfirm.",
-          "params": [
-            {
-              "name": "order_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
-        },
-        {
-          "name": "ordersearch",
-          "description": "Ordersearch.",
-          "params": [
-            {
-              "name": "customer_id",
-              "type": "int"
-            }
-          ],
-          "return_type": "list[Order]",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
-        },
-        {
-          "name": "orderreport",
-          "description": "Orderreport.",
-          "params": [],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
-        },
-        {
-          "name": "orderexport",
-          "description": "Orderexport.",
-          "params": [],
-          "return_type": "None",
-          "raises": [],
-          "provenance": "capability_adapter",
-          "review_required": true
         }
       ]
     },
@@ -310,10 +264,6 @@
           "name": "add_category",
           "description": "Adds a new category to the system with a specified name. Throws a CategoryNotFoundError if category already exists (assumed unique).",
           "params": [
-            {
-              "name": "category_id",
-              "type": "int"
-            },
             {
               "name": "name",
               "type": "str"

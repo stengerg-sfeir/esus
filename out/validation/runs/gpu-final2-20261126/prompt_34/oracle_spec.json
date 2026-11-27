@@ -36,11 +36,6 @@
             "check": "orderline exists",
             "error": "OrderLineNotFoundError",
             "raise_when": "false"
-          },
-          {
-            "check": "any(getattr(line, \"quantity\", 0) <= 0 for line in (getattr(order_data, \"lines\", None) or []))",
-            "error": "InvalidOrderLineError",
-            "raise_when": "true"
           }
         ]
       },

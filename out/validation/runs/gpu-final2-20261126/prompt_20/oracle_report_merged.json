@@ -1,5 +1,171 @@
 {
   "prompt": "prompt_20",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:create_product",
+      "status": "passed",
+      "case": "create_product",
+      "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "SalesRecordRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:create_sale",
+      "status": "passed",
+      "case": "create_sale",
+      "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          },
+          "sale": {
+            "status": "alias",
+            "canonical": "SalesRecord",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match SalesRecord",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "sale.product_id": {
+            "status": "aligned",
+            "canonical": "product_id",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.product_id exists"
+            ],
+            "alternatives": []
+          },
+          "sale.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "sale.sale_date": {
+            "status": "aligned",
+            "canonical": "sale_date",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.sale_date exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "SalesRecordRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_sale",
+      "status": "passed",
+      "case": "delete_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "alignment": {
+        "entities": {
+          "sale": {
+            "status": "alias",
+            "canonical": "SalesRecord",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match SalesRecord",
+              "score 10.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "SalesRecordRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 3
+  },
+  "triage_counts": {
+    "passed": 3
+  }
 }

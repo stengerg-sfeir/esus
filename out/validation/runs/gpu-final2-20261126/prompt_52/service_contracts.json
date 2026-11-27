@@ -125,6 +125,24 @@
           "description": "Returns a list of all books that are currently available (not currently borrowed).",
           "params": [],
           "return_type": "list[models.Book]"
+        },
+        {
+          "name": "borrow_book",
+          "description": "Borrows a Book.",
+          "params": [
+            {
+              "name": "book_id",
+              "type": "int"
+            },
+            {
+              "name": "member_id",
+              "type": "int"
+            }
+          ],
+          "return_type": "None",
+          "raises": [],
+          "provenance": "prose_state_action",
+          "review_required": true
         }
       ]
     },

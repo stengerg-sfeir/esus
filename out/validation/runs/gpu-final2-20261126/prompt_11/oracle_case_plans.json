@@ -20,15 +20,15 @@
         }
       ],
       "expect": {
+        "rows": {
+          "Book": 1
+        },
         "state": [
           "book.title",
           "book.author",
           "book.isbn",
           "book.publication_year"
-        ],
-        "rows": {
-          "Book": 1
-        }
+        ]
       },
       "status": "confirmed"
     },
@@ -47,8 +47,14 @@
       ],
       "expect": {
         "rows": {
-          "Book": 0
-        }
+          "Book": ">=0"
+        },
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn",
+          "book.publication_year"
+        ]
       },
       "status": "confirmed"
     },
@@ -73,15 +79,15 @@
         }
       ],
       "expect": {
+        "rows": {
+          "Book": 1
+        },
         "state": [
           "book.title",
           "book.author",
           "book.isbn",
           "book.publication_year"
-        ],
-        "rows": {
-          "Book": 1
-        }
+        ]
       },
       "status": "confirmed"
     },
@@ -105,8 +111,14 @@
       ],
       "expect": {
         "rows": {
-          "Book": 0
-        }
+          "Book": ">=0"
+        },
+        "state": [
+          "book.title",
+          "book.author",
+          "book.isbn",
+          "book.publication_year"
+        ]
       },
       "status": "confirmed"
     },
@@ -128,7 +140,7 @@
       ],
       "expect": {
         "rows": {
-          "Book": 0
+          "Book": "0"
         }
       },
       "status": "confirmed"

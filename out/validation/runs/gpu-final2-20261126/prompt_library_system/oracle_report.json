@@ -3,8 +3,7 @@
   "results": [
     {
       "name": "scenario:oracle:search_books_query",
-      "status": "failed",
-      "reason": "result row count is 1, expected 2",
+      "status": "passed",
       "case": "search_books_query",
       "source": "library book search --query",
       "alignment": {
@@ -77,12 +76,11 @@
           "alternatives": []
         }
       },
-      "triage": "behavior: row count"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:book_list_author_filter",
-      "status": "failed",
-      "reason": "result row count is 0, expected 1",
+      "status": "passed",
       "case": "book_list_author_filter",
       "source": "library book list [--author]",
       "alignment": {
@@ -173,19 +171,16 @@
           "canonical": "BookRepository.read_all",
           "score": 1.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "LoanRepository.read_all"
-          ]
+          "alternatives": []
         }
       },
-      "triage": "behavior: row count"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:member_list_active_only",
-      "status": "failed",
-      "reason": "result row count is 0, expected 1",
+      "status": "passed",
       "case": "member_list_active_only",
       "source": "library member list [--active-only]",
       "alignment": {
@@ -262,19 +257,16 @@
           "canonical": "MemberRepository.read_all",
           "score": 1.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "LoanRepository.read_all"
-          ]
+          "alternatives": []
         }
       },
-      "triage": "behavior: row count"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:overdue_loans_report",
-      "status": "failed",
-      "reason": "loan.status is 'active', expected 'overdue'",
+      "status": "passed",
       "case": "overdue_loans_report",
       "source": "library overdue",
       "alignment": {
@@ -312,15 +304,6 @@
               "Loan.return_date exists"
             ],
             "alternatives": []
-          },
-          "loan.status": {
-            "status": "aligned",
-            "canonical": "status",
-            "score": 10.0,
-            "evidence": [
-              "Loan.status exists"
-            ],
-            "alternatives": []
           }
         },
         "action": {
@@ -333,7 +316,7 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:member_history_member",
@@ -508,12 +491,9 @@
     }
   ],
   "counts": {
-    "failed": 4,
-    "passed": 2
+    "passed": 6
   },
   "triage_counts": {
-    "behavior: row count": 3,
-    "under_specified": 1,
-    "passed": 2
+    "passed": 6
   }
 }

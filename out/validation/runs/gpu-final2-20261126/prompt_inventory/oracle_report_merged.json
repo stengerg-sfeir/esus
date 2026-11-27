@@ -1,5 +1,253 @@
 {
   "prompt": "prompt_inventory",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:add_product_with_valid_category",
+      "status": "passed",
+      "case": "add_product_with_valid_category",
+      "source": "product add --sku --name --category --price --stock [--stock]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.add_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_product_by_id",
+      "status": "passed",
+      "case": "delete_product_by_id",
+      "source": "product delete --id",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.delete_product",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:restock_product_by_id",
+      "status": "passed",
+      "case": "restock_product_by_id",
+      "source": "product restock --id --qty",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "product.stock_qty": {
+            "status": "aligned",
+            "canonical": "stock_qty",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_qty exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "InventoryService.restock",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:add_category_with_threshold",
+      "status": "passed",
+      "case": "add_category_with_threshold",
+      "source": "category add --name [--description] [--threshold]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "InventoryService.add_product",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create",
+            "ProductRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:update_category_with_threshold",
+      "status": "passed",
+      "case": "update_category_with_threshold",
+      "source": "category update --id [--name] [--description] [--threshold]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "category.id": {
+            "status": "aligned",
+            "canonical": "id",
+            "score": 10.0,
+            "evidence": [
+              "Category.id exists"
+            ],
+            "alternatives": []
+          },
+          "category.reorder_threshold": {
+            "status": "aligned",
+            "canonical": "reorder_threshold",
+            "score": 10.0,
+            "evidence": [
+              "Category.reorder_threshold exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "CategoryRepository.update",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_category_by_id",
+      "status": "passed",
+      "case": "delete_category_by_id",
+      "source": "category delete --id",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CategoryRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 6
+  },
+  "triage_counts": {
+    "passed": 6
+  }
 }

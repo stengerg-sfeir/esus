@@ -3818,6 +3818,96 @@ class ContractComplaintTests(unittest.TestCase):
              "check the indentation of the lines after it"])
 
 
+class StoreCallTests(unittest.TestCase):
+    """A body's direct `self._store` calls must match the generated API."""
+
+    store = (
+        "class Store:\n"
+        "    def get(self, entity, pk_name, key, error=None):\n"
+        "        return {}\n"
+        "    def update(self, entity, pk_name, key, values, error=None):\n"
+        "        return values\n")
+    module = (
+        "import models\n\n\n"
+        "class LoanRepository:\n"
+        '    ENTITY = "Loan"\n'
+        '    PK = "loan_id"\n')
+    info = {"cls": "LoanRepository",
+            "def": "def close_loan(self, loan_id: int = None) -> bool:",
+            "file": "repositories.py"}
+    files = {
+        "store.py": store,
+        "schema.py": ("SCHEMA = {'Book': {'primary_key': 'id'}, "
+                      "'Loan': {'primary_key': 'loan_id'}}\n"),
+        "models.py": "class Book:\n    id: int = 0\n",
+    }
+
+    def test_three_argument_update_gets_the_record_key(self):
+        body = ["record = self._store.get(self.ENTITY, self.PK, 1)",
+                "record['closed'] = True",
+                "self._store.update(self.ENTITY, self.PK, record)",
+                "return True"]
+        rewritten = generator._normalise_store_calls(body)
+        self.assertIn(
+            "self._store.update(self.ENTITY, self.PK, record[self.PK], record)",
+            "\n".join(rewritten))
+
+    def test_a_three_argument_update_is_still_a_complaint(self):
+        body = ["self._store.update(self.ENTITY, self.PK, "
+                "{'closed': True})",
+                "return True"]
+        problems = generator._body_complaints(
+            body, self.info, self.module, "", self.files)
+        self.assertTrue(any("missing values" in item for item in problems))
+
+    def test_a_foreign_entity_key_names_the_real_key(self):
+        body = ['record = self._store.get("Book", self.PK, 1)',
+                "return True"]
+        problems = generator._body_complaints(
+            body, self.info, self.module, "", self.files)
+        self.assertTrue(any("primary key is 'id'" in item
+                            for item in problems))
+
+
+class StateTransitionBodyTests(unittest.TestCase):
+    """A state-verb body must store the new status, not just its side effects."""
+
+    module = (
+        "import models\n"
+        "import errors\n\n\n"
+        "class OrderService:\n"
+        "    def confirm_order(self, order_id: int = None) -> None:\n"
+        "        raise NotImplementedError('refused')\n")
+    files = {"models.py": ("class Order:\n"
+                           "    order_id: int = 0\n"
+                           "    status: str = ''\n"),
+             "store.py": "", "schema.py": ""}
+    info = {"cls": "OrderService",
+            "def": "def confirm_order(self, order_id: int = None) -> None:",
+            "file": "services.py"}
+
+    def complaints(self, body):
+        return generator._body_complaints(
+            body, self.info, self.module, "", self.files)
+
+    def test_a_confirm_without_a_status_write_is_refused(self):
+        problems = self.complaints([
+            "order = self._repos['OrderRepository'].read_one(order_id)",
+            "self._repos['OrderRepository'].update(order_id=order_id)",
+            "return None"])
+        self.assertTrue(any("must become" in item and "confirmed" in item
+                            for item in problems))
+
+    def test_a_status_update_passes(self):
+        problems = self.complaints([
+            "order = self._repos['OrderRepository'].read_one(order_id)",
+            "self._repos['OrderRepository'].update(order_id=order_id, "
+            "status='confirmed')",
+            "return None"])
+        self.assertFalse(any("must become" in item and "confirmed" in item
+                             for item in problems))
+
+
 class GuiBackendTests(unittest.TestCase):
     """A gui facade gets gui.py from its declared backend, nothing else does."""
 

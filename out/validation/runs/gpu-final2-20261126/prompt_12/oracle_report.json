@@ -61,19 +61,19 @@
       "triage": "passed"
     },
     {
-      "name": "read_customer_by_name",
-      "status": "under_specified",
-      "reason": "no generated method matches 'search_by_name'",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "name": "scenario:oracle:read_customer_by_id",
+      "status": "passed",
+      "case": "read_customer_by_id",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "alignment": {
         "entities": {
           "customer": {
             "status": "aligned",
             "canonical": "Customer",
-            "score": 14.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Customer",
-              "score 14.0"
+              "score 15.0"
             ],
             "alternatives": []
           }
@@ -108,92 +108,164 @@
           }
         },
         "action": {
-          "status": "coverage_gap",
-          "canonical": null,
-          "score": 0.0,
+          "status": "alias",
+          "canonical": "CustomerRepository.read_all",
+          "score": 4.0,
           "evidence": [
-            "prompt exposes the action",
-            "no generated method matches"
+            "same operation with a different name"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     },
     {
-      "name": "read_customer_by_domain",
-      "status": "under_specified",
-      "reason": "no generated method matches 'filter_by_email_domain'",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "name": "scenario:oracle:read_all_customers",
+      "status": "passed",
+      "case": "read_all_customers",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "alignment": {
         "entities": {
-          "customer": {
-            "status": "aligned",
+          "customer_1": {
+            "status": "alias",
             "canonical": "Customer",
-            "score": 14.0,
+            "score": 11.0,
             "evidence": [
               "name/fields match Customer",
-              "score 14.0"
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "customer_2": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
             ],
             "alternatives": []
           }
         },
-        "fields": {
-          "customer.name": {
-            "status": "aligned",
-            "canonical": "name",
-            "score": 10.0,
-            "evidence": [
-              "Customer.name exists"
-            ],
-            "alternatives": []
-          },
-          "customer.email": {
-            "status": "aligned",
-            "canonical": "email",
-            "score": 10.0,
-            "evidence": [
-              "Customer.email exists"
-            ],
-            "alternatives": []
-          },
-          "customer.phone_number": {
-            "status": "aligned",
-            "canonical": "phone_number",
-            "score": 10.0,
-            "evidence": [
-              "Customer.phone_number exists"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "alias",
+          "canonical": "CustomerRepository.read_all",
+          "score": 1.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "same operation with a different name"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:search_customers_by_name",
+      "status": "passed",
+      "case": "search_customers_by_name",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "alignment": {
+        "entities": {
+          "customer_1": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "customer_2": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.search_customers",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:filter_customers_by_email_domain",
+      "status": "passed",
+      "case": "filter_customers_by_email_domain",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+      "alignment": {
+        "entities": {
+          "customer_1": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "customer_2": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "customer_3": {
+            "status": "alias",
+            "canonical": "Customer",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "CustomerRepository.filter_customers",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:delete_customer",
       "status": "passed",
       "case": "delete_customer",
-      "source": "Provide CRUD operations, search by name and filtering by email domain.",
+      "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
       "alignment": {
         "entities": {
           "customer": {
             "status": "aligned",
             "canonical": "Customer",
-            "score": 14.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Customer",
-              "score 14.0"
+              "score 15.0"
             ],
             "alternatives": []
           }
@@ -213,11 +285,9 @@
     }
   ],
   "counts": {
-    "passed": 2,
-    "under_specified": 2
+    "passed": 6
   },
   "triage_counts": {
-    "passed": 2,
-    "under_specified": 2
+    "passed": 6
   }
 }

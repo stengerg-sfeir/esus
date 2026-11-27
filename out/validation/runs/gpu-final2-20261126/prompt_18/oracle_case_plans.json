@@ -1,10 +1,10 @@
 {
   "plans": [
     {
-      "id": "export_contacts_to_csv",
+      "id": "export_contacts",
       "source": "Export all contacts to CSV.",
       "when": {
-        "action": "export_contacts_to_csv"
+        "action": "export_contacts"
       },
       "setup_entities": [
         {
@@ -21,10 +21,10 @@
       "status": "confirmed"
     },
     {
-      "id": "import_contacts_from_csv",
+      "id": "import_contacts",
       "source": "Import contacts from CSV.",
       "when": {
-        "action": "import_contacts_from_csv",
+        "action": "import_contacts",
         "args": [
           "csv_file_path"
         ]
@@ -42,13 +42,13 @@
         },
         "error": "omitted"
       },
-      "status": "confirmed"
+      "status": "ambiguous"
     },
     {
       "id": "import_invalid_row_rejection",
       "source": "Invalid rows during import must be rejected without corrupting existing data.",
       "when": {
-        "action": "import_contacts_from_csv",
+        "action": "import_contacts",
         "args": [
           "csv_file_path"
         ]

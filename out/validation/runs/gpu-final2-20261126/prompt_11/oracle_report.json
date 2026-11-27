@@ -70,38 +70,6 @@
       "triage": "passed"
     },
     {
-      "name": "search_books",
-      "status": "case_defect",
-      "reason": "cannot resolve given entity 'search'",
-      "source": "Users can create, list, update, search and delete books.",
-      "alignment": {
-        "entities": {
-          "search": {
-            "status": "alias",
-            "canonical": "Book",
-            "score": 5.0,
-            "evidence": [
-              "weak name but strong field overlap with Book",
-              "score 5.0"
-            ],
-            "alternatives": []
-          }
-        },
-        "fields": {},
-        "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
-          "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "case_defect: setup"
-    },
-    {
       "name": "scenario:oracle:delete_book",
       "status": "passed",
       "case": "delete_book",
@@ -134,11 +102,9 @@
     }
   ],
   "counts": {
-    "passed": 2,
-    "case_defect": 1
+    "passed": 2
   },
   "triage_counts": {
-    "passed": 2,
-    "case_defect: setup": 1
+    "passed": 2
   }
 }

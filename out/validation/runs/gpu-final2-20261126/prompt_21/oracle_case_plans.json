@@ -39,8 +39,8 @@
         "action": "create_order",
         "args": [
           "customer.id",
-          "date",
-          "status"
+          "order.date",
+          "order.status"
         ]
       },
       "setup_entities": [
@@ -73,7 +73,7 @@
         "action": "update_order",
         "args": [
           "order.id",
-          "status"
+          "order.status"
         ]
       },
       "setup_entities": [
@@ -119,7 +119,7 @@
       "when": {
         "action": "create_customer",
         "args": [
-          "name"
+          "customer.name"
         ]
       },
       "setup_entities": [

@@ -3,32 +3,38 @@
   "cases": [
     {
       "id": "list_products_by_name",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "given": {
         "product": {
           "name": "Laptop",
-          "price": 999.99,
+          "price": 1000.0,
           "quantity": 10
+        },
+        "product_2": {
+          "name": "Mouse",
+          "price": 25.0,
+          "quantity": 50
+        },
+        "product_3": {
+          "name": "Keyboard",
+          "price": 75.0,
+          "quantity": 20
         }
       },
       "when": {
         "action": "list_products",
         "args": [
           "name",
-          "asc"
+          "ascending"
         ]
       },
       "then": {
-        "state": {
-          "product.name": "Laptop",
-          "product.price": 999.99,
-          "product.quantity": 10
-        },
+        "state": {},
         "rows": {
-          "Product": 1
+          "Product": 3
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -41,6 +47,124 @@
             "evidence": [
               "name/fields match Product",
               "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_products_by_price",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Mouse",
+          "price": 25.0,
+          "quantity": 50
+        },
+        "product_2": {
+          "name": "Keyboard",
+          "price": 75.0,
+          "quantity": 20
+        },
+        "product_3": {
+          "name": "Laptop",
+          "price": 1000.0,
+          "quantity": 10
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "price",
+          "ascending"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product.price": 25.0,
+          "product.quantity": 50,
+          "product_2.name": "Keyboard",
+          "product_2.price": 75.0,
+          "product_2.quantity": 20,
+          "product_3.name": "Laptop",
+          "product_3.price": 1000.0,
+          "product_3.quantity": 10
+        },
+        "rows": {
+          "Product": 3
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
             ],
             "alternatives": []
           }
@@ -72,6 +196,60 @@
               "Product.quantity exists"
             ],
             "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
           }
         },
         "action": {
@@ -84,18 +262,388 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "case passes parameter name 'name' as a literal value"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     },
     {
-      "id": "list_products_by_price",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+      "id": "list_products_by_quantity",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
       "given": {
         "product": {
+          "name": "Mouse",
+          "price": 25.0,
+          "quantity": 50
+        },
+        "product_2": {
+          "name": "Keyboard",
+          "price": 75.0,
+          "quantity": 20
+        },
+        "product_3": {
+          "name": "Laptop",
+          "price": 1000.0,
+          "quantity": 10
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "quantity",
+          "ascending"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product.price": 25.0,
+          "product.quantity": 50,
+          "product_2.name": "Keyboard",
+          "product_2.price": 75.0,
+          "product_2.quantity": 20,
+          "product_3.name": "Laptop",
+          "product_3.price": 1000.0,
+          "product_3.quantity": 10
+        },
+        "rows": {
+          "Product": 3
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_products_ascending",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Mouse",
+          "price": 25.0,
+          "quantity": 50
+        },
+        "product_2": {
+          "name": "Keyboard",
+          "price": 75.0,
+          "quantity": 20
+        },
+        "product_3": {
+          "name": "Laptop",
+          "price": 1000.0,
+          "quantity": 10
+        }
+      },
+      "when": {
+        "action": "list_products",
+        "args": [
+          "name",
+          "ascending"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Mouse",
+          "product.price": 25.0,
+          "product.quantity": 50,
+          "product_2.name": "Keyboard",
+          "product_2.price": 75.0,
+          "product_2.quantity": 20,
+          "product_3.name": "Laptop",
+          "product_3.price": 1000.0,
+          "product_3.quantity": 10
+        },
+        "rows": {
+          "Product": 3
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_products_descending",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 1000.0,
+          "quantity": 10
+        },
+        "product_2": {
+          "name": "Keyboard",
+          "price": 75.0,
+          "quantity": 20
+        },
+        "product_3": {
           "name": "Mouse",
           "price": 25.0,
           "quantity": 50
@@ -105,20 +653,26 @@
         "action": "list_products",
         "args": [
           "price",
-          "asc"
+          "descending"
         ]
       },
       "then": {
         "state": {
-          "product.name": "Mouse",
-          "product.price": 25.0,
-          "product.quantity": 50
+          "product.name": "Laptop",
+          "product.price": 1000.0,
+          "product.quantity": 10,
+          "product_2.name": "Keyboard",
+          "product_2.price": 75.0,
+          "product_2.quantity": 20,
+          "product_3.name": "Mouse",
+          "product_3.price": 25.0,
+          "product_3.quantity": 50
         },
         "rows": {
-          "Product": 1
+          "Product": 3
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -131,6 +685,26 @@
             "evidence": [
               "name/fields match Product",
               "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
             ],
             "alternatives": []
           }
@@ -162,71 +736,8 @@
               "Product.quantity exists"
             ],
             "alternatives": []
-          }
-        },
-        "action": {
-          "status": "alias",
-          "canonical": "ProductRepository.read_all",
-          "score": 1.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "under_specified",
-      "needs_review": false,
-      "execution": {
-        "status": "under_specified",
-        "reason": "case passes parameter name 'price' as a literal value"
-      }
-    },
-    {
-      "id": "list_products_by_quantity",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
-      "given": {
-        "product": {
-          "name": "Keyboard",
-          "price": 75.0,
-          "quantity": 25
-        }
-      },
-      "when": {
-        "action": "list_products",
-        "args": [
-          "quantity",
-          "asc"
-        ]
-      },
-      "then": {
-        "state": {
-          "product.name": "Keyboard",
-          "product.price": 75.0,
-          "product.quantity": 25
-        },
-        "rows": {
-          "Product": 1
-        }
-      },
-      "status": "under_specified",
-      "base_status": "confirmed",
-      "assumptions": [],
-      "ambiguities": [],
-      "alignment": {
-        "entities": {
-          "product": {
-            "status": "aligned",
-            "canonical": "Product",
-            "score": 15.0,
-            "evidence": [
-              "name/fields match Product",
-              "score 15.0"
-            ],
-            "alternatives": []
-          }
-        },
-        "fields": {
-          "product.name": {
+          },
+          "product_2.name": {
             "status": "aligned",
             "canonical": "name",
             "score": 10.0,
@@ -235,7 +746,7 @@
             ],
             "alternatives": []
           },
-          "product.price": {
+          "product_2.price": {
             "status": "aligned",
             "canonical": "price",
             "score": 10.0,
@@ -244,7 +755,34 @@
             ],
             "alternatives": []
           },
-          "product.quantity": {
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
             "status": "aligned",
             "canonical": "quantity",
             "score": 10.0,
@@ -264,114 +802,12 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "case passes parameter name 'quantity' as a literal value"
-      }
-    },
-    {
-      "id": "read_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
-      "given": {
-        "product": {
-          "id": 1,
-          "name": "Monitor",
-          "price": 299.99,
-          "quantity": 15
-        }
+        "status": "passed",
+        "reason": ""
       },
-      "when": {
-        "action": "read_product",
-        "args": [
-          "1"
-        ]
-      },
-      "then": {
-        "state": {
-          "product.name": "Monitor",
-          "product.price": 299.99,
-          "product.quantity": 15
-        },
-        "rows": {
-          "Product": 1
-        }
-      },
-      "status": "assumed",
-      "base_status": "assumed",
-      "assumptions": [
-        "a product with a given ID can be read and returns its full state"
-      ],
-      "ambiguities": []
-    },
-    {
-      "id": "update_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
-      "given": {
-        "product": {
-          "id": 1,
-          "name": "Monitor",
-          "price": 299.99,
-          "quantity": 15
-        }
-      },
-      "when": {
-        "action": "update_product",
-        "args": [
-          "1",
-          "Gaming Monitor",
-          "399.99",
-          "10"
-        ]
-      },
-      "then": {
-        "state": {
-          "product.name": "Gaming Monitor",
-          "product.price": 399.99,
-          "product.quantity": 10
-        },
-        "rows": {
-          "Product": 1
-        }
-      },
-      "status": "assumed",
-      "base_status": "assumed",
-      "assumptions": [
-        "updating a product modifies all fields as specified and returns the updated state"
-      ],
-      "ambiguities": []
-    },
-    {
-      "id": "delete_product",
-      "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
-      "given": {
-        "product": {
-          "id": 1,
-          "name": "Old Mouse",
-          "price": 10.0,
-          "quantity": 0
-        }
-      },
-      "when": {
-        "action": "delete_product",
-        "args": [
-          "1"
-        ]
-      },
-      "then": {
-        "rows": {
-          "Product": 0
-        }
-      },
-      "status": "assumed",
-      "base_status": "assumed",
-      "assumptions": [
-        "deleting a product removes it from the list and results in zero product rows"
-      ],
-      "ambiguities": [
-        "the state of the product is not updated after deletion; only rows are affected"
-      ]
+      "triage": "passed",
+      "needs_review": false
     }
   ]
 }

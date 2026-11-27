@@ -35,26 +35,20 @@
         },
         "fields": {},
         "action": {
-          "status": "alias",
-          "canonical": "BorrowRecordRepository.get_borrow_records_by_book_id",
-          "score": 7.0,
+          "status": "aligned",
+          "canonical": "BookRepository.borrow_book",
+          "score": 10.0,
           "evidence": [
-            "highest action-name specificity"
+            "exact generated method"
           ],
-          "alternatives": [
-            "BorrowRecordRepository.create_borrow_record",
-            "BorrowService.return_book",
-            "BookRepository.read_one",
-            "BookRepository.update"
-          ]
+          "alternatives": []
         }
       },
       "triage": "passed"
     },
     {
       "name": "scenario:oracle:return_book",
-      "status": "case_defect",
-      "reason": "raised BorrowRecordNotFoundError: borrow record not found; expected None",
+      "status": "passed",
       "case": "return_book",
       "source": "When it is returned, it should become available again.",
       "alignment": {
@@ -81,15 +75,13 @@
           "alternatives": []
         }
       },
-      "triage": "case_defect: setup"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "passed": 1,
-    "case_defect": 1
+    "passed": 2
   },
   "triage_counts": {
-    "passed": 1,
-    "case_defect: setup": 1
+    "passed": 2
   }
 }

@@ -1,8 +1,8 @@
 {
   "counts": {
-    "legacy": 5,
+    "legacy": 3,
     "kept": 0,
-    "retired": 5,
+    "retired": 3,
     "confirmed_intents": 0,
     "merged": 0
   },
@@ -13,11 +13,10 @@
         "source": "Create a small invoicing application for a freelance business. It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
         "given": {
           "client": {
-            "id": 101,
+            "id": "c123",
             "name": "Alice Johnson"
           },
           "invoice": {
-            "status": "draft",
             "amount": 200.0,
             "due_date": "2023-10-15"
           }
@@ -32,8 +31,8 @@
         },
         "then": {
           "state": {
-            "invoice.client.id": 101,
-            "invoice.status": "draft",
+            "invoice.client.id": "c123",
+            "invoice.status": "pending",
             "invoice.amount": 200.0,
             "invoice.due_date": "2023-10-15"
           },
@@ -45,9 +44,8 @@
         "base_status": "assumed",
         "assumptions": [],
         "ambiguities": [
-          "The action 'create_invoice' does not specify whether it creates a new invoice or updates an existing one; the requirement does not define the behavior of invoice creation in terms of state or constraints."
-        ],
-        "prompt_sha": "2653c6feface37f96fd97794d6cfdd5aa7041b8e0aeb8811690b6528326a4ede"
+          "The requirement does not specify the initial status of an invoice or how it is determined upon creation."
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -58,25 +56,24 @@
         "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
         "given": {
           "invoice": {
-            "id": 201,
+            "id": "i456",
             "status": "outstanding",
             "amount": 300.0,
-            "due_date": "2023-10-20"
+            "due_date": "2023-11-01"
           },
           "payment": {
             "amount": 100.0,
-            "date": "2023-10-10"
+            "status": "completed"
           }
         },
         "when": {
-          "action": "check_outstanding_invoices",
-          "args": []
+          "action": "check_outstanding_invoices"
         },
         "then": {
           "state": {
             "invoice.status": "outstanding",
             "invoice.amount": 300.0,
-            "invoice.due_date": "2023-10-20",
+            "invoice.due_date": "2023-11-01",
             "payment.amount": 100.0
           },
           "rows": {
@@ -87,9 +84,8 @@
         "base_status": "assumed",
         "assumptions": [],
         "ambiguities": [
-          "The requirement does not define how 'outstanding' is determined (e.g., whether it's based on status, payment amount, or due date), nor does it specify which invoices are returned or how the result is filtered."
-        ],
-        "prompt_sha": "2653c6feface37f96fd97794d6cfdd5aa7041b8e0aeb8811690b6528326a4ede"
+          "The requirement does not define how outstanding status is computed (e.g., whether payment status is considered or if an invoice is outstanding only if no payment exists)."
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -100,12 +96,12 @@
         "source": "Create a small invoicing application for a freelance business. It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
         "given": {
           "invoice": {
-            "id": 301,
-            "status": "draft"
+            "id": "i789",
+            "status": "pending"
           },
           "client": {
-            "id": 102,
-            "name": "Bob Smith"
+            "id": "c123",
+            "name": "Alice Johnson"
           }
         },
         "when": {
@@ -117,7 +113,7 @@
         },
         "then": {
           "state": {
-            "invoice.client.id": 102
+            "invoice.client.id": "c123"
           },
           "rows": {
             "Invoice": 1
@@ -126,90 +122,11 @@
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [
-          "Only one invoice can be linked to a client, and this constraint is enforced by the system (BUDGET_OVERFLOW_GUARD)."
+          "An invoice is linked to a client only if the client ID is valid and the invoice exists."
         ],
         "ambiguities": [
-          "The requirement does not specify whether linking an invoice to a client updates the invoice's status or whether it requires the invoice to be in a specific state (e.g., draft)."
-        ],
-        "prompt_sha": "2653c6feface37f96fd97794d6cfdd5aa7041b8e0aeb8811690b6528326a4ede"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "mark_invoice_as_paid",
-        "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
-        "given": {
-          "invoice": {
-            "id": 401,
-            "status": "outstanding"
-          }
-        },
-        "when": {
-          "action": "mark_invoice_as_paid",
-          "args": [
-            "invoice.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "invoice.status": "paid"
-          },
-          "rows": {
-            "Invoice": 1
-          }
-        },
-        "status": "assumed",
-        "base_status": "assumed",
-        "assumptions": [],
-        "ambiguities": [
-          "The requirement does not specify whether marking an invoice as paid automatically creates a payment record or whether it affects the outstanding status calculation."
-        ],
-        "prompt_sha": "2653c6feface37f96fd97794d6cfdd5aa7041b8e0aeb8811690b6528326a4ede"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "create_payment_for_invoice",
-        "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
-        "given": {
-          "invoice": {
-            "id": 501,
-            "status": "outstanding",
-            "amount": 400.0
-          },
-          "payment": {
-            "amount": 200.0,
-            "date": "2023-10-12"
-          }
-        },
-        "when": {
-          "action": "create_payment",
-          "args": [
-            "invoice.id",
-            "amount"
-          ]
-        },
-        "then": {
-          "state": {
-            "payment.invoice.id": 501,
-            "payment.amount": 200.0,
-            "payment.date": "2023-10-12"
-          },
-          "rows": {
-            "Payment": 1
-          }
-        },
-        "status": "assumed",
-        "base_status": "assumed",
-        "assumptions": [],
-        "ambiguities": [
-          "The requirement does not define whether a payment reduces the invoice amount or whether it triggers a status change (e.g., from outstanding to partially paid)."
-        ],
-        "prompt_sha": "2653c6feface37f96fd97794d6cfdd5aa7041b8e0aeb8811690b6528326a4ede"
+          "The requirement does not specify whether linking an invoice to a client updates the invoice's status or whether it is a one-way association."
+        ]
       },
       "status": "not_run",
       "reason": ""

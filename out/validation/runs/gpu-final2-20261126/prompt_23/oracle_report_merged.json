@@ -1,5 +1,217 @@
 {
   "prompt": "prompt_23",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:create_post_by_author",
+      "status": "passed",
+      "case": "create_post_by_author",
+      "source": "Authors can create posts.",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Post",
+              "Tag",
+              "PostTag"
+            ]
+          },
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Post",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          }
+        },
+        "fields": {
+          "post.author_id": {
+            "status": "aligned",
+            "canonical": "author_id",
+            "score": 10.0,
+            "evidence": [
+              "Post.author_id exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "PostRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "PostRepository.create",
+            "PostTagRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:create_tag_association",
+      "status": "passed",
+      "case": "create_tag_association",
+      "source": "Each post belongs to one author and can have multiple tags. A tag can be associated with multiple posts.",
+      "alignment": {
+        "entities": {
+          "post": {
+            "status": "aligned",
+            "canonical": "Post",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Post",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Tag"
+            ]
+          },
+          "tag": {
+            "status": "aligned",
+            "canonical": "Tag",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Tag",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Post"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "PostTagRepository.associate_tag_with_post",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:create_author",
+      "status": "passed",
+      "case": "create_author",
+      "source": "Provide CRUD operations for authors, posts and tags.",
+      "alignment": {
+        "entities": {
+          "author": {
+            "status": "aligned",
+            "canonical": "Author",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Author",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Post",
+              "Tag",
+              "PostTag"
+            ]
+          }
+        },
+        "fields": {
+          "author.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Author.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "AuthorRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "PostRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:create_tag",
+      "status": "passed",
+      "case": "create_tag",
+      "source": "Provide CRUD operations for authors, posts and tags.",
+      "alignment": {
+        "entities": {
+          "tag": {
+            "status": "aligned",
+            "canonical": "Tag",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Tag",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "PostTag",
+              "Author",
+              "Post"
+            ]
+          }
+        },
+        "fields": {
+          "tag.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Tag.name exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "PostTagRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "PostTagRepository.create",
+            "TagRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 4
+  },
+  "triage_counts": {
+    "passed": 4
+  }
 }

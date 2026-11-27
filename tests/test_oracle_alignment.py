@@ -214,6 +214,33 @@ class ActionAlignmentTests(unittest.TestCase):
         self.assertEqual(result.canonical,
                          "WineInventoryService.assign_wine_to_location")
 
+    def test_a_domain_verb_mismatch_is_not_an_alias(self):
+        docs = {
+            "models": [],
+            "services": [{"service_name": "BorrowService", "methods": [
+                {"name": "return_book", "params": []}]}],
+            "repos": [],
+        }
+        result = alignment.align_action(
+            "borrow_book", "A book can be borrowed.",
+            "A book can be borrowed.", docs)
+        self.assertEqual(result.status, "coverage_gap")
+
+    def test_a_provided_low_stock_report_is_a_coverage_gap(self):
+        docs = {
+            "models": [],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [
+                {"name": "create",
+                 "params": [{"name": "stock_quantity"}]},
+                {"name": "read_all", "params": []}]}],
+        }
+        result = alignment.align_action(
+            "report_low_stock",
+            "Provide CRUD operations, product search, category filtering "
+            "and low-stock reporting.", "", docs)
+        self.assertEqual(result.status, "coverage_gap")
+
     def test_holder_entity_aliases_remain_ambiguous_when_equally_specific(self):
         docs = {
             "models": [],

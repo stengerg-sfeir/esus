@@ -133,17 +133,3 @@ class ProductRepository:
             if any(value is not None and query in str(value).lower() for value in values):
                 result.append(row)
         return _model_list([models.Product(**row) for row in result], models.Product)
-
-    def find_all_products_with_filters(self, name: str = None, category: str = None, max_price: str = None, min_quantity: str = None) -> list[models.Product]:
-        """Find all products with filters. [crud:filter: name-only: step F never saw this method]"""
-        criteria = []
-        if name is not None:
-            criteria.append(('name', 'eq', name))
-        if category is not None:
-            criteria.append(('category', 'eq', category))
-        if max_price is not None:
-            criteria.append(('price', 'le', max_price))
-        if min_quantity is not None:
-            criteria.append(('quantity', 'ge', min_quantity))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Product(**r) for r in found]

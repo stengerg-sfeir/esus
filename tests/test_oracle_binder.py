@@ -747,6 +747,91 @@ class OracleBinderTests(unittest.TestCase):
         self.assertIsNone(reason)
         self.assertEqual(scenario["when"]["args"], {"is_active": True})
 
+    def test_a_source_flag_maps_a_literal_to_the_named_parameter(self):
+        docs = {
+            "models": [
+                {"name": "Book", "fields": [
+                    {"name": "id", "primary_key": True},
+                    {"name": "title"},
+                    {"name": "author_id", "type": "int"}]}],
+            "services": [],
+            "repos": [{"interface_name": "BookRepository", "methods": [{
+                "name": "read_all",
+                "params": [{"name": "title"},
+                           {"name": "author_id", "type": "int"}],
+                "return_type": "List[Book]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(source="library book list [--author]",
+                 when={"action": "list_books", "args": ["1"]},
+                 given={"book": {"title": "B", "author_id": 1}},
+                 then={"rows": {"Book": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {"author_id": 1})
+
+    def test_a_boolean_source_flag_maps_true_to_the_active_filter(self):
+        docs = {
+            "models": [{"name": "Member", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "membership_date"},
+                {"name": "is_active", "type": "bool"}]}],
+            "services": [],
+            "repos": [{"interface_name": "MemberRepository", "methods": [{
+                "name": "read_all",
+                "params": [{"name": "membership_date"},
+                           {"name": "is_active", "type": "bool"}],
+                "return_type": "List[Member]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(source="library member list [--active-only]",
+                 when={"action": "list_members", "args": ["true"]},
+                 given={"member": {"membership_date": "2023-01-15",
+                                   "is_active": True}},
+                 then={"rows": {"Member": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {"is_active": True})
+
+    def test_a_search_row_expectation_is_corrected_to_the_matching_rows(self):
+        docs = {
+            "models": [{"name": "Book", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "title"}]}],
+            "services": [{"service_name": "LibraryService", "methods": [{
+                "name": "search_books",
+                "params": [{"name": "query"}],
+                "return_type": "List[Book]"}]}],
+            "repos": [],
+        }
+        scenario, reason = binder.bind_case(
+            case(source="library book search --query",
+                 when={"action": "search_books", "args": ["Gatsby"]},
+                 given={"book": {"title": "The Great Gatsby"},
+                        "book_2": {"title": "1984"}},
+                 then={"rows": {"Book": 2}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["rows"], {"Book": 1})
+
+    def test_a_second_page_expectation_is_the_remaining_rows(self):
+        docs = {
+            "models": [{"name": "Customer", "fields": [
+                {"name": "id", "primary_key": True}]}],
+            "services": [],
+            "repos": [{"interface_name": "CustomerRepository", "methods": [{
+                "name": "read_all_paginated",
+                "params": [{"name": "page_number", "type": "int"},
+                           {"name": "page_size", "type": "int"}],
+                "return_type": "List[Customer]"}]}],
+        }
+        given = {f"customer_{number}": {"id": number}
+                 for number in range(1, 6)}
+        scenario, reason = binder.bind_case(
+            case(source="Provide a paginated listing operation.",
+                 when={"action": "read_all_paginated", "args": ["2", "3"]},
+                 given=given,
+                 then={"rows": {"Customer": 3}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["rows"], {"Customer": 2})
+
     def test_a_sort_direction_without_a_sort_field_is_under_specified(self):
         docs = {
             "models": [{"name": "Product", "fields": [
@@ -816,6 +901,116 @@ class OracleBinderTests(unittest.TestCase):
         # the prompt's spelling and the binder does not rewrite the expectation.
         self.assertEqual(scenario["expect"]["fields"],
                          {"order.state": "cancelled"})
+
+    def test_a_flat_update_uses_the_row_key_and_changes(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "product_id", "primary_key": True},
+                {"name": "name"}, {"name": "stock_quantity"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "update", "params": [
+                    {"name": "product_id", "type": "int"},
+                    {"name": "name", "type": "str"},
+                    {"name": "stock_quantity", "type": "int"}]}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "update_product",
+                       "args": ["1", "Gadget", "5"]},
+                 given={"product": {"name": "Old", "stock_quantity": 3}},
+                 then={"state": {"product.stock_quantity": 5}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"], {
+            "product_id": {"ref": "product.id"},
+            "name": "Gadget",
+            "stock_quantity": 5,
+        })
+
+    def test_a_parent_is_seeded_before_the_child_that_references_it(self):
+        docs = {
+            "models": [
+                {"name": "Project", "fields": [
+                    {"name": "project_id", "primary_key": True},
+                    {"name": "name"}]},
+                {"name": "Task", "fields": [
+                    {"name": "task_id", "primary_key": True},
+                    {"name": "title"},
+                    {"name": "project_id", "foreign_key": {
+                        "target_entity": "Project",
+                        "target_field": "project_id"}}]},
+            ],
+            "services": [],
+            "repos": [{"interface_name": "TaskRepository", "methods": [{
+                "name": "read_all", "params": []}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "list_tasks", "args": []},
+                 given={"task": {"title": "T", "project_id": 1}},
+                 then={"rows": {"Task": 1}}), docs)
+        self.assertIsNone(reason)
+        entities = [step["entity"] for step in scenario["setup"]]
+        self.assertLess(entities.index("Project"), entities.index("Task"))
+
+    def test_a_create_uses_the_asserted_value_as_its_payload(self):
+        docs = {
+            "models": [{"name": "Task", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "description"}]}],
+            "services": [],
+            "repos": [{"interface_name": "TaskRepository", "methods": [{
+                "name": "create",
+                "params": [{"name": "description"}]}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "create_task", "args": []},
+                 given={"task": {"description": "placeholder"}},
+                 then={"state": {"task.description": "Write documentation"},
+                       "rows": {"Task": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"]["description"],
+                         "Write documentation")
+
+    def test_a_bare_filter_name_uses_the_seeded_value(self):
+        docs = {
+            "models": [{"name": "Product", "fields": [
+                {"name": "id", "primary_key": True},
+                {"name": "name"}, {"name": "category"},
+                {"name": "price"}, {"name": "quantity"}]}],
+            "services": [],
+            "repos": [{"interface_name": "ProductRepository", "methods": [{
+                "name": "find_all_with_filters",
+                "params": [{"name": "name"}, {"name": "category"},
+                           {"name": "max_price"}, {"name": "min_quantity"}],
+                "return_type": "List[Product]"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "filter",
+                       "args": ["name", "category", "max_price",
+                                "min_quantity"]},
+                 given={"product": {"name": "Mouse", "category": "Electronics",
+                                    "price": 50, "quantity": 5}},
+                 then={"rows": {"Product": 1}}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["when"]["args"],
+                         ["Mouse", "Electronics", 50, 5])
+
+    def test_a_result_expectation_is_carried_to_the_scenario(self):
+        docs = {
+            "models": [{"name": "Order", "fields": [
+                {"name": "order_id", "primary_key": True}]}],
+            "services": [],
+            "repos": [{"interface_name": "OrderRepository", "methods": [{
+                "name": "calculate_total_order_amount",
+                "params": [{"name": "order_id", "type": "int"}],
+                "return_type": "float"}]}],
+        }
+        scenario, reason = binder.bind_case(
+            case(when={"action": "calculate_total_order_amount",
+                       "args": ["1"]},
+                 given={"order": {"order_id": 1}},
+                 then={"result": 100.0}), docs)
+        self.assertIsNone(reason)
+        self.assertEqual(scenario["expect"]["result"], 100.0)
 
 
 if __name__ == "__main__":

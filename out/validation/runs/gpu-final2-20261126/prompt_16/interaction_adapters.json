@@ -54,18 +54,18 @@
     {
       "action_name": "list_customers_paginated",
       "target_service": "CustomerRepository",
-      "target_method": "read_all",
+      "target_method": "read_all_paginated",
       "input_fields": [
         {
           "field_name": "page_number",
-          "target_param": "first_name",
+          "target_param": "page_number",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true
         },
         {
           "field_name": "page_size",
-          "target_param": "last_name",
+          "target_param": "page_size",
           "transform": "DIRECT",
           "lookup_entity": null,
           "required": true

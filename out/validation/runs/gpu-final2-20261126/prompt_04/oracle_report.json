@@ -2,9 +2,9 @@
   "prompt": "prompt_04",
   "results": [
     {
-      "name": "add_task",
-      "status": "under_specified",
-      "reason": "create case expects task.description = 'Write documentation' but supplies 'task description'",
+      "name": "scenario:oracle:add_task",
+      "status": "passed",
+      "case": "add_task",
       "source": "Users can add, list, complete and delete tasks.",
       "alignment": {
         "entities": {
@@ -40,7 +40,7 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:list_tasks",
@@ -74,9 +74,9 @@
       "triage": "passed"
     },
     {
-      "name": "complete_task",
-      "status": "under_specified",
-      "reason": "no generated method matches 'complete_task'",
+      "name": "scenario:oracle:complete_task",
+      "status": "passed",
+      "case": "complete_task",
       "source": "Users can add, list, complete and delete tasks.",
       "alignment": {
         "entities": {
@@ -93,17 +93,16 @@
         },
         "fields": {},
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "aligned",
+          "canonical": "TaskRepository.complete_task",
+          "score": 10.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "exact generated method"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:delete_task",
@@ -138,11 +137,9 @@
     }
   ],
   "counts": {
-    "under_specified": 2,
-    "passed": 2
+    "passed": 4
   },
   "triage_counts": {
-    "under_specified": 2,
-    "passed": 2
+    "passed": 4
   }
 }

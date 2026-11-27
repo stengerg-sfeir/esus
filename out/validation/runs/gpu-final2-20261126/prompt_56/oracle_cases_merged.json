@@ -1,4 +1,106 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "cancel_order_action",
+      "source": "cancelling an order must restore its product quantities",
+      "given": {
+        "order": {
+          "status": "pending",
+          "customer_id": 1
+        },
+        "product": {
+          "stock_quantity": 5
+        }
+      },
+      "when": {
+        "action": "cancel_order",
+        "args": [
+          "order.id"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "cancelled",
+          "product.stock_quantity": 7
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "OrderProduct",
+              "Customer",
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "OrderProduct",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "OrderRepository.cancel_order",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "OrderRepository.cancel_order",
+            "OrderService.cancel_order"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

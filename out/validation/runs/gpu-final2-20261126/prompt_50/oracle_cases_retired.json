@@ -1,48 +1,12 @@
 {
   "counts": {
     "legacy": 3,
-    "kept": 0,
-    "retired": 3,
+    "kept": 1,
+    "retired": 2,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
   "cases": [
-    {
-      "case": {
-        "id": "create_event",
-        "source": "People should be able to create events and register for them.",
-        "given": {
-          "event": {
-            "name": "Team Meeting",
-            "date": "2023-10-05",
-            "capacity": 10
-          }
-        },
-        "when": {
-          "action": "create_event",
-          "args": [
-            "event.name",
-            "event.date",
-            "event.capacity"
-          ]
-        },
-        "then": {
-          "state": {
-            "event.status": "active"
-          },
-          "rows": {
-            "Event": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "e0dfe9883d39f6dd63958b7c0d4ffcfa09ce4c5776a659dc6cde275ee1cbe788"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
     {
       "case": {
         "id": "register_for_event",
@@ -50,9 +14,10 @@
         "given": {
           "event": {
             "name": "Team Meeting",
-            "date": "2023-10-05",
-            "capacity": 10,
-            "status": "active"
+            "date": "2023-10-15",
+            "max_participants": 10,
+            "status": "active",
+            "participant_count": 0
           }
         },
         "when": {
@@ -65,7 +30,7 @@
         "then": {
           "state": {
             "event.status": "active",
-            "event.registration_count": 1
+            "event.participant_count": 1
           },
           "rows": {
             "Event": 1
@@ -74,12 +39,11 @@
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [
-          "registration count starts at 0 and increments on registration"
+          "registration is allowed when event is not full and status is active"
         ],
         "ambiguities": [
-          "it is not clear whether registration count is stored per event or if event status changes on registration"
-        ],
-        "prompt_sha": "e0dfe9883d39f6dd63958b7c0d4ffcfa09ce4c5776a659dc6cde275ee1cbe788"
+          "the exact condition for event status transition is not specified"
+        ]
       },
       "status": "not_run",
       "reason": ""
@@ -91,20 +55,21 @@
         "given": {
           "event": {
             "name": "Team Meeting",
-            "date": "2023-10-05",
-            "capacity": 10,
-            "registration_count": 10,
-            "status": "active"
+            "date": "2023-10-15",
+            "max_participants": 10,
+            "status": "active",
+            "participant_count": 10
           }
         },
         "when": {
           "action": "register_for_event",
           "args": [
+            "event.id",
             "event.id"
           ]
         },
         "then": {
-          "error": "RegistrationPrevented",
+          "error": "RegistrationFailed",
           "rows": {
             "Event": 1
           }
@@ -113,9 +78,29 @@
         "base_status": "assumed",
         "assumptions": [],
         "ambiguities": [
-          "error class 'RegistrationPrevented' is not named in the requirements"
-        ],
-        "prompt_sha": "e0dfe9883d39f6dd63958b7c0d4ffcfa09ce4c5776a659dc6cde275ee1cbe788"
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements",
+          "error class 'RegistrationFailed' is not named in the requirements"
+        ]
       },
       "status": "not_run",
       "reason": ""

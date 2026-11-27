@@ -108,6 +108,34 @@
           "raises": [
             "CustomerNotFoundError"
           ]
+        },
+        {
+          "name": "search_customers",
+          "description": "Searches Customer records across their text fields.",
+          "params": [
+            {
+              "name": "name",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": [],
+          "provenance": "prose_query",
+          "review_required": true
+        },
+        {
+          "name": "filter_customers",
+          "description": "Filters Customer records by email.",
+          "params": [
+            {
+              "name": "domain",
+              "type": "str"
+            }
+          ],
+          "return_type": "list[Customer]",
+          "raises": [],
+          "provenance": "prose_query",
+          "review_required": true
         }
       ]
     }

@@ -2,9 +2,9 @@
   "prompt": "prompt_21",
   "results": [
     {
-      "name": "list_orders_by_customer",
-      "status": "under_specified",
-      "reason": "expected state field 'order.date' is not declared on Order",
+      "name": "scenario:oracle:list_orders_by_customer",
+      "status": "passed",
+      "case": "list_orders_by_customer",
       "source": "list all orders belonging to a customer",
       "alignment": {
         "entities": {
@@ -43,13 +43,12 @@
             ],
             "alternatives": []
           },
-          "order.date": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
+          "order.order_date": {
+            "status": "aligned",
+            "canonical": "order_date",
+            "score": 10.0,
             "evidence": [
-              "prompt mentions field 'date'",
-              "not declared on Order"
+              "Order.order_date exists"
             ],
             "alternatives": []
           }
@@ -64,13 +63,13 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "under_specified": 1
+    "passed": 1
   },
   "triage_counts": {
-    "under_specified": 1
+    "passed": 1
   }
 }

@@ -23,7 +23,8 @@
       ],
       "expect": {
         "state": [
-          "employee.department_id"
+          "employee.status",
+          "department.name"
         ],
         "rows": {
           "Employee": 0
@@ -39,24 +40,26 @@
         "action": "create_employee",
         "args": [
           "employee.name",
-          "employee.department_id"
+          "employee.email",
+          "department.id"
         ]
       },
       "setup_entities": [
         {
-          "alias": "department",
-          "entity": "Department",
+          "alias": "employee",
+          "entity": "Employee",
           "role": "target"
         },
         {
-          "alias": "employee",
-          "entity": "Employee",
-          "role": "new"
+          "alias": "department",
+          "entity": "Department",
+          "role": "target"
         }
       ],
       "expect": {
         "state": [
-          "employee.department_id"
+          "employee.status",
+          "employee.department.id"
         ],
         "rows": {
           "Employee": 1
@@ -83,7 +86,8 @@
       ],
       "expect": {
         "state": [
-          "employee.department_id"
+          "employee.status",
+          "employee.department.id"
         ],
         "rows": {
           "Employee": 1
@@ -109,7 +113,9 @@
         }
       ],
       "expect": {
-        "state": [],
+        "state": [
+          "department.name"
+        ],
         "rows": {
           "Department": 1
         },
@@ -118,13 +124,14 @@
       "status": "confirmed"
     },
     {
-      "id": "update_employee_department",
+      "id": "update_employee_in_department",
       "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
       "when": {
         "action": "update_employee",
         "args": [
           "employee.id",
-          "employee.department_id"
+          "employee.name",
+          "employee.email"
         ]
       },
       "setup_entities": [
@@ -136,12 +143,13 @@
         {
           "alias": "department",
           "entity": "Department",
-          "role": "target"
+          "role": "related"
         }
       ],
       "expect": {
         "state": [
-          "employee.department_id"
+          "employee.status",
+          "employee.department.id"
         ],
         "rows": {
           "Employee": 1
@@ -151,7 +159,7 @@
       "status": "ambiguous"
     },
     {
-      "id": "delete_employee",
+      "id": "delete_employee_from_department",
       "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
       "when": {
         "action": "delete_employee",
@@ -164,10 +172,17 @@
           "alias": "employee",
           "entity": "Employee",
           "role": "target"
+        },
+        {
+          "alias": "department",
+          "entity": "Department",
+          "role": "related"
         }
       ],
       "expect": {
-        "state": [],
+        "state": [
+          "employee.status"
+        ],
         "rows": {
           "Employee": 0
         },

@@ -1,5 +1,61 @@
 {
   "prompt": "prompt_54",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:appointment_start_end_validity",
+      "status": "passed",
+      "case": "appointment_start_end_validity",
+      "source": "An appointment must always end after it starts, but the application must also support appointments whose start and end time are identical.",
+      "alignment": {
+        "entities": {
+          "appointment": {
+            "status": "aligned",
+            "canonical": "Appointment",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Appointment",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "appointment.start_time": {
+            "status": "aligned",
+            "canonical": "start_time",
+            "score": 10.0,
+            "evidence": [
+              "Appointment.start_time exists"
+            ],
+            "alternatives": []
+          },
+          "appointment.end_time": {
+            "status": "aligned",
+            "canonical": "end_time",
+            "score": 10.0,
+            "evidence": [
+              "Appointment.end_time exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "AppointmentRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

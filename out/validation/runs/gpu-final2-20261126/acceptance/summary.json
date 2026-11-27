@@ -9,9 +9,8 @@
     "projects": 66,
     "requirements": 328,
     "counts": {
-      "mapped_tested": 291,
-      "under_specified": 36,
-      "partial": 1
+      "mapped_tested": 300,
+      "under_specified": 28
     }
   },
   "results": [
@@ -226,6 +225,11 @@
           "reason": "every model declares a primary key"
         },
         {
+          "name": "api:TaskRepository.complete_task",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:TaskRepository.create",
           "status": "passed",
           "reason": "generated service API present"
@@ -249,6 +253,11 @@
           "name": "api:TaskRepository.update",
           "status": "passed",
           "reason": "generated service API present"
+        },
+        {
+          "name": "api:TaskRepository.complete_task",
+          "status": "passed",
+          "reason": "generated repository API present"
         },
         {
           "name": "api:TaskRepository.create",
@@ -648,11 +657,6 @@
           "reason": "generated service API present"
         },
         {
-          "name": "api:BookRepository.search",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
           "name": "api:BookRepository.search_by_title",
           "status": "passed",
           "reason": "generated service API present"
@@ -679,11 +683,6 @@
         },
         {
           "name": "api:BookRepository.read_one",
-          "status": "passed",
-          "reason": "generated repository API present"
-        },
-        {
-          "name": "api:BookRepository.search",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -789,6 +788,11 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:ProductRepository.filter_products",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:ProductRepository.read_all",
           "status": "passed",
           "reason": "generated service API present"
@@ -810,6 +814,11 @@
         },
         {
           "name": "api:ProductRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:ProductRepository.filter_products",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -1326,12 +1335,22 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:CustomerRepository.filter_customers",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:CustomerRepository.read_all",
           "status": "passed",
           "reason": "generated service API present"
         },
         {
           "name": "api:CustomerRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:CustomerRepository.search_customers",
           "status": "passed",
           "reason": "generated service API present"
         },
@@ -1351,12 +1370,22 @@
           "reason": "generated repository API present"
         },
         {
+          "name": "api:CustomerRepository.filter_customers",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
           "name": "api:CustomerRepository.read_all",
           "status": "passed",
           "reason": "generated repository API present"
         },
         {
           "name": "api:CustomerRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:CustomerRepository.search_customers",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -1461,12 +1490,27 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:ProductRepository.filter_by_category",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:ProductRepository.read_all",
           "status": "passed",
           "reason": "generated service API present"
         },
         {
           "name": "api:ProductRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:ProductRepository.report_low_stock",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:ProductRepository.search_products",
           "status": "passed",
           "reason": "generated service API present"
         },
@@ -1486,12 +1530,27 @@
           "reason": "generated repository API present"
         },
         {
+          "name": "api:ProductRepository.filter_by_category",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
           "name": "api:ProductRepository.read_all",
           "status": "passed",
           "reason": "generated repository API present"
         },
         {
           "name": "api:ProductRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:ProductRepository.report_low_stock",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:ProductRepository.search_products",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -1928,6 +1987,11 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:CustomerRepository.read_all_paginated",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:CustomerRepository.read_one",
           "status": "passed",
           "reason": "generated service API present"
@@ -1949,6 +2013,11 @@
         },
         {
           "name": "api:CustomerRepository.read_all",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:CustomerRepository.read_all_paginated",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -2068,11 +2137,6 @@
           "reason": "generated service API present"
         },
         {
-          "name": "api:ProductRepository.find_all_products_with_filters",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
           "name": "api:ProductRepository.find_all_with_filters",
           "status": "passed",
           "reason": "generated service API present"
@@ -2109,11 +2173,6 @@
         },
         {
           "name": "api:ProductRepository.filter_by_min_quantity",
-          "status": "passed",
-          "reason": "generated repository API present"
-        },
-        {
-          "name": "api:ProductRepository.find_all_products_with_filters",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -2559,6 +2618,11 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:SalesRecordRepository.delete",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:SalesRecordRepository.get_sales_records_by_product_id",
           "status": "passed",
           "reason": "generated service API present"
@@ -2570,6 +2634,11 @@
         },
         {
           "name": "api:SalesRecordRepository.read_one",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:SalesRecordRepository.update",
           "status": "passed",
           "reason": "generated service API present"
         },
@@ -2604,6 +2673,11 @@
           "reason": "generated repository API present"
         },
         {
+          "name": "api:SalesRecordRepository.delete",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
           "name": "api:SalesRecordRepository.get_sales_records_by_product_id",
           "status": "passed",
           "reason": "generated repository API present"
@@ -2615,6 +2689,11 @@
         },
         {
           "name": "api:SalesRecordRepository.read_one",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:SalesRecordRepository.update",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -3410,7 +3489,17 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:PostTagRepository.associate_tag_with_post",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:PostTagRepository.create",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
+          "name": "api:PostTagRepository.get_post_tags_by_post_id",
           "status": "passed",
           "reason": "generated service API present"
         },
@@ -3510,7 +3599,17 @@
           "reason": "generated repository API present"
         },
         {
+          "name": "api:PostTagRepository.associate_tag_with_post",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
           "name": "api:PostTagRepository.create",
+          "status": "passed",
+          "reason": "generated repository API present"
+        },
+        {
+          "name": "api:PostTagRepository.get_post_tags_by_post_id",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -3617,6 +3716,10 @@
         },
         {
           "name": "invariant:fk:Post.author_id",
+          "status": "passed"
+        },
+        {
+          "name": "invariant:fk:PostTag.post_id",
           "status": "passed"
         },
         {
@@ -5419,11 +5522,6 @@
         },
         {
           "name": "api:OrderService.confirm_order",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
-          "name": "api:OrderService.orderconfirm",
           "status": "passed",
           "reason": "generated service API present"
         },
@@ -7276,6 +7374,11 @@
           "reason": "every model declares a primary key"
         },
         {
+          "name": "api:OrderRepository.confirm_order",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:OrderRepository.create",
           "status": "passed",
           "reason": "generated service API present"
@@ -7294,6 +7397,11 @@
           "name": "api:OrderRepository.update",
           "status": "passed",
           "reason": "generated service API present"
+        },
+        {
+          "name": "api:OrderRepository.confirm_order",
+          "status": "passed",
+          "reason": "generated repository API present"
         },
         {
           "name": "api:OrderRepository.create",
@@ -9591,11 +9699,6 @@
           "reason": "generated service API present"
         },
         {
-          "name": "api:BookRepository.find_books",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
           "name": "api:BookRepository.read_all",
           "status": "passed",
           "reason": "generated service API present"
@@ -9607,11 +9710,6 @@
         },
         {
           "name": "api:BookRepository.create",
-          "status": "passed",
-          "reason": "generated repository API present"
-        },
-        {
-          "name": "api:BookRepository.find_books",
           "status": "passed",
           "reason": "generated repository API present"
         },
@@ -10223,6 +10321,11 @@
           "reason": "every model declares a primary key"
         },
         {
+          "name": "api:BookRepository.borrow_book",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:BookRepository.read_all",
           "status": "passed",
           "reason": "generated service API present"
@@ -10316,6 +10419,11 @@
           "name": "api:BorrowService.return_book",
           "status": "passed",
           "reason": "generated service API present"
+        },
+        {
+          "name": "api:BookRepository.borrow_book",
+          "status": "passed",
+          "reason": "generated repository API present"
         },
         {
           "name": "api:BookRepository.read_all",
@@ -11249,11 +11357,6 @@
         },
         {
           "name": "api:OrderService.delete_order",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
-          "name": "api:OrderService.orderconfirm",
           "status": "passed",
           "reason": "generated service API present"
         },
@@ -12724,26 +12827,6 @@
           "reason": "generated service API present"
         },
         {
-          "name": "api:OrderService.orderconfirm",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
-          "name": "api:OrderService.orderexport",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
-          "name": "api:OrderService.orderreport",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
-          "name": "api:OrderService.ordersearch",
-          "status": "passed",
-          "reason": "generated service API present"
-        },
-        {
           "name": "api:OrderService.read_all_orders",
           "status": "passed",
           "reason": "generated service API present"
@@ -13469,6 +13552,11 @@
           "reason": "generated service API present"
         },
         {
+          "name": "api:ExpenseService.add_expense",
+          "status": "passed",
+          "reason": "generated service API present"
+        },
+        {
           "name": "api:ExpenseService.delete_expense",
           "status": "passed",
           "reason": "generated service API present"
@@ -13780,6 +13868,10 @@
         },
         {
           "name": "invariant:fk:Budget.category_id",
+          "status": "passed"
+        },
+        {
+          "name": "contract:ExpenseService.add_expense",
           "status": "passed"
         },
         {

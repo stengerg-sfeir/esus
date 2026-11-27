@@ -1,5 +1,43 @@
 {
   "prompt": "prompt_cli_tool",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "read_csv_header_dynamically",
+      "status": "under_specified",
+      "reason": "app-only project: service action is outside the verifier surface",
+      "source": "Read the CSV header row to determine column names dynamically. Do NOT assume specific column names like \"title\" or \"name\".",
+      "alignment": {
+        "entities": {
+          "csv_file": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'csv_file'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt exposes the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified"
+    }
+  ],
+  "counts": {
+    "under_specified": 1
+  },
+  "triage_counts": {
+    "under_specified": 1
+  }
 }

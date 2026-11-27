@@ -2,9 +2,9 @@
   "prompt": "prompt_40",
   "results": [
     {
-      "name": "notify_on_confirm",
-      "status": "under_specified",
-      "reason": "no generated method matches 'confirm_order'",
+      "name": "scenario:oracle:notify_on_confirm",
+      "status": "passed",
+      "case": "notify_on_confirm",
       "source": "When an order is confirmed, the application must send a notification.",
       "alignment": {
         "entities": {
@@ -31,57 +31,22 @@
           }
         },
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "aligned",
+          "canonical": "OrderRepository.confirm_order",
+          "score": 10.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "exact generated method"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified"
-    },
-    {
-      "name": "notification_service_log",
-      "status": "case_defect",
-      "reason": "cannot resolve given entity 'notification'",
-      "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
-      "alignment": {
-        "entities": {
-          "notification": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions 'notification'",
-              "no extracted entity matches it"
-            ],
-            "alternatives": []
-          }
-        },
-        "fields": {},
-        "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
-          "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "case_defect: setup"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "under_specified": 1,
-    "case_defect": 1
+    "passed": 1
   },
   "triage_counts": {
-    "under_specified": 1,
-    "case_defect: setup": 1
+    "passed": 1
   }
 }

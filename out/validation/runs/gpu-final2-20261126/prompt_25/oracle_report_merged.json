@@ -1,5 +1,116 @@
 {
   "prompt": "prompt_25",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:list_employees_by_department",
+      "status": "passed",
+      "case": "list_employees_by_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_employee_by_id",
+      "status": "passed",
+      "case": "read_employee_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 12.333333333333334,
+            "evidence": [
+              "name/fields match Employee",
+              "score 12.3"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:read_department_by_id",
+      "status": "passed",
+      "case": "read_department_by_id",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "DepartmentRepository.read_all_departments",
+          "score": 7.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "DepartmentRepository.read_all"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 3
+  },
+  "triage_counts": {
+    "passed": 3
+  }
 }

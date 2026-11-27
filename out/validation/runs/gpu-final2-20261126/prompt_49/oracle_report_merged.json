@@ -1,5 +1,56 @@
 {
   "prompt": "prompt_49",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:find_employees_by_department",
+      "status": "passed",
+      "case": "find_employees_by_department",
+      "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          },
+          "employee": {
+            "status": "aligned",
+            "canonical": "Employee",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Employee",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Department"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "EmployeeRepository.find_employees_by_department",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

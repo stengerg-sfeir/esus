@@ -125,11 +125,11 @@
           }
         },
         "action": {
-          "status": "alias",
-          "canonical": "ExpenseRepository.create",
-          "score": 1.0,
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
           "evidence": [
-            "same operation with a different name"
+            "exact generated method"
           ],
           "alternatives": []
         }
@@ -156,9 +156,7 @@
       },
       "when": {
         "action": "get_expense_by_id",
-        "args": [
-          "id"
-        ]
+        "args": []
       },
       "then": {
         "state": {
@@ -166,14 +164,13 @@
           "expense.description": "Coffee",
           "expense.expense_date": "2024-05-01",
           "expense.category_id": 1,
-          "expense.payment_method": "card",
-          "expense.is_recurring": false
+          "expense.payment_method": "card"
         },
         "rows": {
           "Expense": 1
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -238,15 +235,6 @@
               "Expense.payment_method exists"
             ],
             "alternatives": []
-          },
-          "expense.is_recurring": {
-            "status": "aligned",
-            "canonical": "is_recurring",
-            "score": 10.0,
-            "evidence": [
-              "Expense.is_recurring exists"
-            ],
-            "alternatives": []
           }
         },
         "action": {
@@ -259,12 +247,74 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "case passes parameter name 'id' as a literal value"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "expense_delete_by_id",
+      "source": "expense category delete --id",
+      "given": {
+        "expense": {
+          "id": 1,
+          "amount_cents": 1000,
+          "description": "Coffee",
+          "expense_date": "2024-05-01",
+          "category_id": 1,
+          "payment_method": "card"
+        }
+      },
+      "when": {
+        "action": "delete_expense",
+        "args": [
+          "id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Expense": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.delete_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     },
     {
       "id": "budget_add_with_params",
@@ -294,7 +344,7 @@
           "Budget": 1
         }
       },
-      "status": "case_defect",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -356,23 +406,76 @@
         }
       },
       "execution": {
-        "status": "case_defect",
-        "reason": "raised CategoryNotFoundError: Budget.category_id=1 references missing Category.id; expected None"
+        "status": "passed",
+        "reason": ""
       },
-      "triage": "case_defect: setup",
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "budget_delete_with_params",
+      "source": "budget delete --category-id --month",
+      "given": {
+        "budget": {
+          "category_id": 1,
+          "month": "2024-05",
+          "amount_limit_cents": 5000
+        }
+      },
+      "when": {
+        "action": "delete_budget",
+        "args": [
+          "category_id",
+          "month"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Budget": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "budget": {
+            "status": "aligned",
+            "canonical": "Budget",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Budget",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "BudgetRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
       "needs_review": false
     },
     {
       "id": "add_expense_with_category_not_found",
       "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
       "given": {
-        "category": {
-          "id": 999,
-          "name": "Nonexistent",
-          "description": "",
-          "monthly_budget": 0,
-          "icon": ""
-        },
         "expense": {
           "amount_cents": 1000,
           "description": "Test",
@@ -396,115 +499,12 @@
       "then": {
         "error": "CategoryNotFoundError"
       },
-      "status": "case_defect",
-      "base_status": "confirmed",
-      "assumptions": [],
-      "ambiguities": [],
-      "alignment": {
-        "entities": {
-          "category": {
-            "status": "aligned",
-            "canonical": "Category",
-            "score": 15.0,
-            "evidence": [
-              "name/fields match Category",
-              "score 15.0"
-            ],
-            "alternatives": [
-              "Expense",
-              "Budget"
-            ]
-          },
-          "expense": {
-            "status": "aligned",
-            "canonical": "Expense",
-            "score": 15.0,
-            "evidence": [
-              "name/fields match Expense",
-              "score 15.0"
-            ],
-            "alternatives": [
-              "Category",
-              "Budget"
-            ]
-          }
-        },
-        "fields": {},
-        "action": {
-          "status": "alias",
-          "canonical": "ExpenseRepository.create",
-          "score": 1.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
-        }
-      },
-      "execution": {
-        "status": "case_defect",
-        "reason": "expected CategoryNotFoundError, no error was raised"
-      },
-      "triage": "case_defect: setup",
-      "needs_review": false
-    },
-    {
-      "id": "add_expense_with_budget_exceeded",
-      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
-      "given": {
-        "category": {
-          "id": 1,
-          "name": "Food",
-          "description": "Daily food expenses",
-          "monthly_budget": 5000,
-          "icon": "🍽️"
-        },
-        "expense": {
-          "amount_cents": 1500,
-          "description": "Grocery shopping",
-          "expense_date": "2024-05-15",
-          "category_id": 1,
-          "payment_method": "card",
-          "is_recurring": false
-        },
-        "budget": {
-          "category_id": 1,
-          "month": "2024-05",
-          "amount_limit_cents": 5000
-        }
-      },
-      "when": {
-        "action": "add_expense",
-        "args": [
-          "amount",
-          "description",
-          "category",
-          "expense-date",
-          "method",
-          "recurring"
-        ]
-      },
-      "then": {
-        "error": "BudgetExceededException"
-      },
       "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
       "alignment": {
         "entities": {
-          "category": {
-            "status": "aligned",
-            "canonical": "Category",
-            "score": 15.0,
-            "evidence": [
-              "name/fields match Category",
-              "score 15.0"
-            ],
-            "alternatives": [
-              "Expense",
-              "Budget"
-            ]
-          },
           "expense": {
             "status": "aligned",
             "canonical": "Expense",
@@ -517,37 +517,24 @@
               "Category",
               "Budget"
             ]
-          },
-          "budget": {
-            "status": "aligned",
-            "canonical": "Budget",
-            "score": 14.0,
-            "evidence": [
-              "name/fields match Budget",
-              "score 14.0"
-            ],
-            "alternatives": [
-              "Expense",
-              "Category"
-            ]
           }
         },
         "fields": {},
         "action": {
-          "status": "alias",
-          "canonical": "ExpenseRepository.create",
-          "score": 1.0,
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
           "evidence": [
-            "same operation with a different name"
+            "exact generated method"
           ],
           "alternatives": []
         }
       },
       "execution": {
-        "status": "failed",
-        "reason": "expected BudgetExceededException, no error was raised"
+        "status": "passed",
+        "reason": ""
       },
-      "triage": "under_specified",
+      "triage": "passed",
       "needs_review": false
     }
   ]

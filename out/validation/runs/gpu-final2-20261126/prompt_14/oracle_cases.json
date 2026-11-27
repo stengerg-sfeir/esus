@@ -7,7 +7,7 @@
       "given": {
         "project": {
           "name": "New Project",
-          "description": "A sample project for testing",
+          "description": "A sample project for testing.",
           "status": "active"
         }
       },
@@ -22,7 +22,7 @@
       "then": {
         "state": {
           "project.name": "New Project",
-          "project.description": "A sample project for testing",
+          "project.description": "A sample project for testing.",
           "project.status": "active"
         },
         "rows": {
@@ -93,20 +93,17 @@
       "needs_review": false
     },
     {
-      "id": "delete_project_soft",
-      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "id": "list_projects",
+      "source": "Users can create, update, list and delete projects.",
       "given": {
         "project": {
-          "name": "Test Project",
-          "description": "A project to be soft deleted",
+          "name": "Project A",
+          "description": "First project.",
           "status": "active"
         }
       },
       "when": {
-        "action": "delete_project",
-        "args": [
-          "project.id"
-        ]
+        "action": "list_projects"
       },
       "then": {
         "rows": {
@@ -133,12 +130,14 @@
         "fields": {},
         "action": {
           "status": "alias",
-          "canonical": "ProjectRepository.delete",
+          "canonical": "ProjectRepository.read_all_projects",
           "score": 4.0,
           "evidence": [
-            "same operation with a different name"
+            "highest action-name specificity"
           ],
-          "alternatives": []
+          "alternatives": [
+            "ProjectRepository.read_all"
+          ]
         }
       },
       "execution": {

@@ -2,6 +2,64 @@
   "prompt_sha": null,
   "cases": [
     {
+      "id": "read_csv_header_dynamically",
+      "source": "Read the CSV header row to determine column names dynamically. Do NOT assume specific column names like \"title\" or \"name\".",
+      "given": {
+        "csv_file": {
+          "header_row": "id,name,price,category"
+        }
+      },
+      "when": {
+        "action": "read_csv_header",
+        "args": [
+          "csv_file.file_path"
+        ]
+      },
+      "then": {
+        "state": {
+          "csv_file.header_row": "id,name,price,category"
+        },
+        "rows": {
+          "CSVFile": 1
+        }
+      },
+      "status": "under_specified",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "csv_file": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'csv_file'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt exposes the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "under_specified",
+      "needs_review": false,
+      "execution": {
+        "status": "under_specified",
+        "reason": "app-only project: service action is outside the verifier surface"
+      }
+    },
+    {
       "id": "handle_missing_input_file",
       "source": "Include error handling for missing files and malformed CSV.",
       "given": {
@@ -23,7 +81,13 @@
       "base_status": "assumed",
       "assumptions": [],
       "ambiguities": [
-        "The requirement states to include error handling for missing files and malformed CSV, but does not specify whether the check for missing files is performed before or after validation. The behavior of `check_file_exists` in this context is ambiguous.",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
+        "error class 'FileNotFoundError' is not named in the requirements",
         "error class 'FileNotFoundError' is not named in the requirements",
         "error class 'FileNotFoundError' is not named in the requirements",
         "error class 'FileNotFoundError' is not named in the requirements",
@@ -54,7 +118,13 @@
       "base_status": "assumed",
       "assumptions": [],
       "ambiguities": [
-        "The requirement does not specify what constitutes a malformed CSV, nor does it define the exact error condition or input that triggers the MalformedCSVError. The behavior is ambiguous without a clear definition of malformed input.",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
+        "error class 'MalformedCSVError' is not named in the requirements",
         "error class 'MalformedCSVError' is not named in the requirements",
         "error class 'MalformedCSVError' is not named in the requirements",
         "error class 'MalformedCSVError' is not named in the requirements",

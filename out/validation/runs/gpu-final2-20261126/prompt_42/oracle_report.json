@@ -2,9 +2,9 @@
   "prompt": "prompt_42",
   "results": [
     {
-      "name": "find_purchase_history",
-      "status": "unbound",
-      "reason": "ambiguous action binding: PurchaseRepository.find_customer_purchases, PurchaseRepository.get_purchases_by_customer_id, PurchaseRepository.get_total_spent_by_customer",
+      "name": "scenario:oracle:find_purchase_history",
+      "status": "passed",
+      "case": "find_purchase_history",
       "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
       "alignment": {
         "entities": {
@@ -45,23 +45,22 @@
           }
         },
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "alias",
+          "canonical": "PurchaseRepository.find_customer_purchases",
+          "score": 7.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "same operation with a different name"
           ],
           "alternatives": []
         }
       },
-      "triage": "coverage_gap: ambiguous action"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "unbound": 1
+    "passed": 1
   },
   "triage_counts": {
-    "coverage_gap: ambiguous action": 1
+    "passed": 1
   }
 }

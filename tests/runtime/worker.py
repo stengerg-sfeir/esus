@@ -883,6 +883,11 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
             return {"name": name, "status": "failed",
                     "reason": f"stdout does not contain {expected_text!r}: "
                               f"{run.stdout[-300:]!r}"}
+        expected_err = expect.get("stderr_contains")
+        if isinstance(expected_err, str) and expected_err not in run.stderr:
+            return {"name": name, "status": "failed",
+                    "reason": f"stderr does not contain {expected_err!r}: "
+                              f"{run.stderr[-300:]!r}"}
         return {"name": name, "status": "passed"}
     if "cli" in when or "cli_variants" in when:
         if cli_path is None or db is None:
@@ -957,6 +962,9 @@ def _run_scenario(docs, deps, store, scenario, sequence, cli_path=None, db=None,
     if expect.get("error"):
         return {"name": name, "status": "failed",
                 "reason": f"expected {expect['error']}, no error was raised"}
+    if "result" in expect and not _same_value(result, expect["result"]):
+        return {"name": name, "status": "failed",
+                "reason": f"returned {result!r}, expected {expect['result']!r}"}
     for target_name, expected in (expect.get("fields") or {}).items():
         variable, _, field = target_name.partition(".")
         if variable not in refs:

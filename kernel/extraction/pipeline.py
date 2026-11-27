@@ -642,11 +642,16 @@ class Pipeline:
         program whose data model was, correctly, empty — and step G then
         faithfully built an adapter onto it.
         """
+        self.documents[DATA_MODELS] = repairs.repair_join_models(
+            self.documents.get(DATA_MODELS), requirements, self.log)
         entities = self._entities()
         if not entities:
             self.log.write("[ok] step contracts: step B produced no entities — no services")
             self.documents[SERVICE_CONTRACTS] = []
             return
+        self.documents[COMPONENTS] = repairs.repair_crud_requirements(
+            self.documents.get(COMPONENTS), self.documents.get(DATA_MODELS),
+            requirements, self.log)
         vocab = vocabulary.Vocabulary(
             entities=entities,
             crud_operations=vocabulary.crud_requirements(self.documents.get(COMPONENTS)),
@@ -699,6 +704,9 @@ class Pipeline:
             self.log,
         )
         body = repairs.repair_missing_key_parameters(
+            body, self.documents.get(DATA_MODELS), self.log
+        )
+        body = repairs.repair_total_count_parameters(
             body, self.documents.get(DATA_MODELS), self.log
         )
         repairs.repair_create_signature_fields(
@@ -793,6 +801,19 @@ class Pipeline:
         self.documents[SERVICE_CONTRACTS] = repairs.repair_mapping_create_params(
             self.documents.get(SERVICE_CONTRACTS), self.documents.get(DATA_MODELS),
             self.log)
+        self.documents[SERVICE_CONTRACTS] = repairs.repair_create_key_parameters(
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS), self.log)
+        self.documents[SERVICE_CONTRACTS] = repairs.repair_total_count_parameters(
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS), self.log)
+        self.documents[SERVICE_CONTRACTS] = repairs.repair_prose_query_actions(
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS), requirements, self.log)
+        self.documents[SERVICE_CONTRACTS] = repairs.repair_named_service_methods(
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(DATA_MODELS), self.documents.get(ERRORS),
+            requirements, self.log)
 
     def _repair_errors(self):
         """Remove the two error contradictions the grammar cannot express (§9.28).

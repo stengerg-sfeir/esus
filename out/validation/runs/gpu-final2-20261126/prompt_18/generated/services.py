@@ -52,17 +52,23 @@ class ContactService:
             header = next(reader)
             if header != ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'created_at', 'updated_at']:
                 raise errors.AppError("Invalid CSV header: expected ['id', 'first_name', 'last_name', 'email', 'phone', 'address', 'created_at', 'updated_at']")
-            invalid_rows = 0
+            valid_count = 0
             for row in reader:
+                if len(row) != 8:
+                    raise errors.AppError(f'Invalid row length: expected 8 columns, got {len(row)}')
                 try:
-                    if len(row) != 8:
-                        invalid_rows += 1
-                        continue
-                    contact = models.Contact(first_name=row[1] if row[1] else None, last_name=row[2] if row[2] else None, email=row[3] if row[3] else None, phone=row[4] if row[4] else None, address=row[5] if row[5] else None, created_at=_as_date(row[6]) if row[6] else None, updated_at=_as_date(row[7]) if row[7] else None)
-                    contact_id = self._repos['ContactRepository'].create(first_name=contact.first_name, last_name=contact.last_name, email=contact.email, phone=contact.phone, address=contact.address, created_at=contact.created_at, updated_at=contact.updated_at)
-                except (ValueError, IndexError) as e:
-                    invalid_rows += 1
-            return invalid_rows
+                    first_name = row[1] if row[1] else None
+                    last_name = row[2] if row[2] else None
+                    email = row[3] if row[3] else None
+                    phone = row[4] if row[4] else None
+                    address = row[5] if row[5] else None
+                    created_at = _as_date(row[6]) if row[6] else None
+                    updated_at = _as_date(row[7]) if row[7] else None
+                    contact_id = self._repos['ContactRepository'].create(first_name=first_name, last_name=last_name, email=email, phone=phone, address=address, created_at=created_at, updated_at=updated_at)
+                    valid_count += 1
+                except Exception as e:
+                    continue
+        return valid_count
 
     def export_contacts_to_csv(self, file_path: str = None) -> None:
         """Export contacts to csv. [mechanical CSV export]"""

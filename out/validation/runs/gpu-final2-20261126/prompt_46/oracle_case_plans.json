@@ -41,8 +41,7 @@
       "id": "check_outstanding_invoices",
       "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
       "when": {
-        "action": "check_outstanding_invoices",
-        "args": []
+        "action": "check_outstanding_invoices"
       },
       "setup_entities": [
         {
@@ -104,37 +103,10 @@
       "status": "ambiguous"
     },
     {
-      "id": "mark_invoice_as_paid",
-      "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
+      "id": "record_payment_for_invoice",
+      "source": "Create a small invoicing application for a freelance business. It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
       "when": {
-        "action": "mark_invoice_as_paid",
-        "args": [
-          "invoice.id"
-        ]
-      },
-      "setup_entities": [
-        {
-          "alias": "invoice",
-          "entity": "Invoice",
-          "role": "target"
-        }
-      ],
-      "expect": {
-        "state": [
-          "invoice.status"
-        ],
-        "rows": {
-          "Invoice": 1
-        },
-        "error": "omitted"
-      },
-      "status": "ambiguous"
-    },
-    {
-      "id": "create_payment_for_invoice",
-      "source": "It should keep track of clients, invoices and payments and make it possible to know which invoices are still outstanding.",
-      "when": {
-        "action": "create_payment",
+        "action": "record_payment",
         "args": [
           "invoice.id",
           "amount"
@@ -156,7 +128,7 @@
         "state": [
           "payment.invoice.id",
           "payment.amount",
-          "payment.date"
+          "payment.status"
         ],
         "rows": {
           "Payment": 1

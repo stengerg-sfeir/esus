@@ -2,28 +2,90 @@
   "prompt_sha": null,
   "cases": [
     {
-      "id": "create_employee_in_department",
+      "id": "list_employees_by_department",
       "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
       "given": {
         "department": {
           "id": 1,
           "name": "Engineering"
+        }
+      },
+      "when": {
+        "action": "list_employees",
+        "args": [
+          "department.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "department": {
+            "status": "aligned",
+            "canonical": "Department",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Department",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Employee"
+            ]
+          }
         },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "EmployeeRepository.read_all_employees",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "EmployeeRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_employee_in_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
         "employee": {
           "name": "Alice Johnson",
-          "department_id": 1
+          "email": "alice.johnson@company.com"
+        },
+        "department": {
+          "id": 1,
+          "name": "Engineering"
         }
       },
       "when": {
         "action": "create_employee",
         "args": [
           "employee.name",
-          "employee.department_id"
+          "employee.email",
+          "department.id"
         ]
       },
       "then": {
         "state": {
-          "employee.department_id": 1
+          "employee.status": "active",
+          "employee.department.id": 1
         },
         "rows": {
           "Employee": 1
@@ -32,10 +94,12 @@
       "status": "assumed",
       "base_status": "assumed",
       "assumptions": [
-        "A department can have zero or more employees"
+        "employee.status is set to active by default",
+        "department.id is correctly linked to the employee"
       ],
       "ambiguities": [
-        "The requirement does not specify whether the employee must be assigned to an existing department or if department validation is enforced"
+        "The requirement does not specify whether the employee's status is set or defaulted",
+        "No explicit field values are provided for department name or other fields"
       ]
     },
     {
@@ -45,7 +109,7 @@
         "employee": {
           "id": 101,
           "name": "Bob Smith",
-          "department_id": 1
+          "email": "bob.smith@company.com"
         }
       },
       "when": {
@@ -55,9 +119,7 @@
         ]
       },
       "then": {
-        "state": {
-          "employee.department_id": 1
-        },
+        "state": {},
         "rows": {
           "Employee": 1
         }
@@ -81,29 +143,16 @@
             ]
           }
         },
-        "fields": {
-          "employee.department_id": {
-            "status": "aligned",
-            "canonical": "department_id",
-            "score": 10.0,
-            "evidence": [
-              "Employee.department_id exists"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
-          "status": "ambiguous",
+          "status": "alias",
           "canonical": "EmployeeRepository.read_all_employees",
           "score": 7.0,
           "evidence": [
-            "several generated methods have the same action score"
+            "highest action-name specificity"
           ],
           "alternatives": [
-            "EmployeeRepository.read_all_employees",
-            "EmployeeRepository.read_employee_by_id",
-            "EmployeeRepository.create_employee",
-            "EmployeeRepository.delete_employee"
+            "EmployeeRepository.read_all"
           ]
         }
       },
@@ -156,16 +205,13 @@
         },
         "fields": {},
         "action": {
-          "status": "ambiguous",
+          "status": "alias",
           "canonical": "DepartmentRepository.read_all_departments",
           "score": 7.0,
           "evidence": [
-            "several generated methods have the same action score"
+            "highest action-name specificity"
           ],
           "alternatives": [
-            "DepartmentRepository.read_all_departments",
-            "DepartmentRepository.read_department_by_id",
-            "DepartmentRepository.create_department",
             "DepartmentRepository.read_all"
           ]
         }
@@ -178,29 +224,30 @@
       "needs_review": false
     },
     {
-      "id": "update_employee_department",
+      "id": "update_employee_in_department",
       "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
       "given": {
         "employee": {
           "id": 101,
           "name": "Bob Smith",
-          "department_id": 1
+          "email": "bob.smith@company.com"
         },
         "department": {
-          "id": 2,
-          "name": "Marketing"
+          "id": 1,
+          "name": "Engineering"
         }
       },
       "when": {
         "action": "update_employee",
         "args": [
           "employee.id",
-          "employee.department_id"
+          "employee.name",
+          "employee.email"
         ]
       },
       "then": {
         "state": {
-          "employee.department_id": 2
+          "employee.status": "active"
         },
         "rows": {
           "Employee": 1
@@ -209,10 +256,44 @@
       "status": "assumed",
       "base_status": "assumed",
       "assumptions": [
-        "A department can have zero or more employees"
+        "employee.status is not modified during update",
+        "department.id remains unchanged"
       ],
       "ambiguities": [
-        "The requirement does not specify whether the department must exist before updating or if it is validated"
+        "No specification of whether the employee's department is updated or preserved",
+        "No requirement on what happens to the email or name fields during update"
+      ]
+    },
+    {
+      "id": "delete_employee_from_department",
+      "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+      "given": {
+        "employee": {
+          "id": 101,
+          "name": "Bob Smith",
+          "email": "bob.smith@company.com"
+        }
+      },
+      "when": {
+        "action": "delete_employee",
+        "args": [
+          "employee.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Employee": 0
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "employee.status is updated to 'deleted' upon deletion",
+        "the employee record is removed from the system"
+      ],
+      "ambiguities": [
+        "No requirement on whether the department's employee list is updated or whether the status field is set",
+        "No specification of whether the employee's department reference is removed or left dangling"
       ]
     }
   ]

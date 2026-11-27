@@ -1,4 +1,142 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "close_loan",
+      "source": "Users must be able to create and close loans and determine which books are currently available.",
+      "given": {
+        "loan": {
+          "id": "loan_123",
+          "status": "active"
+        }
+      },
+      "when": {
+        "action": "close_loan",
+        "args": [
+          "loan_123"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Loan": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Loan",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "LoanRepository.close_loan_by_id",
+          "score": 7.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "determine_available_books",
+      "source": "Users must be able to create and close loans and determine which books are currently available.",
+      "given": {
+        "loan": {
+          "id": "loan_123",
+          "status": "active",
+          "book_id": "book_456"
+        },
+        "book": {
+          "id": "book_456",
+          "title": "The Great Gatsby",
+          "available": true
+        }
+      },
+      "when": {
+        "action": "list_available_books",
+        "args": []
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "loan": {
+            "status": "aligned",
+            "canonical": "Loan",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Loan",
+              "score 13.7"
+            ],
+            "alternatives": [
+              "Book",
+              "Member"
+            ]
+          },
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Member",
+              "Loan"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.read_all_available",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "BookRepository.read_all"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

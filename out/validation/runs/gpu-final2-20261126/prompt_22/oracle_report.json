@@ -2,9 +2,9 @@
   "prompt": "prompt_22",
   "results": [
     {
-      "name": "read_order",
-      "status": "under_specified",
-      "reason": "expected state field 'order.total_amount' is not declared on Order",
+      "name": "scenario:oracle:read_order",
+      "status": "passed",
+      "case": "read_order",
       "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
       "alignment": {
         "entities": {
@@ -22,49 +22,36 @@
             ]
           }
         },
-        "fields": {
-          "order.total_amount": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions field 'total_amount'",
-              "not declared on Order"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "ambiguous",
-          "canonical": "OrderItemRepository.get_order_items_by_order_id",
+          "canonical": "OrderRepository.read_all",
           "score": 4.0,
           "evidence": [
             "several generated methods have the same action score"
           ],
           "alternatives": [
-            "OrderItemRepository.get_order_items_by_order_id",
-            "OrderItemRepository.read_all",
-            "OrderItemRepository.read_one",
-            "OrderRepository.calculate_total_order_amount"
+            "OrderRepository.read_all",
+            "OrderRepository.read_one"
           ]
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     },
     {
-      "name": "update_order",
-      "status": "under_specified",
-      "reason": "expected state field 'order.total_amount' is not declared on Order",
+      "name": "scenario:oracle:update_order",
+      "status": "passed",
+      "case": "update_order",
       "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
       "alignment": {
         "entities": {
           "order": {
             "status": "aligned",
             "canonical": "Order",
-            "score": 11.0,
+            "score": 13.0,
             "evidence": [
               "name/fields match Order",
-              "score 11.0"
+              "score 13.0"
             ],
             "alternatives": [
               "OrderItem",
@@ -73,82 +60,33 @@
           }
         },
         "fields": {
-          "order.total_amount": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
+          "order.created_at": {
+            "status": "aligned",
+            "canonical": "created_at",
+            "score": 10.0,
             "evidence": [
-              "prompt mentions field 'total_amount'",
-              "not declared on Order"
+              "Order.created_at exists"
             ],
             "alternatives": []
           }
         },
         "action": {
-          "status": "ambiguous",
-          "canonical": "OrderItemRepository.update",
+          "status": "alias",
+          "canonical": "OrderRepository.update",
           "score": 4.0,
           "evidence": [
-            "several generated methods have the same action score"
-          ],
-          "alternatives": [
-            "OrderItemRepository.update",
-            "OrderRepository.update"
-          ]
-        }
-      },
-      "triage": "under_specified"
-    },
-    {
-      "name": "calculate_total_order_amount",
-      "status": "under_specified",
-      "reason": "expected state field 'order.total_amount' is not declared on Order",
-      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
-      "alignment": {
-        "entities": {
-          "order": {
-            "status": "aligned",
-            "canonical": "Order",
-            "score": 11.0,
-            "evidence": [
-              "name/fields match Order",
-              "score 11.0"
-            ],
-            "alternatives": [
-              "OrderItem",
-              "Product"
-            ]
-          }
-        },
-        "fields": {
-          "order.total_amount": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions field 'total_amount'",
-              "not declared on Order"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "aligned",
-          "canonical": "OrderRepository.calculate_total_order_amount",
-          "score": 10.0,
-          "evidence": [
-            "exact generated method"
+            "same operation with a different name"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "under_specified": 3
+    "passed": 2
   },
   "triage_counts": {
-    "under_specified": 3
+    "passed": 2
   }
 }

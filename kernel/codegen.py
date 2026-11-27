@@ -135,7 +135,8 @@ def match_param(field_names, param):
             return (field, "eq")
     for prefix, operator in (("start", "ge"), ("from", "ge"),
                              ("end", "le"), ("to", "le"),
-                             ("min", "ge"), ("max", "le")):
+                             ("min", "ge"), ("max", "le"),
+                             ("below", "lt"), ("under", "lt")):
         if wanted.startswith(prefix) and len(wanted) > len(prefix):
             rest = wanted[len(prefix):]
             candidates = [field for field in field_names
@@ -461,6 +462,12 @@ def bind_field(dests, field):
     fuzzy = [d for d, flat in flats.items()
              if flat and (flat in wanted or wanted in flat)]
     if not fuzzy:
+        return None
+    # When the field is a fragment of several dests, no dest names it:
+    # `date` is not more `start_date` than `end_date`.  Longest-wins only
+    # settles the other direction, where one dest is a better abbreviation
+    # of the field (`category` over `id` for `category_id`).
+    if len(fuzzy) > 1 and all(wanted in flats[d] for d in fuzzy):
         return None
     fuzzy.sort(key=lambda d: len(flats[d]), reverse=True)
     if len(fuzzy) > 1 and len(flats[fuzzy[0]]) == len(flats[fuzzy[1]]):

@@ -220,6 +220,43 @@
           "raises": [],
           "provenance": "capability_adapter",
           "review_required": true
+        },
+        {
+          "name": "add_expense",
+          "description": "validates category exists, adds expense, checks if budget exceeded after insertion",
+          "params": [
+            {
+              "name": "amount_cents",
+              "type": "int"
+            },
+            {
+              "name": "description",
+              "type": "str"
+            },
+            {
+              "name": "expense_date",
+              "type": "date"
+            },
+            {
+              "name": "category_id",
+              "type": "int"
+            },
+            {
+              "name": "payment_method",
+              "type": "str"
+            },
+            {
+              "name": "is_recurring",
+              "type": "bool"
+            }
+          ],
+          "return_type": "models.Expense",
+          "raises": [
+            "BudgetExceededException",
+            "CategoryNotFoundError"
+          ],
+          "provenance": "prose_service_method",
+          "review_required": true
         }
       ]
     },

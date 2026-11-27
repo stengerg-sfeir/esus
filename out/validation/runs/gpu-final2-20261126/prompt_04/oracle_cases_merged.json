@@ -1,4 +1,234 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "add_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "name": "Write documentation"
+        }
+      },
+      "when": {
+        "action": "add_task",
+        "args": [
+          "task.name"
+        ]
+      },
+      "then": {
+        "state": {
+          "task.description": "Write documentation"
+        },
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "task.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "list_tasks",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "name": "Write documentation"
+        }
+      },
+      "when": {
+        "action": "list_tasks"
+      },
+      "then": {
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "complete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "name": "Write documentation",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "complete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "TaskRepository.complete_task",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_task",
+      "source": "Users can add, list, complete and delete tasks.",
+      "given": {
+        "task": {
+          "name": "Write documentation",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Task": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 13.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

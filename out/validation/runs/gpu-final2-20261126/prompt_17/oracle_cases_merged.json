@@ -1,4 +1,104 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "combinable_filters",
+      "source": "All filters must be combinable",
+      "given": {
+        "product": {
+          "name": "Wireless Mouse",
+          "category": "Electronics",
+          "price": 49.99,
+          "quantity": 50
+        }
+      },
+      "when": {
+        "action": "filter",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "product.name": "Wireless Mouse",
+          "product.category": "Electronics",
+          "product.price": 49.99,
+          "product.quantity": 50
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt exposes the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

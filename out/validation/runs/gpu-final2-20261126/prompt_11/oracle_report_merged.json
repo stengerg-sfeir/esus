@@ -1,5 +1,110 @@
 {
   "prompt": "prompt_11",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:create_book",
+      "status": "passed",
+      "case": "create_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          },
+          "book.isbn": {
+            "status": "aligned",
+            "canonical": "isbn",
+            "score": 10.0,
+            "evidence": [
+              "Book.isbn exists"
+            ],
+            "alternatives": []
+          },
+          "book.publication_year": {
+            "status": "aligned",
+            "canonical": "publication_year",
+            "score": 10.0,
+            "evidence": [
+              "Book.publication_year exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_book",
+      "status": "passed",
+      "case": "delete_book",
+      "source": "Users can create, list, update, search and delete books.",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 2
+  },
+  "triage_counts": {
+    "passed": 2
+  }
 }

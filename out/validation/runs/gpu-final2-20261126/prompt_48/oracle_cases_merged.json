@@ -1,4 +1,86 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "add_book_action",
+      "source": "Users should be able to add books",
+      "given": {
+        "book": {
+          "title": "The Great Gatsby",
+          "author": "F. Scott Fitzgerald"
+        }
+      },
+      "when": {
+        "action": "add_book",
+        "args": [
+          "book.title",
+          "book.author"
+        ]
+      },
+      "then": {
+        "state": {
+          "book.title": "The Great Gatsby",
+          "book.author": "F. Scott Fitzgerald"
+        },
+        "rows": {
+          "Book": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

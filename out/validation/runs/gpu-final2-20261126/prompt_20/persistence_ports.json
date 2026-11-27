@@ -158,6 +158,54 @@
             ],
             "return_type": "list[SalesRecord]",
             "raises": []
+          },
+          {
+            "name": "update",
+            "description": "Updates an existing SalesRecord.",
+            "params": [
+              {
+                "name": "sales_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "sale_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "SalesRecord",
+            "raises": []
+          },
+          {
+            "name": "delete",
+            "description": "Deletes an existing SalesRecord.",
+            "params": [
+              {
+                "name": "sales_id",
+                "type": "int"
+              },
+              {
+                "name": "product_id",
+                "type": "int"
+              },
+              {
+                "name": "quantity",
+                "type": "int"
+              },
+              {
+                "name": "sale_date",
+                "type": "datetime.datetime"
+              }
+            ],
+            "return_type": "None",
+            "raises": []
           }
         ]
       }

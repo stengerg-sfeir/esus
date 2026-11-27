@@ -102,3 +102,11 @@ class OrderRepository:
             patch['status'] = status
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
         return models.Order(**record)
+
+    def confirm_order(self, id: int = None) -> None:
+        """Confirms a Order. [mechanical named state update]"""
+        record = self._store.get('Order', 'id', id)
+        if record is None:
+            return None
+        self._store.update('Order', 'id', record.get('id'), {'status': 'confirmed'})
+        return None

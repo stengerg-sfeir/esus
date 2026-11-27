@@ -22,13 +22,13 @@
       "then": {
         "state": {
           "order.status": "pending",
-          "order.date": "2023-10-01"
+          "order.order_date": "2023-10-01"
         },
         "rows": {
           "Order": 1
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -69,13 +69,12 @@
             ],
             "alternatives": []
           },
-          "order.date": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
+          "order.order_date": {
+            "status": "aligned",
+            "canonical": "order_date",
+            "score": 10.0,
             "evidence": [
-              "prompt mentions field 'date'",
-              "not declared on Order"
+              "Order.order_date exists"
             ],
             "alternatives": []
           }
@@ -90,12 +89,50 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "expected state field 'order.date' is not declared on Order"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_order_for_customer",
+      "source": "Create a Python 3.12 order management application. Customers can have multiple orders. Each order belongs to exactly one customer and has a date and status.",
+      "given": {
+        "customer": {
+          "id": 101
+        },
+        "order": {
+          "date": "2023-10-02",
+          "status": "pending"
+        }
+      },
+      "when": {
+        "action": "create_order",
+        "args": [
+          "customer.id",
+          "order.date",
+          "order.status"
+        ]
+      },
+      "then": {
+        "state": {
+          "order.status": "pending",
+          "order.date": "2023-10-02"
+        },
+        "rows": {
+          "Order": 1
+        }
+      },
+      "status": "assumed",
+      "base_status": "assumed",
+      "assumptions": [
+        "order.status is set to 'pending' by default if not provided"
+      ],
+      "ambiguities": [
+        "the exact default value for order.status is not specified in requirements"
+      ]
     },
     {
       "id": "update_order_status",
@@ -110,7 +147,7 @@
         "action": "update_order",
         "args": [
           "order.id",
-          "status"
+          "order.status"
         ]
       },
       "then": {
@@ -121,10 +158,10 @@
       "status": "assumed",
       "base_status": "assumed",
       "assumptions": [
-        "the new status value 'shipped' is assumed based on typical order lifecycle; requirement does not specify value"
+        "the new status value is provided in the args and applied directly"
       ],
       "ambiguities": [
-        "the requirement does not specify which status value should be set, so the exact value is ambiguous"
+        "the requirements do not specify how status transitions are validated or constrained"
       ]
     },
     {
@@ -149,10 +186,10 @@
       "status": "assumed",
       "base_status": "assumed",
       "assumptions": [
-        "deletion removes the order from the system; no explicit state change is required beyond row count"
+        "deletion removes the order and no other state is affected"
       ],
       "ambiguities": [
-        "the requirement does not specify whether deletion affects related entities or triggers cascades"
+        "the requirements do not specify whether deletion affects related entities or triggers cascades"
       ]
     }
   ]

@@ -1,87 +1,10 @@
 {
   "counts": {
-    "legacy": 2,
-    "kept": 0,
-    "retired": 2,
+    "legacy": 1,
+    "kept": 1,
+    "retired": 0,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
-  "cases": [
-    {
-      "case": {
-        "id": "search_by_name",
-        "source": "Users must be able to search by name",
-        "given": {
-          "product": {
-            "name": "Laptop",
-            "category": "Electronics",
-            "price": 999.99,
-            "quantity": 10
-          }
-        },
-        "when": {
-          "action": "search",
-          "args": [
-            "name"
-          ]
-        },
-        "then": {
-          "state": {
-            "product.name": "Laptop"
-          },
-          "rows": {
-            "Product": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "0e98c5d4c8cda10d24da81fc7c25e833cea47c4c436343cf2d4430ab7a9b4239"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "combinable_filters",
-        "source": "All filters must be combinable",
-        "given": {
-          "product": {
-            "name": "Wireless Mouse",
-            "category": "Electronics",
-            "price": 49.99,
-            "quantity": 50
-          }
-        },
-        "when": {
-          "action": "filter",
-          "args": [
-            "name",
-            "category",
-            "max_price",
-            "min_quantity"
-          ]
-        },
-        "then": {
-          "state": {
-            "product.name": "Wireless Mouse",
-            "product.category": "Electronics",
-            "product.price": 49.99,
-            "product.quantity": 50
-          },
-          "rows": {
-            "Product": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "0e98c5d4c8cda10d24da81fc7c25e833cea47c4c436343cf2d4430ab7a9b4239"
-      },
-      "status": "not_run",
-      "reason": ""
-    }
-  ]
+  "cases": []
 }

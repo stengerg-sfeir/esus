@@ -79,22 +79,6 @@ class OrderService:
         """Deletes an existing Order. [mechanical CRUD wrapper]"""
         self._repos['OrderRepository'].delete(order_id=order_id)
 
-    def orderconfirm(self, order_id: int = None) -> None:
-        """Orderconfirm. [llm-written by server — review]"""
-        order = self._repos['OrderRepository'].get_order_with_products(order_id)
-        if order is None:
-            raise errors.OrderNotFoundError('Order not found')
-        if order.status != 'pending':
-            raise errors.InvalidOrderStatusError("Order status must be 'pending' to confirm")
-        self._repos['OrderRepository'].update(order_id=order.order_id, status='confirmed')
-        order_products = self._repos['OrderProductRepository'].get_order_products_by_order_id(order.order_id)
-        for op in order_products:
-            product = self._repos['ProductRepository'].read_one(product_id=op.product_id)
-            if product is None:
-                raise errors.ProductNotFoundError(f'Product with ID {op.product_id} not found')
-            new_stock = product.stock_quantity + op.quantity
-            self._repos['ProductRepository'].update(product_id=product.product_id, stock_quantity=new_stock)
-
 
 class ProductService:
 

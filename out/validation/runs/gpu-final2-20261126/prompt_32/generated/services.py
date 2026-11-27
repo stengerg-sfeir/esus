@@ -73,10 +73,3 @@ class OrderService:
     def update_order(self, id: int = None, state: str = None, created_at: Any = None, updated_at: Any = None) -> None:
         """Updates an existing Order. [mechanical CRUD wrapper]"""
         self._repos['OrderRepository'].update(id=id, state=state, created_at=created_at, updated_at=updated_at)
-
-    def orderconfirm(self, order_id: int = None) -> None:
-        """Orderconfirm. [llm-written by server — review]"""
-        order = self._repos['OrderRepository'].read_one(order_id)
-        if not order.state == 'pending':
-            raise errors.OrderStateException("order.state == 'pending'")
-        self._repos['OrderRepository'].update(order.id, state='confirmed')

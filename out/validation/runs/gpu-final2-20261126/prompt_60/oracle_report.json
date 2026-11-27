@@ -1,5 +1,78 @@
 {
   "prompt": "prompt_60",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:cancel_confirmed_order",
+      "status": "passed",
+      "case": "cancel_confirmed_order",
+      "source": "Cancelling a confirmed order releases the reserved stock.",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Customer",
+              "Invoice"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": [
+              "OrderItem",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "OrderService.cancel_order",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

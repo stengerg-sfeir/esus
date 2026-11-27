@@ -162,18 +162,3 @@ class BookRepository:
             if any(value is not None and query in str(value).lower() for value in values):
                 result.append(row)
         return _model_list([models.Book(**row) for row in result], models.Book)
-
-    def search(self) -> list[models.Book]:
-        """Search. [llm-written by server — review]"""
-        result = []
-        for row in self._store.select(self.ENTITY, []):
-            title = row.get('title')
-            author = row.get('author')
-            isbn = row.get('isbn')
-            if title is not None and title.lower().find(str(title).lower()) != -1:
-                result.append(row)
-            elif author is not None and author.lower().find(str(author).lower()) != -1:
-                result.append(row)
-            elif isbn is not None and isbn.lower().find(str(isbn).lower()) != -1:
-                result.append(row)
-        return _model_list(result, models.Book)

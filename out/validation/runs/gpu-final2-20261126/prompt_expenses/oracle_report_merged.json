@@ -1,5 +1,350 @@
 {
   "prompt": "prompt_expenses",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:expense_add_with_valid_params",
+      "status": "passed",
+      "case": "expense_add_with_valid_params",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Budget"
+            ]
+          },
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {
+          "expense.amount_cents": {
+            "status": "aligned",
+            "canonical": "amount_cents",
+            "score": 10.0,
+            "evidence": [
+              "Expense.amount_cents exists"
+            ],
+            "alternatives": []
+          },
+          "expense.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Expense.description exists"
+            ],
+            "alternatives": []
+          },
+          "expense.expense_date": {
+            "status": "aligned",
+            "canonical": "expense_date",
+            "score": 10.0,
+            "evidence": [
+              "Expense.expense_date exists"
+            ],
+            "alternatives": []
+          },
+          "expense.payment_method": {
+            "status": "aligned",
+            "canonical": "payment_method",
+            "score": 10.0,
+            "evidence": [
+              "Expense.payment_method exists"
+            ],
+            "alternatives": []
+          },
+          "expense.is_recurring": {
+            "status": "aligned",
+            "canonical": "is_recurring",
+            "score": 10.0,
+            "evidence": [
+              "Expense.is_recurring exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:expense_get_by_id",
+      "status": "passed",
+      "case": "expense_get_by_id",
+      "source": "expense list [--category] [--from-date] [--to-date] [--method]",
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {
+          "expense.amount_cents": {
+            "status": "aligned",
+            "canonical": "amount_cents",
+            "score": 10.0,
+            "evidence": [
+              "Expense.amount_cents exists"
+            ],
+            "alternatives": []
+          },
+          "expense.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Expense.description exists"
+            ],
+            "alternatives": []
+          },
+          "expense.expense_date": {
+            "status": "aligned",
+            "canonical": "expense_date",
+            "score": 10.0,
+            "evidence": [
+              "Expense.expense_date exists"
+            ],
+            "alternatives": []
+          },
+          "expense.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Expense.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "expense.payment_method": {
+            "status": "aligned",
+            "canonical": "payment_method",
+            "score": 10.0,
+            "evidence": [
+              "Expense.payment_method exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.get_expense_by_id",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:expense_delete_by_id",
+      "status": "passed",
+      "case": "expense_delete_by_id",
+      "source": "expense category delete --id",
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.delete_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:budget_add_with_params",
+      "status": "passed",
+      "case": "budget_add_with_params",
+      "source": "budget add --category-id --month --amount",
+      "alignment": {
+        "entities": {
+          "budget": {
+            "status": "aligned",
+            "canonical": "Budget",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Budget",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "budget.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Budget.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "budget.month": {
+            "status": "aligned",
+            "canonical": "month",
+            "score": 10.0,
+            "evidence": [
+              "Budget.month exists"
+            ],
+            "alternatives": []
+          },
+          "budget.amount_limit_cents": {
+            "status": "aligned",
+            "canonical": "amount_limit_cents",
+            "score": 10.0,
+            "evidence": [
+              "Budget.amount_limit_cents exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BudgetRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create"
+          ]
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:budget_delete_with_params",
+      "status": "passed",
+      "case": "budget_delete_with_params",
+      "source": "budget delete --category-id --month",
+      "alignment": {
+        "entities": {
+          "budget": {
+            "status": "aligned",
+            "canonical": "Budget",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Budget",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "BudgetRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:add_expense_with_category_not_found",
+      "status": "passed",
+      "case": "add_expense_with_category_not_found",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 6
+  },
+  "triage_counts": {
+    "passed": 6
+  }
 }

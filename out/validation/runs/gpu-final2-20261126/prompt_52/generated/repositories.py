@@ -118,6 +118,14 @@ class BookRepository:
         """Returns a list of all books that are currently available (not currently borrowed). [mechanical boolean filter]"""
         return _model_list(self._store.select(self.ENTITY, [('available_status', 'eq', True)]), models.Book)
 
+    def borrow_book(self, book_id: int = None, member_id: int = None) -> None:
+        """Borrows a Book. [mechanical named state update]"""
+        record = self._store.get('Book', 'book_id', book_id)
+        if record is None:
+            return None
+        self._store.update('Book', 'book_id', record.get('book_id'), {'available_status': False})
+        return None
+
 
 class MemberRepository:
     ENTITY = "Member"

@@ -85,67 +85,63 @@ class ExpenseService:
 
     def get_monthly_report(self, month: str = None) -> Dict[str, Any]:
         """Returns a monthly report including total spending, per-category breakdown, and budget status (on_track/warning/exceeded) for a given month in 'YYYY-MM' format. [llm-written by server — review]"""
-        month_str = month if month else datetime.datetime.now().strftime('%Y-%m')
-        year, month_num = (int(month_str[:4]), int(month_str[5:]))
-        start_date = datetime.date(year, month_num, 1)
-        _, last_day = calendar.monthrange(year, month_num)
-        end_date = datetime.date(year, month_num, last_day)
-        expenses = self._repos['ExpenseRepository'].read_all()
-        monthly_spending = {}
+        month = month or ''
+        if not month or not month.startswith('20') or len(month) != 7:
+            raise ValueError("Invalid month format: must be 'YYYY-MM'")
+        start_date = _as_date(f'{month}-01')
+        _, last_day = calendar.monthrange(int(month[:4]), int(month[5:]))
+        end_date = datetime.date(int(month[:4]), int(month[5:]), last_day)
+        records = self._repos['ExpenseRepository'].read_all()
+        total_spent = 0
         category_spending = {}
-        budget_status = {}
-        for expense in expenses:
-            expense_date_str = str(expense.expense_date or '')[:10]
-            if not expense_date_str.startswith(month_str[:7]):
+        monthly_budget_status = {}
+        for expense in records:
+            expense_date = expense.expense_date
+            if expense_date is None:
                 continue
+            if expense_date < start_date or expense_date > end_date:
+                continue
+            total_spent += expense.amount_cents
             category_id = expense.category_id
-            amount = expense.amount_cents or 0
-            if category_id not in monthly_spending:
-                monthly_spending[category_id] = 0
-            monthly_spending[category_id] += amount
-            if category_id not in category_spending:
-                category_spending[category_id] = 0
-            category_spending[category_id] += amount
-        category_names = {}
-        for cat in self._repos['CategoryRepository'].read_all():
-            category_names[cat.id] = cat.name
-        budgets = self._repos['BudgetRepository'].get_budgets_by_month(month=month_str)
-        for budget in budgets:
-            category_id = budget.category_id
-            limit = budget.amount_limit_cents
-            if category_id not in monthly_spending:
-                monthly_spending[category_id] = 0
-            total = monthly_spending.get(category_id, 0)
-            if total > limit:
-                budget_status[category_id] = 'exceeded'
-            elif total >= limit * 0.9:
-                budget_status[category_id] = 'warning'
+            if category_id is not None:
+                category_spending[category_id] = category_spending.get(category_id, 0) + expense.amount_cents
+        for category_id, spending in category_spending.items():
+            budget = self._repos['BudgetRepository'].read_all(category_id=category_id, month=month)
+            if not budget:
+                continue
+            budget_limit = budget[0].amount_limit_cents if budget else 0
+            if spending > budget_limit:
+                monthly_budget_status[f'{category_id}'] = 'exceeded'
+            elif spending >= budget_limit * 0.9:
+                monthly_budget_status[f'{category_id}'] = 'warning'
             else:
-                budget_status[category_id] = 'on_track'
-        result = {'total_spent': sum(monthly_spending.values()), 'per_category_breakdown': [{'category_id': cat_id, 'total_spent': monthly_spending[cat_id], 'category_name': category_names.get(cat_id, 'Unknown'), 'budget_status': budget_status.get(cat_id, 'on_track')} for cat_id in monthly_spending.keys()]}
-        return result
+                monthly_budget_status[f'{category_id}'] = 'on_track'
+        return {'total_spent': total_spent, 'category_spending': category_spending, 'budget_status': monthly_budget_status}
 
     def get_yearly_summary(self, year: int = None) -> Dict[str, Any]:
         """Returns a yearly summary including monthly totals, top spending categories, and average monthly spend for a given year. [llm-written by server — review]"""
-        year = year or datetime.datetime.now().year
-        year_str = str(year)
-        monthly_totals = self._repos['ExpenseRepository'].get_yearly_spending_summary(year=year_str)
-        total_spent = sum(monthly_totals.values())
+        if year is None:
+            raise ValueError('year is required')
+        monthly_totals = {}
         category_spending = {}
-        for month, total in monthly_totals.items():
-            month_start = month[:7] + '-01'
-            month_end = month[:7] + '-31'
-            expenses = self._repos['ExpenseRepository'].get_expenses_by_date_range(start_date=month_start, end_date=month_end)
-            for expense in expenses:
-                category_id = expense.category_id
-                if category_id not in category_spending:
-                    category_spending[category_id] = 0
-                category_spending[category_id] += expense.amount_cents or 0
-        category_names = {}
-        for cat in self._repos['CategoryRepository'].read_all():
-            category_names[cat.id] = cat.name
-        result = {'total_spent': total_spent, 'monthly_totals': monthly_totals, 'top_spending_categories': sorted([(k, category_names.get(k, 'Unknown')) for k in category_spending.keys()], key=lambda x: x[1] if isinstance(x[1], str) else 0, reverse=True), 'category_spending': [(cat_id, amount) for cat_id, amount in category_spending.items()]}
-        return result
+        expenses = self._repos['ExpenseRepository'].read_all()
+        for expense in expenses:
+            expense_date = expense.expense_date
+            if expense_date is None:
+                continue
+            year_str = str(expense_date.year)
+            if year_str != str(year):
+                continue
+            month_str = expense_date.strftime('%Y-%m')
+            month_key = month_str
+            monthly_totals[month_key] = monthly_totals.get(month_key, 0) + expense.amount_cents
+            category_id = expense.category_id
+            if category_id is not None:
+                category_spending[category_id] = category_spending.get(category_id, 0) + expense.amount_cents
+        total_spent = sum(monthly_totals.values())
+        average_monthly_spend = total_spent / 12 if monthly_totals else 0
+        top_spending_categories = sorted([(k, v) for k, v in category_spending.items()], key=lambda x: x[1], reverse=True)
+        return {'total_spent': total_spent, 'monthly_totals': monthly_totals, 'top_spending_categories': top_spending_categories, 'average_monthly_spend': average_monthly_spend}
 
     def get_category_spending(self, category_id: int = None, start_date: datetime.date = None, end_date: datetime.date = None) -> Dict[str, Any]:
         """Returns aggregated spending for a category over a specified date range. [AGGREGATE_BY_FK_AND_DATE via extraction plan]"""
@@ -204,67 +200,81 @@ class ExpenseService:
 
     def expensereportmonthly(self, month: str = None) -> None:
         """Expensereportmonthly. [llm-written by server — review]"""
-        month_str = month if month else datetime.datetime.now().strftime('%Y-%m')
-        start_date = _as_date(f'{month_str}-01')
-        end_date = _as_date(f'{month_str}-31')
-        month_year = month_str[:7]
-        _, last_day = calendar.monthrange(int(month_str[:4]), int(month_str[5:]))
-        end_date = datetime.date(int(month_str[:4]), int(month_str[5:]), last_day)
-        expenses = self._repos['ExpenseRepository'].read_all()
-        monthly_spending = {}
+        month = month or ''
+        if not month or not month.startswith('20') or len(month) != 7:
+            raise ValueError("Invalid month format: must be 'YYYY-MM'")
+        start_date = _as_date(f'{month}-01')
+        end_date = _as_date(f'{month}-01')
+        _, last_day = calendar.monthrange(int(month[:4]), int(month[5:]))
+        end_date = datetime.date(int(month[:4]), int(month[5:]), last_day)
+        records = self._repos['ExpenseRepository'].read_all()
+        total_spent = 0
         category_spending = {}
-        budget_status = {}
-        for expense in expenses:
-            expense_date_str = str(expense.expense_date or '')[:10]
-            if not expense_date_str.startswith(month_str[:7]):
+        monthly_budget_status = {}
+        for expense in records:
+            expense_date = expense.expense_date
+            if expense_date is None:
                 continue
+            if expense_date < start_date or expense_date > end_date:
+                continue
+            total_spent += expense.amount_cents
             category_id = expense.category_id
-            amount = expense.amount_cents or 0
-            if category_id not in monthly_spending:
-                monthly_spending[category_id] = 0
-            monthly_spending[category_id] += amount
-            if category_id not in category_spending:
-                category_spending[category_id] = 0
-            category_spending[category_id] += amount
-        category_names = {}
-        for cat in self._repos['CategoryRepository'].read_all():
-            category_names[cat.id] = cat.name
-        budgets = self._repos['BudgetRepository'].get_budgets_by_month(month=month_str)
-        for budget in budgets:
-            category_id = budget.category_id
-            limit = budget.amount_limit_cents
-            if category_id not in monthly_spending:
-                monthly_spending[category_id] = 0
-            total = monthly_spending.get(category_id, 0)
-            if total > limit:
-                budget_status[category_id] = 'exceeded'
-            elif total >= limit * 0.9:
-                budget_status[category_id] = 'warning'
+            if category_id is not None:
+                category_spending[category_id] = category_spending.get(category_id, 0) + expense.amount_cents
+        for category_id, spending in category_spending.items():
+            budget = self._repos['BudgetRepository'].read_all(category_id=category_id, month=month)
+            if not budget:
+                continue
+            budget_limit = budget[0].amount_limit_cents if budget else 0
+            if spending > budget_limit:
+                monthly_budget_status[f'{category_id}'] = 'exceeded'
+            elif spending >= budget_limit * 0.9:
+                monthly_budget_status[f'{category_id}'] = 'warning'
             else:
-                budget_status[category_id] = 'on_track'
-        result = {'total_spent': sum(monthly_spending.values()), 'per_category_breakdown': [{'category_id': cat_id, 'total_spent': monthly_spending[cat_id], 'category_name': category_names.get(cat_id, 'Unknown'), 'budget_status': budget_status.get(cat_id, 'on_track')} for cat_id in monthly_spending.keys()]}
+                monthly_budget_status[f'{category_id}'] = 'on_track'
+        result = {'total_spent': total_spent, 'category_spending': category_spending, 'budget_status': monthly_budget_status}
         return result
 
     def expensereportyearly(self, year: str = None) -> None:
         """Expensereportyearly. [llm-written by server — review]"""
-        year_str = year if year else datetime.datetime.now().year
-        year_str = str(year_str)
-        monthly_totals = self._repos['ExpenseRepository'].get_yearly_spending_summary(year=year_str)
-        total_spent = sum(monthly_totals.values())
+        year = int(year) if year else None
+        if year is None:
+            raise ValueError('year is required')
+        monthly_totals = {}
         category_spending = {}
-        for month, total in monthly_totals.items():
-            month_start = month[:7] + '-01'
-            month_end = month[:7] + '-31'
-            expenses = self._repos['ExpenseRepository'].get_expenses_by_date_range(start_date=month_start, end_date=month_end)
-            for expense in expenses:
-                category_id = expense.category_id
-                if category_id not in category_spending:
-                    category_spending[category_id] = 0
-                category_spending[category_id] += total
-        category_names = {}
-        for cat in self._repos['CategoryRepository'].read_all():
-            category_names[cat.id] = cat.name
-        result = {'total_spent': total_spent, 'monthly_totals': monthly_totals, 'top_spending_categories': sorted([(k, category_names.get(k, 'Unknown')) for k in category_spending.keys()], key=lambda x: x[1] if isinstance(x[1], str) else 0, reverse=True), 'category_spending': [(cat_id, amount) for cat_id, amount in category_spending.items()]}
+        monthly_budget_status = {}
+        expenses = self._repos['ExpenseRepository'].read_all()
+        for expense in expenses:
+            expense_date = expense.expense_date
+            if expense_date is None:
+                continue
+            year_str = str(expense_date.year)
+            if year_str != str(year):
+                continue
+            month_str = expense_date.strftime('%Y-%m')
+            month_key = month_str
+            monthly_totals[month_key] = monthly_totals.get(month_key, 0) + expense.amount_cents
+            category_id = expense.category_id
+            if category_id is not None:
+                category_spending[category_id] = category_spending.get(category_id, 0) + expense.amount_cents
+        for month_str in monthly_totals.keys():
+            month = month_str.split('-')[1]
+            category_id = None
+            budget = self._repos['BudgetRepository'].read_all(category_id=None, month=month_str)
+            if not budget:
+                continue
+            for b in budget:
+                category_id = b.category_id
+                if category_id is None:
+                    continue
+                total_spent = monthly_totals.get(f'{year}-{month}', 0)
+                if total_spent > b.amount_limit_cents:
+                    monthly_budget_status[f'{year}-{month}'] = 'exceeded'
+                elif total_spent < b.amount_limit_cents:
+                    monthly_budget_status[f'{year}-{month}'] = 'on_track'
+                else:
+                    monthly_budget_status[f'{year}-{month}'] = 'warning'
+        result = {'total_spent': sum(monthly_totals.values()), 'monthly_totals': monthly_totals, 'top_spending_categories': sorted([(k, v) for k, v in category_spending.items()], key=lambda x: x[1], reverse=True), 'budget_status': monthly_budget_status}
         return result
 
     def expenseexport(self, from_date: str = None, to_date: str = None, output: str = None) -> None:
@@ -274,14 +284,10 @@ class ExpenseService:
         records = self._repos['ExpenseRepository'].read_all()
         filtered = []
         for record in records:
-            date = getattr(record, 'expense_date', None)
-            if date is not None:
-                date_str = str(date)[:10]
-            else:
-                date_str = ''
-            if start_date is not None and date_str < str(start_date)[:10]:
+            date_str = str(getattr(record, 'expense_date', None) or '')[:10]
+            if start_date and date_str < str(start_date)[:10]:
                 continue
-            if end_date is not None and date_str > str(end_date)[:10]:
+            if end_date and date_str > str(end_date)[:10]:
                 continue
             filtered.append(record)
         with open(output, 'w', newline='', encoding='utf-8') as handle:
@@ -289,3 +295,18 @@ class ExpenseService:
             writer.writerow(['id', 'amount_cents', 'description', 'expense_date', 'category_id', 'payment_method', 'is_recurring'])
             for record in filtered:
                 writer.writerow([record.id, record.amount_cents, record.description or '', record.expense_date or '', record.category_id, record.payment_method or '', record.is_recurring])
+
+    def add_expense(self, amount_cents: int = None, description: str = None, expense_date: datetime.date = None, category_id: int = None, payment_method: str = None, is_recurring: bool = None) -> Any:
+        """validates category exists, adds expense, checks if budget exceeded after insertion [llm-written by server — review]"""
+        if amount_cents is None:
+            raise ValueError('amount_cents is required')
+        if category_id is None:
+            raise ValueError('category_id is required')
+        category = self._repos['CategoryRepository'].read_one(id=category_id)
+        if not category:
+            raise errors.CategoryNotFoundError(f'Category with id {category_id} not found')
+        expense_data = {'amount_cents': amount_cents, 'description': description or '', 'expense_date': expense_date or datetime.date.today(), 'category_id': category_id, 'payment_method': payment_method or 'cash', 'is_recurring': is_recurring or False}
+        created_expense = self._repos['ExpenseRepository'].create(**expense_data)
+        if self._repos['BudgetRepository'].check_budget_exceeded(category_id=category_id, month=expense_data['expense_date'].strftime('%Y-%m')):
+            raise errors.BudgetExceededException(f'Budget exceeded for category {category_id} in month {expense_data['expense_date'].strftime('%Y-%m')}')
+        return created_expense

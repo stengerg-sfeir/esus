@@ -80,11 +80,10 @@ ADAPTERS = {
         'service': 'CategoryService',
         'method': 'add_category',
         'fields': [
-            ('category_id', ('category_id', 'LOOKUP_ID', True)),
             ('name', ('name', 'DIRECT', True)),
         ],
-        'argv': {'category_id': 'category_id', 'name': 'name'},
-        'targets': {'category_id': None, 'name': None},
+        'argv': {'name': 'name'},
+        'targets': {'name': None},
         'assembled': [],
         'creates': True,
     },
@@ -408,7 +407,6 @@ def build_parser():
     p_Category = sub.add_parser('Category')
     sub_Category = p_Category.add_subparsers(dest='subcommand')
     p_Category_add = sub_Category.add_parser('add')
-    p_Category_add.add_argument('--category-id', type=int, required=True, dest='category_id')
     p_Category_add.add_argument('--name', type=str, required=True, dest='name')
     p_Category_add.set_defaults(_binding=('Category', 'add'))
     p_Category_update = sub_Category.add_parser('update')

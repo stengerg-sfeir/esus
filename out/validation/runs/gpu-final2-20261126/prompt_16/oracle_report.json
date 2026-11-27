@@ -63,23 +63,50 @@
         },
         "action": {
           "status": "alias",
-          "canonical": "CustomerRepository.read_one",
+          "canonical": "CustomerRepository.read_all_paginated",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "CustomerRepository.delete",
-            "CustomerRepository.update"
-          ]
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:delete_customer",
+      "status": "passed",
+      "case": "delete_customer",
+      "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+      "alignment": {
+        "entities": {
+          "customer": {
+            "status": "aligned",
+            "canonical": "Customer",
+            "score": 12.0,
+            "evidence": [
+              "name/fields match Customer",
+              "score 12.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "CustomerRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
         }
       },
       "triage": "passed"
     },
     {
       "name": "scenario:oracle:list_customers_paginated",
-      "status": "failed",
-      "reason": "result row count is 0, expected 3",
+      "status": "passed",
       "case": "list_customers_paginated",
       "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
       "alignment": {
@@ -138,7 +165,7 @@
         "fields": {},
         "action": {
           "status": "alias",
-          "canonical": "CustomerRepository.read_all",
+          "canonical": "CustomerRepository.read_all_paginated",
           "score": 1.0,
           "evidence": [
             "same operation with a different name"
@@ -146,15 +173,13 @@
           "alternatives": []
         }
       },
-      "triage": "behavior: row count"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "passed": 2,
-    "failed": 1
+    "passed": 4
   },
   "triage_counts": {
-    "passed": 2,
-    "behavior: row count": 1
+    "passed": 4
   }
 }

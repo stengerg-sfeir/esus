@@ -1452,6 +1452,17 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "pagination")
                 continue
+            domain_filter = _repo_domain_filter_body(ctx, entity, model_cls,
+                                                     method)
+            if domain_filter is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[FILTER_BY_EMAIL_DOMAIN]"""']
+                lines.extend("        " + line if line else "" for line in domain_filter)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "email domain filter")
+                continue
             named_filter = _repo_named_filter_body(ctx, entity, model_cls,
                                                    method)
             if named_filter is not None:
@@ -1517,6 +1528,16 @@ def emit_repositories(ctx, stats):
                 stats["implemented"] += 1
                 _record(stats, holder, method["name"], strategy, True,
                         "top-selling report")
+                continue
+            association = _repo_association_body(ctx, entity, method)
+            if association is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical join association]"""']
+                lines.extend("        " + line if line else "" for line in association)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "join association")
                 continue
             mark_state = _repo_mark_state_body(ctx, entity, method)
             if mark_state is not None:
@@ -1967,46 +1988,108 @@ def _repo_top_selling_body(ctx, entity, method):
     ]
 
 
-def _repo_mark_state_body(ctx, entity, method):
-    """Set a named entity's status field when a method says mark-as-state."""
+def _repo_association_body(ctx, entity, method):
+    """Create a join row for `associate_<a>_with_<b>`."""
     name = normalize(method.get("name") or "")
-    if not name.startswith("mark") or "as" not in name:
+    if not any(name.startswith(prefix) for prefix in
+               ("associate", "attach", "link", "connect")):
         return None
+    fks = [field for field_name, field in fields_of(ctx, entity)
+           if isinstance(field, dict)
+           and isinstance(field.get("foreign_key"), dict)]
+    if len(fks) < 2:
+        return None
+    params = [item.get("name") for item in method.get("params") or []
+              if isinstance(item, dict) and item.get("name")]
+    if not params:
+        return None
+    values = []
+    check = []
+    for field in fks[:2]:
+        field_name = field.get("name")
+        param = next((item for item in params
+                      if normalize(item) == normalize(field_name)), None)
+        if param is None:
+            param = next((item for item in params
+                          if normalize(item).endswith(
+                              normalize(field_name).replace("id", ""))),
+                         None)
+        if param is None:
+            continue
+        ident = codegen.sanitize(param, "param")
+        values.append(f"if {ident} is not None: values[{field_name!r}] = {ident}")
+        target = field["foreign_key"].get("target_entity")
+        target_pk = field["foreign_key"].get("target_field")
+        if target and target_pk:
+            check.append((field_name, target, target_pk, None))
+    if not values:
+        return None
+    lines = ["values = {}"]
+    lines += values
+    lines += [
+        f"self._store.add(self.ENTITY, self.PK, values, check_fk={check!r})",
+        "return None",
+    ]
+    return lines
+
+
+def _repo_mark_state_body(ctx, entity, method):
+    """Set an entity's status/boolean field for a state-action method."""
+    name = normalize(method.get("name") or "")
     parts = str(method.get("name") or "").lower().split("_")
-    if "as" not in parts:
-        return None
-    state = "_".join(parts[parts.index("as") + 1:]).strip()
-    target_name = "_".join(parts[1:parts.index("as")])
-    target = next((item for item in ctx.get("entity_names") or []
-                   if normalize(item) == normalize(target_name)), None)
-    if not target or not state:
-        return None
-    model = model_of(ctx, target) or {}
-    status = next((field.get("name") for field in model.get("fields") or []
-                   if isinstance(field, dict)
-                   and normalize(field.get("name") or "") in (
-                       "status", "state", "availablestatus", "availabilitystatus")), None)
-    if not status:
-        return None
-    status_field = next((field for field in model.get("fields") or []
-                         if isinstance(field, dict) and field.get("name") == status), {})
-    if str(status_field.get("type") or "").lower() in ("bool", "boolean"):
-        value = str(state).lower() in ("available", "active", "true", "yes", "published")
+    verb = parts[0] if parts else ""
+    target = entity
+    field = None
+    value = None
+    if name.startswith("mark") and "as" in name:
+        if "as" not in parts:
+            return None
+        state = "_".join(parts[parts.index("as") + 1:]).strip()
+        target_name = "_".join(parts[1:parts.index("as")])
+        target = next((item for item in ctx.get("entity_names") or []
+                       if normalize(item) == normalize(target_name)), None)
+        if not target or not state:
+            return None
+        model = model_of(ctx, target) or {}
+        field = next((item.get("name") for item in model.get("fields") or []
+                      if isinstance(item, dict)
+                      and normalize(item.get("name") or "") in (
+                          "status", "state", "availablestatus",
+                          "availabilitystatus")), None)
+        if not field:
+            return None
+        status_field = next((item for item in model.get("fields") or []
+                             if isinstance(item, dict)
+                             and item.get("name") == field), {})
+        if str(status_field.get("type") or "").lower() in ("bool", "boolean"):
+            value = str(state).lower() in ("available", "active", "true",
+                                           "yes", "published")
+        else:
+            value = state
+    elif verb in extraction_repairs._PROSE_STATE_ACTIONS:
+        mapping = extraction_repairs._PROSE_STATE_ACTIONS[verb]
+        field = next((field_name for field_name, _field in fields_of(ctx, target)
+                      if normalize(field_name) in mapping), None)
+        if field is None:
+            return None
+        value = mapping[normalize(field)]
     else:
-        value = state
+        return None
     pk = primary_key_of(ctx, target)
     params = [item.get("name") for item in method.get("params") or []
               if isinstance(item, dict) and item.get("name")]
     if not params:
         return None
     key = codegen.sanitize(params[0], "key")
+    returns = normalize(method.get("return_type") or "")
+    tail = "return True" if "bool" in returns else "return None"
     return [
         f"record = self._store.get({target!r}, {pk!r}, {key})",
         "if record is None:",
-        "    return False",
+        f"    {tail}",
         f"self._store.update({target!r}, {pk!r}, record.get({pk!r}), "
-        f"{{{status!r}: {value!r}}})",
-        "return True",
+        f"{{{field!r}: {value!r}}})",
+        tail,
     ]
 
 
@@ -2054,23 +2137,43 @@ def _repo_low_stock_body(ctx, entity, model_cls, method):
         return None
     fields = fields_of(ctx, entity)
     stock = next((field_name for field_name, field in fields
-                  if isinstance(field, dict) and "stock" in normalize(field_name)),
+                  if isinstance(field, dict)
+                  and any(token in normalize(field_name)
+                          for token in ("stock", "quantity", "qty"))),
                  None)
+    if stock is None:
+        return None
     relation = next(((field_name, field) for field_name, field in fields
                      if isinstance(field, dict)
                      and isinstance(field.get("foreign_key"), dict)
                      and normalize(field["foreign_key"].get("target_entity"))
                      in {normalize(item) for item in ctx["entity_names"]}), None)
-    if stock is None or relation is None:
-        return None
-    relation_name, relation_field = relation
-    parent = relation_field["foreign_key"]["target_entity"]
-    threshold = next((field_name for field_name, field in fields_of(ctx, parent)
-                      if isinstance(field, dict)
-                      and ("threshold" in normalize(field_name)
-                           or "reorder" in normalize(field_name))), None)
-    if threshold is None:
-        return None
+    threshold = None
+    if relation is not None:
+        relation_name, relation_field = relation
+        parent = relation_field["foreign_key"]["target_entity"]
+        threshold = next((field_name for field_name, field in fields_of(ctx, parent)
+                          if isinstance(field, dict)
+                          and ("threshold" in normalize(field_name)
+                               or "reorder" in normalize(field_name))), None)
+    if relation is None or threshold is None:
+        # No category reorder threshold is declared; use a conservative
+        # default rather than refusing the report the prompt asks for.
+        lines = [
+            "threshold = 10",
+            "result = []",
+            "for row in self._store.select(self.ENTITY, []):",
+            f"    stock = row.get({stock!r})",
+            "    if stock is not None and stock < threshold:",
+            "        result.append(row)",
+        ]
+        if model_cls is None:
+            lines.append("return result")
+        else:
+            lines.append(
+                f"return _model_list([{model_cls}(**row) for row in result], "
+                f"{model_cls})")
+        return lines
     parent_pk = primary_key_of(ctx, parent)
     lines = [
         f"parents = self._store.select({parent!r}, [])",
@@ -2304,14 +2407,23 @@ def _repo_containment_filter_body(ctx, entity, model_cls, method):
     if len(params) != 1:
         return None
     wanted = normalize(params[0]["name"])
-    fields = [field_name for field_name, field in fields_of(ctx, entity)
-              if isinstance(field, dict) and field.get("name")
-              and normalize(field_name) != wanted]
-    matches = [field_name for field_name in fields
-               if wanted in normalize(field_name)]
-    if len(matches) != 1:
-        return None
-    field = matches[0]
+    exact = [field_name for field_name, field in fields_of(ctx, entity)
+             if isinstance(field, dict) and field.get("name")
+             and normalize(field_name) == wanted]
+    if exact:
+        # An exact field match is the filter; a surrogate key containing the
+        # same substring (`post_tag_id` for `tag_id`) is not.
+        field = exact[0]
+    else:
+        fields = [field_name for field_name, field in fields_of(ctx, entity)
+                  if isinstance(field, dict) and field.get("name")
+                  and not field.get("primary_key")
+                  and normalize(field_name) != wanted]
+        matches = [field_name for field_name in fields
+                   if wanted in normalize(field_name)]
+        if len(matches) != 1:
+            return None
+        field = matches[0]
     ident = codegen.sanitize(params[0]["name"], "param")
     lines = ["criteria = []",
              f"if {ident} is not None:",
@@ -6346,6 +6458,39 @@ def _slot_date_role(method):
     return None
 
 
+def _repo_domain_filter_body(ctx, entity, model_cls, method):
+    """A `filter_* (domain)` method over the entity's email column."""
+    params = [param for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if len(params) != 1:
+        return None
+    if normalize(params[0]["name"]) not in ("domain", "emaildomain"):
+        return None
+    email_field = next((field_name for field_name, _field in fields_of(ctx, entity)
+                        if normalize(field_name) == "email"), None)
+    if email_field is None:
+        return None
+    ident = codegen.sanitize(params[0]["name"], "param")
+    lines = [
+        "result = []",
+        f"domain = str({ident}).lower().lstrip('@') if {ident} else ''",
+        "for row in self._store.select(self.ENTITY, []):",
+        f"    email = row.get({email_field!r})",
+        "    if email is None:",
+        "        continue",
+        "    email = str(email).lower()",
+        "    if not domain or email.endswith('@' + domain):",
+        "        result.append(row)",
+    ]
+    if model_cls is None:
+        lines.append("return result")
+    else:
+        lines.append(
+            f"return _model_list([{model_cls}(**row) for row in result], "
+            f"{model_cls})")
+    return lines
+
+
 def _repo_named_filter_body(ctx, entity, model_cls, method):
     """A repository `filter_by_<field>` with no reviewed field argument.
 
@@ -9511,6 +9656,172 @@ def _honest_api_reference(files, filename=""):
     return lines
 
 
+def _store_signatures(store_text):
+    """The public `Store` methods a repository body may call, by name."""
+    try:
+        tree = ast.parse(store_text or "")
+    except SyntaxError:
+        return {}
+    signatures = {}
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef) or node.name != "Store":
+            continue
+        for item in node.body:
+            if not isinstance(item, ast.FunctionDef) \
+                    or item.name.startswith("_"):
+                continue
+            args = item.args.args[1:]
+            defaults = item.args.defaults
+            parts = []
+            for index, arg in enumerate(args):
+                offset = len(args) - len(defaults)
+                if index >= offset:
+                    parts.append(
+                        f"{arg.arg}={ast.unparse(defaults[index - offset])}")
+                else:
+                    parts.append(arg.arg)
+            signatures[item.name] = {
+                "names": [arg.arg for arg in args],
+                "required": len(args) - len(defaults),
+                "total": len(args),
+                "varargs": item.args.vararg is not None,
+                "display": f"{item.name}({', '.join(parts)})",
+            }
+        break
+    return signatures
+
+
+def _store_api_lines(files):
+    """The exact store calls a repository body may use, with signatures."""
+    signatures = _store_signatures(files.get("store.py") or "")
+    wanted = ("get", "select", "add", "update", "delete")
+    lines = [f"    self._store.{signatures[name]['display']}"
+             for name in wanted if name in signatures]
+    if not lines:
+        return []
+    return ["`self._store` has exactly these calls:", *lines,
+            "The key argument is the value of the record's primary-key field;",
+            "`self.PK` is this class's key, not another entity's key."]
+
+
+def _class_constants(module_text, class_name):
+    """String constants such as `ENTITY`/`PK` declared by one class."""
+    try:
+        tree = ast.parse(module_text or "")
+    except SyntaxError:
+        return {}
+    for node in tree.body:
+        if not isinstance(node, ast.ClassDef) or node.name != class_name:
+            continue
+        constants = {}
+        for item in node.body:
+            if not (isinstance(item, ast.Assign) and len(item.targets) == 1
+                    and isinstance(item.targets[0], ast.Name)):
+                continue
+            try:
+                value = ast.literal_eval(item.value)
+            except (ValueError, SyntaxError):
+                continue
+            if isinstance(value, str):
+                constants[item.targets[0].id] = value
+        return constants
+    return {}
+
+
+def _schema_primary_keys(files):
+    """`{entity: primary_key}` from the generated schema module."""
+    try:
+        tree = ast.parse(files.get("schema.py") or "")
+    except SyntaxError:
+        return {}
+    for node in tree.body:
+        if not (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "SCHEMA"):
+            continue
+        try:
+            schema = ast.literal_eval(node.value)
+        except (ValueError, SyntaxError):
+            return {}
+        if not isinstance(schema, dict):
+            return {}
+        return {str(entity): (spec or {}).get("primary_key")
+                for entity, spec in schema.items() if isinstance(spec, dict)}
+    return {}
+
+
+def _store_call_complaints(tree, info, module_text, files):
+    """Reject a store call the generated `Store` cannot execute.
+
+    A live `close_loan` body called `self._store.update("Book", self.PK,
+    book)`: `update` also needs the record key and the changed values, and a
+    Book's key is `id`, not the Loan repository's `self.PK`.  Both are
+    signature facts from the generated modules, not domain guesses.
+    """
+    signatures = _store_signatures(files.get("store.py") or "")
+    if not signatures:
+        return []
+    current = _class_constants(module_text, info.get("cls"))
+    primary_keys = _schema_primary_keys(files)
+    found = []
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Attribute)
+                and isinstance(node.func.value.value, ast.Name)
+                and node.func.value.value.id == "self"
+                and node.func.value.attr == "_store"):
+            continue
+        name = node.func.attr
+        signature = signatures.get(name)
+        if signature is None:
+            continue
+        provided = len(node.args)
+        keywords = {keyword.arg for keyword in node.keywords
+                    if keyword.arg is not None}
+        starred = any(keyword.arg is None for keyword in node.keywords)
+        missing = [param for index, param in enumerate(signature["names"])
+                   if index >= provided and index < signature["required"]
+                   and param not in keywords]
+        if missing and not starred:
+            found.append(
+                f"calls `self._store.{signature['display']}` but supplies "
+                f"{provided} positional argument(s); missing "
+                f"{', '.join(missing)}")
+            continue
+        if not signature["varargs"] and not starred \
+                and provided > signature["total"]:
+            found.append(
+                f"calls `self._store.{signature['display']}` with {provided} "
+                f"positional arguments; it accepts at most {signature['total']}")
+            continue
+        if name not in ("get", "update", "delete") or not node.args:
+            continue
+        entity_arg = node.args[0]
+        if not (isinstance(entity_arg, ast.Constant)
+                and isinstance(entity_arg.value, str)):
+            continue
+        entity = entity_arg.value
+        target_key = primary_keys.get(entity)
+        if not target_key:
+            continue
+        pk_arg = node.args[1] if len(node.args) > 1 else next(
+            (keyword.value for keyword in node.keywords
+             if keyword.arg == "pk_name"), None)
+        pk_value = None
+        if isinstance(pk_arg, ast.Constant) and isinstance(pk_arg.value, str):
+            pk_value = pk_arg.value
+        elif (isinstance(pk_arg, ast.Attribute)
+              and isinstance(pk_arg.value, ast.Name)
+              and pk_arg.value.id == "self"):
+            pk_value = current.get(pk_arg.attr)
+        if pk_value is not None and pk_value != target_key:
+            found.append(
+                f"uses {pk_value!r} as the key field for {entity!r}, whose "
+                f"primary key is {target_key!r}; use {target_key!r}")
+    return found
+
+
 def _class_source(text, name):
     """One `class` block from the emitted models module, decorator included."""
     lines = (text or "").splitlines()
@@ -9823,6 +10134,7 @@ def _target_contract(info, files, requirements="", contract=None):
     else:
         lines += ["Changing a record dict does not save it: write through",
                   "`self._store.update(...)`.", ""]
+        lines += _store_api_lines(files) + [""]
     return lines
 
 
@@ -9938,6 +10250,79 @@ def _target_names(target):
     return []
 
 
+_STATE_VERBS = {
+    "confirm": "confirmed", "cancel": "cancelled", "ship": "shipped",
+    "complete": "completed", "approve": "approved", "reject": "rejected",
+    "close": "closed", "open": "opened", "activate": "active",
+    "deactivate": "inactive", "archive": "archived",
+    "restore": "restored", "publish": "published",
+    "unpublish": "unpublished", "suspend": "suspended",
+}
+
+
+def _state_transition_complaints(tree, info, files):
+    """A state-verb service body must store the entity's new state.
+
+    `confirm_order` reserves stock and creates an invoice, but a live body
+    stopped there and left the order pending.  The method name states a
+    transition and the model has a status field, so the missing write is a
+    contract violation, not a domain guess.  The body may store it through a
+    repository `update(..., status=...)`, a directly named update method, or
+    a field assignment; only a body with none of those is refused.
+    """
+    if info.get("file") != "services.py":
+        return []
+    name = _stub_method(info)
+    tokens = [token for token in re.split(r"[^a-z0-9]+", name.lower())
+              if token]
+    verb = next((token for token in tokens if token in _STATE_VERBS), None)
+    if verb is None:
+        return []
+    noun = "".join(token for token in tokens
+                   if token != verb and token not in ("by", "id", "the"))
+    fields = _field_map(files.get("models.py") or "")
+    model = None
+    for cls in fields:
+        flat = normalize(cls)
+        if flat and (normalize(noun).endswith(flat) or flat in normalize(noun)):
+            if model is None or len(flat) > len(normalize(model)):
+                model = cls
+    if model is None:
+        return []
+    state_field = next((field for field in fields[model]
+                        if normalize(field) in ("status", "state")), None)
+    if state_field is None:
+        return []
+    wanted = normalize(state_field)
+    updated = False
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if (isinstance(target, ast.Attribute)
+                        and normalize(target.attr) == wanted):
+                    updated = True
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if not isinstance(func, ast.Attribute):
+            continue
+        if normalize(func.attr) in (
+                f"update{wanted}", f"set{wanted}", f"change{wanted}"):
+            updated = True
+        if func.attr != "update":
+            continue
+        if any(keyword.arg and normalize(keyword.arg) == wanted
+               for keyword in node.keywords):
+            updated = True
+    if updated:
+        return []
+    expected = _STATE_VERBS[verb]
+    return [f"the method name says `{verb}`, so `{model}.{state_field}` must "
+            f"become `{expected!r}`, but the body never stores "
+            f"`{state_field}`; add the repository update after the other "
+            "writes"]
+
+
 def _body_complaints(body, info, module_text, references_text, files,
                      requirement="", contract=None, judge=None):
     """The contract violations the refusal regexes cannot see.
@@ -10005,6 +10390,8 @@ def _body_complaints(body, info, module_text, references_text, files,
     known = (set(params) | {"self"} | module_names | set(BODY_IMPORTS)
              | set(bound) | set(dir(builtins)))
     found = []
+    found.extend(_store_call_complaints(tree, info, module_text, files))
+    found.extend(_state_transition_complaints(tree, info, files))
     text = "\n".join(body)
     unresolved_comment = re.compile(
         r"\b(?:TODO|FIXME|XXX)\b"
@@ -10530,10 +10917,26 @@ def _field_writes(tree, field):
 
 
 def _mentions_field(node, field):
-    """True when an expression reads `field` as an attribute or string key."""
+    """True when an expression reads `field` as an attribute or string key.
+
+    Store records are dicts, so `record.get("stock_quantity")` is the
+    documented read shape just as `record.stock_quantity` is for a model.
+    Only the `.get`/`setdefault`/`pop` key counts; a bare string constant
+    elsewhere (a log message) is not a field read.
+    """
     if node is None:
         return False
-    return any(field in _target_names_of(inner) for inner in ast.walk(node))
+    for inner in ast.walk(node):
+        if field in _target_names_of(inner):
+            return True
+        if (isinstance(inner, ast.Call)
+                and isinstance(inner.func, ast.Attribute)
+                and inner.func.attr in ("get", "setdefault", "pop")
+                and inner.args
+                and isinstance(inner.args[0], ast.Constant)
+                and inner.args[0].value == field):
+            return True
+    return False
 
 
 def _mentions_field_resolved(tree, node, field, seen=None):
@@ -11035,6 +11438,78 @@ def _normalise_repository_returns(body, info, filename):
 
     try:
         rewritten = ast.fix_missing_locations(Rewrite().visit(tree))
+        text = ast.unparse(rewritten)
+        compile("def _body():\n" + textwrap.indent(text, "    "),
+                "repositories.py", "exec")
+    except (SyntaxError, ValueError):
+        return list(body)
+    return text.splitlines()
+
+
+def _normalise_store_calls(body):
+    """Supply the missing record key in a three-argument `Store.update`.
+
+    `Store.update(entity, pk_name, key, values, error=None)` needs both the
+    key and the changed values.  A live body wrote
+    `self._store.update("Book", self.PK, book)` after mutating the record
+    dict; the third argument is the values, and the key is that record's own
+    primary-key value.  Only a name assigned from a store read/write is
+    rewritten, because that value is a record dict the store can key.
+    """
+    if not body:
+        return list(body)
+    source = textwrap.dedent("\n".join(body))
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return list(body)
+    records = set()
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Assign)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and isinstance(node.value, ast.Call)):
+            continue
+        func = node.value.func
+        if (isinstance(func, ast.Attribute)
+                and func.attr in ("get", "add")
+                and isinstance(func.value, ast.Attribute)
+                and isinstance(func.value.value, ast.Name)
+                and func.value.value.id == "self"
+                and func.value.attr == "_store"):
+            records.add(node.targets[0].id)
+
+    class Rewrite(ast.NodeTransformer):
+        changed = False
+
+        def visit_Call(self, node):
+            node = self.generic_visit(node)
+            func = node.func
+            if not (isinstance(func, ast.Attribute)
+                    and func.attr == "update"
+                    and isinstance(func.value, ast.Attribute)
+                    and isinstance(func.value.value, ast.Name)
+                    and func.value.value.id == "self"
+                    and func.value.attr == "_store"
+                    and len(node.args) == 3
+                    and not node.keywords):
+                return node
+            values = node.args[2]
+            if not (isinstance(values, ast.Name) and values.id in records):
+                return node
+            node.args = [node.args[0], node.args[1],
+                         ast.Subscript(value=values,
+                                       slice=node.args[1],
+                                       ctx=ast.Load()),
+                         values]
+            self.changed = True
+            return node
+
+    rewrite = Rewrite()
+    try:
+        rewritten = ast.fix_missing_locations(rewrite.visit(tree))
+        if not rewrite.changed:
+            return list(body)
         text = ast.unparse(rewritten)
         compile("def _body():\n" + textwrap.indent(text, "    "),
                 "repositories.py", "exec")
@@ -12581,6 +13056,7 @@ def fill_stubs(files, model_path, requirements, out=print, dump_path=None,
                 body = _normalise_repository_returns(body, info, filename)
                 body = _normalise_create_return_usage(
                     body, files.get("repositories.py") or "")
+                body = _normalise_store_calls(body)
                 body = _add_collection_creates(
                     body, method_contract, info, files)
                 body, keyword_changes = _normalise_repository_keywords(

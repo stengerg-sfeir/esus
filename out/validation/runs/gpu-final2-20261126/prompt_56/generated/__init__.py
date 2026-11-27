@@ -3,6 +3,6 @@
 from __future__ import annotations
 
 # Source documents: out/validation/runs/gpu-final2-20261126/prompt_56
-# Methods: 43 implemented, 2 stubs (each stub names its work order in its docstring).
+# Methods: 43 implemented, 1 stubs (each stub names its work order in its docstring).
 # CLI backend: argparse.
 

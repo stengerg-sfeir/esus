@@ -106,6 +106,73 @@ class RepairTests(unittest.TestCase):
         self.assertIn("due_date", log.lines[0])
 
 
+class CreateKeyParameterTests(unittest.TestCase):
+    model = {"name": "Category", "fields": [
+        field("category_id", "int", primary_key=True),
+        field("name")]}
+
+    def holder(self, description):
+        return [{"service_name": "CategoryService", "methods": [{
+            "name": "add_category",
+            "description": description,
+            "params": [{"name": "category_id", "type": "int"},
+                       {"name": "name", "type": "str"}],
+            "return_type": "None"}]}]
+
+    def test_a_service_create_loses_its_store_generated_key(self):
+        services = self.holder("Adds a new category with a specified name.")
+        repairs.repair_create_key_parameters(services, [self.model], Log())
+        self.assertEqual(
+            [p["name"] for p in services[0]["methods"][0]["params"]],
+            ["name"])
+
+    def test_a_description_naming_the_key_keeps_it(self):
+        services = self.holder("Adds a category with a given category_id.")
+        repairs.repair_create_key_parameters(services, [self.model], Log())
+        self.assertEqual(
+            [p["name"] for p in services[0]["methods"][0]["params"]],
+            ["category_id", "name"])
+
+    def test_a_repository_create_is_left_alone(self):
+        repositories = [{"interface_name": "CategoryRepository", "methods": [{
+            "name": "create",
+            "description": "Creates a Category.",
+            "params": [{"name": "category_id", "type": "int"},
+                       {"name": "name", "type": "str"}],
+            "return_type": "Category"}]}]
+        repairs.repair_create_key_parameters(
+            repositories, [self.model], Log())
+        self.assertEqual(
+            [p["name"] for p in repositories[0]["methods"][0]["params"]],
+            ["category_id", "name"])
+
+
+class TotalCountParameterTests(unittest.TestCase):
+    model = {"name": "User", "fields": [
+        field("user_id", "int", primary_key=True),
+        field("status")]}
+
+    def test_a_total_count_loses_a_spurious_key(self):
+        holders = [{"interface_name": "UserRepository", "methods": [{
+            "name": "get_user_count",
+            "description": "Count the total number of users in the system.",
+            "params": [{"name": "user_id", "type": "int"}],
+            "return_type": "int"}]}]
+        repairs.repair_total_count_parameters(holders, [self.model], Log())
+        self.assertEqual(holders[0]["methods"][0]["params"], [])
+
+    def test_a_filtered_count_keeps_its_key(self):
+        holders = [{"interface_name": "UserRepository", "methods": [{
+            "name": "get_active_user_count",
+            "description": "Count the number of active users.",
+            "params": [{"name": "user_id", "type": "int"}],
+            "return_type": "int"}]}]
+        repairs.repair_total_count_parameters(holders, [self.model], Log())
+        self.assertEqual(
+            [p["name"] for p in holders[0]["methods"][0]["params"]],
+            ["user_id"])
+
+
 class ProbeTests(unittest.TestCase):
     def findings(self, document, requirements=""):
         with tempfile.TemporaryDirectory() as directory:

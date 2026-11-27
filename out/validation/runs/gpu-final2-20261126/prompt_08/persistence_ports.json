@@ -120,6 +120,24 @@
             ],
             "return_type": "None",
             "raises": []
+          },
+          {
+            "name": "filter_products",
+            "description": "Filters Product records by category and a maximum quantity.",
+            "params": [
+              {
+                "name": "category",
+                "type": "str"
+              },
+              {
+                "name": "below_quantity",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": [],
+            "provenance": "prose_query",
+            "review_required": true
           }
         ]
       }

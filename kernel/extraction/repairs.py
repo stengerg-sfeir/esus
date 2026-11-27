@@ -1625,6 +1625,138 @@ def repair_create_signature_fields(holders, models, log=None):
     return holders
 
 
+def repair_create_key_parameters(holders, models, log=None):
+    """Remove a create parameter that only repeats a store-generated key.
+
+    A model's int primary key is assigned by the store. A service create
+    (`add_category(category_id, name)`) that takes that key has no repository
+    parameter to feed and no caller who knows the next id; the generated CRUD
+    wrapper cannot map it, so the method becomes a stub. The description is
+    the evidence: a create that does not name the key does not take it.
+    """
+    if not isinstance(holders, list) or not isinstance(models, list):
+        return holders
+    from kernel.codegen import classify_crud
+
+    by_name = {normalize(model.get("name")): model for model in models
+               if isinstance(model, dict) and model.get("name")}
+    removed = []
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        name = holder.get("service_name") or holder.get("interface_name") or ""
+        if not str(name).lower().endswith("service"):
+            continue
+        base = normalize(name)
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        model = by_name.get(base)
+        if model is None:
+            continue
+        keys = {normalize(field.get("name"))
+                for field in model.get("fields") or []
+                if isinstance(field, dict) and field.get("name")
+                and field.get("primary_key")
+                and str(field.get("type") or "").strip().lower()
+                in ("int", "integer")}
+        if not keys:
+            continue
+        for method in holder.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            if classify_crud(method.get("name") or "") != "create":
+                continue
+            params = method.get("params")
+            if not isinstance(params, list):
+                continue
+            description = normalize(method.get("description") or "")
+            kept = []
+            for param in params:
+                param_name = param.get("name") if isinstance(param, dict) else None
+                if (isinstance(param_name, str)
+                        and normalize(param_name) in keys
+                        and normalize(param_name) not in description):
+                    removed.append(
+                        f"{name}.{method.get('name')}.{param_name}")
+                    continue
+                kept.append(param)
+            method["params"] = kept
+    if removed and log is not None:
+        log.write(
+            f"[ok] step contracts: removed {len(removed)} create key "
+            f"parameter(s) the store generates: {', '.join(removed[:6])}")
+    return holders
+
+
+def repair_total_count_parameters(holders, models, log=None):
+    """Remove a key parameter from a method that counts every row.
+
+    `get_user_count(user_id)` with "Count the total number of users" has no
+    dimension to filter: the key is not named by the description and the
+    method returns one scalar. Keeping it forces every body to ignore a
+    declared parameter, which the body checker refuses, so the method stays a
+    stub. A filtered count (`count active orders`) keeps its status filter.
+    """
+    if not isinstance(holders, list) or not isinstance(models, list):
+        return holders
+    fields_by_entity = {}
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        fields_by_entity[normalize(model["name"])] = {
+            normalize(field.get("name")) for field in model.get("fields") or []
+            if isinstance(field, dict) and field.get("name")}
+    removed = []
+    for holder in holders:
+        if not isinstance(holder, dict):
+            continue
+        name = holder.get("service_name") or holder.get("interface_name") or ""
+        base = normalize(name)
+        for suffix in ("repository", "service"):
+            if base.endswith(suffix):
+                base = base[:-len(suffix)]
+                break
+        fields = fields_by_entity.get(base, set())
+        if not fields:
+            continue
+        for method in holder.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            method_name = normalize(method.get("name") or "")
+            if "count" not in method_name:
+                continue
+            description = str(method.get("description") or "").lower()
+            if not re.search(r"\b(?:total\s+(?:number|count)|count\s+the\s+total|"
+                             r"total\s+of)\b", description):
+                continue
+            returns = normalize(method.get("return_type") or "")
+            if "int" not in returns or "list" in returns:
+                continue
+            params = method.get("params")
+            if not isinstance(params, list):
+                continue
+            kept = []
+            for param in params:
+                param_name = param.get("name") if isinstance(param, dict) else None
+                if (isinstance(param_name, str)
+                        and normalize(param_name) in fields
+                        and (normalize(param_name) == "id"
+                             or normalize(param_name).endswith("id"))
+                        and normalize(param_name) not in normalize(description)):
+                    removed.append(
+                        f"{name}.{method.get('name')}.{param_name}")
+                    continue
+                kept.append(param)
+            method["params"] = kept
+    if removed and log is not None:
+        log.write(
+            f"[ok] step contracts: removed {len(removed)} key parameter(s) "
+            f"from total-count method(s): {', '.join(removed[:6])}")
+    return holders
+
+
 def repair_create_missing_fields(ports, models, log):
     """Add the required field a create describes but does not take.
 
@@ -2245,6 +2377,7 @@ def ungrounded_methods(services, repositories, models, requirements,
         "payload", "json", "jsondata", "file", "filepath", "path", "output",
         "start", "startdate", "end", "enddate", "from", "fromdate", "to",
         "todate", "month", "year", "sort", "order", "filter",
+        "domain", "emaildomain", "threshold",
     }
     model_by_name = {normalize(model.get("name")): model
                      for model in models or []
@@ -2334,7 +2467,8 @@ def ungrounded_methods(services, repositories, models, requirements,
                 continue
             base_name = next(
                 (key_name[len(prefix):] for prefix in
-                 ("max", "min", "from", "to", "start", "end")
+                 ("max", "min", "from", "to", "start", "end",
+                  "below", "under")
                  if key_name.startswith(prefix)
                  and key_name[len(prefix):] in fields),
                 None)
@@ -3483,6 +3617,871 @@ def _prose_file_group(commands, models, text):
     return group
 
 
+def _prose_model(noun, models):
+    """The model a prose noun names, or None when it is not unique."""
+    wanted = normalize(noun)
+    if not wanted:
+        return None
+    singular = wanted[:-1] if wanted.endswith("s") and not wanted.endswith("ss") else wanted
+    exact = []
+    fuzzy = []
+    for model in models or []:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        name = normalize(model["name"])
+        if name in (wanted, singular):
+            exact.append(model)
+        elif name.startswith(wanted) or name.startswith(singular) \
+                or wanted.startswith(name) or singular.startswith(name):
+            fuzzy.append(model)
+    if len(exact) == 1:
+        return exact[0]
+    if exact:
+        return None
+    return fuzzy[0] if len(fuzzy) == 1 else None
+
+
+def _prose_repository(services, model):
+    wanted = normalize(model.get("name")) + "repository"
+    for service in services or []:
+        if not isinstance(service, dict):
+            continue
+        if normalize(service.get("service_name")) == wanted:
+            return service
+    return None
+
+
+def _prose_field(model, noun):
+    wanted = normalize(noun)
+    if not wanted:
+        return None
+    for field in model.get("fields") or []:
+        if not isinstance(field, dict) or not field.get("name"):
+            continue
+        name = normalize(field["name"])
+        if (name == wanted or name.startswith(wanted)
+                or wanted.startswith(name) or wanted in name):
+            return field
+    return None
+
+
+def _prose_type(field):
+    declared = str((field or {}).get("type") or "").strip().lower()
+    return _PORT_TYPES.get(declared, declared or "str")
+
+
+_PROSE_STATE_ACTIONS = {
+    "complete": {"iscomplete": True, "completed": True,
+                 "status": "completed", "state": "completed"},
+    "confirm": {"status": "confirmed", "state": "confirmed"},
+    "cancel": {"status": "cancelled", "state": "cancelled"},
+    "ship": {"status": "shipped", "state": "shipped"},
+    "close": {"status": "closed", "state": "closed"},
+    "open": {"status": "open", "state": "open"},
+    "activate": {"isactive": True, "active": True, "status": "active"},
+    "deactivate": {"isactive": False, "active": False,
+                   "status": "inactive"},
+    "approve": {"status": "approved", "state": "approved"},
+    "reject": {"status": "rejected", "state": "rejected"},
+    "borrow": {"availablestatus": False, "borrowstatus": True,
+               "isavailable": False, "available": False},
+}
+
+
+def _snake(name):
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", str(name or "")).lower()
+
+
+def _service_error_names(description, entity, errors):
+    """Application errors the prose description actually names."""
+    text = normalize(description)
+    names = []
+    for error in errors or []:
+        if not isinstance(error, dict) or not error.get("name"):
+            continue
+        name = error["name"]
+        key = normalize(name)
+        for suffix in ("exception", "error"):
+            if key.endswith(suffix):
+                key = key[:-len(suffix)]
+        spaced = re.sub(r"(?<!^)(?=[A-Z])", " ", name)
+        tokens = [normalize(token) for token in
+                  re.findall(r"[A-Za-z0-9]+", spaced)
+                  if normalize(token) not in
+                  ("not", "found", "already", "exists", "error", "exception")]
+        if not tokens:
+            continue
+        if any(token in text for token in tokens):
+            # A create does not raise not-found for the entity it creates.
+            entity_name = (entity.get("name")
+                           if isinstance(entity, dict) else entity)
+            if entity_name and normalize(entity_name) in key \
+                    and "notfound" in normalize(name) \
+                    and any(token in text for token in ("add", "create", "insert")):
+                continue
+            names.append(name)
+    return names
+
+
+def _service_method_params(signature, model):
+    """Parameters from a prose signature, or the model's writable fields."""
+    params = []
+    if signature:
+        depth = 0
+        part = []
+        parts = []
+        for character in signature:
+            if character == "(":
+                depth += 1
+            elif character == ")":
+                depth -= 1
+            if character == "," and depth == 0:
+                parts.append("".join(part))
+                part = []
+            else:
+                part.append(character)
+        if part:
+            parts.append("".join(part))
+        for raw in parts:
+            raw = raw.strip()
+            if not raw:
+                continue
+            name = re.match(r"([A-Za-z_]\w*)", raw)
+            if not name:
+                continue
+            declared = re.search(r"\(\s*(?:Optional\[)?\s*([A-Za-z_.]+)",
+                                 raw)
+            ptype = declared.group(1) if declared else "str"
+            params.append({"name": name.group(1), "type": ptype})
+        return params
+    if model is not None:
+        for field in model.get("fields") or []:
+            if not isinstance(field, dict) or not field.get("name"):
+                continue
+            if field.get("primary_key"):
+                continue
+            declared = str(field.get("type") or "").strip().lower()
+            params.append({
+                "name": field["name"],
+                "type": _PORT_TYPES.get(declared, declared or "str"),
+            })
+    return params
+
+
+def repair_named_service_methods(services, models, errors, requirements,
+                                 log=None):
+    """Add the service methods the prompt lists explicitly.
+
+    The extraction can omit a method that the prompt names in its
+    `**XService** — business logic:` list (`add_expense`).  The list entry and
+    the entity model are the evidence: the signature comes from the parentheses
+    when present, otherwise from the entity's writable fields; the return and
+    declared application errors come from the prose.
+    """
+    if not isinstance(services, list) or not isinstance(models, list):
+        return services
+    by_name = {normalize(service.get("service_name")): service
+               for service in services
+               if isinstance(service, dict) and service.get("service_name")}
+    current = None
+    added = []
+    for line in (requirements or "").splitlines():
+        header = re.search(r"\*\*([A-Za-z0-9_]+Service)\*\*", line)
+        if header:
+            current = header.group(1)
+            continue
+        match = re.match(
+            r"\s*[-*]\s+([A-Za-z_][A-Za-z0-9_]*)(.*?):\s*(.+)$", line)
+        if not match:
+            continue
+        name, tail, description = match.group(1), match.group(2).strip(), match.group(3).strip()
+        if not current:
+            continue
+        service = by_name.get(normalize(current))
+        if service is None:
+            continue
+        signature = ""
+        if tail.startswith("(") and tail.endswith(")"):
+            signature = tail[1:-1]
+        verb = name.split("_", 1)[0]
+        entity_noun = name.split("_", 1)[1] if "_" in name else current[:-7]
+        entity = _prose_model(entity_noun, models)
+        existing = next(
+            (method for method in service.get("methods") or []
+             if isinstance(method, dict)
+             and normalize(method.get("name")) == normalize(name)),
+            None)
+        if existing is not None:
+            if existing.get("provenance") == "prose_service_method":
+                existing["raises"] = sorted(
+                    _service_error_names(description, entity, errors))
+                existing["description"] = description
+            continue
+        param_names = _service_method_params(signature, entity) \
+            if verb in ("add", "create", "new") or signature else []
+        returns = "None"
+        if entity is not None:
+            if verb in ("add", "create", "new", "get", "read") \
+                    and not name.startswith(("list", "find", "search")):
+                returns = f"models.{entity['name']}"
+            elif name.startswith(("list", "find", "search")) or noun_plural(name):
+                returns = f"list[{entity['name']}]"
+        service.setdefault("methods", []).append({
+            "name": name,
+            "description": description,
+            "params": param_names,
+            "return_type": returns,
+            "raises": _service_error_names(description, entity, errors),
+            "provenance": "prose_service_method",
+            "review_required": True,
+        })
+        added.append(f"{service.get('service_name')}.{name}")
+    if added and log is not None:
+        log.write(
+            f"[ok] step contracts: added {len(added)} prompt-named service "
+            f"method(s): {', '.join(added[:8])}")
+    return services
+
+
+def noun_plural(name):
+    return name.endswith("s") or name.startswith(("list", "find", "search"))
+
+
+def repair_join_models(models, requirements, log=None):
+    """Give a many-to-many join model a surrogate key and both FKs.
+
+    `PostTag` was deduced as `post_id` primary key + `tag_id` FK, which makes a
+    post hold one tag.  When the prompt says "multiple", the join is
+    many-to-many: the old key becomes an FK, both sides point at their entity,
+    and a surrogate `<join>_id` keys the row.
+    """
+    if not isinstance(models, list):
+        return models
+    text = requirements or ""
+    if not re.search(r"\b(?:multiple|many)\b", text, re.IGNORECASE):
+        return models
+    by_name = {normalize(model.get("name")): model for model in models
+               if isinstance(model, dict) and model.get("name")}
+    changed = []
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        name = normalize(model["name"])
+        ends = [(part, name[len(part):]) for part in by_name
+                if part != name and name.startswith(part)
+                and name[len(part):] in by_name]
+        if len(ends) != 1:
+            continue
+        left_key, right_key = ends[0]
+        left, right = by_name[left_key], by_name[right_key]
+        fields = [field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")]
+        by_field = {normalize(field["name"]): field for field in fields}
+        left_field = by_field.get(normalize(_snake(left["name"]) + "_id"))
+        right_field = by_field.get(normalize(_snake(right["name"]) + "_id"))
+        if left_field is None or right_field is None:
+            continue
+        primary = next((field for field in fields if field.get("primary_key")),
+                       None)
+        if primary is None or primary not in (left_field, right_field):
+            continue
+        surrogate = _snake(model["name"]) + "_id"
+        if normalize(surrogate) in by_field:
+            continue
+        old_primary = primary
+        old_primary["primary_key"] = False
+        old_primary["unique"] = False
+        old_primary["status"] = "deduced"
+        old_primary["unique_status"] = "rejected"
+        target = left if old_primary is left_field else right
+        target_pk = next((field.get("name") for field in target.get("fields") or []
+                          if isinstance(field, dict)
+                          and field.get("primary_key")), None)
+        if target_pk:
+            old_primary["foreign_key"] = {
+                "target_entity": target["name"],
+                "target_field": target_pk,
+                "relationship": "many_to_one",
+            }
+        other = right if old_primary is left_field else left
+        other_pk = next((field.get("name") for field in other.get("fields") or []
+                         if isinstance(field, dict)
+                         and field.get("primary_key")), None)
+        other_field = right_field if old_primary is left_field else left_field
+        if other_pk and not other_field.get("foreign_key"):
+            other_field["foreign_key"] = {
+                "target_entity": other["name"],
+                "target_field": other_pk,
+                "relationship": "many_to_one",
+            }
+        model["fields"] = [{
+            "name": surrogate,
+            "type": "int",
+            "primary_key": True,
+            "nullable": False,
+            "unique": True,
+            "foreign_key": None,
+            "status": "deduced",
+            "unique_status": "explicit",
+        }] + fields
+        changed.append(model["name"])
+    if changed and log is not None:
+        log.write(
+            f"[ok] step data_models: many-to-many join key added to "
+            f"{', '.join(changed)}")
+    return models
+
+
+def repair_entity_mapping_keys(ports, models, log=None):
+    """Re-derive mapping primary keys after a model key repair."""
+    if not isinstance(ports, dict) or not isinstance(models, list):
+        return ports
+    records = ports.get("entity_mappings")
+    if not isinstance(records, list):
+        return ports
+    from kernel.extraction import mappings as mapping_module
+    entities = [item.get("entity") for item in records
+                if isinstance(item, dict) and item.get("entity")]
+    regenerated = {
+        item["entity"]: item
+        for item in mapping_module.entity_mappings(models, entities)}
+    changed = []
+    for item in records:
+        if not isinstance(item, dict) or not item.get("entity"):
+            continue
+        new = regenerated.get(item["entity"])
+        if new is None:
+            continue
+        if item.get("primary_key") != new.get("primary_key"):
+            changed.append(
+                f"{item['entity']}: {item.get('primary_key')} -> "
+                f"{new.get('primary_key')}")
+            item.update(new)
+    if changed and log is not None:
+        log.write(
+            f"[ok] step persistence: mapping key repaired for "
+            f"{', '.join(changed[:6])}")
+    return ports
+
+
+def repair_join_create_params(services, models, log=None):
+    """A join repository's create must accept both foreign keys."""
+    if not isinstance(services, list) or not isinstance(models, list):
+        return services
+    models_by_name = {normalize(model.get("name")): model for model in models
+                      if isinstance(model, dict) and model.get("name")}
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        fields = [field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")]
+        fks = [field for field in fields
+               if isinstance(field.get("foreign_key"), dict)]
+        if len(fks) < 2:
+            continue
+        repository = _prose_repository(services, model)
+        if repository is None:
+            continue
+        for method in repository.get("methods") or []:
+            if not isinstance(method, dict) or normalize(method.get("name")) != "create":
+                continue
+            params = method.setdefault("params", [])
+            names = {normalize(param.get("name")) for param in params
+                     if isinstance(param, dict)}
+            for field in fks:
+                if normalize(field["name"]) not in names:
+                    params.append({"name": field["name"], "type": "int"})
+                    names.add(normalize(field["name"]))
+                    if log is not None:
+                        log.write(
+                            f"[ok] step contracts: {repository.get('service_name')}"
+                            f".create accepts join key {field['name']}")
+    return services
+
+
+def repair_join_method_keys(services, models, log=None):
+    """Point standard join CRUD keys at the surrogate primary key."""
+    if not isinstance(services, list) or not isinstance(models, list):
+        return services
+    key_methods = {"readone", "readbyid", "getbyid", "update", "delete"}
+    changed = []
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        fields = [field for field in model.get("fields") or []
+                  if isinstance(field, dict) and field.get("name")]
+        primary = next((field for field in fields if field.get("primary_key")),
+                       None)
+        fks = [field for field in fields
+               if isinstance(field.get("foreign_key"), dict)]
+        if primary is None or len(fks) < 2:
+            continue
+        if normalize(primary["name"]) in {normalize(f["name"]) for f in fks}:
+            continue
+        repository = _prose_repository(services, model)
+        if repository is None:
+            continue
+        fk_names = {normalize(field["name"]) for field in fks}
+        for method in repository.get("methods") or []:
+            if not isinstance(method, dict):
+                continue
+            if normalize(method.get("name") or "") not in key_methods:
+                continue
+            params = method.get("params")
+            if not params or not isinstance(params[0], dict):
+                continue
+            if normalize(params[0].get("name") or "") in fk_names:
+                old = params[0]["name"]
+                params[0]["name"] = primary["name"]
+                changed.append(
+                    f"{repository.get('service_name')}.{method.get('name')}"
+                    f"({old}->{primary['name']})")
+    if changed and log is not None:
+        log.write(
+            f"[ok] step contracts: join CRUD key updated: "
+            f"{', '.join(changed[:6])}")
+    return services
+
+
+def repair_join_associations(services, models, requirements, log=None):
+    """Add `associate_<a>_with_<b>` for a prose many-to-many link."""
+    if not isinstance(services, list) or not isinstance(models, list):
+        return services
+    text = requirements or ""
+    pairs = []
+    for match in re.finditer(
+            r"\b([A-Za-z]+)\s+can\s+be\s+associated\s+with\s+multiple\s+"
+            r"([A-Za-z]+)", text, re.IGNORECASE):
+        pairs.append((match.group(1), match.group(2)))
+    added = []
+    for left_noun, right_noun in pairs:
+        left = _prose_model(left_noun, models)
+        right = _prose_model(right_noun, models)
+        if left is None or right is None:
+            continue
+        join = next(
+            (model for model in models
+             if isinstance(model, dict) and model.get("name")
+             and normalize(model["name"]) in
+             {normalize(left["name"] + right["name"]),
+              normalize(right["name"] + left["name"])}), None)
+        if join is None:
+            continue
+        repository = _prose_repository(services, join)
+        if repository is None:
+            continue
+        action = (f"associate_{_snake(left['name'])}_with_"
+                  f"{_snake(right['name'])}")
+        names = {normalize(method.get("name"))
+                 for method in repository.get("methods") or []
+                 if isinstance(method, dict)}
+        if normalize(action) in names:
+            continue
+        right_pk = next((field.get("name") for field in right.get("fields") or []
+                         if isinstance(field, dict)
+                         and field.get("primary_key")), "id")
+        left_pk = next((field.get("name") for field in left.get("fields") or []
+                        if isinstance(field, dict)
+                        and field.get("primary_key")), "id")
+        repository.setdefault("methods", []).append({
+            "name": action,
+            "description": (f"Associates a {left['name']} with a "
+                            f"{right['name']}."),
+            "params": [{"name": right_pk, "type": "int"},
+                       {"name": left_pk, "type": "int"}],
+            "return_type": "None",
+            "raises": [],
+            "provenance": "prose_association",
+            "review_required": True,
+        })
+        added.append(f"{repository.get('service_name')}.{action}")
+    if added and log is not None:
+        log.write(
+            f"[ok] step contracts: added {len(added)} prose association(s): "
+            f"{', '.join(added[:6])}")
+    return services
+
+
+def repair_prose_state_actions(services, models, requirements, log=None):
+    """Add the state verb a prompt states (`complete tasks`, `confirm order`)."""
+    if not isinstance(services, list) or not isinstance(models, list):
+        return services
+    text = requirements or ""
+    sentences = re.split(r"(?<=[.;])\s+", text)
+    added = []
+    for model in models:
+        if not isinstance(model, dict) or not model.get("name"):
+            continue
+        entity = model["name"]
+        entity_key = normalize(entity)
+        fields = {normalize(item.get("name")): item
+                  for item in model.get("fields") or []
+                  if isinstance(item, dict) and item.get("name")}
+        repository = _prose_repository(services, model)
+        if repository is None:
+            continue
+        primary = next((item.get("name") for item in model.get("fields") or []
+                        if isinstance(item, dict) and item.get("primary_key")),
+                       None)
+        if primary is None:
+            continue
+        for verb, mapping in _PROSE_STATE_ACTIONS.items():
+            if not any(
+                    re.search(rf"\b{verb}(?:s|ed|ing)?\b", sentence,
+                              re.IGNORECASE)
+                    and (entity_key in normalize(sentence)
+                         or entity_key.rstrip("s") in normalize(sentence))
+                    for sentence in sentences):
+                continue
+            field = next((name for name in mapping if name in fields), None)
+            if field is None:
+                continue
+            method_name = (f"{verb}_"
+                           f"{re.sub(r'(?<!^)(?=[A-Z])', '_', entity).lower()}")
+            names = {normalize(item.get("name"))
+                     for item in repository.get("methods") or []
+                     if isinstance(item, dict)}
+            if normalize(method_name) in names:
+                continue
+            params = [{"name": primary, "type": "int"}]
+            if verb in ("borrow", "loan"):
+                member = next(
+                    (item for item in models
+                     if normalize(item.get("name")) in
+                     ("member", "user", "customer")), None)
+                if member is not None:
+                    member_pk = next(
+                        (item.get("name") for item in member.get("fields") or []
+                         if isinstance(item, dict) and item.get("primary_key")),
+                        None)
+                    if member_pk:
+                        params.append({"name": member_pk, "type": "int"})
+            repository.setdefault("methods", []).append({
+                "name": method_name,
+                "description": f"{verb.capitalize()}s a {entity}.",
+                "params": params,
+                "return_type": "None",
+                "raises": [],
+                "provenance": "prose_state_action",
+                "review_required": True,
+            })
+            added.append(f"{repository.get('service_name')}.{method_name}")
+    if added and log is not None:
+        log.write(
+            f"[ok] step contracts: added {len(added)} prose state action(s): "
+            f"{', '.join(added[:8])}")
+    return services
+
+
+def repair_crud_requirements(components, models, requirements, log=None):
+    """Ensure every entity named by "CRUD operations for ..." gets all five.
+
+    Step D can record only the operations it saw (`create/read` for a sales
+    record) while the prompt explicitly asks for CRUD.  The sentence is the
+    authority: add the missing operations, and the existing repository
+    completion emits their methods.
+    """
+    if not isinstance(components, dict) or not isinstance(models, list):
+        return components
+    text = requirements or ""
+    wanted = []
+    for match in re.finditer(r"\bCRUD operations?\s+for\s+([^.;\n]+)",
+                             text, re.IGNORECASE):
+        for raw in re.split(r",|\band\b", match.group(1)):
+            model = _prose_model(raw.strip(), models)
+            if model is not None and model not in wanted:
+                wanted.append(model)
+    if not wanted:
+        return components
+    crud = components.get("crud_services")
+    if not isinstance(crud, list):
+        crud = []
+        components["crud_services"] = crud
+    by_entity = {normalize(item.get("entity")): item for item in crud
+                 if isinstance(item, dict) and item.get("entity")}
+    added = []
+    for model in wanted:
+        item = by_entity.get(normalize(model.get("name")))
+        if item is None:
+            item = {"entity": model["name"], "operations": []}
+            crud.append(item)
+            by_entity[normalize(model["name"])] = item
+        operations = item.setdefault("operations", [])
+        for operation in ("create", "read_one", "read_all", "update", "delete"):
+            if operation not in operations:
+                operations.append(operation)
+                added.append(f"{model['name']}.{operation}")
+    if added and log is not None:
+        log.write(
+            f"[ok] step components: CRUD prose added "
+            f"{len(added)} operation(s): {', '.join(added[:8])}")
+    return components
+
+
+def repair_prose_query_actions(services, models, requirements, log=None):
+    """Add the filter/search/low-stock methods the prose names.
+
+    The extractor often keeps only CRUD for an application whose prompt says
+    "filter products by category", "search by name", or "low-stock
+    reporting".  The entity model and the prose are the evidence; the methods
+    are mechanical list reads, and the generator's filter/search emitters
+    supply the bodies.
+    """
+    if not isinstance(services, list) or not isinstance(models, list):
+        return services
+    text = requirements or ""
+    # The application noun is the fallback entity for prose that omits it
+    # ("search by name" in a customer application).
+    sole = models[0] if len(models) == 1 else None
+    added = []
+
+    def entity_from(sentence, explicit=None):
+        model = _prose_model(explicit, models) if explicit else None
+        if model is not None:
+            return model
+        # Prefer a model named in the sentence; otherwise the sole model.
+        for candidate in models:
+            name = normalize(candidate.get("name"))
+            if name and name in normalize(sentence):
+                return candidate
+        return sole
+
+    def add_method(model, method):
+        repository = _prose_repository(services, model)
+        if repository is None:
+            return
+        existing = next(
+            (item for item in repository.get("methods") or []
+             if isinstance(item, dict)
+             and normalize(item.get("name")) == normalize(method["name"])),
+            None)
+        if existing is not None:
+            if existing.get("provenance") == "prose_query":
+                # The prose parser learned a better parameter spelling or
+                # strictness on a later repair pass; keep one method.
+                existing.update(method)
+            return
+        repository.setdefault("methods", []).append(method)
+        added.append(f"{repository.get('service_name')}.{method['name']}")
+
+    for sentence in re.split(r"(?<=[.;])\s+", text):
+        lowered = sentence.lower()
+        # filter <entity> by <field> [and ... below threshold]
+        match = re.search(
+            r"\bfilter(?:ing)?\s+(?:the\s+)?([A-Za-z][A-Za-z ]*?)\s+by\s+"
+            r"([A-Za-z_][A-Za-z_ ]*?)(?=\s+and\b|[,.;]|$)",
+            sentence, re.IGNORECASE)
+        if match:
+            model = entity_from(sentence, match.group(1))
+            field = _prose_field(model, match.group(2)) if model else None
+            if model is not None and field is not None:
+                stock = next((item for item in model.get("fields") or []
+                              if isinstance(item, dict) and item.get("name")
+                              and any(token in normalize(item["name"])
+                                      for token in ("stock", "quantity", "qty"))),
+                             None)
+                threshold = bool(re.search(
+                    r"\b(?:below|under|less than)\b[^.]*\b(?:threshold|limit)\b",
+                    lowered))
+                if threshold and stock is not None:
+                    add_method(model, {
+                        "name": (f"filter_"
+                                 f"{re.sub(r'(?<!^)(?=[A-Z])', '_', model['name']).lower()}s"),
+                        "description": (f"Filters {model['name']} records by "
+                                        f"{field['name']} and a maximum "
+                                        f"{stock['name']}."),
+                        "params": [
+                            {"name": field["name"], "type": _prose_type(field)},
+                            {"name": f"below_{stock['name']}",
+                             "type": _prose_type(stock)},
+                        ],
+                        "return_type": f"list[{model['name']}]",
+                        "raises": [],
+                        "provenance": "prose_query",
+                        "review_required": True,
+                    })
+                else:
+                    add_method(model, {
+                        "name": f"filter_by_{normalize(field['name'])}",
+                        "description": (f"Filters {model['name']} records by "
+                                        f"{field['name']}."),
+                        "params": [{"name": field["name"],
+                                    "type": _prose_type(field)}],
+                        "return_type": f"list[{model['name']}]",
+                        "raises": [],
+                        "provenance": "prose_query",
+                        "review_required": True,
+                    })
+        # filtering by <field> (filtering by email domain)
+        for field_match in re.finditer(
+                r"\bfiltering\s+by\s+([A-Za-z_][A-Za-z_ ]*?)"
+                r"(?=[,.;]|\s+and\b|$)", sentence, re.IGNORECASE):
+            model = entity_from(sentence)
+            field = _prose_field(model, field_match.group(1)) if model else None
+            if model is not None and field is not None:
+                phrase = normalize(field_match.group(1))
+                param_name = field["name"]
+                if normalize(field["name"]) == "email" and "domain" in phrase:
+                    param_name = "domain"
+                add_method(model, {
+                    "name": (f"filter_"
+                             f"{re.sub(r'(?<!^)(?=[A-Z])', '_', model['name']).lower()}s"),
+                    "description": (f"Filters {model['name']} records by "
+                                    f"{field['name']}."),
+                    "params": [{"name": param_name,
+                                "type": _prose_type(field)}],
+                    "return_type": f"list[{model['name']}]",
+                    "raises": [],
+                    "provenance": "prose_query",
+                    "review_required": True,
+                })
+        # <field> filtering (category filtering)
+        for field_match in re.finditer(
+                r"\b([A-Za-z_][A-Za-z_ ]*?)\s+filtering\b", sentence,
+                re.IGNORECASE):
+            model = entity_from(sentence)
+            field = _prose_field(model, field_match.group(1)) if model else None
+            if model is not None and field is not None:
+                add_method(model, {
+                    "name": f"filter_by_{normalize(field['name'])}",
+                    "description": (f"Filters {model['name']} records by "
+                                    f"{field['name']}."),
+                    "params": [{"name": field["name"],
+                                "type": _prose_type(field)}],
+                    "return_type": f"list[{model['name']}]",
+                    "raises": [],
+                    "provenance": "prose_query",
+                    "review_required": True,
+                })
+        # search by <field> / <entity> search
+        search = re.search(
+            r"\bsearch(?:ing)?\s+(?:by\s+)?([A-Za-z_][A-Za-z_ ]*?)(?=[,.;]|\s+and\b|$)",
+            sentence, re.IGNORECASE)
+        entity_search = re.search(
+            r"\b([A-Za-z][A-Za-z ]*?)\s+search\b", sentence, re.IGNORECASE)
+        if search or entity_search:
+            model = entity_from(sentence,
+                                entity_search.group(1) if entity_search else None)
+            if model is not None:
+                search_field = (_prose_field(model, search.group(1))
+                                if search else None)
+                param_name = search_field["name"] if search_field else "query"
+                add_method(model, {
+                    "name": f"search_{re.sub(r'(?<!^)(?=[A-Z])', '_', model['name']).lower()}s",
+                    "description": (f"Searches {model['name']} records across "
+                                    "their text fields."),
+                    "params": [{"name": param_name, "type": "str"}],
+                    "return_type": f"list[{model['name']}]",
+                    "raises": [],
+                    "provenance": "prose_query",
+                    "review_required": True,
+                })
+        # low-stock reporting
+        if re.search(r"\blow[- ]stock\s+report(?:ing)?\b", sentence,
+                     re.IGNORECASE):
+            model = entity_from(sentence)
+            if model is not None:
+                stock = next((item for item in model.get("fields") or []
+                              if isinstance(item, dict) and item.get("name")
+                              and any(token in normalize(item["name"])
+                                      for token in ("stock", "quantity", "qty"))),
+                             None)
+                if stock is not None:
+                    add_method(model, {
+                        "name": "report_low_stock",
+                        "description": (f"Reports {model['name']} records whose "
+                                        f"{stock['name']} is below the "
+                                        "threshold."),
+                        "params": [],
+                        "return_type": f"list[{model['name']}]",
+                        "raises": [],
+                        "provenance": "prose_query",
+                        "review_required": True,
+                    })
+    if added and log is not None:
+        log.write(
+            f"[ok] step contracts: added {len(added)} prose query method(s): "
+            f"{', '.join(added[:8])}")
+    return services
+
+
+def _expose_prose_pagination_action(components, services, adapters, models,
+                                    requirements, log=None):
+    """Expose a prose paginated listing as a page-parameter read.
+
+    The extractor can keep only the entity's CRUD `read_all` and bind the
+    surface's `--page-number`/`--page-size` to the first declared fields.  The
+    requirement names the paginated operation, so the page read is mechanical:
+    add `read_all_paginated(page_number, page_size)` to the repository that
+    owns the entity and point the existing paginated adapter at it.  The
+    generator's `_repo_pagination_body` supplies the items/total-pages shape.
+    """
+    text = requirements or ""
+    if not re.search(r"\bpaginat(?:ed|ion)\b", text, re.IGNORECASE) \
+            and not (re.search(r"\bpage\s+number\b", text, re.IGNORECASE)
+                     and re.search(r"\bpage\s+size\b", text, re.IGNORECASE)):
+        return
+    for adapter in adapters or []:
+        if not isinstance(adapter, dict):
+            continue
+        if "paginat" not in normalize(adapter.get("action_name") or ""):
+            continue
+        service = next(
+            (item for item in services or []
+             if isinstance(item, dict)
+             and normalize(item.get("service_name")) ==
+             normalize(adapter.get("target_service") or "")), None)
+        if service is None:
+            continue
+        entity = _capability_entity(service.get("service_name"), models)
+        if entity is None:
+            continue
+        method = next(
+            (item for item in service.get("methods") or []
+             if isinstance(item, dict)
+             and pagination_params(item) is not None), None)
+        if method is None:
+            method = next(
+                (item for item in service.get("methods") or []
+                 if isinstance(item, dict)
+                 and normalize(item.get("name") or "") == "readallpaginated"),
+                None)
+        if method is None:
+            method = {
+                "name": "read_all_paginated",
+                "description": (f"Lists {entity} records with the requested "
+                                "page number and page size."),
+                "params": [{"name": "page_number", "type": "int"},
+                           {"name": "page_size", "type": "int"}],
+                "return_type": f"list[{entity}]",
+                "raises": [],
+                "provenance": "capability_adapter",
+                "review_required": True,
+            }
+            service.setdefault("methods", []).append(method)
+            if log is not None:
+                log.write(
+                    f"[ok] step adapters: added paginated read "
+                    f"{service.get('service_name')}.read_all_paginated "
+                    f"({entity})")
+        elif pagination_params(method) is None:
+            params = method.setdefault("params", [])
+            names = {normalize(item.get("name")) for item in params
+                     if isinstance(item, dict)}
+            for name in ("page_number", "page_size"):
+                if normalize(name) not in names:
+                    params.append({"name": name, "type": "int"})
+            method["return_type"] = f"list[{entity}]"
+        adapter["target_method"] = method["name"]
+        adapter["input_fields"] = [
+            {"field_name": "page_number", "target_param": "page_number",
+             "transform": "DIRECT", "lookup_entity": None, "required": True},
+            {"field_name": "page_size", "target_param": "page_size",
+             "transform": "DIRECT", "lookup_entity": None, "required": True},
+        ]
+        return
+
+
 def _expose_prose_file_action(components, services, adapters, models,
                               requirements, verb, log=None):
     """Expose a prose import/export over CSV/JSON as a real CLI action."""
@@ -3619,6 +4618,12 @@ def repair_capability_adapters(components, services, adapters, models,
                               requirements, "export", log)
     _expose_prose_sort_action(components, services, adapters, models,
                               requirements, log, persistence_ports)
+    _expose_prose_pagination_action(components, services, adapters, models,
+                                    requirements, log)
+    repair_prose_state_actions(services, models, requirements, log)
+    repair_join_create_params(services, models, log)
+    repair_join_method_keys(services, models, log)
+    repair_join_associations(services, models, requirements, log)
     return components
 
 
@@ -4159,6 +5164,10 @@ def repair_missing_key_parameters(services, models, log=None):
                 continue
             if lowered.startswith(("getall", "readall", "findall", "listall",
                                    "count", "total")):
+                continue
+            # `get_user_count` is a whole-table count, not a one-row lookup;
+            # `get_discount` is not a count at all, so match the word.
+            if "count" in re.split(r"[^a-z0-9]+", name.lower()):
                 continue
             method["params"] = [{"name": primary, "type": "int"}]
             added.append(f"{holder}.{name}({primary})")

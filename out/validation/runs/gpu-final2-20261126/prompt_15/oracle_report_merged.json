@@ -1,5 +1,594 @@
 {
   "prompt": "prompt_15",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:list_products_by_name",
+      "status": "passed",
+      "case": "list_products_by_name",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:list_products_by_price",
+      "status": "passed",
+      "case": "list_products_by_price",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:list_products_by_quantity",
+      "status": "passed",
+      "case": "list_products_by_quantity",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:list_products_ascending",
+      "status": "passed",
+      "case": "list_products_ascending",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:list_products_descending",
+      "status": "passed",
+      "case": "list_products_descending",
+      "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": []
+          },
+          "product_2": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          },
+          "product_3": {
+            "status": "alias",
+            "canonical": "Product",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_2.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product_3.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 5
+  },
+  "triage_counts": {
+    "passed": 5
+  }
 }

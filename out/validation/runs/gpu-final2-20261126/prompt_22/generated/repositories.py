@@ -129,17 +129,15 @@ class OrderRepository:
 
     def calculate_total_order_amount(self, order_id: int = None) -> float:
         """Calculates the total amount of an order by summing up the product of quantity and unit price for all order items associated with the order. [llm-written by server — review]"""
-        found = self._store.select(self.ENTITY, [])
+        order_items = self._store.select("OrderItem", [])
         total = 0.0
-        for record in found:
-            if order_id is not None and record.get('order_id') != order_id:
+        for item in order_items:
+            if order_id is not None and item.get("order_id") != order_id:
                 continue
-            order_items = self._store.select("OrderItem", [("order_id", "eq", record.get('order_id'))])
-            for item in order_items:
-                quantity = item.get('quantity')
-                unit_price = item.get('unit_price')
-                if quantity is not None and unit_price is not None:
-                    total += quantity * unit_price
+            quantity = item.get("quantity")
+            unit_price = item.get("unit_price")
+            if quantity is not None and unit_price is not None:
+                total += quantity * unit_price
         return total
 
 

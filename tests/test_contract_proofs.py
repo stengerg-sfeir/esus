@@ -85,6 +85,39 @@ class SetValueProofTests(unittest.TestCase):
             contract), [])
 
 
+class StockEffectProofTests(unittest.TestCase):
+    CONTRACT = {
+        "effects": [{
+            "target": "product.stock_quantity",
+            "op": "decrement",
+            "by": "quantity",
+            "write": "ProductRepository.update",
+        }],
+    }
+
+    def test_a_record_get_and_temporary_satisfy_the_decrement(self):
+        body = (
+            "item_row = item if isinstance(item, dict) else vars(item)\n"
+            "product = self._repos['ProductRepository'].read_one("
+            "product_id=item_row.get('product_id'))\n"
+            "product_row = product if isinstance(product, dict) else vars(product)\n"
+            "current_stock = product_row.get('stock_quantity', 0)\n"
+            "new_stock = current_stock - item_row.get('quantity', 0)\n"
+            "self._repos['ProductRepository'].update("
+            "product_id=item_row.get('product_id'), "
+            "stock_quantity=new_stock)\n")
+        self.assertEqual(complaints(body, self.CONTRACT), [])
+
+    def test_an_addition_does_not_satisfy_a_decrement(self):
+        body = (
+            "current_stock = product_row.get('stock_quantity', 0)\n"
+            "new_stock = current_stock + quantity\n"
+            "self._repos['ProductRepository'].update("
+            "product_id=product_id, stock_quantity=new_stock)\n")
+        self.assertTrue(any("does not decrement" in item
+                            for item in complaints(body, self.CONTRACT)))
+
+
 READ = {
     "entity": "Author",
     "field": "name",

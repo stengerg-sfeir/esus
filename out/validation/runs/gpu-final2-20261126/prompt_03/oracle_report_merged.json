@@ -1,5 +1,42 @@
 {
   "prompt": "prompt_03",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:add_task",
+      "status": "passed",
+      "case": "add_task",
+      "source": "Users can add tasks",
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 11.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

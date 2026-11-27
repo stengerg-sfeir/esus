@@ -152,6 +152,24 @@
             ],
             "return_type": "None",
             "raises": []
+          },
+          {
+            "name": "read_all_paginated",
+            "description": "Lists Customer records with the requested page number and page size.",
+            "params": [
+              {
+                "name": "page_number",
+                "type": "int"
+              },
+              {
+                "name": "page_size",
+                "type": "int"
+              }
+            ],
+            "return_type": "list[Customer]",
+            "raises": [],
+            "provenance": "capability_adapter",
+            "review_required": true
           }
         ]
       }

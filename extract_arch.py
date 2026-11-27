@@ -373,7 +373,12 @@ def repair_existing(output_dir):
     services = documents.get(pipeline_module.SERVICE_CONTRACTS)
     if isinstance(models, list):
         models = repairs.repair_requirement_fields(models, requirements, log)
+        models = repairs.repair_join_models(models, requirements, log)
         documents[pipeline_module.DATA_MODELS] = models
+        ports_doc = documents.get(pipeline_module.PERSISTENCE_PORTS)
+        if isinstance(ports_doc, dict):
+            repairs.repair_entity_mapping_keys(ports_doc, models, log)
+            documents[pipeline_module.PERSISTENCE_PORTS] = ports_doc
         repairs.repair_primary_key_uniqueness(models, log)
         repairs.repair_primary_key_foreign_keys(models, log)
         repairs.repair_primary_key_foreign_key_names(models, log)
@@ -384,6 +389,8 @@ def repair_existing(output_dir):
     services = repairs.repair_id_param_types(services, models, log)
     services = repairs.repair_mapping_create_params(services, models, log)
     if isinstance(services, list):
+        services = repairs.repair_named_service_methods(
+            services, models, errors, requirements, log)
         services, removed = dedupe.deduplicate(
             pipeline_module.SERVICE_CONTRACTS, services)
         if removed:
@@ -398,6 +405,9 @@ def repair_existing(output_dir):
         documents[pipeline_module.ERRORS] = errors
         documents[pipeline_module.SERVICE_CONTRACTS] = services
     if isinstance(components, dict):
+        components = repairs.repair_crud_requirements(
+            components, models, requirements, log)
+        documents[pipeline_module.COMPONENTS] = components
         repairs.repair_persistence_consistency(components, log)
         repairs.repair_empty_domain_components(components, models, log)
         persistence = components.get("persistence")
@@ -436,9 +446,22 @@ def repair_existing(output_dir):
     repairs.repair_create_signature_fields(
         documents.get(pipeline_module.SERVICE_CONTRACTS) or [],
         documents.get(pipeline_module.DATA_MODELS) or [], log)
+    services = repairs.repair_create_key_parameters(
+        documents.get(pipeline_module.SERVICE_CONTRACTS) or [],
+        documents.get(pipeline_module.DATA_MODELS) or [], log)
+    documents[pipeline_module.SERVICE_CONTRACTS] = services
+    services = repairs.repair_total_count_parameters(
+        services, documents.get(pipeline_module.DATA_MODELS) or [], log)
+    services = repairs.repair_prose_query_actions(
+        services, documents.get(pipeline_module.DATA_MODELS) or [],
+        requirements, log)
+    documents[pipeline_module.SERVICE_CONTRACTS] = services
     ports_for_signature = documents.get(pipeline_module.PERSISTENCE_PORTS)
     if isinstance(ports_for_signature, dict):
         repairs.repair_create_signature_fields(
+            ports_for_signature.get("repositories") or [],
+            documents.get(pipeline_module.DATA_MODELS) or [], log)
+        repairs.repair_total_count_parameters(
             ports_for_signature.get("repositories") or [],
             documents.get(pipeline_module.DATA_MODELS) or [], log)
     services = documents.get(pipeline_module.SERVICE_CONTRACTS) or []
@@ -522,12 +545,20 @@ def repair_existing(output_dir):
             documents[pipeline_module.SERVICE_CONTRACTS] = services
             documents[pipeline_module.PERSISTENCE_PORTS] = (
                 interfaces.unify_repository_interfaces(ports, services, log))
+    services = repairs.repair_orphan_capability_methods(
+        documents.get(pipeline_module.SERVICE_CONTRACTS),
+        documents.get(pipeline_module.INTERACTION_ADAPTERS), log)
+    documents[pipeline_module.SERVICE_CONTRACTS] = services
+    # A capability method was copied into the persistence port when the two
+    # documents were unified.  Dropping it from E alone leaves the port
+    # declaring a method the service no longer has, so E's method set is
+    # re-applied after the removal.
+    ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
+    if isinstance(ports, dict):
+        ports = interfaces.unify_repository_interfaces(ports, services, log)
+        documents[pipeline_module.PERSISTENCE_PORTS] = ports
     repositories = (ports.get("repositories")
                     if isinstance(ports, dict) else None) or []
-    documents[pipeline_module.SERVICE_CONTRACTS] = (
-        repairs.repair_orphan_capability_methods(
-            documents.get(pipeline_module.SERVICE_CONTRACTS),
-            documents.get(pipeline_module.INTERACTION_ADAPTERS), log))
     documents[pipeline_module.PATTERN_MATCHES] = repairs.repair_paginated_patterns(
         documents.get(pipeline_module.PATTERN_MATCHES), services,
         repositories, log)

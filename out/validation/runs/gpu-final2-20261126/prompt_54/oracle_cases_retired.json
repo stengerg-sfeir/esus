@@ -1,46 +1,10 @@
 {
   "counts": {
     "legacy": 1,
-    "kept": 0,
-    "retired": 1,
+    "kept": 1,
+    "retired": 0,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
-  "cases": [
-    {
-      "case": {
-        "id": "appointment_start_end_validity",
-        "source": "An appointment must always end after it starts, but the application must also support appointments whose start and end time are identical.",
-        "given": {
-          "appointment": {
-            "start_time": "2023-10-01T09:00:00Z",
-            "end_time": "2023-10-01T09:00:00Z"
-          }
-        },
-        "when": {
-          "action": "create_appointment",
-          "args": [
-            "2023-10-01T09:00:00Z",
-            "2023-10-01T09:00:00Z"
-          ]
-        },
-        "then": {
-          "state": {
-            "appointment.start_time": "2023-10-01T09:00:00Z",
-            "appointment.end_time": "2023-10-01T09:00:00Z"
-          },
-          "rows": {
-            "Appointment": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "799cfaef0d49372ff8567b7f99681605ec7004e2e0742d22605c6d886f7e6385"
-      },
-      "status": "not_run",
-      "reason": ""
-    }
-  ]
+  "cases": []
 }

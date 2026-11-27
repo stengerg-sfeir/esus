@@ -6,18 +6,21 @@
       "source": "Users must be able to create, update, delete and list projects and tasks.",
       "given": {
         "project": {
-          "name": "Development Project"
+          "name": "Website Redesign",
+          "description": "Redesign the company website to improve user experience"
         }
       },
       "when": {
         "action": "create_project",
         "args": [
-          "project.name"
+          "project.name",
+          "project.description"
         ]
       },
       "then": {
         "state": {
-          "project.title": "Development Project"
+          "project.title": "Website Redesign",
+          "project.description": "Redesign the company website to improve user experience"
         },
         "rows": {
           "Project": 1
@@ -32,10 +35,10 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 19.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 19.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
@@ -49,6 +52,15 @@
             "score": 10.0,
             "evidence": [
               "Project.title exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
             ],
             "alternatives": []
           }
@@ -77,13 +89,18 @@
       "source": "Users must be able to create, update, delete and list projects and tasks.",
       "given": {
         "project": {
-          "name": "Development Project"
+          "name": "Website Redesign",
+          "description": "Redesign the company website to improve user experience"
         }
       },
       "when": {
         "action": "list_projects"
       },
       "then": {
+        "state": {
+          "project.title": "Website Redesign",
+          "project.description": "Redesign the company website to improve user experience"
+        },
         "rows": {
           "Project": 1
         }
@@ -97,27 +114,44 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 19.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 19.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
             ]
           }
         },
-        "fields": {},
+        "fields": {
+          "project.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Project.title exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          }
+        },
         "action": {
           "status": "alias",
           "canonical": "ProjectRepository.read_all",
           "score": 1.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "TaskRepository.read_all"
-          ]
+          "alternatives": []
         }
       },
       "execution": {
@@ -132,7 +166,8 @@
       "source": "Users must be able to create, update, delete and list projects and tasks.",
       "given": {
         "project": {
-          "id": 1
+          "name": "Website Redesign",
+          "description": "Redesign the company website to improve user experience"
         }
       },
       "when": {
@@ -155,10 +190,10 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 11.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 11.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
@@ -171,11 +206,9 @@
           "canonical": "ProjectRepository.delete",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "TaskRepository.delete"
-          ]
+          "alternatives": []
         }
       },
       "execution": {
@@ -190,11 +223,12 @@
       "source": "Users must be able to create, update, delete and list projects and tasks.",
       "given": {
         "project": {
-          "id": 1
+          "name": "Website Redesign",
+          "description": "Redesign the company website to improve user experience"
         },
         "task": {
-          "title": "Design UI",
-          "description": "Create user interface mockups",
+          "title": "Design Homepage",
+          "description": "Create a modern and responsive homepage layout",
           "status": "pending",
           "priority": "high"
         }
@@ -211,8 +245,8 @@
       },
       "then": {
         "state": {
-          "task.title": "Design UI",
-          "task.description": "Create user interface mockups",
+          "task.title": "Design Homepage",
+          "task.description": "Create a modern and responsive homepage layout",
           "task.status": "pending",
           "task.priority": "high"
         },
@@ -229,10 +263,10 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 11.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 11.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
@@ -311,8 +345,8 @@
       "source": "Users must be able to create, update, delete and list projects and tasks.",
       "given": {
         "task": {
-          "title": "Design UI",
-          "description": "Create user interface mockups",
+          "title": "Design Homepage",
+          "description": "Create a modern and responsive homepage layout",
           "status": "pending",
           "priority": "high"
         }
@@ -321,8 +355,110 @@
         "action": "list_tasks"
       },
       "then": {
+        "state": {
+          "task.title": "Design Homepage",
+          "task.description": "Create a modern and responsive homepage layout",
+          "task.status": "pending",
+          "task.priority": "high"
+        },
         "rows": {
           "Task": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "task": {
+            "status": "aligned",
+            "canonical": "Task",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Task",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Project"
+            ]
+          }
+        },
+        "fields": {
+          "task.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Task.title exists"
+            ],
+            "alternatives": []
+          },
+          "task.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          },
+          "task.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          },
+          "task.priority": {
+            "status": "aligned",
+            "canonical": "priority",
+            "score": 10.0,
+            "evidence": [
+              "Task.priority exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "TaskRepository.read_all",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_task",
+      "source": "Users must be able to create, update, delete and list projects and tasks.",
+      "given": {
+        "task": {
+          "title": "Design Homepage",
+          "description": "Create a modern and responsive homepage layout",
+          "status": "pending",
+          "priority": "high"
+        }
+      },
+      "when": {
+        "action": "delete_task",
+        "args": [
+          "task.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Task": 0
         }
       },
       "status": "confirmed",
@@ -347,8 +483,8 @@
         "fields": {},
         "action": {
           "status": "alias",
-          "canonical": "TaskRepository.read_all",
-          "score": 1.0,
+          "canonical": "TaskRepository.delete",
+          "score": 4.0,
           "evidence": [
             "same operation with a different name"
           ],
@@ -360,62 +496,6 @@
         "reason": ""
       },
       "triage": "passed",
-      "needs_review": false
-    },
-    {
-      "id": "delete_task",
-      "source": "Users must be able to create, update, delete and list projects and tasks.",
-      "given": {
-        "task": {
-          "id": 1
-        }
-      },
-      "when": {
-        "action": "delete_task",
-        "args": [
-          "task.id"
-        ]
-      },
-      "then": {
-        "rows": {
-          "Task": 0
-        }
-      },
-      "status": "case_defect",
-      "base_status": "confirmed",
-      "assumptions": [],
-      "ambiguities": [],
-      "alignment": {
-        "entities": {
-          "task": {
-            "status": "aligned",
-            "canonical": "Task",
-            "score": 11.0,
-            "evidence": [
-              "name/fields match Task",
-              "score 11.0"
-            ],
-            "alternatives": [
-              "Project"
-            ]
-          }
-        },
-        "fields": {},
-        "action": {
-          "status": "alias",
-          "canonical": "TaskRepository.delete",
-          "score": 4.0,
-          "evidence": [
-            "same operation with a different name"
-          ],
-          "alternatives": []
-        }
-      },
-      "execution": {
-        "status": "case_defect",
-        "reason": "raised LookupError: Task delete matched no records; expected None"
-      },
-      "triage": "case_defect: setup",
       "needs_review": false
     }
   ]

@@ -107,21 +107,3 @@ class BookRepository:
             return None
         record = found[0]
         return models.Book(**record)
-
-    def find_books(self, title: str = None, author: str = None, genre: str = None, isbn: str = None, publication_year: int = None, category: str = None) -> list[models.Book]:
-        """Find books. [crud:filter: name-only: step F never saw this method]"""
-        criteria = []
-        if title is not None:
-            criteria.append(('title', 'eq', title))
-        if author is not None:
-            criteria.append(('author', 'eq', author))
-        if genre is not None:
-            criteria.append(('genre', 'eq', genre))
-        if isbn is not None:
-            criteria.append(('isbn', 'eq', isbn))
-        if publication_year is not None:
-            criteria.append(('publication_year', 'eq', publication_year))
-        if category is not None:
-            criteria.append(('category', 'eq', category))
-        found = self._store.select(self.ENTITY, criteria)
-        return [models.Book(**r) for r in found]

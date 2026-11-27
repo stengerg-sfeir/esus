@@ -1,82 +1,12 @@
 {
   "counts": {
     "legacy": 3,
-    "kept": 0,
-    "retired": 3,
+    "kept": 2,
+    "retired": 1,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 2
   },
   "cases": [
-    {
-      "case": {
-        "id": "borrow_book",
-        "source": "A book can be borrowed by members.",
-        "given": {
-          "book": {
-            "id": "book_1",
-            "status": "available"
-          },
-          "member": {
-            "id": "member_1"
-          }
-        },
-        "when": {
-          "action": "borrow_book",
-          "args": [
-            "book_1.id",
-            "member_1.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "book.status": "borrowed"
-          },
-          "rows": {
-            "Book": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "1a1a256adfa0e4b306b05b783aa3c6e4ccd2c30a815d05ac81d15e6f6eb54da1"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "return_book",
-        "source": "When it is returned, it should become available again.",
-        "given": {
-          "book": {
-            "id": "book_1",
-            "status": "borrowed"
-          }
-        },
-        "when": {
-          "action": "return_book",
-          "args": [
-            "book_1.id"
-          ]
-        },
-        "then": {
-          "state": {
-            "book.status": "available"
-          },
-          "rows": {
-            "Book": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "1a1a256adfa0e4b306b05b783aa3c6e4ccd2c30a815d05ac81d15e6f6eb54da1"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
     {
       "case": {
         "id": "book_not_available_while_borrowed",
@@ -106,8 +36,7 @@
         "assumptions": [
           "The system does not show a borrowed book as available during a check_availability query"
         ],
-        "ambiguities": [],
-        "prompt_sha": "1a1a256adfa0e4b306b05b783aa3c6e4ccd2c30a815d05ac81d15e6f6eb54da1"
+        "ambiguities": []
       },
       "status": "not_run",
       "reason": ""

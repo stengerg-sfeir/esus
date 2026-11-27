@@ -1,5 +1,171 @@
 {
   "prompt": "prompt_02",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:addition_operation",
+      "status": "passed",
+      "case": "addition_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:subtraction_operation",
+      "status": "passed",
+      "case": "subtraction_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:multiplication_operation",
+      "status": "passed",
+      "case": "multiplication_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:division_operation",
+      "status": "passed",
+      "case": "division_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    },
+    {
+      "name": "scenario:oracle:division_by_zero_error",
+      "status": "passed",
+      "case": "division_by_zero_error",
+      "source": "Division by zero must produce a clear error message.",
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 5
+  },
+  "triage_counts": {
+    "passed": 5
+  }
 }

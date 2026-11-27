@@ -6,9 +6,9 @@
       "when": {
         "action": "create_project",
         "args": [
-          "project.name",
-          "project.description",
-          "project.status"
+          "name",
+          "description",
+          "status"
         ]
       },
       "setup_entities": [
@@ -37,9 +37,9 @@
         "action": "update_project",
         "args": [
           "project.id",
-          "project.name",
-          "project.description",
-          "project.status"
+          "name",
+          "description",
+          "status"
         ]
       },
       "setup_entities": [
@@ -76,7 +76,7 @@
       ],
       "expect": {
         "rows": {
-          "Project": 0
+          "Project": 1
         }
       },
       "status": "confirmed"

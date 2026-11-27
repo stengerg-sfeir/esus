@@ -59,18 +59,13 @@
         },
         "fields": {},
         "action": {
-          "status": "alias",
-          "canonical": "BorrowRecordRepository.get_borrow_records_by_book_id",
-          "score": 7.0,
+          "status": "aligned",
+          "canonical": "BookRepository.borrow_book",
+          "score": 10.0,
           "evidence": [
-            "highest action-name specificity"
+            "exact generated method"
           ],
-          "alternatives": [
-            "BorrowRecordRepository.create_borrow_record",
-            "BorrowService.return_book",
-            "BookRepository.read_one",
-            "BookRepository.update"
-          ]
+          "alternatives": []
         }
       },
       "execution": {
@@ -101,7 +96,7 @@
           "Book": 1
         }
       },
-      "status": "case_defect",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -130,10 +125,10 @@
         }
       },
       "execution": {
-        "status": "case_defect",
-        "reason": "raised BorrowRecordNotFoundError: borrow record not found; expected None"
+        "status": "passed",
+        "reason": ""
       },
-      "triage": "case_defect: setup",
+      "triage": "passed",
       "needs_review": false
     },
     {

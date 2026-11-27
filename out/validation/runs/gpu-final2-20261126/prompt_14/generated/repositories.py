@@ -201,9 +201,7 @@ class ProjectRepository:
 
     def soft_delete_project(self, project_id: int = None) -> bool:
         """Marks a project as soft-deleted by setting the is_deleted field to True. The project remains in the database but is no longer visible in read_all operations. [llm-written by server — review]"""
-        criteria = []
-        if project_id is not None:
-            criteria.append(('project_id', 'eq', project_id))
+        criteria = [('project_id', 'eq', project_id)]
         found = self._store.select(self.ENTITY, criteria)
         if not found:
             return False

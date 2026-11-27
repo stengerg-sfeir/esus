@@ -1,50 +1,15 @@
 {
   "counts": {
     "legacy": 2,
-    "kept": 0,
-    "retired": 2,
+    "kept": 1,
+    "retired": 1,
     "confirmed_intents": 0,
-    "merged": 0
+    "merged": 1
   },
   "cases": [
     {
       "case": {
-        "id": "add_book_action",
-        "source": "Users should be able to add books",
-        "given": {
-          "book": {
-            "title": "The Great Gatsby",
-            "author": "F. Scott Fitzgerald"
-          }
-        },
-        "when": {
-          "action": "add_book",
-          "args": [
-            "book.title",
-            "book.author"
-          ]
-        },
-        "then": {
-          "state": {
-            "book.title": "The Great Gatsby",
-            "book.author": "F. Scott Fitzgerald"
-          },
-          "rows": {
-            "Book": 1
-          }
-        },
-        "status": "confirmed",
-        "base_status": "confirmed",
-        "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "2b4152e3eaa40794d4c96f31313f505e98ab2a1a6f7594b64ad6737bc51fdfe9"
-      },
-      "status": "not_run",
-      "reason": ""
-    },
-    {
-      "case": {
-        "id": "remember_between_executions",
+        "id": "remember_between_executions_action",
         "source": "The application should remember the information between executions.",
         "given": {
           "book": {
@@ -53,7 +18,7 @@
           }
         },
         "when": {
-          "action": "remember_state",
+          "action": "remember_information",
           "args": []
         },
         "then": {
@@ -68,8 +33,7 @@
         "status": "assumed",
         "base_status": "assumed",
         "assumptions": [],
-        "ambiguities": [],
-        "prompt_sha": "2b4152e3eaa40794d4c96f31313f505e98ab2a1a6f7594b64ad6737bc51fdfe9"
+        "ambiguities": []
       },
       "status": "not_run",
       "reason": ""

@@ -193,18 +193,16 @@ class LoanRepository:
     def close_loan_by_id(self, loan_id: int = None) -> bool:
         """Closes a loan record by its ID, marking it as closed and updating the book's availability status accordingly. [llm-written by server — review]"""
         record = self._store.get(self.ENTITY, self.PK, loan_id, error=errors.LoanNotFoundError)
-        book_id = record.get("book_id")
-        if book_id is None:
+        if record is None:
             return False
-        book = self._store.get("Book", 'id', book_id, error=errors.BookNotFoundError)
-        book_available = book.get("available")
-        if book_available is None:
-            book_available = False
-        if book_available:
-            book["available"] = False
-        self._store.update("Book", self.PK, book)
-        record["closed"] = True
-        self._store.update(self.ENTITY, self.PK, record)
+        record['closed'] = True
+        self._store.update(self.ENTITY, self.PK, loan_id, record)
+        book_id = record.get('book_id')
+        if book_id is not None:
+            book_record = self._store.get("Book", "id", book_id, error=errors.BookNotFoundError)
+            if book_record is not None:
+                book_record['available'] = True
+                self._store.update("Book", "id", book_id, book_record)
         return True
 
     def get_active_loans_for_member(self, member_id: int = None) -> List[models.Loan]:

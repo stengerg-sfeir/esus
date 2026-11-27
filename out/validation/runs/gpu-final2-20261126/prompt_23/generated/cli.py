@@ -146,9 +146,10 @@ ADAPTERS = {
         'method': 'create',
         'fields': [
             ('tag_id', ('tag_id', 'LOOKUP_ID', False)),
+            ('post_id', ('post_id', 'LOOKUP_ID', True)),
         ],
-        'argv': {'tag_id': 'tag_id'},
-        'targets': {'tag_id': None},
+        'argv': {'tag_id': 'tag_id', 'post_id': 'post_id'},
+        'targets': {'tag_id': None, 'post_id': None},
         'assembled': [],
         'creates': True,
     },
@@ -314,6 +315,7 @@ def build_parser():
     sub_PostTag = p_PostTag.add_subparsers(dest='subcommand')
     p_PostTag_add = sub_PostTag.add_parser('add')
     p_PostTag_add.add_argument('--tag-id', type=int, required=False, dest='tag_id')
+    p_PostTag_add.add_argument('--post-id', type=int, required=True, dest='post_id')
     p_PostTag_add.set_defaults(_binding=('PostTag', 'add'))
     return parser
 

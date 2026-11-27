@@ -1,7 +1,4 @@
 gate passed (0 residual risk(s); gaps stay documented stubs)
-llm: 1 refused stub(s) — server writes them body by body (chat template; exact context: models as code + local contract)
-llm: OrderService.orderconfirm ...
-llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_32/llm_stub_answers.json
 [write] out/validation/runs/gpu-final2-20261126/prompt_32/generated/models.py
 [write] out/validation/runs/gpu-final2-20261126/prompt_32/generated/errors.py
 [write] out/validation/runs/gpu-final2-20261126/prompt_32/generated/repositories.py
@@ -10,10 +7,7 @@ llm: raw answers -> out/validation/runs/gpu-final2-20261126/prompt_32/llm_stub_a
 [write] out/validation/runs/gpu-final2-20261126/prompt_32/generated/store.py
 [write] out/validation/runs/gpu-final2-20261126/prompt_32/generated/cli.py
 [write] out/validation/runs/gpu-final2-20261126/prompt_32/generated/__init__.py
-methods: 7 implemented, 1 stubs (88% mechanical)
-llm: 1 of 1 refused stub(s) written provisionally by server — behavior is not verified by syntax or contract checks
-  llm provisional: OrderService.orderconfirm
-  stub: OrderService.orderconfirm: no pattern entry and an ambiguous method name
+methods: 7 implemented, 0 stubs (100% mechanical)
   cli Order cancel -> ordercancel [score 11]
   cli Order ship -> ordership [score 11]
   cli Order update -> orderupdate [score 11]

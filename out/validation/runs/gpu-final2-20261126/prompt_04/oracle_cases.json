@@ -23,7 +23,7 @@
           "Task": 1
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -61,12 +61,12 @@
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "create case expects task.description = 'Write documentation' but supplies 'task description'"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     },
     {
       "id": "list_tasks",
@@ -140,7 +140,7 @@
           "Task": 1
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -159,22 +159,21 @@
         },
         "fields": {},
         "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
+          "status": "aligned",
+          "canonical": "TaskRepository.complete_task",
+          "score": 10.0,
           "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
+            "exact generated method"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "no generated method matches 'complete_task'"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     },
     {
       "id": "delete_task",

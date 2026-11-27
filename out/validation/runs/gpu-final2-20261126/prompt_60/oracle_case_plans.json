@@ -86,30 +86,6 @@
         },
         "error": "omitted"
       },
-      "status": "ambiguous"
-    },
-    {
-      "id": "create_invoice_on_confirm",
-      "source": "An invoice is created when an order is confirmed.",
-      "when": {
-        "action": "confirm_order",
-        "args": [
-          "order.id"
-        ]
-      },
-      "setup_entities": [
-        {
-          "alias": "order",
-          "entity": "Order",
-          "role": "target"
-        }
-      ],
-      "expect": {
-        "rows": {
-          "Invoice": 1
-        },
-        "error": "omitted"
-      },
       "status": "assumed"
     }
   ]

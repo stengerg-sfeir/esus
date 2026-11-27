@@ -1,5 +1,81 @@
 {
   "prompt": "prompt_56",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:cancel_order_action",
+      "status": "passed",
+      "case": "cancel_order_action",
+      "source": "cancelling an order must restore its product quantities",
+      "alignment": {
+        "entities": {
+          "order": {
+            "status": "aligned",
+            "canonical": "Order",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Order",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "OrderProduct",
+              "Customer",
+              "Product"
+            ]
+          },
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "OrderProduct",
+              "Order"
+            ]
+          }
+        },
+        "fields": {
+          "order.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Order.status exists"
+            ],
+            "alternatives": []
+          },
+          "product.stock_quantity": {
+            "status": "aligned",
+            "canonical": "stock_quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.stock_quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "ambiguous",
+          "canonical": "OrderRepository.cancel_order",
+          "score": 7.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "OrderRepository.cancel_order",
+            "OrderService.cancel_order"
+          ]
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

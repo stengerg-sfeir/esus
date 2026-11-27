@@ -1,23 +1,15 @@
 {
   "root": "out/validation/runs/gpu-final2-20261126",
   "summary": {
-    "projects": 65,
-    "cases": 96,
+    "projects": 66,
+    "cases": 111,
     "counts": {
-      "passed": 50,
-      "under_specified": 19,
-      "case_defect": 12,
-      "unbound": 7,
-      "failed": 8
+      "passed": 109,
+      "under_specified": 2
     },
     "triage_counts": {
-      "passed": 50,
-      "under_specified": 22,
-      "case_defect: setup": 12,
-      "coverage_gap: other": 2,
-      "coverage_gap: ambiguous action": 5,
-      "behavior: row count": 4,
-      "behavior: wrong error": 1
+      "passed": 109,
+      "under_specified": 2
     }
   },
   "results": [
@@ -28,8 +20,174 @@
     },
     {
       "prompt": "prompt_02",
-      "results": [],
-      "counts": {}
+      "results": [
+        {
+          "name": "scenario:oracle:addition_operation",
+          "status": "passed",
+          "case": "addition_operation",
+          "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+          "alignment": {
+            "entities": {
+              "numbers": {
+                "status": "coverage_gap",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "prompt mentions 'numbers'",
+                  "no extracted entity matches it"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:subtraction_operation",
+          "status": "passed",
+          "case": "subtraction_operation",
+          "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+          "alignment": {
+            "entities": {
+              "numbers": {
+                "status": "coverage_gap",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "prompt mentions 'numbers'",
+                  "no extracted entity matches it"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:multiplication_operation",
+          "status": "passed",
+          "case": "multiplication_operation",
+          "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+          "alignment": {
+            "entities": {
+              "numbers": {
+                "status": "coverage_gap",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "prompt mentions 'numbers'",
+                  "no extracted entity matches it"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:division_operation",
+          "status": "passed",
+          "case": "division_operation",
+          "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+          "alignment": {
+            "entities": {
+              "numbers": {
+                "status": "coverage_gap",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "prompt mentions 'numbers'",
+                  "no extracted entity matches it"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:division_by_zero_error",
+          "status": "passed",
+          "case": "division_by_zero_error",
+          "source": "Division by zero must produce a clear error message.",
+          "alignment": {
+            "entities": {
+              "numbers": {
+                "status": "coverage_gap",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "prompt mentions 'numbers'",
+                  "no extracted entity matches it"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "invented",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "action is not exposed as an operation by the prompt",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 5
+      },
+      "triage_counts": {
+        "passed": 5
+      }
     },
     {
       "prompt": "prompt_03",
@@ -77,9 +235,9 @@
       "prompt": "prompt_04",
       "results": [
         {
-          "name": "add_task",
-          "status": "under_specified",
-          "reason": "create case expects task.description = 'Write documentation' but supplies 'task description'",
+          "name": "scenario:oracle:add_task",
+          "status": "passed",
+          "case": "add_task",
           "source": "Users can add, list, complete and delete tasks.",
           "alignment": {
             "entities": {
@@ -115,7 +273,7 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:list_tasks",
@@ -149,9 +307,9 @@
           "triage": "passed"
         },
         {
-          "name": "complete_task",
-          "status": "under_specified",
-          "reason": "no generated method matches 'complete_task'",
+          "name": "scenario:oracle:complete_task",
+          "status": "passed",
+          "case": "complete_task",
           "source": "Users can add, list, complete and delete tasks.",
           "alignment": {
             "entities": {
@@ -168,17 +326,16 @@
             },
             "fields": {},
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "aligned",
+              "canonical": "TaskRepository.complete_task",
+              "score": 10.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "exact generated method"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:delete_task",
@@ -213,12 +370,10 @@
         }
       ],
       "counts": {
-        "under_specified": 2,
-        "passed": 2
+        "passed": 4
       },
       "triage_counts": {
-        "under_specified": 2,
-        "passed": 2
+        "passed": 4
       }
     },
     {
@@ -509,12 +664,45 @@
               }
             },
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "ambiguous",
+              "canonical": "ProductRepository.read_all",
+              "score": 4.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "several generated methods have the same action score"
+              ],
+              "alternatives": [
+                "ProductRepository.read_all",
+                "ProductRepository.read_one"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_product",
+          "status": "passed",
+          "case": "delete_product",
+          "source": "Create a Python 3.12 application for managing products. Each product has a name, description, price and quantity. Provide CRUD operations and persist the data in SQLite.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
               ],
               "alternatives": []
             }
@@ -523,10 +711,10 @@
         }
       ],
       "counts": {
-        "passed": 2
+        "passed": 3
       },
       "triage_counts": {
-        "passed": 2
+        "passed": 3
       }
     },
     {
@@ -693,6 +881,330 @@
       }
     },
     {
+      "prompt": "prompt_08",
+      "results": [
+        {
+          "name": "scenario:oracle:create_product",
+          "status": "passed",
+          "case": "create_product",
+          "source": "Create a Python 3.12 inventory application. Products have a name, category, price and quantity. Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.create",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_products_by_category",
+          "status": "passed",
+          "case": "read_products_by_category",
+          "source": "Users must be able to filter products by category and display products whose quantity is below a specified threshold.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.filter_products",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:read_products_below_threshold",
+          "status": "passed",
+          "case": "read_products_below_threshold",
+          "source": "Users must be able to filter products by category and display products whose quantity is below a specified threshold.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product_2.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.filter_products",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:update_product_quantity",
+          "status": "passed",
+          "case": "update_product_quantity",
+          "source": "Create a Python 3.12 inventory application. Products have a name, category, price and quantity. Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.category": {
+                "status": "aligned",
+                "canonical": "category",
+                "score": 10.0,
+                "evidence": [
+                  "Product.category exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.update",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_product",
+          "status": "passed",
+          "case": "delete_product",
+          "source": "Create a Python 3.12 inventory application. Products have a name, category, price and quantity. Provide CRUD operations.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 5
+      },
+      "triage_counts": {
+        "passed": 5
+      }
+    },
+    {
       "prompt": "prompt_09",
       "results": [],
       "counts": {}
@@ -774,38 +1286,6 @@
           "triage": "passed"
         },
         {
-          "name": "search_books",
-          "status": "case_defect",
-          "reason": "cannot resolve given entity 'search'",
-          "source": "Users can create, list, update, search and delete books.",
-          "alignment": {
-            "entities": {
-              "search": {
-                "status": "alias",
-                "canonical": "Book",
-                "score": 5.0,
-                "evidence": [
-                  "weak name but strong field overlap with Book",
-                  "score 5.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {},
-            "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
-              "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "case_defect: setup"
-        },
-        {
           "name": "scenario:oracle:delete_book",
           "status": "passed",
           "case": "delete_book",
@@ -838,12 +1318,10 @@
         }
       ],
       "counts": {
-        "passed": 2,
-        "case_defect": 1
+        "passed": 2
       },
       "triage_counts": {
-        "passed": 2,
-        "case_defect: setup": 1
+        "passed": 2
       }
     },
     {
@@ -909,19 +1387,19 @@
           "triage": "passed"
         },
         {
-          "name": "read_customer_by_name",
-          "status": "under_specified",
-          "reason": "no generated method matches 'search_by_name'",
-          "source": "Provide CRUD operations, search by name and filtering by email domain.",
+          "name": "scenario:oracle:read_customer_by_id",
+          "status": "passed",
+          "case": "read_customer_by_id",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
           "alignment": {
             "entities": {
               "customer": {
                 "status": "aligned",
                 "canonical": "Customer",
-                "score": 14.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Customer",
-                  "score 14.0"
+                  "score 15.0"
                 ],
                 "alternatives": []
               }
@@ -956,92 +1434,164 @@
               }
             },
             "action": {
-              "status": "coverage_gap",
-              "canonical": null,
-              "score": 0.0,
+              "status": "alias",
+              "canonical": "CustomerRepository.read_all",
+              "score": 4.0,
               "evidence": [
-                "prompt exposes the action",
-                "no generated method matches"
+                "same operation with a different name"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
-          "name": "read_customer_by_domain",
-          "status": "under_specified",
-          "reason": "no generated method matches 'filter_by_email_domain'",
-          "source": "Provide CRUD operations, search by name and filtering by email domain.",
+          "name": "scenario:oracle:read_all_customers",
+          "status": "passed",
+          "case": "read_all_customers",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
           "alignment": {
             "entities": {
-              "customer": {
-                "status": "aligned",
+              "customer_1": {
+                "status": "alias",
                 "canonical": "Customer",
-                "score": 14.0,
+                "score": 11.0,
                 "evidence": [
                   "name/fields match Customer",
-                  "score 14.0"
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "customer_2": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 11.0"
                 ],
                 "alternatives": []
               }
             },
-            "fields": {
-              "customer.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.name exists"
-                ],
-                "alternatives": []
-              },
-              "customer.email": {
-                "status": "aligned",
-                "canonical": "email",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.email exists"
-                ],
-                "alternatives": []
-              },
-              "customer.phone_number": {
-                "status": "aligned",
-                "canonical": "phone_number",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.phone_number exists"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "alias",
+              "canonical": "CustomerRepository.read_all",
+              "score": 1.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "same operation with a different name"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:search_customers_by_name",
+          "status": "passed",
+          "case": "search_customers_by_name",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+          "alignment": {
+            "entities": {
+              "customer_1": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "customer_2": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.search_customers",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:filter_customers_by_email_domain",
+          "status": "passed",
+          "case": "filter_customers_by_email_domain",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
+          "alignment": {
+            "entities": {
+              "customer_1": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "customer_2": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "customer_3": {
+                "status": "alias",
+                "canonical": "Customer",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "CustomerRepository.filter_customers",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:delete_customer",
           "status": "passed",
           "case": "delete_customer",
-          "source": "Provide CRUD operations, search by name and filtering by email domain.",
+          "source": "Create a Python 3.12 customer management application. Customers have a name, email and phone number. Email addresses must be unique. Provide CRUD operations, search by name and filtering by email domain. Use SQLite persistence.",
           "alignment": {
             "entities": {
               "customer": {
                 "status": "aligned",
                 "canonical": "Customer",
-                "score": 14.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Customer",
-                  "score 14.0"
+                  "score 15.0"
                 ],
                 "alternatives": []
               }
@@ -1061,12 +1611,10 @@
         }
       ],
       "counts": {
-        "passed": 2,
-        "under_specified": 2
+        "passed": 6
       },
       "triage_counts": {
-        "passed": 2,
-        "under_specified": 2
+        "passed": 6
       }
     },
     {
@@ -1150,9 +1698,9 @@
           "triage": "passed"
         },
         {
-          "name": "scenario:oracle:read_product_by_sku",
+          "name": "scenario:oracle:read_product",
           "status": "passed",
-          "case": "read_product_by_sku",
+          "case": "read_product",
           "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
           "alignment": {
             "entities": {
@@ -1215,12 +1763,11 @@
               }
             },
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "alias",
+              "canonical": "ProductRepository.read_all",
+              "score": 4.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "same operation with a different name"
               ],
               "alternatives": []
             }
@@ -1228,231 +1775,9 @@
           "triage": "passed"
         },
         {
-          "name": "scenario:oracle:read_product_by_category",
-          "status": "case_defect",
-          "reason": "raised ProductNotFoundError: Product with id='Education' not found; expected None",
-          "case": "read_product_by_category",
-          "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
-          "alignment": {
-            "entities": {
-              "product_1": {
-                "status": "alias",
-                "canonical": "Product",
-                "score": 11.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 11.0"
-                ],
-                "alternatives": []
-              },
-              "product_2": {
-                "status": "alias",
-                "canonical": "Product",
-                "score": 11.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 11.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {
-              "product_1.sku": {
-                "status": "aligned",
-                "canonical": "sku",
-                "score": 10.0,
-                "evidence": [
-                  "Product.sku exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.category": {
-                "status": "aligned",
-                "canonical": "category",
-                "score": 10.0,
-                "evidence": [
-                  "Product.category exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.stock_quantity": {
-                "status": "aligned",
-                "canonical": "stock_quantity",
-                "score": 10.0,
-                "evidence": [
-                  "Product.stock_quantity exists"
-                ],
-                "alternatives": []
-              },
-              "product_2.sku": {
-                "status": "aligned",
-                "canonical": "sku",
-                "score": 10.0,
-                "evidence": [
-                  "Product.sku exists"
-                ],
-                "alternatives": []
-              },
-              "product_2.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product_2.category": {
-                "status": "aligned",
-                "canonical": "category",
-                "score": 10.0,
-                "evidence": [
-                  "Product.category exists"
-                ],
-                "alternatives": []
-              },
-              "product_2.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              },
-              "product_2.stock_quantity": {
-                "status": "aligned",
-                "canonical": "stock_quantity",
-                "score": 10.0,
-                "evidence": [
-                  "Product.stock_quantity exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
-              "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "case_defect: setup"
-        },
-        {
-          "name": "search_product_by_name",
-          "status": "under_specified",
-          "reason": "no generated method matches 'search_product'",
-          "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
-          "alignment": {
-            "entities": {
-              "product_1": {
-                "status": "alias",
-                "canonical": "Product",
-                "score": 11.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 11.0"
-                ],
-                "alternatives": []
-              },
-              "product_2": {
-                "status": "alias",
-                "canonical": "Product",
-                "score": 11.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 11.0"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {
-              "product_1.sku": {
-                "status": "aligned",
-                "canonical": "sku",
-                "score": 10.0,
-                "evidence": [
-                  "Product.sku exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.category": {
-                "status": "aligned",
-                "canonical": "category",
-                "score": 10.0,
-                "evidence": [
-                  "Product.category exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              },
-              "product_1.stock_quantity": {
-                "status": "aligned",
-                "canonical": "stock_quantity",
-                "score": 10.0,
-                "evidence": [
-                  "Product.stock_quantity exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
-              "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "under_specified"
-        },
-        {
-          "name": "update_product_stock",
-          "status": "unbound",
-          "reason": "verifier harness error: KeyError: 'sku'",
+          "name": "scenario:oracle:update_product",
+          "status": "passed",
+          "case": "update_product",
           "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
           "alignment": {
             "entities": {
@@ -1468,6 +1793,15 @@
               }
             },
             "fields": {
+              "product.sku": {
+                "status": "aligned",
+                "canonical": "sku",
+                "score": 10.0,
+                "evidence": [
+                  "Product.sku exists"
+                ],
+                "alternatives": []
+              },
               "product.stock_quantity": {
                 "status": "aligned",
                 "canonical": "stock_quantity",
@@ -1488,7 +1822,7 @@
               "alternatives": []
             }
           },
-          "triage": "coverage_gap: other"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:delete_product",
@@ -1522,19 +1856,19 @@
           "triage": "passed"
         },
         {
-          "name": "report_low_stock",
-          "status": "unbound",
-          "reason": "no generated method matches 'report_low_stock'",
+          "name": "scenario:oracle:search_products",
+          "status": "passed",
+          "case": "search_products",
           "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
           "alignment": {
             "entities": {
-              "product_1": {
-                "status": "alias",
+              "product": {
+                "status": "aligned",
                 "canonical": "Product",
-                "score": 11.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Product",
-                  "score 11.0"
+                  "score 15.0"
                 ],
                 "alternatives": []
               },
@@ -1551,35 +1885,105 @@
             },
             "fields": {},
             "action": {
-              "status": "ambiguous",
-              "canonical": "ProductRepository.create",
-              "score": 0.0,
+              "status": "aligned",
+              "canonical": "ProductRepository.search_products",
+              "score": 10.0,
               "evidence": [
-                "several generated methods have the same action score"
+                "exact generated method"
               ],
-              "alternatives": [
-                "ProductRepository.create",
-                "ProductRepository.delete",
-                "ProductRepository.read_all",
-                "ProductRepository.update"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "coverage_gap: ambiguous action"
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:filter_by_category",
+          "status": "passed",
+          "case": "filter_by_category",
+          "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.filter_by_category",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:report_low_stock",
+          "status": "passed",
+          "case": "report_low_stock",
+          "source": "Provide CRUD operations, product search, category filtering and low-stock reporting.",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ProductRepository.report_low_stock",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 3,
-        "case_defect": 1,
-        "under_specified": 1,
-        "unbound": 2
+        "passed": 7
       },
       "triage_counts": {
-        "passed": 3,
-        "case_defect: setup": 1,
-        "under_specified": 1,
-        "coverage_gap: other": 1,
-        "coverage_gap: ambiguous action": 1
+        "passed": 7
       }
     },
     {
@@ -1645,10 +2049,10 @@
           "triage": "passed"
         },
         {
-          "name": "scenario:oracle:delete_project_soft",
+          "name": "scenario:oracle:list_projects",
           "status": "passed",
-          "case": "delete_project_soft",
-          "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+          "case": "list_projects",
+          "source": "Users can create, update, list and delete projects.",
           "alignment": {
             "entities": {
               "project": {
@@ -1665,12 +2069,14 @@
             "fields": {},
             "action": {
               "status": "alias",
-              "canonical": "ProjectRepository.delete",
+              "canonical": "ProjectRepository.read_all_projects",
               "score": 4.0,
               "evidence": [
-                "same operation with a different name"
+                "highest action-name specificity"
               ],
-              "alternatives": []
+              "alternatives": [
+                "ProjectRepository.read_all"
+              ]
             }
           },
           "triage": "passed"
@@ -1687,10 +2093,10 @@
       "prompt": "prompt_15",
       "results": [
         {
-          "name": "list_products_by_name",
-          "status": "under_specified",
-          "reason": "case passes parameter name 'name' as a literal value",
-          "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+          "name": "scenario:oracle:list_products_by_name",
+          "status": "passed",
+          "case": "list_products_by_name",
+          "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
           "alignment": {
             "entities": {
               "product": {
@@ -1702,37 +2108,29 @@
                   "score 15.0"
                 ],
                 "alternatives": []
-              }
-            },
-            "fields": {
-              "product.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
                 "evidence": [
-                  "Product.name exists"
+                  "name/fields match Product",
+                  "score 11.0"
                 ],
                 "alternatives": []
               },
-              "product.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
+              "product_3": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
                 "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              },
-              "product.quantity": {
-                "status": "aligned",
-                "canonical": "quantity",
-                "score": 10.0,
-                "evidence": [
-                  "Product.quantity exists"
+                  "name/fields match Product",
+                  "score 11.0"
                 ],
                 "alternatives": []
               }
             },
+            "fields": {},
             "action": {
               "status": "alias",
               "canonical": "ProductRepository.read_all",
@@ -1743,13 +2141,13 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
-          "name": "list_products_by_price",
-          "status": "under_specified",
-          "reason": "case passes parameter name 'price' as a literal value",
-          "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+          "name": "scenario:oracle:list_products_by_price",
+          "status": "passed",
+          "case": "list_products_by_price",
+          "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
           "alignment": {
             "entities": {
               "product": {
@@ -1759,6 +2157,26 @@
                 "evidence": [
                   "name/fields match Product",
                   "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "product_3": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
                 ],
                 "alternatives": []
               }
@@ -1790,6 +2208,60 @@
                   "Product.quantity exists"
                 ],
                 "alternatives": []
+              },
+              "product_2.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
               }
             },
             "action": {
@@ -1802,13 +2274,13 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
-          "name": "list_products_by_quantity",
-          "status": "under_specified",
-          "reason": "case passes parameter name 'quantity' as a literal value",
-          "source": "Provide CRUD operations and allow users to list products sorted by name, price or quantity, in ascending or descending order.",
+          "name": "scenario:oracle:list_products_by_quantity",
+          "status": "passed",
+          "case": "list_products_by_quantity",
+          "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
           "alignment": {
             "entities": {
               "product": {
@@ -1818,6 +2290,26 @@
                 "evidence": [
                   "name/fields match Product",
                   "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "product_3": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
                 ],
                 "alternatives": []
               }
@@ -1849,6 +2341,60 @@
                   "Product.quantity exists"
                 ],
                 "alternatives": []
+              },
+              "product_2.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
               }
             },
             "action": {
@@ -1861,14 +2407,280 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_products_ascending",
+          "status": "passed",
+          "case": "list_products_ascending",
+          "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "product_3": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:list_products_descending",
+          "status": "passed",
+          "case": "list_products_descending",
+          "source": "allow users to list products sorted by name, price or quantity, in ascending or descending order",
+          "alignment": {
+            "entities": {
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 15.0"
+                ],
+                "alternatives": []
+              },
+              "product_2": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              },
+              "product_3": {
+                "status": "alias",
+                "canonical": "Product",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 11.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {
+              "product.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_2.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.name": {
+                "status": "aligned",
+                "canonical": "name",
+                "score": 10.0,
+                "evidence": [
+                  "Product.name exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.price": {
+                "status": "aligned",
+                "canonical": "price",
+                "score": 10.0,
+                "evidence": [
+                  "Product.price exists"
+                ],
+                "alternatives": []
+              },
+              "product_3.quantity": {
+                "status": "aligned",
+                "canonical": "quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "alias",
+              "canonical": "ProductRepository.read_all",
+              "score": 1.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
         }
       ],
       "counts": {
-        "under_specified": 3
+        "passed": 5
       },
       "triage_counts": {
-        "under_specified": 3
+        "passed": 5
       }
     },
     {
@@ -1936,23 +2748,50 @@
             },
             "action": {
               "status": "alias",
-              "canonical": "CustomerRepository.read_one",
+              "canonical": "CustomerRepository.read_all_paginated",
               "score": 4.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "CustomerRepository.delete",
-                "CustomerRepository.update"
-              ]
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:delete_customer",
+          "status": "passed",
+          "case": "delete_customer",
+          "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
+          "alignment": {
+            "entities": {
+              "customer": {
+                "status": "aligned",
+                "canonical": "Customer",
+                "score": 12.0,
+                "evidence": [
+                  "name/fields match Customer",
+                  "score 12.0"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "CustomerRepository.delete",
+              "score": 4.0,
+              "evidence": [
+                "same operation with a different name"
+              ],
+              "alternatives": []
             }
           },
           "triage": "passed"
         },
         {
           "name": "scenario:oracle:list_customers_paginated",
-          "status": "failed",
-          "reason": "result row count is 0, expected 3",
+          "status": "passed",
           "case": "list_customers_paginated",
           "source": "Create a Python 3.12 application for managing customers. Provide CRUD operations and a paginated listing operation. The caller specifies page number and page size. The application must return the requested items and enough information to determine the total number of pages.",
           "alignment": {
@@ -2011,7 +2850,7 @@
             "fields": {},
             "action": {
               "status": "alias",
-              "canonical": "CustomerRepository.read_all",
+              "canonical": "CustomerRepository.read_all_paginated",
               "score": 1.0,
               "evidence": [
                 "same operation with a different name"
@@ -2019,69 +2858,23 @@
               "alternatives": []
             }
           },
-          "triage": "behavior: row count"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 2,
-        "failed": 1
+        "passed": 4
       },
       "triage_counts": {
-        "passed": 2,
-        "behavior: row count": 1
+        "passed": 4
       }
     },
     {
       "prompt": "prompt_17",
       "results": [
         {
-          "name": "search_by_name",
-          "status": "under_specified",
-          "reason": "ambiguous action binding: ProductRepository.filter_by_category, ProductRepository.filter_by_max_price, ProductRepository.filter_by_min_quantity, ProductRepository.find_all_with_filters, ProductRepository.find_all_products_with_filters",
-          "source": "Users must be able to search by name",
-          "alignment": {
-            "entities": {
-              "product": {
-                "status": "aligned",
-                "canonical": "Product",
-                "score": 14.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 14.0"
-                ],
-                "alternatives": [
-                  "User"
-                ]
-              }
-            },
-            "fields": {
-              "product.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "coverage_gap",
-              "canonical": null,
-              "score": 0.0,
-              "evidence": [
-                "prompt exposes the action",
-                "no generated method matches"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "under_specified"
-        },
-        {
-          "name": "combinable_filters",
-          "status": "under_specified",
-          "reason": "ambiguous action binding: ProductRepository.filter_by_category, ProductRepository.filter_by_max_price, ProductRepository.filter_by_min_quantity",
+          "name": "scenario:oracle:combinable_filters",
+          "status": "passed",
+          "case": "combinable_filters",
           "source": "All filters must be combinable",
           "alignment": {
             "entities": {
@@ -2135,28 +2928,24 @@
               }
             },
             "action": {
-              "status": "ambiguous",
-              "canonical": "ProductRepository.filter_by_category",
-              "score": 3.0,
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
               "evidence": [
-                "several generated methods have the same action score"
+                "prompt exposes the action",
+                "no generated method matches"
               ],
-              "alternatives": [
-                "ProductRepository.filter_by_category",
-                "ProductRepository.filter_by_max_price",
-                "ProductRepository.filter_by_min_quantity",
-                "ProductRepository.find_all_products_with_filters"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "under_specified": 2
+        "passed": 1
       },
       "triage_counts": {
-        "under_specified": 2
+        "passed": 1
       }
     },
     {
@@ -2176,7 +2965,7 @@
           "name": "scenario:oracle:create_product",
           "status": "passed",
           "case": "create_product",
-          "source": "Provide CRUD operations for products and sales.",
+          "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
           "alignment": {
             "entities": {
               "product": {
@@ -2227,109 +3016,31 @@
           "triage": "passed"
         },
         {
-          "name": "scenario:oracle:read_product",
+          "name": "scenario:oracle:create_sale",
           "status": "passed",
-          "case": "read_product",
-          "source": "Provide CRUD operations for products and sales.",
+          "case": "create_sale",
+          "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
           "alignment": {
             "entities": {
               "product": {
                 "status": "aligned",
                 "canonical": "Product",
-                "score": 15.0,
+                "score": 13.0,
                 "evidence": [
                   "name/fields match Product",
-                  "score 15.0"
+                  "score 13.0"
                 ],
                 "alternatives": [
                   "SalesRecord"
                 ]
-              }
-            },
-            "fields": {
-              "product.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
               },
-              "product.price": {
-                "status": "aligned",
-                "canonical": "price",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price exists"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "ProductRepository.read_one",
-              "score": 4.0,
-              "evidence": [
-                "highest action-name specificity"
-              ],
-              "alternatives": [
-                "SalesRecordRepository.get_sales_records_by_product_id",
-                "SalesRecordRepository.read_all",
-                "ProductRepository.delete",
-                "ProductRepository.update"
-              ]
-            }
-          },
-          "triage": "passed"
-        },
-        {
-          "name": "scenario:oracle:delete_product",
-          "status": "passed",
-          "case": "delete_product",
-          "source": "Provide CRUD operations for products and sales.",
-          "alignment": {
-            "entities": {
-              "product": {
-                "status": "aligned",
-                "canonical": "Product",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Product",
-                  "score 15.0"
-                ],
-                "alternatives": [
-                  "SalesRecord"
-                ]
-              }
-            },
-            "fields": {},
-            "action": {
-              "status": "alias",
-              "canonical": "ProductRepository.delete",
-              "score": 4.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "passed"
-        },
-        {
-          "name": "read_sale",
-          "status": "under_specified",
-          "reason": "expected state field 'sale.total_price' is not declared on SalesRecord",
-          "source": "Provide CRUD operations for products and sales.",
-          "alignment": {
-            "entities": {
               "sale": {
                 "status": "alias",
                 "canonical": "SalesRecord",
-                "score": 9.4,
+                "score": 11.0,
                 "evidence": [
                   "name/fields match SalesRecord",
-                  "score 9.4"
+                  "score 11.0"
                 ],
                 "alternatives": [
                   "Product"
@@ -2363,49 +3074,34 @@
                   "SalesRecord.sale_date exists"
                 ],
                 "alternatives": []
-              },
-              "sale.total_price": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "prompt mentions field 'total_price'",
-                  "not declared on SalesRecord"
-                ],
-                "alternatives": []
               }
             },
             "action": {
-              "status": "ambiguous",
-              "canonical": "SalesRecordRepository.get_sales_records_by_product_id",
+              "status": "alias",
+              "canonical": "SalesRecordRepository.create",
               "score": 4.0,
               "evidence": [
-                "several generated methods have the same action score"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "SalesRecordRepository.get_sales_records_by_product_id",
-                "SalesRecordRepository.read_all",
-                "SalesRecordRepository.read_one",
-                "SalesRecordRepository.create"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
-          "name": "delete_sale",
-          "status": "under_specified",
-          "reason": "no generated method matches 'delete_sale'",
+          "name": "scenario:oracle:delete_sale",
+          "status": "passed",
+          "case": "delete_sale",
           "source": "Provide CRUD operations for products and sales.",
           "alignment": {
             "entities": {
               "sale": {
                 "status": "alias",
                 "canonical": "SalesRecord",
-                "score": 9.4,
+                "score": 10.0,
                 "evidence": [
                   "name/fields match SalesRecord",
-                  "score 9.4"
+                  "score 10.0"
                 ],
                 "alternatives": [
                   "Product"
@@ -2414,35 +3110,32 @@
             },
             "fields": {},
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "alias",
+              "canonical": "SalesRecordRepository.delete",
+              "score": 4.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "same operation with a different name"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 3,
-        "under_specified": 2
+        "passed": 3
       },
       "triage_counts": {
-        "passed": 3,
-        "under_specified": 2
+        "passed": 3
       }
     },
     {
       "prompt": "prompt_21",
       "results": [
         {
-          "name": "list_orders_by_customer",
-          "status": "under_specified",
-          "reason": "expected state field 'order.date' is not declared on Order",
+          "name": "scenario:oracle:list_orders_by_customer",
+          "status": "passed",
+          "case": "list_orders_by_customer",
           "source": "list all orders belonging to a customer",
           "alignment": {
             "entities": {
@@ -2481,13 +3174,12 @@
                 ],
                 "alternatives": []
               },
-              "order.date": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
+              "order.order_date": {
+                "status": "aligned",
+                "canonical": "order_date",
+                "score": 10.0,
                 "evidence": [
-                  "prompt mentions field 'date'",
-                  "not declared on Order"
+                  "Order.order_date exists"
                 ],
                 "alternatives": []
               }
@@ -2502,23 +3194,23 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "under_specified": 1
+        "passed": 1
       },
       "triage_counts": {
-        "under_specified": 1
+        "passed": 1
       }
     },
     {
       "prompt": "prompt_22",
       "results": [
         {
-          "name": "read_order",
-          "status": "under_specified",
-          "reason": "expected state field 'order.total_amount' is not declared on Order",
+          "name": "scenario:oracle:read_order",
+          "status": "passed",
+          "case": "read_order",
           "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
           "alignment": {
             "entities": {
@@ -2536,49 +3228,36 @@
                 ]
               }
             },
-            "fields": {
-              "order.total_amount": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "prompt mentions field 'total_amount'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "ambiguous",
-              "canonical": "OrderItemRepository.get_order_items_by_order_id",
+              "canonical": "OrderRepository.read_all",
               "score": 4.0,
               "evidence": [
                 "several generated methods have the same action score"
               ],
               "alternatives": [
-                "OrderItemRepository.get_order_items_by_order_id",
-                "OrderItemRepository.read_all",
-                "OrderItemRepository.read_one",
-                "OrderRepository.calculate_total_order_amount"
+                "OrderRepository.read_all",
+                "OrderRepository.read_one"
               ]
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
-          "name": "update_order",
-          "status": "under_specified",
-          "reason": "expected state field 'order.total_amount' is not declared on Order",
+          "name": "scenario:oracle:update_order",
+          "status": "passed",
+          "case": "update_order",
           "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
           "alignment": {
             "entities": {
               "order": {
                 "status": "aligned",
                 "canonical": "Order",
-                "score": 11.0,
+                "score": 13.0,
                 "evidence": [
                   "name/fields match Order",
-                  "score 11.0"
+                  "score 13.0"
                 ],
                 "alternatives": [
                   "OrderItem",
@@ -2587,92 +3266,43 @@
               }
             },
             "fields": {
-              "order.total_amount": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
+              "order.created_at": {
+                "status": "aligned",
+                "canonical": "created_at",
+                "score": 10.0,
                 "evidence": [
-                  "prompt mentions field 'total_amount'",
-                  "not declared on Order"
+                  "Order.created_at exists"
                 ],
                 "alternatives": []
               }
             },
             "action": {
-              "status": "ambiguous",
-              "canonical": "OrderItemRepository.update",
+              "status": "alias",
+              "canonical": "OrderRepository.update",
               "score": 4.0,
               "evidence": [
-                "several generated methods have the same action score"
-              ],
-              "alternatives": [
-                "OrderItemRepository.update",
-                "OrderRepository.update"
-              ]
-            }
-          },
-          "triage": "under_specified"
-        },
-        {
-          "name": "calculate_total_order_amount",
-          "status": "under_specified",
-          "reason": "expected state field 'order.total_amount' is not declared on Order",
-          "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
-          "alignment": {
-            "entities": {
-              "order": {
-                "status": "aligned",
-                "canonical": "Order",
-                "score": 11.0,
-                "evidence": [
-                  "name/fields match Order",
-                  "score 11.0"
-                ],
-                "alternatives": [
-                  "OrderItem",
-                  "Product"
-                ]
-              }
-            },
-            "fields": {
-              "order.total_amount": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "prompt mentions field 'total_amount'",
-                  "not declared on Order"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "aligned",
-              "canonical": "OrderRepository.calculate_total_order_amount",
-              "score": 10.0,
-              "evidence": [
-                "exact generated method"
+                "same operation with a different name"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "under_specified": 3
+        "passed": 2
       },
       "triage_counts": {
-        "under_specified": 3
+        "passed": 2
       }
     },
     {
       "prompt": "prompt_23",
       "results": [
         {
-          "name": "create_post_by_author",
-          "status": "unbound",
-          "reason": "ambiguous action binding: PostRepository.create, PostTagRepository.create",
+          "name": "scenario:oracle:create_post_by_author",
+          "status": "passed",
+          "case": "create_post_by_author",
           "source": "Authors can create posts.",
           "alignment": {
             "entities": {
@@ -2706,7 +3336,7 @@
               }
             },
             "fields": {
-              "post.author.id": {
+              "post.author_id": {
                 "status": "aligned",
                 "canonical": "author_id",
                 "score": 10.0,
@@ -2729,12 +3359,12 @@
               ]
             }
           },
-          "triage": "coverage_gap: ambiguous action"
+          "triage": "passed"
         },
         {
-          "name": "create_tag_association",
-          "status": "under_specified",
-          "reason": "expected relation 'post.tags' is represented by join model PostTag",
+          "name": "scenario:oracle:create_tag_association",
+          "status": "passed",
+          "case": "create_tag_association",
           "source": "Each post belongs to one author and can have multiple tags. A tag can be associated with multiple posts.",
           "alignment": {
             "entities": {
@@ -2767,80 +3397,18 @@
                 ]
               }
             },
-            "fields": {
-              "post.tags": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "prompt mentions field 'tags'",
-                  "not declared on Post"
-                ],
-                "alternatives": []
-              },
-              "tag.posts": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "prompt mentions field 'posts'",
-                  "not declared on Tag"
-                ],
-                "alternatives": []
-              }
-            },
-            "action": {
-              "status": "alias",
-              "canonical": "PostTagRepository.get_post_tags_by_tag_id",
-              "score": 8.0,
-              "evidence": [
-                "highest action-name specificity"
-              ],
-              "alternatives": [
-                "PostRepository.get_posts_by_author_id",
-                "PostTagRepository.read_one",
-                "PostRepository.delete",
-                "PostRepository.read_one"
-              ]
-            }
-          },
-          "triage": "under_specified"
-        },
-        {
-          "name": "search_posts_by_tag",
-          "status": "unbound",
-          "reason": "ambiguous action binding: PostTagRepository.get_post_tags_by_tag_id, PostTagRepository.read_all, TagRepository.read_one",
-          "source": "Allow posts to be searched by tag.",
-          "alignment": {
-            "entities": {
-              "tag": {
-                "status": "aligned",
-                "canonical": "Tag",
-                "score": 13.0,
-                "evidence": [
-                  "name/fields match Tag",
-                  "score 13.0"
-                ],
-                "alternatives": [
-                  "PostTag",
-                  "Post",
-                  "Author"
-                ]
-              }
-            },
             "fields": {},
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "aligned",
+              "canonical": "PostTagRepository.associate_tag_with_post",
+              "score": 10.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "exact generated method"
               ],
               "alternatives": []
             }
           },
-          "triage": "coverage_gap: ambiguous action"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:create_author",
@@ -2852,10 +3420,10 @@
               "author": {
                 "status": "aligned",
                 "canonical": "Author",
-                "score": 15.0,
+                "score": 13.0,
                 "evidence": [
                   "name/fields match Author",
-                  "score 15.0"
+                  "score 13.0"
                 ],
                 "alternatives": [
                   "Post",
@@ -2890,19 +3458,19 @@
           "triage": "passed"
         },
         {
-          "name": "create_tag",
-          "status": "unbound",
-          "reason": "ambiguous action binding: TagRepository.create, PostTagRepository.create",
+          "name": "scenario:oracle:create_tag",
+          "status": "passed",
+          "case": "create_tag",
           "source": "Provide CRUD operations for authors, posts and tags.",
           "alignment": {
             "entities": {
               "tag": {
                 "status": "aligned",
                 "canonical": "Tag",
-                "score": 15.0,
+                "score": 13.0,
                 "evidence": [
                   "name/fields match Tag",
-                  "score 15.0"
+                  "score 13.0"
                 ],
                 "alternatives": [
                   "PostTag",
@@ -2935,18 +3503,14 @@
               ]
             }
           },
-          "triage": "coverage_gap: ambiguous action"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "unbound": 3,
-        "under_specified": 1,
-        "passed": 1
+        "passed": 4
       },
       "triage_counts": {
-        "coverage_gap: ambiguous action": 3,
-        "under_specified": 1,
-        "passed": 1
+        "passed": 4
       }
     },
     {
@@ -2962,10 +3526,10 @@
               "project": {
                 "status": "aligned",
                 "canonical": "Project",
-                "score": 19.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Project",
-                  "score 19.0"
+                  "score 15.0"
                 ],
                 "alternatives": [
                   "Task"
@@ -2979,6 +3543,15 @@
                 "score": 10.0,
                 "evidence": [
                   "Project.title exists"
+                ],
+                "alternatives": []
+              },
+              "project.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Project.description exists"
                 ],
                 "alternatives": []
               }
@@ -3007,27 +3580,44 @@
               "project": {
                 "status": "aligned",
                 "canonical": "Project",
-                "score": 19.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Project",
-                  "score 19.0"
+                  "score 15.0"
                 ],
                 "alternatives": [
                   "Task"
                 ]
               }
             },
-            "fields": {},
+            "fields": {
+              "project.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Project.title exists"
+                ],
+                "alternatives": []
+              },
+              "project.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Project.description exists"
+                ],
+                "alternatives": []
+              }
+            },
             "action": {
               "status": "alias",
               "canonical": "ProjectRepository.read_all",
               "score": 1.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "TaskRepository.read_all"
-              ]
+              "alternatives": []
             }
           },
           "triage": "passed"
@@ -3042,10 +3632,10 @@
               "project": {
                 "status": "aligned",
                 "canonical": "Project",
-                "score": 11.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Project",
-                  "score 11.0"
+                  "score 15.0"
                 ],
                 "alternatives": [
                   "Task"
@@ -3058,11 +3648,9 @@
               "canonical": "ProjectRepository.delete",
               "score": 4.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "TaskRepository.delete"
-              ]
+              "alternatives": []
             }
           },
           "triage": "passed"
@@ -3077,10 +3665,10 @@
               "project": {
                 "status": "aligned",
                 "canonical": "Project",
-                "score": 11.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Project",
-                  "score 11.0"
+                  "score 15.0"
                 ],
                 "alternatives": [
                   "Task"
@@ -3169,7 +3757,44 @@
                 ]
               }
             },
-            "fields": {},
+            "fields": {
+              "task.title": {
+                "status": "aligned",
+                "canonical": "title",
+                "score": 10.0,
+                "evidence": [
+                  "Task.title exists"
+                ],
+                "alternatives": []
+              },
+              "task.description": {
+                "status": "aligned",
+                "canonical": "description",
+                "score": 10.0,
+                "evidence": [
+                  "Task.description exists"
+                ],
+                "alternatives": []
+              },
+              "task.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Task.status exists"
+                ],
+                "alternatives": []
+              },
+              "task.priority": {
+                "status": "aligned",
+                "canonical": "priority",
+                "score": 10.0,
+                "evidence": [
+                  "Task.priority exists"
+                ],
+                "alternatives": []
+              }
+            },
             "action": {
               "status": "alias",
               "canonical": "TaskRepository.read_all",
@@ -3184,8 +3809,7 @@
         },
         {
           "name": "scenario:oracle:delete_task",
-          "status": "case_defect",
-          "reason": "raised LookupError: Task delete matched no records; expected None",
+          "status": "passed",
           "case": "delete_task",
           "source": "Users must be able to create, update, delete and list projects and tasks.",
           "alignment": {
@@ -3193,10 +3817,10 @@
               "task": {
                 "status": "aligned",
                 "canonical": "Task",
-                "score": 11.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Task",
-                  "score 11.0"
+                  "score 15.0"
                 ],
                 "alternatives": [
                   "Project"
@@ -3214,21 +3838,54 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 5,
-        "case_defect": 1
+        "passed": 6
       },
       "triage_counts": {
-        "passed": 5,
-        "case_defect: setup": 1
+        "passed": 6
       }
     },
     {
       "prompt": "prompt_25",
       "results": [
+        {
+          "name": "scenario:oracle:list_employees_by_department",
+          "status": "passed",
+          "case": "list_employees_by_department",
+          "source": "Provide CRUD operations and allow users to list employees belonging to a department.",
+          "alignment": {
+            "entities": {
+              "department": {
+                "status": "aligned",
+                "canonical": "Department",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Department",
+                  "score 11.0"
+                ],
+                "alternatives": [
+                  "Employee"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "EmployeeRepository.read_all_employees",
+              "score": 4.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "EmployeeRepository.read_all"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
         {
           "name": "scenario:oracle:read_employee_by_id",
           "status": "passed",
@@ -3249,29 +3906,16 @@
                 ]
               }
             },
-            "fields": {
-              "employee.department_id": {
-                "status": "aligned",
-                "canonical": "department_id",
-                "score": 10.0,
-                "evidence": [
-                  "Employee.department_id exists"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
-              "status": "ambiguous",
+              "status": "alias",
               "canonical": "EmployeeRepository.read_all_employees",
               "score": 7.0,
               "evidence": [
-                "several generated methods have the same action score"
+                "highest action-name specificity"
               ],
               "alternatives": [
-                "EmployeeRepository.read_all_employees",
-                "EmployeeRepository.read_employee_by_id",
-                "EmployeeRepository.create_employee",
-                "EmployeeRepository.delete_employee"
+                "EmployeeRepository.read_all"
               ]
             }
           },
@@ -3299,16 +3943,13 @@
             },
             "fields": {},
             "action": {
-              "status": "ambiguous",
+              "status": "alias",
               "canonical": "DepartmentRepository.read_all_departments",
               "score": 7.0,
               "evidence": [
-                "several generated methods have the same action score"
+                "highest action-name specificity"
               ],
               "alternatives": [
-                "DepartmentRepository.read_all_departments",
-                "DepartmentRepository.read_department_by_id",
-                "DepartmentRepository.create_department",
                 "DepartmentRepository.read_all"
               ]
             }
@@ -3317,10 +3958,10 @@
         }
       ],
       "counts": {
-        "passed": 2
+        "passed": 3
       },
       "triage_counts": {
-        "passed": 2
+        "passed": 3
       }
     },
     {
@@ -3328,8 +3969,7 @@
       "results": [
         {
           "name": "scenario:oracle:close_loan",
-          "status": "failed",
-          "reason": "raised TypeError: Store.update() missing 1 required positional argument: 'values'; expected None",
+          "status": "passed",
           "case": "close_loan",
           "source": "Users must be able to create and close loans and determine which books are currently available.",
           "alignment": {
@@ -3354,17 +3994,12 @@
               "canonical": "LoanRepository.close_loan_by_id",
               "score": 7.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "LoanRepository.get_active_loans_for_member",
-                "LoanService.create_loan",
-                "LoanService.delete_loan",
-                "LoanService.read_loan_by_id"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "behavior: wrong error"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:determine_available_books",
@@ -3417,12 +4052,10 @@
         }
       ],
       "counts": {
-        "failed": 1,
-        "passed": 1
+        "passed": 2
       },
       "triage_counts": {
-        "behavior: wrong error": 1,
-        "passed": 1
+        "passed": 2
       }
     },
     {
@@ -3559,8 +4192,7 @@
       "results": [
         {
           "name": "scenario:oracle:create_customer_audit",
-          "status": "case_defect",
-          "reason": "customer.id is 1, expected 101",
+          "status": "passed",
           "case": "create_customer_audit",
           "source": "Provide CRUD operations for customers. Every creation, update and deletion must also produce an audit record containing the operation, customer ID and timestamp.",
           "alignment": {
@@ -3579,15 +4211,6 @@
               }
             },
             "fields": {
-              "customer.id": {
-                "status": "aligned",
-                "canonical": "id",
-                "score": 10.0,
-                "evidence": [
-                  "Customer.id exists"
-                ],
-                "alternatives": []
-              },
               "customer.name": {
                 "status": "aligned",
                 "canonical": "name",
@@ -3619,14 +4242,14 @@
               ]
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "case_defect": 1
+        "passed": 1
       },
       "triage_counts": {
-        "case_defect: setup": 1
+        "passed": 1
       }
     },
     {
@@ -3726,24 +4349,24 @@
               }
             },
             "action": {
-              "status": "alias",
-              "canonical": "ProductRepository.read_one",
+              "status": "ambiguous",
+              "canonical": "ProductRepository.read_all",
               "score": 4.0,
               "evidence": [
-                "highest action-name specificity"
+                "several generated methods have the same action score"
               ],
               "alternatives": [
-                "ProductRepository.delete",
-                "ProductRepository.update"
+                "ProductRepository.read_all",
+                "ProductRepository.read_one"
               ]
             }
           },
           "triage": "passed"
         },
         {
-          "name": "update_product",
-          "status": "unbound",
-          "reason": "update case supplies 'description' for 'product.name', but expects 'Gaming Laptop'",
+          "name": "scenario:oracle:update_product",
+          "status": "passed",
+          "case": "update_product",
           "source": "Provide normal product CRUD operations",
           "alignment": {
             "entities": {
@@ -3788,7 +4411,7 @@
               "alternatives": []
             }
           },
-          "triage": "coverage_gap: other"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:delete_product",
@@ -3823,12 +4446,10 @@
         }
       ],
       "counts": {
-        "passed": 3,
-        "unbound": 1
+        "passed": 4
       },
       "triage_counts": {
-        "passed": 3,
-        "coverage_gap: other": 1
+        "passed": 4
       }
     },
     {
@@ -3851,8 +4472,8 @@
       "results": [
         {
           "name": "manage_product_admin",
-          "status": "case_defect",
-          "reason": "cannot resolve given entity 'admin'",
+          "status": "under_specified",
+          "reason": "no generated method matches 'manage_product'",
           "source": "Administrators can manage products and users.",
           "alignment": {
             "entities": {
@@ -3892,37 +4513,32 @@
               }
             },
             "action": {
-              "status": "ambiguous",
-              "canonical": "ProductRepository.find_product_by_id",
-              "score": 4.0,
+              "status": "under_specified",
+              "canonical": null,
+              "score": 0.0,
               "evidence": [
-                "several generated methods have the same action score"
+                "manage is a role/permission, not a concrete action"
               ],
-              "alternatives": [
-                "ProductRepository.find_product_by_id",
-                "ProductRepository.find_product_by_name",
-                "ProductRepository.get_product_count",
-                "ProductRepository.get_products_by_price_range"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "under_specified"
         }
       ],
       "counts": {
-        "case_defect": 1
+        "under_specified": 1
       },
       "triage_counts": {
-        "case_defect: setup": 1
+        "under_specified": 1
       }
     },
     {
       "prompt": "prompt_40",
       "results": [
         {
-          "name": "notify_on_confirm",
-          "status": "under_specified",
-          "reason": "no generated method matches 'confirm_order'",
+          "name": "scenario:oracle:notify_on_confirm",
+          "status": "passed",
+          "case": "notify_on_confirm",
           "source": "When an order is confirmed, the application must send a notification.",
           "alignment": {
             "entities": {
@@ -3949,58 +4565,23 @@
               }
             },
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "aligned",
+              "canonical": "OrderRepository.confirm_order",
+              "score": 10.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "exact generated method"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
-        },
-        {
-          "name": "notification_service_log",
-          "status": "case_defect",
-          "reason": "cannot resolve given entity 'notification'",
-          "source": "Define a notification service abstraction and provide a simple implementation that logs the notification instead of sending a real message.",
-          "alignment": {
-            "entities": {
-              "notification": {
-                "status": "coverage_gap",
-                "canonical": null,
-                "score": 0.0,
-                "evidence": [
-                  "prompt mentions 'notification'",
-                  "no extracted entity matches it"
-                ],
-                "alternatives": []
-              }
-            },
-            "fields": {},
-            "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
-              "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "under_specified": 1,
-        "case_defect": 1
+        "passed": 1
       },
       "triage_counts": {
-        "under_specified": 1,
-        "case_defect: setup": 1
+        "passed": 1
       }
     },
     {
@@ -4012,9 +4593,9 @@
       "prompt": "prompt_42",
       "results": [
         {
-          "name": "find_purchase_history",
-          "status": "unbound",
-          "reason": "ambiguous action binding: PurchaseRepository.find_customer_purchases, PurchaseRepository.get_purchases_by_customer_id, PurchaseRepository.get_total_spent_by_customer",
+          "name": "scenario:oracle:find_purchase_history",
+          "status": "passed",
+          "case": "find_purchase_history",
           "source": "Users should be able to find a customer's purchase history and determine how much they have spent.",
           "alignment": {
             "entities": {
@@ -4055,24 +4636,23 @@
               }
             },
             "action": {
-              "status": "invented",
-              "canonical": null,
-              "score": 0.0,
+              "status": "alias",
+              "canonical": "PurchaseRepository.find_customer_purchases",
+              "score": 7.0,
               "evidence": [
-                "action is not exposed as an operation by the prompt",
-                "no generated method matches"
+                "same operation with a different name"
               ],
               "alternatives": []
             }
           },
-          "triage": "coverage_gap: ambiguous action"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "unbound": 1
+        "passed": 1
       },
       "triage_counts": {
-        "coverage_gap: ambiguous action": 1
+        "passed": 1
       }
     },
     {
@@ -4165,16 +4745,66 @@
     },
     {
       "prompt": "prompt_49",
-      "results": [],
-      "counts": {}
+      "results": [
+        {
+          "name": "scenario:oracle:find_employees_by_department",
+          "status": "passed",
+          "case": "find_employees_by_department",
+          "source": "Managers need to know which employees belong to which departments and should be able to find employees quickly.",
+          "alignment": {
+            "entities": {
+              "department": {
+                "status": "aligned",
+                "canonical": "Department",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Department",
+                  "score 11.0"
+                ],
+                "alternatives": [
+                  "Employee"
+                ]
+              },
+              "employee": {
+                "status": "aligned",
+                "canonical": "Employee",
+                "score": 11.0,
+                "evidence": [
+                  "name/fields match Employee",
+                  "score 11.0"
+                ],
+                "alternatives": [
+                  "Department"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "EmployeeRepository.find_employees_by_department",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
     },
     {
       "prompt": "prompt_50",
       "results": [
         {
-          "name": "oracle:create_event",
-          "status": "case_defect",
-          "reason": "harness error: KeyError: 'event'",
+          "name": "scenario:oracle:create_event",
+          "status": "passed",
           "case": "create_event",
           "source": "People should be able to create events and register for them.",
           "alignment": {
@@ -4182,10 +4812,10 @@
               "event": {
                 "status": "aligned",
                 "canonical": "Event",
-                "score": 15.0,
+                "score": 13.666666666666666,
                 "evidence": [
                   "name/fields match Event",
-                  "score 15.0"
+                  "score 13.7"
                 ],
                 "alternatives": []
               }
@@ -4206,14 +4836,14 @@
               ]
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "case_defect": 1
+        "passed": 1
       },
       "triage_counts": {
-        "case_defect: setup": 1
+        "passed": 1
       }
     },
     {
@@ -4258,26 +4888,20 @@
             },
             "fields": {},
             "action": {
-              "status": "alias",
-              "canonical": "BorrowRecordRepository.get_borrow_records_by_book_id",
-              "score": 7.0,
+              "status": "aligned",
+              "canonical": "BookRepository.borrow_book",
+              "score": 10.0,
               "evidence": [
-                "highest action-name specificity"
+                "exact generated method"
               ],
-              "alternatives": [
-                "BorrowRecordRepository.create_borrow_record",
-                "BorrowService.return_book",
-                "BookRepository.read_one",
-                "BookRepository.update"
-              ]
+              "alternatives": []
             }
           },
           "triage": "passed"
         },
         {
           "name": "scenario:oracle:return_book",
-          "status": "case_defect",
-          "reason": "raised BorrowRecordNotFoundError: borrow record not found; expected None",
+          "status": "passed",
           "case": "return_book",
           "source": "When it is returned, it should become available again.",
           "alignment": {
@@ -4304,16 +4928,14 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 1,
-        "case_defect": 1
+        "passed": 2
       },
       "triage_counts": {
-        "passed": 1,
-        "case_defect: setup": 1
+        "passed": 2
       }
     },
     {
@@ -4392,8 +5014,7 @@
       "results": [
         {
           "name": "scenario:oracle:cancel_order_action",
-          "status": "failed",
-          "reason": "product.stock_quantity is 5, expected 7",
+          "status": "passed",
           "case": "cancel_order_action",
           "source": "cancelling an order must restore its product quantities",
           "alignment": {
@@ -4455,20 +5076,18 @@
               ],
               "alternatives": [
                 "OrderRepository.cancel_order",
-                "OrderService.cancel_order",
-                "OrderProductRepository.get_by_order_id",
-                "OrderProductRepository.get_order_products_by_order_id"
+                "OrderService.cancel_order"
               ]
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         }
       ],
       "counts": {
-        "failed": 1
+        "passed": 1
       },
       "triage_counts": {
-        "under_specified": 1
+        "passed": 1
       }
     },
     {
@@ -4488,13 +5107,124 @@
     },
     {
       "prompt": "prompt_60",
-      "results": [],
-      "counts": {}
+      "results": [
+        {
+          "name": "scenario:oracle:cancel_confirmed_order",
+          "status": "passed",
+          "case": "cancel_confirmed_order",
+          "source": "Cancelling a confirmed order releases the reserved stock.",
+          "alignment": {
+            "entities": {
+              "order": {
+                "status": "aligned",
+                "canonical": "Order",
+                "score": 13.0,
+                "evidence": [
+                  "name/fields match Order",
+                  "score 13.0"
+                ],
+                "alternatives": [
+                  "OrderItem",
+                  "Customer",
+                  "Invoice"
+                ]
+              },
+              "product": {
+                "status": "aligned",
+                "canonical": "Product",
+                "score": 14.0,
+                "evidence": [
+                  "name/fields match Product",
+                  "score 14.0"
+                ],
+                "alternatives": [
+                  "OrderItem",
+                  "Order"
+                ]
+              }
+            },
+            "fields": {
+              "order.status": {
+                "status": "aligned",
+                "canonical": "status",
+                "score": 10.0,
+                "evidence": [
+                  "Order.status exists"
+                ],
+                "alternatives": []
+              },
+              "product.stock_quantity": {
+                "status": "aligned",
+                "canonical": "stock_quantity",
+                "score": 10.0,
+                "evidence": [
+                  "Product.stock_quantity exists"
+                ],
+                "alternatives": []
+              }
+            },
+            "action": {
+              "status": "aligned",
+              "canonical": "OrderService.cancel_order",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
+        }
+      ],
+      "counts": {
+        "passed": 1
+      },
+      "triage_counts": {
+        "passed": 1
+      }
     },
     {
       "prompt": "prompt_cli_tool",
-      "results": [],
-      "counts": {}
+      "results": [
+        {
+          "name": "read_csv_header_dynamically",
+          "status": "under_specified",
+          "reason": "app-only project: service action is outside the verifier surface",
+          "source": "Read the CSV header row to determine column names dynamically. Do NOT assume specific column names like \"title\" or \"name\".",
+          "alignment": {
+            "entities": {
+              "csv_file": {
+                "status": "coverage_gap",
+                "canonical": null,
+                "score": 0.0,
+                "evidence": [
+                  "prompt mentions 'csv_file'",
+                  "no extracted entity matches it"
+                ],
+                "alternatives": []
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "coverage_gap",
+              "canonical": null,
+              "score": 0.0,
+              "evidence": [
+                "prompt exposes the action",
+                "no generated method matches"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "under_specified"
+        }
+      ],
+      "counts": {
+        "under_specified": 1
+      },
+      "triage_counts": {
+        "under_specified": 1
+      }
     },
     {
       "prompt": "prompt_expenses",
@@ -4581,11 +5311,11 @@
               }
             },
             "action": {
-              "status": "alias",
-              "canonical": "ExpenseRepository.create",
-              "score": 1.0,
+              "status": "aligned",
+              "canonical": "ExpenseService.add_expense",
+              "score": 10.0,
               "evidence": [
-                "same operation with a different name"
+                "exact generated method"
               ],
               "alternatives": []
             }
@@ -4593,9 +5323,9 @@
           "triage": "passed"
         },
         {
-          "name": "expense_get_by_id",
-          "status": "under_specified",
-          "reason": "case passes parameter name 'id' as a literal value",
+          "name": "scenario:oracle:expense_get_by_id",
+          "status": "passed",
+          "case": "expense_get_by_id",
           "source": "expense list [--category] [--from-date] [--to-date] [--method]",
           "alignment": {
             "entities": {
@@ -4658,15 +5388,6 @@
                   "Expense.payment_method exists"
                 ],
                 "alternatives": []
-              },
-              "expense.is_recurring": {
-                "status": "aligned",
-                "canonical": "is_recurring",
-                "score": 10.0,
-                "evidence": [
-                  "Expense.is_recurring exists"
-                ],
-                "alternatives": []
               }
             },
             "action": {
@@ -4679,12 +5400,45 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:expense_delete_by_id",
+          "status": "passed",
+          "case": "expense_delete_by_id",
+          "source": "expense category delete --id",
+          "alignment": {
+            "entities": {
+              "expense": {
+                "status": "aligned",
+                "canonical": "Expense",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Expense",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category",
+                  "Budget"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ExpenseService.delete_expense",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:budget_add_with_params",
-          "status": "case_defect",
-          "reason": "raised CategoryNotFoundError: Budget.category_id=1 references missing Category.id; expected None",
+          "status": "passed",
           "case": "budget_add_with_params",
           "source": "budget add --category-id --month --amount",
           "alignment": {
@@ -4744,97 +5498,22 @@
               ]
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         },
         {
-          "name": "scenario:oracle:add_expense_with_category_not_found",
-          "status": "case_defect",
-          "reason": "expected CategoryNotFoundError, no error was raised",
-          "case": "add_expense_with_category_not_found",
-          "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+          "name": "scenario:oracle:budget_delete_with_params",
+          "status": "passed",
+          "case": "budget_delete_with_params",
+          "source": "budget delete --category-id --month",
           "alignment": {
             "entities": {
-              "category": {
-                "status": "aligned",
-                "canonical": "Category",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Category",
-                  "score 15.0"
-                ],
-                "alternatives": [
-                  "Expense",
-                  "Budget"
-                ]
-              },
-              "expense": {
-                "status": "aligned",
-                "canonical": "Expense",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Expense",
-                  "score 15.0"
-                ],
-                "alternatives": [
-                  "Category",
-                  "Budget"
-                ]
-              }
-            },
-            "fields": {},
-            "action": {
-              "status": "alias",
-              "canonical": "ExpenseRepository.create",
-              "score": 1.0,
-              "evidence": [
-                "same operation with a different name"
-              ],
-              "alternatives": []
-            }
-          },
-          "triage": "case_defect: setup"
-        },
-        {
-          "name": "scenario:oracle:add_expense_with_budget_exceeded",
-          "status": "failed",
-          "reason": "expected BudgetExceededException, no error was raised",
-          "case": "add_expense_with_budget_exceeded",
-          "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
-          "alignment": {
-            "entities": {
-              "category": {
-                "status": "aligned",
-                "canonical": "Category",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Category",
-                  "score 15.0"
-                ],
-                "alternatives": [
-                  "Expense",
-                  "Budget"
-                ]
-              },
-              "expense": {
-                "status": "aligned",
-                "canonical": "Expense",
-                "score": 15.0,
-                "evidence": [
-                  "name/fields match Expense",
-                  "score 15.0"
-                ],
-                "alternatives": [
-                  "Category",
-                  "Budget"
-                ]
-              },
               "budget": {
                 "status": "aligned",
                 "canonical": "Budget",
-                "score": 14.0,
+                "score": 15.0,
                 "evidence": [
                   "name/fields match Budget",
-                  "score 14.0"
+                  "score 15.0"
                 ],
                 "alternatives": [
                   "Expense",
@@ -4845,27 +5524,56 @@
             "fields": {},
             "action": {
               "status": "alias",
-              "canonical": "ExpenseRepository.create",
-              "score": 1.0,
+              "canonical": "BudgetRepository.delete",
+              "score": 4.0,
               "evidence": [
                 "same operation with a different name"
               ],
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:add_expense_with_category_not_found",
+          "status": "passed",
+          "case": "add_expense_with_category_not_found",
+          "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+          "alignment": {
+            "entities": {
+              "expense": {
+                "status": "aligned",
+                "canonical": "Expense",
+                "score": 15.0,
+                "evidence": [
+                  "name/fields match Expense",
+                  "score 15.0"
+                ],
+                "alternatives": [
+                  "Category",
+                  "Budget"
+                ]
+              }
+            },
+            "fields": {},
+            "action": {
+              "status": "aligned",
+              "canonical": "ExpenseService.add_expense",
+              "score": 10.0,
+              "evidence": [
+                "exact generated method"
+              ],
+              "alternatives": []
+            }
+          },
+          "triage": "passed"
         }
       ],
       "counts": {
-        "passed": 1,
-        "under_specified": 1,
-        "case_defect": 2,
-        "failed": 1
+        "passed": 6
       },
       "triage_counts": {
-        "passed": 1,
-        "under_specified": 2,
-        "case_defect: setup": 2
+        "passed": 6
       }
     },
     {
@@ -4883,8 +5591,7 @@
       "results": [
         {
           "name": "scenario:oracle:add_product_with_valid_category",
-          "status": "case_defect",
-          "reason": "cannot read Product: 'Product with id=None not found'",
+          "status": "passed",
           "case": "add_product_with_valid_category",
           "source": "product add --sku --name --category --price --stock [--stock]",
           "alignment": {
@@ -4914,53 +5621,7 @@
                 ]
               }
             },
-            "fields": {
-              "product.sku": {
-                "status": "aligned",
-                "canonical": "sku",
-                "score": 10.0,
-                "evidence": [
-                  "Product.sku exists"
-                ],
-                "alternatives": []
-              },
-              "product.name": {
-                "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
-                "evidence": [
-                  "Product.name exists"
-                ],
-                "alternatives": []
-              },
-              "product.category_id": {
-                "status": "aligned",
-                "canonical": "category_id",
-                "score": 10.0,
-                "evidence": [
-                  "Product.category_id exists"
-                ],
-                "alternatives": []
-              },
-              "product.price_cents": {
-                "status": "aligned",
-                "canonical": "price_cents",
-                "score": 10.0,
-                "evidence": [
-                  "Product.price_cents exists"
-                ],
-                "alternatives": []
-              },
-              "product.stock_qty": {
-                "status": "aligned",
-                "canonical": "stock_qty",
-                "score": 10.0,
-                "evidence": [
-                  "Product.stock_qty exists"
-                ],
-                "alternatives": []
-              }
-            },
+            "fields": {},
             "action": {
               "status": "aligned",
               "canonical": "InventoryService.add_product",
@@ -4971,7 +5632,7 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:delete_product_by_id",
@@ -5008,8 +5669,7 @@
         },
         {
           "name": "scenario:oracle:restock_product_by_id",
-          "status": "case_defect",
-          "reason": "expected ProductNotFoundError, no error was raised",
+          "status": "passed",
           "case": "restock_product_by_id",
           "source": "product restock --id --qty",
           "alignment": {
@@ -5048,7 +5708,7 @@
               "alternatives": []
             }
           },
-          "triage": "case_defect: setup"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:add_category_with_threshold",
@@ -5070,22 +5730,49 @@
                 ]
               }
             },
-            "fields": {
-              "category.name": {
+            "fields": {},
+            "action": {
+              "status": "alias",
+              "canonical": "InventoryService.add_product",
+              "score": 3.0,
+              "evidence": [
+                "highest action-name specificity"
+              ],
+              "alternatives": [
+                "CategoryRepository.create",
+                "ProductRepository.create"
+              ]
+            }
+          },
+          "triage": "passed"
+        },
+        {
+          "name": "scenario:oracle:update_category_with_threshold",
+          "status": "passed",
+          "case": "update_category_with_threshold",
+          "source": "category update --id [--name] [--description] [--threshold]",
+          "alignment": {
+            "entities": {
+              "category": {
                 "status": "aligned",
-                "canonical": "name",
-                "score": 10.0,
+                "canonical": "Category",
+                "score": 15.0,
                 "evidence": [
-                  "Category.name exists"
+                  "name/fields match Category",
+                  "score 15.0"
                 ],
-                "alternatives": []
-              },
-              "category.description": {
+                "alternatives": [
+                  "Product"
+                ]
+              }
+            },
+            "fields": {
+              "category.id": {
                 "status": "aligned",
-                "canonical": "description",
+                "canonical": "id",
                 "score": 10.0,
                 "evidence": [
-                  "Category.description exists"
+                  "Category.id exists"
                 ],
                 "alternatives": []
               },
@@ -5101,15 +5788,12 @@
             },
             "action": {
               "status": "alias",
-              "canonical": "InventoryService.add_product",
-              "score": 3.0,
+              "canonical": "CategoryRepository.update",
+              "score": 4.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "CategoryRepository.create",
-                "ProductRepository.create"
-              ]
+              "alternatives": []
             }
           },
           "triage": "passed"
@@ -5140,23 +5824,19 @@
               "canonical": "CategoryRepository.delete",
               "score": 4.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "ProductRepository.delete"
-              ]
+              "alternatives": []
             }
           },
           "triage": "passed"
         }
       ],
       "counts": {
-        "case_defect": 2,
-        "passed": 3
+        "passed": 6
       },
       "triage_counts": {
-        "case_defect: setup": 2,
-        "passed": 3
+        "passed": 6
       }
     },
     {
@@ -5164,8 +5844,7 @@
       "results": [
         {
           "name": "scenario:oracle:search_books_query",
-          "status": "failed",
-          "reason": "result row count is 1, expected 2",
+          "status": "passed",
           "case": "search_books_query",
           "source": "library book search --query",
           "alignment": {
@@ -5238,12 +5917,11 @@
               "alternatives": []
             }
           },
-          "triage": "behavior: row count"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:book_list_author_filter",
-          "status": "failed",
-          "reason": "result row count is 0, expected 1",
+          "status": "passed",
           "case": "book_list_author_filter",
           "source": "library book list [--author]",
           "alignment": {
@@ -5334,19 +6012,16 @@
               "canonical": "BookRepository.read_all",
               "score": 1.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "LoanRepository.read_all"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "behavior: row count"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:member_list_active_only",
-          "status": "failed",
-          "reason": "result row count is 0, expected 1",
+          "status": "passed",
           "case": "member_list_active_only",
           "source": "library member list [--active-only]",
           "alignment": {
@@ -5423,19 +6098,16 @@
               "canonical": "MemberRepository.read_all",
               "score": 1.0,
               "evidence": [
-                "highest action-name specificity"
+                "same operation with a different name"
               ],
-              "alternatives": [
-                "LoanRepository.read_all"
-              ]
+              "alternatives": []
             }
           },
-          "triage": "behavior: row count"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:overdue_loans_report",
-          "status": "failed",
-          "reason": "loan.status is 'active', expected 'overdue'",
+          "status": "passed",
           "case": "overdue_loans_report",
           "source": "library overdue",
           "alignment": {
@@ -5473,15 +6145,6 @@
                   "Loan.return_date exists"
                 ],
                 "alternatives": []
-              },
-              "loan.status": {
-                "status": "aligned",
-                "canonical": "status",
-                "score": 10.0,
-                "evidence": [
-                  "Loan.status exists"
-                ],
-                "alternatives": []
               }
             },
             "action": {
@@ -5494,7 +6157,7 @@
               "alternatives": []
             }
           },
-          "triage": "under_specified"
+          "triage": "passed"
         },
         {
           "name": "scenario:oracle:member_history_member",
@@ -5669,13 +6332,10 @@
         }
       ],
       "counts": {
-        "failed": 4,
-        "passed": 2
+        "passed": 6
       },
       "triage_counts": {
-        "behavior: row count": 3,
-        "under_specified": 1,
-        "passed": 2
+        "passed": 6
       }
     }
   ]

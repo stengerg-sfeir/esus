@@ -164,6 +164,10 @@ def run(project, include_assumed=False, cases_name=None):
             kind = triage.classify("unbound", reason, case.get("source"))
             then = case.get("then") or {}
             text = str(reason or "").lower()
+            if "app-only project" in text or "under-specified" in text:
+                # The project or the assertion is outside what the service
+                # verifier can observe. Keep it visible for human review.
+                kind = "under_specified"
             if kind == "case_defect: setup" and (
                     "passes parameter name" in text
                     or ("cannot resolve given entity" in text
@@ -176,11 +180,12 @@ def run(project, include_assumed=False, cases_name=None):
             if "seeded data matches its filter" in str(reason):
                 kind = "case_defect: setup"
             bare = _bare_argument_names(case, docs)
-            if bare and kind.startswith(("coverage_gap: missing action",
-                                         "coverage_gap: ambiguous action")):
+            if bare and kind == "coverage_gap: ambiguous action":
                 kind = "under_specified"
                 reason = f"case passes parameter/field name {bare!r} as a value"
             action_info = (case.get("alignment") or {}).get("action") or {}
+            if action_info.get("status") == "under_specified":
+                kind = "under_specified"
             if kind == "coverage_gap: missing action":
                 if action_info.get("status") == "invented":
                     # The case invented an action that the prompt does not
@@ -234,7 +239,8 @@ def run(project, include_assumed=False, cases_name=None):
         if (kind == "behavior: expected error missing"
                 and isinstance(expected_error, str)
                 and expected_error
-                and not re.fullmatch(r"[A-Z][A-Za-z0-9_]*Error", expected_error)):
+                and not re.fullmatch(r"[A-Z][A-Za-z0-9_]*Error",
+                                     expected_error)):
             kind = "under_specified"
         case["triage"] = kind
         outcome["triage"] = kind

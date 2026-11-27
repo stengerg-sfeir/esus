@@ -1,10 +1,157 @@
 {
   "counts": {
-    "legacy": 0,
+    "legacy": 3,
     "kept": 0,
-    "retired": 0,
+    "retired": 3,
     "confirmed_intents": 0,
     "merged": 0
   },
-  "cases": []
+  "cases": [
+    {
+      "case": {
+        "id": "reject_overlap_1",
+        "source": "reject reservations that overlap an existing reservation",
+        "given": {
+          "existing_reservation": {
+            "id": 1,
+            "start_time": "2023-10-01T09:00:00Z",
+            "end_time": "2023-10-01T17:00:00Z",
+            "status": "active"
+          },
+          "room": {
+            "id": 101,
+            "capacity": 4
+          }
+        },
+        "when": {
+          "action": "create_reservation",
+          "args": [
+            "room.id",
+            "start_time",
+            "end_time"
+          ]
+        },
+        "then": {
+          "state": {
+            "existing_reservation.status": "active"
+          },
+          "error": "overlap_error",
+          "rows": {
+            "Reservation": 0
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [],
+        "ambiguities": [
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements",
+          "error class 'overlap_error' is not named in the requirements"
+        ]
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_reservation_1",
+        "source": "A customer can make multiple reservations",
+        "given": {
+          "customer": {
+            "id": 1001,
+            "name": "Alice Johnson"
+          },
+          "room": {
+            "id": 101,
+            "capacity": 4
+          }
+        },
+        "when": {
+          "action": "create_reservation",
+          "args": [
+            "customer.id",
+            "room.id",
+            "start_time",
+            "end_time"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.reservations_count": 1,
+            "room.status": "available"
+          },
+          "rows": {
+            "Reservation": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "the room status transitions from available to reserved upon creation"
+        ],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    },
+    {
+      "case": {
+        "id": "create_reservation_2",
+        "source": "A customer can make multiple reservations",
+        "given": {
+          "customer": {
+            "id": 1002,
+            "name": "Bob Smith"
+          },
+          "room": {
+            "id": 102,
+            "capacity": 2
+          }
+        },
+        "when": {
+          "action": "create_reservation",
+          "args": [
+            "customer.id",
+            "room.id",
+            "start_time",
+            "end_time"
+          ]
+        },
+        "then": {
+          "state": {
+            "customer.reservations_count": 1,
+            "room.status": "available"
+          },
+          "rows": {
+            "Reservation": 1
+          }
+        },
+        "status": "assumed",
+        "base_status": "assumed",
+        "assumptions": [
+          "the room status transitions from available to reserved upon creation"
+        ],
+        "ambiguities": []
+      },
+      "status": "not_run",
+      "reason": ""
+    }
+  ]
 }

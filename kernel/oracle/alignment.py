@@ -113,6 +113,35 @@ def operation_evidence(action, text):
     return False
 
 
+def _imperative_evidence(action, text):
+    """True when the prompt opens with the action verb as an instruction."""
+    first = _first_action_token(action)
+    words = re.findall(r"[A-Za-z0-9_]+", str(text or "").lower())
+    if not first or not words:
+        return False
+    if _singular_token(words[0]) != first:
+        return False
+    # A plural first word is a noun phrase ("Deposits increase ..."), not an
+    # imperative ("Read the CSV header ...").
+    if words[0].endswith("s") and not words[0].endswith("ss") \
+            and words[0] != first:
+        return False
+    return True
+
+
+def _provide_evidence(action, text):
+    """True when the prompt offers the action as a provided capability."""
+    tokens = [token for token in _tokens(action) if token not in _ACTION_STOP]
+    if not tokens:
+        return False
+    if not all(_prompt_mentions(token, text) for token in tokens):
+        return False
+    return bool(re.search(
+        r"\b(?:provide|provides|support|supports|allow|allows|enable|"
+        r"enables|implement|implements|expose|exposes|can)\b",
+        str(text or "").lower()))
+
+
 def _name_score(alias, model_name):
     left, right = normalize(alias), normalize(model_name)
     if left == right:
@@ -282,6 +311,111 @@ def _method_mentions(method, token):
     return bool(params) and (token in params or _singular(token) in params)
 
 
+def _holder_entity(holder):
+    """The model name a repository/service holder declares."""
+    base = normalize(holder)
+    for suffix in ("repository", "service", "manager"):
+        if base.endswith(suffix):
+            return base[:-len(suffix)]
+    return base
+
+
+def _collection_return(method):
+    declared = str(method.get("return_type") or "")
+    return bool(re.search(
+        r"\b(?:List|list|Set|set|Tuple|tuple|Iterable|Iterator|Sequence)\s*\[",
+        declared))
+
+
+_VERB_STOP = frozenset({"by", "of", "for", "with", "the", "on", "to"})
+
+
+def _first_action_token(action):
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", str(action or ""))
+    tokens = [normalize(word) for word in re.split(r"[^A-Za-z0-9]+", text)
+              if normalize(word) and normalize(word) not in _VERB_STOP]
+    return _singular_token(tokens[0]) if tokens else ""
+
+
+def _leading_verb(name):
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", str(name or ""))
+    tokens = [normalize(word) for word in re.split(r"[^A-Za-z0-9]+", text)
+              if normalize(word)]
+    return tokens[0] if tokens else ""
+
+
+def _strong_candidates(action, candidates):
+    """Candidates whose method matches the action's verb and entity.
+
+    A method that matches only through a parameter name is not the missing
+    capability's implementation: `report_low_stock` is not satisfied by
+    `ProductRepository.create` merely because a `stock_quantity` parameter
+    exists.  `borrow_book` is likewise not `return_book`: sharing the entity
+    is not sharing the operation.  The method name supplies the verb (or the
+    same CRUD kind), and the method/holder supplies the entity.
+    """
+    tokens = [token for token in _tokens(action) if token not in _ACTION_STOP]
+    if not tokens:
+        return list(candidates)
+    verb = _first_action_token(action)
+    action_kind = codegen.classify_crud(action)
+    strong = []
+    for holder, method in candidates:
+        method_name = str(method.get("name") or "")
+        method_kind = codegen.classify_crud(method_name)
+        method_verb = _leading_verb(method_name)
+        related = any(
+            token != verb and min(len(token), len(method_verb)) >= 4
+            and (token.startswith(method_verb)
+                 or method_verb.startswith(token))
+            for token in tokens)
+        verb_ok = (not verb or verb == method_verb or related
+                   or (action_kind is not None and method_kind == action_kind))
+        if not verb_ok:
+            continue
+        params = " ".join(
+            str(param.get("name") or "")
+            for param in method.get("params") or []
+            if isinstance(param, dict))
+        surface = normalize(method_name + " " + str(holder) + " " + params)
+        entity_tokens = [token for token in tokens if token != verb] or tokens
+        if any(token in surface for token in entity_tokens):
+            strong.append((holder, method))
+    return strong
+
+
+def _prefer_entity(action, candidates):
+    """Prefer the holder whose entity is named in the action.
+
+    `create_post_by_author` names Post, so PostRepository wins over the
+    compound PostTagRepository; `create_tag` likewise picks TagRepository.
+    """
+    if len(candidates) < 2:
+        return candidates
+    if codegen.classify_crud(action) == "create":
+        # Create methods all share the same verb; the case's fields, not the
+        # holder's spelling, decide whether it creates a Post or a PostTag.
+        return candidates
+    tokens = _tokens(action)
+    exact = [item for item in candidates
+             if _holder_entity(item[0]) in tokens]
+    return exact if exact and len(exact) < len(candidates) else candidates
+
+
+def _prefer_collection(action, source, candidates):
+    """Prefer a collection-returning method for a list/history action."""
+    if len(candidates) < 2:
+        return candidates
+    text = normalize(str(action) + " " + str(source))
+    if not any(word in text for word in
+               ("history", "list", "all", "search", "find", "purchase",
+                "browse", "report")):
+        return candidates
+    collections = [item for item in candidates
+                   if _collection_return(item[1])]
+    return collections if collections else candidates
+
+
 def _action_score(action, holder, method):
     """Rank a method by how specifically its name matches the action."""
     action_tokens = _tokens(action)
@@ -308,6 +442,11 @@ def align_action(action, source, requirements, docs):
         holder, method = exact[0]
         return Alignment("aligned", f"{holder}.{method['name']}", 10.0,
                          ["exact generated method"])
+    if normalize(action).startswith("manage"):
+        # "Administrators can manage products" states a permission, not a
+        # concrete operation; the CRUD surface is already present.
+        return Alignment("under_specified", None, 0.0,
+                         ["manage is a role/permission, not a concrete action"])
     kind = codegen.classify_crud(action)
     words = _tokens(action)
     last_token = _last_action_token(action)
@@ -315,14 +454,18 @@ def align_action(action, source, requirements, docs):
     for holder, method in _methods(docs):
         if kind is not None and codegen.classify_crud(method["name"]) != kind:
             continue
-        if not _method_mentions(method, last_token):
+        mentioned = any(
+            _method_mentions(method, token) for token in words
+            if token not in _ACTION_STOP)
+        if not mentioned:
             # A CRUD operation may use the entity from its holder
             # (`create_product` -> ProductRepository.create), but a domain
             # operation such as `get_stock_status` may not drift to an
             # unrelated method that only shares its holder.
-            holder_ok = (kind is not None and last_token
+            holder_ok = (last_token
                          and last_token in normalize(str(holder))
-                         and codegen.classify_crud(method["name"]) == kind)
+                         and (kind is None
+                              or codegen.classify_crud(method["name"]) == kind))
             if not holder_ok:
                 continue
         flat = normalize(str(method["name"]) + " " + str(holder) + " " +
@@ -333,6 +476,21 @@ def align_action(action, source, requirements, docs):
             continue
         candidates.append((holder, method))
     candidates = _dedupe_methods(candidates)
+    strong = _strong_candidates(action, candidates)
+    if candidates and not strong:
+        if (operation_evidence(action, source)
+                or _imperative_evidence(action, source)
+                or _provide_evidence(action, source)
+                or _provide_evidence(action, requirements)):
+            return Alignment("coverage_gap", None, 0.0,
+                             ["prompt names an operation",
+                              "no generated method or holder names it"])
+        return Alignment("invented", None, 0.0,
+                         ["no generated method or holder names the action"])
+    if strong:
+        candidates = strong
+    candidates = _prefer_entity(action, candidates)
+    candidates = _prefer_collection(action, source, candidates)
     if "page" in normalize(source) or "paginat" in normalize(source):
         paginated = []
         for holder, method in candidates:
@@ -365,8 +523,11 @@ def align_action(action, source, requirements, docs):
                          float(best_score),
                          ["several generated methods have the same action score"],
                          [f"{h}.{m['name']}" for _score, h, m in scored[:4]])
-    if operation_evidence(action, source) or operation_evidence(
-            action, requirements):
+    if (operation_evidence(action, source)
+            or operation_evidence(action, requirements)
+            or _imperative_evidence(action, source)
+            or _provide_evidence(action, source)
+            or _provide_evidence(action, requirements)):
         return Alignment("coverage_gap", None, 0.0,
                          ["prompt exposes the action", "no generated method matches"])
     return Alignment("invented", None, 0.0,

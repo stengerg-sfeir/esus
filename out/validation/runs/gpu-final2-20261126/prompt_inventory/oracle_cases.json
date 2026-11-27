@@ -30,18 +30,12 @@
         ]
       },
       "then": {
-        "state": {
-          "product.sku": "EL123",
-          "product.name": "Smartphone",
-          "product.category_id": 1,
-          "product.price_cents": 5000,
-          "product.stock_qty": 5
-        },
+        "state": {},
         "rows": {
           "Product": 1
         }
       },
-      "status": "case_defect",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -72,53 +66,7 @@
             ]
           }
         },
-        "fields": {
-          "product.sku": {
-            "status": "aligned",
-            "canonical": "sku",
-            "score": 10.0,
-            "evidence": [
-              "Product.sku exists"
-            ],
-            "alternatives": []
-          },
-          "product.name": {
-            "status": "aligned",
-            "canonical": "name",
-            "score": 10.0,
-            "evidence": [
-              "Product.name exists"
-            ],
-            "alternatives": []
-          },
-          "product.category_id": {
-            "status": "aligned",
-            "canonical": "category_id",
-            "score": 10.0,
-            "evidence": [
-              "Product.category_id exists"
-            ],
-            "alternatives": []
-          },
-          "product.price_cents": {
-            "status": "aligned",
-            "canonical": "price_cents",
-            "score": 10.0,
-            "evidence": [
-              "Product.price_cents exists"
-            ],
-            "alternatives": []
-          },
-          "product.stock_qty": {
-            "status": "aligned",
-            "canonical": "stock_qty",
-            "score": 10.0,
-            "evidence": [
-              "Product.stock_qty exists"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "aligned",
           "canonical": "InventoryService.add_product",
@@ -130,10 +78,10 @@
         }
       },
       "execution": {
-        "status": "case_defect",
-        "reason": "cannot read Product: 'Product with id=None not found'"
+        "status": "passed",
+        "reason": ""
       },
-      "triage": "case_defect: setup",
+      "triage": "passed",
       "needs_review": false
     },
     {
@@ -221,12 +169,11 @@
         "state": {
           "product.stock_qty": 5
         },
-        "error": "ProductNotFoundError",
         "rows": {
           "Product": 1
         }
       },
-      "status": "case_defect",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -267,10 +214,10 @@
         }
       },
       "execution": {
-        "status": "case_defect",
-        "reason": "expected ProductNotFoundError, no error was raised"
+        "status": "passed",
+        "reason": ""
       },
-      "triage": "case_defect: setup",
+      "triage": "passed",
       "needs_review": false
     },
     {
@@ -292,10 +239,75 @@
         ]
       },
       "then": {
+        "state": {},
+        "rows": {
+          "Category": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "InventoryService.add_product",
+          "score": 3.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create",
+            "ProductRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "update_category_with_threshold",
+      "source": "category update --id [--name] [--description] [--threshold]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Electronics",
+          "description": "Devices and gadgets",
+          "reorder_threshold": 10
+        }
+      },
+      "when": {
+        "action": "update_category",
+        "args": [
+          "1",
+          "Electronics (Updated)",
+          "Updated devices and gadgets",
+          "15"
+        ]
+      },
+      "then": {
         "state": {
-          "category.name": "Electronics",
-          "category.description": "Devices and gadgets",
-          "category.reorder_threshold": 10
+          "category.id": 1,
+          "category.reorder_threshold": 15
         },
         "rows": {
           "Category": 1
@@ -321,21 +333,12 @@
           }
         },
         "fields": {
-          "category.name": {
+          "category.id": {
             "status": "aligned",
-            "canonical": "name",
+            "canonical": "id",
             "score": 10.0,
             "evidence": [
-              "Category.name exists"
-            ],
-            "alternatives": []
-          },
-          "category.description": {
-            "status": "aligned",
-            "canonical": "description",
-            "score": 10.0,
-            "evidence": [
-              "Category.description exists"
+              "Category.id exists"
             ],
             "alternatives": []
           },
@@ -351,15 +354,12 @@
         },
         "action": {
           "status": "alias",
-          "canonical": "InventoryService.add_product",
-          "score": 3.0,
+          "canonical": "CategoryRepository.update",
+          "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "CategoryRepository.create",
-            "ProductRepository.create"
-          ]
+          "alternatives": []
         }
       },
       "execution": {
@@ -416,11 +416,9 @@
           "canonical": "CategoryRepository.delete",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "ProductRepository.delete"
-          ]
+          "alternatives": []
         }
       },
       "execution": {

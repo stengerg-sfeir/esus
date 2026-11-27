@@ -80,10 +80,6 @@ class ProductRepository:
         value = values.get('price')
         if value is not None and value < 0:
             raise ValueError(f"Product.price must be >= 0, got {value!r}")
-        value = values.get('id')
-        other = values.get('stock_quantity')
-        if value is not None and other is not None and not (value < other):
-            raise ValueError(f"Product.id must be < stock_quantity, got {value!r} vs {other!r}")
         record = self._store.add(self.ENTITY, self.PK, values, check_fk=[])
         return models.Product(**record)
 
@@ -131,10 +127,6 @@ class ProductRepository:
         value = patch.get('price')
         if value is not None and value < 0:
             raise ValueError(f"Product.price must be >= 0, got {value!r}")
-        value = patch.get('id', found[0].get('id'))
-        other = patch.get('stock_quantity', found[0].get('stock_quantity'))
-        if value is not None and other is not None and not (value < other):
-            raise ValueError(f"Product.id must be < stock_quantity, got {value!r} vs {other!r}")
         record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=errors.ProductNotFoundError)
         return models.Product(**record)
 
@@ -157,3 +149,33 @@ class ProductRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def filter_by_category(self, category: str = None) -> list[models.Product]:
+        """Filters Product records by category. [crud:filter: name-only: step F never saw this method]"""
+        criteria = []
+        if category is not None:
+            criteria.append(('category', 'eq', category))
+        found = self._store.select(self.ENTITY, criteria)
+        return [models.Product(**r) for r in found]
+
+    def search_products(self, query: str = None) -> list[models.Product]:
+        """Searches Product records across their text fields. [mechanical text search]"""
+        if not query:
+            return []
+        query = str(query).lower()
+        result = []
+        for row in self._store.select(self.ENTITY, []):
+            values = [row.get('name'), row.get('category'), row.get('sku')]
+            if any(value is not None and query in str(value).lower() for value in values):
+                result.append(row)
+        return _model_list([models.Product(**row) for row in result], models.Product)
+
+    def report_low_stock(self) -> list[models.Product]:
+        """Reports Product records whose stock_quantity is below the threshold. [mechanical low-stock scan]"""
+        threshold = 10
+        result = []
+        for row in self._store.select(self.ENTITY, []):
+            stock = row.get('stock_quantity')
+            if stock is not None and stock < threshold:
+                result.append(row)
+        return _model_list([models.Product(**row) for row in result], models.Product)

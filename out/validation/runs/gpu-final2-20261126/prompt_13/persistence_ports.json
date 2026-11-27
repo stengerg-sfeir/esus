@@ -130,6 +130,43 @@
             "raises": [
               "ProductNotFoundError"
             ]
+          },
+          {
+            "name": "filter_by_category",
+            "description": "Filters Product records by category.",
+            "params": [
+              {
+                "name": "category",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": [],
+            "provenance": "prose_query",
+            "review_required": true
+          },
+          {
+            "name": "search_products",
+            "description": "Searches Product records across their text fields.",
+            "params": [
+              {
+                "name": "query",
+                "type": "str"
+              }
+            ],
+            "return_type": "list[Product]",
+            "raises": [],
+            "provenance": "prose_query",
+            "review_required": true
+          },
+          {
+            "name": "report_low_stock",
+            "description": "Reports Product records whose stock_quantity is below the threshold.",
+            "params": [],
+            "return_type": "list[Product]",
+            "raises": [],
+            "provenance": "prose_query",
+            "review_required": true
           }
         ]
       }

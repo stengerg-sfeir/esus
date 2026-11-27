@@ -90,24 +90,24 @@
           }
         },
         "action": {
-          "status": "alias",
-          "canonical": "ProductRepository.read_one",
+          "status": "ambiguous",
+          "canonical": "ProductRepository.read_all",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "several generated methods have the same action score"
           ],
           "alternatives": [
-            "ProductRepository.delete",
-            "ProductRepository.update"
+            "ProductRepository.read_all",
+            "ProductRepository.read_one"
           ]
         }
       },
       "triage": "passed"
     },
     {
-      "name": "update_product",
-      "status": "unbound",
-      "reason": "update case supplies 'description' for 'product.name', but expects 'Gaming Laptop'",
+      "name": "scenario:oracle:update_product",
+      "status": "passed",
+      "case": "update_product",
       "source": "Provide normal product CRUD operations",
       "alignment": {
         "entities": {
@@ -152,7 +152,7 @@
           "alternatives": []
         }
       },
-      "triage": "coverage_gap: other"
+      "triage": "passed"
     },
     {
       "name": "scenario:oracle:delete_product",
@@ -187,11 +187,9 @@
     }
   ],
   "counts": {
-    "passed": 3,
-    "unbound": 1
+    "passed": 4
   },
   "triage_counts": {
-    "passed": 3,
-    "coverage_gap: other": 1
+    "passed": 4
   }
 }

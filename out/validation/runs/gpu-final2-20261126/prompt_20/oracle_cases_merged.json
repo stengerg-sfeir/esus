@@ -1,4 +1,256 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "create_product",
+      "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "name": "Laptop",
+          "price": 999.99
+        }
+      },
+      "when": {
+        "action": "create_product",
+        "args": [
+          "product.name",
+          "product.price"
+        ]
+      },
+      "then": {
+        "state": {
+          "product.name": "Laptop",
+          "product.price": 999.99
+        },
+        "rows": {
+          "Product": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "ProductRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "SalesRecordRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "create_sale",
+      "source": "Create a Python 3.12 sales application. Products and sales must be persisted in SQLite. Provide CRUD operations for products and sales.",
+      "given": {
+        "product": {
+          "id": 1,
+          "name": "Laptop"
+        },
+        "sale": {
+          "product_id": 1,
+          "quantity": 2,
+          "sale_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "create_sale",
+        "args": [
+          "sale.product_id",
+          "sale.quantity",
+          "sale.sale_date"
+        ]
+      },
+      "then": {
+        "state": {
+          "sale.product_id": 1,
+          "sale.quantity": 2,
+          "sale.sale_date": "2025-04-05"
+        },
+        "rows": {
+          "SalesRecord": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 13.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 13.0"
+            ],
+            "alternatives": [
+              "SalesRecord"
+            ]
+          },
+          "sale": {
+            "status": "alias",
+            "canonical": "SalesRecord",
+            "score": 11.0,
+            "evidence": [
+              "name/fields match SalesRecord",
+              "score 11.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {
+          "sale.product_id": {
+            "status": "aligned",
+            "canonical": "product_id",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.product_id exists"
+            ],
+            "alternatives": []
+          },
+          "sale.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.quantity exists"
+            ],
+            "alternatives": []
+          },
+          "sale.sale_date": {
+            "status": "aligned",
+            "canonical": "sale_date",
+            "score": 10.0,
+            "evidence": [
+              "SalesRecord.sale_date exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "SalesRecordRepository.create",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "delete_sale",
+      "source": "Provide CRUD operations for products and sales.",
+      "given": {
+        "sale": {
+          "id": 101,
+          "product_id": 1,
+          "quantity": 2,
+          "sale_date": "2025-04-05"
+        }
+      },
+      "when": {
+        "action": "delete_sale",
+        "args": [
+          "sale.id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "SalesRecord": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "sale": {
+            "status": "alias",
+            "canonical": "SalesRecord",
+            "score": 10.0,
+            "evidence": [
+              "name/fields match SalesRecord",
+              "score 10.0"
+            ],
+            "alternatives": [
+              "Product"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "SalesRecordRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

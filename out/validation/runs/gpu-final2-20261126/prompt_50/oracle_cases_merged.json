@@ -1,4 +1,69 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "create_event",
+      "source": "People should be able to create events and register for them.",
+      "given": {
+        "event": {
+          "name": "Team Meeting",
+          "date": "2023-10-15",
+          "max_participants": 10
+        }
+      },
+      "when": {
+        "action": "create_event",
+        "args": [
+          "event.name",
+          "event.date",
+          "event.max_participants"
+        ]
+      },
+      "then": {
+        "state": {},
+        "rows": {
+          "Event": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "event": {
+            "status": "aligned",
+            "canonical": "Event",
+            "score": 13.666666666666666,
+            "evidence": [
+              "name/fields match Event",
+              "score 13.7"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "ambiguous",
+          "canonical": "EventRegistrationService.register_for_event",
+          "score": 4.0,
+          "evidence": [
+            "several generated methods have the same action score"
+          ],
+          "alternatives": [
+            "EventRegistrationService.register_for_event",
+            "EventRepository.create",
+            "RegistrationRepository.create",
+            "RegistrationRepository.register_for_event"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

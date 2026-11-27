@@ -135,3 +135,28 @@ class CustomerRepository:
         for record in found:
             self._store.delete(self.ENTITY, self.PK, record[self.PK])
         return None
+
+    def search_customers(self, name: str = None) -> list[models.Customer]:
+        """Searches Customer records across their text fields. [mechanical text search]"""
+        if not name:
+            return []
+        query = str(name).lower()
+        result = []
+        for row in self._store.select(self.ENTITY, []):
+            values = [row.get('name'), row.get('email'), row.get('phone_number')]
+            if any(value is not None and query in str(value).lower() for value in values):
+                result.append(row)
+        return _model_list([models.Customer(**row) for row in result], models.Customer)
+
+    def filter_customers(self, domain: str = None) -> list[models.Customer]:
+        """Filters Customer records by email. [FILTER_BY_EMAIL_DOMAIN]"""
+        result = []
+        domain = str(domain).lower().lstrip('@') if domain else ''
+        for row in self._store.select(self.ENTITY, []):
+            email = row.get('email')
+            if email is None:
+                continue
+            email = str(email).lower()
+            if not domain or email.endswith('@' + domain):
+                result.append(row)
+        return _model_list([models.Customer(**row) for row in result], models.Customer)

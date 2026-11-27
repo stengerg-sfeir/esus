@@ -133,9 +133,13 @@
         }
       ],
       "expect": {
-        "state": [],
+        "state": [
+          "customer.status",
+          "customer.name",
+          "customer.email"
+        ],
         "rows": {
-          "Customer": "at least page_size"
+          "Customer": "page_size"
         },
         "error": "omitted"
       },

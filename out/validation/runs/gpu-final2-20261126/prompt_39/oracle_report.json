@@ -3,8 +3,8 @@
   "results": [
     {
       "name": "manage_product_admin",
-      "status": "case_defect",
-      "reason": "cannot resolve given entity 'admin'",
+      "status": "under_specified",
+      "reason": "no generated method matches 'manage_product'",
       "source": "Administrators can manage products and users.",
       "alignment": {
         "entities": {
@@ -44,27 +44,22 @@
           }
         },
         "action": {
-          "status": "ambiguous",
-          "canonical": "ProductRepository.find_product_by_id",
-          "score": 4.0,
+          "status": "under_specified",
+          "canonical": null,
+          "score": 0.0,
           "evidence": [
-            "several generated methods have the same action score"
+            "manage is a role/permission, not a concrete action"
           ],
-          "alternatives": [
-            "ProductRepository.find_product_by_id",
-            "ProductRepository.find_product_by_name",
-            "ProductRepository.get_product_count",
-            "ProductRepository.get_products_by_price_range"
-          ]
+          "alternatives": []
         }
       },
-      "triage": "case_defect: setup"
+      "triage": "under_specified"
     }
   ],
   "counts": {
-    "case_defect": 1
+    "under_specified": 1
   },
   "triage_counts": {
-    "case_defect: setup": 1
+    "under_specified": 1
   }
 }

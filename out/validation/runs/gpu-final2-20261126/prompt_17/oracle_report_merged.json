@@ -1,5 +1,80 @@
 {
   "prompt": "prompt_17",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:combinable_filters",
+      "status": "passed",
+      "case": "combinable_filters",
+      "source": "All filters must be combinable",
+      "alignment": {
+        "entities": {
+          "product": {
+            "status": "aligned",
+            "canonical": "Product",
+            "score": 14.0,
+            "evidence": [
+              "name/fields match Product",
+              "score 14.0"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {
+          "product.name": {
+            "status": "aligned",
+            "canonical": "name",
+            "score": 10.0,
+            "evidence": [
+              "Product.name exists"
+            ],
+            "alternatives": []
+          },
+          "product.category": {
+            "status": "aligned",
+            "canonical": "category",
+            "score": 10.0,
+            "evidence": [
+              "Product.category exists"
+            ],
+            "alternatives": []
+          },
+          "product.price": {
+            "status": "aligned",
+            "canonical": "price",
+            "score": 10.0,
+            "evidence": [
+              "Product.price exists"
+            ],
+            "alternatives": []
+          },
+          "product.quantity": {
+            "status": "aligned",
+            "canonical": "quantity",
+            "score": 10.0,
+            "evidence": [
+              "Product.quantity exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "coverage_gap",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "prompt exposes the action",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

@@ -1,4 +1,290 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "addition_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "given": {
+        "numbers": {
+          "a": 2,
+          "b": 3
+        }
+      },
+      "when": {
+        "action": "calculate",
+        "args": [
+          "add",
+          "2",
+          "3"
+        ]
+      },
+      "then": {
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "subtraction_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "given": {
+        "numbers": {
+          "a": 10,
+          "b": 4
+        }
+      },
+      "when": {
+        "action": "calculate",
+        "args": [
+          "subtract",
+          "10",
+          "4"
+        ]
+      },
+      "then": {
+        "stdout_contains": "6",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "multiplication_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "given": {
+        "numbers": {
+          "a": 6,
+          "b": 7
+        }
+      },
+      "when": {
+        "action": "calculate",
+        "args": [
+          "multiply",
+          "6",
+          "7"
+        ]
+      },
+      "then": {
+        "stdout_contains": "42",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "division_operation",
+      "source": "Create a Python 3.12 CLI calculator. It must support addition, subtraction, multiplication and division of two numbers. Display the result on the command line.",
+      "given": {
+        "numbers": {
+          "a": 10,
+          "b": 2
+        }
+      },
+      "when": {
+        "action": "calculate",
+        "args": [
+          "divide",
+          "10",
+          "2"
+        ]
+      },
+      "then": {
+        "stdout_contains": "5",
+        "exit_code": 0
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "division_by_zero_error",
+      "source": "Division by zero must produce a clear error message.",
+      "given": {
+        "numbers": {
+          "a": 5,
+          "b": 0
+        }
+      },
+      "when": {
+        "action": "calculate",
+        "args": [
+          "divide",
+          "5",
+          "0"
+        ]
+      },
+      "then": {
+        "stderr_contains": "Division by zero is not allowed",
+        "exit_code": 1
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "numbers": {
+            "status": "coverage_gap",
+            "canonical": null,
+            "score": 0.0,
+            "evidence": [
+              "prompt mentions 'numbers'",
+              "no extracted entity matches it"
+            ],
+            "alternatives": []
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "invented",
+          "canonical": null,
+          "score": 0.0,
+          "evidence": [
+            "action is not exposed as an operation by the prompt",
+            "no generated method matches"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

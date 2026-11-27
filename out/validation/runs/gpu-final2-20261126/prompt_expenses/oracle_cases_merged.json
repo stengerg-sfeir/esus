@@ -1,4 +1,541 @@
 {
   "prompt_sha": null,
-  "cases": []
+  "cases": [
+    {
+      "id": "expense_add_with_valid_params",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "given": {
+        "category": {
+          "id": 1,
+          "name": "Food",
+          "description": "Daily food expenses",
+          "monthly_budget": 5000,
+          "icon": "🍽️"
+        },
+        "expense": {
+          "amount_cents": 1500,
+          "description": "Grocery shopping",
+          "expense_date": "2024-05-15",
+          "category_id": 1,
+          "payment_method": "card",
+          "is_recurring": false
+        }
+      },
+      "when": {
+        "action": "add_expense",
+        "args": [
+          "amount",
+          "description",
+          "category",
+          "expense-date",
+          "method",
+          "recurring"
+        ]
+      },
+      "then": {
+        "state": {
+          "expense.amount_cents": 1500,
+          "expense.description": "Grocery shopping",
+          "expense.expense_date": "2024-05-15",
+          "expense.payment_method": "card",
+          "expense.is_recurring": false
+        },
+        "rows": {
+          "Expense": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "category": {
+            "status": "aligned",
+            "canonical": "Category",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Category",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Budget"
+            ]
+          },
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {
+          "expense.amount_cents": {
+            "status": "aligned",
+            "canonical": "amount_cents",
+            "score": 10.0,
+            "evidence": [
+              "Expense.amount_cents exists"
+            ],
+            "alternatives": []
+          },
+          "expense.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Expense.description exists"
+            ],
+            "alternatives": []
+          },
+          "expense.expense_date": {
+            "status": "aligned",
+            "canonical": "expense_date",
+            "score": 10.0,
+            "evidence": [
+              "Expense.expense_date exists"
+            ],
+            "alternatives": []
+          },
+          "expense.payment_method": {
+            "status": "aligned",
+            "canonical": "payment_method",
+            "score": 10.0,
+            "evidence": [
+              "Expense.payment_method exists"
+            ],
+            "alternatives": []
+          },
+          "expense.is_recurring": {
+            "status": "aligned",
+            "canonical": "is_recurring",
+            "score": 10.0,
+            "evidence": [
+              "Expense.is_recurring exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "expense_get_by_id",
+      "source": "expense list [--category] [--from-date] [--to-date] [--method]",
+      "given": {
+        "expense": {
+          "id": 1,
+          "amount_cents": 1000,
+          "description": "Coffee",
+          "expense_date": "2024-05-01",
+          "category_id": 1,
+          "payment_method": "card"
+        }
+      },
+      "when": {
+        "action": "get_expense_by_id",
+        "args": []
+      },
+      "then": {
+        "state": {
+          "expense.amount_cents": 1000,
+          "expense.description": "Coffee",
+          "expense.expense_date": "2024-05-01",
+          "expense.category_id": 1,
+          "expense.payment_method": "card"
+        },
+        "rows": {
+          "Expense": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {
+          "expense.amount_cents": {
+            "status": "aligned",
+            "canonical": "amount_cents",
+            "score": 10.0,
+            "evidence": [
+              "Expense.amount_cents exists"
+            ],
+            "alternatives": []
+          },
+          "expense.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Expense.description exists"
+            ],
+            "alternatives": []
+          },
+          "expense.expense_date": {
+            "status": "aligned",
+            "canonical": "expense_date",
+            "score": 10.0,
+            "evidence": [
+              "Expense.expense_date exists"
+            ],
+            "alternatives": []
+          },
+          "expense.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Expense.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "expense.payment_method": {
+            "status": "aligned",
+            "canonical": "payment_method",
+            "score": 10.0,
+            "evidence": [
+              "Expense.payment_method exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.get_expense_by_id",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "expense_delete_by_id",
+      "source": "expense category delete --id",
+      "given": {
+        "expense": {
+          "id": 1,
+          "amount_cents": 1000,
+          "description": "Coffee",
+          "expense_date": "2024-05-01",
+          "category_id": 1,
+          "payment_method": "card"
+        }
+      },
+      "when": {
+        "action": "delete_expense",
+        "args": [
+          "id"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Expense": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.delete_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "budget_add_with_params",
+      "source": "budget add --category-id --month --amount",
+      "given": {
+        "budget": {
+          "category_id": 1,
+          "month": "2024-05",
+          "amount_limit_cents": 5000
+        }
+      },
+      "when": {
+        "action": "add_budget",
+        "args": [
+          "category_id",
+          "month",
+          "amount"
+        ]
+      },
+      "then": {
+        "state": {
+          "budget.category_id": 1,
+          "budget.month": "2024-05",
+          "budget.amount_limit_cents": 5000
+        },
+        "rows": {
+          "Budget": 1
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "budget": {
+            "status": "aligned",
+            "canonical": "Budget",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Budget",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Category"
+            ]
+          }
+        },
+        "fields": {
+          "budget.category_id": {
+            "status": "aligned",
+            "canonical": "category_id",
+            "score": 10.0,
+            "evidence": [
+              "Budget.category_id exists"
+            ],
+            "alternatives": []
+          },
+          "budget.month": {
+            "status": "aligned",
+            "canonical": "month",
+            "score": 10.0,
+            "evidence": [
+              "Budget.month exists"
+            ],
+            "alternatives": []
+          },
+          "budget.amount_limit_cents": {
+            "status": "aligned",
+            "canonical": "amount_limit_cents",
+            "score": 10.0,
+            "evidence": [
+              "Budget.amount_limit_cents exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BudgetRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "highest action-name specificity"
+          ],
+          "alternatives": [
+            "CategoryRepository.create"
+          ]
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "budget_delete_with_params",
+      "source": "budget delete --category-id --month",
+      "given": {
+        "budget": {
+          "category_id": 1,
+          "month": "2024-05",
+          "amount_limit_cents": 5000
+        }
+      },
+      "when": {
+        "action": "delete_budget",
+        "args": [
+          "category_id",
+          "month"
+        ]
+      },
+      "then": {
+        "rows": {
+          "Budget": 0
+        }
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "budget": {
+            "status": "aligned",
+            "canonical": "Budget",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Budget",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Expense",
+              "Category"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "alias",
+          "canonical": "BudgetRepository.delete",
+          "score": 4.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    },
+    {
+      "id": "add_expense_with_category_not_found",
+      "source": "expense add --amount --description --category [--expense-date] [--method] [--recurring]",
+      "given": {
+        "expense": {
+          "amount_cents": 1000,
+          "description": "Test",
+          "expense_date": "2024-05-15",
+          "category_id": 999,
+          "payment_method": "card",
+          "is_recurring": false
+        }
+      },
+      "when": {
+        "action": "add_expense",
+        "args": [
+          "amount",
+          "description",
+          "category",
+          "expense-date",
+          "method",
+          "recurring"
+        ]
+      },
+      "then": {
+        "error": "CategoryNotFoundError"
+      },
+      "status": "confirmed",
+      "base_status": "confirmed",
+      "assumptions": [],
+      "ambiguities": [],
+      "alignment": {
+        "entities": {
+          "expense": {
+            "status": "aligned",
+            "canonical": "Expense",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Expense",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "Category",
+              "Budget"
+            ]
+          }
+        },
+        "fields": {},
+        "action": {
+          "status": "aligned",
+          "canonical": "ExpenseService.add_expense",
+          "score": 10.0,
+          "evidence": [
+            "exact generated method"
+          ],
+          "alternatives": []
+        }
+      },
+      "execution": {
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
+    }
+  ]
 }

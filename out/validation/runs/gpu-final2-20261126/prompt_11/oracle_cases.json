@@ -15,10 +15,10 @@
       "when": {
         "action": "create_book",
         "args": [
-          "title",
-          "author",
-          "isbn",
-          "publication_year"
+          "book.title",
+          "book.author",
+          "book.isbn",
+          "book.publication_year"
         ]
       },
       "then": {
@@ -105,71 +105,14 @@
       "needs_review": false
     },
     {
-      "id": "search_books",
-      "source": "Users can create, list, update, search and delete books.",
-      "given": {
-        "search": {
-          "title": "1984",
-          "author": "George Orwell"
-        }
-      },
-      "when": {
-        "action": "search_books",
-        "args": [
-          "title",
-          "author"
-        ]
-      },
-      "then": {
-        "rows": {
-          "Book": 1
-        }
-      },
-      "status": "unbound",
-      "base_status": "confirmed",
-      "assumptions": [],
-      "ambiguities": [],
-      "alignment": {
-        "entities": {
-          "search": {
-            "status": "alias",
-            "canonical": "Book",
-            "score": 5.0,
-            "evidence": [
-              "weak name but strong field overlap with Book",
-              "score 5.0"
-            ],
-            "alternatives": []
-          }
-        },
-        "fields": {},
-        "action": {
-          "status": "invented",
-          "canonical": null,
-          "score": 0.0,
-          "evidence": [
-            "action is not exposed as an operation by the prompt",
-            "no generated method matches"
-          ],
-          "alternatives": []
-        }
-      },
-      "triage": "case_defect: setup",
-      "needs_review": false,
-      "execution": {
-        "status": "case_defect",
-        "reason": "cannot resolve given entity 'search'"
-      }
-    },
-    {
       "id": "delete_book",
       "source": "Users can create, list, update, search and delete books.",
       "given": {
         "book": {
-          "title": "Pride and Prejudice",
-          "author": "Jane Austen",
-          "isbn": "978-0-14-143951-8",
-          "publication_year": 1813
+          "title": "The Great Gatsby",
+          "author": "F. Scott Fitzgerald",
+          "isbn": "978-0-7475-3269-9",
+          "publication_year": 1925
         }
       },
       "when": {

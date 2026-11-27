@@ -61,10 +61,10 @@
       "triage": "passed"
     },
     {
-      "name": "scenario:oracle:delete_project_soft",
+      "name": "scenario:oracle:list_projects",
       "status": "passed",
-      "case": "delete_project_soft",
-      "source": "Deleting a project must be implemented as a soft delete: the project remains in the database but is no longer returned by normal listing operations.",
+      "case": "list_projects",
+      "source": "Users can create, update, list and delete projects.",
       "alignment": {
         "entities": {
           "project": {
@@ -81,12 +81,14 @@
         "fields": {},
         "action": {
           "status": "alias",
-          "canonical": "ProjectRepository.delete",
+          "canonical": "ProjectRepository.read_all_projects",
           "score": 4.0,
           "evidence": [
-            "same operation with a different name"
+            "highest action-name specificity"
           ],
-          "alternatives": []
+          "alternatives": [
+            "ProjectRepository.read_all"
+          ]
         }
       },
       "triage": "passed"

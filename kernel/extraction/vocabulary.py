@@ -8,6 +8,8 @@ prompt and the grammar from drifting apart.
 
 from dataclasses import dataclass
 
+from kernel.extraction.ordering import name_key
+
 PLACEHOLDER_NAMES = frozenset(
     {"", "none", "null", "nil", "n/a", "na", "unknown", "todo", "tbd", "undefined"}
 )
@@ -101,8 +103,11 @@ class Vocabulary:
     def errors_block(self):
         """The registered errors, name and purpose, for a prompt to copy from."""
         lines = []
-        for error in self.errors:
-            if not isinstance(error, dict) or not error.get("name"):
+        errors = sorted(
+            (error for error in self.errors if isinstance(error, dict)),
+            key=lambda error: name_key(error.get("name")))
+        for error in errors:
+            if not error.get("name"):
                 continue
             description = error.get("description") or ""
             lines.append(f"{error['name']}: {description}".rstrip())
@@ -130,7 +135,12 @@ class Vocabulary:
 
 
 def entities_from(data_models):
-    """Build entity signatures from a parsed data_models list."""
+    """Build entity signatures from a parsed data_models list.
+
+    Sorted by entity name: the order of this list becomes the order of the
+    authoritative names block and of the closed alternatives in a GBNF
+    grammar, so model emission order must not leak into either.
+    """
     signatures = []
     for model in _dicts(data_models):
         name = clean(model.get("name"))
@@ -140,7 +150,7 @@ def entities_from(data_models):
         if not fields:
             continue
         signatures.append(EntitySignature(name, fields, _primary_key(model, fields)))
-    return tuple(signatures)
+    return tuple(sorted(signatures, key=lambda item: name_key(item.name)))
 
 
 def _field_names(model):
@@ -162,7 +172,13 @@ def _primary_key(model, fields):
 
 
 def services_from(service_contracts):
-    """Build service signatures from a parsed service_contracts list."""
+    """Build service signatures from a parsed service_contracts list.
+
+    Both levels are sorted: the service block and the adapter grammar are
+    closed to these names, and a stable order makes the same extracted facts
+    produce the same prompt and the same grammar.  A method's parameters keep
+    their declared order because that order is the call signature.
+    """
     signatures = []
     for service in _dicts(service_contracts):
         name = clean(service.get("service_name"))
@@ -175,7 +191,9 @@ def services_from(service_contracts):
                 continue
             methods.append(MethodSignature(method_name, _param_names(method)))
         if methods:
+            methods.sort(key=lambda item: name_key(item.name))
             signatures.append(ServiceSignature(name, tuple(methods)))
+    signatures.sort(key=lambda item: name_key(item.name))
     return tuple(signatures)
 
 
@@ -197,7 +215,7 @@ def crud_entity_names(components):
         entity = clean(item.get("entity"))
         if entity and entity not in names:
             names.append(entity)
-    return tuple(names)
+    return tuple(sorted(names, key=name_key))
 
 
 def crud_requirements(components):
@@ -220,6 +238,7 @@ def crud_requirements(components):
             if isinstance(operation, str) and operation.strip():
                 operations.append(operation.strip())
         requirements.append(CrudRequirement(entity, tuple(operations)))
+    requirements.sort(key=lambda item: name_key(item.entity))
     return tuple(requirements)
 
 

@@ -108,13 +108,13 @@ ADAPTERS = {
     },
     'list_customers_paginated': {
         'service': 'CustomerRepository',
-        'method': 'read_all',
+        'method': 'read_all_paginated',
         'fields': [
-            ('page_number', ('first_name', 'DIRECT', True)),
-            ('page_size', ('last_name', 'DIRECT', True)),
+            ('page_number', ('page_number', 'DIRECT', True)),
+            ('page_size', ('page_size', 'DIRECT', True)),
         ],
         'argv': {'page_number': 'page_number', 'page_size': 'page_size'},
-        'targets': {'first_name': None, 'last_name': None},
+        'targets': {'page_number': None, 'page_size': None},
         'assembled': [],
         'creates': False,
     },
@@ -214,8 +214,8 @@ def build_parser():
     p_Customer_add.add_argument('--updated-at', type=str, required=True, dest='updated_at')
     p_Customer_add.set_defaults(_binding=('Customer', 'add'))
     p_Customer_list = sub_Customer.add_parser('list')
-    p_Customer_list.add_argument('--page-number', type=str, required=True, dest='page_number')
-    p_Customer_list.add_argument('--page-size', type=str, required=True, dest='page_size')
+    p_Customer_list.add_argument('--page-number', type=int, required=True, dest='page_number')
+    p_Customer_list.add_argument('--page-size', type=int, required=True, dest='page_size')
     p_Customer_list.set_defaults(_binding=('Customer', 'list'))
     p_Customer_update = sub_Customer.add_parser('update')
     p_Customer_update.add_argument('--customer-id', type=int, required=True, dest='customer_id')

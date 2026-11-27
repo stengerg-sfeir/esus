@@ -11,10 +11,10 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 19.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 19.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
@@ -28,6 +28,15 @@
             "score": 10.0,
             "evidence": [
               "Project.title exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
             ],
             "alternatives": []
           }
@@ -56,27 +65,44 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 19.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 19.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
             ]
           }
         },
-        "fields": {},
+        "fields": {
+          "project.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Project.title exists"
+            ],
+            "alternatives": []
+          },
+          "project.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Project.description exists"
+            ],
+            "alternatives": []
+          }
+        },
         "action": {
           "status": "alias",
           "canonical": "ProjectRepository.read_all",
           "score": 1.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "TaskRepository.read_all"
-          ]
+          "alternatives": []
         }
       },
       "triage": "passed"
@@ -91,10 +117,10 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 11.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 11.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
@@ -107,11 +133,9 @@
           "canonical": "ProjectRepository.delete",
           "score": 4.0,
           "evidence": [
-            "highest action-name specificity"
+            "same operation with a different name"
           ],
-          "alternatives": [
-            "TaskRepository.delete"
-          ]
+          "alternatives": []
         }
       },
       "triage": "passed"
@@ -126,10 +150,10 @@
           "project": {
             "status": "aligned",
             "canonical": "Project",
-            "score": 11.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Project",
-              "score 11.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Task"
@@ -218,7 +242,44 @@
             ]
           }
         },
-        "fields": {},
+        "fields": {
+          "task.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Task.title exists"
+            ],
+            "alternatives": []
+          },
+          "task.description": {
+            "status": "aligned",
+            "canonical": "description",
+            "score": 10.0,
+            "evidence": [
+              "Task.description exists"
+            ],
+            "alternatives": []
+          },
+          "task.status": {
+            "status": "aligned",
+            "canonical": "status",
+            "score": 10.0,
+            "evidence": [
+              "Task.status exists"
+            ],
+            "alternatives": []
+          },
+          "task.priority": {
+            "status": "aligned",
+            "canonical": "priority",
+            "score": 10.0,
+            "evidence": [
+              "Task.priority exists"
+            ],
+            "alternatives": []
+          }
+        },
         "action": {
           "status": "alias",
           "canonical": "TaskRepository.read_all",
@@ -233,8 +294,7 @@
     },
     {
       "name": "scenario:oracle:delete_task",
-      "status": "case_defect",
-      "reason": "raised LookupError: Task delete matched no records; expected None",
+      "status": "passed",
       "case": "delete_task",
       "source": "Users must be able to create, update, delete and list projects and tasks.",
       "alignment": {
@@ -242,10 +302,10 @@
           "task": {
             "status": "aligned",
             "canonical": "Task",
-            "score": 11.0,
+            "score": 15.0,
             "evidence": [
               "name/fields match Task",
-              "score 11.0"
+              "score 15.0"
             ],
             "alternatives": [
               "Project"
@@ -263,15 +323,13 @@
           "alternatives": []
         }
       },
-      "triage": "case_defect: setup"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "passed": 5,
-    "case_defect": 1
+    "passed": 6
   },
   "triage_counts": {
-    "passed": 5,
-    "case_defect: setup": 1
+    "passed": 6
   }
 }

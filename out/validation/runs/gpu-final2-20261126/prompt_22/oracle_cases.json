@@ -6,9 +6,7 @@
       "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
       "given": {
         "order": {
-          "id": 101,
-          "status": "pending",
-          "total_amount": 100
+          "id": 101
         }
       },
       "when": {
@@ -18,14 +16,11 @@
         ]
       },
       "then": {
-        "state": {
-          "order.total_amount": 100
-        },
         "rows": {
           "Order": 1
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -45,39 +40,26 @@
             ]
           }
         },
-        "fields": {
-          "order.total_amount": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions field 'total_amount'",
-              "not declared on Order"
-            ],
-            "alternatives": []
-          }
-        },
+        "fields": {},
         "action": {
           "status": "ambiguous",
-          "canonical": "OrderItemRepository.get_order_items_by_order_id",
+          "canonical": "OrderRepository.read_all",
           "score": 4.0,
           "evidence": [
             "several generated methods have the same action score"
           ],
           "alternatives": [
-            "OrderItemRepository.get_order_items_by_order_id",
-            "OrderItemRepository.read_all",
-            "OrderItemRepository.read_one",
-            "OrderRepository.calculate_total_order_amount"
+            "OrderRepository.read_all",
+            "OrderRepository.read_one"
           ]
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "expected state field 'order.total_amount' is not declared on Order"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     },
     {
       "id": "update_order",
@@ -85,27 +67,25 @@
       "given": {
         "order": {
           "id": 101,
-          "status": "pending",
-          "total_amount": 100
+          "created_at": "2024-01-01T00:00:00"
         }
       },
       "when": {
         "action": "update_order",
         "args": [
           "order.id",
-          "quantity",
-          "unit_price"
+          "2024-06-01T00:00:00"
         ]
       },
       "then": {
         "state": {
-          "order.total_amount": 150
+          "order.created_at": "2024-06-01T00:00:00"
         },
         "rows": {
           "Order": 1
         }
       },
-      "status": "under_specified",
+      "status": "confirmed",
       "base_status": "confirmed",
       "assumptions": [],
       "ambiguities": [],
@@ -114,10 +94,10 @@
           "order": {
             "status": "aligned",
             "canonical": "Order",
-            "score": 11.0,
+            "score": 13.0,
             "evidence": [
               "name/fields match Order",
-              "score 11.0"
+              "score 13.0"
             ],
             "alternatives": [
               "OrderItem",
@@ -126,109 +106,32 @@
           }
         },
         "fields": {
-          "order.total_amount": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
+          "order.created_at": {
+            "status": "aligned",
+            "canonical": "created_at",
+            "score": 10.0,
             "evidence": [
-              "prompt mentions field 'total_amount'",
-              "not declared on Order"
+              "Order.created_at exists"
             ],
             "alternatives": []
           }
         },
         "action": {
-          "status": "ambiguous",
-          "canonical": "OrderItemRepository.update",
+          "status": "alias",
+          "canonical": "OrderRepository.update",
           "score": 4.0,
           "evidence": [
-            "several generated methods have the same action score"
-          ],
-          "alternatives": [
-            "OrderItemRepository.update",
-            "OrderRepository.update"
-          ]
-        }
-      },
-      "triage": "under_specified",
-      "needs_review": false,
-      "execution": {
-        "status": "under_specified",
-        "reason": "expected state field 'order.total_amount' is not declared on Order"
-      }
-    },
-    {
-      "id": "calculate_total_order_amount",
-      "source": "Create a Python 3.12 order management application. An order contains multiple products. A product can appear in multiple orders. Each order item contains a quantity and unit price. Provide CRUD operations and calculate the total order amount.",
-      "given": {
-        "order": {
-          "id": 101,
-          "status": "pending",
-          "total_amount": 0
-        }
-      },
-      "when": {
-        "action": "calculate_total_order_amount",
-        "args": [
-          "order.id"
-        ]
-      },
-      "then": {
-        "state": {
-          "order.total_amount": 100
-        },
-        "rows": {
-          "Order": 1
-        }
-      },
-      "status": "under_specified",
-      "base_status": "confirmed",
-      "assumptions": [],
-      "ambiguities": [],
-      "alignment": {
-        "entities": {
-          "order": {
-            "status": "aligned",
-            "canonical": "Order",
-            "score": 11.0,
-            "evidence": [
-              "name/fields match Order",
-              "score 11.0"
-            ],
-            "alternatives": [
-              "OrderItem",
-              "Product"
-            ]
-          }
-        },
-        "fields": {
-          "order.total_amount": {
-            "status": "coverage_gap",
-            "canonical": null,
-            "score": 0.0,
-            "evidence": [
-              "prompt mentions field 'total_amount'",
-              "not declared on Order"
-            ],
-            "alternatives": []
-          }
-        },
-        "action": {
-          "status": "aligned",
-          "canonical": "OrderRepository.calculate_total_order_amount",
-          "score": 10.0,
-          "evidence": [
-            "exact generated method"
+            "same operation with a different name"
           ],
           "alternatives": []
         }
       },
-      "triage": "under_specified",
-      "needs_review": false,
       "execution": {
-        "status": "under_specified",
-        "reason": "expected state field 'order.total_amount' is not declared on Order"
-      }
+        "status": "passed",
+        "reason": ""
+      },
+      "triage": "passed",
+      "needs_review": false
     }
   ]
 }

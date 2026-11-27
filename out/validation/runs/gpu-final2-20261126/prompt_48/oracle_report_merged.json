@@ -1,5 +1,63 @@
 {
   "prompt": "prompt_48",
-  "results": [],
-  "counts": {}
+  "results": [
+    {
+      "name": "scenario:oracle:add_book_action",
+      "status": "passed",
+      "case": "add_book_action",
+      "source": "Users should be able to add books",
+      "alignment": {
+        "entities": {
+          "book": {
+            "status": "aligned",
+            "canonical": "Book",
+            "score": 15.0,
+            "evidence": [
+              "name/fields match Book",
+              "score 15.0"
+            ],
+            "alternatives": [
+              "User"
+            ]
+          }
+        },
+        "fields": {
+          "book.title": {
+            "status": "aligned",
+            "canonical": "title",
+            "score": 10.0,
+            "evidence": [
+              "Book.title exists"
+            ],
+            "alternatives": []
+          },
+          "book.author": {
+            "status": "aligned",
+            "canonical": "author",
+            "score": 10.0,
+            "evidence": [
+              "Book.author exists"
+            ],
+            "alternatives": []
+          }
+        },
+        "action": {
+          "status": "alias",
+          "canonical": "BookRepository.create",
+          "score": 1.0,
+          "evidence": [
+            "same operation with a different name"
+          ],
+          "alternatives": []
+        }
+      },
+      "triage": "passed"
+    }
+  ],
+  "counts": {
+    "passed": 1
+  },
+  "triage_counts": {
+    "passed": 1
+  }
 }

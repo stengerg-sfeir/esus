@@ -3,8 +3,7 @@
   "results": [
     {
       "name": "scenario:oracle:cancel_order_action",
-      "status": "failed",
-      "reason": "product.stock_quantity is 5, expected 7",
+      "status": "passed",
       "case": "cancel_order_action",
       "source": "cancelling an order must restore its product quantities",
       "alignment": {
@@ -66,19 +65,17 @@
           ],
           "alternatives": [
             "OrderRepository.cancel_order",
-            "OrderService.cancel_order",
-            "OrderProductRepository.get_by_order_id",
-            "OrderProductRepository.get_order_products_by_order_id"
+            "OrderService.cancel_order"
           ]
         }
       },
-      "triage": "under_specified"
+      "triage": "passed"
     }
   ],
   "counts": {
-    "failed": 1
+    "passed": 1
   },
   "triage_counts": {
-    "under_specified": 1
+    "passed": 1
   }
 }

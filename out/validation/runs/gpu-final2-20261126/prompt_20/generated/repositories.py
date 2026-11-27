@@ -183,3 +183,44 @@ class SalesRecordRepository:
             criteria.append(('product_id', 'eq', product_id))
         found = self._store.select(self.ENTITY, criteria)
         return [models.SalesRecord(**r) for r in found]
+
+    def update(self, sales_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None) -> models.SalesRecord:
+        """Updates an existing SalesRecord. [crud:update: name-only: step F never saw this method]"""
+        criteria = []
+        if sales_id is not None:
+            criteria.append(('sales_id', 'eq', sales_id))
+        found = self._store.select(self.ENTITY, criteria)
+        if len(found) != 1:
+            raise LookupError(f"SalesRecord update matched {len(found)} records")
+        patch = {}
+        if sales_id is not None and 'sales_id' in ['sales_id', 'product_id', 'quantity', 'sale_date']:
+            patch['sales_id'] = sales_id
+        if product_id is not None and 'product_id' in ['sales_id', 'product_id', 'quantity', 'sale_date']:
+            patch['product_id'] = product_id
+        if quantity is not None and 'quantity' in ['sales_id', 'product_id', 'quantity', 'sale_date']:
+            patch['quantity'] = quantity
+        if sale_date is not None and 'sale_date' in ['sales_id', 'product_id', 'quantity', 'sale_date']:
+            patch['sale_date'] = sale_date
+        value = patch.get('quantity')
+        if value is not None and value <= 0:
+            raise ValueError(f"SalesRecord.quantity must be > 0, got {value!r}")
+        record = self._store.update(self.ENTITY, self.PK, found[0][self.PK], patch, error=LookupError)
+        return models.SalesRecord(**record)
+
+    def delete(self, sales_id: int = None, product_id: int = None, quantity: int = None, sale_date: Any = None) -> None:
+        """Deletes an existing SalesRecord. [crud:delete: name-only: step F never saw this method]"""
+        criteria = []
+        if sales_id is not None:
+            criteria.append(('sales_id', 'eq', sales_id))
+        if product_id is not None:
+            criteria.append(('product_id', 'eq', product_id))
+        if quantity is not None:
+            criteria.append(('quantity', 'eq', quantity))
+        if sale_date is not None:
+            criteria.append(('sale_date', 'eq', sale_date))
+        found = self._store.select(self.ENTITY, criteria)
+        if not found:
+            raise LookupError(f"SalesRecord delete matched no records")
+        for record in found:
+            self._store.delete(self.ENTITY, self.PK, record[self.PK])
+        return None
