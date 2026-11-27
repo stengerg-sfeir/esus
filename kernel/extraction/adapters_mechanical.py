@@ -173,7 +173,11 @@ def _pick_method(index, command, sub, options):
         # even though both spell `search` and `order`.  Coverage breaks that
         # tie without letting a generic method outrank an entity match.
         coverage = _coverage(options, method)
-        score = 5 * noun_hits + 2 + (0 if is_repo else 3) + 3 * coverage
+        # A service method is the public entry point when both a service and
+        # its repository can serve the same leaf.  The repository's exact
+        # entity name and canonical CRUD verb give it a large head start, so
+        # the wrapper bonus must exceed those incidental advantages.
+        score = 5 * noun_hits + 2 + (0 if is_repo else 5) + 3 * coverage
         # An exact noun holder outranks a holder that merely contains the
         # noun: `OrderRepository` for `Order list`, not `OrderItemRepository`.
         role_words = {"repository", "repo", "service", "manager"}
@@ -433,13 +437,37 @@ def complete_missing(components, services, models, adapters, requirements,
     added = []
     by_action = {item.get("action_name"): item for item in current
                  if isinstance(item, dict)}
+    def bound_covers(adapter, command, sub, options):
+        """True when the bound adapter really serves this leaf.
+
+        The binding is a best-effort score, not a proof: `budget delete` was
+        bound to `ExpenseService.delete_expense` because both names contain
+        `delete`.  The adapter must name the command's entity and its target
+        signature must be able to receive every required flag; otherwise the
+        leaf is still missing and must be completed from the documents.
+        """
+        if not isinstance(adapter, dict):
+            return False
+        service_name = adapter.get("target_service")
+        method_name = adapter.get("target_method")
+        target = normalize(service_name) + normalize(method_name)
+        if normalize(command) not in target:
+            return False
+        method = next(
+            (method for name, method, *_rest in method_index
+             if name == service_name and method.get("name") == method_name),
+            None)
+        if method is None:
+            return False
+        fields, _reason = _fields_for(
+            options, method, service_name, model_fields)
+        return fields is not None
+
     for command, sub, options in leaves:
         bound = bindings.get((command, sub))
         if bound is not None:
             adapter = by_action.get(bound[0]) or {}
-            target = " ".join(str(adapter.get(key) or "") for key in
-                              ("target_service", "target_method", "action_name"))
-            if normalize(command) in normalize(target):
+            if bound_covers(adapter, command, sub, options):
                 continue
             # A weak binding to another entity's action (`Guest add` bound to
             # `roomadd` because both are generic add verbs) is not coverage;

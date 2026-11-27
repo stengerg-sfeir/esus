@@ -420,6 +420,8 @@ def repair_existing(output_dir):
             decisions=repairs.load_flag_decisions(str(directory)))
         repairs.repair_placeholder_subcommands(components, log)
         repairs.repair_flat_command_duplicates(components, log)
+        repairs.repair_surface_to_command_lines(
+            components, models, requirements, log)
         components_completion.complete_crud_entities(components, models, log)
     ports = documents.get(pipeline_module.PERSISTENCE_PORTS)
     if isinstance(ports, dict):
@@ -472,11 +474,15 @@ def repair_existing(output_dir):
             for item in components.get("crud_services") or []
             if isinstance(item, dict) and item.get("entity")
         ]
+        services = repository_contracts.complete(
+            services, models, crud_ops, errors, log)
         services = repository_contracts.complete_methods(
             services, models, crud_ops, errors, log)
         services = repairs.repair_missing_key_parameters(services, models, log)
         documents[pipeline_module.SERVICE_CONTRACTS] = services
         if isinstance(ports_for_signature, dict):
+            ports_for_signature = interfaces.complete_missing_repositories(
+                ports_for_signature, services, log)
             ports_for_signature["repositories"] = (
                 repository_contracts.complete_methods(
                     ports_for_signature.get("repositories") or [],
@@ -484,6 +490,8 @@ def repair_existing(output_dir):
             documents[pipeline_module.PERSISTENCE_PORTS] = ports_for_signature
         surface_completion.complete(
             components, services, models, requirements, log)
+        repairs.repair_surface_to_command_lines(
+            components, models, requirements, log)
         documents[pipeline_module.COMPONENTS] = components
     repairs.repair_ungrounded_methods(
         documents, requirements, documents.get(pipeline_module.INTENTIONS), log)
@@ -534,6 +542,11 @@ def repair_existing(output_dir):
                 f"({reason}) — keeping the existing adapters")
         adapters = adapters_mechanical.complete_missing(
             components, services, models, adapters, requirements, log)
+        adapters = repairs.repair_duplicate_adapters(adapters, log)
+        repairs.repair_adapter_surface_fields(components, adapters, log)
+        repairs.repair_unbacked_flat_commands(
+            components, services, adapters, log)
+        documents[pipeline_module.COMPONENTS] = components
         documents[pipeline_module.INTERACTION_ADAPTERS] = adapters
         if isinstance(ports, dict):
             # Step H can discover a custom repository method that step E did

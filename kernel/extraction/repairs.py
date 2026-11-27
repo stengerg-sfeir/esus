@@ -4422,8 +4422,6 @@ def repair_crud_requirements(components, models, requirements, log=None):
             model = _prose_model(raw.strip(), models)
             if model is not None and model not in wanted:
                 wanted.append(model)
-    if not wanted:
-        return components
     crud = components.get("crud_services")
     if not isinstance(crud, list):
         crud = []
@@ -4442,6 +4440,41 @@ def repair_crud_requirements(components, models, requirements, log=None):
             if operation not in operations:
                 operations.append(operation)
                 added.append(f"{model['name']}.{operation}")
+
+    # A command line can name an entity the CRUD sentence did not: library's
+    # `library author add` proves Author is a stored entity even though the
+    # model emitted no Author CRUD entry.  The command's own noun is the
+    # evidence; only an exact model name is accepted.
+    from kernel.extraction import command_lines
+    spans = command_lines.extract_command_lines(text)
+    model_names = {
+        normalize(model.get("name")): model.get("name")
+        for model in models or []
+        if isinstance(model, dict) and model.get("name")
+    }
+    for command, sub, _flags in command_lines.attribute_lines(
+            spans, list(model_names.values())):
+        entity = model_names.get(normalize(command))
+        if entity is None:
+            continue
+        item = by_entity.get(normalize(entity))
+        if item is None:
+            item = {"entity": entity, "operations": []}
+            crud.append(item)
+            by_entity[normalize(entity)] = item
+        operations = item.setdefault("operations", [])
+        verb = (sub or "").split()[-1].lower() if sub else ""
+        operation = {
+            "add": "create", "create": "create", "register": "create",
+            "new": "create", "list": "read_all", "read": "read_all",
+            "show": "read_all", "update": "update", "edit": "update",
+            "delete": "delete", "remove": "delete",
+        }.get(verb)
+        wanted_operations = [op for op in (operation, "read_one") if op]
+        for op in wanted_operations:
+            if op not in operations:
+                operations.append(op)
+                added.append(f"{entity}.{op}")
     if added and log is not None:
         log.write(
             f"[ok] step components: CRUD prose added "
@@ -5108,6 +5141,198 @@ def repair_program_word_subcommands(components, requirements, log=None):
                 "is not a command path)"
             )
     return components
+
+
+def repair_surface_to_command_lines(components, models, requirements, log=None):
+    """Drop a model-entity command group the requirements never name.
+
+    A prompt that enumerates CLI lines is the authority for which entity
+    groups are commands.  The model can add a top-level `Category` beside
+    `expense category`, or a `Loan` group the prompt never exposes; those
+    groups duplicate another path or introduce a surface with no adapter.
+    Only an exact model name is removed, and only when it has subcommands.
+    """
+    from kernel.extraction import command_lines
+
+    if not isinstance(components, dict) or not requirements:
+        return components
+    spans = command_lines.extract_command_lines(requirements)
+    if not spans:
+        return components
+    expected = {normalize(command)
+                for command, _path, _flags in command_lines.path_attribution(spans)}
+    model_names = {normalize(model.get("name"))
+                   for model in models or []
+                   if isinstance(model, dict) and model.get("name")}
+    # With a single line `program_word` cannot tell the executable from the
+    # command (`library member add` reads as command `library`), so there is
+    # no model command in `expected`.  Pruning then would drop the real
+    # command; only prune when the attribution found at least one model word.
+    if not (expected & model_names):
+        return components
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return components
+    kept = []
+    removed = []
+    for command in commands:
+        if not isinstance(command, dict) or not command.get("name"):
+            kept.append(command)
+            continue
+        name = normalize(command["name"])
+        if (name in model_names and name not in expected
+                and command.get("subcommands")):
+            removed.append(command["name"])
+            continue
+        kept.append(command)
+    if removed:
+        invocation["commands"] = kept
+        if log is not None:
+            log.write(
+                f"[ok] step components: dropped command group(s) not named "
+                f"by the CLI requirements: {', '.join(removed[:8])}")
+    return components
+
+
+def repair_unbacked_flat_commands(components, services, adapters, log=None):
+    """Drop a flat command no method and no adapter can serve.
+
+    `prompt_42` emitted a flat `history` command from a prose noun while its
+    only methods were `read_all`/`get_purchases_by_customer_id`; the command
+    had no method behind it and the generator could only stub it.  A flat
+    command with a service-method stem or an adapter target is kept.
+    """
+    if not isinstance(components, dict):
+        return components
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return components
+    method_words = [
+        normalize(method.get("name"))
+        for service in services or [] if isinstance(service, dict)
+        for method in service.get("methods") or []
+        if isinstance(method, dict) and method.get("name")
+    ]
+    adapter_words = [
+        normalize(adapter.get("action_name") or "")
+        + normalize(adapter.get("target_method") or "")
+        for adapter in adapters or [] if isinstance(adapter, dict)
+    ]
+    kept = []
+    removed = []
+    for command in commands:
+        if not isinstance(command, dict) or not command.get("name"):
+            kept.append(command)
+            continue
+        if command.get("subcommands"):
+            kept.append(command)
+            continue
+        name = normalize(command["name"])
+        stem = name[:-1] if name.endswith("s") and len(name) > 3 else name
+        if (any(stem in method for method in method_words)
+                or any(stem in text for text in adapter_words)):
+            kept.append(command)
+            continue
+        removed.append(command["name"])
+    if removed:
+        invocation["commands"] = kept
+        if log is not None:
+            log.write(
+                f"[ok] step components: dropped flat command(s) with no "
+                f"method behind them: {', '.join(removed[:8])}")
+    return components
+
+
+def repair_adapter_surface_fields(components, adapters, log=None):
+    """Align a bound leaf's flags with the adapter fields it already carries.
+
+    The surface spells the prompt's flag (`--budget`, `--copies`), while the
+    adapter may carry the method/model spelling (`monthly_budget`,
+    `available_copies`).  Renaming the adapter field to the surface spelling
+    keeps the target parameter and makes the flag consumable.  A truly dead
+    optional flag on a bound leaf is dropped; a required one stays reported.
+    """
+    from kernel.codegen import bind_commands, option_dest
+    from kernel.consistency.checks_surface import COMMAND_VERB_STEMS
+
+    if not isinstance(components, dict) or not isinstance(adapters, list):
+        return adapters
+    facade = components.get("facade")
+    invocation = facade.get("invocation") if isinstance(facade, dict) else None
+    commands = invocation.get("commands") if isinstance(invocation, dict) else None
+    if not isinstance(commands, list):
+        return adapters
+    bindings, _unmapped = bind_commands(adapters, invocation, COMMAND_VERB_STEMS)
+    by_action = {adapter.get("action_name"): adapter
+                 for adapter in adapters if isinstance(adapter, dict)}
+    renamed = 0
+    dropped = 0
+    for command in commands:
+        if not isinstance(command, dict) or not command.get("name"):
+            continue
+        subs = [sub for sub in command.get("subcommands") or []
+                if isinstance(sub, dict) and sub.get("name")]
+        leaves = ([(command, None, command.get("options") or [])]
+                  if not subs else
+                  [(command, sub, sub.get("options") or []) for sub in subs])
+        for owner, sub, options in leaves:
+            binding = bindings.get((owner["name"], sub["name"] if sub else None))
+            if not binding:
+                continue
+            adapter = by_action.get(binding[0])
+            if not isinstance(adapter, dict):
+                continue
+            fields = [field for field in adapter.get("input_fields") or []
+                      if isinstance(field, dict)]
+            kept = []
+            for option in options:
+                if not isinstance(option, dict):
+                    kept.append(option)
+                    continue
+                dest = option_dest(option)
+                if not dest:
+                    kept.append(option)
+                    continue
+                if any(normalize(field.get("field_name")) == normalize(dest)
+                       for field in fields):
+                    kept.append(option)
+                    continue
+                candidates = [
+                    field for field in fields
+                    if normalize(field.get("field_name")) != normalize(dest)
+                    and (
+                        normalize(field.get("target_param")) == normalize(dest)
+                        or (len(normalize(dest)) > 2
+                            and (normalize(dest) in normalize(field.get("field_name"))
+                                 or normalize(dest) in normalize(field.get("target_param"))))
+                    )
+                ]
+                if len(candidates) == 1:
+                    candidates[0]["field_name"] = dest
+                    renamed += 1
+                    kept.append(option)
+                    continue
+                if not option.get("required"):
+                    dropped += 1
+                    continue
+                kept.append(option)
+            if sub is not None:
+                sub["options"] = kept
+            else:
+                command["options"] = kept
+    if renamed and log is not None:
+        log.write(
+            f"[ok] step adapters: aligned {renamed} surface flag(s) with "
+            "their adapter field spelling")
+    if dropped and log is not None:
+        log.write(
+            f"[ok] step adapters: dropped {dropped} optional flag(s) no "
+            "bound method can consume")
+    return adapters
 
 
 def repair_long_option_names(components, log=None):

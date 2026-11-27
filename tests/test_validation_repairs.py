@@ -437,6 +437,114 @@ class ProseServiceMethodTests(unittest.TestCase):
         self.assertNotIn("ExpenseNotFoundError", method["raises"])
 
 
+class SurfaceReconciliationTests(unittest.TestCase):
+    def test_command_lines_add_a_missing_entity_and_its_verb(self):
+        models = [
+            {"name": "Book", "fields": [
+                {"name": "id", "type": "int", "primary_key": True}]},
+            {"name": "Author", "fields": [
+                {"name": "id", "type": "int", "primary_key": True}]},
+        ]
+        components = {"persistence": {"required": True},
+                      "crud_services": [{"entity": "Book",
+                                         "operations": ["create"]}]}
+        requirements = ("`library book add --title`\n"
+                        "`library author add --name --birth-year`")
+        repairs.repair_crud_requirements(components, models, requirements)
+        by_entity = {item["entity"]: item
+                     for item in components["crud_services"]}
+        self.assertIn("Author", by_entity)
+        self.assertIn("create", by_entity["Author"]["operations"])
+        self.assertIn("read_one", by_entity["Author"]["operations"])
+
+    def test_command_verbs_add_update_and_delete_operations(self):
+        models = [{"name": "Budget", "fields": [
+            {"name": "id", "type": "int", "primary_key": True}]}]
+        components = {"persistence": {"required": True},
+                      "crud_services": [{
+                          "entity": "Budget",
+                          "operations": ["create", "read_one"]}]}
+        requirements = ("`budget update --category-id --month`\n"
+                        "`budget delete --category-id --month`")
+        repairs.repair_crud_requirements(components, models, requirements)
+        operations = components["crud_services"][0]["operations"]
+        self.assertIn("update", operations)
+        self.assertIn("delete", operations)
+
+    def test_a_model_command_group_not_named_by_the_cli_is_dropped(self):
+        models = [{"name": name, "fields": [
+            {"name": "id", "type": "int", "primary_key": True}]}
+            for name in ("Book", "Member", "Author", "Loan")]
+        components = {"facade": {"type": "cli", "invocation": {"commands": [
+            {"name": "book", "options": [], "subcommands": [
+                {"name": "add", "options": []}]},
+            {"name": "Loan", "options": [], "subcommands": [
+                {"name": "add", "options": []}]},
+        ]}}}
+        requirements = ("`library book add --title`\n"
+                        "`library member add --name`\n"
+                        "`library author add --name`")
+        repairs.repair_surface_to_command_lines(
+            components, models, requirements)
+        names = [command["name"]
+                 for command in components["facade"]["invocation"]["commands"]]
+        self.assertEqual(names, ["book"])
+
+    def test_a_flat_command_with_no_method_is_dropped(self):
+        components = {"facade": {"type": "cli", "invocation": {"commands": [
+            {"name": "history", "options": [], "subcommands": []},
+            {"name": "overdue", "options": [], "subcommands": []},
+        ]}}}
+        services = [{"service_name": "LoanService", "methods": [
+            {"name": "get_overdue_loans", "params": []}]}]
+        repairs.repair_unbacked_flat_commands(
+            components, services, [])
+        names = [command["name"]
+                 for command in components["facade"]["invocation"]["commands"]]
+        self.assertEqual(names, ["overdue"])
+
+    def test_a_surface_flag_is_renamed_to_the_adapter_field_it_abbreviates(self):
+        components = {"facade": {"type": "cli", "invocation": {"commands": [
+            {"name": "category", "options": [], "subcommands": [
+                {"name": "add", "options": [
+                    {"name": "--budget", "type": "int", "required": False}]}]},
+        ]}}}
+        adapters = [{
+            "action_name": "categoryadd",
+            "target_service": "CategoryRepository",
+            "target_method": "create",
+            "input_fields": [{
+                "field_name": "monthly_budget",
+                "target_param": "monthly_budget",
+                "transform": "DIRECT",
+                "lookup_entity": None,
+                "required": False,
+            }],
+        }]
+        repairs.repair_adapter_surface_fields(components, adapters)
+        field = adapters[0]["input_fields"][0]
+        self.assertEqual(field["field_name"], "budget")
+        self.assertEqual(field["target_param"], "monthly_budget")
+
+    def test_a_dead_optional_flag_is_removed_from_a_bound_leaf(self):
+        components = {"facade": {"type": "cli", "invocation": {"commands": [
+            {"name": "member", "options": [], "subcommands": [
+                {"name": "list", "options": [
+                    {"name": "--active-only", "type": "bool",
+                     "required": False}]}]},
+        ]}}}
+        adapters = [{
+            "action_name": "librarymemberlist",
+            "target_service": "MemberRepository",
+            "target_method": "read_all",
+            "input_fields": [],
+        }]
+        repairs.repair_adapter_surface_fields(components, adapters)
+        options = components["facade"]["invocation"]["commands"][0][
+            "subcommands"][0]["options"]
+        self.assertEqual(options, [])
+
+
 class ProseIdempotenceTests(unittest.TestCase):
     def test_a_prose_bullet_is_not_a_service_method(self):
         models = [{"name": "Loan", "fields": [

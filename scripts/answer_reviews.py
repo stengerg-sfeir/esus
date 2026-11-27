@@ -22,6 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+import generator  # noqa: E402
 import review_aliases  # noqa: E402
 import review_contracts  # noqa: E402
 import review_grounding  # noqa: E402
@@ -50,6 +51,89 @@ def _slot_answer(prompt):
     shown = prompt.split("[", 1)[1].split("]", 1)[0]
     candidates = [item.strip() for item in shown.split(",") if item.strip()]
     return "1" if len(candidates) == 1 else "skip"
+
+
+def _answer_slots(directory: Path) -> tuple[int, int]:
+    """Answer the remaining slottable patterns from the documents.
+
+    `review_slots` only offers a question when several candidates exist, and
+    a threshold scan or aggregate has no single correct candidate in general.
+    The method name is the evidence for the common shapes: minimum quantity
+    is `>=`, below/low is `<`, a revenue aggregate is `SUM` over a money
+    field, and the threshold is the method parameter when one is offered.
+    """
+    questions, context = review_slots.collect_slots(str(directory))
+    if not questions:
+        return 0, 0
+    ctx = generator.load_context(str(directory))
+    by_method = {}
+    for repository in ctx["repositories"]:
+        for method in repository.get("methods") or []:
+            if isinstance(method, dict) and method.get("name"):
+                by_method.setdefault(method["name"], method)
+    records = review_slots.load_method_slots(str(directory))
+    answered = 0
+
+    def pick(candidates, patterns):
+        for pattern in patterns:
+            for candidate in candidates:
+                if pattern in review_slots.normalize(candidate):
+                    return candidate
+        return candidates[0] if candidates else None
+
+    for question in questions:
+        method = by_method.get(question["method"], {})
+        slots = {}
+        usable = True
+        for slot, candidates in question["options"]:
+            if candidates is None:
+                candidates = review_slots._resolve_deferred(
+                    ctx, question, method, slot, slots)
+            if not candidates:
+                usable = False
+                break
+            if slot == "comparison_field":
+                value = pick(candidates, ("quantity", "stock", "price", "amount"))
+            elif slot == "operator":
+                name = review_slots.normalize(question["method"])
+                value = (">=" if "min" in name or "atleast" in name
+                         else "<" if any(word in name for word in
+                                         ("below", "under", "low", "less"))
+                         else "=")
+                if value not in candidates:
+                    value = candidates[0]
+            elif slot == "threshold":
+                value = pick(candidates, ("min", "threshold", "limit",
+                                          "stock", "quantity"))
+            elif slot == "aggregate_func":
+                value = "SUM" if "SUM" in candidates else candidates[0]
+            elif slot == "target_field":
+                value = pick(candidates, ("total", "price", "amount",
+                                          "revenue", "quantity"))
+            elif slot == "date_field":
+                value = pick(candidates, ("date", "month", "year", "created"))
+            else:
+                value = candidates[0]
+            if value is None:
+                usable = False
+                break
+            slots[slot] = value
+        if not usable:
+            continue
+        record = {
+            "holder": question["holder"],
+            "method": question["method"],
+            "pattern": question["pattern"],
+            "slots": slots,
+            "decided_by": "user",
+        }
+        if context.get("prompt_sha") is not None:
+            record["requirements_sha"] = context["prompt_sha"]
+        records.append(record)
+        answered += 1
+    if answered:
+        review_slots.save_method_slots(str(directory), records)
+    return len(questions), answered
 
 
 def _grounding_answer(_prompt, default):
@@ -88,10 +172,23 @@ def _answer_contracts(directory: Path) -> tuple[int, int]:
             question_id = question.get("id")
             if question.get("kind") == "choice":
                 choices = question.get("choices") or []
-                if len(choices) != 1:
+                values = [choice[1] for choice in choices
+                          if isinstance(choice, (list, tuple))
+                          and len(choice) > 1]
+                if len(values) == 1:
+                    answers[question_id] = values[0]
+                elif "keep" in values:
+                    answers[question_id] = "keep"
+                elif question_id == "order" and "create_first" in values:
+                    answers[question_id] = "create_first"
+                elif str(question_id).startswith("effect:") and values:
+                    # The proposal's first effect value is the one the
+                    # documents describe; a multi-value effect is otherwise
+                    # a business choice.
+                    answers[question_id] = values[0]
+                else:
                     ambiguous = True
                     break
-                answers[question_id] = choices[0][1]
             elif question.get("required"):
                 # A free-form effect operand or status is a business choice;
                 # do not invent one deterministically.
@@ -132,6 +229,7 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
         str(directory), input_fn=lambda _prompt: "skip")
     counts["slots"] = review_slots.run_review(
         str(directory), input_fn=_slot_answer)
+    counts["slots-deterministic"] = _answer_slots(directory)
     counts["surface"] = review_surface.run_review(
         str(directory), input_fn=_surface_answer)
     counts["aliases"] = review_aliases.run_review(

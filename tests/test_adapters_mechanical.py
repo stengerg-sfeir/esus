@@ -78,6 +78,35 @@ class DeriveTests(unittest.TestCase):
         self.assertEqual(adapters[0]["target_service"], "InventoryService")
         self.assertEqual(adapters[0]["target_method"], "add_product")
 
+    def test_a_wrong_bound_adapter_does_not_count_as_coverage(self):
+        models = [{"name": "Budget", "fields": [
+            {"name": "category_id", "type": "int"},
+            {"name": "month", "type": "string"}]}]
+        existing = {
+            "action_name": "budgetdelete",
+            "target_service": "ExpenseService",
+            "target_method": "delete_expense",
+            "input_fields": [{
+                "field_name": "category_id", "target_param": "id",
+                "transform": "DIRECT", "lookup_entity": None,
+                "required": True}],
+        }
+        adapters = adapters_mechanical.complete_missing(
+            components(("budget", "delete",
+                        [option("category-id", "int"), option("month")])),
+            services(("BudgetRepository", [
+                         method("delete", ("category_id", "int"),
+                                ("month", "str"))]),
+                     ("ExpenseService", [
+                         method("delete_expense", ("id", "int"))])),
+            models,
+            [existing],
+            "Run `budget delete --category-id --month`.",
+        )
+        targets = {(item["target_service"], item["target_method"])
+                   for item in adapters}
+        self.assertIn(("BudgetRepository", "delete"), targets)
+
     def test_a_selector_flag_reaches_the_field_it_narrows(self):
         adapters, _ = adapters_mechanical.derive_adapters(
             components(("book", "list", [option("available-only", "bool",

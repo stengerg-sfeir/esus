@@ -94,6 +94,51 @@ def _matching_service(repository, declared):
     return declared.get(normalize(repository.get("interface_name")))
 
 
+def complete_missing_repositories(ports, services, log=None):
+    """Add a persistence port for a repository only the service document has.
+
+    A repair can add an entity to the surface after step H ran (library's
+    `Author` command), so step E gains an `AuthorRepository` while the ports
+    document still lists only Book/Member/Loan.  Adding a second entry with a
+    different key spelling (or calling the service-contract completion on a
+    ports list) creates duplicates; this copies the missing interface once,
+    under the same `interface_name` the other document uses.
+    """
+    if not isinstance(ports, dict):
+        return ports
+    repositories = ports.get("repositories")
+    if not isinstance(repositories, list):
+        return ports
+    existing = {
+        normalize(repository.get("interface_name") or repository.get("service_name"))
+        for repository in repositories
+        if isinstance(repository, dict)
+        and (repository.get("interface_name") or repository.get("service_name"))
+    }
+    added = []
+    for service in services or []:
+        if not isinstance(service, dict):
+            continue
+        name = service.get("service_name")
+        if not isinstance(name, str) or not name.endswith("Repository"):
+            continue
+        if normalize(name) in existing:
+            continue
+        entity = name[:-len("Repository")]
+        repositories.append({
+            "entity": entity,
+            "interface_name": name,
+            "methods": service.get("methods") or [],
+        })
+        existing.add(normalize(name))
+        added.append(name)
+    if added and log is not None:
+        log.write(
+            f"[ok] step persistence: completed {len(added)} missing "
+            f"repository port(s): {', '.join(added[:8])}")
+    return ports
+
+
 def merge_repository_methods(services, ports, log=None):
     """Add methods only step H discovered to the matching step-E repository.
 

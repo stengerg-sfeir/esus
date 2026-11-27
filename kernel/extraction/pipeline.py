@@ -568,6 +568,8 @@ class Pipeline:
             repairs.repair_misread_flat_commands(body, self.log)
             repairs.repair_program_word_subcommands(
                 body, requirements, self.log)
+            repairs.repair_surface_to_command_lines(
+                body, self.documents.get(DATA_MODELS), requirements, self.log)
             repairs.repair_long_option_names(body, self.log)
             repairs.repair_supported_gui_tech(body, self.log)
         # The prompt orders every requirements command line onto the surface,
@@ -618,6 +620,9 @@ class Pipeline:
                 repairs.repair_misread_flat_commands(retry, self.log)
                 repairs.repair_program_word_subcommands(
                     retry, requirements, self.log)
+                repairs.repair_surface_to_command_lines(
+                    retry, self.documents.get(DATA_MODELS), requirements,
+                    self.log)
                 repairs.repair_long_option_names(retry, self.log)
                 repairs.repair_supported_gui_tech(retry, self.log)
                 retry_misses = (_missing_commands(retry, requirements)
@@ -1086,12 +1091,35 @@ class Pipeline:
             requirements,
             self.log,
         )
+        repairs.repair_surface_to_command_lines(
+            self.documents.get(COMPONENTS),
+            self.documents.get(DATA_MODELS),
+            requirements,
+            self.log,
+        )
         self.documents[INTERACTION_ADAPTERS] = adapters_mechanical.complete_missing(
             self.documents.get(COMPONENTS),
             self.documents.get(SERVICE_CONTRACTS),
             self.documents.get(DATA_MODELS),
             self.documents.get(INTERACTION_ADAPTERS),
             requirements,
+            self.log,
+        )
+        self.documents[INTERACTION_ADAPTERS] = repairs.repair_duplicate_adapters(
+            self.documents.get(INTERACTION_ADAPTERS), self.log)
+        # The surface and the adapter now exist, so their spellings can be
+        # reconciled: `--budget` to the adapter's `monthly_budget` target, and
+        # a truly dead optional flag removed from a bound leaf.  Then drop a
+        # flat command neither a method nor an adapter can serve.
+        repairs.repair_adapter_surface_fields(
+            self.documents.get(COMPONENTS),
+            self.documents.get(INTERACTION_ADAPTERS),
+            self.log,
+        )
+        repairs.repair_unbacked_flat_commands(
+            self.documents.get(COMPONENTS),
+            self.documents.get(SERVICE_CONTRACTS),
+            self.documents.get(INTERACTION_ADAPTERS),
             self.log,
         )
 
