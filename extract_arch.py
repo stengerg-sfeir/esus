@@ -478,6 +478,8 @@ def repair_existing(output_dir):
     if isinstance(services, list) and isinstance(components, dict):
         components = repairs.repair_service_entities(
             components, models, services, log)
+        services = repairs.repair_required_create_parameters(
+            services, models, log)
         documents[pipeline_module.COMPONENTS] = components
         crud_ops = [
             SimpleNamespace(entity=item.get("entity"),

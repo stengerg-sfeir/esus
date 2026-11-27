@@ -709,6 +709,8 @@ class Pipeline:
             body,
             self.log,
         )
+        repairs.repair_required_create_parameters(
+            body, self.documents.get(DATA_MODELS), self.log)
         # Repositories are derived facts, not a judgement the open grammar can
         # safely leave out.  Fill every required repository and required CRUD
         # method mechanically, keeping any custom methods the model supplied.

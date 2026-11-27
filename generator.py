@@ -1644,6 +1644,17 @@ def emit_repositories(ctx, stats):
                 _record(stats, holder, method["name"], strategy, True,
                         "low-stock scan")
                 continue
+            stock_summary = _repo_stock_summary_body(ctx, entity, method)
+            if stock_summary is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical stock summary]"""']
+                lines.extend("        " + line if line else ""
+                             for line in stock_summary)
+                stats["implemented"] += 1
+                _record(stats, holder, method["name"], strategy, True,
+                        "stock summary")
+                continue
             stock_value = _repo_stock_value_body(ctx, entity, model_cls, method)
             if stock_value is not None:
                 lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
@@ -2270,6 +2281,33 @@ def _repo_low_stock_body(ctx, entity, model_cls, method):
     return lines
 
 
+def _repo_stock_summary_body(ctx, entity, method):
+    """Total stock quantity, optionally for one product key."""
+    name = normalize(method.get("name") or "")
+    if "stock" not in name or not any(
+            word in name for word in ("summary", "total", "count")):
+        return None
+    stock = next((name for name, field in fields_of(ctx, entity)
+                  if isinstance(field, dict)
+                  and "stock" in normalize(name)), None)
+    if stock is None:
+        return None
+    params = [param.get("name") for param in method.get("params") or []
+              if isinstance(param, dict) and param.get("name")]
+    if params:
+        key = params[0]
+        return [
+            f"record = self._store.get(self.ENTITY, self.PK, {codegen.sanitize(key, 'param')})",
+            "return (record or {}).get(" + repr(stock) + ", 0)",
+        ]
+    return [
+        "total = 0",
+        "for row in self._store.select(self.ENTITY, []):",
+        f"    total += row.get({stock!r}) or 0",
+        "return total",
+    ]
+
+
 def _repo_stock_value_body(ctx, entity, model_cls, method):
     """Stock value, either per category or as one total."""
     name = normalize(method.get("name") or "")
@@ -2430,6 +2468,79 @@ def _service_overdue_body(ctx, method, params, returns):
         lines.append(f"    {var}.{codegen.sanitize(status, 'attr')} = 'overdue'")
     lines += ["    result.append(" + var + ")", "return result"]
     return lines
+
+
+def _service_count_all_body(ctx, service_name, method, params):
+    """Count every record when a method is `count_<entity>` with no filter."""
+    name = normalize(method.get("name") or "")
+    if "count" not in name or params:
+        return None
+    base = normalize(service_name or "")
+    for suffix in ("service", "manager"):
+        if base.endswith(suffix):
+            base = base[:-len(suffix)]
+            break
+    entity = next((item for item in ctx.get("entity_names") or []
+                   if normalize(item) in name), None) \
+        or next((item for item in ctx.get("entity_names") or []
+                 if normalize(item) == base), None)
+    if entity is None:
+        return None
+    repo = next((repo for repo in ctx.get("repositories") or []
+                 if normalize(repo.get("entity") or "") == normalize(entity)), None)
+    if repo is None:
+        return None
+    read_all = next((m for m in repo.get("methods") or []
+                     if isinstance(m, dict)
+                     and codegen.classify_crud(m.get("name") or "") == "read_all"), None)
+    if read_all is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    return [f"return len(self._repos[{repo_cls!r}]."
+            f"{codegen.sanitize(read_all['name'], 'method')}())"]
+
+
+def _service_borrow_status_body(ctx, service_name, method, params):
+    """Return a book's borrow/availability status by its key."""
+    name = normalize(method.get("name") or "")
+    if "borrow" not in name or "status" not in name or len(params) != 1:
+        return None
+    ident = params[0][1]
+    stem = normalize(params[0][0])[:-2] if normalize(params[0][0]).endswith("id") \
+        else normalize(params[0][0])
+    entity = next((item for item in ctx.get("entity_names") or []
+                   if normalize(item) == stem), None)
+    if entity is None:
+        return None
+    model = model_of(ctx, entity)
+    repo = next((repo for repo in ctx.get("repositories") or []
+                 if normalize(repo.get("entity") or "") == normalize(entity)), None)
+    if model is None or repo is None:
+        return None
+    read_one = next((m for m in repo.get("methods") or []
+                     if isinstance(m, dict)
+                     and codegen.classify_crud(m.get("name") or "") == "read_one"), None)
+    if read_one is None:
+        return None
+    pk = primary_key_of(ctx, entity)
+    borrow = next((field.get("name") for field in model.get("fields") or []
+                   if isinstance(field, dict)
+                   and "borrow" in normalize(field.get("name") or "")), None)
+    available = next((field.get("name") for field in model.get("fields") or []
+                      if isinstance(field, dict)
+                      and "available" in normalize(field.get("name") or "")), None)
+    if borrow is None and available is None:
+        return None
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    value = (f"getattr(record, {borrow!r}, None)" if borrow
+             else f"'borrowed' if getattr(record, {available!r}, False) is False "
+                  f"else 'available'")
+    return [
+        f"record = self._repos[{repo_cls!r}].{codegen.sanitize(read_one['name'], 'method')}({codegen.sanitize(pk, 'param')}={ident})",
+        "if record is None:",
+        "    return None",
+        f"return {value}",
+    ]
 
 
 def _service_update_status_body(ctx, service_name, method, params):
@@ -4865,7 +4976,8 @@ def _service_confirm_stock_body(ctx, service_name, method, params):
         return None
     status = next((field.get("name") for field in model.get("fields") or []
                    if isinstance(field, dict)
-                   and normalize(field.get("name") or "") in ("status", "state")), None)
+                   and (normalize(field.get("name") or "") in ("status", "state")
+                        or normalize(field.get("name") or "").endswith("status"))), None)
     child = None
     for candidate in ctx.get("models") or []:
         if not isinstance(candidate, dict) or not candidate.get("name"):
@@ -4992,14 +5104,166 @@ def _service_confirm_stock_body(ctx, service_name, method, params):
                 for p in invoice_create.get("params") or []
                 if isinstance(p, dict) and p.get("name")}
             call = []
-            for key_name, value in (
-                    (normalize(entity) + "id", f"{entity.lower()}.{codegen.sanitize(pk, 'attr')}"),
-                    ("totalamount", "total"),
-                    ("generatedat", "datetime.datetime.now()")):
-                if key_name in invoice_params:
-                    call.append(f"{codegen.sanitize(invoice_params[key_name], 'kw')}={value}")
+            for key_name, param_name in invoice_params.items():
+                if key_name == normalize(entity) + "id":
+                    value = (f"{entity.lower()}."
+                             f"{codegen.sanitize(pk, 'attr')}")
+                elif any(token in key_name for token in
+                         ("date", "time", "generated", "created")):
+                    value = "datetime.datetime.now()"
+                elif any(token in key_name for token in
+                         ("total", "amount", "price", "value")):
+                    value = "total"
+                else:
+                    continue
+                call.append(f"{codegen.sanitize(param_name, 'kw')}={value}")
             lines.append(
                 f"self._repos[{invoice_cls!r}].{codegen.sanitize(invoice_create['name'], 'method')}({', '.join(call)})")
+    return lines
+
+
+def _service_transition_body(ctx, service_name, method, params):
+    """Set a status field for cancel/ship and restore stock on cancel."""
+    name = normalize(method.get("name") or "")
+    verb = next((word for word in ("cancel", "ship", "close", "reopen",
+                                   "approve", "reject")
+                 if name.startswith(word)), None)
+    if verb is None:
+        return None
+    base = normalize(service_name or "")
+    for suffix in ("service", "manager"):
+        if base.endswith(suffix):
+            base = base[:-len(suffix)]
+            break
+    entity = next((item for item in ctx.get("entity_names") or []
+                   if normalize(item) in name), None) \
+        or next((item for item in ctx.get("entity_names") or []
+                 if normalize(item) == base), None)
+    if entity is None:
+        return None
+    model = model_of(ctx, entity)
+    repo = next((repo for repo in ctx.get("repositories") or []
+                 if normalize(repo.get("entity") or "") == normalize(entity)), None)
+    if model is None or repo is None:
+        return None
+    read = next((m for m in repo.get("methods") or []
+                 if isinstance(m, dict)
+                 and codegen.classify_crud(m.get("name") or "") == "read_one"), None)
+    update = next((m for m in repo.get("methods") or []
+                   if isinstance(m, dict)
+                   and codegen.classify_crud(m.get("name") or "") == "update"), None)
+    if read is None or update is None:
+        return None
+    status = next((field.get("name") for field in model.get("fields") or []
+                   if isinstance(field, dict)
+                   and (normalize(field.get("name") or "") in ("status", "state")
+                        or normalize(field.get("name") or "").endswith("status"))), None)
+    if status is None:
+        return None
+    key = next((p.get("name") for p in method.get("params") or []
+                if isinstance(p, dict) and normalize(p.get("name") or "").endswith("id")),
+               None)
+    if key is None:
+        return None
+    target = {"cancel": "cancelled", "ship": "shipped", "close": "closed",
+              "reopen": "open", "approve": "approved",
+              "reject": "rejected"}[verb]
+    pk = primary_key_of(ctx, entity)
+    repo_cls = codegen.sanitize(repo.get("interface_name") or entity, "Repository")
+    update_kwargs = [f"{codegen.sanitize(status, 'kw')}={target!r}"]
+    stamp = next((field.get("name") for field in model.get("fields") or []
+                  if isinstance(field, dict)
+                  and normalize(field.get("name") or "")
+                  == normalize(target) + "at"), None)
+    if stamp:
+        update_kwargs.append(
+            f"{codegen.sanitize(stamp, 'kw')}=datetime.datetime.now()")
+    lines = [
+        f"{entity.lower()} = self._repos[{repo_cls!r}].{codegen.sanitize(read['name'], 'method')}({codegen.sanitize(key, 'param')})",
+        f"if {entity.lower()} is None:",
+        f"    raise {('errors.' + codegen.sanitize(_registered_error(ctx, entity))) if _registered_error(ctx, entity) else 'ValueError'}(f'{entity} not found')",
+    ]
+    if verb == "cancel":
+        child = None
+        for candidate in ctx.get("models") or []:
+            if not isinstance(candidate, dict) or not candidate.get("name"):
+                continue
+            fields = [field for field in candidate.get("fields") or []
+                      if isinstance(field, dict) and field.get("name")]
+            parent_fk = next((field for field in fields
+                              if isinstance(field.get("foreign_key"), dict)
+                              and normalize(field["foreign_key"].get("target_entity") or "")
+                              == normalize(entity)), None)
+            product_fk = _product_foreign_key(fields)
+            quantity = next((field for field in fields
+                             if normalize(field.get("name") or "") == "quantity"), None)
+            if parent_fk and product_fk and quantity:
+                child = (candidate, parent_fk, product_fk, quantity)
+                break
+        if child is not None:
+            child_model, parent_fk, product_fk, quantity_field = child
+            child_repo = next((repo for repo in ctx.get("repositories") or []
+                               if isinstance(repo, dict)
+                               and normalize(repo.get("entity") or "")
+                               == normalize(child_model["name"])), None)
+            product_name = (product_fk.get("foreign_key") or {}).get("target_entity") \
+                if isinstance(product_fk.get("foreign_key"), dict) else None
+            product_repo = next((repo for repo in ctx.get("repositories") or []
+                                 if isinstance(repo, dict)
+                                 and normalize(repo.get("entity") or "")
+                                 == normalize(product_name or "")), None)
+            product_model = model_of(ctx, product_name)
+            if child_repo and product_repo and product_model:
+                stock = next((field.get("name")
+                              for field in product_model.get("fields") or []
+                              if isinstance(field, dict)
+                              and "stock" in normalize(field.get("name") or "")), None)
+                product_pk = _declared_primary_key(ctx, product_name)
+                product_read = next(
+                    (m for m in product_repo.get("methods") or []
+                     if isinstance(m, dict)
+                     and normalize(m.get("name") or "") in
+                     ("readone", "getbyid", "findbyid", "readbyid")), None) \
+                    or next((m for m in product_repo.get("methods") or []
+                             if isinstance(m, dict)
+                             and codegen.classify_crud(m.get("name") or "") ==
+                             "read_one"
+                             and "stock" not in normalize(m.get("name") or "")),
+                            None)
+                product_update = next((m for m in product_repo.get("methods") or []
+                                       if isinstance(m, dict)
+                                       and codegen.classify_crud(m.get("name") or "") == "update"), None)
+                list_method = next((m for m in child_repo.get("methods") or []
+                                    if isinstance(m, dict)
+                                    and ("by" + normalize(entity) + "id")
+                                    in normalize(m.get("name") or "")), None) \
+                    or next((m for m in child_repo.get("methods") or []
+                             if isinstance(m, dict)
+                             and codegen.classify_crud(m.get("name") or "") == "read_all"), None)
+                if stock and product_pk and product_read and product_update and list_method:
+                    child_cls = codegen.sanitize(
+                        child_repo.get("interface_name") or child_model["name"],
+                        "Repository")
+                    product_cls = codegen.sanitize(
+                        product_repo.get("interface_name") or product_name,
+                        "Repository")
+                    list_params = [p.get("name") for p in list_method.get("params") or []
+                                   if isinstance(p, dict) and p.get("name")]
+                    call = (f"self._repos[{child_cls!r}]."
+                            f"{codegen.sanitize(list_method['name'], 'method')}("
+                            f"{codegen.sanitize(list_params[0], 'param')}={codegen.sanitize(key, 'param')})"
+                            if list_params else
+                            f"self._repos[{child_cls!r}]."
+                            f"{codegen.sanitize(list_method['name'], 'method')}()")
+                    lines += [
+                        f"for line in {call}:",
+                        f"    product = self._repos[{product_cls!r}].{codegen.sanitize(product_read['name'], 'method')}({codegen.sanitize(product_pk, 'param')}=line.{codegen.sanitize(product_fk['name'], 'attr')})",
+                        "    if product is None:",
+                        "        continue",
+                        f"    self._repos[{product_cls!r}].{codegen.sanitize(product_update['name'], 'method')}({codegen.sanitize(product_pk, 'param')}=product.{codegen.sanitize(product_pk, 'attr')}, {codegen.sanitize(stock, 'kw')}=product.{codegen.sanitize(stock, 'attr')} + line.{codegen.sanitize(quantity_field['name'], 'attr')})",
+                    ]
+    lines.append(
+        f"self._repos[{repo_cls!r}].{codegen.sanitize(update['name'], 'method')}({codegen.sanitize(pk, 'param')}={entity.lower()}.{codegen.sanitize(pk, 'attr')}, {', '.join(update_kwargs)})")
     return lines
 
 
@@ -5396,6 +5660,19 @@ def emit_services(ctx, repo_index, stats):
                 # wrap it in the store transaction like a multi-write contract.
                 atomic_extra.setdefault(cls, []).append(fname)
                 continue
+            transition = _service_transition_body(
+                ctx, name, method, params)
+            if transition is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical state transition]"""']
+                lines.extend("        " + line if line else ""
+                             for line in transition)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "state transition")
+                atomic_extra.setdefault(cls, []).append(fname)
+                continue
             confirm_stock = _service_confirm_stock_body(
                 ctx, name, method, params)
             if confirm_stock is not None:
@@ -5530,6 +5807,29 @@ def emit_services(ctx, repo_index, stats):
                 stats["implemented"] += 1
                 _record(stats, name, method["name"], strategy, True,
                         "overdue read")
+                continue
+            count_all = _service_count_all_body(ctx, name, method, params)
+            if count_all is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical count]"""']
+                lines.extend("        " + line if line else ""
+                             for line in count_all)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "count all")
+                continue
+            borrow_status = _service_borrow_status_body(
+                ctx, name, method, params)
+            if borrow_status is not None:
+                lines += ["", f"    def {fname}(self{', ' + declaration if declaration else ''}) -> {returns}:",
+                          f'        """{_docstring(method.get("description"))} '
+                          '[mechanical borrow status]"""']
+                lines.extend("        " + line if line else ""
+                             for line in borrow_status)
+                stats["implemented"] += 1
+                _record(stats, name, method["name"], strategy, True,
+                        "borrow status")
                 continue
             update_status = _service_update_status_body(
                 ctx, name, method, params)
@@ -13897,6 +14197,16 @@ def repair_service_dates(files):
         f"return {marker}(str(value))")
     text = text.replace("datetime.date.fromisoformat(", "_as_date(")
     text = text.replace(f"{marker}(", "datetime.date.fromisoformat(")
+    # A model body often slices a date field directly (`expense_date[:7]`)
+    # after `_as_date` has already turned the CLI value into a date object.
+    text = re.sub(
+        r"(\b[A-Za-z_]\w*\.\w*(?:date|_at))\s*\[",
+        lambda match: f"str({match.group(1)})[", text)
+    # The same body may compare a string date to a date-typed parameter.
+    text = re.sub(
+        r"(\b\w+_date_str)\s*([<>]=?)\s*(start_date|end_date|from_date|to_date)\b",
+        lambda match: (f"{match.group(1)} {match.group(2)} "
+                       f"str({match.group(3)})[:10]"), text)
     files["services.py"] = text
     return files
 

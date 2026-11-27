@@ -349,6 +349,12 @@ def main(argv=None):
             if any(worker.normalize(str(flag).lstrip("-")) in file_flags
                    for flag in flags):
                 continue
+            # A structured request/DTO flag (`--order-data`) cannot be
+            # supplied by a one-token CLI fixture; the explicit scenario owns
+            # that shape.
+            if any(worker.normalize(str(flag).lstrip("-")).endswith(
+                    ("data", "request", "payload", "dto")) for flag in flags):
+                continue
             args = (_args_from_flags(docs, flags, node, path) if flags
                     else worker._cli_args(docs, node, 1))
             if str(path[-1]).lower() in ("delete", "remove") and flags:
@@ -398,9 +404,11 @@ def main(argv=None):
                     if not isinstance(model, dict) or not model.get("name"):
                         continue
                     for field in model.get("fields") or []:
-                        if (isinstance(field, dict)
-                                and str(field.get("name")).lower()
-                                in ("state", "status")):
+                        if not isinstance(field, dict) or not field.get("name"):
+                            continue
+                        field_key = worker.normalize(field["name"])
+                        if (field_key in ("state", "status")
+                                or field_key.endswith("status")):
                             overrides[model["name"]] = {
                                 field["name"]: state_value}
                             break
