@@ -226,7 +226,7 @@ def review_one(directory: Path) -> dict[str, tuple[int, int]]:
     counts["grounding"] = review_grounding.run_review(
         str(directory), ask=_grounding_answer)
     counts["ties"] = review_ties.run_review(
-        str(directory), input_fn=lambda _prompt: "skip")
+        str(directory), input_fn=lambda _prompt: "1")
     counts["slots"] = review_slots.run_review(
         str(directory), input_fn=_slot_answer)
     counts["slots-deterministic"] = _answer_slots(directory)
