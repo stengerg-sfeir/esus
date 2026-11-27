@@ -5310,6 +5310,8 @@ def _service_place_order_body(ctx, method, params, returns):
     customer_read = next((m for m in customer_repo.get("methods") or []
                           if isinstance(m, dict)
                           and normalize(m.get("name") or "") == "readone"), None)
+    if customer_read is None:
+        return None
     line_model = None
     for candidate in ctx.get("models") or []:
         if not isinstance(candidate, dict) or not candidate.get("name"):
